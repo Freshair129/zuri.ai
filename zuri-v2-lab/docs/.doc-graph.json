@@ -10,7 +10,7 @@
     "coverage": {
       "requirements_with_code": "80% (16/20 FR; FR-017..020 planned)",
       "requirements_with_tests": "80% (16/20 FR; 100% of implemented)",
-      "code_with_structured_annotations": "0% (0/91) — migration opportunity",
+      "code_with_structured_annotations": "16 core files annotated (@req/@spec/@tested) — all Appendix D rows covered",
       "acceptance_criteria_pass": "100% (FINAL.md)"
     }
   },

@@ -4,13 +4,13 @@
   "generated_at": "2026-08-11T00:00:00Z",
   "project": "zuri-v2-lab",
   "scanned": { "documents": 18, "code_files": 91, "test_files": 11 },
-  "summary": { "total_checks": 10, "passed": 6, "warnings": 3, "critical": 0, "info": 1 },
+  "summary": { "total_checks": 10, "passed": 8, "warnings": 1, "critical": 0, "info": 1, "note": "WARN-1 (control blocks) and WARN-2 (annotations) resolved 2026-08-11; git initialized and pushed to origin" },
   "findings": [
     {
       "id": "WARN-1",
-      "severity": "warning",
+      "severity": "resolved",
       "check": "document-control",
-      "title": "5 build docs lack Document Control blocks",
+      "title": "5 build docs lack Document Control blocks — RESOLVED (control blocks added, v1.0.1)",
       "files": [
         "docs/ARCHITECTURE-NOTES.md",
         "docs/DB-MIGRATION-NOTES.md",
@@ -22,9 +22,9 @@
     },
     {
       "id": "WARN-2",
-      "severity": "warning",
+      "severity": "resolved",
       "check": "doc-code-symlinks",
-      "title": "0 structured annotations (@req/@spec) in 91 code files",
+      "title": "0 structured annotations — RESOLVED (@req/@spec/@tested added to 16 core files)",
       "details": "FR↔code edges rely on the hand-maintained Appendix D matrix (drift risk RSK-008). Requirement IDs were minted after the code was written.",
       "action": "Migrate: add '// @req FR-xxx' headers to the 11 service/engine files listed in Appendix D (~30 annotations total)"
     },
