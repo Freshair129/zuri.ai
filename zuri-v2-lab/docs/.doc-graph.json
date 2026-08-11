@@ -33,6 +33,8 @@
     { "id": "code:enums", "type": "code_file", "path": "src/lib/validation/enums.js", "title": "Zod enums (source of truth)", "hash": "5dad10a2", "status": "current", "last_verified": "2026-08-11" },
     { "id": "report:final", "type": "document", "path": ".agent/reports/FINAL.md", "title": "FINAL acceptance report", "hash": "21ed4216", "status": "current", "last_verified": "2026-08-11" },
     { "id": "spec:pack", "type": "document", "path": "../docs", "title": "Spec pack (12 source docs)", "hash": "", "status": "external", "last_verified": "2026-08-11" },
+    { "id": "doc:govibe-integration", "type": "document", "path": "docs/GOVIBE-INTEGRATION.md", "title": "GoVibe Integration (governance mapping)", "hash": "", "status": "current", "last_verified": "2026-08-12" },
+    { "id": "external:govibe", "type": "document", "path": "G:/govibe", "title": "GoVibe governance layer (candidates in .brain/inbound)", "hash": "", "status": "external", "last_verified": "2026-08-12" },
 
     { "id": "req:FR-001", "type": "requirement", "label": "Scope hierarchy CRUD", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
     { "id": "req:FR-002", "type": "requirement", "label": "Scope selectors + persistence", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
@@ -95,6 +97,9 @@
     { "from": "doc:zuri-integration", "to": "doc:db-migration-notes", "type": "references", "status": "current", "source": "manual" },
     { "from": "doc:agents", "to": "spec:pack", "type": "references", "status": "current", "source": "manual" },
     { "from": "doc:readme", "to": "report:final", "type": "references", "status": "current", "source": "manual" },
+    { "from": "doc:govibe-integration", "to": "external:govibe", "type": "references", "status": "current", "source": "manual" },
+    { "from": "doc:govibe-integration", "to": "doc:PRD-SDD-v1.0", "type": "references", "status": "current", "source": "manual" },
+    { "from": "doc:govibe-integration", "to": "doc:enterprise-api", "type": "references", "status": "current", "source": "manual" },
     { "from": "doc:agents", "to": "spec:pack", "type": "references", "status": "resolved", "reason": "AGENTS.md §1 contradiction แก้ที่ต้นทางแล้ว 2026-08-11 (owner confirmed standalone) — resolution note ฝังใน spec-pack AGENTS.md", "source": "manual" },
 
     { "from": "code:scope-service", "to": "req:FR-001", "type": "implements", "status": "current", "source": "traceability-matrix" },
