@@ -54,7 +54,7 @@
       "progressWeight": 1,
       "containers": [
         { "code": "OPS-V2-GOV", "subtype": "OPS_PROCESS", "title": "Doc governance + GoVibe integration", "status": "ACTIVE" },
-        { "code": "OPS-MERGE", "subtype": "OPS_PROCESS", "title": "ADR-002 merge conditions (keep option B affordable)", "status": "ACTIVE" }
+        { "code": "OPS-MERGE", "subtype": "OPS_PROCESS", "title": "V2 replaces V1 by reuse (ADR-003)", "status": "ACTIVE" }
       ],
       "items": [
         { "code": "G-DOCS3L", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "3-layer docs + doc-graph + @req annotations", "status": "DONE", "weight": 2 },
@@ -62,15 +62,23 @@
         { "code": "G-GOVIBE-REG", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "GoVibe candidates dropped in .brain/inbound", "status": "DONE", "weight": 1 },
         { "code": "G-GOVIBE-PROMOTE", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "Promote candidates through GoVibe gks gate", "status": "PLANNED", "weight": 1 },
         { "code": "G-DECISION-AB", "containerCode": "OPS-V2-GOV", "subtype": "APPROVAL", "title": "Owner decision: v1 module vs v2 foundation — decided A→B (ADR-002)", "status": "DONE", "weight": 2 },
-        { "code": "M-VOCAB", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "ADR-002 cond.1 — canonical scope vocabulary adopted in Zuri v1", "status": "PLANNED", "weight": 2 },
-        { "code": "M-BIZDIM", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "ADR-002 cond.2 — every new v1 table carries a business dimension", "status": "PLANNED", "weight": 2 },
-        { "code": "M-ADAPTER", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "ADR-002 cond.3 — scope adapter isolated to one deletable file", "status": "PLANNED", "weight": 2 },
-        { "code": "M-TRIGGER", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Watch B trigger: first customer needing cross-business CRM/identity", "status": "PLANNED", "weight": 1 }
+        { "code": "M-VOCAB", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "[cancelled by ADR-003] vocabulary adoption inside Zuri v1", "status": "CANCELLED", "weight": 1 },
+        { "code": "M-BIZDIM", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "[cancelled by ADR-003] business dimension on new v1 tables", "status": "CANCELLED", "weight": 1 },
+        { "code": "M-ADAPTER", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "[cancelled by ADR-003] mount PM inside Zuri v1", "status": "CANCELLED", "weight": 1 },
+        { "code": "M-TRIGGER", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "[cancelled by ADR-003] watch B trigger — B is now the plan", "status": "CANCELLED", "weight": 1 },
+        { "code": "R-PARITY", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Parity inventory: must-have / later / drop per module before cutover", "status": "PLANNED", "weight": 3 },
+        { "code": "R-IDENTITY", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Rebuild identity: Person/Membership + LINE login (the one thing not lifted)", "status": "PLANNED", "weight": 5 },
+        { "code": "R-CONTRACTS", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Contract tests over V1 endpoints before reimplementing internals", "status": "PLANNED", "weight": 3 },
+        { "code": "R-LINE-INTENT", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "LINE/AI as 5th intake surface on V2-native intent APIs", "status": "PLANNED", "weight": 5 },
+        { "code": "R-SINGLEWRITER", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Single-writer rule per tenant: OA + workers + writes flip atomically", "status": "PLANNED", "weight": 3 },
+        { "code": "R-PILOT", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Pilot one low-risk module end to end and measure real cost", "status": "PLANNED", "weight": 3 },
+        { "code": "R-CROSSBIZ", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Ship one cross-business screen early; time-box the useTenant shim", "status": "PLANNED", "weight": 2 },
+        { "code": "R-LASTDATE", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Set and hold the date of the final per-tenant cutover", "status": "PLANNED", "weight": 2 }
       ],
       "milestones": [],
       "gates": [
         { "code": "GATE-GOVIBE", "title": "GoVibe knowledge candidates promoted", "status": "OPEN", "required": false, "evidence": { "inbound": ["SYS--ZURI-V2-LAB", "CONCEPT--UNIFIED-INTAKE-PIPELINE"] } },
-        { "code": "GATE-AB", "title": "Integration direction decided (A: v1 module / B: v2 foundation)", "status": "PASSED", "required": true, "evidence": { "decision": "A→B under DECISION-BRIEF-AB §6 conditions", "decidedOn": "2026-08-12", "decidedBy": "Owen", "adr": "docs/ADR-002-INTEGRATION-DIRECTION.md", "brief": "zuri-v2-lab/docs/DECISION-BRIEF-AB.md", "assessment": "docs/ZURI-INTEGRATION-ASSESSMENT.md" } }
+        { "code": "GATE-AB", "title": "Integration direction decided (superseded: V2 replaces V1 by reuse)", "status": "PASSED", "required": true, "evidence": { "decision": "V2 replaces V1; lift V1 web UI except auth; per-module cutover", "decidedOn": "2026-08-12", "decidedBy": "Owen", "adr": "docs/ADR-003-V2-REPLACES-V1-BY-REUSE.md", "supersedes": "docs/ADR-002-INTEGRATION-DIRECTION.md", "independentReview": "Fable 5 — RIGHT WITH CONDITIONS (D3/D6/D7/D8)", "brief": "zuri-v2-lab/docs/DECISION-BRIEF-AB.md" } }
       ]
     }
   ],

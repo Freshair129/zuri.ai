@@ -1,8 +1,13 @@
 # ADR-002 — Ship Project Manager as a Zuri v1 Module, Promote to v2 on Trigger
 
-**Status:** Accepted
+**Status:** Superseded by [ADR-003](ADR-003-V2-REPLACES-V1-BY-REUSE.md) (2026-08-12)
 **Date:** 2026-08-12
 **Decided by:** Owen (owner)
+
+> **Superseded the same day.** The owner changed the destination: V2 now replaces V1
+> outright (LINE-first, AI-native, web demoted to back-office), which makes option A
+> — mounting the Project Manager into V1 — throwaway work. The measured basis below
+> stays valid and is carried into ADR-003; only the direction changed.
 **Supersedes:** the open decision point in [ADR-001](ADR-001-STANDALONE-ZURI-V2.md) §"Integration decision point"
 **Evidence:** `zuri-v2-lab/docs/DECISION-BRIEF-AB.md`, `zuri-v2-lab/docs/ZURI-INTEGRATION-ASSESSMENT.md`
 

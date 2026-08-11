@@ -23,9 +23,15 @@ Revisit merge-vs-rebuild at the integration phase.
 > Resolution note (2026-08-11, confirmed by owner): an earlier revision of this
 > section both forbade and required copying `G:\zuri`. Standalone build is the
 > confirmed interpretation, consistent with MASTER-PROMPT scope and ADR-001.
+>
+> **Amendment (2026-08-12, ADR-003):** the destination changed — V2 now replaces V1
+> by reusing it. **Copying V1 → V2 is permitted and expected** (web UI except
+> auth/identity, lifted per module at that module's cutover). Everything below still
+> holds: `G:\zuri` itself is never edited, its database is never mutated, and its
+> auth is never changed. The rule is one-directional reuse, not shared ownership.
+
 Do not:
 - edit it
-- copy its whole codebase
 - migrate its production database
 - change its auth
 - change its Tenant semantics in place
