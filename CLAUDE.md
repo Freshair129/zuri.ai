@@ -65,6 +65,44 @@ model, a requirement or a document. Both write machine-readable reports
 (`docs/.doc-graph.json`, `docs/.preflight-report.json`) that the roadmap and
 GoVibe Mission Control read.
 
+### Where documentation lives (ADR-004)
+
+```text
+docs/PRODUCT-V2.md              Layer 0 — what V2 is (surfaces, scope chain, rules)
+docs/ai-system/                 LINE + AI: intent pipeline, prompts, PDPA, model lifecycle
+docs/replacement/               replacing V1: parity inventory, cutover runbook, contract tests
+docs/ADR-*.md                   decisions (ADR-003 = current direction, ADR-004 = this structure)
+zuri-v2-lab/docs/
+  PRD-SDD-v1.0.md               the Project Manager MODULE — the FR/NFR/BR/SEC/SDD registry
+  FEATURE-MAP.md                GENERATED index of every feature + cutover state — never hand-edit
+  features/FR-0xx-*.md          one note per feature that has rationale worth recording
+  appendices/                   A api · B db · D traceability (generated) · E risks · F glossary
+  roadmap/                      live delivery state (GoVibe Mission Control reads this)
+```
+
+Feature notes declare their feature in frontmatter (`feature: FR-020`), so the map
+links them by id — moving or renaming a note never breaks anything. Write one only
+when there is a real decision to explain; otherwise the feature already appears in
+`FEATURE-MAP.md` with its code, tests and task. Full statement: AGENTS.md §19.
+
+### Order of governance work, and the id contract
+
+Whichever step changes the **meaning** of another step's input runs first. Moving
+or renaming files never invalidates a plan (it breaks paths, which preflight
+reports); changing scope or identity invalidates everything downstream. So:
+
+```text
+doc-architect → docs:graph + docs:preflight → implementation-plan → subagent-driven
+```
+
+**Requirement ids are keys, not labels.** `FR-xxx` / `NFR-xxx` / `BR-xxx` /
+`SEC-xxx` / `SDD-xxx` keep their meaning for the life of the project. Move, rename,
+split or merge documents freely — but never renumber an id, never reuse one for a
+different statement, and never recycle a dropped one (mark it superseded and leave
+the number burnt). Plans, annotations, tests, Appendix D and the doc graph all key
+off them. Same rule as ADR-003 §D4 one level up: change the label, never the key.
+Full statement: AGENTS.md §18.
+
 ### Doc-code annotations
 
 Every non-trivial source file carries these; the graph is built from them, so a

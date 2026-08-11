@@ -1,6 +1,6 @@
 // @req FR-020 — adaptive shell: the UI shows only the hierarchy levels that
 // actually offer a choice, inferred from data (never a user-facing setting).
-// @spec docs/UX-SINGLE-VS-MULTI-BUSINESS.md
+// @spec docs/features/FR-020-adaptive-shell.md
 // @tested tests/unit/shell-mode.test.js, tests/e2e/smoke.spec.js
 //
 // The schema always stores the full chain (Portfolio → Tenant → Business →

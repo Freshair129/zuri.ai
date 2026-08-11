@@ -1,3 +1,9 @@
+---
+feature: FR-019
+module: project-manager
+source: v2-native
+---
+
 # Enterprise API Surface — Backend-first Integration (Salesforce-style)
 
 | Field | Value |

@@ -15,6 +15,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SPEC_PACK = path.resolve(ROOT, '..', 'docs')
 const GRAPH_PATH = path.join(ROOT, 'docs', '.doc-graph.json')
 const MATRIX_PATH = path.join(ROOT, 'docs', 'appendices', 'D-traceability.md')
+const FEATURE_MAP_PATH = path.join(ROOT, 'docs', 'FEATURE-MAP.md')
 
 const SKIP_DIRS = new Set(['node_modules', '.next', '.git', 'test-results', 'playwright-report', 'migrations'])
 
@@ -277,6 +278,75 @@ ${section(['BR', 'SEC', 'SDD'], 'Business rules, security rules and design decis
 ${section(['NFR'], 'Non-functional requirements', ['implements', 'follows'], 'Evidenced by the acceptance matrix in `.agent/reports/FINAL.md` (build output, e2e runs, determinism tests) rather than by a single file.')}`
 }
 
+// -------------------------------------------------------- FEATURE-MAP.md
+// One generated index: feature → module → where it came from → status → code →
+// tests → design doc → roadmap task. Once V1 modules are lifted in, the
+// "source" column doubles as the cutover dashboard.
+function featureMap(nodes, edges) {
+  const short = (id) => id.replace(/^(code|test):/, '').replace(/^src\/|^tests\//, '')
+  const moduleOf = (p) =>
+    /modules\/([^/]+)\//.exec(p)?.[1] || (p.startsWith('prisma/') ? 'seed' : 'shell')
+
+  // Feature docs declare which feature they explain via frontmatter.
+  const featureDocs = new Map()
+  for (const f of walk(path.join(ROOT, 'docs', 'features'), ['.md'])) {
+    const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read(f))?.[1] || ''
+    const id = /^feature:\s*(\S+)/m.exec(fm)?.[1]
+    if (id) featureDocs.set(id, { path: rel(f), source: /^source:\s*(\S+)/m.exec(fm)?.[1] || 'v2-native' })
+  }
+
+  // Roadmap rows that name a requirement id own that feature's delivery.
+  const tasks = new Map()
+  for (const f of walk(path.join(ROOT, 'docs', 'roadmap'), ['.md'])) {
+    for (const line of read(f).split(/\r?\n/)) {
+      if (!line.startsWith('|')) continue
+      const taskId = line.split('|')[1]?.trim()
+      if (!/^TASK-/.test(taskId)) continue
+      for (const req of line.match(ID_LIST) || []) {
+        if (!tasks.has(req)) tasks.set(req, taskId)
+      }
+    }
+  }
+
+  const rows = nodes
+    .filter((n) => n.type === 'requirement' && n.family === 'FR')
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((r) => {
+      const fid = r.id.slice(4)
+      const code = edges.filter((e) => e.to === r.id && e.type === 'implements').map((e) => short(e.from))
+      const tests = edges.filter((e) => e.to === r.id && e.type === 'verifies').length
+      const doc = featureDocs.get(fid)
+      const modules = [...new Set(code.map(moduleOf))].join(', ') || '—'
+      const status = code.length === 0 ? '🔜 planned' : r.declared === 'planned' ? '🟠 built, not declared' : '✅ live'
+      const head = code.length > 2 ? `\`${code[0]}\` +${code.length - 1}` : code.map((c) => `\`${c}\``).join(', ') || '—'
+      return `| ${fid} | ${r.label} | ${modules} | ${doc?.source || 'v2-native'} | ${status} | ${head} | ${tests} | ${doc ? `[doc](${doc.path.replace('docs/', '')})` : '—'} | ${tasks.get(fid) || '—'} |`
+    })
+
+  return `# Feature Map
+
+| Field | Value |
+|-------|-------|
+| **Version** | 1.0.0 |
+| **Status** | Auto-generated |
+| **Generator** | \`scripts/doc-graph.mjs\` (RWANG doc-graph) |
+
+> One index for every feature: what it is, which module owns it, whether it is
+> V2-native or lifted from V1, and where its code, tests, design note and delivery
+> task live. Regenerate with \`npm run docs:graph\` — never hand-edit.
+>
+> **Source** is the cutover dashboard: \`v2-native\` (built here), \`lifted-from-v1\`
+> (V1 UI reused per ADR-003), \`pending\` (not moved yet).
+
+| ID | Feature | Module | Source | Status | Code | Tests | Design note | Task |
+|---|---|---|---|---|---|---|---|---|
+${rows.join('\n')}
+
+Design notes live in \`docs/features/\` and declare their feature in frontmatter
+(\`feature: FR-020\`), so moving or renaming a note never breaks this table — the
+link is keyed by requirement id, not by path (AGENTS.md §18).
+`
+}
+
 // -------------------------------------------------------------------- main
 const previous = existsSync(GRAPH_PATH) ? JSON.parse(read(GRAPH_PATH)) : null
 const { nodes, edges, dangling } = build()
@@ -325,6 +395,7 @@ if (process.argv.includes('--check')) {
 
 writeFileSync(GRAPH_PATH, serialized)
 writeFileSync(MATRIX_PATH, matrix(nodes, edges, cov))
+writeFileSync(FEATURE_MAP_PATH, featureMap(nodes, edges))
 
 console.log(`nodes ${nodes.length} · edges ${edges.length} · dangling ${dangling.length}`)
 console.log(`FR with code ${cov.fr_with_code} · FR with tests ${cov.fr_with_tests} · rules anchored ${cov.rules_anchored_in_code}`)

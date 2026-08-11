@@ -3,15 +3,15 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 123,
-    "total_edges": 211,
+    "total_nodes": 133,
+    "total_edges": 214,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 5,
-      "document": 8,
+      "document": 9,
       "roadmap": 1,
-      "spec": 10,
-      "adr": 3,
+      "spec": 18,
+      "adr": 4,
       "requirement": 51,
       "test": 14,
       "code_file": 31
@@ -35,9 +35,20 @@
   },
   "drift": {
     "changed": [
-      "doc:D-traceability"
+      "doc:FEATURE-MAP",
+      "doc:PRD-SDD-v1.0"
     ],
-    "added": [],
+    "added": [
+      "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
+      "spec:ethics-governance",
+      "spec:intent-pipeline",
+      "spec:model-lifecycle",
+      "spec:prompt-engineering",
+      "spec:PRODUCT-V2",
+      "spec:CONTRACT-TESTS",
+      "spec:CUTOVER-RUNBOOK",
+      "spec:PARITY-INVENTORY"
+    ],
     "removed": []
   },
   "nodes": [
@@ -209,14 +220,15 @@
       "id": "code:src/lib/shell-mode.js",
       "type": "code_file",
       "path": "src/lib/shell-mode.js",
-      "hash": "594b0a0c",
+      "hash": "45eb8a39",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-020"
         ],
         "@spec": [
-          "docs/UX-SINGLE-VS-MULTI-BUSINESS.md"
+          "FR-020",
+          "docs/features/FR-020-adaptive-shell.md"
         ],
         "@tested": [
           "tests/unit/shell-mode.test.js",
@@ -245,14 +257,15 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "cd117885",
+      "hash": "9a6a8999",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
         ],
         "@spec": [
-          "docs/ENTERPRISE-API-SURFACE.md"
+          "FR-019",
+          "docs/features/FR-019-enterprise-api.md"
         ],
         "@tested": [
           "tests/integration/openapi-docs.test.js"
@@ -427,14 +440,15 @@
       "id": "code:src/modules/project-manager/import/external-ref.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/external-ref.js",
-      "hash": "7463d4c7",
+      "hash": "4b6cec6e",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
         ],
         "@spec": [
-          "docs/ENTERPRISE-API-SURFACE.md"
+          "FR-019",
+          "docs/features/FR-019-enterprise-api.md"
         ],
         "@tested": [
           "tests/integration/external-ref-import.test.js"
@@ -604,7 +618,7 @@
       "version": "2.0.0",
       "doc_status": "Auto-generated",
       "hash": "00b0c5fc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -633,17 +647,7 @@
       "title": "Appendix E — Risk Matrix",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "34691be1",
-      "status": "current"
-    },
-    {
-      "id": "doc:ENTERPRISE-API-SURFACE",
-      "type": "document",
-      "path": "docs/ENTERPRISE-API-SURFACE.md",
-      "title": "Enterprise API Surface — Backend-first Integration (Salesforce-style)",
-      "version": "1.1.0",
-      "doc_status": "Implemented (FR-019)",
-      "hash": "dfaac6a1",
+      "hash": "3ffef533",
       "status": "current"
     },
     {
@@ -654,6 +658,36 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "5d5531ac",
+      "status": "current"
+    },
+    {
+      "id": "doc:FEATURE-MAP",
+      "type": "document",
+      "path": "docs/FEATURE-MAP.md",
+      "title": "Feature Map",
+      "version": "1.0.0",
+      "doc_status": "Auto-generated",
+      "hash": "3f48a5aa",
+      "status": "changed"
+    },
+    {
+      "id": "doc:FR-019-enterprise-api",
+      "type": "document",
+      "path": "docs/features/FR-019-enterprise-api.md",
+      "title": "Enterprise API Surface — Backend-first Integration (Salesforce-style)",
+      "version": "1.1.0",
+      "doc_status": "Implemented (FR-019)",
+      "hash": "2934fccb",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-020-adaptive-shell",
+      "type": "document",
+      "path": "docs/features/FR-020-adaptive-shell.md",
+      "title": "UX Spec — Single-Business vs Multi-Business Owner",
+      "version": "1.1.0",
+      "doc_status": "Implemented (FR-020)",
+      "hash": "b2693c6b",
       "status": "current"
     },
     {
@@ -670,28 +704,18 @@
       "id": "doc:PRD-SDD-v1.0",
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
-      "title": "Zuri v2 Project Manager — PRD & SDD",
+      "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.0.2",
       "doc_status": "Draft",
-      "hash": "fd1f9663",
-      "status": "current"
+      "hash": "335d3537",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-zuri-v2-lab",
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-zuri-v2-lab.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
-      "hash": "d3e15870",
-      "status": "current"
-    },
-    {
-      "id": "doc:UX-SINGLE-VS-MULTI-BUSINESS",
-      "type": "document",
-      "path": "docs/UX-SINGLE-VS-MULTI-BUSINESS.md",
-      "title": "UX Spec — Single-Business vs Multi-Business Owner",
-      "version": "1.1.0",
-      "doc_status": "Implemented (FR-020)",
-      "hash": "cb2362d5",
+      "hash": "4433a64f",
       "status": "current"
     },
     {
@@ -1196,6 +1220,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
+      "type": "adr",
+      "path": "docs/ADR-004-DOCUMENTATION-ARCHITECTURE.md",
+      "title": "ADR-004 — Documentation Architecture: Product Layer, Feature-Driven Notes, Generated Index",
+      "hash": "c4e87ce7",
+      "status": "current"
+    },
+    {
       "id": "spec:ARCHITECTURE",
       "type": "spec",
       "path": "docs/ARCHITECTURE.md",
@@ -1204,11 +1236,41 @@
       "status": "current"
     },
     {
+      "id": "spec:CONTRACT-TESTS",
+      "type": "spec",
+      "path": "docs/replacement/CONTRACT-TESTS.md",
+      "title": "Contract Tests — freezing V1's endpoint behaviour before reimplementing it",
+      "version": "0.1.0",
+      "doc_status": "Skeleton — to be filled by `TASK-V2-CONTRACTS`",
+      "hash": "09ca7851",
+      "status": "current"
+    },
+    {
+      "id": "spec:CUTOVER-RUNBOOK",
+      "type": "spec",
+      "path": "docs/replacement/CUTOVER-RUNBOOK.md",
+      "title": "Cutover Runbook — one tenant at a time",
+      "version": "0.1.0",
+      "doc_status": "Skeleton — to be completed by `TASK-V2-CUTOVER-RULES` before any cutover",
+      "hash": "693bc884",
+      "status": "current"
+    },
+    {
       "id": "spec:DOMAIN-MODEL",
       "type": "spec",
       "path": "docs/DOMAIN-MODEL.md",
       "title": "Domain Model",
       "hash": "8a6a9333",
+      "status": "current"
+    },
+    {
+      "id": "spec:ethics-governance",
+      "type": "spec",
+      "path": "docs/ai-system/ethics-governance.md",
+      "title": "AI Ethics & Data Governance (PDPA)",
+      "version": "1.0.0",
+      "doc_status": "Draft — blocking for `TASK-V2-LINE-INTENT`",
+      "hash": "6c23a732",
       "status": "current"
     },
     {
@@ -1233,6 +1295,56 @@
       "path": "docs/INTEGRATION-MAP-ZURI.md",
       "title": "Future Integration Map — Current Zuri → Zuri v2",
       "hash": "d7219230",
+      "status": "current"
+    },
+    {
+      "id": "spec:intent-pipeline",
+      "type": "spec",
+      "path": "docs/ai-system/intent-pipeline.md",
+      "title": "AI Intent Pipeline — LINE as the fifth intake surface",
+      "version": "1.0.0",
+      "doc_status": "Draft — not implemented (`TASK-V2-LINE-INTENT`)",
+      "hash": "15e7b203",
+      "status": "current"
+    },
+    {
+      "id": "spec:model-lifecycle",
+      "type": "spec",
+      "path": "docs/ai-system/model-lifecycle.md",
+      "title": "Model Lifecycle",
+      "version": "1.0.0",
+      "doc_status": "Draft",
+      "hash": "9c35127c",
+      "status": "current"
+    },
+    {
+      "id": "spec:PARITY-INVENTORY",
+      "type": "spec",
+      "path": "docs/replacement/PARITY-INVENTORY.md",
+      "title": "Parity Inventory — what must exist in V2 before a tenant can cut over",
+      "version": "0.1.0",
+      "doc_status": "Skeleton — to be filled by `TASK-V2-PARITY` (read-only scan of `G:\\zuri`)",
+      "hash": "329baad9",
+      "status": "current"
+    },
+    {
+      "id": "spec:PRODUCT-V2",
+      "type": "spec",
+      "path": "docs/PRODUCT-V2.md",
+      "title": "Zuri V2 — Product Definition",
+      "version": "1.0.0",
+      "doc_status": "Draft",
+      "hash": "3aa1b80e",
+      "status": "current"
+    },
+    {
+      "id": "spec:prompt-engineering",
+      "type": "spec",
+      "path": "docs/ai-system/prompt-engineering.md",
+      "title": "Prompt Engineering Guidelines",
+      "version": "1.0.0",
+      "doc_status": "Draft",
+      "hash": "fae6e398",
       "status": "current"
     },
     {
@@ -1488,7 +1600,7 @@
     },
     {
       "from": "code:src/lib/shell-mode.js",
-      "to": "doc:UX-SINGLE-VS-MULTI-BUSINESS",
+      "to": "doc:FR-020-adaptive-shell",
       "type": "references",
       "status": "current",
       "source": "annotation"
@@ -1497,6 +1609,13 @@
       "from": "code:src/lib/shell-mode.js",
       "to": "req:FR-020",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/shell-mode.js",
+      "to": "req:FR-020",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -1516,7 +1635,7 @@
     },
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
-      "to": "doc:ENTERPRISE-API-SURFACE",
+      "to": "doc:FR-019-enterprise-api",
       "type": "references",
       "status": "current",
       "source": "annotation"
@@ -1525,6 +1644,13 @@
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "req:FR-019",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-019",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -1663,7 +1789,7 @@
     },
     {
       "from": "code:src/modules/project-manager/import/external-ref.js",
-      "to": "doc:ENTERPRISE-API-SURFACE",
+      "to": "doc:FR-019-enterprise-api",
       "type": "references",
       "status": "current",
       "source": "annotation"
@@ -1672,6 +1798,13 @@
       "from": "code:src/modules/project-manager/import/external-ref.js",
       "to": "req:FR-019",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/external-ref.js",
+      "to": "req:FR-019",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },

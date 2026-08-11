@@ -347,3 +347,40 @@ silently detaches every one of them.
 
 Same principle as ADR-003 §D4 applies one level up: **change the label, never the
 key** — UUIDs for data, requirement ids for documents.
+
+### 19. Documentation architecture (what lives where)
+
+Set by [ADR-004](docs/ADR-004-DOCUMENTATION-ARCHITECTURE.md). Four layers, and only
+one of them is written by hand at feature level:
+
+```text
+Layer 0  docs/PRODUCT-V2.md            what Zuri V2 is: surfaces, scope chain, non-negotiables
+Layer 1-2  zuri-v2-lab/docs/PRD-SDD-v1.0.md   the Project Manager MODULE (FR/NFR/BR/SEC/SDD registry)
+Layer 3  docs/ai-system/               intent pipeline · prompts · PDPA/ethics · model lifecycle
+         docs/replacement/             parity inventory · cutover runbook · contract tests
+Feature  zuri-v2-lab/docs/features/    one note per feature that has rationale worth recording
+Index    zuri-v2-lab/docs/FEATURE-MAP.md        GENERATED — never hand-edit
+Appendix zuri-v2-lab/docs/appendices/  A api · B db · C model cards · D traceability (generated) · E risks · F glossary
+```
+
+**Feature notes** carry frontmatter so the generator can link them by id, not path:
+
+```yaml
+---
+feature: FR-020
+module: project-manager
+source: v2-native        # or lifted-from-v1 / pending
+---
+```
+
+Write a feature note **only when there is rationale**: alternatives considered,
+constraints, why this shape. A feature with no interesting decisions needs no file —
+it already appears in `FEATURE-MAP.md` with its code, tests and task.
+
+**`FEATURE-MAP.md` is derived**, from the PRD registry + `@req` annotations + test
+edges + feature frontmatter + roadmap rows. Its `source` column is also the cutover
+dashboard for ADR-003. Editing it by hand creates a third copy of facts that already
+live in two places — exactly the drift the generators exist to prevent.
+
+When adding a new document, decide its layer first. If it does not fit one of the
+five slots above, that is a signal the structure needs an ADR, not a stray file.

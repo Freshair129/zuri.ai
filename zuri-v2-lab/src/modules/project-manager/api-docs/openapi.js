@@ -5,7 +5,7 @@ import { EXECUTION_MODES, PROGRESS_STRATEGIES } from '@/lib/validation/enums'
 
 // @req FR-019 — OpenAPI 3 generated FROM the Zod schemas that actually run at
 // request time, so the integration docs cannot drift from validation.
-// @spec docs/ENTERPRISE-API-SURFACE.md
+// @spec docs/features/FR-019-enterprise-api.md
 // @tested tests/integration/openapi-docs.test.js
 
 extendZodWithOpenApi(z)

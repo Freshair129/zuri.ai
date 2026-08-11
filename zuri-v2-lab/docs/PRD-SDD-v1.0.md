@@ -1,4 +1,9 @@
-# Zuri v2 Project Manager — PRD & SDD
+# Zuri V2 — Project Manager Module: PRD & SDD
+
+> **Scope of this document: the Project Manager module of Zuri V2**, not the whole
+> product. What V2 is as a product — its surfaces, scope chain and non-negotiables —
+> is `../../docs/PRODUCT-V2.md` (Layer 0). The live index of every feature is
+> `FEATURE-MAP.md` (generated). Structure set by ADR-004.
 
 | Field | Value |
 |-------|-------|
@@ -17,6 +22,7 @@
 | 1.0.1 | 2026-08-12 | Claude | FR-017 (UI wizard), FR-018 (Excel intake), FR-020 (adaptive shell) delivered → ✅ |
 | 1.0.2 | 2026-08-12 | Claude | FR-019 (Enterprise API: ExternalRef, envelope 1.1, OpenAPI from Zod) → ✅ — intake phase complete |
 | 1.0.3 | 2026-08-12 | Claude | ADR-003 fallout: SDD-001 superseded; SEC-004 flagged as about to become false; SEC-005 raised to P0; SDD-008 risk recorded |
+| 1.1.0 | 2026-08-12 | Claude | ADR-004: rescoped as the Project Manager **module** of V2; feature notes moved to `features/`; ids unchanged |
 
 ## Referenced Standards
 
@@ -30,7 +36,7 @@ Spec pack: `../../docs/` — START-HERE, AGENTS.md, ADR-001, ARCHITECTURE, DOMAI
 EXECUTION-MODES, IMPLEMENTATION-PLAN, ACCEPTANCE-CRITERIA, TEST-PLAN, UI-DESIGN-SYSTEM,
 ROUTES-SITEMAP, INTEGRATION-MAP-ZURI, ZURI-V2-HANDOFF.
 Build docs: `ARCHITECTURE-NOTES.md`, `DB-MIGRATION-NOTES.md`, `ZURI-INTEGRATION-ASSESSMENT.md`,
-`UX-SINGLE-VS-MULTI-BUSINESS.md`, `ENTERPRISE-API-SURFACE.md`, `../.agent/reports/FINAL.md`.
+`features/FR-020-adaptive-shell.md`, `features/FR-019-enterprise-api.md`, `../.agent/reports/FINAL.md`.
 
 ---
 
@@ -41,17 +47,17 @@ Build docs: `ARCHITECTURE-NOTES.md`, `DB-MIGRATION-NOTES.md`, `ZURI-INTEGRATION-
 Offline-first Project Manager ที่รองรับ business execution และ software execution
 ในระบบเดียว — ธุรกิจหนึ่งโปรเจกต์ผสม workstream ได้ 7 โหมด (Software Sprint,
 Data Migration, B2B Sales, B2C Campaign, Product Launch, Operations, Business
-Expansion) บนโมเดลข้อมูลกลางตัวเดียว เป็นโมดูลแรกของ Zuri v2 (ADR-001: สร้าง
-standalone ก่อน ไม่แตะ Zuri v1)
+Expansion) บนโมเดลข้อมูลกลางตัวเดียว — เป็น**โมดูลแรกของ Zuri V2** ที่สร้างเสร็จก่อน
+โมดูลอื่นที่จะยกมาจาก V1 (ADR-003: V2 มาแทน V1 ด้วยการ reuse)
 
 ## 1.2 Personas & use cases
 
 | Persona | Use case หลัก | อ้างอิง |
 |---|---|---|
-| Owen A — เจ้าของธุรกิจเดียว | เข้าแอปเห็นงานทันที, สร้างโปรเจกต์จากเป้าหมาย, ไม่เจอศัพท์โครงสร้าง | UX-SINGLE-VS-MULTI-BUSINESS.md (stories A1–A4) |
+| Owen A — เจ้าของธุรกิจเดียว | เข้าแอปเห็นงานทันที, สร้างโปรเจกต์จากเป้าหมาย, ไม่เจอศัพท์โครงสร้าง | features/FR-020-adaptive-shell.md (stories A1–A4) |
 | Owen B — เจ้าของหลายธุรกิจ | Portfolio overview, สลับธุรกิจ 1 คลิก, isolation ระหว่างธุรกิจ, งานข้ามธุรกิจ | เดียวกัน (stories B1–B5) |
 | ผู้ใช้กระดาษ/Excel | ดาวน์โหลด template → กรอก → อัปโหลด → dry run รายแถว | v0.1 pattern (`import-data/`) |
-| Enterprise integrator | upsert ผ่าน API ด้วย external ID ของระบบตัวเอง ไม่ใช้ UI | ENTERPRISE-API-SURFACE.md |
+| Enterprise integrator | upsert ผ่าน API ด้วย external ID ของระบบตัวเอง ไม่ใช้ UI | features/FR-019-enterprise-api.md |
 | Planning agent | ส่ง PlanEnvelope JSON เข้า pipeline import | contracts/plan-envelope.schema.json |
 
 ## 1.3 Functional requirements

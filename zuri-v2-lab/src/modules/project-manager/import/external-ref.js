@@ -1,7 +1,7 @@
 import prisma from '@/lib/db'
 
 // @req FR-019 — validate a customer's existing core ids against our records.
-// @spec docs/ENTERPRISE-API-SURFACE.md
+// @spec docs/features/FR-019-enterprise-api.md
 // @tested tests/integration/external-ref-import.test.js
 //
 // Identity resolution order: externalRef → code → create new.
