@@ -66,7 +66,7 @@
         { "code": "M-BIZDIM", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "[cancelled by ADR-003] business dimension on new v1 tables", "status": "CANCELLED", "weight": 1 },
         { "code": "M-ADAPTER", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "[cancelled by ADR-003] mount PM inside Zuri v1", "status": "CANCELLED", "weight": 1 },
         { "code": "M-TRIGGER", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "[cancelled by ADR-003] watch B trigger — B is now the plan", "status": "CANCELLED", "weight": 1 },
-        { "code": "R-PARITY", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Parity inventory: must-have / later / drop per module before cutover", "status": "PLANNED", "weight": 3 },
+        { "code": "R-PARITY", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Parity inventory: must-have / later / drop per module before cutover", "status": "DONE", "weight": 3 },
         { "code": "R-IDENTITY", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Rebuild identity: Person/Membership + LINE login (the one thing not lifted)", "status": "PLANNED", "weight": 5 },
         { "code": "R-CONTRACTS", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Contract tests over V1 endpoints before reimplementing internals", "status": "PLANNED", "weight": 3 },
         { "code": "R-LINE-INTENT", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "LINE/AI as 5th intake surface on V2-native intent APIs", "status": "PLANNED", "weight": 5 },

@@ -36,14 +36,10 @@
   },
   "drift": {
     "changed": [
-      "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
-      "spec:PRODUCT-V2",
-      "spec:IMPLEMENTATION-PLAN-V2-REPLACE",
-      "spec:PARITY-INVENTORY"
+      "doc:ROADMAP-zuri-v2-lab",
+      "spec:.rwang-progress"
     ],
-    "added": [
-      "spec:parity-gaps"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -710,8 +706,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-zuri-v2-lab.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
-      "hash": "4433a64f",
-      "status": "current"
+      "hash": "c7589977",
+      "status": "changed"
     },
     {
       "id": "doc:ZURI-INTEGRATION-ASSESSMENT",
@@ -1187,8 +1183,8 @@
       "type": "spec",
       "path": "docs/.rwang-progress.md",
       "title": "RWANG Subagent Progress Ledger — TASK-V2-PARITY",
-      "hash": "802b1a2b",
-      "status": "current"
+      "hash": "202bfd30",
+      "status": "changed"
     },
     {
       "id": "spec:ACCEPTANCE-CRITERIA",
@@ -1220,7 +1216,7 @@
       "path": "docs/ADR-003-V2-REPLACES-V1-BY-REUSE.md",
       "title": "ADR-003 — V2 Replaces V1 by Reusing It (Everything Except Auth)",
       "hash": "a1a481dd",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
@@ -1316,7 +1312,7 @@
       "version": "1.0.0",
       "doc_status": "Draft — awaiting owner sign-off on §4 (capacity) and §6 (first cutover)",
       "hash": "fbc24459",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:INTEGRATION-MAP-ZURI",
@@ -1394,7 +1390,7 @@
       "version": "1.0.0",
       "doc_status": "Complete (first pass) — verdicts are recommendations; the owner confirms",
       "hash": "210bdf2b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:parity-operations",
@@ -1428,7 +1424,7 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "344143e7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:prompt-engineering",
