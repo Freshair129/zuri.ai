@@ -28,12 +28,21 @@ Two surfaces, deliberately unequal:
 | Surface | Role | Why |
 |---|---|---|
 | **LINE** | **primary** — AI-native intake and interaction | Where the user already is; conversation is the fastest input for a shop owner |
-| **Web** | back-office console — detail, complex edits, audit | Some work cannot be a chat thread: POS cashier, kitchen, reconciliation, reports |
+| **Web** | back-office console — detail, complex edits, audit | Some work cannot be a chat thread: POS cashier, the `/runner` kitchen display (hard-wired as the boot page for iOS tablets), class attendance, reconciliation, reports |
 
 Consequence: web screens are **reused from V1, not redesigned** — a back-office
 console earns its keep through completeness at low cost. Auth/identity is the one
 thing rebuilt, because V1's model (one login per shop) cannot express an owner with
 several businesses.
+
+### 1.1 What V1 is — corrected 2026-08-12
+
+V1 is a **culinary-school SaaS**: recipes tied to courses, QR class attendance, and
+credential ladders (`BASIC_30H` / `PRO_111H` / `MASTER_201H`), with POS, CRM and a LINE
+inbox around it. An earlier draft of this document called it "SMB shops (restaurants
+etc)" — that was wrong, and it matters: courses, enrollment and certificates are core
+domain, so they are must-have at cutover, not peripheral. Established by the
+`TASK-V2-PARITY` scan; see `replacement/PARITY-INVENTORY.md` §1.
 
 ## 2. Scope hierarchy (the thing V1 could not express)
 

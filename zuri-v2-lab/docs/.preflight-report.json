@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 39,
+    "docs": 49,
     "v1_inherited": 234,
     "routes": 32,
     "test_files": 14
@@ -10,13 +10,112 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 11,
+    "info": 20,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
     {
       "id": "I1",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": ".rwang-progress.md",
+      "files": [
+        "../docs/.rwang-progress.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I2",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "parity-audit.md",
+      "files": [
+        "../docs/.rwang-tasks/parity-audit.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I3",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version",
+      "details": "parity-commerce.md",
+      "files": [
+        "../docs/.rwang-tasks/parity-commerce.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I4",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version",
+      "details": "parity-customer.md",
+      "files": [
+        "../docs/.rwang-tasks/parity-customer.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I5",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version",
+      "details": "parity-gaps.md",
+      "files": [
+        "../docs/.rwang-tasks/parity-gaps.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I6",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version",
+      "details": "parity-growth.md",
+      "files": [
+        "../docs/.rwang-tasks/parity-growth.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I7",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version",
+      "details": "parity-operations.md",
+      "files": [
+        "../docs/.rwang-tasks/parity-operations.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I8",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version",
+      "details": "parity-platform.md",
+      "files": [
+        "../docs/.rwang-tasks/parity-platform.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I9",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version",
+      "details": "parity-workers.md",
+      "files": [
+        "../docs/.rwang-tasks/parity-workers.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I10",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -27,7 +126,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I2",
+      "id": "I11",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -38,7 +137,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I3",
+      "id": "I12",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -49,7 +148,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I4",
+      "id": "I13",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -60,7 +159,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I5",
+      "id": "I14",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -71,7 +170,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I6",
+      "id": "I15",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -82,7 +181,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I7",
+      "id": "I16",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -93,7 +192,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I8",
+      "id": "I17",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -104,7 +203,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I9",
+      "id": "I18",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -115,7 +214,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I10",
+      "id": "I19",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -126,7 +225,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I11",
+      "id": "I20",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",

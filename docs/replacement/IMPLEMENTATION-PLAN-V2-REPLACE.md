@@ -32,13 +32,15 @@
 | W2 Contract-test harness | 5 | 2 | 1 | 0 | **8** |
 | W3 Identity rebuild (Person/Membership + LINE login) | 8 | 5 | 1 | 0 | **14** |
 | W4 Postgres move + migration tooling | 5 | 5 | 1 | 0 | **11** |
+| **W4b Shell lift + scope wrapper (ADR-006)** | 5 | 2 | 1 | 0 | **8** |
 | W5 Pilot module lift (1 low-risk module) | 5 | 2 | 3 | 0 | **10** |
 | W6 LINE/AI intent surface | 8 | 5 | 3 | 5 | **21** |
 | W7 PDPA/consent model | 5 | 5 | 1 | 2 | **13** |
-| W8 Cutover runbook + single-writer switch | 5 | 5 | 3 | 0 | **13** |
+| **W8a Side-effect ownership switch — all **nine** owners + per-tenant worker scoping** | 5 | 5 | 3 | 0 | **13** |
+| W8 Cutover runbook + rollback | 5 | 5 | 3 | 0 | **13** |
 | W9 Cross-business screen (proof V2 ≠ V1) | 2 | 0 | 1 | 0 | **3** |
 | W10 Remaining module lifts (per module × N) | 5 ea | 2 ea | 3 ea | 0 | **10 × N** |
-| | | | | **Subtotal (W1–W9)** | **98** |
+| | | | | **Subtotal (W1–W9)** | **119** (was 98 — +8 shell lift, +13 ownership switch, from the parity scan) |
 
 N (modules actually lifted) is unknown until W1 completes. The "drop" column of the
 parity inventory is the single biggest lever on total cost — features nobody uses
@@ -57,7 +59,7 @@ are not lifted at all.
 | Phase | Cycles | Focus | Exit gate |
 |---|---|---|---|
 | **R0 Discovery** | C1 | Parity inventory, contract-test harness | Every V1 module classified keep/later/drop; fixtures recorded for the pilot module |
-| **R1 Foundations** | C2–C4 | Identity, Postgres, migration tooling | A V1 tenant's data is in V2 with UUIDs preserved and reconciles; one person logs in across two businesses |
+| **R1 Foundations** | C2–C4 | Identity, **shell lift (ADR-006)**, Postgres, migration tooling | A V1 tenant's data is in V2 with UUIDs preserved and reconciles; one person logs in across two businesses; V1's shell renders inside V2's scope with FR-020's tests still green |
 | **R2 Pilot** | C5–C6 | Lift one low-risk module end to end | Pilot module served from V2 against migrated data, contract tests green, real cost per module measured |
 | **R3 AI surface** | C6–C8 | LINE intent pipeline + PDPA | A LINE message creates a record through dry-run → confirm → commit → audit, with consent recorded |
 | **R4 Cutover waves** | C9+ | Lift remaining must-have modules, cut tenants over in waves | Each wave: single-writer flip, watched hour, rollback unused |
@@ -74,7 +76,8 @@ graph LR
     W4 --> W5
     W3 --> W6[W6 LINE/AI]
     W7[W7 PDPA] --> W6
-    W5 --> W8[W8 Cutover runbook]
+    W5 --> W8a[W8a Six-owner switch]
+    W8a --> W8[W8 Cutover runbook]
     W6 --> W8
     W8 --> W10[W10 Waves]
     W3 --> W9[W9 Cross-business screen]
@@ -154,9 +157,10 @@ so it is stated in cycles instead:
 | Claude (agent sessions) | implementation, tests, docs, migrations |
 | Effective throughput | ~15–20 points per 2-week cycle, based on the intake phase (FR-017…FR-020 ≈ 40 points in ~2 cycles) |
 
-98 points for W1–W9 → **≈6 cycles ≈ 12 weeks** before the first cutover wave, plus
-10 points per lifted module. **With the mandated 25% risk buffer: ≈15 weeks to the
-first tenant cutover.** W10 depends entirely on N from the parity inventory.
+119 points for W1–W9 → **≈7 cycles ≈ 14 weeks** before the first cutover wave, plus
+10 points per lifted module. **With the mandated 25% risk buffer: ≈18 weeks to the
+first tenant cutover** (was 15 — the parity scan added the shell lift and the
+six-owner ownership switch). W10 depends entirely on N from the parity inventory.
 
 > This assumes the owner is available for the decisions listed in §7. Every one of
 > those is a blocking dependency, not a nicety.
@@ -186,16 +190,18 @@ first tenant cutover.** W10 depends entirely on N from the parity inventory.
 | R7 | **One-shop mental model wins** — cross-business value never ships | 3 | 4 | **12** | W9 scheduled in R1, not "later"; shim time-boxed (§D9) | Owen |
 | R8 | **Owner-decision bottleneck** — §7 answers arrive late, cycles idle | 4 | 3 | **12** | Decisions listed with the cycle that blocks on them | Owen |
 | R9 | **Pilot proves lifting does not work** for a class of pages | 2 | 4 | 8 | M4 is an explicit go/no-go; ADR-003 has a review trigger for exactly this | Owen |
+| R11 | **Per-tenant cutover impossible for some tenants** — `line-bot`/`line-monitor` have no per-tenant routing; `webhook-processor` misattributes tenants today; `Tenant.isActive` is already a worker-loop predicate so it cannot be the switch | 5 | 4 | **20** | ADR-003 §7: first tenants must not use those channels; build the switch in V2 (W8a), never in V1 | Claude |
+| R12 | **Legacy 30-day JWTs without a `jti`** keep writing to V1 after a flip — current tokens are revocable via `jti` + `ActiveSession`, pre-FC-13 ones are not | 2 | 3 | 6 | Revoke current tokens at cutover; age out legacy ones; included in the nine-owner flip list | Claude |
 | R10 | **Scope creep from V1's backlog** — inherited docs list unbuilt features | 3 | 3 | 9 | The corpus is evidence, not a backlog (ADR-005); only parity "must-have" ships | Owen |
 
-**Risk buffer: 25%**, applied in §4.
+**Risk buffer: 25%**, applied in §4. R11 was discovered by the parity scan *after* this plan was first written — it is the highest-scoring risk in the register and it invalidates the naive reading of ADR-003 §D8.
 
 ## 7. Owner decisions that block cycles
 
 | # | Decision | Blocks | Ask by |
 |---|---|---|---|
 | 1 | Which module is the pilot? | W5 | C1 |
-| 2 | How many live tenants exist, and which cuts over first? | W8 | C1 |
+| 2 | How many live tenants exist, and which cuts over first? **Constraint from the parity scan: the first tenant must use none of `line-bot`, `line-monitor`, Instagram or WhatsApp** — those have no per-tenant flip and fixing them would mean changing V1 | W8 | C1 |
 | 3 | AI provider + what may leave the machine (PDPA) | W6, W7 | C5 |
 | 4 | Postgres hosting (managed or self-hosted) | W4 | C3 |
 | 5 | Freeze policy: does V1 accept feature work during the port? | all | C1 |

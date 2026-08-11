@@ -55,7 +55,7 @@ Execution rules, all binding:
 | D5 | **Freeze V1's endpoint contracts for lifted pages**; reimplement the internals on V2's model; migrate endpoints per module afterwards | 192 call sites; and changing UI + API at once makes failures unattributable |
 | D6 | **Write contract tests (recorded request/response fixtures) against V1's endpoints before reimplementing any internals** | Untyped JS: nothing else enforces D5 |
 | D7 | **The LINE/AI surface is built on V2-native intent APIs from day one** — never on V1's CRUD contracts | The primary surface must not be shaped by 2024 CRUD routes; V2's intake pipeline is the model |
-| D8 | **Single-writer rule per tenant:** a tenant's LINE OA, background workers and data writes belong to exactly one system at any instant; cutover flips all three atomically | Double-processing means double marketing blasts, double charges, dropped chats |
+| D8 | **Single-writer rule per tenant:** a tenant's side-effect owners belong to exactly one system at any instant; cutover flips **all of them** atomically. **Amended 2026-08-12 — the list is nine, not three** (see §7) | Double-processing means double marketing blasts, double charges, dropped chats |
 | D9 | **Shim `useTenant()` → active Business, time-boxed**, and ship one genuinely cross-business screen early | Proves V2 is not V1 with new plumbing |
 | D10 | Auth/identity is rebuilt: `Employee`(tenant-scoped, own passwordHash) → `Person`/`Membership` across businesses, LINE-based login | The old model cannot express an owner with several businesses |
 
@@ -153,3 +153,57 @@ Revisit this ADR if any of these happen:
 - a lifted module is found to need a rewrite anyway (evidence that reuse economics
   were wrong for that class of page), or
 - D8 is breached even once in production.
+
+## 7. Amendment (2026-08-12) — D8's flip list is six, and per-tenant cutover is blocked today
+
+The `TASK-V2-PARITY` scan (six area scans + a cross-area audit, evidence in
+`docs/.rwang-tasks/`) established two things that change D8 as originally written.
+
+### 7.1 The atomic flip list is nine owners, not three
+
+| # | Side-effect owner | Why it must flip with the rest |
+|---|---|---|
+| 1 | LINE OA webhook | Original D8 |
+| 2 | Background workers | Original D8 |
+| 3 | Data writes | Original D8 |
+| 4 | **Billing PSP webhook** | Payment callbacks landing in the system that no longer owns the tenant |
+| 5 | **Issued `TenantApiKey`s** | Machine callers keep writing to V1 after the flip unless the keys move or are revoked |
+| 6 | **`auth/mobile-login` JWTs (30-day)** | A second auth path issues long-lived tokens. **Corrected 2026-08-12:** current tokens *are* individually revocable via `jti` + `ActiveSession`; only legacy pre-FC-13 tokens without a `jti` fall back to a weaker check and must be aged out |
+| 7 | **`settings/ownership` (+verify)** | Transfers who owns the tenant — must not be executable in two systems |
+| 8 | **`settings/workspace`** | Soft-deletes the workspace |
+| 9 | **`team/invite`** | Grants access; an invite accepted against the wrong system creates an account that does not exist in the other |
+
+### 7.2 Per-tenant cutover is not achievable for every tenant today
+
+Blockers, in order of severity:
+
+1. **`line-bot` and `line-monitor` have no per-tenant routing at all** — one hardcodes
+   `DEFAULT_TENANT_ID`. There is no switch to flip for a single tenant.
+2. **`webhook-processor` resolves the tenant by `IntegrationConfig.findFirst`** with no
+   binding to the payload — it already misattributes Instagram/WhatsApp messages across
+   tenants in V1 today. That is a live defect, not just a migration obstacle.
+3. **`Tenant.isActive` cannot be the ownership switch.** It is already the predicate for
+   four workers' tenant loops; flipping it would silently stop audit purges and
+   certificate issuance for that tenant.
+4. Seven workers loop over all active tenants in one invocation, so ownership cannot be
+   split per tenant without changing them. (Cheapest of the four to fix — in V2.)
+
+Blockers 1 and 2 would have to be fixed **inside V1**, which §3 forbids. Therefore:
+
+> **The first tenants cut over must use none of `line-bot`, `line-monitor`, Instagram or
+> WhatsApp.** That is now a selection criterion for the pilot tenant, not a preference.
+
+A tenant that does depend on those channels can only be moved after V2 owns that channel
+end to end — i.e. late in the sequence, or never, if the channel is retired with V1.
+
+### 7.2b Two of the nine are softer than they look
+
+- Owner 4 (billing PSP webhook): the routes exist but **no PSP is wired** — it is a
+  scaffold. It stays on the list because the route can write `Tenant.plan`.
+- Owner 6: see the correction above — revocable, except for legacy tokens.
+
+### 7.3 Consequence for the plan
+
+`IMPLEMENTATION-PLAN-V2-REPLACE.md` gains a prerequisite before W8 (cutover): a
+**side-effect ownership switch that covers all six owners**, plus per-tenant scoping for
+the seven looping workers — built in V2, never in V1.

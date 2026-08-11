@@ -3,15 +3,15 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 369,
+    "total_nodes": 379,
     "total_edges": 214,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 5,
       "document": 9,
       "roadmap": 1,
-      "spec": 19,
-      "adr": 5,
+      "spec": 28,
+      "adr": 6,
       "v1_inherited": 234,
       "requirement": 51,
       "test": 14,
@@ -35,9 +35,14 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "spec:PRODUCT-V2",
+      "spec:IMPLEMENTATION-PLAN-V2-REPLACE",
+      "spec:PARITY-INVENTORY"
+    ],
     "added": [
-      "spec:IMPLEMENTATION-PLAN-V2-REPLACE"
+      "spec:parity-gaps"
     ],
     "removed": []
   },
@@ -1178,6 +1183,14 @@
       "status": "planned"
     },
     {
+      "id": "spec:.rwang-progress",
+      "type": "spec",
+      "path": "docs/.rwang-progress.md",
+      "title": "RWANG Subagent Progress Ledger — TASK-V2-PARITY",
+      "hash": "802b1a2b",
+      "status": "current"
+    },
+    {
       "id": "spec:ACCEPTANCE-CRITERIA",
       "type": "spec",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
@@ -1206,8 +1219,8 @@
       "type": "adr",
       "path": "docs/ADR-003-V2-REPLACES-V1-BY-REUSE.md",
       "title": "ADR-003 — V2 Replaces V1 by Reusing It (Everything Except Auth)",
-      "hash": "e92a2f56",
-      "status": "current"
+      "hash": "a1a481dd",
+      "status": "changed"
     },
     {
       "id": "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
@@ -1223,6 +1236,14 @@
       "path": "docs/ADR-005-V1-DOCUMENTATION-CORPUS.md",
       "title": "ADR-005 — Import V1's Documentation as a Read-Only Corpus, With Two Id Namespaces",
       "hash": "d1ac3db4",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER",
+      "type": "adr",
+      "path": "docs/ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER.md",
+      "title": "ADR-006 — Lift V1's Shell, Components and Sitemap; Wrap Them in V2's Scope",
+      "hash": "ec22acc7",
       "status": "current"
     },
     {
@@ -1294,8 +1315,8 @@
       "title": "Implementation Plan — PHASE-V2-REPLACE",
       "version": "1.0.0",
       "doc_status": "Draft — awaiting owner sign-off on §4 (capacity) and §6 (first cutover)",
-      "hash": "adc6ee7c",
-      "status": "current"
+      "hash": "fbc24459",
+      "status": "changed"
     },
     {
       "id": "spec:INTEGRATION-MAP-ZURI",
@@ -1326,13 +1347,77 @@
       "status": "current"
     },
     {
+      "id": "spec:parity-audit",
+      "type": "spec",
+      "path": "docs/.rwang-tasks/parity-audit.md",
+      "title": "Parity Scan — Cross-Area Audit",
+      "hash": "c35e8699",
+      "status": "current"
+    },
+    {
+      "id": "spec:parity-commerce",
+      "type": "spec",
+      "path": "docs/.rwang-tasks/parity-commerce.md",
+      "title": "P1 Commerce — Parity Inventory (Zuri V1 → V2)",
+      "hash": "50172614",
+      "status": "current"
+    },
+    {
+      "id": "spec:parity-customer",
+      "type": "spec",
+      "path": "docs/.rwang-tasks/parity-customer.md",
+      "title": "Parity Inventory — CUSTOMER (P2)",
+      "hash": "c7b93821",
+      "status": "current"
+    },
+    {
+      "id": "spec:parity-gaps",
+      "type": "spec",
+      "path": "docs/.rwang-tasks/parity-gaps.md",
+      "title": "P9 — Coverage Gaps (the seventh scan)",
+      "hash": "689f9bc3",
+      "status": "current"
+    },
+    {
+      "id": "spec:parity-growth",
+      "type": "spec",
+      "path": "docs/.rwang-tasks/parity-growth.md",
+      "title": "Parity Inventory — GROWTH (P3)",
+      "hash": "cfcb0b3b",
+      "status": "current"
+    },
+    {
       "id": "spec:PARITY-INVENTORY",
       "type": "spec",
       "path": "docs/replacement/PARITY-INVENTORY.md",
       "title": "Parity Inventory — what must exist in V2 before a tenant can cut over",
-      "version": "0.1.0",
-      "doc_status": "Skeleton — to be filled by `TASK-V2-PARITY` (read-only scan of `G:\\zuri`)",
-      "hash": "329baad9",
+      "version": "1.0.0",
+      "doc_status": "Complete (first pass) — verdicts are recommendations; the owner confirms",
+      "hash": "210bdf2b",
+      "status": "changed"
+    },
+    {
+      "id": "spec:parity-operations",
+      "type": "spec",
+      "path": "docs/.rwang-tasks/parity-operations.md",
+      "title": "Parity Inventory — Operations (P4)",
+      "hash": "5eeb0b77",
+      "status": "current"
+    },
+    {
+      "id": "spec:parity-platform",
+      "type": "spec",
+      "path": "docs/.rwang-tasks/parity-platform.md",
+      "title": "Parity Inventory — PLATFORM (V1 `G:\\zuri`)",
+      "hash": "8d0db055",
+      "status": "current"
+    },
+    {
+      "id": "spec:parity-workers",
+      "type": "spec",
+      "path": "docs/.rwang-tasks/parity-workers.md",
+      "title": "Parity Inventory — Workers & Background Execution (P6)",
+      "hash": "c9492c51",
       "status": "current"
     },
     {
@@ -1342,8 +1427,8 @@
       "title": "Zuri V2 — Product Definition",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "3aa1b80e",
-      "status": "current"
+      "hash": "344143e7",
+      "status": "changed"
     },
     {
       "id": "spec:prompt-engineering",
