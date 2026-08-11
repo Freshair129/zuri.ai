@@ -127,10 +127,23 @@ function build() {
     const isRoadmap = file.includes(`${path.sep}roadmap${path.sep}`)
     nodes.push(docNode(file, isAppendix ? 'appendix' : isRoadmap ? 'roadmap' : 'document', 'doc'))
   }
+  const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
   for (const file of walk(SPEC_PACK, ['.md'])) {
+    if (file.startsWith(V1_DIR)) continue // handled below, as evidence not authority
     const node = docNode(file, path.basename(file).startsWith('ADR-') ? 'adr' : 'spec', 'spec')
     node.path = path.relative(path.resolve(ROOT, '..'), file).split(path.sep).join('/')
     nodes.push(node)
+  }
+  // ADR-005 — V1's imported corpus. Indexed so a V2 document can cite an inherited
+  // file and have the reference validated, but kept out of coverage and drift: it
+  // is evidence of what V1 says, not a V2 artefact anyone maintains.
+  for (const file of walk(V1_DIR, ['.md'])) {
+    nodes.push({
+      id: `v1:${path.relative(V1_DIR, file).split(path.sep).join('/')}`,
+      type: 'v1_inherited',
+      path: path.relative(path.resolve(ROOT, '..'), file).split(path.sep).join('/'),
+      status: 'read-only',
+    })
   }
 
   // Requirements from the PRD registry.

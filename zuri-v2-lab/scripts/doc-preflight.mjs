@@ -33,7 +33,12 @@ function walk(dir, ext, out = []) {
 }
 
 const labDocs = walk(path.join(ROOT, 'docs'), '.md')
-const specDocs = walk(SPEC_PACK, '.md')
+// ADR-005 §D9 — the imported V1 corpus is read-only evidence: it is not checked for
+// control blocks (it never had ours) and its links point at V1 paths that do not
+// exist here. 238 findings nobody can act on would drown the real ones.
+const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
+const specDocs = walk(SPEC_PACK, '.md').filter((f) => !f.startsWith(V1_DIR))
+const inherited = walk(V1_DIR, '.md')
 const allDocs = [...labDocs, ...specDocs]
 
 // ---- Check 1: document control blocks ------------------------------------
@@ -170,7 +175,7 @@ const counts = findings.reduce((a, f) => ({ ...a, [f.severity]: (a[f.severity] |
 const report = {
   version: '2.0.0',
   generated_by: 'scripts/doc-preflight.mjs (rwang:doc-preflight)',
-  scanned: { docs: allDocs.length, routes: routes.length, test_files: testCount },
+  scanned: { docs: allDocs.length, v1_inherited: inherited.length, routes: routes.length, test_files: testCount },
   summary: {
     critical: counts.critical || 0,
     warning: counts.warning || 0,
@@ -182,7 +187,7 @@ const report = {
 }
 writeFileSync(REPORT, JSON.stringify(report, null, 2) + '\n')
 
-console.log(`docs ${allDocs.length} · routes ${routes.length} · test files ${testCount}`)
+console.log(`docs ${allDocs.length} (+${inherited.length} v1-inherited, unchecked) · routes ${routes.length} · test files ${testCount}`)
 console.log(`critical ${report.summary.critical} · warning ${report.summary.warning} · info ${report.summary.info} → ${report.summary.overall}`)
 for (const f of findings) console.log(`  [${f.severity.toUpperCase()}] ${f.check}: ${f.title} — ${f.details}`)
 

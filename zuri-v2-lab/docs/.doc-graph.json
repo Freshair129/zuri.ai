@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 133,
+    "total_nodes": 368,
     "total_edges": 214,
     "dangling_edges": 0,
     "node_types": {
@@ -11,7 +11,8 @@
       "document": 9,
       "roadmap": 1,
       "spec": 18,
-      "adr": 4,
+      "adr": 5,
+      "v1_inherited": 234,
       "requirement": 51,
       "test": 14,
       "code_file": 31
@@ -34,10 +35,244 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:E-risk-matrix"
+    "changed": [],
+    "added": [
+      "spec:ADR-005-V1-DOCUMENTATION-CORPUS",
+      "v1:.rwang-progress.md",
+      "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-01-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-01-review.md",
+      "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-02-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-02-review.md",
+      "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-03-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-03-rereview-1.md",
+      "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-03-review.md",
+      "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-04-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-04-review.md",
+      "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-05-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-05-final-audit.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-01-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-01-scope-report.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-01-scope-review.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-02-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-02-dependency-report.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-02-dependency-review.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-03-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-03-delivery-report.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-03-delivery-review.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-04-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-04-plan-review.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-05-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/IP-05-final-audit.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-h1-readiness.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-rereview-1.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-rereview-2.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-review.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-02-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-02-h2-decision.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-02-review.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-03-brief.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-03-h345-decisions.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-03-rereview-1.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-03-review.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-04-review.md",
+      "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-05-final-audit.md",
+      "v1:.rwang-tasks/DISC-01-brief.md",
+      "v1:.rwang-tasks/DISC-01-report.md",
+      "v1:.rwang-tasks/DISC-01-review.md",
+      "v1:.rwang-tasks/DISC-02-brief.md",
+      "v1:.rwang-tasks/DISC-02-report.md",
+      "v1:.rwang-tasks/DISC-02-review.md",
+      "v1:.rwang-tasks/DISC-03-brief.md",
+      "v1:.rwang-tasks/DISC-03-report.md",
+      "v1:.rwang-tasks/DISC-03-review.md",
+      "v1:appendices/D-traceability.md",
+      "v1:architecture/data-flows/ai.md",
+      "v1:architecture/data-flows/audit.md",
+      "v1:architecture/data-flows/auth.md",
+      "v1:architecture/data-flows/crm.md",
+      "v1:architecture/data-flows/dsb.md",
+      "v1:architecture/data-flows/enrollment.md",
+      "v1:architecture/data-flows/inbox.md",
+      "v1:architecture/data-flows/inventory.md",
+      "v1:architecture/data-flows/kitchen.md",
+      "v1:architecture/data-flows/marketing.md",
+      "v1:architecture/data-flows/multi-tenant.md",
+      "v1:architecture/data-flows/notifications.md",
+      "v1:architecture/data-flows/pos.md",
+      "v1:architecture/data-flows/procurement.md",
+      "v1:architecture/data-flows/tasks.md",
+      "v1:architecture/data-models/crm-attribution.md",
+      "v1:architecture/data-models/crm-customer-360.md",
+      "v1:architecture/database-erd/full-schema.md",
+      "v1:architecture/DOC-ARCHITECTURE-ZURI-HYBRID.md",
+      "v1:architecture/LAWS.md",
+      "v1:architecture/logic/data-flow.md",
+      "v1:architecture/logic/multi-tenancy.md",
+      "v1:architecture/logic/rbac-security.md",
+      "v1:architecture/logic/repo-pattern.md",
+      "v1:architecture/MIGRATION-PLAN-sprint8.md",
+      "v1:architecture/stack/core.md",
+      "v1:architecture/stack/endpoints.md",
+      "v1:architecture/stack/integrations.md",
+      "v1:architecture/TECH_STACK.md",
+      "v1:architecture/tenant-ingestion-compute.md",
+      "v1:architecture/WEBHOOK_EVENT_CATALOG.md",
+      "v1:CHANGELOG_SYSTEM.md",
+      "v1:contracts/smartgift-zuri-transport-v1.md",
+      "v1:contracts/zuri-command-agent-api-v1.md",
+      "v1:contracts/zuri-tenant-ingestion-api-v1.md",
+      "v1:contracts/zuri-visual-office-api-v1.md",
+      "v1:decisions/adrs/ADR-057-pos-mobile-ordering-architecture.md",
+      "v1:decisions/adrs/ADR-058-floor-plan-storage-model.md",
+      "v1:decisions/adrs/ADR-059-loyalty-point-idempotency.md",
+      "v1:decisions/adrs/ADR-060-modular-architecture.md",
+      "v1:decisions/adrs/ADR-061-split-prisma-schema.md",
+      "v1:decisions/adrs/ADR-062-obsidian-as-ssot.md",
+      "v1:decisions/adrs/ADR-063-dev-tools-isolation.md",
+      "v1:decisions/adrs/ADR-064-doc-to-code-workflow.md",
+      "v1:decisions/adrs/ADR-065-industry-plugin-system.md",
+      "v1:decisions/adrs/ADR-066-component-size-limit.md",
+      "v1:decisions/adrs/ADR-067-changelog-system-v2.md",
+      "v1:decisions/adrs/ADR-068-persona-based-rbac.md",
+      "v1:decisions/adrs/ADR-069-ai-context-layer.md",
+      "v1:decisions/adrs/ADR-070-master-detail-navigation-shell.md",
+      "v1:decisions/adrs/ADR-071-ai-instruction-consolidated-and-auditor-sync.md",
+      "v1:decisions/adrs/ADR-071-i18n-and-theme.md",
+      "v1:decisions/adrs/ADR-073-rulebook-navigator-system.md",
+      "v1:decisions/adrs/ADR-074-tenant-codename-id-namespacing.md",
+      "v1:decisions/adrs/ADR-075-erp-standard-id-naming-convention.md",
+      "v1:decisions/adrs/ADR-076-multi-agent-branch-strategy.md",
+      "v1:decisions/adrs/ADR-077-feat21-invitation-ownership-transfer.md",
+      "v1:decisions/adrs/ADR-078-squash-merge-guardrails.md",
+      "v1:decisions/adrs/ADR-079-mobile-shell-and-pos-mobile-radial-fab.md",
+      "v1:decisions/adrs/ADR-080-landing-middleware-rewrite.md",
+      "v1:decisions/adrs/ADR-081-pos-domain-fulfillment-strategy.md",
+      "v1:decisions/log.md",
+      "v1:design/achieve/CI-DESIGN-ANALYSIS-V2.md",
+      "v1:design/achieve/CI-DESIGN-ANALYSIS.md",
+      "v1:design/achieve/CI-FINAL-ANALYSIS.md",
+      "v1:design/achieve/Design System Document An Editorial Approach to Thai Heritage.md",
+      "v1:design/achieve/Design System Document_ The Silent Supporter (Universal Minimalist).md",
+      "v1:design/achieve/DESIGNlanding.md",
+      "v1:design/Design System Document The Silent Supporter.md",
+      "v1:design/mockups/Design System Document The Silent Supporter.md",
+      "v1:design/ui-inventory.md",
+      "v1:design/visual-office-agent-office-spec.md",
+      "v1:design/visual-office-design-spec.md",
+      "v1:design/visual-office-frontend-execution-plan.md",
+      "v1:design/zuri-brand-system-implementation-plan.md",
+      "v1:design/zuri-brand-system-v1.md",
+      "v1:FEATURE-COMPLETION-BACKLOG.md",
+      "v1:gate-readiness/CR12-FEAT34-gate-readiness.md",
+      "v1:gate-readiness/CR12-FEAT34-H1-owner-review-authorization.md",
+      "v1:gate-readiness/CR12-FEAT34-H2-owner-decision.md",
+      "v1:gotchas/ai-agent.md",
+      "v1:gotchas/database-identity.md",
+      "v1:gotchas/dev-process.md",
+      "v1:gotchas/INCIDENT-2026-04-03-BUILD-FAILURE.md",
+      "v1:gotchas/marketing-attribution.md",
+      "v1:gotchas/meta-api.md",
+      "v1:gotchas/multi-tenant.md",
+      "v1:gotchas/nextjs14-vercel-build-gotchas.md",
+      "v1:gotchas/README.md",
+      "v1:gotchas/webhook-serverless.md",
+      "v1:guide/DEV_SETUP.md",
+      "v1:HOME.md",
+      "v1:implementation-plan.md",
+      "v1:index.md",
+      "v1:INTEGRATION-CHECKLISTS.md",
+      "v1:log.md",
+      "v1:PLATFORM-OVERVIEW.md",
+      "v1:product/COLOR_PALETTE_OPTIONS.md",
+      "v1:product/logic/api-reference.md",
+      "v1:product/market/analysis.md",
+      "v1:product/market/pricing.md",
+      "v1:product/market/research.md",
+      "v1:product/PITCH_DECK.md",
+      "v1:product/PRD.md",
+      "v1:product/PRODUCT_NAVIGATOR.md",
+      "v1:product/roadmap/backlog.md",
+      "v1:product/roadmap/sitemap.md",
+      "v1:product/roadmap/success-metrics.md",
+      "v1:product/roadmap/timeline.md",
+      "v1:product/specs/FEAT01-MULTI-TENANT.md",
+      "v1:product/specs/FEAT02-PROFILE.md",
+      "v1:product/specs/FEAT03-BILLING.md",
+      "v1:product/specs/FEAT04-INBOX.md",
+      "v1:product/specs/FEAT05-CRM.md",
+      "v1:product/specs/FEAT06-POS.md",
+      "v1:product/specs/FEAT07-ENROLLMENT.md",
+      "v1:product/specs/FEAT08-KITCHEN.md",
+      "v1:product/specs/FEAT09-MARKETING.md",
+      "v1:product/specs/FEAT10-DSB.md",
+      "v1:product/specs/FEAT11-AI-ASSISTANT.md",
+      "v1:product/specs/FEAT12-LINE-AGENT.md",
+      "v1:product/specs/FEAT13-AGENT.md",
+      "v1:product/specs/FEAT14-CRM-AI.md",
+      "v1:product/specs/FEAT15-MARKETING-AI.md",
+      "v1:product/specs/FEAT16-CAMPAIGN.md",
+      "v1:product/specs/FEAT17-ACCOUNTING-PLATFORM.md",
+      "v1:product/specs/FEAT18-EXPRESS-INTEGRATION.md",
+      "v1:product/specs/FEAT19-PLATFORM.md",
+      "v1:product/specs/FEAT20-EMPLOYEE-CARD.md",
+      "v1:product/specs/FEAT21-OWNERSHIP-TRANSFER.md",
+      "v1:product/specs/FEAT22-FOOD-INVENTORY-ERP.md",
+      "v1:product/vision/design-concept.md",
+      "v1:product/vision/identity.md",
+      "v1:product/vision/landing-page.md",
+      "v1:product/vision/problems.md",
+      "v1:PROJECT_MAP.md",
+      "v1:README.md",
+      "v1:remediation/MIGRATION-PLAYBOOK.md",
+      "v1:remediation/MOBILE-DECISION.md",
+      "v1:remediation/patterns/compound-index.md",
+      "v1:remediation/patterns/error-response.md",
+      "v1:remediation/patterns/gates-test.md",
+      "v1:remediation/patterns/id-generator.md",
+      "v1:remediation/patterns/import-unify.md",
+      "v1:remediation/patterns/plangate.md",
+      "v1:remediation/patterns/README.md",
+      "v1:remediation/patterns/repo-doc.md",
+      "v1:remediation/patterns/session-tenant-migration.md",
+      "v1:remediation/patterns/webhook-sig-test.md",
+      "v1:remediation/patterns/zod-route.md",
+      "v1:remediation/PLAN-MATRIX.md",
+      "v1:remediation/RCA--GPU-CRASH-2026-07-15.md",
+      "v1:remediation/RMD-B14-ENUMS-SUMMARY.md",
+      "v1:remediation/RMD-B14-MIGRATION-COMPLETE.md",
+      "v1:remediation/RMD-PROGRAM-REPORT.md",
+      "v1:remediation/ROADMAP.md",
+      "v1:reviews/REVIEW-architecture-2026-08-04.md",
+      "v1:runbooks/codex-autonomous-gates.md",
+      "v1:runbooks/migration-final.md",
+      "v1:runbooks/RUNBOOK-cr003-schema-recovery.md",
+      "v1:runbooks/RUNBOOK-crm-relation-migration.md",
+      "v1:runbooks/RUNBOOK-line-oa-onboarding.md",
+      "v1:runbooks/RUNBOOK-migration-baseline.md",
+      "v1:runbooks/tenant-ingestion-operations.md",
+      "v1:specs/CR-001-demo-mode-env-gate.md",
+      "v1:specs/CR-002-rate-limit-fail-closed.md",
+      "v1:specs/CR-003-consent-erasure.md",
+      "v1:specs/CR-004-tenant-line-oa-onboarding.md",
+      "v1:specs/CR-005-tenant-pipeline-stages.md",
+      "v1:specs/CR-006-gift-commerce-profile.md",
+      "v1:specs/CR-007-quote-attribution.md",
+      "v1:specs/CR-008-data-contracts.md",
+      "v1:specs/CR-009-automation-recipes.md",
+      "v1:specs/CR-010-bi-tiles-snapshot.md",
+      "v1:specs/CR-012-governed-line-visual-office.md",
+      "v1:specs/CR-013-self-hosted-docker-runtime.md",
+      "v1:specs/CR-014-tenant-ingestion-api-compute.md",
+      "v1:standards/conventions/requirement-id-scheme.md",
+      "v1:standards/conventions/style-guide.md",
+      "v1:standards/process/doc-to-code.md",
+      "v1:standards/process/local-dev-setup-guide.md",
+      "v1:standards/process/MULTIAGENT-SETUP.md",
+      "v1:UAT-CHECKLIST.md",
+      "v1:Untitled Kanban.md",
+      "v1:_CLAUDE.md"
     ],
-    "added": [],
     "removed": []
   },
   "nodes": [
@@ -637,7 +872,7 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "c97277aa",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:F-glossary",
@@ -1217,6 +1452,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-005-V1-DOCUMENTATION-CORPUS",
+      "type": "adr",
+      "path": "docs/ADR-005-V1-DOCUMENTATION-CORPUS.md",
+      "title": "ADR-005 — Import V1's Documentation as a Read-Only Corpus, With Two Id Namespaces",
+      "hash": "d1ac3db4",
+      "status": "current"
+    },
+    {
       "id": "spec:ARCHITECTURE",
       "type": "spec",
       "path": "docs/ARCHITECTURE.md",
@@ -1465,6 +1708,1410 @@
       "path": "tests/unit/strategies.test.js",
       "hash": "d55aa65b",
       "status": "current"
+    },
+    {
+      "id": "v1:_CLAUDE.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/_CLAUDE.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-progress.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-progress.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-01-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-01-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-01-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-01-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-02-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-02-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-02-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-02-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-03-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-03-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-03-rereview-1.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-03-rereview-1.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-03-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-03-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-04-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-04-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-04-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-04-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-05-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-05-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-05-final-audit.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/H2-APPROVAL/DA-05-final-audit.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-01-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-01-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-01-scope-report.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-01-scope-report.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-01-scope-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-01-scope-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-02-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-02-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-02-dependency-report.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-02-dependency-report.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-02-dependency-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-02-dependency-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-03-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-03-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-03-delivery-report.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-03-delivery-report.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-03-delivery-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-03-delivery-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-04-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-04-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-04-plan-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-04-plan-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-05-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-05-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/IP-05-final-audit.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/IP-05-final-audit.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-h1-readiness.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-h1-readiness.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-rereview-1.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-rereview-1.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-rereview-2.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-rereview-2.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-01-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-02-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-02-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-02-h2-decision.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-02-h2-decision.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-02-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-02-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-03-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-03-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-03-h345-decisions.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-03-h345-decisions.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-03-rereview-1.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-03-rereview-1.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-03-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-03-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-04-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-04-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-05-final-audit.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/CR12-FEAT34/NEXT-GATES/GR-05-final-audit.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/DISC-01-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/DISC-01-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/DISC-01-report.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/DISC-01-report.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/DISC-01-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/DISC-01-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/DISC-02-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/DISC-02-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/DISC-02-report.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/DISC-02-report.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/DISC-02-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/DISC-02-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/DISC-03-brief.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/DISC-03-brief.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/DISC-03-report.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/DISC-03-report.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:.rwang-tasks/DISC-03-review.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/.rwang-tasks/DISC-03-review.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:appendices/D-traceability.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/appendices/D-traceability.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/ai.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/ai.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/audit.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/audit.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/auth.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/auth.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/crm.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/crm.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/dsb.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/dsb.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/enrollment.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/enrollment.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/inbox.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/inbox.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/inventory.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/inventory.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/kitchen.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/kitchen.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/marketing.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/marketing.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/multi-tenant.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/multi-tenant.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/notifications.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/notifications.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/pos.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/pos.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/procurement.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/procurement.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-flows/tasks.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-flows/tasks.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-models/crm-attribution.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-models/crm-attribution.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/data-models/crm-customer-360.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/data-models/crm-customer-360.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/database-erd/full-schema.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/database-erd/full-schema.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/DOC-ARCHITECTURE-ZURI-HYBRID.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/DOC-ARCHITECTURE-ZURI-HYBRID.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/LAWS.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/LAWS.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/logic/data-flow.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/logic/data-flow.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/logic/multi-tenancy.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/logic/multi-tenancy.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/logic/rbac-security.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/logic/rbac-security.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/logic/repo-pattern.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/logic/repo-pattern.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/MIGRATION-PLAN-sprint8.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/MIGRATION-PLAN-sprint8.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/stack/core.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/stack/core.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/stack/endpoints.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/stack/endpoints.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/stack/integrations.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/stack/integrations.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/TECH_STACK.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/TECH_STACK.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/tenant-ingestion-compute.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/tenant-ingestion-compute.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:architecture/WEBHOOK_EVENT_CATALOG.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/architecture/WEBHOOK_EVENT_CATALOG.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:CHANGELOG_SYSTEM.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/CHANGELOG_SYSTEM.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:contracts/smartgift-zuri-transport-v1.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/contracts/smartgift-zuri-transport-v1.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:contracts/zuri-command-agent-api-v1.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/contracts/zuri-command-agent-api-v1.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:contracts/zuri-tenant-ingestion-api-v1.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/contracts/zuri-tenant-ingestion-api-v1.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:contracts/zuri-visual-office-api-v1.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/contracts/zuri-visual-office-api-v1.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-057-pos-mobile-ordering-architecture.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-057-pos-mobile-ordering-architecture.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-058-floor-plan-storage-model.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-058-floor-plan-storage-model.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-059-loyalty-point-idempotency.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-059-loyalty-point-idempotency.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-060-modular-architecture.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-060-modular-architecture.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-061-split-prisma-schema.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-061-split-prisma-schema.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-062-obsidian-as-ssot.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-062-obsidian-as-ssot.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-063-dev-tools-isolation.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-063-dev-tools-isolation.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-064-doc-to-code-workflow.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-064-doc-to-code-workflow.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-065-industry-plugin-system.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-065-industry-plugin-system.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-066-component-size-limit.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-066-component-size-limit.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-067-changelog-system-v2.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-067-changelog-system-v2.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-068-persona-based-rbac.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-068-persona-based-rbac.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-069-ai-context-layer.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-069-ai-context-layer.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-070-master-detail-navigation-shell.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-070-master-detail-navigation-shell.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-071-ai-instruction-consolidated-and-auditor-sync.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-071-ai-instruction-consolidated-and-auditor-sync.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-071-i18n-and-theme.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-071-i18n-and-theme.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-073-rulebook-navigator-system.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-073-rulebook-navigator-system.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-074-tenant-codename-id-namespacing.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-074-tenant-codename-id-namespacing.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-075-erp-standard-id-naming-convention.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-075-erp-standard-id-naming-convention.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-076-multi-agent-branch-strategy.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-076-multi-agent-branch-strategy.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-077-feat21-invitation-ownership-transfer.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-077-feat21-invitation-ownership-transfer.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-078-squash-merge-guardrails.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-078-squash-merge-guardrails.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-079-mobile-shell-and-pos-mobile-radial-fab.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-079-mobile-shell-and-pos-mobile-radial-fab.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-080-landing-middleware-rewrite.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-080-landing-middleware-rewrite.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/adrs/ADR-081-pos-domain-fulfillment-strategy.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/adrs/ADR-081-pos-domain-fulfillment-strategy.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:decisions/log.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/decisions/log.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/achieve/CI-DESIGN-ANALYSIS-V2.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/achieve/CI-DESIGN-ANALYSIS-V2.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/achieve/CI-DESIGN-ANALYSIS.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/achieve/CI-DESIGN-ANALYSIS.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/achieve/CI-FINAL-ANALYSIS.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/achieve/CI-FINAL-ANALYSIS.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/achieve/Design System Document An Editorial Approach to Thai Heritage.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/achieve/Design System Document An Editorial Approach to Thai Heritage.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/achieve/Design System Document_ The Silent Supporter (Universal Minimalist).md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/achieve/Design System Document_ The Silent Supporter (Universal Minimalist).md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/achieve/DESIGNlanding.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/achieve/DESIGNlanding.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/Design System Document The Silent Supporter.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/Design System Document The Silent Supporter.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/mockups/Design System Document The Silent Supporter.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/mockups/Design System Document The Silent Supporter.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/ui-inventory.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/ui-inventory.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/visual-office-agent-office-spec.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/visual-office-agent-office-spec.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/visual-office-design-spec.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/visual-office-design-spec.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/visual-office-frontend-execution-plan.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/visual-office-frontend-execution-plan.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/zuri-brand-system-implementation-plan.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/zuri-brand-system-implementation-plan.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:design/zuri-brand-system-v1.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/design/zuri-brand-system-v1.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:FEATURE-COMPLETION-BACKLOG.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/FEATURE-COMPLETION-BACKLOG.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gate-readiness/CR12-FEAT34-gate-readiness.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gate-readiness/CR12-FEAT34-gate-readiness.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gate-readiness/CR12-FEAT34-H1-owner-review-authorization.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gate-readiness/CR12-FEAT34-H1-owner-review-authorization.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gate-readiness/CR12-FEAT34-H2-owner-decision.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gate-readiness/CR12-FEAT34-H2-owner-decision.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gotchas/ai-agent.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gotchas/ai-agent.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gotchas/database-identity.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gotchas/database-identity.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gotchas/dev-process.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gotchas/dev-process.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gotchas/INCIDENT-2026-04-03-BUILD-FAILURE.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gotchas/INCIDENT-2026-04-03-BUILD-FAILURE.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gotchas/marketing-attribution.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gotchas/marketing-attribution.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gotchas/meta-api.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gotchas/meta-api.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gotchas/multi-tenant.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gotchas/multi-tenant.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gotchas/nextjs14-vercel-build-gotchas.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gotchas/nextjs14-vercel-build-gotchas.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gotchas/README.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gotchas/README.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:gotchas/webhook-serverless.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/gotchas/webhook-serverless.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:guide/DEV_SETUP.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/guide/DEV_SETUP.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:HOME.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/HOME.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:implementation-plan.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/implementation-plan.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:index.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/index.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:INTEGRATION-CHECKLISTS.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/INTEGRATION-CHECKLISTS.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:log.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/log.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:PLATFORM-OVERVIEW.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/PLATFORM-OVERVIEW.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/COLOR_PALETTE_OPTIONS.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/COLOR_PALETTE_OPTIONS.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/logic/api-reference.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/logic/api-reference.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/market/analysis.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/market/analysis.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/market/pricing.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/market/pricing.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/market/research.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/market/research.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/PITCH_DECK.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/PITCH_DECK.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/PRD.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/PRD.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/PRODUCT_NAVIGATOR.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/PRODUCT_NAVIGATOR.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/roadmap/backlog.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/roadmap/backlog.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/roadmap/sitemap.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/roadmap/sitemap.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/roadmap/success-metrics.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/roadmap/success-metrics.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/roadmap/timeline.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/roadmap/timeline.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT01-MULTI-TENANT.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT01-MULTI-TENANT.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT02-PROFILE.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT02-PROFILE.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT03-BILLING.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT03-BILLING.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT04-INBOX.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT04-INBOX.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT05-CRM.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT05-CRM.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT06-POS.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT06-POS.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT07-ENROLLMENT.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT07-ENROLLMENT.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT08-KITCHEN.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT08-KITCHEN.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT09-MARKETING.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT09-MARKETING.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT10-DSB.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT10-DSB.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT11-AI-ASSISTANT.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT11-AI-ASSISTANT.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT12-LINE-AGENT.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT12-LINE-AGENT.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT13-AGENT.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT13-AGENT.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT14-CRM-AI.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT14-CRM-AI.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT15-MARKETING-AI.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT15-MARKETING-AI.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT16-CAMPAIGN.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT16-CAMPAIGN.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT17-ACCOUNTING-PLATFORM.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT17-ACCOUNTING-PLATFORM.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT18-EXPRESS-INTEGRATION.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT18-EXPRESS-INTEGRATION.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT19-PLATFORM.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT19-PLATFORM.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT20-EMPLOYEE-CARD.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT20-EMPLOYEE-CARD.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT21-OWNERSHIP-TRANSFER.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT21-OWNERSHIP-TRANSFER.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/specs/FEAT22-FOOD-INVENTORY-ERP.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/specs/FEAT22-FOOD-INVENTORY-ERP.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/vision/design-concept.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/vision/design-concept.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/vision/identity.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/vision/identity.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/vision/landing-page.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/vision/landing-page.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:product/vision/problems.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/product/vision/problems.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:PROJECT_MAP.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/PROJECT_MAP.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:README.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/README.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/MIGRATION-PLAYBOOK.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/MIGRATION-PLAYBOOK.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/MOBILE-DECISION.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/MOBILE-DECISION.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/patterns/compound-index.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/patterns/compound-index.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/patterns/error-response.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/patterns/error-response.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/patterns/gates-test.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/patterns/gates-test.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/patterns/id-generator.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/patterns/id-generator.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/patterns/import-unify.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/patterns/import-unify.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/patterns/plangate.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/patterns/plangate.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/patterns/README.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/patterns/README.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/patterns/repo-doc.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/patterns/repo-doc.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/patterns/session-tenant-migration.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/patterns/session-tenant-migration.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/patterns/webhook-sig-test.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/patterns/webhook-sig-test.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/patterns/zod-route.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/patterns/zod-route.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/PLAN-MATRIX.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/PLAN-MATRIX.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/RCA--GPU-CRASH-2026-07-15.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/RCA--GPU-CRASH-2026-07-15.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/RMD-B14-ENUMS-SUMMARY.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/RMD-B14-ENUMS-SUMMARY.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/RMD-B14-MIGRATION-COMPLETE.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/RMD-B14-MIGRATION-COMPLETE.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/RMD-PROGRAM-REPORT.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/RMD-PROGRAM-REPORT.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:remediation/ROADMAP.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/remediation/ROADMAP.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:reviews/REVIEW-architecture-2026-08-04.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/reviews/REVIEW-architecture-2026-08-04.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:runbooks/codex-autonomous-gates.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/runbooks/codex-autonomous-gates.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:runbooks/migration-final.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/runbooks/migration-final.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:runbooks/RUNBOOK-cr003-schema-recovery.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/runbooks/RUNBOOK-cr003-schema-recovery.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:runbooks/RUNBOOK-crm-relation-migration.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/runbooks/RUNBOOK-crm-relation-migration.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:runbooks/RUNBOOK-line-oa-onboarding.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/runbooks/RUNBOOK-line-oa-onboarding.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:runbooks/RUNBOOK-migration-baseline.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/runbooks/RUNBOOK-migration-baseline.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:runbooks/tenant-ingestion-operations.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/runbooks/tenant-ingestion-operations.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-001-demo-mode-env-gate.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-001-demo-mode-env-gate.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-002-rate-limit-fail-closed.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-002-rate-limit-fail-closed.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-003-consent-erasure.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-003-consent-erasure.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-004-tenant-line-oa-onboarding.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-004-tenant-line-oa-onboarding.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-005-tenant-pipeline-stages.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-005-tenant-pipeline-stages.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-006-gift-commerce-profile.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-006-gift-commerce-profile.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-007-quote-attribution.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-007-quote-attribution.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-008-data-contracts.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-008-data-contracts.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-009-automation-recipes.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-009-automation-recipes.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-010-bi-tiles-snapshot.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-010-bi-tiles-snapshot.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-012-governed-line-visual-office.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-012-governed-line-visual-office.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-013-self-hosted-docker-runtime.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-013-self-hosted-docker-runtime.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:specs/CR-014-tenant-ingestion-api-compute.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/specs/CR-014-tenant-ingestion-api-compute.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:standards/conventions/requirement-id-scheme.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/standards/conventions/requirement-id-scheme.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:standards/conventions/style-guide.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/standards/conventions/style-guide.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:standards/process/doc-to-code.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/standards/process/doc-to-code.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:standards/process/local-dev-setup-guide.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/standards/process/local-dev-setup-guide.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:standards/process/MULTIAGENT-SETUP.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/standards/process/MULTIAGENT-SETUP.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:UAT-CHECKLIST.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/UAT-CHECKLIST.md",
+      "status": "read-only"
+    },
+    {
+      "id": "v1:Untitled Kanban.md",
+      "type": "v1_inherited",
+      "path": "docs/v1-inherited/Untitled Kanban.md",
+      "status": "read-only"
     }
   ],
   "edges": [

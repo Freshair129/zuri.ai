@@ -384,3 +384,28 @@ live in two places — exactly the drift the generators exist to prevent.
 
 When adding a new document, decide its layer first. If it does not fit one of the
 five slots above, that is a signal the structure needs an ADR, not a stray file.
+
+### 20. V1's inherited documentation
+
+[ADR-005](docs/ADR-005-V1-DOCUMENTATION-CORPUS.md). `docs/v1-inherited/` is a
+**read-only mirror** of V1's product documentation (234 files, imported by
+`npm run docs:import-v1`, provenance in `MANIFEST.json`).
+
+1. **Never edit anything in it.** It is evidence of what V1 says. Corrections go in
+   a V2 document that cites the inherited file.
+2. **It describes V1 semantics** — "tenant" there means *one shop*. Every file
+   carries a banner saying so.
+3. **Two id namespaces coexist.** V2 owns `FR/NFR/BR/SEC/SDD` and `ADR-00x`; V1's
+   ids are cited with a `V1-` prefix (`V1-ADR-060`, `V1-FEAT-21`, `V1-CR-007`)
+   because V1's ADR series runs 057…086 and would otherwise collide with ours.
+   Filenames keep their original form so comments inside lifted V1 code resolve.
+4. **It is evidence, not authority.** A V2 document wins on disagreement; V1's code
+   wins over V1's docs.
+5. **Re-sync before each module cutover** — V1 moves ~213 commits/90 days. Drift is
+   visible as `MANIFEST.json → sourceCommit`.
+6. Mapping V1 ids → V2 requirement ids happens **per feature at lift time** in
+   `docs/replacement/PARITY-INVENTORY.md`, never as an upfront exercise.
+
+Feature notes for lifted features record **only the delta** — what changed in the
+lift (scope model, auth, endpoints) — and cite the inherited document for the rest.
+That is the point of importing: no blank page per feature.

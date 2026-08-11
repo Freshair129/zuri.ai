@@ -18,7 +18,8 @@
     "postinstall": "prisma generate",
     "docs:graph": "node scripts/doc-graph.mjs",
     "docs:check": "node scripts/doc-graph.mjs --check",
-    "docs:preflight": "node scripts/doc-preflight.mjs"
+    "docs:preflight": "node scripts/doc-preflight.mjs",
+    "docs:import-v1": "node scripts/import-v1-docs.mjs"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
