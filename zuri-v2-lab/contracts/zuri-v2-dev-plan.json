@@ -9,7 +9,7 @@
   "project": {
     "code": "PRJ-ZURI-V2-DEV",
     "name": "Zuri v2 Development Program",
-    "description": "Real development state of zuri.ai (this repo) — MVP shipped, intake surfaces next. Managed by the Project Manager it builds.",
+    "description": "Real development state of zuri.ai (this repo) — MVP shipped, all four intake surfaces live. Managed by the Project Manager it builds.",
     "type": "SOFTWARE",
     "status": "ACTIVE"
   },
@@ -32,18 +32,18 @@
         { "code": "T-PH04", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 04 — Seven execution views", "status": "DONE", "weight": 5 },
         { "code": "T-PH05", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 05 — Progress engine (7 strategies + rollup)", "status": "DONE", "weight": 3 },
         { "code": "T-PH06", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 06 — Plan import + snapshot backup", "status": "DONE", "weight": 4 },
-        { "code": "T-PH07", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 07 — Hardening (102 unit/integration + 25 e2e)", "status": "DONE", "weight": 3 },
+        { "code": "T-PH07", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 07 — Hardening (129 unit/integration + 28 e2e)", "status": "DONE", "weight": 3 },
         { "code": "T-FR017", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-017 UI wizard — start from objective (no template picker)", "status": "DONE", "weight": 5 },
         { "code": "T-FR018", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-018 Excel template intake (v0.1 pattern, generated from Zod)", "status": "DONE", "weight": 4 },
-        { "code": "T-FR019", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-019 Enterprise API + ExternalRef (upsert by external id)", "status": "PLANNED", "weight": 4 },
+        { "code": "T-FR019", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-019 Enterprise API + ExternalRef (upsert by external id)", "status": "DONE", "weight": 4 },
         { "code": "T-FR020", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-020 Adaptive shell — single vs multi business", "status": "DONE", "weight": 3 }
       ],
       "milestones": [
         { "code": "MS-V2-MVP", "title": "MVP complete — all acceptance criteria pass", "status": "DONE", "weight": 3 },
-        { "code": "MS-V2-INTAKE", "title": "All four intake surfaces live", "status": "PLANNED", "weight": 2 }
+        { "code": "MS-V2-INTAKE", "title": "All four intake surfaces live", "status": "DONE", "weight": 2 }
       ],
       "gates": [
-        { "code": "GATE-V2-ACCEPT", "title": "Acceptance criteria matrix pass", "status": "PASSED", "required": true, "evidence": { "report": ".agent/reports/FINAL.md", "tests": "75 vitest + 20 playwright" } }
+        { "code": "GATE-V2-ACCEPT", "title": "Acceptance criteria matrix pass", "status": "PASSED", "required": true, "evidence": { "report": ".agent/reports/FINAL.md", "tests": "129 vitest + 28 playwright" } }
       ]
     },
     {

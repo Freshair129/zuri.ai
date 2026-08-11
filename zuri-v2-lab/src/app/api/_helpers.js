@@ -5,6 +5,17 @@ export function ok(data, init) {
   return NextResponse.json(data, init)
 }
 
+/**
+ * Throw from a route handler to choose the status explicitly instead of
+ * relying on message sniffing (used by the enterprise API, where integrators
+ * branch on the status code).
+ */
+export function httpError(status, message) {
+  const err = new Error(message)
+  err.status = status
+  return err
+}
+
 export async function handle(fn) {
   try {
     const data = await fn()
@@ -19,7 +30,8 @@ export async function handle(fn) {
     const message = err?.message || 'Unknown error'
     const notFound = /not found/i.test(message)
     const denied = /denied|not allowed|cycle|must|cannot|requires|unknown/i.test(message)
-    return NextResponse.json({ error: message }, { status: notFound ? 404 : denied ? 400 : 500 })
+    const status = Number(err?.status) || (notFound ? 404 : denied ? 400 : 500)
+    return NextResponse.json({ error: message }, { status })
   }
 }
 

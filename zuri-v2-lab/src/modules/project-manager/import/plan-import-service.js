@@ -1,10 +1,12 @@
 import prisma from '@/lib/db'
 import { zPlanEnvelope, validatePlanSemantics } from './plan-schema'
+import { resolveEntityIdentity, syncExternalRefs } from './external-ref'
 import { recordAudit } from '../application/audit'
 
-// @req FR-012 — dry-run preview + transactional commit + audit
+// @req FR-012, FR-019 — dry-run preview + transactional commit + audit,
+// with identity resolved by external id before code (Salesforce-style upsert).
 // @spec SDD-006, SEC-002, BR-009 — single transaction; unified intake pipeline
-// @tested tests/integration/plan-import.test.js
+// @tested tests/integration/plan-import.test.js, tests/integration/external-ref-import.test.js
 // PlanEnvelope import pipeline:
 //   JSON → Zod validation → semantic validation → dry-run diff → transactional commit → AuditEvent.
 // Imported plans are data only; nothing in a plan is ever executed.
@@ -73,58 +75,88 @@ export async function dryRunPlan(rawPlan, { workspaceId } = {}) {
   const inserts = []
   const updates = []
   const conflicts = []
+  // Identity decision per plan code, reused verbatim by commit so the preview
+  // can never disagree with what is actually written.
+  const resolution = {}
 
-  const existingProject = await prisma.project.findUnique({ where: { code: plan.project.code } })
-  if (existingProject) {
-    if (existingProject.workspaceId !== workspace.id) {
-      conflicts.push({
-        kind: 'project',
-        code: plan.project.code,
-        reason: `Project code exists in a different workspace (${existingProject.workspaceId})`,
-      })
-    } else {
-      updates.push({ kind: 'project', code: plan.project.code, title: plan.project.name })
+  /**
+   * Classify one entity: external id first, then code, then insert.
+   * `extraConflictCheck` runs against the record we would write to.
+   */
+  const classify = async (model, kind, entity, title, extraConflictCheck) => {
+    const code = entity.code
+    const decided = await resolveEntityIdentity({ kind, code, externalRefs: entity.externalRefs })
+    resolution[code] = decided
+    if (decided.conflict) {
+      conflicts.push({ kind, code, reason: decided.conflict })
+      return null
     }
-  } else {
-    inserts.push({ kind: 'project', code: plan.project.code, title: plan.project.name })
-  }
-
-  const classify = async (model, kind, code, title, extraConflictCheck) => {
+    if (decided.matchedBy === 'externalRef') {
+      const existing = await prisma[model].findUnique({ where: { id: decided.entityId } })
+      const conflict = extraConflictCheck ? extraConflictCheck(existing) : null
+      if (conflict) conflicts.push({ kind, code, reason: conflict })
+      else
+        updates.push({
+          kind,
+          code: decided.matchedCode,
+          title,
+          matchedBy: 'externalRef',
+          planCode: code !== decided.matchedCode ? code : undefined,
+        })
+      return existing
+    }
     const existing = await prisma[model].findUnique({ where: { code } })
     if (!existing) {
-      inserts.push({ kind, code, title })
-      return
+      inserts.push({ kind, code, title, matchedBy: decided.refs.length > 0 ? 'newMapping' : undefined })
+      return null
     }
     const conflict = extraConflictCheck ? extraConflictCheck(existing) : null
     if (conflict) conflicts.push({ kind, code, reason: conflict })
     else updates.push({ kind, code, title })
+    return existing
   }
+
+  const existingProject = await classify('project', 'project', plan.project, plan.project.name, (existing) =>
+    existing && existing.workspaceId !== workspace.id
+      ? `Project exists in a different workspace (${existing.workspaceId})`
+      : null
+  )
 
   for (const ws of plan.workstreams) {
-    await classify('workstream', 'workstream', ws.code, ws.name, (existing) =>
-      existingProject && existing.projectId !== existingProject.id
-        ? 'Workstream code belongs to a different project'
+    await classify('workstream', 'workstream', ws, ws.name, (existing) =>
+      existingProject && existing && existing.projectId !== existingProject.id
+        ? 'Workstream belongs to a different project'
         : null
     )
-    for (const c of ws.containers || []) await classify('workContainer', 'container', c.code, c.title)
-    for (const i of ws.items || []) await classify('workItem', 'item', i.code, i.title)
-    for (const m of ws.milestones || []) await classify('milestone', 'milestone', m.code, m.title)
-    for (const g of ws.gates || []) await classify('gate', 'gate', g.code, g.title)
+    for (const c of ws.containers || []) await classify('workContainer', 'container', c, c.title)
+    for (const i of ws.items || []) await classify('workItem', 'item', i, i.title)
+    for (const m of ws.milestones || []) await classify('milestone', 'milestone', m, m.title)
+    for (const g of ws.gates || []) await classify('gate', 'gate', g, g.title)
   }
-  for (const r of plan.repositories || []) await classify('repository', 'repository', r.code, r.fullName || r.code)
+  // Repositories keep code-only identity (they are our own registry, not a
+  // customer record), so they are classified without external refs.
+  for (const r of plan.repositories || []) {
+    const existing = await prisma.repository.findUnique({ where: { code: r.code } })
+    if (existing) updates.push({ kind: 'repository', code: r.code, title: r.fullName || r.code })
+    else inserts.push({ kind: 'repository', code: r.code, title: r.fullName || r.code })
+  }
 
   const dependencyCount = (plan.dependencies || []).length
+  const externalRefCount = Object.values(resolution).reduce((s, r) => s + r.refs.length, 0)
 
   return {
     valid: conflicts.length === 0,
     errors: conflicts.map((c) => `${c.kind} ${c.code}: ${c.reason}`),
     plan,
     workspace: { id: workspace.id, code: workspace.code, name: workspace.name },
+    resolution,
     preview: {
       inserts,
       updates,
       conflicts,
       dependencyCount,
+      externalRefCount,
+      matchedByExternalId: updates.filter((u) => u.matchedBy === 'externalRef').length,
       summary: {
         insertCount: inserts.length,
         updateCount: updates.length,
@@ -142,43 +174,65 @@ export async function commitPlan(rawPlan, { workspaceId } = {}) {
   if (!dry.valid) {
     return { committed: false, errors: dry.errors, preview: dry.preview }
   }
-  const { plan, workspace } = dry
+  const { plan, workspace, resolution } = dry
 
   const result = await prisma.$transaction(async (tx) => {
     const codeToEntity = new Map() // code -> { kind, id }
+    const now = new Date()
 
-    // Project (upsert by code).
-    const project = await tx.project.upsert({
-      where: { code: plan.project.code },
-      update: {
+    /**
+     * Write one entity through the identity decided in the dry run:
+     * an external-id match updates that exact record (our code is left alone),
+     * everything else upserts by code. Mappings are then (re)attached.
+     */
+    const write = async (model, kind, code, update, create) => {
+      const decided = resolution[code]
+      const record =
+        decided?.matchedBy === 'externalRef'
+          ? await tx[model].update({ where: { id: decided.entityId }, data: update })
+          : await tx[model].upsert({ where: { code }, update, create })
+      if (decided?.refs?.length) {
+        await syncExternalRefs(tx, { kind, entityId: record.id, refs: decided.refs }, now)
+      }
+      codeToEntity.set(code, { kind, id: record.id })
+      return record
+    }
+
+    // Project (external id first, then code).
+    const project = await write(
+      'project',
+      'project',
+      plan.project.code,
+      {
         name: plan.project.name,
         description: plan.project.description ?? undefined,
         type: plan.project.type ?? undefined,
         status: plan.project.status ?? undefined,
         version: { increment: 1 },
       },
-      create: {
+      {
         code: plan.project.code,
         workspaceId: workspace.id,
         name: plan.project.name,
         description: plan.project.description ?? null,
         type: plan.project.type || 'GENERAL',
         status: plan.project.status || 'PLANNED',
-      },
-    })
-    codeToEntity.set(plan.project.code, { kind: 'project', id: project.id })
+      }
+    )
 
     for (const ws of plan.workstreams) {
-      const workstream = await tx.workstream.upsert({
-        where: { code: ws.code },
-        update: {
+      const workstream = await write(
+        'workstream',
+        'workstream',
+        ws.code,
+        {
           name: ws.name,
           executionMode: ws.executionMode,
           progressStrategy: ws.progressStrategy,
           progressWeight: ws.progressWeight ?? 1,
           version: { increment: 1 },
         },
-        create: {
+        {
           code: ws.code,
           projectId: project.id,
           name: ws.name,
@@ -186,32 +240,32 @@ export async function commitPlan(rawPlan, { workspaceId } = {}) {
           progressStrategy: ws.progressStrategy,
           progressWeight: ws.progressWeight ?? 1,
           status: 'PLANNED',
-        },
-      })
-      codeToEntity.set(ws.code, { kind: 'workstream', id: workstream.id })
+        }
+      )
 
       const containerIdByCode = new Map()
       for (const c of ws.containers || []) {
-        const container = await tx.workContainer.upsert({
-          where: { code: c.code },
-          update: {
+        const container = await write(
+          'workContainer',
+          'container',
+          c.code,
+          {
             title: c.title,
             subtype: c.subtype,
             status: c.status ?? undefined,
             metadataJson: c.metadata ? JSON.stringify(c.metadata) : undefined,
             version: { increment: 1 },
           },
-          create: {
+          {
             code: c.code,
             workstreamId: workstream.id,
             subtype: c.subtype,
             title: c.title,
             status: c.status || 'PLANNED',
             metadataJson: JSON.stringify(c.metadata || {}),
-          },
-        })
+          }
+        )
         containerIdByCode.set(c.code, container.id)
-        codeToEntity.set(c.code, { kind: 'container', id: container.id })
       }
       // Second pass: parent linkage.
       for (const c of ws.containers || []) {
@@ -224,9 +278,11 @@ export async function commitPlan(rawPlan, { workspaceId } = {}) {
       }
 
       for (const i of ws.items || []) {
-        const item = await tx.workItem.upsert({
-          where: { code: i.code },
-          update: {
+        await write(
+          'workItem',
+          'item',
+          i.code,
+          {
             title: i.title,
             subtype: i.subtype,
             status: i.status ?? undefined,
@@ -238,7 +294,7 @@ export async function commitPlan(rawPlan, { workspaceId } = {}) {
             metadataJson: i.metadata ? JSON.stringify(i.metadata) : undefined,
             version: { increment: 1 },
           },
-          create: {
+          {
             code: i.code,
             workstreamId: workstream.id,
             containerId: i.containerCode ? containerIdByCode.get(i.containerCode) : null,
@@ -250,37 +306,39 @@ export async function commitPlan(rawPlan, { workspaceId } = {}) {
             probability: i.probability ?? null,
             metricDataJson: JSON.stringify(i.metrics || {}),
             metadataJson: JSON.stringify(i.metadata || {}),
-          },
-        })
-        codeToEntity.set(i.code, { kind: 'item', id: item.id })
+          }
+        )
       }
 
       for (const m of ws.milestones || []) {
-        const milestone = await tx.milestone.upsert({
-          where: { code: m.code },
-          update: { title: m.title, status: m.status ?? undefined, weight: m.weight ?? undefined },
-          create: {
+        await write(
+          'milestone',
+          'milestone',
+          m.code,
+          { title: m.title, status: m.status ?? undefined, weight: m.weight ?? undefined },
+          {
             code: m.code,
             projectId: project.id,
             workstreamId: workstream.id,
             title: m.title,
             status: m.status || 'PLANNED',
             weight: m.weight ?? 1,
-          },
-        })
-        codeToEntity.set(m.code, { kind: 'milestone', id: milestone.id })
+          }
+        )
       }
 
       for (const g of ws.gates || []) {
-        const gate = await tx.gate.upsert({
-          where: { code: g.code },
-          update: {
+        await write(
+          'gate',
+          'gate',
+          g.code,
+          {
             title: g.title,
             status: g.status ?? undefined,
             required: g.required ?? undefined,
             evidenceJson: g.evidence ? JSON.stringify(g.evidence) : undefined,
           },
-          create: {
+          {
             code: g.code,
             projectId: project.id,
             workstreamId: workstream.id,
@@ -288,9 +346,8 @@ export async function commitPlan(rawPlan, { workspaceId } = {}) {
             status: g.status || 'OPEN',
             required: g.required ?? true,
             evidenceJson: JSON.stringify(g.evidence || {}),
-          },
-        })
-        codeToEntity.set(g.code, { kind: 'gate', id: gate.id })
+          }
+        )
       }
     }
 
@@ -342,9 +399,12 @@ export async function commitPlan(rawPlan, { workspaceId } = {}) {
       payload: {
         projectCode: plan.project.code,
         generatedBy: plan.generatedBy || null,
+        schemaVersion: plan.schemaVersion,
         workstreams: plan.workstreams.length,
         inserts: dry.preview.summary.insertCount,
         updates: dry.preview.summary.updateCount,
+        externalRefs: dry.preview.externalRefCount,
+        matchedByExternalId: dry.preview.matchedByExternalId,
       },
     })
 

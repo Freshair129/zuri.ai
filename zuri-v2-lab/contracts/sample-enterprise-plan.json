@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.1",
+  "generatedBy": "customer ERP export (FR-019 sample)",
+  "scope": { "workspaceCode": "WS-PLATFORM" },
+  "project": {
+    "code": "PRJ-ERP-ROLLOUT",
+    "name": "ERP-driven store rollout",
+    "type": "TRANSFORMATION",
+    "status": "ACTIVE",
+    "externalRefs": [{ "system": "SAP", "id": "PS-2026-0042" }]
+  },
+  "workstreams": [
+    {
+      "code": "WST-ERP-SETUP",
+      "name": "Store setup",
+      "executionMode": "BUSINESS_EXPANSION",
+      "progressStrategy": "EXPANSION_READINESS",
+      "progressWeight": 2,
+      "externalRefs": [{ "system": "SAP", "id": "WBS-2026-0042-10" }],
+      "items": [
+        {
+          "code": "WI-ERP-LEASE",
+          "subtype": "SETUP_ACTION",
+          "title": "Sign lease",
+          "status": "DONE",
+          "externalRefs": [{ "system": "SAP", "id": "NWA-100310" }]
+        },
+        {
+          "code": "WI-ERP-POS",
+          "subtype": "SETUP_ACTION",
+          "title": "Install POS terminals",
+          "status": "IN_PROGRESS",
+          "externalRefs": [
+            { "system": "SAP", "id": "NWA-100311" },
+            { "system": "LEGACY_POS", "id": "STORE-88421-POS", "labelAs": false }
+          ]
+        }
+      ],
+      "gates": [
+        {
+          "code": "GATE-ERP-PERMIT",
+          "title": "Health permit approved",
+          "required": true,
+          "externalRefs": [{ "system": "SAP", "id": "MS-100399" }]
+        }
+      ]
+    }
+  ],
+  "dependencies": [{ "sourceRef": "GATE-ERP-PERMIT", "targetRef": "WI-ERP-POS", "type": "BLOCKS" }]
+}

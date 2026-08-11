@@ -19,11 +19,15 @@
 9. Zuri Heritage UI: exact token set, glass nav, amber-active states, responsive to 375px, empty/error/loading states, command palette (Ctrl+K), filters/search.
 10. Tests: 75 Vitest unit+integration (isolated test DB) + 20 Playwright E2E — all green; `npm run build` clean.
 
-> **Post-MVP addendum (2026-08-12).** Intake phase FR-017 (objective wizard), FR-018
-> (Excel template intake) and FR-020 (adaptive shell) landed after this report.
-> Current suite: **102 Vitest + 25 Playwright**, build clean. Two acceptance rows below
-> changed affordance without losing capability — see the addendum notes on the
-> Portfolio and Business selector rows.
+> **Post-MVP addendum (2026-08-12).** The intake phase landed after this report and is
+> now complete: FR-017 (objective wizard), FR-018 (Excel template intake), FR-020
+> (adaptive shell) and FR-019 (Enterprise API — ExternalRef mapping, envelope 1.1,
+> OpenAPI generated from Zod at `GET /api/docs`). All four intake surfaces end at the
+> same validate → dry-run → commit → audit pipeline. Current suite: **129 Vitest + 28
+> Playwright**, build clean. Two acceptance rows below changed affordance without losing
+> capability — see the addendum notes on the Portfolio and Business selector rows.
+> New dependency since the MVP: `@asteasolutions/zod-to-openapi@7.3.4` (build-time only,
+> no runtime network access).
 
 ## Routes verified (build + E2E + live checks)
 

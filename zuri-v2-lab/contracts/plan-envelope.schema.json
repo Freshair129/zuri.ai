@@ -11,7 +11,10 @@
   "additionalProperties": false,
   "properties": {
     "schemaVersion": {
-      "const": "1.0"
+      "enum": [
+        "1.0",
+        "1.1"
+      ]
     },
     "generatedBy": {
       "type": "string"
@@ -61,6 +64,12 @@
         },
         "status": {
           "type": "string"
+        },
+        "externalRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/externalRef"
+          }
         }
       }
     },
@@ -130,6 +139,12 @@
             "type": "array",
             "items": {
               "$ref": "#/$defs/gate"
+            }
+          },
+          "externalRefs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/externalRef"
             }
           }
         }
@@ -222,6 +237,12 @@
         },
         "metadata": {
           "type": "object"
+        },
+        "externalRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/externalRef"
+          }
         }
       },
       "additionalProperties": false
@@ -265,6 +286,12 @@
         },
         "metadata": {
           "type": "object"
+        },
+        "externalRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/externalRef"
+          }
         }
       },
       "additionalProperties": false
@@ -287,6 +314,12 @@
         },
         "weight": {
           "type": "number"
+        },
+        "externalRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/externalRef"
+          }
         }
       },
       "additionalProperties": false
@@ -312,9 +345,34 @@
         },
         "evidence": {
           "type": "object"
+        },
+        "externalRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/externalRef"
+          }
         }
       },
       "additionalProperties": false
+    },
+    "externalRef": {
+      "type": "object",
+      "required": [
+        "system",
+        "id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "system": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "labelAs": {
+          "type": "boolean"
+        }
+      }
     }
   }
 }

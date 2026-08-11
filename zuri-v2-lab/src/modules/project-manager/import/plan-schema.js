@@ -1,11 +1,23 @@
 import { z } from 'zod'
 import { zExecutionMode, zProgressStrategy, zDependencyType } from '@/lib/validation/enums'
 
-// @req FR-012 — PlanEnvelope validation (shape + semantics)
+// @req FR-012, FR-019 — PlanEnvelope validation (shape + semantics)
 // @spec BR-004, BR-007, SEC-002 — unknown modes rejected; plans are data, never executed
 // @tested tests/unit/plan-schema.test.js
-// Zod mirror of contracts/plan-envelope.schema.json (schemaVersion 1.0).
+// Zod mirror of contracts/plan-envelope.schema.json (schemaVersion 1.0 / 1.1).
 // strict() everywhere = additionalProperties:false. Never executes plan content.
+
+// FR-019 — the customer's own core id, carried alongside our code. It maps to
+// an internal UUID and may act as the display label; it never becomes a key.
+export const zExternalRef = z
+  .object({
+    system: z.string().min(1),
+    id: z.string().min(1),
+    labelAs: z.boolean().optional(),
+  })
+  .strict()
+
+const externalRefs = z.array(zExternalRef).optional()
 
 const zContainer = z
   .object({
@@ -15,6 +27,7 @@ const zContainer = z
     title: z.string().min(1),
     status: z.string().optional(),
     metadata: z.record(z.any()).optional(),
+    externalRefs,
   })
   .strict()
 
@@ -30,6 +43,7 @@ const zItem = z
     probability: z.number().min(0).max(1).optional(),
     metrics: z.record(z.any()).optional(),
     metadata: z.record(z.any()).optional(),
+    externalRefs,
   })
   .strict()
 
@@ -39,6 +53,7 @@ const zMilestone = z
     title: z.string().min(1),
     status: z.string().optional(),
     weight: z.number().optional(),
+    externalRefs,
   })
   .strict()
 
@@ -49,6 +64,7 @@ const zGate = z
     status: z.string().optional(),
     required: z.boolean().optional(),
     evidence: z.record(z.any()).optional(),
+    externalRefs,
   })
   .strict()
 
@@ -63,12 +79,14 @@ const zWorkstream = z
     items: z.array(zItem).optional(),
     milestones: z.array(zMilestone).optional(),
     gates: z.array(zGate).optional(),
+    externalRefs,
   })
   .strict()
 
 export const zPlanEnvelope = z
   .object({
-    schemaVersion: z.literal('1.0'),
+    // 1.1 adds externalRefs; 1.0 envelopes stay valid (fields are optional).
+    schemaVersion: z.enum(['1.0', '1.1']),
     generatedBy: z.string().optional(),
     generatedAt: z.string().optional(),
     scope: z
@@ -87,6 +105,7 @@ export const zPlanEnvelope = z
         description: z.string().optional(),
         type: z.string().optional(),
         status: z.string().optional(),
+        externalRefs,
       })
       .strict(),
     workstreams: z.array(zWorkstream),
@@ -129,21 +148,38 @@ export const zPlanEnvelope = z
 export function validatePlanSemantics(plan) {
   const errors = []
   const allCodes = new Map() // code -> kind
+  const externalIds = new Map() // "SYSTEM|value" -> code that claimed it
 
-  const claim = (code, kind) => {
+  // FR-019 — one external id may point at exactly one record. Two entities in
+  // the same batch claiming it is ambiguous, so it is rejected, never guessed.
+  const claimExternal = (entity, code) => {
+    for (const ref of entity.externalRefs || []) {
+      const key = `${ref.system}|${ref.id}`
+      if (externalIds.has(key)) {
+        errors.push(
+          `External id ${ref.system}:${ref.id} is claimed twice in this plan ("${externalIds.get(key)}" and "${code}")`
+        )
+      } else {
+        externalIds.set(key, code)
+      }
+    }
+  }
+
+  const claim = (code, kind, entity) => {
     if (allCodes.has(code)) {
       errors.push(`Duplicate code "${code}" (${allCodes.get(code)} vs ${kind})`)
     } else {
       allCodes.set(code, kind)
     }
+    if (entity) claimExternal(entity, code)
   }
 
-  claim(plan.project.code, 'project')
+  claim(plan.project.code, 'project', plan.project)
   for (const ws of plan.workstreams) {
-    claim(ws.code, 'workstream')
+    claim(ws.code, 'workstream', ws)
     const containerCodes = new Set()
     for (const c of ws.containers || []) {
-      claim(c.code, 'container')
+      claim(c.code, 'container', c)
       containerCodes.add(c.code)
     }
     for (const c of ws.containers || []) {
@@ -155,13 +191,13 @@ export function validatePlanSemantics(plan) {
       }
     }
     for (const i of ws.items || []) {
-      claim(i.code, 'item')
+      claim(i.code, 'item', i)
       if (i.containerCode && !containerCodes.has(i.containerCode)) {
         errors.push(`Item "${i.code}" references unknown container "${i.containerCode}" in workstream "${ws.code}"`)
       }
     }
-    for (const m of ws.milestones || []) claim(m.code, 'milestone')
-    for (const g of ws.gates || []) claim(g.code, 'gate')
+    for (const m of ws.milestones || []) claim(m.code, 'milestone', m)
+    for (const g of ws.gates || []) claim(g.code, 'gate', g)
   }
   for (const r of plan.repositories || []) claim(r.code, 'repository')
 

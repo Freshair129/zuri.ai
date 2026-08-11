@@ -356,6 +356,25 @@ model ProjectRepository {
   @@index([repoId])
 }
 
+// FR-019 — Enterprise integration: a customer's own core id mapped onto our
+// internal UUID. Generalizes LegalEntityIdentifier / Repository.externalRepoId.
+// An external value is NEVER a primary key and never becomes our `code`
+// (code = our namespace, value = the customer's namespace).
+model ExternalRef {
+  id         String    @id @default(uuid())
+  entityType String // PROJECT | WORKSTREAM | WORK_CONTAINER | WORK_ITEM | MILESTONE | GATE
+  entityId   String // internal UUID
+  system     String // "SAP" | "SALESFORCE" | "LEGACY_POS" | ...
+  value      String // the customer's core id, e.g. CUST-88421
+  labelAs    Boolean   @default(true) // show value as the display label
+  verifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([system, value])
+  @@index([entityType, entityId])
+}
+
 model AuditEvent {
   id          String   @id @default(uuid())
   entityType  String

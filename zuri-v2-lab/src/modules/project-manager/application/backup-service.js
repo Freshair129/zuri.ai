@@ -27,6 +27,11 @@ const SNAPSHOT_MODELS = [
   'dependency',
   'repository',
   'projectRepository',
+  // FR-019 — customer id mappings travel with the data; losing them on restore
+  // would orphan every integration. Snapshots written before this table existed
+  // still restore (a missing table reads as an empty list), so the snapshot
+  // schemaVersion stays 1.0.
+  'externalRef',
   'auditEvent',
 ]
 

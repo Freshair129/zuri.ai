@@ -247,6 +247,72 @@ test.describe('FR-020 adaptive shell', () => {
   })
 })
 
+test.describe('FR-019 enterprise API', () => {
+  // Backend-first surface: no UI, so this exercises it the way an integrator
+  // would — HTTP only, against the running server.
+  const plan = (overrides = {}) => ({
+    schemaVersion: '1.1',
+    generatedBy: 'e2e-erp',
+    scope: { workspaceCode: 'WS-PLATFORM' },
+    project: {
+      code: 'PRJ-E2E-ENTERPRISE',
+      name: 'E2E enterprise rollout',
+      status: 'ACTIVE',
+      externalRefs: [{ system: 'E2E_SAP', id: 'PS-E2E-88421' }],
+      ...overrides,
+    },
+    workstreams: [
+      {
+        code: 'WST-E2E-ENTERPRISE',
+        name: 'Rollout',
+        executionMode: 'OPERATIONS',
+        progressStrategy: 'SLA_SCORE',
+        items: [{ code: 'WI-E2E-ENTERPRISE', subtype: 'CHECKLIST_ITEM', title: 'Install POS', status: 'PLANNED' }],
+      },
+    ],
+  })
+
+  test('publishes an OpenAPI contract generated from the live schema', async ({ request }) => {
+    const res = await request.get('/api/docs')
+    expect(res.status()).toBe(200)
+    const doc = await res.json()
+    expect(doc.openapi).toMatch(/^3\./)
+    expect(doc.paths['/api/import/commit']).toBeTruthy()
+    expect(doc.components.schemas.PlanEnvelope.properties.project.properties.externalRefs).toBeTruthy()
+  })
+
+  test('upserts by the customer core id and resolves it back', async ({ request }) => {
+    const dry = await (await request.post('/api/import/dry-run', { data: { plan: plan() } })).json()
+    expect(dry.valid).toBe(true)
+
+    const commit = await (await request.post('/api/import/commit', { data: { plan: plan() } })).json()
+    expect(commit.committed).toBe(true)
+
+    // The customer asks with its own id and gets our internal id back.
+    const resolved = await (await request.get('/api/resolve?system=E2E_SAP&value=PS-E2E-88421')).json()
+    expect(resolved.type).toBe('PROJECT')
+    expect(resolved.id).toBe(commit.projectId)
+    expect(resolved.code).toBe('PRJ-E2E-ENTERPRISE')
+
+    // Re-sending under a different code of theirs updates the same record.
+    const renamed = plan({ code: 'PRJ-E2E-THEIR-CODE', name: 'E2E enterprise rollout v2' })
+    const second = await (await request.post('/api/import/commit', { data: { plan: renamed } })).json()
+    expect(second.committed).toBe(true)
+    expect(second.projectId).toBe(commit.projectId)
+    expect(second.projectCode).toBe('PRJ-E2E-ENTERPRISE') // our namespace is untouched
+  })
+
+  test('rejects an unmapped external id instead of inventing one', async ({ request }) => {
+    const res = await request.get('/api/resolve?system=E2E_SAP&value=DOES-NOT-EXIST')
+    expect(res.status()).toBe(404)
+    expect((await res.json()).error).toMatch(/not mapped/)
+
+    // Half a lookup key is a client error, not a silent guess.
+    const partial = await request.get('/api/resolve?system=E2E_SAP')
+    expect(partial.status()).toBe(400)
+  })
+})
+
 test.describe('responsive smoke', () => {
   test('no horizontal page overflow at mobile viewport', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 })

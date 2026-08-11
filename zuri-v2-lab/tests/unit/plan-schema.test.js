@@ -77,3 +77,52 @@ describe('plan semantics', () => {
     expect(errors.some((e) => e.includes('sourceRef "GHOST"'))).toBe(true)
   })
 })
+
+// @req FR-019 — envelope 1.1 carries the customer's own core ids.
+describe('external refs in the envelope', () => {
+  const withRefs = () => {
+    const plan = structuredClone(validPlan)
+    plan.schemaVersion = '1.1'
+    plan.project.externalRefs = [{ system: 'SAP', id: 'PRJ-1' }]
+    plan.workstreams[0].items[0].externalRefs = [{ system: 'SAP', id: 'TASK-1', labelAs: false }]
+    return plan
+  }
+
+  it('accepts refs on every keyable entity', () => {
+    const parsed = zPlanEnvelope.safeParse(withRefs())
+    expect(parsed.success).toBe(true)
+    expect(validatePlanSemantics(parsed.data)).toEqual([])
+  })
+
+  it('still accepts a 1.0 envelope with no refs at all', () => {
+    expect(zPlanEnvelope.safeParse(validPlan).success).toBe(true)
+  })
+
+  it('rejects a ref missing its system or id', () => {
+    const bad = withRefs()
+    bad.project.externalRefs = [{ id: 'PRJ-1' }]
+    expect(zPlanEnvelope.safeParse(bad).success).toBe(false)
+    const empty = withRefs()
+    empty.project.externalRefs = [{ system: 'SAP', id: '' }]
+    expect(zPlanEnvelope.safeParse(empty).success).toBe(false)
+  })
+
+  it('rejects unknown fields inside a ref (strict contract)', () => {
+    const bad = withRefs()
+    bad.project.externalRefs = [{ system: 'SAP', id: 'PRJ-1', primaryKey: true }]
+    expect(zPlanEnvelope.safeParse(bad).success).toBe(false)
+  })
+
+  it('flags the same external id claimed by two entities', () => {
+    const bad = withRefs()
+    bad.workstreams[0].externalRefs = [{ system: 'SAP', id: 'PRJ-1' }]
+    const errors = validatePlanSemantics(zPlanEnvelope.parse(bad))
+    expect(errors.some((e) => e.includes('claimed twice'))).toBe(true)
+  })
+
+  it('rejects an unsupported schemaVersion', () => {
+    const bad = withRefs()
+    bad.schemaVersion = '2.0'
+    expect(zPlanEnvelope.safeParse(bad).success).toBe(false)
+  })
+})
