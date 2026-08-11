@@ -56,14 +56,14 @@ Anchored by `@spec` in the code that enforces them.
 | BR-007 | แผนที่ import เป็นข้อมูลเท่านั้น — ไม่มีการ execute code จาก plan | `modules/project-manager/import/plan-schema.js` | `unit/plan-schema.test.js` | ✅ |
 | BR-008 | Restore snapshot ต้อง preview + confirm เสมอ — ไม่มี silent overwrite | `modules/project-manager/application/backup-service.js` | `integration/backup.test.js` | ✅ |
 | BR-009 | ทุก intake surface (UI/Excel/agent/API) ต้องจบที่ pipeline validate→dry-run→commit เดียวกัน | `modules/project-manager/import/plan-import-service.js` | `integration/external-ref-import.test.js`, `integration/plan-import.test.js` | ✅ |
-| SDD-001 | Standalone repo ก่อน integrate (ADR-001) | — | — | 🔴 no anchor |
+| SDD-001 | ~~Standalone repo ก่อน integrate (ADR-001)~~ **superseded by ADR-003** — V2 แทน V1 ด้วยการ reuse (ยก UI ทีละโมดูลตอน cutover) | — | — | 🔴 no anchor |
 | SDD-002 | Persisted enums เป็น string, Zod (`src/lib/validation/enums.js`) เป็น source of truth เดียว | `lib/validation/enums.js` | `integration/xlsx-intake.test.js`, `unit/plan-schema.test.js` | ✅ |
 | SDD-003 | UUID PK + human code (unique) พร้อม collision retry | `lib/ids.js` | `unit/ids.test.js` | ✅ |
 | SDD-004 | Soft delete (`deletedAt`) + `version` counter บน aggregate roots | `modules/project-manager/application/project-service.js` | `integration/project-core.test.js` | ✅ |
 | SDD-005 | Progress calculators เป็น pure function; `progressCache` เป็น advisory เท่านั้น | `modules/project-manager/progress/strategies.js` | `unit/strategies.test.js` | ✅ |
 | SDD-006 | Import commit ใน `prisma.$transaction` เดียว, upsert by code | `modules/project-manager/import/plan-import-service.js` | `integration/external-ref-import.test.js`, `integration/plan-import.test.js` | ✅ |
 | SDD-007 | UI เป็น client fetch (`useFetch`) เรียก API handlers ซึ่ง delegate ให้ services | `modules/project-manager/components/useApi.js` | — | 🟠 no test |
-| SDD-008 | JavaScript + Zod ที่ boundary (ไม่ใช่ TypeScript) | — | — | 🔴 no anchor |
+| SDD-008 | JavaScript + Zod ที่ boundary (ไม่ใช่ TypeScript) — **ยึดกับไฟล์ใดไฟล์หนึ่งไม่ได้โดยธรรมชาติ** | — | — | 🔴 no anchor |
 | SDD-009 | Unified intake: ทุก surface แปลงเป็น envelope เดียว | `modules/project-manager/import/plan-import-service.js` | `integration/external-ref-import.test.js`, `integration/plan-import.test.js` | ✅ |
 | SEC-001 | Cross-tenant/business guard (`assertWorkspaceInScope`) — ปฏิเสธข้าม scope | `modules/project-manager/application/scope-service.js` | `integration/scope-and-isolation.test.js` | ✅ |
 | SEC-002 | ไม่ execute code จาก imported plans (strict Zod, additionalProperties rejected) | `modules/project-manager/import/plan-import-service.js`, `modules/project-manager/import/plan-schema.js` | `integration/external-ref-import.test.js`, `integration/plan-import.test.js`, `unit/plan-schema.test.js` | ✅ |

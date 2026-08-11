@@ -16,6 +16,7 @@
 | 1.0.0 | 2026-08-11 | Owen + Claude | Initial creation via RWANG doc-architect — merged from spec pack (`D:\zuri-ai\docs`) + build docs |
 | 1.0.1 | 2026-08-12 | Claude | FR-017 (UI wizard), FR-018 (Excel intake), FR-020 (adaptive shell) delivered → ✅ |
 | 1.0.2 | 2026-08-12 | Claude | FR-019 (Enterprise API: ExternalRef, envelope 1.1, OpenAPI from Zod) → ✅ — intake phase complete |
+| 1.0.3 | 2026-08-12 | Claude | ADR-003 fallout: SDD-001 superseded; SEC-004 flagged as about to become false; SEC-005 raised to P0; SDD-008 risk recorded |
 
 ## Referenced Standards
 
@@ -130,14 +131,14 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 
 | ID | Decision | เหตุผล |
 |---|---|---|
-| SDD-001 | Standalone repo ก่อน integrate (ADR-001) | กัน regression ใน Zuri v1, ทดลอง schema ได้อิสระ |
+| SDD-001 | ~~Standalone repo ก่อน integrate (ADR-001)~~ **superseded by ADR-003** — V2 แทน V1 ด้วยการ reuse (ยก UI ทีละโมดูลตอน cutover) | เหตุผลเดิม (กัน regression, ทดลอง schema อิสระ) ทำหน้าที่จบแล้ว |
 | SDD-002 | Persisted enums เป็น string, Zod (`src/lib/validation/enums.js`) เป็น source of truth เดียว | Postgres migration ไร้ connector coupling |
 | SDD-003 | UUID PK + human code (unique) พร้อม collision retry | BR-002; code ใช้อ้างใน Excel/envelope ได้ |
 | SDD-004 | Soft delete (`deletedAt`) + `version` counter บน aggregate roots | audit-friendly, กู้คืนได้ |
 | SDD-005 | Progress calculators เป็น pure function; `progressCache` เป็น advisory เท่านั้น | deterministic tests, คำนวณซ้ำได้เสมอ |
 | SDD-006 | Import commit ใน `prisma.$transaction` เดียว, upsert by code | atomicity + idempotent re-import |
 | SDD-007 | UI เป็น client fetch (`useFetch`) เรียก API handlers ซึ่ง delegate ให้ services | MVP-simple; server-component read path เป็นงานอนาคต |
-| SDD-008 | JavaScript + Zod ที่ boundary (ไม่ใช่ TypeScript) | mandate จาก MASTER-PROMPT tree |
+| SDD-008 | JavaScript + Zod ที่ boundary (ไม่ใช่ TypeScript) — **ยึดกับไฟล์ใดไฟล์หนึ่งไม่ได้โดยธรรมชาติ** | mandate จาก MASTER-PROMPT tree · ความเสี่ยงที่ตามมา: ไม่มี compiler บังคับสัญญา จึงต้องมี contract test ก่อนเขียนไส้ endpoint ใหม่ (ADR-003 §D6) |
 | SDD-009 | Unified intake: ทุก surface แปลงเป็น envelope เดียว | BR-009; เทสต์ pipeline ชุดเดียวคุ้มทุกทาง |
 
 ## 2.3 Security requirements
@@ -147,8 +148,8 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SEC-001 | Cross-tenant/business guard (`assertWorkspaceInScope`) — ปฏิเสธข้าม scope | ✅ tested |
 | SEC-002 | ไม่ execute code จาก imported plans (strict Zod, additionalProperties rejected) | ✅ tested |
 | SEC-003 | AuditEvent append-only สำหรับทุก mutation สำคัญ | ✅ |
-| SEC-004 | MVP ไม่มี customer PII ในระบบ | ✅ by scope |
-| SEC-005 | PDPA: consent ต่อธุรกิจใน `CustomerBusinessProfile` เมื่อทำ CRM sharing | 🔜 (เฟส CRM) |
+| SEC-004 | MVP ไม่มี customer PII ในระบบ | ✅ by scope **— เป็นจริงเฉพาะวันนี้**: ADR-003 พา LINE เข้ามาเป็น surface หลัก ข้อความลูกค้าคือ PII ต้องรื้อข้อนี้ก่อนงาน LINE เริ่ม (`TASK-V2-LINE-INTENT`) |
+| SEC-005 | PDPA: consent ต่อธุรกิจใน `CustomerBusinessProfile` เมื่อทำ CRM sharing | 🔜 **เลื่อนขึ้นเป็น P0 ของ PHASE-V2-REPLACE** — ไม่ใช่ "เฟส CRM ทีหลัง" อีกแล้ว เพราะ LINE-first แปลว่าข้อมูลลูกค้าเข้าระบบตั้งแต่วันแรก |
 | SEC-006 | Enterprise API ต้องมี token auth ต่อ tenant ก่อนเปิดใช้จริง | 🔜 |
 
 ## 2.4 API / DB / Testing / Deployment

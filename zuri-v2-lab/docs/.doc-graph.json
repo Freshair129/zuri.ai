@@ -35,7 +35,7 @@
   },
   "drift": {
     "changed": [
-      "doc:ZURI-INTEGRATION-ASSESSMENT"
+      "doc:PRD-SDD-v1.0"
     ],
     "added": [],
     "removed": []
@@ -673,8 +673,8 @@
       "title": "Zuri v2 Project Manager — PRD & SDD",
       "version": "1.0.2",
       "doc_status": "Draft",
-      "hash": "d21a1995",
-      "status": "current"
+      "hash": "fd1f9663",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-zuri-v2-lab",
@@ -702,7 +702,7 @@
       "version": "1.1.0",
       "doc_status": "Decided — A→B (ADR-002, 2026-08-12)",
       "hash": "75827aa5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "req:BR-001",
@@ -1032,7 +1032,7 @@
       "id": "req:SDD-001",
       "type": "requirement",
       "family": "SDD",
-      "label": "Standalone repo ก่อน integrate (ADR-001)",
+      "label": "~~Standalone repo ก่อน integrate (ADR-001)~~ **superseded by ADR-003** — V2 แทน V1 ด้วยการ reuse (ยก UI ทีละโมดูลตอน cutover)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -1095,7 +1095,7 @@
       "id": "req:SDD-008",
       "type": "requirement",
       "family": "SDD",
-      "label": "JavaScript + Zod ที่ boundary (ไม่ใช่ TypeScript)",
+      "label": "JavaScript + Zod ที่ boundary (ไม่ใช่ TypeScript) — **ยึดกับไฟล์ใดไฟล์หนึ่งไม่ได้โดยธรรมชาติ**",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"

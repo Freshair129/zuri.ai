@@ -270,3 +270,43 @@ Mock/seed data is allowed for demos.
 
 Core CRUD, persistence, progress calculation, filtering, plan import, and at least one
 working view for each of the seven execution modes must be functional.
+
+### 16. Use the governance tooling, do not hand-maintain it
+
+The document graph and the preflight report are **generated**, never edited by hand:
+
+```bash
+npm run docs:graph      # rebuild docs/.doc-graph.json + appendices/D-traceability.md
+npm run docs:check      # CI guard: fails when the committed graph is stale
+npm run docs:preflight  # doc health → docs/.preflight-report.json
+```
+
+Run both after any change that adds a route, a Prisma model, a requirement or a
+document. They are the reason drift gets caught: the graph is built from the
+`@req` / `@spec` / `@tested` annotations in the source, and preflight compares the
+appendices against the real routes and models.
+
+Annotate every non-trivial file:
+
+```js
+// @req FR-020 — the user-visible requirement this file delivers
+// @spec BR-004, SDD-002 — the rule or design decision it enforces
+// @tested tests/unit/shell-mode.test.js — where the proof lives
+```
+
+A requirement id used in code but not declared in `zuri-v2-lab/docs/PRD-SDD-v1.0.md`
+is a preflight CRITICAL. Do not chase 100% coverage by adding annotations to files
+that do not really enforce the rule — an unanchored rule is information, a false
+anchor is a lie.
+
+Build/test commands: `npm test` (Vitest), `npm run test:e2e` (Playwright on :3100),
+`npm run build`, `npm run db:seed` / `db:reset`.
+
+### 17. Current integration direction
+
+`docs/ADR-003-V2-REPLACES-V1-BY-REUSE.md` is the binding decision (it supersedes
+ADR-002 in full and amends §1 above): **V2 replaces V1 by reusing it** — the web UI
+is lifted per module at cutover, everything except auth/identity; LINE is the
+primary AI-native surface and the web becomes the back-office console. ADR-001's
+standalone-build rationale still explains how this repo got here, but "do not copy
+`G:\zuri`" no longer applies in the V1 → V2 direction.
