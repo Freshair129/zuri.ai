@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "1.0",
+  "generatedBy": "Claude (dogfood: real zuri.ai development state)",
+  "generatedAt": "2026-08-12T09:00:00+07:00",
+  "scope": {
+    "portfolioCode": "PF-001",
+    "workspaceCode": "WS-PLATFORM"
+  },
+  "project": {
+    "code": "PRJ-ZURI-V2-DEV",
+    "name": "Zuri v2 Development Program",
+    "description": "Real development state of zuri.ai (this repo) — MVP shipped, intake surfaces next. Managed by the Project Manager it builds.",
+    "type": "SOFTWARE",
+    "status": "ACTIVE"
+  },
+  "workstreams": [
+    {
+      "code": "WST-V2-BUILD",
+      "name": "zuri-v2-lab Build",
+      "executionMode": "SOFTWARE_SPRINT",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 2,
+      "containers": [
+        { "code": "SPR-V2-MVP", "subtype": "SPRINT", "title": "MVP build (Phase 00-07)", "status": "DONE" },
+        { "code": "SPR-V2-INTAKE", "subtype": "SPRINT", "title": "Intake surfaces", "status": "ACTIVE" }
+      ],
+      "items": [
+        { "code": "T-PH00", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 00 — Bootstrap (Next.js 14 + Prisma/SQLite)", "status": "DONE", "weight": 2 },
+        { "code": "T-PH01", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 01 — Scope model + selectors + isolation", "status": "DONE", "weight": 3 },
+        { "code": "T-PH02", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 02 — Project core CRUD + dependencies + audit", "status": "DONE", "weight": 5 },
+        { "code": "T-PH03", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 03 — Universal views + command palette", "status": "DONE", "weight": 5 },
+        { "code": "T-PH04", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 04 — Seven execution views", "status": "DONE", "weight": 5 },
+        { "code": "T-PH05", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 05 — Progress engine (7 strategies + rollup)", "status": "DONE", "weight": 3 },
+        { "code": "T-PH06", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 06 — Plan import + snapshot backup", "status": "DONE", "weight": 4 },
+        { "code": "T-PH07", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 07 — Hardening (75 unit/integration + 20 e2e)", "status": "DONE", "weight": 3 },
+        { "code": "T-FR017", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-017 UI wizard — start from objective (no template picker)", "status": "PLANNED", "weight": 5 },
+        { "code": "T-FR018", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-018 Excel template intake (v0.1 pattern, generated from Zod)", "status": "PLANNED", "weight": 4 },
+        { "code": "T-FR019", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-019 Enterprise API + ExternalRef (upsert by external id)", "status": "PLANNED", "weight": 4 },
+        { "code": "T-FR020", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-020 Adaptive shell — single vs multi business", "status": "PLANNED", "weight": 3 }
+      ],
+      "milestones": [
+        { "code": "MS-V2-MVP", "title": "MVP complete — all acceptance criteria pass", "status": "DONE", "weight": 3 },
+        { "code": "MS-V2-INTAKE", "title": "All four intake surfaces live", "status": "PLANNED", "weight": 2 }
+      ],
+      "gates": [
+        { "code": "GATE-V2-ACCEPT", "title": "Acceptance criteria matrix pass", "status": "PASSED", "required": true, "evidence": { "report": ".agent/reports/FINAL.md", "tests": "75 vitest + 20 playwright" } }
+      ]
+    },
+    {
+      "code": "WST-V2-GOV",
+      "name": "Governance & Integration",
+      "executionMode": "OPERATIONS",
+      "progressStrategy": "SLA_SCORE",
+      "progressWeight": 1,
+      "containers": [
+        { "code": "OPS-V2-GOV", "subtype": "OPS_PROCESS", "title": "Doc governance + GoVibe integration", "status": "ACTIVE" }
+      ],
+      "items": [
+        { "code": "G-DOCS3L", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "3-layer docs + doc-graph + @req annotations", "status": "DONE", "weight": 2 },
+        { "code": "G-PREFLIGHT", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "Preflight WARN-1/2/3 closed (spec conflict resolved)", "status": "DONE", "weight": 1 },
+        { "code": "G-GOVIBE-REG", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "GoVibe candidates dropped in .brain/inbound", "status": "DONE", "weight": 1 },
+        { "code": "G-GOVIBE-PROMOTE", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "Promote candidates through GoVibe gks gate", "status": "PLANNED", "weight": 1 },
+        { "code": "G-DECISION-AB", "containerCode": "OPS-V2-GOV", "subtype": "APPROVAL", "title": "Owner decision: v1 module vs v2 foundation", "status": "PLANNED", "weight": 2 }
+      ],
+      "milestones": [],
+      "gates": [
+        { "code": "GATE-GOVIBE", "title": "GoVibe knowledge candidates promoted", "status": "OPEN", "required": false, "evidence": { "inbound": ["SYS--ZURI-V2-LAB", "CONCEPT--UNIFIED-INTAKE-PIPELINE"] } },
+        { "code": "GATE-AB", "title": "Integration direction decided (A: v1 module / B: v2 foundation)", "status": "OPEN", "required": true, "evidence": { "assessment": "docs/ZURI-INTEGRATION-ASSESSMENT.md" } }
+      ]
+    }
+  ],
+  "repositories": [
+    {
+      "code": "REP-ZURI-AI",
+      "provider": "github",
+      "fullName": "Freshair129/zuri.ai",
+      "url": "https://github.com/Freshair129/zuri.ai",
+      "role": "PRIMARY",
+      "pathScope": "zuri-v2-lab/"
+    }
+  ],
+  "dependencies": [
+    { "sourceRef": "T-FR018", "targetRef": "T-FR017", "type": "START_AFTER" },
+    { "sourceRef": "GATE-AB", "targetRef": "MS-V2-INTAKE", "type": "RELATES_TO" }
+  ]
+}
