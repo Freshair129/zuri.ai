@@ -95,7 +95,7 @@
     { "from": "doc:zuri-integration", "to": "doc:db-migration-notes", "type": "references", "status": "current", "source": "manual" },
     { "from": "doc:agents", "to": "spec:pack", "type": "references", "status": "current", "source": "manual" },
     { "from": "doc:readme", "to": "report:final", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:agents", "to": "spec:pack", "type": "contradicts", "status": "flagged", "reason": "Spec-pack AGENTS.md §1 ทั้งห้าม copy และสั่ง copy G:\\zuri — resolved เป็น standalone (00-preflight, FINAL, RSK-006) รอเจ้าของ confirm", "source": "manual" },
+    { "from": "doc:agents", "to": "spec:pack", "type": "references", "status": "resolved", "reason": "AGENTS.md §1 contradiction แก้ที่ต้นทางแล้ว 2026-08-11 (owner confirmed standalone) — resolution note ฝังใน spec-pack AGENTS.md", "source": "manual" },
 
     { "from": "code:scope-service", "to": "req:FR-001", "type": "implements", "status": "current", "source": "traceability-matrix" },
     { "from": "code:scope-service", "to": "req:FR-002", "type": "implements", "status": "current", "source": "traceability-matrix" },

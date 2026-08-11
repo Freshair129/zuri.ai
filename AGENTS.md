@@ -12,8 +12,17 @@ The system must model business execution, not just software delivery.
 ### 1. Do not modify current Zuri
 
 The existing `Freshair129/zuri` repository is read-only reference during this build.
-The existing `G:\zuri` is the current working Zuri V1 project and you must have to copy and develop it to this new repo. and make sure you dont break any of its functionality.
-The existing `D:\workspace\zuri-command-agent` is a line oa agent you decision about merge it of build new one but it's have .env for line integration.
+The existing `G:\zuri` is the current working Zuri V1 project — **read-only compatibility
+reference**. Do not copy it into this repo; `zuri-v2-lab` is built standalone per
+ADR-001. Porting V1 modules happens only in a later integration phase
+(see `zuri-v2-lab/docs/ZURI-INTEGRATION-ASSESSMENT.md`), decided after MVP dogfooding.
+The existing `D:\workspace\zuri-command-agent` is a LINE OA agent — out of MVP scope
+(LINE is on the do-not-implement list). Never read or copy its `.env` (secrets).
+Revisit merge-vs-rebuild at the integration phase.
+
+> Resolution note (2026-08-11, confirmed by owner): an earlier revision of this
+> section both forbade and required copying `G:\zuri`. Standalone build is the
+> confirmed interpretation, consistent with MASTER-PROMPT scope and ADR-001.
 Do not:
 - edit it
 - copy its whole codebase
