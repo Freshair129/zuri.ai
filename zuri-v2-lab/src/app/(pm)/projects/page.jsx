@@ -52,9 +52,9 @@ function ProjectsPageInner() {
         title="Projects"
         subtitle="Outcome-oriented projects. Each project may mix execution modes across its workstreams."
         actions={
-          <button type="button" className="btn btn-primary flex items-center gap-1" onClick={() => setModalOpen(true)}>
+          <Link href="/projects/new" className="btn btn-primary flex items-center gap-1">
             <Plus size={13} aria-hidden /> New project
-          </button>
+          </Link>
         }
       />
       <div className="mb-3">
@@ -122,7 +122,7 @@ function ProjectsPageInner() {
             <EmptyState
               title="No projects yet"
               hint="Start from an objective — the planning flow decomposes workstreams with execution modes. No template picker."
-              action={<button type="button" className="btn btn-primary" onClick={() => setModalOpen(true)}>Create the first project</button>}
+              action={<Link href="/projects/new" className="btn btn-primary">Create the first project</Link>}
             />
           }
         />

@@ -80,7 +80,7 @@ export default function Topbar({ onOpenPalette }) {
           type="button"
           className="flex h-9 items-center gap-1.5 rounded-xl px-3 text-xs font-bold shadow-md"
           style={{ background: 'linear-gradient(135deg,var(--brand-hover),var(--brand),#C6720A)' }}
-          onClick={() => router.push('/projects?new=1')}
+          onClick={() => router.push('/projects/new')}
         >
           <Plus size={14} aria-hidden /> New Project
         </button>

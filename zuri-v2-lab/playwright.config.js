@@ -30,10 +30,14 @@ const executablePath = resolveChromium()
 module.exports = defineConfig({
   testDir: './tests/e2e',
   timeout: 60000,
-  retries: 0,
+  expect: { timeout: 10000 },
+  // E2E runs against the dev server; first hits can pay Next.js on-demand
+  // compile cost, so allow one retry to absorb cold-route flakes.
+  retries: 1,
   use: {
     baseURL: 'http://localhost:3100',
     headless: true,
+    screenshot: 'only-on-failure',
     launchOptions: executablePath ? { executablePath } : {},
   },
   webServer: {

@@ -22,7 +22,7 @@ export default function WorkspaceDetailPage() {
         eyebrow={workspace ? `${workspace.code} · ${workspace.scopeType}` : 'Workspace'}
         title={workspace?.name || 'Workspace'}
         subtitle="Projects in this workspace."
-        actions={<Link className="btn btn-primary" href="/projects?new=1">New project</Link>}
+        actions={<Link className="btn btn-primary" href="/projects/new">New project</Link>}
       />
       {(data || []).length === 0 ? (
         <EmptyState title="No projects here" hint="Create a project in this workspace to start tracking execution." />

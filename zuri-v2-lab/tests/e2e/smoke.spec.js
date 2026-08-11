@@ -112,6 +112,34 @@ test.describe('plan import', () => {
   })
 })
 
+test.describe('FR-017 project wizard', () => {
+  test('start-from-objective wizard creates a project through the pipeline', async ({ page }) => {
+    await page.goto('/projects/new')
+    await expect(page.getByRole('heading', { name: 'สร้างโปรเจกต์ใหม่' })).toBeVisible()
+
+    // Step 1: objective only — no template picker anywhere.
+    await page.getByLabel('เป้าหมายโปรเจกต์').fill('E2E เปิดร้านสาขาทดสอบ')
+    // Next stays disabled until the scope (workspaces) loads.
+    await expect(page.getByRole('button', { name: 'ถัดไป' })).toBeEnabled({ timeout: 30000 })
+    await page.getByRole('button', { name: 'ถัดไป' }).click()
+
+    // Step 2: decompose into workstreams; mode belongs to the stream.
+    await page.getByLabel('ชื่อสายงานที่ 1').fill('หาทำเลและสัญญา')
+    await page.getByLabel('ลักษณะงานของสายงานที่ 1').selectOption('BUSINESS_EXPANSION')
+    await page.getByPlaceholder('ดูทำเลนิมมาน\nต่อรองสัญญาเช่า').fill('ดูทำเล 3 จุด\nเซ็นสัญญาเช่า')
+    await page.getByRole('button', { name: 'ตรวจสอบ + พรีวิว' }).click()
+
+    // Step 3: dry-run preview then confirm.
+    await expect(page.getByText('พรีวิวสิ่งที่จะถูกสร้าง')).toBeVisible()
+    await expect(page.getByText('Business Expansion · 2 งานเริ่มต้น')).toBeVisible()
+    await page.getByRole('button', { name: 'ยืนยัน สร้างโปรเจกต์' }).click()
+
+    await expect(page).toHaveURL(/\/projects\/[0-9a-f-]{36}$/)
+    await expect(page.getByRole('heading', { name: 'E2E เปิดร้านสาขาทดสอบ' })).toBeVisible()
+    await expect(page.locator('main').getByText('หาทำเลและสัญญา')).toBeVisible()
+  })
+})
+
 test.describe('responsive smoke', () => {
   test('no horizontal page overflow at mobile viewport', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 })

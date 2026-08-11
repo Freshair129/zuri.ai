@@ -73,7 +73,7 @@ standalone ก่อน ไม่แตะ Zuri v1)
 | FR-014 | Audit log (immutable) + UI browser | ✅ |
 | FR-015 | Command palette (Ctrl+K), filters, search | ✅ |
 | FR-016 | Seed/demo dataset idempotent ครบ 7 โหมด | ✅ |
-| FR-017 | UI wizard intake ("เริ่มจากเป้าหมาย") → สร้าง envelope เข้า pipeline เดิม | 🔜 |
+| FR-017 | UI wizard intake ("เริ่มจากเป้าหมาย") → สร้าง envelope เข้า pipeline เดิม | ✅ |
 | FR-018 | Excel template intake: generator จาก Zod schema + xlsx→envelope converter + error รายแถว | 🔜 |
 | FR-019 | Enterprise API: ExternalRef mapping + upsert-by-external-id + OpenAPI docs | 🔜 |
 | FR-020 | Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing) | 🔜 |
