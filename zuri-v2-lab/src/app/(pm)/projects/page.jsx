@@ -1,0 +1,145 @@
+'use client'
+
+import { Suspense, useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { Plus, Archive } from 'lucide-react'
+import { PageHeader, DataTable, StatusPill, EmptyState, ErrorState } from '@/components/ui'
+import { useScope } from '@/context/ScopeContext'
+import { useFetch, api, LoadingCard } from '@/modules/project-manager/components/useApi'
+import ProjectModal from '@/modules/project-manager/components/ProjectModal'
+
+export default function ProjectsPage() {
+  return (
+    <Suspense fallback={<LoadingCard />}>
+      <ProjectsPageInner />
+    </Suspense>
+  )
+}
+
+function ProjectsPageInner() {
+  const scope = useScope()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editing, setEditing] = useState(null)
+  const [q, setQ] = useState('')
+
+  useEffect(() => {
+    if (searchParams.get('new') === '1') setModalOpen(true)
+  }, [searchParams])
+
+  const params = new URLSearchParams()
+  if (scope.selection.businessId) params.set('businessId', scope.selection.businessId)
+  if (scope.selection.workspaceId) params.set('workspaceId', scope.selection.workspaceId)
+  if (q) params.set('q', q)
+  const { data, loading, error, reload } = useFetch(`/api/projects?${params.toString()}`, [
+    scope.selection.businessId,
+    scope.selection.workspaceId,
+    q,
+  ])
+
+  const closeModal = () => {
+    setModalOpen(false)
+    setEditing(null)
+    if (searchParams.get('new')) router.replace('/projects')
+  }
+
+  return (
+    <div>
+      <PageHeader
+        eyebrow="Projects"
+        title="Projects"
+        subtitle="Outcome-oriented projects. Each project may mix execution modes across its workstreams."
+        actions={
+          <button type="button" className="btn btn-primary flex items-center gap-1" onClick={() => setModalOpen(true)}>
+            <Plus size={13} aria-hidden /> New project
+          </button>
+        }
+      />
+      <div className="mb-3">
+        <input className="input max-w-sm" placeholder="Search projects…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Search projects" />
+      </div>
+      {loading && <LoadingCard />}
+      {error && <ErrorState detail={error} retry={reload} />}
+      {!loading && !error && (
+        <DataTable
+          columns={[
+            { key: 'code', label: 'Code' },
+            {
+              key: 'name',
+              label: 'Project',
+              render: (p) => (
+                <Link href={`/projects/${p.id}`} className="font-bold hover:text-brand-dark">{p.name}</Link>
+              ),
+            },
+            { key: 'workspace', label: 'Workspace', render: (p) => p.workspace?.code },
+            { key: 'streams', label: 'Streams', render: (p) => p.workstreams?.length || 0 },
+            { key: 'status', label: 'Status', render: (p) => <StatusPill status={p.status} /> },
+            {
+              key: 'target',
+              label: 'Target',
+              render: (p) => (p.targetAt ? new Date(p.targetAt).toLocaleDateString() : '—'),
+            },
+            {
+              key: 'actions',
+              label: '',
+              render: (p) => (
+                <span className="flex gap-1">
+                  <button
+                    type="button"
+                    className="btn px-2 py-1 text-[10px]"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setEditing(p)
+                      setModalOpen(true)
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    className="btn px-2 py-1 text-[10px]"
+                    aria-label={`Archive ${p.code}`}
+                    onClick={async (e) => {
+                      e.stopPropagation()
+                      if (window.confirm(`Archive ${p.code}? It disappears from active lists.`)) {
+                        await api(`/api/projects/${p.id}`, { method: 'DELETE' })
+                        reload()
+                        scope.refresh()
+                      }
+                    }}
+                  >
+                    <Archive size={11} aria-hidden />
+                  </button>
+                </span>
+              ),
+            },
+          ]}
+          rows={data || []}
+          onRowClick={(p) => router.push(`/projects/${p.id}`)}
+          empty={
+            <EmptyState
+              title="No projects yet"
+              hint="Start from an objective — the planning flow decomposes workstreams with execution modes. No template picker."
+              action={<button type="button" className="btn btn-primary" onClick={() => setModalOpen(true)}>Create the first project</button>}
+            />
+          }
+        />
+      )}
+      {modalOpen && (
+        <ProjectModal
+          open={modalOpen}
+          onClose={closeModal}
+          workspaces={scope.workspaces}
+          project={editing}
+          defaultWorkspaceId={scope.selection.workspaceId}
+          onSaved={() => {
+            reload()
+            scope.refresh()
+          }}
+        />
+      )}
+    </div>
+  )
+}

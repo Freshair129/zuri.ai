@@ -1,0 +1,371 @@
+// Zuri v2 Lab — local MVP schema.
+// SQLite-compatible strategy: persisted enums are strings (see src/lib/validation/enums.js).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Portfolio {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
+
+  tenants       Tenant[]
+  legalEntities LegalEntity[]
+  workspaces    Workspace[]
+}
+
+model Tenant {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  portfolioId String
+  name        String
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  version     Int      @default(1)
+
+  portfolio   Portfolio    @relation(fields: [portfolioId], references: [id])
+  businesses  Business[]
+  workspaces  Workspace[]
+  memberships Membership[]
+
+  @@index([portfolioId])
+}
+
+model LegalEntity {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  portfolioId String
+  legalName   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  portfolio   Portfolio               @relation(fields: [portfolioId], references: [id])
+  identifiers LegalEntityIdentifier[]
+  businesses  Business[]
+
+  @@index([portfolioId])
+}
+
+model LegalEntityIdentifier {
+  id            String    @id @default(uuid())
+  legalEntityId String
+  country       String    @default("TH")
+  type          String
+  value         String
+  verifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  legalEntity LegalEntity @relation(fields: [legalEntityId], references: [id], onDelete: Cascade)
+
+  @@unique([country, type, value])
+  @@index([legalEntityId])
+}
+
+model Business {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  tenantId      String
+  legalEntityId String?
+  name          String
+  status        String   @default("ACTIVE")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  version       Int      @default(1)
+
+  tenant      Tenant       @relation(fields: [tenantId], references: [id])
+  legalEntity LegalEntity? @relation(fields: [legalEntityId], references: [id])
+  branches    Branch[]
+  workspaces  Workspace[]
+  memberships Membership[]
+
+  @@index([tenantId])
+}
+
+model Branch {
+  id         String   @id @default(uuid())
+  code       String   @unique
+  tenantId   String
+  businessId String
+  name       String
+  status     String   @default("ACTIVE")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business    Business     @relation(fields: [businessId], references: [id])
+  memberships Membership[]
+
+  @@index([tenantId])
+  @@index([businessId])
+}
+
+model Person {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  displayName String
+  email       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  memberships Membership[]
+}
+
+model Membership {
+  id          String   @id @default(uuid())
+  personId    String
+  tenantId    String
+  businessId  String?
+  branchId    String?
+  employeeRef String?
+  role        String   @default("OWNER")
+  createdAt   DateTime @default(now())
+
+  person   Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  business Business? @relation(fields: [businessId], references: [id])
+  branch   Branch?   @relation(fields: [branchId], references: [id])
+
+  @@index([personId])
+  @@index([tenantId])
+}
+
+model Workspace {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  scopeType   String
+  portfolioId String?
+  tenantId    String?
+  businessId  String?
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  version     Int      @default(1)
+
+  portfolio Portfolio? @relation(fields: [portfolioId], references: [id])
+  tenant    Tenant?    @relation(fields: [tenantId], references: [id])
+  business  Business?  @relation(fields: [businessId], references: [id])
+  projects  Project[]
+
+  @@index([portfolioId])
+  @@index([tenantId])
+  @@index([businessId])
+}
+
+model Project {
+  id          String    @id @default(uuid())
+  code        String    @unique
+  workspaceId String
+  name        String
+  description String?
+  type        String    @default("GENERAL")
+  status      String    @default("PLANNED")
+  startAt     DateTime?
+  targetAt    DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  version     Int       @default(1)
+
+  workspace    Workspace           @relation(fields: [workspaceId], references: [id])
+  workstreams  Workstream[]
+  repositories ProjectRepository[]
+  milestones   Milestone[]
+  gates        Gate[]
+
+  @@index([workspaceId])
+  @@index([status])
+}
+
+model Workstream {
+  id               String    @id @default(uuid())
+  code             String    @unique
+  projectId        String
+  name             String
+  executionMode    String
+  progressStrategy String
+  progressWeight   Float     @default(1)
+  status           String    @default("PLANNED")
+  progressCache    Float     @default(0)
+  viewConfigJson   String    @default("{}")
+  deletedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  version          Int       @default(1)
+
+  project    Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  containers WorkContainer[]
+  items      WorkItem[]
+  milestones Milestone[]
+  gates      Gate[]
+
+  @@index([projectId])
+  @@index([executionMode])
+}
+
+model WorkContainer {
+  id           String    @id @default(uuid())
+  code         String    @unique
+  workstreamId String
+  parentId     String?
+  subtype      String
+  title        String
+  status       String    @default("PLANNED")
+  startAt      DateTime?
+  targetAt     DateTime?
+  metadataJson String    @default("{}")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  version      Int       @default(1)
+
+  workstream Workstream      @relation(fields: [workstreamId], references: [id], onDelete: Cascade)
+  parent     WorkContainer?  @relation("ContainerHierarchy", fields: [parentId], references: [id])
+  children   WorkContainer[] @relation("ContainerHierarchy")
+  items      WorkItem[]
+
+  @@index([workstreamId])
+  @@index([parentId])
+  @@index([subtype])
+}
+
+model WorkItem {
+  id             String    @id @default(uuid())
+  code           String    @unique
+  workstreamId   String
+  containerId    String?
+  subtype        String
+  title          String
+  status         String    @default("PLANNED")
+  assigneeRef    String?
+  weight         Float     @default(1)
+  numericValue   Float?
+  probability    Float?
+  metricDataJson String    @default("{}")
+  metadataJson   String    @default("{}")
+  startAt        DateTime?
+  targetAt       DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(1)
+
+  workstream Workstream     @relation(fields: [workstreamId], references: [id], onDelete: Cascade)
+  container  WorkContainer? @relation(fields: [containerId], references: [id])
+
+  @@index([workstreamId])
+  @@index([containerId])
+  @@index([subtype])
+  @@index([status])
+}
+
+model Milestone {
+  id           String    @id @default(uuid())
+  code         String    @unique
+  projectId    String
+  workstreamId String?
+  title        String
+  status       String    @default("PLANNED")
+  weight       Float     @default(1)
+  targetAt     DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  project    Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  workstream Workstream? @relation(fields: [workstreamId], references: [id])
+
+  @@index([projectId])
+  @@index([workstreamId])
+}
+
+model Gate {
+  id           String    @id @default(uuid())
+  code         String    @unique
+  projectId    String
+  workstreamId String?
+  title        String
+  status       String    @default("OPEN")
+  required     Boolean   @default(true)
+  evidenceJson String    @default("{}")
+  targetAt     DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  project    Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  workstream Workstream? @relation(fields: [workstreamId], references: [id])
+
+  @@index([projectId])
+  @@index([workstreamId])
+}
+
+model Dependency {
+  id             String   @id @default(uuid())
+  sourceType     String
+  sourceId       String
+  targetType     String
+  targetId       String
+  dependencyType String
+  createdAt      DateTime @default(now())
+
+  @@unique([sourceType, sourceId, targetType, targetId, dependencyType])
+  @@index([sourceType, sourceId])
+  @@index([targetType, targetId])
+}
+
+model Repository {
+  id             String   @id @default(uuid())
+  code           String   @unique
+  provider       String
+  externalRepoId String?
+  ownerName      String?
+  repoName       String?
+  fullName       String?
+  url            String?
+  defaultBranch  String?
+  status         String   @default("ACTIVE")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  projects ProjectRepository[]
+
+  @@index([provider, fullName])
+}
+
+model ProjectRepository {
+  id        String   @id @default(uuid())
+  projectId String
+  repoId    String
+  role      String
+  pathScope String?
+  branch    String?
+  createdAt DateTime @default(now())
+
+  project Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  repo    Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, repoId, role])
+  @@index([repoId])
+}
+
+model AuditEvent {
+  id          String   @id @default(uuid())
+  entityType  String
+  entityId    String
+  action      String
+  payloadJson String   @default("{}")
+  actorType   String   @default("LOCAL_USER")
+  actorId     String?
+  occurredAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([occurredAt])
+}

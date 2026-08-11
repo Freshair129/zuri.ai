@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Zuri Heritage design tokens */
+:root {
+  --brand: #E8820C;
+  --brand-hover: #F09420;
+  --brand-dark: #B86A08;
+  --brand-glow: rgba(232, 130, 12, 0.35);
+  --brand-tint: #FDE8D0;
+  --brand-surface: #FFF8F0;
+
+  --surface: #F7F8FA;
+  --surface-card: #FFFFFF;
+  --surface-mid: #EFF1F3;
+
+  --rest-blue: #D6ECFA;
+  --rest-blue-text: #3D7A9E;
+
+  --mustard: #C6A052;
+  --mustard-tint: #F5ECD7;
+
+  --nav-glass-bg: rgba(31, 41, 55, 0.98);
+  --nav-glass-blur: blur(14px);
+
+  --ink: #1F2937;
+  --muted: #6B7280;
+  --muted-2: #9CA3AF;
+  --border: #E5E7EB;
+  --success: #238553;
+  --success-bg: #EAF7EF;
+  --danger: #C84B4B;
+  --danger-bg: #FDECEC;
+  --warning: #B7791F;
+  --warning-bg: #FFF6DE;
+  --shadow: 0 12px 30px rgba(31, 41, 55, 0.06);
+  --shadow-warm: 0 12px 30px rgba(232, 130, 12, 0.08);
+  --radius: 18px;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans Thai', 'Manrope', 'Segoe UI', Tahoma, sans-serif;
+}
+
+.nav-glass {
+  background: var(--nav-glass-bg);
+  backdrop-filter: var(--nav-glass-blur);
+  -webkit-backdrop-filter: var(--nav-glass-blur);
+}
+
+.card {
+  background: var(--surface-card);
+  border: 1px solid #eceef1;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.card-warm {
+  background: linear-gradient(180deg, #fff, var(--brand-surface));
+  box-shadow: var(--shadow-warm);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 99px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.pill-active { background: var(--success-bg); color: var(--success); }
+.pill-planned { background: var(--rest-blue); color: var(--rest-blue-text); }
+.pill-review { background: var(--warning-bg); color: var(--warning); }
+.pill-blocked { background: var(--danger-bg); color: var(--danger); }
+.pill-done { background: var(--surface-mid); color: var(--muted); }
+.pill-gate { background: var(--mustard-tint); color: #8a6a1f; }
+
+.progress-track {
+  height: 8px;
+  border-radius: 99px;
+  background: var(--surface-mid);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  display: block;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--brand), var(--brand-hover));
+}
+.progress-fill-blue { background: var(--rest-blue-text); }
+.progress-fill-green { background: var(--success); }
+
+.btn {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 11px;
+  padding: 8px 12px;
+  color: #4b5563;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.btn:hover {
+  border-color: #f2c58e;
+  background: var(--brand-surface);
+  color: var(--brand-dark);
+}
+.btn-primary {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--brand-hover);
+  color: #fff;
+}
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.input {
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 8px 11px;
+  font-size: 12px;
+  background: #fff;
+  width: 100%;
+}
+.input:focus {
+  outline: 2px solid var(--brand-tint);
+  border-color: var(--brand);
+}
+
+.gate-row {
+  padding: 11px;
+  border-radius: 12px;
+  background: #fafbfc;
+  border: 1px solid #eceef1;
+  border-left: 4px solid var(--mustard);
+}
+.gate-row.done { border-left-color: var(--success); }
+.gate-row.blocked { border-left-color: var(--danger); }

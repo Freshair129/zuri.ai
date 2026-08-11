@@ -1,0 +1,9 @@
+node_modules/
+.next/
+*.db
+*.db-journal
+test-results/
+playwright-report/
+.env
+*.local
+__pycache__/

@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Portfolio PM · Zuri Heritage</title>
+<style>
+:root{
+  --brand:#E8820C;--brand-hover:#F09420;--brand-dark:#B86A08;
+  --brand-glow:rgba(232,130,12,.35);--brand-tint:#FDE8D0;--brand-surface:#FFF8F0;
+  --surface:#F7F8FA;--surface-card:#FFFFFF;--surface-mid:#EFF1F3;
+  --rest-blue:#D6ECFA;--rest-blue-text:#3D7A9E;--mustard:#C6A052;--mustard-tint:#F5ECD7;
+  --nav-glass-bg:rgba(31,41,55,.98);--nav-glass-blur:blur(14px);
+  --ink:#1F2937;--muted:#6B7280;--muted-2:#9CA3AF;--border:#E5E7EB;
+  --success:#238553;--success-bg:#EAF7EF;--danger:#C84B4B;--danger-bg:#FDECEC;
+  --warning:#B7791F;--warning-bg:#FFF6DE;
+  --shadow:0 12px 30px rgba(31,41,55,.06);
+  --shadow-warm:0 12px 30px rgba(232,130,12,.08);
+  --radius:18px;
+}
+*{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--surface);color:var(--ink)}
+body{font-family:'IBM Plex Sans Thai','Manrope','Segoe UI',Tahoma,sans-serif;overflow:hidden}
+button,select,input{font:inherit}
+button{cursor:pointer}
+.app{height:100%;display:grid;grid-template-columns:88px minmax(0,1fr)}
+.sidebar{
+  background:var(--nav-glass-bg);backdrop-filter:var(--nav-glass-blur);-webkit-backdrop-filter:var(--nav-glass-blur);
+  color:#fff;display:flex;flex-direction:column;align-items:center;padding:14px 10px;border-right:1px solid rgba(255,255,255,.08);
+  z-index:10
+}
+.logo{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--brand-hover),var(--brand),#C6720A);
+  display:grid;place-items:center;font-weight:800;box-shadow:0 8px 20px rgba(232,130,12,.32);margin-bottom:18px}
+.nav{width:100%;display:flex;flex-direction:column;gap:6px;overflow:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}
+.nav-item{position:relative;border:0;background:transparent;color:#C7CDD6;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;min-height:58px;border-radius:16px;padding:8px 4px;transition:.2s}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:rgba(232,130,12,.13);color:#fff}
+.nav-item.active:after{content:"";position:absolute;bottom:4px;width:24px;height:4px;border-radius:99px;background:var(--brand)}
+.nav-icon{font-size:18px;line-height:1}.nav-label{font-size:9px;font-weight:700;max-width:70px;text-align:center}
+.side-bottom{margin-top:auto;width:100%;padding-top:8px;border-top:1px solid rgba(255,255,255,.08)}
+.shell{min-width:0;display:grid;grid-template-rows:72px minmax(0,1fr) 30px}
+.topbar{background:var(--nav-glass-bg);backdrop-filter:var(--nav-glass-blur);-webkit-backdrop-filter:var(--nav-glass-blur);
+  color:#fff;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px;padding:10px 18px}
+.scope-row{display:flex;gap:8px;min-width:0;flex:1}
+.scope{min-width:150px;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.055);border-radius:12px;padding:7px 10px}
+.scope.project{flex:1;max-width:340px}.scope-label{font-size:8px;text-transform:uppercase;letter-spacing:.09em;color:#9EA8B5;display:block}
+.scope select{border:0;outline:0;background:transparent;color:#fff;width:100%;font-size:12px;margin-top:2px}.scope option{color:#111;background:#fff}
+.top-actions{display:flex;gap:8px;align-items:center}
+.icon-btn,.new-btn{height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.12);padding:0 12px;color:#fff;background:rgba(255,255,255,.07)}
+.new-btn{border:0;background:linear-gradient(135deg,var(--brand-hover),var(--brand),#C6720A);font-weight:750;box-shadow:0 5px 16px rgba(232,130,12,.28)}
+.avatar{width:38px;height:38px;border-radius:50%;background:#374151;display:grid;place-items:center;font-size:11px;font-weight:800;border:1px solid rgba(255,255,255,.14)}
+.main{overflow:auto;padding:22px 24px 30px}
+.statusbar{border-top:1px solid var(--border);background:#fff;display:flex;align-items:center;gap:14px;padding:0 14px;font-size:10px;color:#7B8490}
+.statusbar .ok{color:var(--success)}
+.page-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-end;margin-bottom:16px}
+.eyebrow{font-size:10px;color:var(--brand);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.page-title{font-size:25px;line-height:1.18;font-weight:780;letter-spacing:-.035em;margin-top:3px}
+.page-sub{color:var(--muted);font-size:12px;margin-top:5px}
+.actions{display:flex;gap:7px}
+.btn{border:1px solid var(--border);background:#fff;border-radius:11px;padding:8px 11px;color:#4B5563;font-size:11px;font-weight:650}
+.btn:hover{border-color:#F2C58E;background:var(--brand-surface);color:var(--brand-dark)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.grid{display:grid;gap:12px}.cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{background:var(--surface-card);border:1px solid #ECEEF1;border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.card.warm{background:linear-gradient(180deg,#fff,var(--brand-surface));box-shadow:var(--shadow-warm)}
+.kpi-label{font-size:10px;color:var(--muted);font-weight:650}.kpi-value{font-size:28px;font-weight:780;letter-spacing:-.04em;margin-top:5px}.kpi-meta{font-size:10px;color:var(--muted);margin-top:4px}
+.good{color:var(--success)}.warn{color:var(--warning)}.bad{color:var(--danger)}.brand{color:var(--brand)}
+.section-title{font-size:13px;font-weight:780;margin-bottom:11px}.section-caption{font-size:10px;color:var(--muted);margin-top:-7px;margin-bottom:12px}
+.progress{height:8px;border-radius:99px;background:var(--surface-mid);overflow:hidden}.progress span{height:100%;display:block;border-radius:99px;background:linear-gradient(90deg,var(--brand),var(--brand-hover))}
+.progress.blue span{background:var(--rest-blue-text)}.progress.green span{background:var(--success)}
+.timeline{display:flex;flex-direction:column;gap:11px}.timeline-row{display:grid;grid-template-columns:126px 1fr 45px;gap:12px;align-items:center}
+.timeline-label{font-size:11px;font-weight:700}.timeline-value{font-size:10px;text-align:right;color:var(--muted)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--muted);padding:8px 11px;font-size:10px;font-weight:800;letter-spacing:.02em}
+.tab:hover{background:var(--brand-surface);border-color:#F4C38A;color:var(--brand-dark)}
+.tab.active{background:var(--brand-tint);color:var(--brand-dark);border-color:#F4C38A;box-shadow:0 4px 12px rgba(232,130,12,.10)}
+.pill{display:inline-flex;align-items:center;border-radius:99px;padding:4px 7px;font-size:9px;font-weight:800}
+.pill.active{background:var(--success-bg);color:var(--success)}.pill.planned{background:var(--rest-blue);color:var(--rest-blue-text)}
+.pill.review{background:var(--warning-bg);color:var(--warning)}.pill.blocked{background:var(--danger-bg);color:var(--danger)}
+.table{width:100%;border-collapse:collapse;font-size:10px}.table th{text-align:left;color:#8A94A1;font-weight:750;padding:8px;border-bottom:1px solid var(--border)}
+.table td{padding:10px 8px;border-bottom:1px solid #F0F1F3}.table tr:last-child td{border-bottom:0}
+.board{display:grid;grid-template-columns:repeat(4,minmax(210px,1fr));gap:10px;overflow:auto}
+.column{background:#FAFBFC;border:1px solid #ECEEF1;border-radius:14px;padding:10px;min-height:330px}.column-head{display:flex;justify-content:space-between;font-size:9px;font-weight:800;color:#8A94A1;margin-bottom:8px}
+.ticket{background:#fff;border:1px solid #E8EAED;border-radius:12px;padding:11px;margin:7px 0;box-shadow:0 5px 14px rgba(31,41,55,.035)}
+.ticket:hover{border-color:#F0BE81;box-shadow:0 8px 20px rgba(232,130,12,.08)}.ticket-id{font-size:8px;color:#9BA4AF}.ticket-title{font-size:11px;font-weight:720;margin-top:4px;line-height:1.35}
+.ticket-meta{display:flex;justify-content:space-between;margin-top:9px;color:#8A94A1;font-size:8px}
+.split{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.75fr);gap:12px}
+.gate{padding:11px;border-radius:12px;background:#FAFBFC;border:1px solid #ECEEF1;margin:8px 0;border-left:4px solid var(--mustard)}
+.gate.done{border-left-color:var(--success)}.gate.blocked{border-left-color:var(--danger)}.gate b{font-size:11px}.gate small{display:block;margin-top:3px;color:var(--muted);font-size:9px}
+.metric{display:flex;justify-content:space-between;align-items:center;margin:9px 0;font-size:10px}.metric b{font-size:11px}
+.big{font-size:36px;font-weight:800;letter-spacing:-.055em}
+.mode-card{position:relative;overflow:hidden}.mode-card:before{content:"";position:absolute;right:-20px;top:-25px;width:95px;height:95px;border-radius:50%;background:var(--brand-tint);opacity:.55}
+.mode-number{position:relative;font-size:9px;font-weight:850;color:var(--brand);letter-spacing:.06em}.mode-title{position:relative;font-size:13px;font-weight:780;margin-top:6px}.mode-grammar{position:relative;color:var(--muted);font-size:10px;margin-top:5px;line-height:1.5}
+.codebox{white-space:pre-wrap;background:#1F2937;color:#D9E0E8;border-radius:14px;padding:14px;font-family:Consolas,monospace;font-size:9px;line-height:1.7;overflow:auto}
+.business-grid{display:grid;grid-template-columns:repeat(4,minmax(190px,1fr));gap:12px}
+.repo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.chip{font-size:8px;background:var(--surface-mid);border-radius:99px;padding:4px 7px;color:#697383}
+.palette{position:fixed;inset:0;background:rgba(17,24,39,.58);backdrop-filter:blur(8px);display:flex;justify-content:center;align-items:flex-start;padding-top:12vh;z-index:99}
+.hidden{display:none}.palette-card{width:min(660px,90vw);background:#fff;border-radius:18px;box-shadow:0 30px 90px rgba(0,0,0,.2);overflow:hidden}
+.palette-head{display:flex;gap:9px;align-items:center;padding:13px;border-bottom:1px solid var(--border)}.palette-head input{flex:1;border:0;outline:0;font-size:13px}
+.palette-result{padding:10px 13px;font-size:11px;border-radius:10px;margin:5px}.palette-result:hover{background:var(--brand-surface);color:var(--brand-dark)}
+@media(max-width:1100px){.cols-4,.business-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.split{grid-template-columns:1fr}.scope{min-width:120px}.scope.project{max-width:230px}}
+@media(max-width:760px){.app{grid-template-columns:66px 1fr}.sidebar{padding-inline:6px}.nav-label{display:none}.topbar{height:auto;align-items:flex-start}.scope-row{flex-wrap:wrap}.scope{min-width:140px}.cols-4,.cols-3,.cols-2,.business-grid,.repo-grid{grid-template-columns:1fr}.main{padding:16px}.page-head{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">Z</div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="overview"><span class="nav-icon">⌂</span><span class="nav-label">Overview</span></button>
+      <button class="nav-item" data-view="execution"><span class="nav-icon">◈</span><span class="nav-label">Execution</span></button>
+      <button class="nav-item" data-view="roadmaps"><span class="nav-icon">⌁</span><span class="nav-label">Roadmaps</span></button>
+      <button class="nav-item" data-view="migration"><span class="nav-icon">⇄</span><span class="nav-label">Migration</span></button>
+      <button class="nav-item" data-view="repositories"><span class="nav-icon">⌘</span><span class="nav-label">Repos</span></button>
+      <button class="nav-item" data-view="dependencies"><span class="nav-icon">◇</span><span class="nav-label">Dependencies</span></button>
+      <button class="nav-item" data-view="agents"><span class="nav-icon">✦</span><span class="nav-label">Agents</span></button>
+      <button class="nav-item" data-view="readiness"><span class="nav-icon">✓</span><span class="nav-label">Readiness</span></button>
+    </nav>
+    <div class="side-bottom">
+      <button class="nav-item" data-view="settings"><span class="nav-icon">⚙</span><span class="nav-label">Settings</span></button>
+    </div>
+  </aside>
+
+  <section class="shell">
+    <header class="topbar">
+      <div class="scope-row">
+        <div class="scope"><span class="scope-label">Portfolio</span><select><option>PF-001 · Business Portfolio</option></select></div>
+        <div class="scope"><span class="scope-label">Business</span><select><option>BUS-001 · Business 01</option><option>All businesses</option><option>BUS-002 · Business 02</option></select></div>
+        <div class="scope"><span class="scope-label">Workspace</span><select><option>WS-B01-MIG · Migration</option><option>WS-PLATFORM · Shared Platform</option></select></div>
+        <div class="scope project"><span class="scope-label">Project</span><select><option>PRJ-B01-MIG · Legacy Data Migration</option><option>PRJ-ZURI-001 · Zuri Core</option><option>PRJ-MSP-001 · MSP Standalone</option></select></div>
+      </div>
+      <div class="top-actions"><button class="icon-btn" id="search">⌘ K</button><button class="new-btn">+ New</button><div class="avatar">BO</div></div>
+    </header>
+
+    <main class="main" id="content"></main>
+
+    <footer class="statusbar"><b>PF-001</b><span>TNT-001</span><span>WS-B01-MIG</span><span>PRJ-B01-MIG</span><span class="ok">● Sync OK</span><span>main</span></footer>
+  </section>
+</div>
+
+<div class="palette hidden" id="palette">
+  <div class="palette-card">
+    <div class="palette-head"><span>⌕</span><input id="paletteInput" placeholder="Jump to execution view, project, repo, gate..."/><small>ESC</small></div>
+    <div id="paletteResults"></div>
+  </div>
+</div>
+
+<script>
+const modes=[
+ ["SOFTWARE_SPRINT","Software Development","Sprint → Epic → Story / Task","34%"],
+ ["DATA_MIGRATION","Data Migration","Stage → Batch / Run → Dataset → Validation","43%"],
+ ["B2B_SALES","B2B Sales","Pipeline → Stage → Account / Deal → Activity","58%"],
+ ["B2C_CAMPAIGN","B2C Marketing","Campaign → Wave → Channel → Creative","62%"],
+ ["PRODUCT_LAUNCH","Product Launch","Phase → Milestone → Deliverable → Gate","46%"],
+ ["OPERATIONS","Operations","Period → Process → Run → Checklist / SLA","81%"],
+ ["BUSINESS_EXPANSION","Business Expansion","Initiative → Branch → Milestone → Go-live","27%"]
+];
+let execMode="ALL";
+const $=s=>document.querySelector(s);
+const content=$("#content");
+const pill=s=>`<span class="pill ${s}">${s.toUpperCase()}</span>`;
+const head=(eyebrow,title,sub,actions="")=>`<div class="page-head"><div><div class="eyebrow">${eyebrow}</div><div class="page-title">${title}</div><div class="page-sub">${sub}</div></div><div class="actions">${actions}</div></div>`;
+const kpi=(l,v,m,c="")=>`<div class="card"><div class="kpi-label">${l}</div><div class="kpi-value ${c}">${v}</div><div class="kpi-meta">${m}</div></div>`;
+const bar=(l,v,c="")=>`<div class="timeline-row"><div class="timeline-label">${l}</div><div class="progress ${c}"><span style="width:${v}%"></span></div><div class="timeline-value">${v}%</div></div>`;
+
+function overview(){
+ content.innerHTML=head("Portfolio execution","Business Control Center","One operating view across business, platform, sales, campaigns and migration",
+ `<button class="btn">Timeline</button><button class="btn">Dependencies</button><button class="btn primary">Create objective</button>`) +
+ `<div class="grid cols-4">${kpi("Businesses","4","4 isolated tenants")}${kpi("Active initiatives","7","mixed execution modes","brand")}${kpi("Critical gates","1","identity data blocks LINE","warn")}${kpi("Migration B01","43%","8,212 / 19,100 records","good")}</div>
+ <div style="height:12px"></div><div class="split">
+  <div class="card warm"><div class="section-title">Portfolio execution map</div><div class="section-caption">Progress strategy varies by workstream — not every bar means task completion.</div>
+   <div class="timeline">${bar("Software",34)}${bar("Migration",43,"blue")}${bar("B2B Sales",58,"green")}${bar("B2C Campaign",62)}${bar("Product Launch",46)}${bar("Operations",81,"green")}${bar("Expansion",27)}</div>
+  </div>
+  <div class="card"><div class="section-title">Next business gates</div>
+   <div class="gate blocked"><b>Identity-Critical Data</b><small>Blocks production LINE account linking</small></div>
+   <div class="gate"><b>MSP Standalone</b><small>Contract · transport · isolation</small></div>
+   <div class="gate"><b>Commercial Readiness</b><small>Pricing + sales materials</small></div>
+   <div class="gate done"><b>Tenant Boundary</b><small>Portfolio / Tenant / Workspace model approved</small></div>
+  </div>
+ </div>
+ <div style="height:12px"></div><div class="grid cols-2">
+   <div class="card"><div class="section-title">Active work</div><table class="table"><thead><tr><th>Workstream</th><th>Mode</th><th>Status</th><th>Progress</th></tr></thead><tbody>
+   <tr><td>Zuri Core</td><td>Sprint</td><td>${pill("active")}</td><td>34%</td></tr><tr><td>B01 Migration</td><td>Migration</td><td>${pill("active")}</td><td>43%</td></tr>
+   <tr><td>Enterprise Pipeline</td><td>B2B Sales</td><td>${pill("active")}</td><td>58%</td></tr><tr><td>Consumer Acquisition</td><td>Campaign</td><td>${pill("review")}</td><td>62%</td></tr></tbody></table></div>
+   <div class="card"><div class="section-title">Agent planning contract</div><div class="codebox">Objective
+  ↓
+Planning Agent
+  ↓
+Workstream decomposition
+  ↓
+execution_mode ∈ 7 canonical modes
+  ↓
+progress_strategy + primary_view
+  ↓
+Universal roll-up</div></div>
+ </div>`;
+}
+
+function execution(){
+ const tabs=`<div class="tabs"><button class="tab ${execMode==="ALL"?"active":""}" data-mode="ALL">ALL</button>${modes.map(m=>`<button class="tab ${execMode===m[0]?"active":""}" data-mode="${m[0]}">${m[1].toUpperCase()}</button>`).join("")}</div>`;
+ let body="";
+ if(execMode==="ALL"){
+   body=`<div class="grid cols-4">${modes.map((m,i)=>`<div class="card mode-card"><div class="mode-number">0${i+1} · ${m[0]}</div><div class="mode-title">${m[1]}</div><div class="mode-grammar">${m[2]}</div><div style="height:13px"></div><div class="progress ${i===1?"blue":i===5?"green":""}"><span style="width:${parseInt(m[3])}%"></span></div><div class="metric"><span>Current roll-up</span><b>${m[3]}</b></div></div>`).join("")}</div>`;
+ } else if(execMode==="SOFTWARE_SPRINT"){
+   body=`<div class="grid cols-4">${kpi("Sprint","12","Aug 10–23")}${kpi("Velocity","42 pt","3-sprint avg")}${kpi("Completed","34%","weighted tasks","brand")}${kpi("Defects","6","2 critical","warn")}</div><div style="height:12px"></div><div class="card"><div class="section-title">Sprint Board</div><div class="board">
+   <div class="column"><div class="column-head"><span>BACKLOG</span><span>3</span></div><div class="ticket"><div class="ticket-id">ZURI-421</div><div class="ticket-title">ExternalIdentity model</div><div class="ticket-meta"><span>Identity</span><span>5 pt</span></div></div></div>
+   <div class="column"><div class="column-head"><span>READY</span><span>2</span></div><div class="ticket"><div class="ticket-id">ZURI-426</div><div class="ticket-title">Tenant-safe account linking</div><div class="ticket-meta"><span>Sprint 12</span><span>8 pt</span></div></div></div>
+   <div class="column"><div class="column-head"><span>IN PROGRESS</span><span>2</span></div><div class="ticket"><div class="ticket-id">ZURI-431</div><div class="ticket-title">LINE webhook identity lookup</div><div class="ticket-meta"><span>Backend Agent</span><span>13 pt</span></div></div></div>
+   <div class="column"><div class="column-head"><span>DONE</span><span>5</span></div><div class="ticket"><div class="ticket-id">ARCH-056</div><div class="ticket-title">Tenant isolation baseline</div><div class="ticket-meta"><span>Done</span><span>8 pt</span></div></div></div>
+   </div></div>`;
+ } else if(execMode==="DATA_MIGRATION"){
+   body=`<div class="grid cols-4">${kpi("Processed","8,212","of 19,100")}${kpi("Validated","7,991","97.3% of processed","good")}${kpi("Failed","221","requires review","bad")}${kpi("Readiness","43%","record validation strategy","brand")}</div><div style="height:12px"></div><div class="split"><div class="card"><div class="section-title">Migration stages</div><div class="timeline">${bar("Raw Landing",78,"blue")}${bar("Normalize",51,"blue")}${bar("ID Mapping",38,"blue")}${bar("Canonical Load",18,"blue")}${bar("Reconcile",4,"blue")}</div></div><div class="card"><div class="section-title">Active run</div><div class="big">43%</div><div class="gate blocked"><b>Identity-critical gate</b><small>Production LINE linking blocked</small></div><div class="metric"><span>Current batch</span><b>RUN-014</b></div><div class="metric"><span>Source</span><b>Legacy sheets</b></div></div></div>`;
+ } else if(execMode==="B2B_SALES"){
+   body=`<div class="grid cols-4">${kpi("Pipeline","฿7.0M","47 opportunities")}${kpi("Weighted","฿3.48M","58% of target","brand")}${kpi("Win rate","31%","rolling 90 days","good")}${kpi("Avg cycle","46d","enterprise deals")}</div><div style="height:12px"></div><div class="card"><div class="section-title">Sales Pipeline</div><div class="board">
+   ${["Prospecting","Qualified","Discovery","Proposal"].map((x,i)=>`<div class="column"><div class="column-head"><span>${x.toUpperCase()}</span><span>${[18,11,8,5][i]}</span></div><div class="ticket"><div class="ticket-title">${["฿1.20M","฿1.80M","฿1.45M","฿1.10M"][i]}</div><div class="ticket-meta"><span>stage value</span><span>${[18,11,8,5][i]} deals</span></div></div></div>`).join("")}
+   </div></div>`;
+ } else if(execMode==="B2C_CAMPAIGN"){
+   body=`<div class="grid cols-4">${kpi("Spend","฿184K","of ฿300K")}${kpi("Leads","2,148","CPA ฿85.66","good")}${kpi("Bookings","286","13.3% lead→booking")}${kpi("Revenue","฿742K","ROAS 4.03x","brand")}</div><div style="height:12px"></div><div class="card"><div class="section-title">Campaign waves</div><div class="timeline">${bar("W1 Awareness",100)}${bar("W2 Lead Gen",82)}${bar("W3 Retarget",54)}${bar("W4 Conversion",21)}</div></div>`;
+ } else if(execMode==="PRODUCT_LAUNCH"){
+   body=`<div class="split"><div class="card"><div class="section-title">Launch timeline</div><div class="timeline">${bar("Discovery",100)}${bar("Build",72)}${bar("Go-to-market",48)}${bar("Launch Prep",31)}${bar("Go-live",8)}</div></div><div class="card"><div class="section-title">Launch gates</div><div class="gate done"><b>Product Definition</b><small>Approved</small></div><div class="gate"><b>Commercial Readiness</b><small>Pricing + channel pending</small></div><div class="gate"><b>Operational Readiness</b><small>46%</small></div><div class="gate blocked"><b>Go-live</b><small>3 blockers</small></div></div></div>`;
+ } else if(execMode==="OPERATIONS"){
+   body=`<div class="grid cols-4">${kpi("SLA","96.4%","target ≥95%","good")}${kpi("Open issues","11","2 high priority","warn")}${kpi("Throughput","418","jobs this week")}${kpi("Backlog","37","-8 vs last week","good")}</div><div style="height:12px"></div><div class="card"><table class="table"><thead><tr><th>Process</th><th>Owner</th><th>SLA</th><th>Backlog</th><th>Status</th></tr></thead><tbody><tr><td>Lead follow-up</td><td>Sales Ops</td><td>98%</td><td>8</td><td>${pill("active")}</td></tr><tr><td>Customer support</td><td>Service</td><td>94%</td><td>19</td><td>${pill("review")}</td></tr><tr><td>Billing reconciliation</td><td>Finance</td><td>97%</td><td>4</td><td>${pill("active")}</td></tr></tbody></table></div>`;
+ } else {
+   body=`<div class="business-grid"><div class="card"><div class="section-title">Branch A</div><div class="big">62%</div><div class="progress"><span style="width:62%"></span></div><div class="chips"><span class="chip">lease signed</span><span class="chip">hiring</span></div></div><div class="card"><div class="section-title">Branch B</div><div class="big">27%</div><div class="progress"><span style="width:27%"></span></div><div class="chips"><span class="chip">site review</span><span class="chip">budget</span></div></div><div class="card"><div class="section-title">New Market</div><div class="big">14%</div><div class="progress"><span style="width:14%"></span></div><div class="chips"><span class="chip">research</span><span class="chip">partner search</span></div></div></div>`;
+ }
+ content.innerHTML=head("Adaptive execution","Execution Hub","Agent assigns the execution grammar per workstream — no mandatory template picker",
+ `<button class="btn">All Work</button><button class="btn">Timeline</button><button class="btn">Dependencies</button>`)+tabs+body;
+ document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{execMode=b.dataset.mode;execution()});
+}
+
+function migration(){
+ content.innerHTML=head("Data migration","Business 01 Migration","Progress calculated from records, validation and reconciliation — not Sprint completion")+
+ `<div class="business-grid">
+ ${[["Business 01","43","8,212 / 19,100","active"],["Business 02","0","Not started","planned"],["Business 03","0","Not started","planned"],["Business 04","0","Not started","planned"]].map(x=>`<div class="card"><div class="section-title">${x[0]}</div><div class="big">${x[1]}%</div><div class="progress blue"><span style="width:${x[1]}%"></span></div><div class="metric"><span>Processed</span><b>${x[2]}</b></div>${pill(x[3])}</div>`).join("")}</div>`;
+}
+function roadmaps(){
+ content.innerHTML=head("Planning","Roadmaps","Milestones, gates and dependencies across mixed execution modes")+
+ `<div class="tabs">${["MAIN","DATA","MSP","ZURI","ID + LINE","KNOWLEDGE","AGENT","E2E"].map((x,i)=>`<button class="tab ${i===0?"active":""}">${x}</button>`).join("")}</div>
+ <div class="card"><div class="board">
+ <div class="column"><div class="column-head"><span>PLANNED</span><span>4</span></div><div class="ticket"><div class="ticket-id">PRJ-MSP-001</div><div class="ticket-title">MSP standalone extraction</div></div></div>
+ <div class="column"><div class="column-head"><span>READY</span><span>2</span></div><div class="ticket"><div class="ticket-id">ZURI-IMPACT</div><div class="ticket-title">Impact scan backend core slice</div></div></div>
+ <div class="column"><div class="column-head"><span>IN PROGRESS</span><span>2</span></div><div class="ticket"><div class="ticket-id">DATA-B01</div><div class="ticket-title">Business 01 legacy data landing</div></div></div>
+ <div class="column"><div class="column-head"><span>DONE</span><span>1</span></div><div class="ticket"><div class="ticket-id">ARCH-BOUNDARY</div><div class="ticket-title">Portfolio / Tenant / Workspace boundary</div></div></div>
+ </div></div>`;
+}
+function repositories(){
+ content.innerHTML=head("Engineering","Repositories","Project and repository identities remain separate")+
+ `<div class="repo-grid">${[["REP-GOVIBE","Freshair129/govibe","SOURCE","packages/msp-runtime"],["REP-ZURI","Freshair129/zuri","PRIMARY","backend core"],["REP-MSP","Freshair129/msp","TARGET","standalone service"],["REP-AGENT","Agent repository","CONSUMER","runtime"]].map(r=>`<div class="card"><div class="eyebrow">${r[0]}</div><div class="section-title" style="margin-top:6px">${r[1]}</div><div class="chips"><span class="chip">${r[2]}</span><span class="chip">${r[3]}</span></div></div>`).join("")}</div>`;
+}
+function dependencies(){
+ content.innerHTML=head("Control","Dependencies","Cross-mode business and engineering gates")+
+ `<div class="grid cols-2"><div class="card"><div class="section-title">Critical path</div><div class="gate blocked"><b>DATA-ID → ID + LINE</b><small>Identity-critical customer data must reconcile first</small></div><div class="gate"><b>ZURI-CORE → ID + LINE</b><small>Canonical identity service required</small></div><div class="gate"><b>MSP + ID + LINE → AGENT READ</b><small>Context and principal boundary required</small></div></div><div class="card"><div class="codebox">DATA-ID ─────┐
+             ├── ID + LINE ──┐
+ZURI-CORE ───┘               │
+                             ├── AGENT READ ── E2E
+MSP ─────────────────────────┘</div></div></div>`;
+}
+function agents(){
+ content.innerHTML=head("Intelligence","Agents","Agent permissions follow workspace, tenant and repository scope")+
+ `<div class="grid cols-2">${[["Planning Agent","Roadmap decomposition · execution-mode routing","PF-001"],["Data Migration Agent","Mapping · validation · reconciliation","TNT-001"],["Backend Agent","Zuri core + LINE identity","REP-ZURI"],["Verification Agent","Gate evidence · isolation tests","READ-ONLY"]].map(a=>`<div class="card"><div class="eyebrow">${a[2]}</div><div class="section-title" style="margin-top:6px">${a[0]}</div><div class="page-sub">${a[1]}</div><div style="margin-top:10px">${pill("active")}</div></div>`).join("")}</div>`;
+}
+function readiness(){
+ content.innerHTML=head("Operations","Readiness","Evidence-based gates — business and software share one control plane")+
+ `<div class="grid cols-2"><div class="card"><div class="section-title">Platform gates</div><div class="gate"><b>MSP Standalone</b><small>Contract · transport · isolation</small></div><div class="gate"><b>Zuri Core</b><small>Backend vertical slice</small></div><div class="gate blocked"><b>Identity + LINE</b><small>Waiting on identity-critical data</small></div></div><div class="card"><div class="section-title">Business gates</div><div class="gate"><b>Commercial Readiness</b><small>B2B + B2C materials</small></div><div class="gate"><b>Operational Readiness</b><small>Process + SLA + staffing</small></div><div class="gate"><b>Launch / Expansion</b><small>Site + vendor + go-live</small></div></div></div>`;
+}
+function settings(){
+ content.innerHTML=head("System","Project Manager Settings","Zuri Heritage tokens + bounded execution taxonomy")+
+ `<div class="grid cols-2"><div class="card"><div class="section-title">Design System</div><div class="codebox">brand         #E8820C
+brand-hover   #F09420
+brand-tint    #FDE8D0
+surface       #F7F8FA
+surface-card  #FFFFFF
+nav-glass     rgba(31,41,55,.98)</div></div><div class="card"><div class="section-title">Execution Policy</div><div class="codebox">canonical_modes: 7
+template_picker: false
+agent_router: true
+mixed_mode_project: true
+universal_views: true</div></div></div>`;
+}
+const renders={overview,execution,roadmaps,migration,repositories,dependencies,agents,readiness,settings};
+document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-view]").forEach(x=>x.classList.remove("active"));b.classList.add("active");renders[b.dataset.view]()});
+const palette=$("#palette"),pi=$("#paletteInput"),pr=$("#paletteResults");
+const commands=[["Overview","overview"],["Execution Hub","execution"],["Roadmaps","roadmaps"],["Migration","migration"],["Repositories","repositories"],["Dependencies","dependencies"],["Agents","agents"],["Readiness","readiness"],["Settings","settings"]];
+function openP(){palette.classList.remove("hidden");pi.value="";rp("");setTimeout(()=>pi.focus(),0)}
+function closeP(){palette.classList.add("hidden")}
+function rp(q){pr.innerHTML=commands.filter(c=>c[0].toLowerCase().includes(q.toLowerCase())).map(c=>`<div class="palette-result" data-go="${c[1]}">${c[0]}</div>`).join("");pr.querySelectorAll("[data-go]").forEach(x=>x.onclick=()=>{renders[x.dataset.go]();closeP()})}
+$("#search").onclick=openP;pi.oninput=e=>rp(e.target.value);palette.onclick=e=>{if(e.target===palette)closeP()}
+document.onkeydown=e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();openP()}if(e.key==="Escape")closeP()}
+overview();
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{
+  "version": "1.0.0",
+  "generated_by": "rwang:doc-preflight",
+  "generated_at": "2026-08-11T00:00:00Z",
+  "project": "zuri-v2-lab",
+  "scanned": { "documents": 18, "code_files": 91, "test_files": 11 },
+  "summary": { "total_checks": 10, "passed": 6, "warnings": 3, "critical": 0, "info": 1 },
+  "findings": [
+    {
+      "id": "WARN-1",
+      "severity": "warning",
+      "check": "document-control",
+      "title": "5 build docs lack Document Control blocks",
+      "files": [
+        "docs/ARCHITECTURE-NOTES.md",
+        "docs/DB-MIGRATION-NOTES.md",
+        "docs/ZURI-INTEGRATION-ASSESSMENT.md",
+        "docs/UX-SINGLE-VS-MULTI-BUSINESS.md",
+        "docs/ENTERPRISE-API-SURFACE.md"
+      ],
+      "action": "Add version/status/date control block (same format as PRD-SDD-v1.0.md)"
+    },
+    {
+      "id": "WARN-2",
+      "severity": "warning",
+      "check": "doc-code-symlinks",
+      "title": "0 structured annotations (@req/@spec) in 91 code files",
+      "details": "FR↔code edges rely on the hand-maintained Appendix D matrix (drift risk RSK-008). Requirement IDs were minted after the code was written.",
+      "action": "Migrate: add '// @req FR-xxx' headers to the 11 service/engine files listed in Appendix D (~30 annotations total)"
+    },
+    {
+      "id": "WARN-3",
+      "severity": "warning",
+      "check": "contradictions",
+      "title": "Spec-pack AGENTS.md §1 self-contradiction (copy G:\\zuri vs standalone)",
+      "details": "Flagged as contradicts-edge in .doc-graph.json. Trust hierarchy: Code > SDD > PRD — the built standalone repo wins; resolution recorded in 00-preflight.md, FINAL.md, RSK-006.",
+      "action": "Owner confirms resolution, then edit spec-pack AGENTS.md §1 to remove the stray sentence"
+    },
+    {
+      "id": "INFO-1",
+      "severity": "info",
+      "check": "staleness",
+      "title": "No git repository — staleness detection runs on doc-graph hashes only",
+      "details": "git log unavailable; .doc-graph.json hashes (2026-08-11) are the baseline. CONTRIBUTING.md, .editorconfig, C-model-cards absent (model cards intentionally N/A per PRD Layer 3).",
+      "action": "git init + commit to enable commit-date staleness checks and the RWANG git hook"
+    }
+  ],
+  "passes": [
+    "document-existence: PRD-SDD + appendices A/B/D/E/F + ARCHITECTURE-NOTES + README + AGENTS.md (AI guide) present",
+    "section-completeness: L1 (exec/personas/FR/NFR/BR/AC) ครบ; L2 ครบหลัก (error-handling อยู่ใน Appendix A error shape); L3 agent specs + ethics ครบ, model lifecycle declared N/A",
+    "requirement-coverage: FR-001..020 ไม่มี gap, ไม่มี duplicate definition (define ที่ PRD-SDD เดียว, D-traceability อ้างอิง)",
+    "cross-references: ลิงก์ spec pack (../docs) และ .agent/reports/FINAL.md ตรวจแล้วมีจริงทุกจุด",
+    "diagrams: ASCII wireframes เท่านั้น ไม่มี mermaid ที่ต้อง validate",
+    "glossary: ศัพท์หลักครบทั้งไทย/อังกฤษ ไม่มี dead entries"
+  ]
+}

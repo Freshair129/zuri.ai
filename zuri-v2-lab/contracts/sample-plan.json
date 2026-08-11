@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "1.0",
+  "generatedBy": "Planning Agent",
+  "generatedAt": "2026-08-11T21:30:00+07:00",
+  "scope": {
+    "portfolioCode": "PF-001",
+    "tenantCode": "TNT-001",
+    "businessCode": "BUS-001",
+    "workspaceCode": "WS-B01-TRANSFORMATION"
+  },
+  "project": {
+    "code": "PRJ-B01-TRANSFORM",
+    "name": "Business 01 Transformation Program",
+    "description": "Mixed-mode example for PM import.",
+    "type": "TRANSFORMATION",
+    "status": "ACTIVE"
+  },
+  "workstreams": [
+    {
+      "code": "WST-ZURI-DEV",
+      "name": "Zuri Core Development",
+      "executionMode": "SOFTWARE_SPRINT",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 1.2,
+      "containers": [
+        {
+          "code": "SPR-012",
+          "subtype": "SPRINT",
+          "title": "Sprint 12",
+          "status": "ACTIVE"
+        }
+      ],
+      "items": [
+        {
+          "code": "ZURI-421",
+          "containerCode": "SPR-012",
+          "subtype": "TASK",
+          "title": "External identity model",
+          "status": "IN_PROGRESS",
+          "weight": 5
+        }
+      ],
+      "milestones": [],
+      "gates": []
+    },
+    {
+      "code": "WST-DATA",
+      "name": "Legacy Data Migration",
+      "executionMode": "DATA_MIGRATION",
+      "progressStrategy": "RECORD_VALIDATION",
+      "progressWeight": 1.5,
+      "containers": [
+        {
+          "code": "MIG-STG-01",
+          "subtype": "MIGRATION_STAGE",
+          "title": "Normalize + Validate",
+          "status": "ACTIVE"
+        }
+      ],
+      "items": [
+        {
+          "code": "DATA-CUSTOMER",
+          "containerCode": "MIG-STG-01",
+          "subtype": "DATASET",
+          "title": "Customer records",
+          "status": "IN_PROGRESS",
+          "metrics": {
+            "recordsTotal": 8200,
+            "processed": 4412,
+            "validated": 4328,
+            "failed": 84
+          }
+        }
+      ],
+      "milestones": [],
+      "gates": [
+        {
+          "code": "GATE-DATA-ID",
+          "title": "Identity-critical data ready",
+          "status": "OPEN",
+          "required": true,
+          "evidence": {}
+        }
+      ]
+    }
+  ],
+  "repositories": [
+    {
+      "code": "REP-ZURI",
+      "provider": "github",
+      "fullName": "Freshair129/zuri",
+      "role": "REFERENCE",
+      "pathScope": "src/"
+    }
+  ],
+  "dependencies": [
+    {
+      "sourceRef": "GATE-DATA-ID",
+      "targetRef": "WST-ZURI-DEV",
+      "type": "RELATES_TO"
+    }
+  ]
+}
