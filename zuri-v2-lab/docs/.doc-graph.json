@@ -35,20 +35,9 @@
   },
   "drift": {
     "changed": [
-      "doc:FEATURE-MAP",
-      "doc:PRD-SDD-v1.0"
+      "doc:E-risk-matrix"
     ],
-    "added": [
-      "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
-      "spec:ethics-governance",
-      "spec:intent-pipeline",
-      "spec:model-lifecycle",
-      "spec:prompt-engineering",
-      "spec:PRODUCT-V2",
-      "spec:CONTRACT-TESTS",
-      "spec:CUTOVER-RUNBOOK",
-      "spec:PARITY-INVENTORY"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -647,8 +636,8 @@
       "title": "Appendix E — Risk Matrix",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "3ffef533",
-      "status": "current"
+      "hash": "c97277aa",
+      "status": "changed"
     },
     {
       "id": "doc:F-glossary",
@@ -668,7 +657,7 @@
       "version": "1.0.0",
       "doc_status": "Auto-generated",
       "hash": "3f48a5aa",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-019-enterprise-api",
@@ -708,7 +697,7 @@
       "version": "1.0.2",
       "doc_status": "Draft",
       "hash": "335d3537",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-zuri-v2-lab",
