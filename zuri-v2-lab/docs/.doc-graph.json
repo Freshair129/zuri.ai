@@ -35,7 +35,7 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0"
+      "doc:D-traceability"
     ],
     "added": [],
     "removed": []
@@ -603,8 +603,8 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "67e6cc39",
-      "status": "current"
+      "hash": "00b0c5fc",
+      "status": "changed"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -674,7 +674,7 @@
       "version": "1.0.2",
       "doc_status": "Draft",
       "hash": "fd1f9663",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-zuri-v2-lab",

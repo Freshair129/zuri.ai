@@ -310,3 +310,40 @@ is lifted per module at cutover, everything except auth/identity; LINE is the
 primary AI-native surface and the web becomes the back-office console. ADR-001's
 standalone-build rationale still explains how this repo got here, but "do not copy
 `G:\zuri`" no longer applies in the V1 → V2 direction.
+
+### 18. Order of governance work, and the id contract
+
+When two governance steps touch the same material, **the one that changes the
+*meaning* of the other's input runs first**. A step that only changes layout
+(moving or renaming files) never invalidates a plan — it only breaks paths, which
+`docs:preflight` reports as broken links. A step that changes scope or identity
+does invalidate everything downstream.
+
+That is why the order is:
+
+```text
+1. doc-architect        restructure so the docs describe V2 as the product that
+                        replaces V1 (Project Manager becomes one module inside it,
+                        with room for the V1 domains being lifted in)
+2. docs:graph + docs:preflight
+                        seconds; catches the links and appendices the restructure
+                        moved out from under
+3. implementation-plan  written once, against the corrected structure
+4. subagent-driven      execute the plan
+```
+
+Planning before restructuring produces a plan shaped by the old scope, which then
+has to be rewritten — the restructure pending right now is a scope change (PM lab
+→ V2 product), not a cosmetic one.
+
+**The id contract — requirement ids are keys, not labels.**
+
+`FR-xxx`, `NFR-xxx`, `BR-xxx`, `SEC-xxx`, `SDD-xxx` must keep their meaning for the
+life of the project. Documents may be moved, renamed, split or merged; ids may not
+be renumbered, reused for a different statement, or recycled after a requirement is
+dropped (mark it superseded and leave the number burnt). Plans, annotations, tests,
+the traceability matrix and the doc graph all key off these ids — renumbering
+silently detaches every one of them.
+
+Same principle as ADR-003 §D4 applies one level up: **change the label, never the
+key** — UUIDs for data, requirement ids for documents.
