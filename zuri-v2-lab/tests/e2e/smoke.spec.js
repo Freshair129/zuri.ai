@@ -100,11 +100,9 @@ test.describe('seven execution views', () => {
 })
 
 test.describe('plan import', () => {
-  test('dry run previews and rejects bad plans', async ({ page }) => {
-    await page.goto('/projects')
-    const first = page.getByRole('link', { name: 'Business 01 Transformation Program' })
-    await first.click()
-    await page.getByRole('link', { name: 'Import' }).click()
+  test('dry run previews and rejects bad plans', async ({ page, request }) => {
+    const resolved = await (await request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    await page.goto(`/projects/${resolved.id}/import`)
     const textarea = page.getByLabel('Plan envelope JSON')
     await textarea.fill(JSON.stringify({ schemaVersion: '1.0', project: { code: 'X', name: 'X' }, workstreams: [{ code: 'W', name: 'W', executionMode: 'NOT_A_MODE', progressStrategy: 'TASK_WEIGHT' }] }))
     await page.getByRole('button', { name: /Validate \+ dry run/i }).click()
@@ -137,6 +135,41 @@ test.describe('FR-017 project wizard', () => {
     await expect(page).toHaveURL(/\/projects\/[0-9a-f-]{36}$/)
     await expect(page.getByRole('heading', { name: 'E2E เปิดร้านสาขาทดสอบ' })).toBeVisible()
     await expect(page.locator('main').getByText('หาทำเลและสัญญา')).toBeVisible()
+  })
+})
+
+test.describe('FR-018 excel intake', () => {
+  test('download template, fill, upload through UI, confirm import', async ({ page, request }) => {
+    const ExcelJS = require('exceljs')
+
+    // Template endpoint serves a real workbook.
+    const res = await request.get('/api/import/template')
+    expect(res.status()).toBe(200)
+    expect(res.headers()['content-type']).toContain('spreadsheetml')
+
+    // Fill it: Project row + one workstream + one item (column order per SHEETS spec).
+    const wb = new ExcelJS.Workbook()
+    await wb.xlsx.load(await res.body())
+    wb.getWorksheet('Project').getRow(3).values = ['PRJ-E2E-XLSX', 'E2E Excel Import']
+    wb.getWorksheet('Workstreams').getRow(3).values = ['WST-E2E-XLSX', 'งานจากไฟล์', 'OPERATIONS']
+    wb.getWorksheet('Items').getRow(3).values = ['WI-E2E-XLSX', 'WST-E2E-XLSX', '', 'CHECKLIST_ITEM', 'เช็คลิสต์จาก Excel', 'DONE']
+    const buffer = Buffer.from(await wb.xlsx.writeBuffer())
+
+    // Upload via the Import page inside a project context (direct URL —
+    // the projects list reorders by updatedAt, so click-chaining races).
+    const resolved = await (await request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    await page.goto(`/projects/${resolved.id}/import`)
+    await expect(page.getByText('Excel template')).toBeVisible()
+    await page.getByLabel('อัปโหลดไฟล์ Excel ที่กรอกแล้ว').setInputFiles({
+      name: 'filled.xlsx',
+      mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      buffer,
+    })
+    await expect(page.getByText('Dry-run preview')).toBeVisible()
+    await page.getByRole('button', { name: 'Confirm import' }).click()
+    await expect(page.getByText('Imported ✓')).toBeVisible()
+    await expect(page.getByText('committed transactionally')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Open project' })).toBeVisible()
   })
 })
 

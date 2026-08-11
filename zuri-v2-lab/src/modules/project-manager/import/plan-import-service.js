@@ -19,6 +19,19 @@ const KIND_TO_ENDPOINT = {
 }
 
 /**
+ * Resolve the target workspace for import requests: explicit workspaceId wins,
+ * else fall back to the given project's workspace (project-scoped import page).
+ */
+export async function resolveImportWorkspaceId({ workspaceId, projectId } = {}) {
+  if (workspaceId) return workspaceId
+  if (projectId) {
+    const project = await prisma.project.findUnique({ where: { id: projectId } })
+    return project?.workspaceId || undefined
+  }
+  return undefined
+}
+
+/**
  * Validate + diff a plan against the current database. Read-only.
  * Returns { valid, errors, plan, workspace, preview } where preview lists
  * inserts / updates / conflicts per entity kind.

@@ -4,21 +4,58 @@
 // (inserts/updates/conflicts) → confirm transactional commit. Plans are data,
 // never executed.
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { FileSpreadsheet, Download } from 'lucide-react'
 import { PageHeader, Card, SectionTitle, EmptyState } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
-import { api } from '../components/useApi'
+import { api, useFetch } from '../components/useApi'
 
 const SAMPLE_HINT = 'Paste a PlanEnvelope JSON (schemaVersion "1.0") — see contracts/sample-plan.json'
 
-export default function PlanImportPanel() {
+export default function PlanImportPanel({ projectId }) {
   const scope = useScope()
   const [text, setText] = useState('')
   const [workspaceId, setWorkspaceId] = useState('')
+  // Project-scoped import page targets that project's workspace by default.
+  const { data: contextProject } = useFetch(projectId ? `/api/projects/${projectId}` : null)
+  const effectiveWorkspaceId = workspaceId || contextProject?.workspaceId || ''
   const [dryRun, setDryRun] = useState(null)
   const [errors, setErrors] = useState(null)
   const [committed, setCommitted] = useState(null)
   const [busy, setBusy] = useState(false)
+  const fileRef = useRef(null)
+
+  // FR-018 — Excel surface: upload → convert (per-row errors) → same pipeline.
+  const uploadXlsx = async (file) => {
+    if (!file) return
+    setBusy(true)
+    setErrors(null)
+    setCommitted(null)
+    setDryRun(null)
+    try {
+      const form = new FormData()
+      form.append('file', file)
+      if (effectiveWorkspaceId) form.append('workspaceId', effectiveWorkspaceId)
+      if (projectId) form.append('projectId', projectId)
+      const res = await fetch('/api/import/xlsx', { method: 'POST', body: form })
+      const result = await res.json()
+      if (result.envelope) {
+        // Surface the converted envelope so confirm reuses the shared commit path.
+        setText(JSON.stringify(result.envelope, null, 2))
+      }
+      if (!result.valid) {
+        setErrors(result.errors)
+        if (result.preview) setDryRun(result)
+      } else {
+        setDryRun(result)
+      }
+    } catch (err) {
+      setErrors([err.message])
+    } finally {
+      setBusy(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
 
   const parsePlan = () => {
     try {
@@ -39,7 +76,7 @@ export default function PlanImportPanel() {
     try {
       const result = await api('/api/import/dry-run', {
         method: 'POST',
-        body: { plan, workspaceId: workspaceId || undefined },
+        body: { plan, workspaceId: effectiveWorkspaceId || undefined, projectId },
       })
       if (!result.valid && !result.preview) {
         setErrors(result.errors)
@@ -61,7 +98,7 @@ export default function PlanImportPanel() {
     try {
       const result = await api('/api/import/commit', {
         method: 'POST',
-        body: { plan, workspaceId: workspaceId || undefined },
+        body: { plan, workspaceId: effectiveWorkspaceId || undefined, projectId },
       })
       if (result.committed) {
         setCommitted(result)
@@ -102,6 +139,32 @@ export default function PlanImportPanel() {
         subtitle="Structured plans generated outside the app: validate → dry-run → confirm. Nothing in a plan is ever executed as code."
       />
       <div className="grid grid-cols-[1.2fr_1fr] gap-4 max-md:grid-cols-1">
+        <div>
+        <Card className="mb-4">
+          <SectionTitle caption="สำหรับข้อมูลในกระดาษ/ไฟล์เดิม — แบบฟอร์ม generate จาก schema ของระบบ (dropdown ครบ ไม่ drift)">
+            Excel template
+          </SectionTitle>
+          <div className="flex flex-wrap items-center gap-2">
+            <a className="btn flex items-center gap-1.5" href="/api/import/template" download>
+              <Download size={13} aria-hidden /> ดาวน์โหลดแบบฟอร์ม
+            </a>
+            <label className="btn btn-primary flex cursor-pointer items-center gap-1.5">
+              <FileSpreadsheet size={13} aria-hidden /> {busy ? 'กำลังตรวจ…' : 'อัปโหลดไฟล์ที่กรอกแล้ว'}
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".xlsx"
+                className="hidden"
+                aria-label="อัปโหลดไฟล์ Excel ที่กรอกแล้ว"
+                onChange={(e) => uploadXlsx(e.target.files?.[0])}
+                disabled={busy}
+              />
+            </label>
+          </div>
+          <p className="mt-2 text-[10px] text-muted">
+            ระบบตรวจรายแถว (บอกชีต + เลขแถวที่ผิด) แล้วแสดงพรีวิวก่อน — ยืนยันด้วยปุ่มเดียวกับ JSON
+          </p>
+        </Card>
         <Card>
           <SectionTitle caption={SAMPLE_HINT}>Plan JSON</SectionTitle>
           <textarea
@@ -112,7 +175,7 @@ export default function PlanImportPanel() {
             aria-label="Plan envelope JSON"
           />
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <select className="input w-auto" value={workspaceId} onChange={(e) => setWorkspaceId(e.target.value)} aria-label="Target workspace override">
+            <select className="input w-auto" value={effectiveWorkspaceId} onChange={(e) => setWorkspaceId(e.target.value)} aria-label="Target workspace override">
               <option value="">Workspace from plan scope</option>
               {scope.workspaces.map((w) => (
                 <option key={w.id} value={w.id}>{w.code} · {w.name}</option>
@@ -132,6 +195,7 @@ export default function PlanImportPanel() {
             </button>
           </div>
         </Card>
+        </div>
         <div>
           {errors && (
             <Card className="mb-3" role="alert">
