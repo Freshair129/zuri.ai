@@ -1,8 +1,9 @@
 'use client'
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { deriveShell } from '@/lib/shell-mode'
 
-// @req FR-002 — scope selectors + persisted selection
+// @req FR-002, FR-020 — scope selectors + persisted selection + adaptive shell
 // @tested tests/e2e/smoke.spec.js
 // Scope hierarchy: Portfolio → Tenant → Business → Workspace → Project.
 // Tenant is derived from the selected Business (tenant = isolation, never a branch).
@@ -38,19 +39,25 @@ export function ScopeProvider({ children }) {
     }
   }, [])
 
+  const [restored, setRestored] = useState(false)
+
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
       if (saved) setSelection((s) => ({ ...s, ...JSON.parse(saved) }))
     } catch {}
+    setRestored(true)
     refresh()
   }, [refresh])
 
   useEffect(() => {
+    // Never write before the saved selection has been read back, or the empty
+    // initial state would erase it (B2: the shell must remember the business).
+    if (!restored) return
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(selection))
     } catch {}
-  }, [selection])
+  }, [selection, restored])
 
   const select = useCallback((patch) => {
     setSelection((s) => {
@@ -71,22 +78,27 @@ export function ScopeProvider({ children }) {
   }, [])
 
   const value = useMemo(() => {
-    const business = data.businesses.find((b) => b.id === selection.businessId) || null
+    // Shell shape (single vs multi business) is derived from the data itself.
+    const shell = deriveShell({
+      portfolios: data.portfolios,
+      businesses: data.businesses,
+      workspaces: data.workspaces,
+      selection,
+    })
+    const business = shell.activeBusiness
     const tenant = business ? data.tenants.find((t) => t.id === business.tenantId) || null : null
-    const workspaces = data.workspaces.filter((w) => {
-      if (selection.businessId && w.businessId && w.businessId !== selection.businessId) return false
-      if (selection.portfolioId && w.portfolioId && w.portfolioId !== selection.portfolioId) return false
-      if (selection.businessId && w.scopeType === 'BUSINESS' && w.businessId !== selection.businessId) return false
+    const workspaces = shell.scopedWorkspaces
+    const projects = data.projects.filter((p) => {
+      if (selection.workspaceId) return p.workspaceId === selection.workspaceId
+      if (shell.activeBusinessId) return workspaces.some((w) => w.id === p.workspaceId)
       return true
     })
-    const projects = data.projects.filter(
-      (p) => !selection.workspaceId || p.workspaceId === selection.workspaceId
-    )
     return {
       ...data,
       selection,
       select,
       refresh,
+      shell,
       currentPortfolio: data.portfolios.find((p) => p.id === selection.portfolioId) || data.portfolios[0] || null,
       currentBusiness: business,
       currentTenant: tenant,

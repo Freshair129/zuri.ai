@@ -5,6 +5,7 @@ import {
   zTenantInput,
   zLegalEntityInput,
   zBusinessInput,
+  zBusinessInGroupInput,
   zBranchInput,
   zWorkspaceInput,
 } from '@/lib/validation/entities'
@@ -85,6 +86,51 @@ export async function createBusiness(input) {
   })
   await recordAudit(prisma, { entityType: 'BUSINESS', entityId: business.id, action: 'CREATED', payload: { code } })
   return business
+}
+
+/**
+ * @req FR-020 — "เพิ่มธุรกิจ": the A → B transition in one step.
+ * A new business gets its own tenant (isolation boundary) under the existing
+ * portfolio plus a starter workspace, so the objective wizard has somewhere to
+ * put its first project. The user is never asked about tenants or portfolios.
+ */
+export async function createBusinessInGroup(input) {
+  const data = zBusinessInGroupInput.parse(input)
+  const portfolio =
+    (data.portfolioId && (await prisma.portfolio.findUnique({ where: { id: data.portfolioId } }))) ||
+    (await prisma.portfolio.findFirst({ orderBy: { code: 'asc' } })) ||
+    (await createPortfolio({ name: 'กลุ่มธุรกิจของฉัน' }))
+
+  // Codes are resolved before the transaction: uniqueness probes are reads.
+  const businessCode = data.code || (await uniqueHumanCode('BUS', data.name, codeExists('business')))
+  const tenantCode = await uniqueHumanCode('TNT', data.name, codeExists('tenant'))
+  const workspaceCode = await uniqueHumanCode('WS', data.name, codeExists('workspace'))
+
+  return prisma.$transaction(async (tx) => {
+    const tenant = await tx.tenant.create({
+      data: { code: tenantCode, name: data.name, portfolioId: portfolio.id },
+    })
+    const business = await tx.business.create({
+      data: { code: businessCode, name: data.name, tenantId: tenant.id },
+    })
+    const workspace = await tx.workspace.create({
+      data: {
+        code: workspaceCode,
+        name: data.workspaceName || `งานของ${data.name}`,
+        scopeType: 'BUSINESS',
+        portfolioId: portfolio.id,
+        tenantId: tenant.id,
+        businessId: business.id,
+      },
+    })
+    await recordAudit(tx, {
+      entityType: 'BUSINESS',
+      entityId: business.id,
+      action: 'CREATED',
+      payload: { code: business.code, tenantCode: tenant.code, workspaceCode: workspace.code, via: 'add-business' },
+    })
+    return { portfolio, tenant, business, workspace }
+  })
 }
 
 export async function createBranch(input) {

@@ -32,11 +32,11 @@
         { "code": "T-PH04", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 04 — Seven execution views", "status": "DONE", "weight": 5 },
         { "code": "T-PH05", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 05 — Progress engine (7 strategies + rollup)", "status": "DONE", "weight": 3 },
         { "code": "T-PH06", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 06 — Plan import + snapshot backup", "status": "DONE", "weight": 4 },
-        { "code": "T-PH07", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 07 — Hardening (75 unit/integration + 20 e2e)", "status": "DONE", "weight": 3 },
-        { "code": "T-FR017", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-017 UI wizard — start from objective (no template picker)", "status": "PLANNED", "weight": 5 },
-        { "code": "T-FR018", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-018 Excel template intake (v0.1 pattern, generated from Zod)", "status": "PLANNED", "weight": 4 },
+        { "code": "T-PH07", "containerCode": "SPR-V2-MVP", "subtype": "TASK", "title": "Phase 07 — Hardening (102 unit/integration + 25 e2e)", "status": "DONE", "weight": 3 },
+        { "code": "T-FR017", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-017 UI wizard — start from objective (no template picker)", "status": "DONE", "weight": 5 },
+        { "code": "T-FR018", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-018 Excel template intake (v0.1 pattern, generated from Zod)", "status": "DONE", "weight": 4 },
         { "code": "T-FR019", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-019 Enterprise API + ExternalRef (upsert by external id)", "status": "PLANNED", "weight": 4 },
-        { "code": "T-FR020", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-020 Adaptive shell — single vs multi business", "status": "PLANNED", "weight": 3 }
+        { "code": "T-FR020", "containerCode": "SPR-V2-INTAKE", "subtype": "TASK", "title": "FR-020 Adaptive shell — single vs multi business", "status": "DONE", "weight": 3 }
       ],
       "milestones": [
         { "code": "MS-V2-MVP", "title": "MVP complete — all acceptance criteria pass", "status": "DONE", "weight": 3 },

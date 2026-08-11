@@ -3,10 +3,13 @@ const { test, expect } = require('@playwright/test')
 // E2E smoke: every major route renders with seeded data (npm run db:seed first).
 
 test.describe('universal routes', () => {
-  test('overview renders portfolio KPIs and project list', async ({ page }) => {
+  // The seed has four businesses, so the landing is the group roll-up (FR-020).
+  test('overview renders the group roll-up with a card per business', async ({ page }) => {
     await page.goto('/overview')
-    await expect(page.getByRole('heading', { name: /Overview/i })).toBeVisible()
-    await expect(page.locator('main').getByText('PRJ-B01-TRANSFORM', { exact: false }).first()).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'ภาพรวมทั้งเครือ' })).toBeVisible()
+    await expect(page.locator('main').getByText('ความคืบหน้ารวม')).toBeVisible()
+    await expect(page.locator('main').getByText('BUS-001')).toBeVisible()
+    await expect(page.locator('main').getByText('BUS-004')).toBeVisible()
   })
 
   test('workspaces list shows seeded workspaces', async ({ page }) => {
@@ -170,6 +173,77 @@ test.describe('FR-018 excel intake', () => {
     await expect(page.getByText('Imported ✓')).toBeVisible()
     await expect(page.getByText('committed transactionally')).toBeVisible()
     await expect(page.getByRole('link', { name: 'Open project' })).toBeVisible()
+  })
+})
+
+test.describe('FR-020 adaptive shell', () => {
+  test('many businesses: switcher scopes the shell and the choice survives a reload', async ({ page }) => {
+    await page.goto('/overview')
+    const switcher = page.getByRole('button', { name: 'สลับธุรกิจ' })
+    await expect(switcher).toBeVisible()
+
+    await switcher.click()
+    await page.getByRole('menuitem', { name: 'Business 01' }).click()
+
+    // Landing becomes that business's work, and the shell narrows with it.
+    await expect(page.getByRole('heading', { name: 'Business 01 — Overview' })).toBeVisible()
+    const workspaceSelect = page.getByLabel('Workspace', { exact: true })
+    await expect(workspaceSelect.locator('option')).toHaveCount(3) // all + own + group-level
+    await expect(workspaceSelect.locator('option', { hasText: 'WS-B02-MIG' })).toHaveCount(0)
+
+    // B2 — the shell remembers the business across a full page load.
+    await page.reload()
+    await expect(page.getByRole('heading', { name: 'Business 01 — Overview' })).toBeVisible()
+
+    // "ทุกธุรกิจ" returns to the read-only group roll-up.
+    await switcher.click()
+    await page.getByRole('menuitem', { name: 'ทุกธุรกิจ' }).click()
+    await expect(page.getByRole('heading', { name: 'ภาพรวมทั้งเครือ' })).toBeVisible()
+  })
+
+  test('single business: no switcher, no structure vocabulary, straight to the work', async ({ page }) => {
+    // Same app, one-business dataset: the shell is inferred from the data, so
+    // the fixture is the scope payload itself (route-level, no DB mutation).
+    const full = await (await page.request.get('/api/scope')).json()
+    const sole = full.businesses[0]
+    await page.route('**/api/scope', async (route) => {
+      await route.fulfill({
+        json: {
+          ...full,
+          businesses: [sole],
+          tenants: full.tenants.filter((t) => t.id === sole.tenantId),
+          workspaces: full.workspaces.filter((w) => w.businessId === sole.id),
+        },
+      })
+    })
+
+    await page.goto('/overview')
+    // A1/A3 — lands in the business, identity is static text, no switcher.
+    await expect(page.getByRole('heading', { name: `${sole.name} — Overview` })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'สลับธุรกิจ' })).toHaveCount(0)
+    await expect(page.locator('header').getByText(sole.name)).toBeVisible()
+
+    // Only one workspace to choose from → the selector stays out of the way.
+    await expect(page.getByLabel('Workspace', { exact: true })).toHaveCount(0)
+    // Structure vocabulary never reaches this owner.
+    await expect(page.locator('header')).not.toContainText(/portfolio|tenant/i)
+  })
+
+  test('adding a business is offered in settings and from the switcher', async ({ page }) => {
+    // The creation path itself (tenant + starter workspace + isolation) is
+    // covered by tests/integration/adaptive-shell.test.js — E2E stops at the
+    // affordance so the demo database stays clean across runs.
+    await page.goto('/overview')
+    await page.getByRole('button', { name: 'สลับธุรกิจ' }).click()
+    await page.getByRole('menuitem', { name: 'เพิ่มธุรกิจ' }).click()
+    // Cold-route compile on a first dev-server hit can outrun the default wait.
+    await expect(page).toHaveURL(/settings/, { timeout: 30000 })
+
+    await expect(page.getByText('เพิ่มธุรกิจใหม่ในเครือของคุณ')).toBeVisible()
+    const submit = page.getByRole('button', { name: 'เพิ่มธุรกิจ' })
+    await expect(submit).toBeDisabled()
+    await page.getByLabel('ชื่อธุรกิจใหม่').fill('ครัวกลาง')
+    await expect(submit).toBeEnabled()
   })
 })
 

@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
+| **Version** | 1.0.1 |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-11 |
+| **Last Updated** | 2026-08-12 |
 | **Approved By** | — |
 
 ## Version History
@@ -14,6 +14,7 @@
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0.0 | 2026-08-11 | Owen + Claude | Initial creation via RWANG doc-architect — merged from spec pack (`D:\zuri-ai\docs`) + build docs |
+| 1.0.1 | 2026-08-12 | Claude | FR-017 (UI wizard), FR-018 (Excel intake), FR-020 (adaptive shell) delivered → ✅ |
 
 ## Referenced Standards
 
@@ -76,7 +77,7 @@ standalone ก่อน ไม่แตะ Zuri v1)
 | FR-017 | UI wizard intake ("เริ่มจากเป้าหมาย") → สร้าง envelope เข้า pipeline เดิม | ✅ |
 | FR-018 | Excel template intake: generator จาก Zod schema + xlsx→envelope converter + error รายแถว | ✅ |
 | FR-019 | Enterprise API: ExternalRef mapping + upsert-by-external-id + OpenAPI docs | 🔜 |
-| FR-020 | Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing) | 🔜 |
+| FR-020 | Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing) | ✅ |
 
 ## 1.4 Non-functional requirements
 

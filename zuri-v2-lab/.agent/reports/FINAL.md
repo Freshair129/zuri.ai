@@ -19,6 +19,12 @@
 9. Zuri Heritage UI: exact token set, glass nav, amber-active states, responsive to 375px, empty/error/loading states, command palette (Ctrl+K), filters/search.
 10. Tests: 75 Vitest unit+integration (isolated test DB) + 20 Playwright E2E — all green; `npm run build` clean.
 
+> **Post-MVP addendum (2026-08-12).** Intake phase FR-017 (objective wizard), FR-018
+> (Excel template intake) and FR-020 (adaptive shell) landed after this report.
+> Current suite: **102 Vitest + 25 Playwright**, build clean. Two acceptance rows below
+> changed affordance without losing capability — see the addendum notes on the
+> Portfolio and Business selector rows.
+
 ## Routes verified (build + E2E + live checks)
 
 `/overview`, `/workspaces`, `/workspaces/[id]`, `/projects`, `/projects/[id]`,
@@ -55,9 +61,9 @@ Live spot-checks: Overview (7 workstreams, 58.3% weighted roll-up), Migration Mo
 | Seed idempotent / resettable | PASS | double-run seed verified; npm run db:reset |
 | Export snapshot works | PASS | backup.test.js + /backup UI |
 | Import snapshot preview+confirm | PASS | preview-without-confirm purity test; confirm flow test |
-| Portfolio selector works | PASS | topbar select (ScopeContext) |
-| Business selector works | PASS | topbar select; clears descendants |
-| Workspace selector works | PASS | topbar select, business-scoped filtering |
+| Portfolio selector works | PASS | topbar select (ScopeContext). **FR-020:** shown only when ≥2 portfolios exist; with one group the "ทุกธุรกิจ" switcher entry is the portfolio-level scope |
+| Business selector works | PASS | **FR-020:** replaced by the identity-corner business switcher (same selection, clears descendants); hidden entirely when only one business exists |
+| Workspace selector works | PASS | topbar select, business-scoped filtering. **FR-020:** hidden when the active business has ≤1 workspace |
 | Project selector works | PASS | topbar select navigates to project |
 | Tenant ID never used as Branch ID | PASS | branch/tenant match rule + test |
 | Business carries Tenant ownership | PASS | schema + isolation test |

@@ -4,6 +4,7 @@ import {
   createPortfolio,
   createTenant,
   createBusiness,
+  createBusinessInGroup,
   createWorkspace,
   createLegalEntity,
   createBranch,
@@ -19,6 +20,8 @@ const CREATORS = {
   portfolio: createPortfolio,
   tenant: createTenant,
   business: createBusiness,
+  // FR-020 — one call creates tenant + business + starter workspace.
+  businessInGroup: createBusinessInGroup,
   workspace: createWorkspace,
   legalEntity: createLegalEntity,
   branch: createBranch,

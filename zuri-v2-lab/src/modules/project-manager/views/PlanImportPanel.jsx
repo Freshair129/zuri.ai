@@ -177,7 +177,7 @@ export default function PlanImportPanel({ projectId }) {
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <select className="input w-auto" value={effectiveWorkspaceId} onChange={(e) => setWorkspaceId(e.target.value)} aria-label="Target workspace override">
               <option value="">Workspace from plan scope</option>
-              {scope.workspaces.map((w) => (
+              {scope.scopedWorkspaces.map((w) => (
                 <option key={w.id} value={w.id}>{w.code} · {w.name}</option>
               ))}
             </select>

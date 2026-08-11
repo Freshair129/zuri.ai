@@ -1,6 +1,6 @@
 import prisma from '@/lib/db'
 import { calculateWorkstreamProgress } from '../progress/strategies'
-import { rollupProject } from '../progress/rollup'
+import { rollupProject, rollupBusiness } from '../progress/rollup'
 import { safeParse } from './audit'
 
 function hydrateBundle(workstream) {
@@ -79,6 +79,98 @@ export async function computeProjectProgress(projectId) {
     code: project.code,
     name: project.name,
     ...rollup,
+    calculatedAt: new Date().toISOString(),
+  }
+}
+
+// @req FR-020 — group landing: one health card per business.
+// Progress is recomputed from the strategies (never read from progressCache),
+// so a card can never show a number the project page would disagree with.
+
+const PROJECT_BUNDLE_INCLUDE = {
+  workspace: { select: { businessId: true, scopeType: true } },
+  milestones: { orderBy: { targetAt: 'asc' } },
+  gates: true,
+  workstreams: {
+    where: { deletedAt: null, status: { not: 'ARCHIVED' } },
+    include: { items: true, containers: true, milestones: true, gates: true },
+  },
+}
+
+function summarizeLoadedProject(project) {
+  const rollup = rollupProject(
+    project.workstreams.map((ws) => ({
+      workstreamId: ws.id,
+      progressWeight: ws.progressWeight,
+      ...calculateWorkstreamProgress(ws.progressStrategy, hydrateBundle(ws)),
+    }))
+  )
+  return {
+    projectId: project.id,
+    code: project.code,
+    name: project.name,
+    status: project.status,
+    percent: rollup.percent,
+    totalWeight: rollup.totalWeight,
+    openRequiredGates: project.gates.filter((g) => g.required && !['PASSED', 'WAIVED'].includes(g.status)).length,
+    nextMilestone:
+      project.milestones.find((m) => m.status !== 'DONE' && m.targetAt) || null,
+  }
+}
+
+function bucketSummary({ id, code, name }, projects) {
+  const rollup = rollupBusiness(projects)
+  const upcoming = projects
+    .map((p) => p.nextMilestone)
+    .filter(Boolean)
+    .sort((a, b) => new Date(a.targetAt) - new Date(b.targetAt))[0]
+  return {
+    id,
+    code,
+    name,
+    percent: rollup.percent,
+    totalWeight: rollup.totalWeight,
+    projectCount: projects.length,
+    activeProjects: projects.filter((p) => p.status === 'ACTIVE').length,
+    openRequiredGates: projects.reduce((s, p) => s + p.openRequiredGates, 0),
+    nextMilestone: upcoming ? { title: upcoming.title, targetAt: upcoming.targetAt } : null,
+    warnings: rollup.warnings,
+  }
+}
+
+/**
+ * Group ("ทุกธุรกิจ") roll-up: a card per business plus one for group-level
+ * work that lives in PORTFOLIO-scoped workspaces and belongs to no single
+ * business.
+ */
+export async function computePortfolioProgress() {
+  const [businesses, projects] = await Promise.all([
+    prisma.business.findMany({ orderBy: { code: 'asc' } }),
+    prisma.project.findMany({
+      where: { deletedAt: null, status: { not: 'ARCHIVED' } },
+      include: PROJECT_BUNDLE_INCLUDE,
+    }),
+  ])
+  const summaries = projects.map((p) => ({ ...summarizeLoadedProject(p), businessId: p.workspace?.businessId || null }))
+
+  const businessCards = businesses.map((b) =>
+    bucketSummary(b, summaries.filter((s) => s.businessId === b.id))
+  )
+  const groupProjects = summaries.filter((s) => !s.businessId)
+  const group = groupProjects.length
+    ? bucketSummary({ id: null, code: 'GROUP', name: 'งานระดับเครือ' }, groupProjects)
+    : null
+
+  const total = rollupBusiness(summaries)
+  return {
+    businesses: businessCards,
+    group,
+    total: {
+      percent: total.percent,
+      projectCount: summaries.length,
+      businessCount: businesses.length,
+      openRequiredGates: summaries.reduce((s, p) => s + p.openRequiredGates, 0),
+    },
     calculatedAt: new Date().toISOString(),
   }
 }

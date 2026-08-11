@@ -30,11 +30,13 @@ function ProjectsPageInner() {
   }, [searchParams])
 
   const params = new URLSearchParams()
-  if (scope.selection.businessId) params.set('businessId', scope.selection.businessId)
+  // Single-business installs are scoped implicitly — the shell resolves it (FR-020).
+  // A picked workspace wins: group-level workspaces belong to no single business.
   if (scope.selection.workspaceId) params.set('workspaceId', scope.selection.workspaceId)
+  else if (scope.shell.activeBusinessId) params.set('businessId', scope.shell.activeBusinessId)
   if (q) params.set('q', q)
   const { data, loading, error, reload } = useFetch(`/api/projects?${params.toString()}`, [
-    scope.selection.businessId,
+    scope.shell.activeBusinessId,
     scope.selection.workspaceId,
     q,
   ])
@@ -131,7 +133,7 @@ function ProjectsPageInner() {
         <ProjectModal
           open={modalOpen}
           onClose={closeModal}
-          workspaces={scope.workspaces}
+          workspaces={scope.scopedWorkspaces}
           project={editing}
           defaultWorkspaceId={scope.selection.workspaceId}
           onSaved={() => {

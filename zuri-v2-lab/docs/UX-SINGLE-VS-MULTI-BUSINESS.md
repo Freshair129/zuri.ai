@@ -2,11 +2,26 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.1 |
-| **Status** | Draft (FR-020 ยังไม่ implement) |
+| **Version** | 1.1.0 |
+| **Status** | Implemented (FR-020) |
 | **Author** | Owen + Claude |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-11 |
+| **Last Updated** | 2026-08-12 |
+
+> **สถานะการ implement (2026-08-12):** กติกาทั้งหมดในเอกสารนี้อยู่ใน
+> `src/lib/shell-mode.js` (`deriveShell`) เป็นฟังก์ชันบริสุทธิ์ที่ ScopeContext,
+> Topbar, Overview และ wizard อ่านร่วมกัน — เพิ่มธุรกิจแล้ว UI กางชั้นเองทันที
+> ไม่มี setting ให้ตั้ง หลักฐาน: `tests/unit/shell-mode.test.js` (8),
+> `tests/integration/adaptive-shell.test.js` (8), `tests/e2e/smoke.spec.js`
+> (3 เคส: multi, single, เพิ่มธุรกิจ)
+>
+> ข้อเบี่ยงเบนที่บันทึกไว้ 2 จุด:
+> 1. **"ทุกธุรกิจ" อ่านอย่างเดียว** — หน้า landing ไม่มีปุ่มแก้ไข แต่ไม่ได้บล็อก
+>    "New Project" ทั้งดุ้น; wizard จัดกลุ่ม workspace ตามธุรกิจ (optgroup) และ
+>    แสดงปลายทางใต้ช่องเลือก การเลือก workspace จึงเท่ากับการเลือกธุรกิจ
+> 2. **จำนวนธุรกิจนับจาก scope payload** ไม่ใช่ membership ของผู้ใช้ — MVP มี
+>    identity เดียว (local owner) การกรองตาม membership จะมาพร้อม auth จริง
+>    ซึ่งอยู่นอกขอบเขต MVP (B4 ฝั่ง service มี `assertWorkspaceInScope` อยู่แล้ว)
 
 หลักการกลาง: **สคีมาเก็บลำดับชั้นเต็มเสมอ (Portfolio → Tenant → Business → Workspace →
 Project) แต่ UI แสดงเฉพาะชั้นที่มีทางเลือกมากกว่า 1** โดยอนุมานจากข้อมูลจริง

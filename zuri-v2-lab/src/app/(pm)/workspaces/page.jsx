@@ -91,13 +91,11 @@ export default function WorkspacesPage() {
   const [modal, setModal] = useState(false)
   const [editing, setEditing] = useState(null)
 
+  // FR-020 — scope is described in business words; tenant never surfaces here.
   const label = (ws) => {
-    if (ws.scopeType === 'PORTFOLIO') {
-      const p = scope.portfolios.find((x) => x.id === ws.portfolioId)
-      return `Portfolio · ${p?.code || '?'}`
-    }
+    if (ws.scopeType === 'PORTFOLIO') return 'งานระดับเครือ · ทุกธุรกิจ'
     const b = scope.businesses.find((x) => x.id === ws.businessId)
-    return `Business · ${b?.code || '?'}`
+    return `ธุรกิจ · ${b?.name || b?.code || '?'}`
   }
 
   return (
@@ -105,18 +103,18 @@ export default function WorkspacesPage() {
       <PageHeader
         eyebrow="Scope"
         title="Workspaces"
-        subtitle="Working contexts inside the Portfolio → Tenant → Business hierarchy. Tenant is isolation — never a branch."
+        subtitle="Working contexts inside your business. Group-level workspaces are shared by every business in the group."
         actions={
           <button type="button" className="btn btn-primary flex items-center gap-1" onClick={() => setModal(true)}>
             <Plus size={12} aria-hidden /> New workspace
           </button>
         }
       />
-      {scope.workspaces.length === 0 ? (
+      {scope.scopedWorkspaces.length === 0 ? (
         <EmptyState title="No workspaces" hint="Run npm run db:seed for the demo dataset, or create a workspace." />
       ) : (
         <div className="grid grid-cols-3 gap-3 max-md:grid-cols-1">
-          {scope.workspaces.map((ws) => (
+          {scope.scopedWorkspaces.map((ws) => (
             <Card key={ws.id}>
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">

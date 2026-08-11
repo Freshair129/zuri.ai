@@ -51,6 +51,14 @@ export const zBusinessInput = z.object({
   status: z.string().optional(),
 })
 
+// FR-020 — add a business to the group: tenant + starter workspace are implied.
+export const zBusinessInGroupInput = z.object({
+  name: z.string().min(1),
+  code: z.string().min(1).optional(),
+  portfolioId: z.string().min(1).optional(),
+  workspaceName: z.string().min(1).optional(),
+})
+
 export const zBranchInput = z.object({
   code: z.string().min(1).optional(),
   tenantId: z.string().min(1),

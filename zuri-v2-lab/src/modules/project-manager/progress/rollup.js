@@ -1,6 +1,7 @@
 import { clampPercent } from './strategies'
 
-// @req FR-011 — weighted project roll-up Σ(ws% × weight) / Σ(weight)
+// @req FR-011, FR-020 — weighted project roll-up Σ(ws% × weight) / Σ(weight),
+// and the same formula one level up for business/group cards.
 // @tested tests/unit/rollup.test.js
 
 /**
@@ -27,5 +28,32 @@ export function rollupProject(workstreamResults) {
     workstreams: rows,
     warnings,
     formula: 'Σ(workstream% × weight) / Σ(weight)',
+  }
+}
+
+/**
+ * Business/group roll-up: each project carries the weight of its own
+ * workstreams, so this is algebraically identical to one flat weighted average
+ * over every workstream in scope — no second weighting scheme to reason about.
+ */
+export function rollupBusiness(projectRollups) {
+  const warnings = []
+  const rows = (projectRollups || []).filter((p) => p)
+  const totalWeight = rows.reduce((s, p) => s + (Number(p.totalWeight) || 0), 0)
+  if (rows.length === 0) {
+    warnings.push('No projects in scope — progress is 0.')
+    return { percent: 0, totalWeight: 0, projects: [], warnings }
+  }
+  if (totalWeight <= 0) {
+    warnings.push('Projects in scope carry no workstream weight — progress is 0.')
+    return { percent: 0, totalWeight: 0, projects: rows, warnings }
+  }
+  const weighted = rows.reduce((s, p) => s + (Number(p.percent) || 0) * (Number(p.totalWeight) || 0), 0)
+  return {
+    percent: clampPercent(weighted / totalWeight),
+    totalWeight,
+    projects: rows,
+    warnings,
+    formula: 'Σ(project% × project weight) / Σ(project weight)',
   }
 }

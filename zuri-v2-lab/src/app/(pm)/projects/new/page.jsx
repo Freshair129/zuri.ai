@@ -60,8 +60,21 @@ export default function ProjectWizardPage() {
   const [errors, setErrors] = useState(null)
   const [busy, setBusy] = useState(false)
 
-  const effectiveWorkspaceId = workspaceId || scope.selection.workspaceId || scope.workspaces[0]?.id || ''
-  const workspace = scope.workspaces.find((w) => w.id === effectiveWorkspaceId)
+  // Workspaces are already narrowed to the active business by the shell (FR-020).
+  const options = scope.scopedWorkspaces
+  const effectiveWorkspaceId = workspaceId || scope.selection.workspaceId || options[0]?.id || ''
+  const workspace = options.find((w) => w.id === effectiveWorkspaceId)
+  // In "ทุกธุรกิจ" mode the workspace choice IS the business choice — group the
+  // list by business so the destination is never ambiguous.
+  const workspaceGroups = scope.shell.multiBusiness && !scope.shell.activeBusinessId
+    ? [
+        ...scope.businesses.map((b) => ({ label: b.name, items: options.filter((w) => w.businessId === b.id) })),
+        { label: 'งานระดับเครือ', items: options.filter((w) => !w.businessId) },
+      ].filter((g) => g.items.length > 0)
+    : null
+  const destinationBusiness = workspace
+    ? scope.businesses.find((b) => b.id === workspace.businessId) || null
+    : null
 
   const addStream = () =>
     setStreams((s) => [...s, { name: '', mode: 'SOFTWARE_SPRINT', itemsText: '' }])
@@ -199,11 +212,27 @@ export default function ProjectWizardPage() {
             <textarea className="input" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
           </Field>
           <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
-            <Field label="Workspace">
-              <select className="input" value={effectiveWorkspaceId} onChange={(e) => setWorkspaceId(e.target.value)}>
-                {scope.workspaces.map((w) => (
-                  <option key={w.id} value={w.id}>{w.code} · {w.name}</option>
-                ))}
+            <Field
+              label="Workspace"
+              hint={destinationBusiness ? `ปลายทาง: ${destinationBusiness.name}` : 'ปลายทาง: งานระดับเครือ'}
+            >
+              <select
+                className="input"
+                value={effectiveWorkspaceId}
+                onChange={(e) => setWorkspaceId(e.target.value)}
+                aria-label="Workspace ปลายทาง"
+              >
+                {workspaceGroups
+                  ? workspaceGroups.map((g) => (
+                      <optgroup key={g.label} label={g.label}>
+                        {g.items.map((w) => (
+                          <option key={w.id} value={w.id}>{w.code} · {w.name}</option>
+                        ))}
+                      </optgroup>
+                    ))
+                  : options.map((w) => (
+                      <option key={w.id} value={w.id}>{w.code} · {w.name}</option>
+                    ))}
               </select>
             </Field>
             <Field label="วันเป้าหมาย (ถ้ามี)">

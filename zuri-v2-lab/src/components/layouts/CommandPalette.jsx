@@ -27,18 +27,19 @@ export default function CommandPalette({ open, onClose }) {
       label: `${e.label} view`,
       path: `/execution/${e.slug}`,
     }))
-    const projects = scope.projects.map((p) => ({
+    // Search stays inside the active business scope (FR-020).
+    const projects = scope.scopedProjects.map((p) => ({
       kind: 'Project',
       label: `${p.code} · ${p.name}`,
       path: `/projects/${p.id}`,
     }))
-    const workspaces = scope.workspaces.map((w) => ({
+    const workspaces = scope.scopedWorkspaces.map((w) => ({
       kind: 'Workspace',
       label: `${w.code} · ${w.name}`,
       path: `/workspaces/${w.id}`,
     }))
     return [...routes, ...execs, ...projects, ...workspaces]
-  }, [scope.projects, scope.workspaces])
+  }, [scope.scopedProjects, scope.scopedWorkspaces])
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
