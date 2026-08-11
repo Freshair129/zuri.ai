@@ -53,19 +53,24 @@
       "progressStrategy": "SLA_SCORE",
       "progressWeight": 1,
       "containers": [
-        { "code": "OPS-V2-GOV", "subtype": "OPS_PROCESS", "title": "Doc governance + GoVibe integration", "status": "ACTIVE" }
+        { "code": "OPS-V2-GOV", "subtype": "OPS_PROCESS", "title": "Doc governance + GoVibe integration", "status": "ACTIVE" },
+        { "code": "OPS-MERGE", "subtype": "OPS_PROCESS", "title": "ADR-002 merge conditions (keep option B affordable)", "status": "ACTIVE" }
       ],
       "items": [
         { "code": "G-DOCS3L", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "3-layer docs + doc-graph + @req annotations", "status": "DONE", "weight": 2 },
         { "code": "G-PREFLIGHT", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "Preflight WARN-1/2/3 closed (spec conflict resolved)", "status": "DONE", "weight": 1 },
         { "code": "G-GOVIBE-REG", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "GoVibe candidates dropped in .brain/inbound", "status": "DONE", "weight": 1 },
         { "code": "G-GOVIBE-PROMOTE", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "Promote candidates through GoVibe gks gate", "status": "PLANNED", "weight": 1 },
-        { "code": "G-DECISION-AB", "containerCode": "OPS-V2-GOV", "subtype": "APPROVAL", "title": "Owner decision: v1 module vs v2 foundation", "status": "PLANNED", "weight": 2 }
+        { "code": "G-DECISION-AB", "containerCode": "OPS-V2-GOV", "subtype": "APPROVAL", "title": "Owner decision: v1 module vs v2 foundation — decided A→B (ADR-002)", "status": "DONE", "weight": 2 },
+        { "code": "M-VOCAB", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "ADR-002 cond.1 — canonical scope vocabulary adopted in Zuri v1", "status": "PLANNED", "weight": 2 },
+        { "code": "M-BIZDIM", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "ADR-002 cond.2 — every new v1 table carries a business dimension", "status": "PLANNED", "weight": 2 },
+        { "code": "M-ADAPTER", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "ADR-002 cond.3 — scope adapter isolated to one deletable file", "status": "PLANNED", "weight": 2 },
+        { "code": "M-TRIGGER", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "Watch B trigger: first customer needing cross-business CRM/identity", "status": "PLANNED", "weight": 1 }
       ],
       "milestones": [],
       "gates": [
         { "code": "GATE-GOVIBE", "title": "GoVibe knowledge candidates promoted", "status": "OPEN", "required": false, "evidence": { "inbound": ["SYS--ZURI-V2-LAB", "CONCEPT--UNIFIED-INTAKE-PIPELINE"] } },
-        { "code": "GATE-AB", "title": "Integration direction decided (A: v1 module / B: v2 foundation)", "status": "OPEN", "required": true, "evidence": { "assessment": "docs/ZURI-INTEGRATION-ASSESSMENT.md" } }
+        { "code": "GATE-AB", "title": "Integration direction decided (A: v1 module / B: v2 foundation)", "status": "PASSED", "required": true, "evidence": { "decision": "A→B under DECISION-BRIEF-AB §6 conditions", "decidedOn": "2026-08-12", "decidedBy": "Owen", "adr": "docs/ADR-002-INTEGRATION-DIRECTION.md", "brief": "zuri-v2-lab/docs/DECISION-BRIEF-AB.md", "assessment": "docs/ZURI-INTEGRATION-ASSESSMENT.md" } }
       ]
     }
   ],

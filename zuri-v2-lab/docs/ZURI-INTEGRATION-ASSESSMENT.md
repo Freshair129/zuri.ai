@@ -2,14 +2,19 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.1 |
-| **Status** | Review (awaiting owner decision A/B) |
+| **Version** | 1.1.0 |
+| **Status** | Decided — A→B (ADR-002, 2026-08-12) |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
 | **Last Updated** | 2026-08-11 |
 
 Evaluates the finished MVP against ADR-001's decision point: merge into Zuri v1
 as a module, or promote as the foundation of Zuri v2.
+
+> **Decision input (2026-08-12):** `docs/DECISION-BRIEF-AB.md` puts real numbers
+> under both options (94 models / 255 `tenantId` references / 0 `businessId` in
+> `G:\zuri`, and the tenant-means-two-different-things trap) plus the three
+> questions that settle GATE-AB.
 
 ## Fit with current Zuri (observed patterns)
 
@@ -45,6 +50,14 @@ for CRM, POS, Marketing, Inbox, Employees:
   globality, then port existing Zuri modules into `src/modules/*` one at a time.
 - Tenant semantics change (Tenant = isolation umbrella over Businesses) — treat as
   a versioned architecture migration, not a refactor.
+
+## Outcome (2026-08-12)
+
+Owner chose **A → B under the DECISION-BRIEF §6 conditions**: ship the Project
+Manager into Zuri v1 as a module now, promote this repo's scope model to the v2
+foundation when the first cross-business need appears. Recorded in
+[ADR-002](../../docs/ADR-002-INTEGRATION-DIRECTION.md); GATE-AB is PASSED.
+The recommendation below stands as the reasoning behind that choice.
 
 ## Recommendation
 
