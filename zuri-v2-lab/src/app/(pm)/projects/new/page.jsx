@@ -1,6 +1,7 @@
 'use client'
 
 // @req FR-017 — UI wizard intake: start from objective, no template picker.
+// @spec BR-003 — projects start from a goal; execution mode belongs to the workstream.
 // The wizard is an envelope builder — output goes through the SAME
 // validate → dry-run → confirm pipeline as agent JSON (BR-009).
 // @tested tests/e2e/smoke.spec.js

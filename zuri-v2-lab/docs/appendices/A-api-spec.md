@@ -41,15 +41,21 @@ Error shape: `{ error, issues? }` — 400 validation/domain, 404 not found, 500 
 |---|---|---|
 | GET | `/api/progress/workstream/[id]` | strategy progress + evidence + warnings |
 | GET | `/api/progress/project/[id]` | weighted roll-up + per-workstream results |
+| GET | `/api/progress/portfolio` | FR-020 group landing: one health card per business + group-level work |
 | POST | `/api/import/dry-run` | `{plan, workspaceId?}` → valid/errors + preview (insert/update/conflict) — read-only |
 | POST | `/api/import/commit` | เหมือน dry-run แล้ว commit ใน transaction เดียว + audit |
 | GET | `/api/backup/export` | full snapshot JSON |
 | POST | `/api/backup/import` | `{snapshot}` = preview; `{snapshot, confirm:true}` = restore |
 | GET | `/api/audit` | events (filter: entityType, entityId, limit) |
 
-## Planned (FR-017..019)
+## Intake surfaces (FR-017..FR-020 — shipped)
 
-- `POST /api/import/xlsx` — อัปโหลด workbook → envelope → dry-run รายแถว
-- `GET /api/import/template` — generate Excel template จาก Zod schema
-- `GET /api/docs` — OpenAPI 3 spec (zod-to-openapi)
-- `GET /api/resolve?system=&value=` — external ID → internal id (ExternalRef)
+| Method | Path | ทำอะไร |
+|---|---|---|
+| POST | `/api/import/xlsx` | อัปโหลด workbook → envelope → dry-run รายแถว (FR-018) |
+| GET | `/api/import/template` | generate Excel template จาก Zod schema (FR-018) |
+| GET | `/api/docs` | OpenAPI 3 spec generated from the live Zod schemas (FR-019) |
+| GET | `/api/resolve?system=&value=` | external ID → internal id via ExternalRef; 404 unmapped, 410 dangling (FR-019) |
+
+> Endpoint ทั้งหมดในไฟล์นี้ถูกตรวจโดย `scripts/doc-preflight.mjs` — ถ้ามี route ใหม่
+> ใน `src/app/api` ที่ไม่ได้ระบุไว้ที่นี่ preflight จะรายงานเป็น staleness ทันที

@@ -4,6 +4,7 @@ import { computePortfolioProgress } from '@/modules/project-manager/application/
 export const dynamic = 'force-dynamic'
 
 // @req FR-020 — group landing data: one health card per business + group-level work.
+// @tested tests/integration/adaptive-shell.test.js
 export async function GET() {
   return handle(() => computePortfolioProgress())
 }

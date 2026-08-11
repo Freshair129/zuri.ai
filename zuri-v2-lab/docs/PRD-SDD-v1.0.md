@@ -85,7 +85,7 @@ standalone ก่อน ไม่แตะ Zuri v1)
 | ID | Requirement | หลักฐาน |
 |---|---|---|
 | NFR-001 | Runtime offline สมบูรณ์หลัง `npm install` (SQLite, ไม่มี cloud/CDN/font ภายนอก) | FINAL.md matrix |
-| NFR-002 | `npm run build` ผ่านโดยไม่มี error | 16 routes |
+| NFR-002 | `npm run build` ผ่านโดยไม่มี error | build clean; 32 API routes + 24 pages |
 | NFR-003 | Responsive ถึง 375px โดยไม่มี horizontal scroll | e2e test |
 | NFR-004 | Keyboard: palette เต็มรูปแบบ, aria labels, progressbar roles | e2e + code |
 | NFR-005 | Progress calculators deterministic (pure, no clock/random) | 31 unit tests |
@@ -154,7 +154,7 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 ## 2.4 API / DB / Testing / Deployment
 
 - API surface: Appendix A · DB schema: Appendix B (`prisma/schema.prisma` 19 models)
-- Testing: 75 Vitest (unit+integration, isolated `prisma/test.db`) + 20 Playwright E2E — รายละเอียด `../../docs/TEST-PLAN.md` + PHASE-07 report
+- Testing: 129 Vitest (unit+integration, isolated `prisma/test.db`) + 28 Playwright E2E — รายละเอียด `../../docs/TEST-PLAN.md` + PHASE-07 report
 - Deployment: local เท่านั้นใน MVP; เส้นทาง Postgres/v2 ดู `DB-MIGRATION-NOTES.md` + `ZURI-INTEGRATION-ASSESSMENT.md`
 
 ---

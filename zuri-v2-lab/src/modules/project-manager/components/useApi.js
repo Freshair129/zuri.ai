@@ -1,5 +1,7 @@
 'use client'
 
+// @spec SDD-007 — the UI reads through client fetch to API handlers, which
+// delegate to services; there is no server-component read path in the MVP.
 import { useCallback, useEffect, useState } from 'react'
 
 export async function api(path, { method = 'GET', body } = {}) {

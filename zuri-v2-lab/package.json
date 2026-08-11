@@ -15,7 +15,10 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "docs:graph": "node scripts/doc-graph.mjs",
+    "docs:check": "node scripts/doc-graph.mjs --check",
+    "docs:preflight": "node scripts/doc-preflight.mjs"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

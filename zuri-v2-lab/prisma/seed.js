@@ -1,5 +1,6 @@
 // @req FR-016 — idempotent demo seed (4 tenants, 7-mode demo project)
 // @spec NFR-007 — safe to re-run: every record is upserted by its unique human code.
+// @tested tests/e2e/smoke.spec.js — the whole e2e suite asserts against this data
 const { PrismaClient } = require('@prisma/client')
 
 const prisma = new PrismaClient()

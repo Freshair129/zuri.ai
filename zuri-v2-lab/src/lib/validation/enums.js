@@ -1,5 +1,8 @@
 import { z } from 'zod'
 
+// @spec SDD-002, BR-004 — one Zod source of truth for every persisted enum;
+// only seven canonical execution modes exist.
+// @tested tests/unit/plan-schema.test.js, tests/integration/xlsx-intake.test.js
 // Persisted enums are plain strings in SQLite; these Zod enums are the single
 // source of truth so the data model can move to Postgres without connector
 // enum coupling.

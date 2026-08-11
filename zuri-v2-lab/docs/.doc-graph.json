@@ -1,136 +1,2849 @@
 {
-  "version": "1.1.0",
-  "generated_by": "rwang:doc-graph",
-  "generated_at": "2026-08-11T00:00:00Z",
+  "version": "2.0.0",
+  "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
+  "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 51,
-    "total_edges": 74,
-    "stale_edges": 0,
-    "contradiction_edges": 1,
+    "total_nodes": 123,
+    "total_edges": 211,
+    "dangling_edges": 0,
+    "node_types": {
+      "appendix": 5,
+      "document": 8,
+      "roadmap": 1,
+      "spec": 10,
+      "adr": 3,
+      "requirement": 51,
+      "test": 14,
+      "code_file": 31
+    },
     "coverage": {
-      "requirements_with_code": "80% (16/20 FR; FR-017..020 planned)",
-      "requirements_with_tests": "80% (16/20 FR; 100% of implemented)",
-      "code_with_structured_annotations": "16 core files annotated (@req/@spec/@tested) — all Appendix D rows covered",
-      "acceptance_criteria_pass": "100% (FINAL.md)"
+      "requirements": 51,
+      "fr_with_code": "100% (20/20)",
+      "fr_with_tests": "100% (20/20)",
+      "rules_anchored_in_code": "83% (20/24)",
+      "nfr_evidence_based": "7 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 31,
+      "fr_without_code": [],
+      "fr_without_tests": [],
+      "rules_without_anchor": [
+        "SDD-001",
+        "SDD-008",
+        "SEC-004",
+        "SEC-005"
+      ]
     }
   },
+  "drift": {
+    "changed": [
+      "doc:ZURI-INTEGRATION-ASSESSMENT"
+    ],
+    "added": [],
+    "removed": []
+  },
   "nodes": [
-    { "id": "doc:PRD-SDD-v1.0", "type": "document", "path": "docs/PRD-SDD-v1.0.md", "title": "PRD & SDD (3-layer)", "hash": "2f71b565", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "doc:appendix-A", "type": "appendix", "path": "docs/appendices/A-api-spec.md", "title": "API Specification", "hash": "e33cd8b7", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "doc:appendix-B", "type": "appendix", "path": "docs/appendices/B-db-schema.md", "title": "DB Schema Summary", "hash": "3c1258b9", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "doc:appendix-D", "type": "appendix", "path": "docs/appendices/D-traceability.md", "title": "Traceability Matrix", "hash": "9c2e10f7", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "doc:appendix-E", "type": "appendix", "path": "docs/appendices/E-risk-matrix.md", "title": "Risk Matrix", "hash": "e6e2ccf4", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "doc:appendix-F", "type": "appendix", "path": "docs/appendices/F-glossary.md", "title": "Glossary", "hash": "6e033b7c", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "doc:architecture-notes", "type": "document", "path": "docs/ARCHITECTURE-NOTES.md", "title": "Architecture Notes", "hash": "b2668c38", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "doc:db-migration-notes", "type": "document", "path": "docs/DB-MIGRATION-NOTES.md", "title": "DB Migration Notes", "hash": "1992d833", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "doc:zuri-integration", "type": "document", "path": "docs/ZURI-INTEGRATION-ASSESSMENT.md", "title": "Zuri Integration Assessment", "hash": "21947395", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "doc:ux-single-multi", "type": "document", "path": "docs/UX-SINGLE-VS-MULTI-BUSINESS.md", "title": "UX: Single vs Multi Business", "hash": "81ff1963", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "doc:enterprise-api", "type": "document", "path": "docs/ENTERPRISE-API-SURFACE.md", "title": "Enterprise API Surface", "hash": "ada69fa7", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "doc:readme", "type": "document", "path": "README.md", "title": "README", "hash": "79a2b2a3", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "doc:agents", "type": "document", "path": "AGENTS.md", "title": "Repo agent rules", "hash": "75e7129b", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "contract:plan-envelope", "type": "document", "path": "contracts/plan-envelope.schema.json", "title": "PlanEnvelope JSON Schema 1.0", "hash": "a94d8514", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "code:prisma-schema", "type": "code_file", "path": "prisma/schema.prisma", "title": "Prisma schema (19 models)", "hash": "33fcb86c", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "code:enums", "type": "code_file", "path": "src/lib/validation/enums.js", "title": "Zod enums (source of truth)", "hash": "5dad10a2", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "report:final", "type": "document", "path": ".agent/reports/FINAL.md", "title": "FINAL acceptance report", "hash": "21ed4216", "status": "current", "last_verified": "2026-08-11" },
-    { "id": "spec:pack", "type": "document", "path": "../docs", "title": "Spec pack (12 source docs)", "hash": "", "status": "external", "last_verified": "2026-08-11" },
-    { "id": "doc:govibe-integration", "type": "document", "path": "docs/GOVIBE-INTEGRATION.md", "title": "GoVibe Integration (governance mapping)", "hash": "", "status": "current", "last_verified": "2026-08-12" },
-    { "id": "external:govibe", "type": "document", "path": "G:/govibe", "title": "GoVibe governance layer (candidates in .brain/inbound)", "hash": "", "status": "external", "last_verified": "2026-08-12" },
-
-    { "id": "req:FR-001", "type": "requirement", "label": "Scope hierarchy CRUD", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-002", "type": "requirement", "label": "Scope selectors + persistence", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-003", "type": "requirement", "label": "Project CRUD + archive", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-004", "type": "requirement", "label": "Workstream mode/strategy/weight", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-005", "type": "requirement", "label": "Neutral work model", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-006", "type": "requirement", "label": "Milestones + gates", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-007", "type": "requirement", "label": "Dependencies + cycle guard", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-008", "type": "requirement", "label": "Repositories m2m", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-009", "type": "requirement", "label": "7 execution views", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-010", "type": "requirement", "label": "Strategy progress + explain", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-011", "type": "requirement", "label": "Weighted roll-up", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-012", "type": "requirement", "label": "PlanEnvelope import", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-013", "type": "requirement", "label": "Snapshot backup", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-014", "type": "requirement", "label": "Audit log", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-015", "type": "requirement", "label": "Palette + filters/search", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-016", "type": "requirement", "label": "Idempotent seed", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "implemented" },
-    { "id": "req:FR-017", "type": "requirement", "label": "UI wizard intake", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "planned" },
-    { "id": "req:FR-018", "type": "requirement", "label": "Excel template intake", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "planned" },
-    { "id": "req:FR-019", "type": "requirement", "label": "Enterprise API + ExternalRef", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "planned" },
-    { "id": "req:FR-020", "type": "requirement", "label": "Adaptive shell single/multi business", "defined_in": "docs/PRD-SDD-v1.0.md", "status": "planned" },
-
-    { "id": "code:scope-service", "type": "code_file", "path": "src/modules/project-manager/application/scope-service.js", "hash": "", "status": "current" },
-    { "id": "code:project-service", "type": "code_file", "path": "src/modules/project-manager/application/project-service.js", "hash": "", "status": "current" },
-    { "id": "code:work-service", "type": "code_file", "path": "src/modules/project-manager/application/work-service.js", "hash": "", "status": "current" },
-    { "id": "code:milestone-gate-service", "type": "code_file", "path": "src/modules/project-manager/application/milestone-gate-service.js", "hash": "", "status": "current" },
-    { "id": "code:dependency-service", "type": "code_file", "path": "src/modules/project-manager/application/dependency-service.js", "hash": "", "status": "current" },
-    { "id": "code:repository-service", "type": "code_file", "path": "src/modules/project-manager/application/repository-service.js", "hash": "", "status": "current" },
-    { "id": "code:strategies", "type": "code_file", "path": "src/modules/project-manager/progress/strategies.js", "hash": "", "status": "current" },
-    { "id": "code:rollup", "type": "code_file", "path": "src/modules/project-manager/progress/rollup.js", "hash": "", "status": "current" },
-    { "id": "code:plan-import", "type": "code_file", "path": "src/modules/project-manager/import/plan-import-service.js", "hash": "", "status": "current" },
-    { "id": "code:backup-service", "type": "code_file", "path": "src/modules/project-manager/application/backup-service.js", "hash": "", "status": "current" },
-    { "id": "code:mode-bodies", "type": "code_file", "path": "src/modules/project-manager/views/execution/mode-bodies.jsx", "hash": "", "status": "current" },
-
-    { "id": "test:scope-isolation", "type": "test", "path": "tests/integration/scope-and-isolation.test.js", "status": "passing" },
-    { "id": "test:project-core", "type": "test", "path": "tests/integration/project-core.test.js", "status": "passing" },
-    { "id": "test:plan-import", "type": "test", "path": "tests/integration/plan-import.test.js", "status": "passing" },
-    { "id": "test:backup", "type": "test", "path": "tests/integration/backup.test.js", "status": "passing" },
-    { "id": "test:strategies", "type": "test", "path": "tests/unit/strategies.test.js", "status": "passing" },
-    { "id": "test:rollup", "type": "test", "path": "tests/unit/rollup.test.js", "status": "passing" },
-    { "id": "test:plan-schema", "type": "test", "path": "tests/unit/plan-schema.test.js", "status": "passing" },
-    { "id": "test:e2e-smoke", "type": "test", "path": "tests/e2e/smoke.spec.js", "status": "passing" }
+    {
+      "id": "code:prisma/seed.js",
+      "type": "code_file",
+      "path": "prisma/seed.js",
+      "hash": "817a7efd",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-016"
+        ],
+        "@spec": [
+          "NFR-007"
+        ],
+        "@tested": [
+          "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/overview/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/overview/page.jsx",
+      "hash": "2dabf9d8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-002",
+          "FR-020"
+        ],
+        "@tested": [
+          "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/projects/new/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/projects/new/page.jsx",
+      "hash": "a227442a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-017"
+        ],
+        "@spec": [
+          "BR-003"
+        ],
+        "@tested": [
+          "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/settings/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/settings/page.jsx",
+      "hash": "0d34470d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-020"
+        ],
+        "@tested": [
+          "tests/e2e/smoke.spec.js",
+          "tests/integration/adaptive-shell.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/docs/route.js",
+      "type": "code_file",
+      "path": "src/app/api/docs/route.js",
+      "hash": "94c14bc1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-019"
+        ],
+        "@spec": [
+          "SEC-006"
+        ],
+        "@tested": [
+          "tests/integration/openapi-docs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/progress/portfolio/route.js",
+      "type": "code_file",
+      "path": "src/app/api/progress/portfolio/route.js",
+      "hash": "a25bc46f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-020"
+        ],
+        "@tested": [
+          "tests/integration/adaptive-shell.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/layouts/CommandPalette.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/CommandPalette.jsx",
+      "hash": "96d4ecc1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-015"
+        ],
+        "@tested": [
+          "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/layouts/Topbar.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/Topbar.jsx",
+      "hash": "6b652710",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-002",
+          "FR-020"
+        ],
+        "@tested": [
+          "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/context/ScopeContext.jsx",
+      "type": "code_file",
+      "path": "src/context/ScopeContext.jsx",
+      "hash": "1a64917c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-002",
+          "FR-020"
+        ],
+        "@tested": [
+          "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/ids.js",
+      "type": "code_file",
+      "path": "src/lib/ids.js",
+      "hash": "828461b6",
+      "status": "current",
+      "annotations": {
+        "@spec": [
+          "BR-002",
+          "SDD-003"
+        ],
+        "@tested": [
+          "tests/unit/ids.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/shell-mode.js",
+      "type": "code_file",
+      "path": "src/lib/shell-mode.js",
+      "hash": "594b0a0c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-020"
+        ],
+        "@spec": [
+          "docs/UX-SINGLE-VS-MULTI-BUSINESS.md"
+        ],
+        "@tested": [
+          "tests/unit/shell-mode.test.js",
+          "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/validation/enums.js",
+      "type": "code_file",
+      "path": "src/lib/validation/enums.js",
+      "hash": "fdcb0e30",
+      "status": "current",
+      "annotations": {
+        "@spec": [
+          "SDD-002",
+          "BR-004"
+        ],
+        "@tested": [
+          "tests/unit/plan-schema.test.js",
+          "tests/integration/xlsx-intake.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/api-docs/openapi.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/api-docs/openapi.js",
+      "hash": "cd117885",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-019"
+        ],
+        "@spec": [
+          "docs/ENTERPRISE-API-SURFACE.md"
+        ],
+        "@tested": [
+          "tests/integration/openapi-docs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/audit.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/audit.js",
+      "hash": "aa5f0f31",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-014"
+        ],
+        "@spec": [
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/project-core.test.js",
+          "tests/integration/plan-import.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/backup-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/backup-service.js",
+      "hash": "10f07f01",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-013"
+        ],
+        "@spec": [
+          "BR-008"
+        ],
+        "@tested": [
+          "tests/integration/backup.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/dependency-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/dependency-service.js",
+      "hash": "88904c97",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-007"
+        ],
+        "@tested": [
+          "tests/integration/project-core.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/milestone-gate-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/milestone-gate-service.js",
+      "hash": "df5ef079",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-006"
+        ],
+        "@tested": [
+          "tests/integration/project-core.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/progress-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/progress-service.js",
+      "hash": "c10c4751",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-020"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/project-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/project-service.js",
+      "hash": "944448cc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-003",
+          "FR-004"
+        ],
+        "@spec": [
+          "BR-004",
+          "SDD-004"
+        ],
+        "@tested": [
+          "tests/integration/project-core.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/repository-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/repository-service.js",
+      "hash": "9b6e5e71",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-008"
+        ],
+        "@spec": [
+          "BR-002"
+        ],
+        "@tested": [
+          "tests/integration/project-core.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/scope-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/scope-service.js",
+      "hash": "9cde0045",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-001",
+          "FR-020"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/scope-and-isolation.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/work-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/work-service.js",
+      "hash": "d8466e69",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-005"
+        ],
+        "@tested": [
+          "tests/integration/project-core.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/components/useApi.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/useApi.js",
+      "hash": "27b4f140",
+      "status": "current",
+      "annotations": {
+        "@spec": [
+          "SDD-007"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/import/external-ref.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/external-ref.js",
+      "hash": "7463d4c7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-019"
+        ],
+        "@spec": [
+          "docs/ENTERPRISE-API-SURFACE.md"
+        ],
+        "@tested": [
+          "tests/integration/external-ref-import.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/import/plan-import-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/plan-import-service.js",
+      "hash": "ea8d6062",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-012",
+          "FR-019"
+        ],
+        "@spec": [
+          "SDD-006",
+          "SDD-009",
+          "SEC-002",
+          "BR-009"
+        ],
+        "@tested": [
+          "tests/integration/plan-import.test.js",
+          "tests/integration/external-ref-import.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/import/plan-schema.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/plan-schema.js",
+      "hash": "2247d737",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-012",
+          "FR-019"
+        ],
+        "@spec": [
+          "BR-004",
+          "BR-007",
+          "SEC-002"
+        ],
+        "@tested": [
+          "tests/unit/plan-schema.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/import/xlsx-convert.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/xlsx-convert.js",
+      "hash": "704b537d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-018"
+        ],
+        "@tested": [
+          "tests/integration/xlsx-intake.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/import/xlsx-template.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/xlsx-template.js",
+      "hash": "81764d29",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-018"
+        ],
+        "@tested": [
+          "tests/integration/xlsx-intake.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/progress/rollup.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/progress/rollup.js",
+      "hash": "c8dc0cc9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-011",
+          "FR-020"
+        ],
+        "@tested": [
+          "tests/unit/rollup.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/progress/strategies.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/progress/strategies.js",
+      "hash": "437a522a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-010"
+        ],
+        "@spec": [
+          "BR-005",
+          "BR-006",
+          "SDD-005"
+        ],
+        "@tested": [
+          "tests/unit/strategies.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/views/execution/mode-bodies.jsx",
+      "hash": "107edb5b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-009"
+        ],
+        "@tested": [
+          "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "doc:A-api-spec",
+      "type": "appendix",
+      "path": "docs/appendices/A-api-spec.md",
+      "title": "Appendix A — API Specification",
+      "version": "1.0.0",
+      "doc_status": "Draft",
+      "hash": "e7dd796f",
+      "status": "current"
+    },
+    {
+      "id": "doc:ARCHITECTURE-NOTES",
+      "type": "document",
+      "path": "docs/ARCHITECTURE-NOTES.md",
+      "title": "Architecture Notes — zuri-v2-lab",
+      "version": "1.0.1",
+      "doc_status": "Approved",
+      "hash": "123c71ca",
+      "status": "current"
+    },
+    {
+      "id": "doc:B-db-schema",
+      "type": "appendix",
+      "path": "docs/appendices/B-db-schema.md",
+      "title": "Appendix B — Database Schema Summary",
+      "version": "1.0.0",
+      "doc_status": "Draft",
+      "hash": "4f67d11a",
+      "status": "current"
+    },
+    {
+      "id": "doc:D-traceability",
+      "type": "appendix",
+      "path": "docs/appendices/D-traceability.md",
+      "title": "Appendix D — Traceability Matrix",
+      "version": "2.0.0",
+      "doc_status": "Auto-generated",
+      "hash": "67e6cc39",
+      "status": "current"
+    },
+    {
+      "id": "doc:DB-MIGRATION-NOTES",
+      "type": "document",
+      "path": "docs/DB-MIGRATION-NOTES.md",
+      "title": "Database Migration Notes — SQLite → PostgreSQL",
+      "version": "1.0.1",
+      "doc_status": "Approved",
+      "hash": "3bee8300",
+      "status": "current"
+    },
+    {
+      "id": "doc:DECISION-BRIEF-AB",
+      "type": "document",
+      "path": "docs/DECISION-BRIEF-AB.md",
+      "title": "Decision Brief — GATE-AB: โมดูลใน Zuri v1 (A) หรือฐานของ Zuri v2 (B)",
+      "version": "1.2.0",
+      "doc_status": "Superseded — ADR-003 (2026-08-12): V2 แทน V1 ด้วยการ reuse",
+      "hash": "5e08252f",
+      "status": "superseded"
+    },
+    {
+      "id": "doc:E-risk-matrix",
+      "type": "appendix",
+      "path": "docs/appendices/E-risk-matrix.md",
+      "title": "Appendix E — Risk Matrix",
+      "version": "1.0.0",
+      "doc_status": "Draft",
+      "hash": "34691be1",
+      "status": "current"
+    },
+    {
+      "id": "doc:ENTERPRISE-API-SURFACE",
+      "type": "document",
+      "path": "docs/ENTERPRISE-API-SURFACE.md",
+      "title": "Enterprise API Surface — Backend-first Integration (Salesforce-style)",
+      "version": "1.1.0",
+      "doc_status": "Implemented (FR-019)",
+      "hash": "dfaac6a1",
+      "status": "current"
+    },
+    {
+      "id": "doc:F-glossary",
+      "type": "appendix",
+      "path": "docs/appendices/F-glossary.md",
+      "title": "Appendix F — Glossary",
+      "version": "1.0.0",
+      "doc_status": "Draft",
+      "hash": "5d5531ac",
+      "status": "current"
+    },
+    {
+      "id": "doc:GOVIBE-INTEGRATION",
+      "type": "document",
+      "path": "docs/GOVIBE-INTEGRATION.md",
+      "title": "GoVibe Integration — zuri.ai under GoVibe governance",
+      "version": "1.0.0",
+      "doc_status": "Active",
+      "hash": "4d125220",
+      "status": "current"
+    },
+    {
+      "id": "doc:PRD-SDD-v1.0",
+      "type": "document",
+      "path": "docs/PRD-SDD-v1.0.md",
+      "title": "Zuri v2 Project Manager — PRD & SDD",
+      "version": "1.0.2",
+      "doc_status": "Draft",
+      "hash": "d21a1995",
+      "status": "current"
+    },
+    {
+      "id": "doc:ROADMAP-zuri-v2-lab",
+      "type": "roadmap",
+      "path": "docs/roadmap/ROADMAP-zuri-v2-lab.md",
+      "title": "ROADMAP: Zuri v2 Lab — Project Manager",
+      "hash": "d3e15870",
+      "status": "current"
+    },
+    {
+      "id": "doc:UX-SINGLE-VS-MULTI-BUSINESS",
+      "type": "document",
+      "path": "docs/UX-SINGLE-VS-MULTI-BUSINESS.md",
+      "title": "UX Spec — Single-Business vs Multi-Business Owner",
+      "version": "1.1.0",
+      "doc_status": "Implemented (FR-020)",
+      "hash": "cb2362d5",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZURI-INTEGRATION-ASSESSMENT",
+      "type": "document",
+      "path": "docs/ZURI-INTEGRATION-ASSESSMENT.md",
+      "title": "Zuri Integration Assessment",
+      "version": "1.1.0",
+      "doc_status": "Decided — A→B (ADR-002, 2026-08-12)",
+      "hash": "75827aa5",
+      "status": "changed"
+    },
+    {
+      "id": "req:BR-001",
+      "type": "requirement",
+      "family": "BR",
+      "label": "`tenant_id` = ขอบเขต isolation และการแชร์ข้อมูล — branch ไม่มีวันเป็น tenant; ธุรกิจใน tenant เดียวกันแชร์ CRM ได้, ต่าง tenant แชร์ไม่ได้",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-002",
+      "type": "requirement",
+      "family": "BR",
+      "label": "External ID (tax id, GitHub id, LINE id, SAP id) ไม่มีวันเป็น primary key — UUID ภายใน + human code + ExternalRef",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-003",
+      "type": "requirement",
+      "family": "BR",
+      "label": "ไม่มี template picker — โปรเจกต์เริ่มจากเป้าหมาย, execution mode เป็นของ workstream",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-004",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Execution mode มีเพียง 7 โหมด canonical ห้ามเพิ่มใน v1",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-005",
+      "type": "requirement",
+      "family": "BR",
+      "label": "ห้ามใช้ tasks_done/tasks_total เป็น progress สากล — ต้อง strategy-based + weighted roll-up",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-006",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Required gate ที่ยังไม่ผ่าน cap progress ที่ 99% พร้อม warning",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-007",
+      "type": "requirement",
+      "family": "BR",
+      "label": "แผนที่ import เป็นข้อมูลเท่านั้น — ไม่มีการ execute code จาก plan",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-008",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Restore snapshot ต้อง preview + confirm เสมอ — ไม่มี silent overwrite",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-009",
+      "type": "requirement",
+      "family": "BR",
+      "label": "ทุก intake surface (UI/Excel/agent/API) ต้องจบที่ pipeline validate→dry-run→commit เดียวกัน",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-001",
+      "type": "requirement",
+      "family": "FR",
+      "label": "จัดการ scope hierarchy: Portfolio / Tenant / Business / Branch / LegalEntity / Workspace (CRUD + human codes)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-002",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Scope selectors (Portfolio·Business·Workspace·Project) + จำ selection ล่าสุด",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-003",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Project CRUD + archive (soft delete) + mixed execution modes",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-004",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Workstream CRUD: executionMode + progressStrategy + progressWeight",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-005",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Neutral work model: WorkContainer (ลำดับชั้น) + WorkItem (weight/value/probability/metrics)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-006",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Milestones + Gates (weighted, required flag, evidence JSON)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-007",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Dependencies 5 ชนิด, กัน self/cycle, ประเมิน blocked/ready",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-008",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Repository records (local metadata) + ผูกโปรเจกต์แบบ many-to-many",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-009",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Execution views 7 โหมดบนโมเดลกลาง (global + project-scoped)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-010",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Progress ต่อ workstream ตาม strategy + evidence + warnings + \"Explain\" UI",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-011",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Project roll-up ถ่วงน้ำหนัก Σ(ws%×w)/Σw",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-012",
+      "type": "requirement",
+      "family": "FR",
+      "label": "PlanEnvelope import: validate → semantic check → dry run → transactional commit → audit",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-013",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Snapshot backup: export + import แบบ preview-then-confirm",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-014",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Audit log (immutable) + UI browser",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-015",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Command palette (Ctrl+K), filters, search",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-016",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Seed/demo dataset idempotent ครบ 7 โหมด",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-017",
+      "type": "requirement",
+      "family": "FR",
+      "label": "UI wizard intake (\"เริ่มจากเป้าหมาย\") → สร้าง envelope เข้า pipeline เดิม",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-018",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Excel template intake: generator จาก Zod schema + xlsx→envelope converter + error รายแถว",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-019",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Enterprise API: ExternalRef mapping + upsert-by-external-id + OpenAPI docs",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-020",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-001",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Runtime offline สมบูรณ์หลัง `npm install` (SQLite, ไม่มี cloud/CDN/font ภายนอก)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-002",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "`npm run build` ผ่านโดยไม่มี error",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-003",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Responsive ถึง 375px โดยไม่มี horizontal scroll",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-004",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Keyboard: palette เต็มรูปแบบ, aria labels, progressbar roles",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-005",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Progress calculators deterministic (pure, no clock/random)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-006",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Persistence ย้ายไป Postgres ได้โดยไม่แก้ semantics (string enums, UUID, JSON strings)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-007",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Seed idempotent / reset ได้ (`db:seed`, `db:reset`)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-001",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Standalone repo ก่อน integrate (ADR-001)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-002",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Persisted enums เป็น string, Zod (`src/lib/validation/enums.js`) เป็น source of truth เดียว",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-003",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "UUID PK + human code (unique) พร้อม collision retry",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-004",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Soft delete (`deletedAt`) + `version` counter บน aggregate roots",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-005",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Progress calculators เป็น pure function; `progressCache` เป็น advisory เท่านั้น",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-006",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Import commit ใน `prisma.$transaction` เดียว, upsert by code",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-007",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "UI เป็น client fetch (`useFetch`) เรียก API handlers ซึ่ง delegate ให้ services",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-008",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "JavaScript + Zod ที่ boundary (ไม่ใช่ TypeScript)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-009",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Unified intake: ทุก surface แปลงเป็น envelope เดียว",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-001",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Cross-tenant/business guard (`assertWorkspaceInScope`) — ปฏิเสธข้าม scope",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-002",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "ไม่ execute code จาก imported plans (strict Zod, additionalProperties rejected)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-003",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "AuditEvent append-only สำหรับทุก mutation สำคัญ",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-004",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "MVP ไม่มี customer PII ในระบบ",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-005",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "PDPA: consent ต่อธุรกิจใน `CustomerBusinessProfile` เมื่อทำ CRM sharing",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
+      "id": "req:SEC-006",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Enterprise API ต้องมี token auth ต่อ tenant ก่อนเปิดใช้จริง",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
+      "id": "spec:ACCEPTANCE-CRITERIA",
+      "type": "spec",
+      "path": "docs/ACCEPTANCE-CRITERIA.md",
+      "title": "Acceptance Criteria",
+      "hash": "b3d91c23",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-001-STANDALONE-ZURI-V2",
+      "type": "adr",
+      "path": "docs/ADR-001-STANDALONE-ZURI-V2.md",
+      "title": "ADR-001 — Build Standalone Before Integrating with Zuri",
+      "hash": "330e131c",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-002-INTEGRATION-DIRECTION",
+      "type": "adr",
+      "path": "docs/ADR-002-INTEGRATION-DIRECTION.md",
+      "title": "ADR-002 — Ship Project Manager as a Zuri v1 Module, Promote to v2 on Trigger",
+      "hash": "aa9f28a4",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "type": "adr",
+      "path": "docs/ADR-003-V2-REPLACES-V1-BY-REUSE.md",
+      "title": "ADR-003 — V2 Replaces V1 by Reusing It (Everything Except Auth)",
+      "hash": "e92a2f56",
+      "status": "current"
+    },
+    {
+      "id": "spec:ARCHITECTURE",
+      "type": "spec",
+      "path": "docs/ARCHITECTURE.md",
+      "title": "Architecture",
+      "hash": "4256bf07",
+      "status": "current"
+    },
+    {
+      "id": "spec:DOMAIN-MODEL",
+      "type": "spec",
+      "path": "docs/DOMAIN-MODEL.md",
+      "title": "Domain Model",
+      "hash": "8a6a9333",
+      "status": "current"
+    },
+    {
+      "id": "spec:EXECUTION-MODES",
+      "type": "spec",
+      "path": "docs/EXECUTION-MODES.md",
+      "title": "Seven Execution Modes",
+      "hash": "fb4dcb5c",
+      "status": "current"
+    },
+    {
+      "id": "spec:IMPLEMENTATION-PLAN",
+      "type": "spec",
+      "path": "docs/IMPLEMENTATION-PLAN.md",
+      "title": "Implementation Plan",
+      "hash": "20221080",
+      "status": "current"
+    },
+    {
+      "id": "spec:INTEGRATION-MAP-ZURI",
+      "type": "spec",
+      "path": "docs/INTEGRATION-MAP-ZURI.md",
+      "title": "Future Integration Map — Current Zuri → Zuri v2",
+      "hash": "d7219230",
+      "status": "current"
+    },
+    {
+      "id": "spec:ROUTES-SITEMAP",
+      "type": "spec",
+      "path": "docs/ROUTES-SITEMAP.md",
+      "title": "Routes / Sitemap",
+      "hash": "de76f0f1",
+      "status": "current"
+    },
+    {
+      "id": "spec:TEST-PLAN",
+      "type": "spec",
+      "path": "docs/TEST-PLAN.md",
+      "title": "Test Plan",
+      "hash": "ddcd235a",
+      "status": "current"
+    },
+    {
+      "id": "spec:UI-DESIGN-SYSTEM",
+      "type": "spec",
+      "path": "docs/UI-DESIGN-SYSTEM.md",
+      "title": "UI Design System — Zuri Heritage",
+      "hash": "e38f305c",
+      "status": "current"
+    },
+    {
+      "id": "spec:ZURI-V2-HANDOFF",
+      "type": "spec",
+      "path": "docs/ZURI-V2-HANDOFF.md",
+      "title": "Zuri v2 Handoff Checklist",
+      "hash": "8adbcd06",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/smoke.spec.js",
+      "type": "test",
+      "path": "tests/e2e/smoke.spec.js",
+      "hash": "9f5680a9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/adaptive-shell.test.js",
+      "type": "test",
+      "path": "tests/integration/adaptive-shell.test.js",
+      "hash": "7b1f5f58",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/backup.test.js",
+      "type": "test",
+      "path": "tests/integration/backup.test.js",
+      "hash": "5bb93442",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/external-ref-import.test.js",
+      "type": "test",
+      "path": "tests/integration/external-ref-import.test.js",
+      "hash": "8e2f4a11",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/openapi-docs.test.js",
+      "type": "test",
+      "path": "tests/integration/openapi-docs.test.js",
+      "hash": "f7ec1641",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/plan-import.test.js",
+      "type": "test",
+      "path": "tests/integration/plan-import.test.js",
+      "hash": "1f6ff672",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/project-core.test.js",
+      "type": "test",
+      "path": "tests/integration/project-core.test.js",
+      "hash": "1cbc02ca",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/scope-and-isolation.test.js",
+      "type": "test",
+      "path": "tests/integration/scope-and-isolation.test.js",
+      "hash": "6c3a58e5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/xlsx-intake.test.js",
+      "type": "test",
+      "path": "tests/integration/xlsx-intake.test.js",
+      "hash": "61987283",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/ids.test.js",
+      "type": "test",
+      "path": "tests/unit/ids.test.js",
+      "hash": "54bcbecc",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/plan-schema.test.js",
+      "type": "test",
+      "path": "tests/unit/plan-schema.test.js",
+      "hash": "2bfad8c0",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/rollup.test.js",
+      "type": "test",
+      "path": "tests/unit/rollup.test.js",
+      "hash": "57641a11",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/shell-mode.test.js",
+      "type": "test",
+      "path": "tests/unit/shell-mode.test.js",
+      "hash": "c0804b87",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/strategies.test.js",
+      "type": "test",
+      "path": "tests/unit/strategies.test.js",
+      "hash": "d55aa65b",
+      "status": "current"
+    }
   ],
   "edges": [
-    { "from": "doc:PRD-SDD-v1.0", "to": "spec:pack", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:PRD-SDD-v1.0", "to": "doc:architecture-notes", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:PRD-SDD-v1.0", "to": "doc:ux-single-multi", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:PRD-SDD-v1.0", "to": "doc:enterprise-api", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:PRD-SDD-v1.0", "to": "doc:db-migration-notes", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:PRD-SDD-v1.0", "to": "contract:plan-envelope", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:PRD-SDD-v1.0", "to": "report:final", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:appendix-A", "to": "doc:PRD-SDD-v1.0", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:appendix-B", "to": "doc:PRD-SDD-v1.0", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:appendix-D", "to": "doc:PRD-SDD-v1.0", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:appendix-E", "to": "doc:PRD-SDD-v1.0", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:appendix-F", "to": "doc:PRD-SDD-v1.0", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:appendix-B", "to": "code:prisma-schema", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:appendix-A", "to": "code:enums", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:enterprise-api", "to": "contract:plan-envelope", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:zuri-integration", "to": "doc:db-migration-notes", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:agents", "to": "spec:pack", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:readme", "to": "report:final", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:govibe-integration", "to": "external:govibe", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:govibe-integration", "to": "doc:PRD-SDD-v1.0", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:govibe-integration", "to": "doc:enterprise-api", "type": "references", "status": "current", "source": "manual" },
-    { "from": "doc:agents", "to": "spec:pack", "type": "references", "status": "resolved", "reason": "AGENTS.md §1 contradiction แก้ที่ต้นทางแล้ว 2026-08-11 (owner confirmed standalone) — resolution note ฝังใน spec-pack AGENTS.md", "source": "manual" },
-
-    { "from": "code:scope-service", "to": "req:FR-001", "type": "implements", "status": "current", "source": "traceability-matrix" },
-    { "from": "code:scope-service", "to": "req:FR-002", "type": "implements", "status": "current", "source": "traceability-matrix" },
-    { "from": "code:project-service", "to": "req:FR-003", "type": "implements", "status": "current", "source": "traceability-matrix" },
-    { "from": "code:project-service", "to": "req:FR-004", "type": "implements", "status": "current", "source": "traceability-matrix" },
-    { "from": "code:work-service", "to": "req:FR-005", "type": "implements", "status": "current", "source": "traceability-matrix" },
-    { "from": "code:milestone-gate-service", "to": "req:FR-006", "type": "implements", "status": "current", "source": "traceability-matrix" },
-    { "from": "code:dependency-service", "to": "req:FR-007", "type": "implements", "status": "current", "source": "traceability-matrix" },
-    { "from": "code:repository-service", "to": "req:FR-008", "type": "implements", "status": "current", "source": "traceability-matrix" },
-    { "from": "code:mode-bodies", "to": "req:FR-009", "type": "implements", "status": "current", "source": "traceability-matrix" },
-    { "from": "code:strategies", "to": "req:FR-010", "type": "implements", "status": "current", "source": "traceability-matrix" },
-    { "from": "code:rollup", "to": "req:FR-011", "type": "implements", "status": "current", "source": "traceability-matrix" },
-    { "from": "code:plan-import", "to": "req:FR-012", "type": "implements", "status": "current", "source": "traceability-matrix" },
-    { "from": "code:backup-service", "to": "req:FR-013", "type": "implements", "status": "current", "source": "traceability-matrix" },
-
-    { "from": "test:scope-isolation", "to": "req:FR-001", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:project-core", "to": "req:FR-003", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:project-core", "to": "req:FR-004", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:project-core", "to": "req:FR-005", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:project-core", "to": "req:FR-006", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:project-core", "to": "req:FR-007", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:project-core", "to": "req:FR-008", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:strategies", "to": "req:FR-010", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:rollup", "to": "req:FR-011", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:plan-schema", "to": "req:FR-012", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:plan-import", "to": "req:FR-012", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:backup", "to": "req:FR-013", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:e2e-smoke", "to": "req:FR-002", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:e2e-smoke", "to": "req:FR-009", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:e2e-smoke", "to": "req:FR-014", "type": "verifies", "status": "current", "source": "traceability-matrix" },
-    { "from": "test:e2e-smoke", "to": "req:FR-015", "type": "verifies", "status": "current", "source": "traceability-matrix" }
-  ]
+    {
+      "from": "code:prisma/seed.js",
+      "to": "req:FR-016",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:prisma/seed.js",
+      "to": "req:NFR-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/overview/page.jsx",
+      "to": "req:FR-002",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/overview/page.jsx",
+      "to": "req:FR-020",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/new/page.jsx",
+      "to": "req:BR-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/new/page.jsx",
+      "to": "req:FR-017",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/settings/page.jsx",
+      "to": "req:FR-020",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/docs/route.js",
+      "to": "req:FR-019",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/docs/route.js",
+      "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/progress/portfolio/route.js",
+      "to": "req:FR-020",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/CommandPalette.jsx",
+      "to": "req:FR-015",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Topbar.jsx",
+      "to": "req:FR-002",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Topbar.jsx",
+      "to": "req:FR-020",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/context/ScopeContext.jsx",
+      "to": "req:FR-002",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/context/ScopeContext.jsx",
+      "to": "req:FR-020",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/ids.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/ids.js",
+      "to": "req:SDD-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/shell-mode.js",
+      "to": "doc:UX-SINGLE-VS-MULTI-BUSINESS",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/shell-mode.js",
+      "to": "req:FR-020",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:BR-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:SDD-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "doc:ENTERPRISE-API-SURFACE",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-019",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/audit.js",
+      "to": "req:FR-014",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/audit.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:BR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-013",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/dependency-service.js",
+      "to": "req:FR-007",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/milestone-gate-service.js",
+      "to": "req:FR-006",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/progress-service.js",
+      "to": "req:FR-020",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:BR-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:FR-003",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:FR-004",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:SDD-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/repository-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/repository-service.js",
+      "to": "req:FR-008",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/scope-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/scope-service.js",
+      "to": "req:FR-001",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/scope-service.js",
+      "to": "req:FR-020",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/scope-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-service.js",
+      "to": "req:FR-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/useApi.js",
+      "to": "req:SDD-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/external-ref.js",
+      "to": "doc:ENTERPRISE-API-SURFACE",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/external-ref.js",
+      "to": "req:FR-019",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:FR-012",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:FR-019",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:SDD-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:SDD-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-schema.js",
+      "to": "req:BR-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-schema.js",
+      "to": "req:BR-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-schema.js",
+      "to": "req:FR-012",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-schema.js",
+      "to": "req:FR-019",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-schema.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/xlsx-convert.js",
+      "to": "req:FR-018",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/xlsx-template.js",
+      "to": "req:FR-018",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/progress/rollup.js",
+      "to": "req:FR-011",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/progress/rollup.js",
+      "to": "req:FR-020",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/progress/strategies.js",
+      "to": "req:BR-005",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/progress/strategies.js",
+      "to": "req:BR-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/progress/strategies.js",
+      "to": "req:FR-010",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/progress/strategies.js",
+      "to": "req:SDD-005",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
+      "to": "req:FR-009",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "req:BR-001",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-002",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-003",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-004",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-005",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-006",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-007",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-008",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-009",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-001",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-002",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-003",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-004",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-005",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-006",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-007",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-008",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-009",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-010",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-011",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-012",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-013",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-014",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-015",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-016",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-017",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-018",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-019",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-020",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-001",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-002",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-003",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-004",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-005",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-006",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-007",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-001",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-002",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-003",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-004",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-005",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-006",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-007",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-008",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-009",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-001",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-002",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-003",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-004",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-005",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-006",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:prisma/seed.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:src/app/(pm)/overview/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:src/app/(pm)/projects/new/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:src/app/(pm)/settings/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:src/components/layouts/CommandPalette.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:src/components/layouts/Topbar.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:src/context/ScopeContext.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:src/lib/shell-mode.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:BR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-015",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:NFR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/adaptive-shell.test.js",
+      "to": "code:src/app/(pm)/settings/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/adaptive-shell.test.js",
+      "to": "code:src/app/api/progress/portfolio/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/adaptive-shell.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "code:src/modules/project-manager/application/backup-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "code:src/modules/project-manager/import/external-ref.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "code:src/modules/project-manager/import/plan-import-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:FR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:SDD-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "code:src/app/api/docs/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "code:src/modules/project-manager/api-docs/openapi.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "code:src/modules/project-manager/application/audit.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "code:src/modules/project-manager/import/plan-import-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:FR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:FR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:SDD-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "code:src/modules/project-manager/application/audit.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "code:src/modules/project-manager/application/dependency-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "code:src/modules/project-manager/application/milestone-gate-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "code:src/modules/project-manager/application/project-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "code:src/modules/project-manager/application/repository-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "code:src/modules/project-manager/application/work-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:SDD-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/scope-and-isolation.test.js",
+      "to": "code:src/modules/project-manager/application/scope-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/scope-and-isolation.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/scope-and-isolation.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/scope-and-isolation.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/scope-and-isolation.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "code:src/lib/validation/enums.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "code:src/modules/project-manager/import/xlsx-convert.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "code:src/modules/project-manager/import/xlsx-template.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:SDD-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/ids.test.js",
+      "to": "code:src/lib/ids.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/ids.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/ids.test.js",
+      "to": "req:SDD-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "code:src/lib/validation/enums.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "code:src/modules/project-manager/import/plan-schema.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:BR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:SDD-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/rollup.test.js",
+      "to": "code:src/modules/project-manager/progress/rollup.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/rollup.test.js",
+      "to": "req:FR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/rollup.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/shell-mode.test.js",
+      "to": "code:src/lib/shell-mode.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/shell-mode.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/strategies.test.js",
+      "to": "code:src/modules/project-manager/progress/strategies.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/strategies.test.js",
+      "to": "req:BR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/strategies.test.js",
+      "to": "req:BR-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/strategies.test.js",
+      "to": "req:FR-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/strategies.test.js",
+      "to": "req:SDD-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    }
+  ],
+  "dangling_edges": []
 }

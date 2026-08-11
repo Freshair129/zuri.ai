@@ -4,6 +4,7 @@
 // Single business  → static identity, no switcher, workspace hidden unless > 1.
 // Many businesses  → Slack-style business switcher in the identity corner.
 // Tenant and Portfolio never appear as selectable levels (isolation is backend).
+// @tested tests/e2e/smoke.spec.js
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'

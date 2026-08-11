@@ -51,13 +51,19 @@ for CRM, POS, Marketing, Inbox, Employees:
 - Tenant semantics change (Tenant = isolation umbrella over Businesses) — treat as
   a versioned architecture migration, not a refactor.
 
-## Outcome (2026-08-12)
+## Outcome (2026-08-12) — superseded the same day
 
-Owner chose **A → B under the DECISION-BRIEF §6 conditions**: ship the Project
-Manager into Zuri v1 as a module now, promote this repo's scope model to the v2
-foundation when the first cross-business need appears. Recorded in
-[ADR-002](../../docs/ADR-002-INTEGRATION-DIRECTION.md); GATE-AB is PASSED.
-The recommendation below stands as the reasoning behind that choice.
+1. Owner first chose **A → B under the DECISION-BRIEF §6 conditions**
+   ([ADR-002](../../docs/ADR-002-INTEGRATION-DIRECTION.md), now **superseded**).
+2. The destination then changed: **V2 replaces V1 outright** (LINE-first,
+   AI-native, web demoted to back-office), which cancels option A entirely.
+   Binding decision: [**ADR-003**](../../docs/ADR-003-V2-REPLACES-V1-BY-REUSE.md)
+   — reuse V1's web UI except auth, lift per module at each module's cutover.
+   GATE-AB is PASSED against ADR-003.
+
+The A/B analysis below is kept because its measured basis (94 models, 255
+`tenantId` references, 0 `businessId`, the two meanings of "tenant") still holds
+and is what ADR-003 is built on. Only the chosen direction changed.
 
 ## Recommendation
 

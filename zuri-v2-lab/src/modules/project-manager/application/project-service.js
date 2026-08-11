@@ -10,7 +10,8 @@ import { MODE_DEFAULT_STRATEGY } from '@/lib/validation/enums'
 import { recordAudit } from './audit'
 
 // @req FR-003, FR-004 — project CRUD/archive + workstream mode/strategy/weight
-// @spec BR-004 — only seven canonical execution modes (Zod-enforced)
+// @spec BR-004, SDD-004 — seven canonical modes (Zod-enforced); archive is a
+// soft delete (deletedAt) with a version counter, never a hard delete
 // @tested tests/integration/project-core.test.js
 
 const codeExists = (model) => async (code) =>

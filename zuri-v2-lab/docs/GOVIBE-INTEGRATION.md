@@ -16,7 +16,7 @@
 | ความรู้ | Knowledge atoms + vault 3 ชั้น + compaction hierarchy | 3-layer docs (PRD-SDD) + doc-graph + @req annotations |
 | Agent contract | AGENTS.md v1.11 (C/H/R/D/W axes, named agents LYRA/THESEUS/ATHER/GHOST) | AGENTS.md (กฎ 15 ข้อของ build) + PlanEnvelope contract |
 | Zuri V1 | vendor ไว้ที่ `ref/` เป็น reference workspace + case study | อ้างเป็น read-only reference (`G:\zuri`) ตาม ADR-001 |
-| ทดสอบ | 618 tests + 65 security | 75 Vitest + 20 Playwright |
+| ทดสอบ | 618 tests + 65 security | 129 Vitest + 28 Playwright |
 
 **ทิศทาง governance**: GoVibe เป็น meta-layer — งานพัฒนา zuri.ai สามารถถูก plan/route/audit
 ผ่านกลไกของ GoVibe (LYRA วาง roadmap, tiered SLM routing, impact engine) ในขณะที่

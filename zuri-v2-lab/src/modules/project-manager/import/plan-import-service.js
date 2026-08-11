@@ -5,7 +5,8 @@ import { recordAudit } from '../application/audit'
 
 // @req FR-012, FR-019 — dry-run preview + transactional commit + audit,
 // with identity resolved by external id before code (Salesforce-style upsert).
-// @spec SDD-006, SEC-002, BR-009 — single transaction; unified intake pipeline
+// @spec SDD-006, SDD-009, SEC-002, BR-009 — single transaction; every surface
+// converges on this one envelope pipeline
 // @tested tests/integration/plan-import.test.js, tests/integration/external-ref-import.test.js
 // PlanEnvelope import pipeline:
 //   JSON → Zod validation → semantic validation → dry-run diff → transactional commit → AuditEvent.

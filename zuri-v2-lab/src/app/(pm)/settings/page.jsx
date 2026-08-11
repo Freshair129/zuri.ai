@@ -8,6 +8,7 @@ import { api } from '@/modules/project-manager/components/useApi'
 
 // @req FR-020 — the A → B transition lives here: the word "เครือ" appears for
 // the first time when the owner adds a second business.
+// @tested tests/e2e/smoke.spec.js, tests/integration/adaptive-shell.test.js
 function AddBusinessCard({ scope }) {
   const [name, setName] = useState('')
   const [code, setCode] = useState('')
