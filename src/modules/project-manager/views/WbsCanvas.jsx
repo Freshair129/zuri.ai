@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { FolderKanban, ListChecks, SquareStack } from 'lucide-react'
 import { MODE_LABELS } from '@/lib/validation/enums'
 import { useFetch, LoadingCard } from '../components/useApi'
 import { ErrorState, EmptyState } from '@/components/ui'
+import WorkpackageModal from '../components/WorkpackageModal'
 import s from './wbs.module.css'
 
 const STATUS_DOT = {
@@ -12,10 +14,10 @@ const STATUS_DOT = {
 }
 const short = (str, n = 26) => (str && str.length > n ? `${str.slice(0, n)}…` : str)
 
-function ItemCard({ item }) {
+function ItemCard({ item, onOpen }) {
   const dot = STATUS_DOT[item.status] || '#9CA3AF'
   return (
-    <div className={s.card} title={item.title}>
+    <button type="button" className={s.card} title={item.title} onClick={() => onOpen(item)} style={{ cursor: 'pointer', textAlign: 'left' }}>
       <div className={s.eyebrow}>Workpackage</div>
       <div className={s.head}>
         <span className={s.dot} style={{ background: dot }} aria-hidden />
@@ -25,11 +27,11 @@ function ItemCard({ item }) {
         <span className={s.badge}>{item.subtype?.replace(/_/g, ' ')}</span>
         <span className={s.badge} style={{ color: dot }}>{item.status?.replace(/_/g, ' ').toLowerCase()}</span>
       </div>
-    </div>
+    </button>
   )
 }
 
-function ContainerNode({ container }) {
+function ContainerNode({ container, onOpen }) {
   const items = container.items || []
   return (
     <div className={s.node}>
@@ -47,7 +49,7 @@ function ContainerNode({ container }) {
       {items.length > 0 && (
         <div className={s.chain}>
           {items.map((it) => (
-            <div key={it.id} className={s.chainItem}><ItemCard item={it} /></div>
+            <div key={it.id} className={s.chainItem}><ItemCard item={it} onOpen={onOpen} /></div>
           ))}
         </div>
       )}
@@ -55,7 +57,7 @@ function ContainerNode({ container }) {
   )
 }
 
-function WorkstreamNode({ ws }) {
+function WorkstreamNode({ ws, onOpen }) {
   const containers = ws.containers || []
   return (
     <div className={s.node}>
@@ -73,7 +75,7 @@ function WorkstreamNode({ ws }) {
       {containers.length > 0 && (
         <div className={s.branch}>
           {containers.map((c) => (
-            <div key={c.id} className={s.leaf}><ContainerNode container={c} /></div>
+            <div key={c.id} className={s.leaf}><ContainerNode container={c} onOpen={onOpen} /></div>
           ))}
         </div>
       )}
@@ -83,12 +85,14 @@ function WorkstreamNode({ ws }) {
 
 export default function WbsCanvas({ projectId }) {
   const { data, loading, error, reload } = useFetch(`/api/projects/${projectId}/tree`)
+  const [selected, setSelected] = useState(null)
   if (loading) return <LoadingCard />
   if (error) return <ErrorState detail={error} retry={reload} />
   const project = data
   const workstreams = project?.workstreams || []
 
   return (
+    <>
     <div className={s.canvas}>
       <div className={s.tree}>
         <div className={s.node}>
@@ -110,12 +114,14 @@ export default function WbsCanvas({ projectId }) {
           ) : (
             <div className={s.branch}>
               {workstreams.map((ws) => (
-                <div key={ws.id} className={s.leaf}><WorkstreamNode ws={ws} /></div>
+                <div key={ws.id} className={s.leaf}><WorkstreamNode ws={ws} onOpen={setSelected} /></div>
               ))}
             </div>
           )}
         </div>
       </div>
     </div>
+    <WorkpackageModal key={selected?.id} open={!!selected} item={selected} onClose={() => setSelected(null)} onSaved={reload} />
+    </>
   )
 }

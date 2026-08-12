@@ -1,9 +1,10 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { CircleDashed, CircleDot, Loader, Eye, Ban, CircleCheck } from 'lucide-react'
 import { useFetch, LoadingCard } from '../components/useApi'
 import { ErrorState } from '@/components/ui'
+import WorkpackageModal from '../components/WorkpackageModal'
 
 // Work Execution board (Indest "Work") over real WorkItems, grouped by the seven
 // canonical statuses. Read-only for now — status changes still go through the services.
@@ -16,9 +17,12 @@ const COLUMNS = [
   { key: 'DONE', label: 'Done', color: '#238553', Icon: CircleCheck },
 ]
 
-function Card({ item }) {
+function Card({ item, onOpen }) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-card)] p-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:-translate-y-px hover:shadow-md">
+    <button
+      type="button"
+      onClick={() => onOpen(item)}
+      className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface-card)] p-3 text-left shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:-translate-y-px hover:border-[#c3c9d4] hover:shadow-md">
       <div className="flex items-start justify-between gap-2">
         <span className="text-[8px] font-bold uppercase tracking-wider text-[var(--muted-2)]">Workpackage</span>
         <span className="rounded-md bg-[var(--surface-mid)] px-1.5 py-0.5 text-[8.5px] font-semibold text-[var(--muted)]">
@@ -30,12 +34,13 @@ function Card({ item }) {
         <span className="font-semibold">{item.workstream?.code || ''}</span>
         <span>w{item.weight}</span>
       </div>
-    </div>
+    </button>
   )
 }
 
 export default function KanbanBoard({ projectId }) {
   const { data, loading, error, reload } = useFetch(`/api/work?projectId=${projectId}`)
+  const [selected, setSelected] = useState(null)
 
   const byStatus = useMemo(() => {
     const map = Object.fromEntries(COLUMNS.map((c) => [c.key, []]))
@@ -49,6 +54,7 @@ export default function KanbanBoard({ projectId }) {
   if (error) return <ErrorState detail={error} retry={reload} />
 
   return (
+    <>
     <div className="flex gap-4 overflow-x-auto pb-4">
       {COLUMNS.map(({ key, label, color, Icon }) => {
         const items = byStatus[key] || []
@@ -65,12 +71,14 @@ export default function KanbanBoard({ projectId }) {
               {items.length === 0 ? (
                 <p className="grid h-24 place-items-center text-[10px] text-[var(--muted-2)]">No work packages</p>
               ) : (
-                items.map((it) => <Card key={it.id} item={it} />)
+                items.map((it) => <Card key={it.id} item={it} onOpen={setSelected} />)
               )}
             </div>
           </div>
         )
       })}
     </div>
+    <WorkpackageModal key={selected?.id} open={!!selected} item={selected} onClose={() => setSelected(null)} onSaved={reload} />
+    </>
   )
 }
