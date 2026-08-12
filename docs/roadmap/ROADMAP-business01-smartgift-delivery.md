@@ -56,6 +56,7 @@ live_document: true
 | SG-COP-MEMORY | PHASE-SG-COPILOT | task | ต่อ MSP memory (msp-client จริง) หลัง port — **principal-keyed** ผ่าน `memoryKey` (FR-025) แทน in-memory | P1 | Claude | planned | SG-AGENT-CONTEXT | DEMO-RUNBOOK §3 D3; ADR-007 |
 | SG-COP-PROD | PHASE-SG-COPILOT | task | ย้ายไป line-copilot-runtime ตัว production (หลังผ่าน contract gate REQ-CR-012) | P2 | Owen | planned | SG-COP-QUERIES | REQ-CR-012 §16 |
 | SG-CLOUD-PDPA | PHASE-SG-CLOUD | task | ตัดสิน PDPA: ข้อมูลลูกค้าออกนอกเครื่องได้ไหม — ตัดสินแล้ว: ออกได้ (override local_only เฉพาะเดโม) | P0 | Owen | done | - | DEMO-RUNBOOK §6.1 |
+| SG-CLOUD-ZURI-PG | PHASE-SG-CLOUD | task | P4 (FR-030): Zuri → Postgres/Supabase-ready — generated `schema.postgres.prisma` + init DDL, `assertDbBoundary` (Zuri≠MSP), UUID-preserving snapshot cutover (`db:pg:export`/`import`) — tested; live provisioning owner-run | P0 | Claude | done | SG-BACKEND-SLICE | ADR-007 P4; FR-030; DB-MIGRATION-NOTES |
 | SG-CLOUD-MIRROR | PHASE-SG-CLOUD | task | สคริปต์ mirror SoT → Supabase (aggregate ก่อน) จาก copy นอก dir บังคับ, DuckDB คง static | P1 | Claude | planned | SG-CLOUD-PDPA | DEMO-RUNBOOK §3 D3 |
 | SG-CLOUD-DASH | PHASE-SG-CLOUD | task | ชี้ dashboard-app (Vercel) อ่านจาก Supabase — ปิดวง local→cloud→จอ cloud | P1 | Claude | planned | SG-CLOUD-MIRROR | DEMO-RUNBOOK §5a |
 | SG-SCALE-B02 | PHASE-SG-SCALE | task | ออนบอร์ด Business-02 ด้วย pipeline เดียวกัน | P2 | Agent | planned | SG-DATA-PIPE | migration-status-per-business |

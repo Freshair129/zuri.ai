@@ -31,6 +31,7 @@
 | 1.7.0 | 2026-08-12 | Claude | FR-027 (P7 end-to-end agent turn: `handleAgentTurn` composing ingest→read context→optional Gate F action→response) ✅ — the full LINE→Identity→Knowledge→Agent→Tool→response path |
 | 1.8.0 | 2026-08-12 | Claude | FR-028 (LINE webhook API route → `handleAgentTurn`, tenant-scoped) ✅ + MSP memory port (real `msp_memory_upsert`/`_list`, principal-keyed, fail-closed) + GenesisBlockDB sink (real NAPI `addNode`/`addEdge`, live-fact guarded) wired into the stack |
 | 1.9.0 | 2026-08-12 | Claude | FR-029 (agent runtime ports: `createAgentPorts` binds the agent to real MSP memory + GenesisBlockDB knowledge, injectable, graceful fallback) ✅ — the agent now genuinely runs on MSP + GKS when configured |
+| 1.10.0 | 2026-08-12 | Claude | FR-030 (P4 persistence: Postgres/Supabase-ready — generated `schema.postgres.prisma` + init DDL, `assertDbBoundary` Zuri≠MSP, UUID-preserving snapshot cutover) ✅ — Gate D groundwork; live provisioning is owner-run |
 
 ## Referenced Standards
 
@@ -103,6 +104,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-027 | End-to-end agent turn (ADR-007 P7): `handleAgentTurn` composes the full path — LINE ingest (FR-023) → read context (FR-025) → optional Gate F action (FR-026) → response — over injectable memory/knowledge/tool ports; unauthorized/step-up-needed actions degrade to a graceful response, never a crash | ✅ |
 | FR-028 | LINE webhook API route (ADR-007 P7 wiring): `POST /api/agent/line-webhook` normalizes LINE message events → `handleAgentTurn` (Gate E read/answer), tenant-scoped (refuses an unresolved tenant — no minting under a DEFAULT tenant); the zuri-cli LINE bot forwards webhook events here (two runtimes, HTTP seam, real E2E) | ✅ |
 | FR-029 | Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent | ✅ |
+| FR-030 | Persistence: Postgres/Supabase readiness (ADR-007 P4): generated `schema.postgres.prisma` + init DDL (provider swap only, models identical); `assertDbBoundary` enforces **Zuri DB ≠ MSP DB**; UUID-preserving cutover via the provider-agnostic backup snapshot (`db:pg:export`/`import`). DuckDB stays a cache/analytics tier, not the transactional store | ✅ |
 
 ## 1.4 Non-functional requirements
 

@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 434,
-    "total_edges": 329,
+    "total_nodes": 437,
+    "total_edges": 333,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 5,
@@ -13,17 +13,17 @@
       "spec": 33,
       "adr": 7,
       "v1_inherited": 234,
-      "requirement": 60,
-      "test": 30,
-      "code_file": 55
+      "requirement": 61,
+      "test": 31,
+      "code_file": 56
     },
     "coverage": {
-      "requirements": 60,
-      "fr_with_code": "100% (29/29)",
-      "fr_with_tests": "100% (29/29)",
+      "requirements": 61,
+      "fr_with_code": "100% (30/30)",
+      "fr_with_tests": "100% (30/30)",
       "rules_anchored_in_code": "83% (20/24)",
       "nfr_evidence_based": "7 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 55,
+      "annotated_code_files": 56,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -37,20 +37,16 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
       "doc:D-traceability",
+      "doc:DB-MIGRATION-NOTES",
       "doc:FEATURE-MAP",
       "doc:PRD-SDD-v1.0",
-      "code:src/modules/agent/context.js",
-      "code:src/modules/agent/index.js",
-      "code:src/modules/agent/turn.js",
-      "code:src/modules/knowledge/index.js"
+      "spec:ROADMAP-business01-smartgift-delivery"
     ],
     "added": [
-      "req:FR-029",
-      "test:tests/integration/agent-runtime.test.js",
-      "code:src/modules/agent/runtime.js",
-      "code:src/modules/knowledge/graph-query.js"
+      "req:FR-030",
+      "test:tests/unit/db-boundary.test.js",
+      "code:src/lib/db-boundary.js"
     ],
     "removed": []
   },
@@ -219,6 +215,21 @@
       }
     },
     {
+      "id": "code:src/lib/db-boundary.js",
+      "type": "code_file",
+      "path": "src/lib/db-boundary.js",
+      "hash": "5101bc86",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-030"
+        ],
+        "@tested": [
+          "tests/unit/db-boundary.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/lib/ids.js",
       "type": "code_file",
       "path": "src/lib/ids.js",
@@ -295,7 +306,7 @@
       "type": "code_file",
       "path": "src/modules/agent/context.js",
       "hash": "427690de",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-025"
@@ -310,7 +321,7 @@
       "type": "code_file",
       "path": "src/modules/agent/index.js",
       "hash": "91e08b8f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-025",
@@ -404,7 +415,7 @@
       "type": "code_file",
       "path": "src/modules/agent/turn.js",
       "hash": "e85c8c89",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-027"
@@ -572,7 +583,7 @@
       "type": "code_file",
       "path": "src/modules/knowledge/index.js",
       "hash": "69bb5233",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-024"
@@ -986,7 +997,7 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "c6ce6312",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE-NOTES",
@@ -1015,7 +1026,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "a4878041",
+      "hash": "ff54d95c",
       "status": "changed"
     },
     {
@@ -1025,8 +1036,8 @@
       "title": "Database Migration Notes — SQLite → PostgreSQL",
       "version": "1.0.1",
       "doc_status": "Approved",
-      "hash": "3bee8300",
-      "status": "current"
+      "hash": "cfc8aa55",
+      "status": "changed"
     },
     {
       "id": "doc:DECISION-BRIEF-AB",
@@ -1065,7 +1076,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "98940870",
+      "hash": "a6174340",
       "status": "changed"
     },
     {
@@ -1105,7 +1116,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.3.0",
       "doc_status": "Draft",
-      "hash": "5215b816",
+      "hash": "5fdd8672",
       "status": "changed"
     },
     {
@@ -1464,6 +1475,15 @@
       "type": "requirement",
       "family": "FR",
       "label": "Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-030",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Persistence: Postgres/Supabase readiness (ADR-007 P4): generated `schema.postgres.prisma` + init DDL (provider swap only, models identical); `assertDbBoundary` enforces **Zuri DB ≠ MSP DB**; UUID-preserving cutover via the provider-agnostic backup snapshot (`db:pg:export`/`import`). DuckDB stays a cache/analytics tier, not the transactional store",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -1975,8 +1995,8 @@
       "type": "spec",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "7c7bd8a6",
-      "status": "current"
+      "hash": "144bfa6c",
+      "status": "changed"
     },
     {
       "id": "spec:ROUTES-SITEMAP",
@@ -2183,6 +2203,13 @@
       "type": "test",
       "path": "tests/integration/xlsx-intake.test.js",
       "hash": "61987283",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/db-boundary.test.js",
+      "type": "test",
+      "path": "tests/unit/db-boundary.test.js",
+      "hash": "0cf8429a",
       "status": "current"
     },
     {
@@ -3739,6 +3766,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/lib/db-boundary.js",
+      "to": "req:FR-030",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/lib/ids.js",
       "to": "req:BR-002",
       "type": "follows",
@@ -4643,6 +4677,13 @@
     },
     {
       "from": "req:FR-029",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-030",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -5781,6 +5822,20 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/db-boundary.test.js",
+      "to": "code:src/lib/db-boundary.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/db-boundary.test.js",
+      "to": "req:FR-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/ids.test.js",

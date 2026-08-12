@@ -32,6 +32,31 @@ The MVP schema was designed to move to Postgres without semantic changes.
    (snapshot format is provider-agnostic).
 5. Re-run the full test suite; integration tests are provider-independent.
 
+## Supabase cutover — concrete steps (FR-030, ADR-007 P4)
+
+The lab stays SQLite (`prisma/schema.prisma`); production is generated, not hand-edited:
+
+1. `npm run db:pg:sql` — regenerates `prisma/schema.postgres.prisma` (datasource swap
+   only) and emits `prisma/postgres/0001_init.sql`. The two schemas can't drift.
+2. In `.env` (see `.env.example`): set `DATABASE_URL` to the Supabase **pooler** URL and
+   `DIRECT_URL` to the **direct** connection (migrations use direct, runtime the pooler).
+3. Apply the DDL against Supabase: `prisma db execute --file prisma/postgres/0001_init.sql
+   --schema prisma/schema.postgres.prisma` (or `prisma migrate deploy`).
+4. Data move, **UUID-preserving** (printed docs / LINE bindings / ExternalRef keep
+   resolving — the hard rule): `npm run db:pg:export` on the SQLite box → `snapshot.json`;
+   then, with `DATABASE_URL` pointed at Supabase, `npm run db:pg:import` (refuses a
+   non-empty target). `importSnapshot` recreates each row with its original id.
+5. Re-run the suite against Postgres; integration tests are provider-independent.
+
+## DB boundary — Zuri DB ≠ MSP DB (do not merge)
+
+MSP persists in **its own store** (the `D:\msp` repo, reached over stdio), configured by
+`MSP_DB_URL` / `MSP_DB_PATH` — never `DATABASE_URL`. `src/lib/db-boundary.js`
+(`assertDbBoundary`) refuses a shared store at startup. MVP may share one Postgres
+*instance* but must use a separate database/schema/role, because MSP and Zuri have
+different lifecycles: an MSP migration failure must never drag CRM/audit/invoice down.
+DuckDB remains a local cache/analytics/eval tier — not the transactional store.
+
 ## Cautions
 
 - `AuditEvent` stream should be append-only in Postgres too (no updates/deletes;
