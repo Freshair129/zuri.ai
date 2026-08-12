@@ -62,6 +62,11 @@ export const MILESTONE_STATUSES = ['PLANNED', 'IN_PROGRESS', 'DONE', 'MISSED']
 export const GATE_STATUSES = ['OPEN', 'PASSED', 'BLOCKED', 'WAIVED']
 export const WORKSPACE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
 
+// FR-023 — CRM slice (ADR-007 P2)
+export const CHANNELS = ['LINE', 'FACEBOOK', 'WEB']
+export const MESSAGE_DIRECTIONS = ['INBOUND', 'OUTBOUND']
+export const CUSTOMER_LIFECYCLE = ['LEAD', 'ACTIVE', 'DORMANT', 'LOST']
+
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
 export const zDependencyType = z.enum(DEPENDENCY_TYPES)
@@ -72,6 +77,9 @@ export const zWorkStatus = z.enum(WORK_STATUSES)
 export const zMilestoneStatus = z.enum(MILESTONE_STATUSES)
 export const zGateStatus = z.enum(GATE_STATUSES)
 export const zWorkspaceScopeType = z.enum(WORKSPACE_SCOPE_TYPES)
+export const zChannel = z.enum(CHANNELS)
+export const zMessageDirection = z.enum(MESSAGE_DIRECTIONS)
+export const zCustomerLifecycle = z.enum(CUSTOMER_LIFECYCLE)
 
 // Container subtype vocabulary per mode (open set; these are the documented ones).
 export const CONTAINER_SUBTYPES = [

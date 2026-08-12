@@ -38,6 +38,7 @@ model Tenant {
   workspaces         Workspace[]
   memberships        Membership[]
   externalIdentities ExternalIdentity[]
+  customers          Customer[]
 
   @@index([portfolioId])
 }
@@ -88,6 +89,7 @@ model Business {
   branches    Branch[]
   workspaces  Workspace[]
   memberships Membership[]
+  customers   Customer[]
 
   @@index([tenantId])
 }
@@ -119,6 +121,7 @@ model Person {
 
   memberships        Membership[]
   externalIdentities ExternalIdentity[]
+  customers          Customer[]
 }
 
 model Membership {
@@ -398,6 +401,63 @@ model ExternalRef {
 
   @@unique([system, value])
   @@index([entityType, entityId])
+}
+
+// @req FR-023 — the Zuri Backend Slice's CRM core (ADR-007 P2). A Customer is a
+// per-tenant CRM record linked to a Person principal (personId), so businesses in
+// one tenant share the customer (the CRM-sharing decision) while the channel
+// identity stays on ExternalIdentity. Soft-delete + version like other aggregates.
+model Customer {
+  id             String    @id @default(uuid())
+  code           String    @unique
+  tenantId       String
+  businessId     String?
+  personId       String
+  displayName    String
+  lifecycleStage String    @default("LEAD")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+  version        Int       @default(1)
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  business      Business?      @relation(fields: [businessId], references: [id])
+  person        Person         @relation(fields: [personId], references: [id])
+  conversations Conversation[]
+
+  @@unique([tenantId, personId])
+  @@index([businessId])
+}
+
+model Conversation {
+  id              String   @id @default(uuid())
+  tenantId        String
+  businessId      String?
+  customerId      String
+  channel         String // LINE | FACEBOOK | WEB
+  externalThreadId String  @unique
+  status          String   @default("OPEN")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  customer Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([customerId])
+  @@index([tenantId])
+}
+
+model Message {
+  id                String   @id @default(uuid())
+  conversationId    String
+  direction         String // INBOUND | OUTBOUND
+  body              String
+  externalMessageId String?  @unique
+  createdAt         DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
 }
 
 model AuditEvent {

@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.2.0 |
+| **Version** | 1.3.0 |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -24,6 +24,7 @@
 | 1.0.3 | 2026-08-12 | Claude | ADR-003 fallout: SDD-001 superseded; SEC-004 flagged as about to become false; SEC-005 raised to P0; SDD-008 risk recorded |
 | 1.1.0 | 2026-08-12 | Claude | ADR-004: rescoped as the Project Manager **module** of V2; feature notes moved to `features/`; ids unchanged |
 | 1.2.0 | 2026-08-12 | Claude | FR-021 (identity primitive: ExternalIdentity + resolveLineIdentity) ✅; FR-022 (full LINE identity provider) 🔜 — ADR-007 P3 |
+| 1.3.0 | 2026-08-12 | Claude | FR-023 (Zuri Backend Slice CRM core: Customer/Conversation/Message + LINE ingest) ✅ — ADR-007 P2 |
 
 ## Referenced Standards
 
@@ -89,6 +90,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-020 | Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing) | ✅ |
 | FR-021 | Identity resolution: `ExternalIdentity` (LINE→Person, tenant-scoped) + `resolveLineIdentity` — idempotent, tenant-required, audited, revoke-aware (ADR-007 P3 foundation primitive) | ✅ |
 | FR-022 | LINE as an identity provider end-to-end (account linking, login/OIDC, staff/customer split) — the full P3 gate on top of FR-021 | 🔜 |
+| FR-023 | Zuri Backend Slice CRM core (ADR-007 P2): Customer (per-tenant, linked to Person) + Conversation + Message + LINE gateway `ingestLineMessage` (resolves through FR-021, idempotent) | ✅ |
 
 ## 1.4 Non-functional requirements
 

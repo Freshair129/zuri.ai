@@ -48,6 +48,7 @@ live_document: true
 | SG-COP-QUERIES | PHASE-SG-COPILOT | task | เพิ่ม query อ่านอย่างเดียว: monthly_sales / top_customers / tier_counts / pipeline | P1 | Claude | planned | SG-COP-SEAM | DEMO-RUNBOOK §3 D2 |
 | SG-MSP-EXTRACT | PHASE-SG-FOUNDATION | task | Extract MSP → standalone Freshair129/msp (Gate A: standalone + GoVibe still works) — verified 176 vitest + 30 security green | P0 | Codex | done | - | ADR-007 P1; docs/prompts/EXTRACT-MSP.codex.md |
 | SG-IDENTITY-PRIM | PHASE-SG-FOUNDATION | task | ExternalIdentity model + resolveLineIdentity (LINE→Person, tenant-scoped, idempotent, audited) | P0 | Claude | done | - | FR-021; IMPACT-SCAN-IDENTITY |
+| SG-BACKEND-SLICE | PHASE-SG-FOUNDATION | task | Zuri Backend Slice CRM core (FR-023): Customer+Conversation+Message + LINE ingest through the identity seam (tested 140/140) | P0 | Claude | done | SG-IDENTITY-PRIM | ADR-007 P2; FR-023 |
 | SG-IDENTITY-P3 | PHASE-SG-FOUNDATION | task | Full P3 gate on FR-021: route all sites through the resolver, account linking, erase-revoke, staff/customer split (FR-022) | P0 | Claude | planned | SG-IDENTITY-PRIM | ADR-007 P3; IMPACT-SCAN-IDENTITY |
 | SG-COP-MEMORY | PHASE-SG-COPILOT | task | ต่อ MSP memory (msp-client) เป็น memory OS ของ agent — **principal-keyed หลัง Identity** ไม่ใช่ channel-keyed | P1 | Claude | planned | SG-IDENTITY-PRIM | DEMO-RUNBOOK §3 D3; ADR-007 |
 | SG-COP-PROD | PHASE-SG-COPILOT | task | ย้ายไป line-copilot-runtime ตัว production (หลังผ่าน contract gate REQ-CR-012) | P2 | Owen | planned | SG-COP-QUERIES | REQ-CR-012 §16 |

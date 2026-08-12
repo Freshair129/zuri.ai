@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 389,
-    "total_edges": 223,
+    "total_nodes": 392,
+    "total_edges": 232,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 5,
@@ -13,17 +13,17 @@
       "spec": 33,
       "adr": 7,
       "v1_inherited": 234,
-      "requirement": 53,
-      "test": 15,
-      "code_file": 32
+      "requirement": 54,
+      "test": 16,
+      "code_file": 33
     },
     "coverage": {
-      "requirements": 53,
-      "fr_with_code": "100% (21/21)",
-      "fr_with_tests": "100% (21/21)",
+      "requirements": 54,
+      "fr_with_code": "100% (22/22)",
+      "fr_with_tests": "100% (22/22)",
       "rules_anchored_in_code": "83% (20/24)",
       "nfr_evidence_based": "7 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 32,
+      "annotated_code_files": 33,
       "fr_planned": [
         "FR-022"
       ],
@@ -40,6 +40,7 @@
   "drift": {
     "changed": [
       "doc:D-traceability",
+      "doc:FEATURE-MAP",
       "doc:PRD-SDD-v1.0"
     ],
     "added": [],
@@ -234,7 +235,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "fdcb0e30",
+      "hash": "df99a24b",
       "status": "current",
       "annotations": {
         "@spec": [
@@ -244,6 +245,25 @@
         "@tested": [
           "tests/unit/plan-schema.test.js",
           "tests/integration/xlsx-intake.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/crm/line-ingest-service.js",
+      "type": "code_file",
+      "path": "src/modules/crm/line-ingest-service.js",
+      "hash": "e688bbee",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-023"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/line-ingest.test.js"
         ]
       }
     },
@@ -308,7 +328,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "34db8796",
+      "hash": "4a893950",
       "status": "current",
       "annotations": {
         "@req": [
@@ -620,7 +640,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "bf9fd174",
+      "hash": "e28ddc26",
       "status": "current"
     },
     {
@@ -630,7 +650,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "f78f3016",
+      "hash": "b5291c83",
       "status": "changed"
     },
     {
@@ -680,8 +700,8 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "a5284591",
-      "status": "current"
+      "hash": "7e46ad6d",
+      "status": "changed"
     },
     {
       "id": "doc:FR-019-enterprise-api",
@@ -718,9 +738,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "doc_status": "Draft",
-      "hash": "6870be1a",
+      "hash": "e6eea525",
       "status": "changed"
     },
     {
@@ -1019,6 +1039,15 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
       "status": "planned"
+    },
+    {
+      "id": "req:FR-023",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Zuri Backend Slice CRM core (ADR-007 P2): Customer (per-tenant, linked to Person) + Conversation + Message + LINE gateway `ingestLineMessage` (resolves through FR-021, idempotent)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
     },
     {
       "id": "req:NFR-001",
@@ -1527,7 +1556,7 @@
       "type": "spec",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "a0899c38",
+      "hash": "9ee645f9",
       "status": "current"
     },
     {
@@ -1595,6 +1624,13 @@
       "type": "test",
       "path": "tests/integration/identity-resolve.test.js",
       "hash": "64b6340d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/line-ingest.test.js",
+      "type": "test",
+      "path": "tests/integration/line-ingest.test.js",
+      "hash": "9067f426",
       "status": "current"
     },
     {
@@ -3228,6 +3264,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/crm/line-ingest-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/line-ingest-service.js",
+      "to": "req:FR-023",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/line-ingest-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/resolve-line-identity.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -3781,6 +3838,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-023",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -4188,6 +4252,41 @@
     },
     {
       "from": "test:tests/integration/identity-resolve.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-ingest.test.js",
+      "to": "code:src/modules/crm/line-ingest-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-ingest.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-ingest.test.js",
+      "to": "req:FR-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-ingest.test.js",
+      "to": "req:FR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-ingest.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",

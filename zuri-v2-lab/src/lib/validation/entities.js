@@ -66,6 +66,18 @@ export const zResolveLineIdentityInput = z.object({
   displayName: z.string().optional(),
 })
 
+// FR-023 — one inbound LINE message → resolve identity → customer → conversation → message.
+export const zIngestLineMessageInput = z.object({
+  tenantId: z.string().min(1),
+  businessId: z.string().optional(),
+  lineUserId: z.string().min(1),
+  displayName: z.string().optional(),
+  threadId: z.string().min(1),
+  text: z.string(),
+  externalMessageId: z.string().optional(),
+  direction: z.enum(['INBOUND', 'OUTBOUND']).default('INBOUND'),
+})
+
 export const zBranchInput = z.object({
   code: z.string().min(1).optional(),
   tenantId: z.string().min(1),

@@ -36,6 +36,10 @@ const SNAPSHOT_MODELS = [
   // linked LINE user. A snapshot written before this model existed still restores
   // (a missing table reads as an empty list), so the snapshot version stays 1.0.
   'externalIdentity',
+  // FR-023 — CRM slice: customer/conversation/message must round-trip a snapshot.
+  'customer',
+  'conversation',
+  'message',
   'auditEvent',
 ]
 

@@ -11,8 +11,8 @@
 > annotations in the source, from requirement ids named inside tests, and from
 > transitive test → code → requirement paths.
 
-**Coverage** — FR with code **100% (21/21)** · FR with tests **100% (21/21)** ·
-rules anchored in code **83% (20/24)** · annotated source files **32**
+**Coverage** — FR with code **100% (22/22)** · FR with tests **100% (22/22)** ·
+rules anchored in code **83% (20/24)** · annotated source files **33**
 
 ## Functional requirements
 
@@ -40,8 +40,9 @@ Each FR must have code that declares `@req` and a test that reaches it.
 | FR-018 | Excel template intake: generator จาก Zod schema + xlsx→envelope converter + error รายแถว | `modules/project-manager/import/xlsx-convert.js`, `modules/project-manager/import/xlsx-template.js` | `e2e/smoke.spec.js`, `integration/xlsx-intake.test.js` | ✅ |
 | FR-019 | Enterprise API: ExternalRef mapping + upsert-by-external-id + OpenAPI docs | `app/api/docs/route.js`, `modules/project-manager/api-docs/openapi.js`, `modules/project-manager/import/external-ref.js`, `modules/project-manager/import/plan-import-service.js`, `modules/project-manager/import/plan-schema.js` | `e2e/smoke.spec.js`, `integration/external-ref-import.test.js`, `integration/openapi-docs.test.js`, `integration/plan-import.test.js`, `unit/plan-schema.test.js` | ✅ |
 | FR-020 | Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing) | `app/(pm)/overview/page.jsx`, `app/(pm)/settings/page.jsx`, `app/api/progress/portfolio/route.js`, `components/layouts/Topbar.jsx`, `context/ScopeContext.jsx`, `lib/shell-mode.js`, `modules/project-manager/application/progress-service.js`, `modules/project-manager/application/scope-service.js`, `modules/project-manager/progress/rollup.js` | `e2e/smoke.spec.js`, `integration/adaptive-shell.test.js`, `integration/scope-and-isolation.test.js`, `unit/rollup.test.js`, `unit/shell-mode.test.js` | ✅ |
-| FR-021 | Identity resolution: `ExternalIdentity` (LINE→Person, tenant-scoped) + `resolveLineIdentity` — idempotent, tenant-required, audited, revoke-aware (ADR-007 P3 foundation primitive) | `modules/identity/resolve-line-identity.js` | `integration/identity-resolve.test.js` | ✅ |
+| FR-021 | Identity resolution: `ExternalIdentity` (LINE→Person, tenant-scoped) + `resolveLineIdentity` — idempotent, tenant-required, audited, revoke-aware (ADR-007 P3 foundation primitive) | `modules/identity/resolve-line-identity.js` | `integration/identity-resolve.test.js`, `integration/line-ingest.test.js` | ✅ |
 | FR-022 | LINE as an identity provider end-to-end (account linking, login/OIDC, staff/customer split) — the full P3 gate on top of FR-021 | — | — | 🔴 no anchor |
+| FR-023 | Zuri Backend Slice CRM core (ADR-007 P2): Customer (per-tenant, linked to Person) + Conversation + Message + LINE gateway `ingestLineMessage` (resolves through FR-021, idempotent) | `modules/crm/line-ingest-service.js` | `integration/line-ingest.test.js` | ✅ |
 
 ## Business rules, security rules and design decisions
 
@@ -49,7 +50,7 @@ Anchored by `@spec` in the code that enforces them.
 
 | ID | Statement | Anchored in | Verified by | State |
 |---|---|---|---|---|
-| BR-001 | `tenant_id` = ขอบเขต isolation และการแชร์ข้อมูล — branch ไม่มีวันเป็น tenant; ธุรกิจใน tenant เดียวกันแชร์ CRM ได้, ต่าง tenant แชร์ไม่ได้ | `modules/identity/resolve-line-identity.js`, `modules/project-manager/application/scope-service.js` | `integration/identity-resolve.test.js`, `integration/scope-and-isolation.test.js` | ✅ |
+| BR-001 | `tenant_id` = ขอบเขต isolation และการแชร์ข้อมูล — branch ไม่มีวันเป็น tenant; ธุรกิจใน tenant เดียวกันแชร์ CRM ได้, ต่าง tenant แชร์ไม่ได้ | `modules/crm/line-ingest-service.js`, `modules/identity/resolve-line-identity.js`, `modules/project-manager/application/scope-service.js` | `integration/identity-resolve.test.js`, `integration/line-ingest.test.js`, `integration/scope-and-isolation.test.js` | ✅ |
 | BR-002 | External ID (tax id, GitHub id, LINE id, SAP id) ไม่มีวันเป็น primary key — UUID ภายใน + human code + ExternalRef | `lib/ids.js`, `modules/project-manager/application/repository-service.js` | `integration/project-core.test.js`, `unit/ids.test.js` | ✅ |
 | BR-003 | ไม่มี template picker — โปรเจกต์เริ่มจากเป้าหมาย, execution mode เป็นของ workstream | `app/(pm)/projects/new/page.jsx` | `e2e/smoke.spec.js` | ✅ |
 | BR-004 | Execution mode มีเพียง 7 โหมด canonical ห้ามเพิ่มใน v1 | `lib/validation/enums.js`, `modules/project-manager/application/project-service.js`, `modules/project-manager/import/plan-schema.js` | `integration/project-core.test.js`, `integration/xlsx-intake.test.js`, `unit/plan-schema.test.js` | ✅ |
@@ -67,7 +68,7 @@ Anchored by `@spec` in the code that enforces them.
 | SDD-007 | UI เป็น client fetch (`useFetch`) เรียก API handlers ซึ่ง delegate ให้ services | `modules/project-manager/components/useApi.js` | — | 🟠 no test |
 | SDD-008 | JavaScript + Zod ที่ boundary (ไม่ใช่ TypeScript) — **ยึดกับไฟล์ใดไฟล์หนึ่งไม่ได้โดยธรรมชาติ** | — | — | 🔴 no anchor |
 | SDD-009 | Unified intake: ทุก surface แปลงเป็น envelope เดียว | `modules/project-manager/import/plan-import-service.js` | `integration/external-ref-import.test.js`, `integration/plan-import.test.js` | ✅ |
-| SEC-001 | Cross-tenant/business guard (`assertWorkspaceInScope`) — ปฏิเสธข้าม scope | `modules/identity/resolve-line-identity.js`, `modules/project-manager/application/scope-service.js` | `integration/identity-resolve.test.js`, `integration/scope-and-isolation.test.js` | ✅ |
+| SEC-001 | Cross-tenant/business guard (`assertWorkspaceInScope`) — ปฏิเสธข้าม scope | `modules/crm/line-ingest-service.js`, `modules/identity/resolve-line-identity.js`, `modules/project-manager/application/scope-service.js` | `integration/identity-resolve.test.js`, `integration/line-ingest.test.js`, `integration/scope-and-isolation.test.js` | ✅ |
 | SEC-002 | ไม่ execute code จาก imported plans (strict Zod, additionalProperties rejected) | `modules/project-manager/import/plan-import-service.js`, `modules/project-manager/import/plan-schema.js` | `integration/external-ref-import.test.js`, `integration/plan-import.test.js`, `unit/plan-schema.test.js` | ✅ |
 | SEC-003 | AuditEvent append-only สำหรับทุก mutation สำคัญ | `modules/project-manager/application/audit.js` | `integration/plan-import.test.js`, `integration/project-core.test.js` | ✅ |
 | SEC-004 | MVP ไม่มี customer PII ในระบบ | — | — | 🔴 no anchor |

@@ -40,3 +40,13 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 unique(tenantId, provider, providerSubject) — FR-021: channel/auth identity (LINE user)
 → Person principal, tenant-scoped; personId is a real FK (V2 unified identity into Person,
 ADR-003 §D10, so no polymorphic principal). Distinct from ExternalRef (data mapping).
+
+## CRM slice (FR-023, ADR-007 P2)
+
+`Customer { code, tenantId, businessId?, personId→Person, displayName, lifecycleStage, +soft-delete/version }`
+unique(tenantId, personId) — a CRM record per principal per tenant (shared across the
+tenant's businesses).
+`Conversation { tenantId, businessId?, customerId→Customer, channel, externalThreadId@unique, status }`
+`Message { conversationId→Conversation, direction, body, externalMessageId@unique?, createdAt }`
+The LINE gateway `ingestLineMessage` resolves through FR-021 then upserts customer →
+conversation → message in one transaction; idempotent on externalMessageId.
