@@ -3,14 +3,14 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 379,
+    "total_nodes": 381,
     "total_edges": 214,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 5,
       "document": 9,
       "roadmap": 1,
-      "spec": 28,
+      "spec": 30,
       "adr": 6,
       "v1_inherited": 234,
       "requirement": 51,
@@ -35,11 +35,11 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:ROADMAP-zuri-v2-lab",
-      "spec:.rwang-progress"
+    "changed": [],
+    "added": [
+      "spec:DEMO-RUNBOOK-SMARTGIFT",
+      "spec:ROADMAP-business01-smartgift-delivery"
     ],
-    "added": [],
     "removed": []
   },
   "nodes": [
@@ -707,7 +707,7 @@
       "path": "docs/roadmap/ROADMAP-zuri-v2-lab.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
       "hash": "c7589977",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ZURI-INTEGRATION-ASSESSMENT",
@@ -1184,7 +1184,7 @@
       "path": "docs/.rwang-progress.md",
       "title": "RWANG Subagent Progress Ledger — TASK-V2-PARITY",
       "hash": "202bfd30",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ACCEPTANCE-CRITERIA",
@@ -1268,6 +1268,16 @@
       "version": "0.1.0",
       "doc_status": "Skeleton — to be completed by `TASK-V2-CUTOVER-RULES` before any cutover",
       "hash": "693bc884",
+      "status": "current"
+    },
+    {
+      "id": "spec:DEMO-RUNBOOK-SMARTGIFT",
+      "type": "spec",
+      "path": "docs/replacement/DEMO-RUNBOOK-SMARTGIFT.md",
+      "title": "Demo Runbook — SmartGift Executive Demo",
+      "version": "1.0.0",
+      "doc_status": "Draft — blocked on four owner decisions (§6)",
+      "hash": "5f3e55e7",
       "status": "current"
     },
     {
@@ -1434,6 +1444,14 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "fae6e398",
+      "status": "current"
+    },
+    {
+      "id": "spec:ROADMAP-business01-smartgift-delivery",
+      "type": "spec",
+      "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
+      "title": "ROADMAP: Business-01 SmartGift — Delivery",
+      "hash": "f3b00e51",
       "status": "current"
     },
     {
