@@ -21,37 +21,40 @@ sub-features, the first sub-feature is always a Dashboard** — and binds it to 
 ## 1. The three navigation tiers
 
 ```
-Tier 1  Scope      Portfolio → Tenant → Business → Workspace   (the topbar switcher)
+Tier 1  Scope      Portfolio → Tenant → Business → Workspace   (chosen on PAGES, shown in the breadcrumb — no topbar dropdowns)
 Tier 2  Domain     Commerce · Customer · Growth · Operations · Projects · Platform
                    (a NEW bar under the topbar; the set is BOUND to the Business)
 Tier 3  Sub-domain the active domain's sidebar; item #1 is ALWAYS "Dashboard"
 ```
 
+- **Scope is chosen on pages, not dropdowns.** The topbar carries **no** business / workspace /
+  project selectors. You set scope by navigating: **Home** picks the Company → Business;
+  **`/workspaces`** and **`/projects`** are the pickers for หน่วยงาน and โปรเจกต์. The
+  **breadcrumb** (§2b) shows where you are, and each crumb links back to its picker page — so the
+  breadcrumb *is* the switcher. (Supersedes the earlier "topbar switcher" model.)
 - **Business binds the domain bar.** A Business exposes only the domains it has enabled
-  (module registry per business). The culinary school (TVS) shows *Operations → Courses*;
-  a pure-retail business hides it. This is FR-020's adaptive shell taken one level deeper:
-  single business ⇒ no business switcher; the domain bar still shows.
+  (per-business module registry). TVS shows *Operations → Courses*; a pure-retail business hides
+  it — FR-020's adaptive shell one level deeper. Single business ⇒ Home skips straight to it.
 - **First sub-domain = Dashboard, always.** Opening a domain lands on its dashboard
   (`/{domain}` → `/{domain}/dashboard`), mirroring V1's `LayoutDashboard` first entry.
-- **URLs never carry scope (ADR-006).** Business/tenant come from the switcher (ambient
-  context), not the path — so `/commerce/inventory`, never `/business/{id}/commerce/...`.
+- **URLs never carry scope (ADR-006).** Business/workspace are ambient (selection pages →
+  cookie/context), not the path — so `/commerce/inventory`, never `/business/{id}/commerce/...`.
   Switching Business keeps you on the same domain+sub-domain where it exists.
 
 ## 2. Layout — two bars
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ Zuri   [ธุรกิจ: The V School ▾] [Workspace ▾]      ⌘K   ◐  👤  │  Topbar (Tier 1: scope + global)
-├──────────────────────────────────────────────────────────────┤
+│ Zuri                ⌗ Projects        ERP · PM   ⌘K   ◐   👤  │  Topbar — identity · viewed-domain · lens · actions
+├──────────────────────────────────────────────────────────────┤     (NO business/workspace/project dropdowns)
 │  Commerce   Customer   Growth   Operations   Projects · Platform │  Domain bar (Tier 2, per-business)
+├──────────────────────────────────────────────────────────────┤
+│ 🏠  ABC ›  Projects ›  โปรเจกต์ ›  PRJ-x ›  Structure           │  Breadcrumb — you-are-here (each crumb → its picker)
 ├───────────────┬──────────────────────────────────────────────┤
 │ ● Dashboard   │                                                │
-│   หน้าร้าน POS │                                                │
-│   คลังสินค้า    │              content                          │  Sidebar (Tier 3: sub-domains,
-│   สินค้า       │                                                │  Dashboard pinned first)
-│   ใบเสร็จ      │                                                │
-│   จัดส่ง       │                                                │
-│   จัดซื้อ       │                                                │
+│   Projects    │              content                          │  Sidebar (Tier 3: sub-domains,
+│   Workspaces  │                                                │  Dashboard pinned first)
+│   All Work    │                                                │
 └───────────────┴──────────────────────────────────────────────┘
 ```
 
@@ -66,6 +69,31 @@ flowchart TD
   D1 --> C0["Dashboard (always #1)"]
   D1 --> C1[POS] --> C2[Inventory] --> C3[Products] --> C4[Invoices] --> C5[Delivery] --> C6[Procurement]
 ```
+
+## 2b. Navigation journey & selection-by-page
+
+Selection happens on **pages**, never in a topbar dropdown. The breadcrumb is the "you-are-here"
+trail of the journey; every crumb links back to the page that selects that level. Labels follow
+the active lens (ERP shows *บริษัท / หน่วยงาน*; PM shows *Workspace / Space*).
+
+| # | Page | How you pick the next scope (no dropdown) | Breadcrumb |
+|---|---|---|---|
+| 0 | `/login` | auth + RBAC (who sees which businesses/domains) | — |
+| 1 | **`/` Home** | cards → pick / create **Company** | 🏠 หน้าแรก |
+| 2 | Home (company chosen) | cards → pick / create **Business** | 🏠 › ABC |
+| 3 | **`/overview` Business Overview** | domain bar → pick a **domain** | 🏠 › ABC › ภาพรวม |
+| 4 | **`/projects`… domain home** | sidebar → **sub-domain** | 🏠 › ABC › Projects |
+| 5 | **`/workspaces`** | cards → pick **หน่วยงาน** | 🏠 › ABC › Projects › หน่วยงาน |
+| 6 | **`/projects` (list)** | cards → pick **โปรเจกต์** | 🏠 › ABC › Projects › โปรเจกต์ |
+| 7 | **`/projects/{id}`** | tabs → work view | 🏠 › ABC › Projects › PRJ-x |
+| 8 | **`/projects/{id}/structure`** | — (leaf) | 🏠 › ABC › Projects › PRJ-x › Structure |
+
+- **The breadcrumb IS the switcher.** To change business, click the business crumb → Home picker;
+  to change project, click the *โปรเจกต์* crumb → `/projects`. No persistent dropdowns.
+- **Adaptive (FR-020).** One company ⇒ Home skips step 1; one business ⇒ skips step 2; one
+  workspace ⇒ the หน่วยงาน crumb is omitted. Crumbs only appear when there is a real choice.
+- Single-business owners effectively land on their Business Overview; multi-business owners pass
+  through Home each time they switch — the ERP "pick your company" gesture.
 
 ## 3. Domain → sub-domain map (V2)
 
@@ -149,15 +177,17 @@ Legend: **lift** = reuse V1 UI per ADR-003 · **rebuild** = V1 defect, rebuild i
 ## 5. URL scheme (scope-free, ADR-006)
 
 ```
-/                         → group overview (portfolio landing)
+/                         → Home: the entry — pick / create Company → Business (RBAC-gated; the picker)
+/overview                 → Business Overview (cross-domain) · group roll-up when no business is picked
 /{domain}                 → 302 /{domain}/dashboard        (first sub is always the dashboard)
-/{domain}/{subdomain}     → e.g. /commerce/inventory, /operations/courses, /customer/crm
-/projects/...             → the existing project routes stay verbatim (Projects domain sidebar)
+/{domain}/{subdomain}     → e.g. /projects (list = project picker), /workspaces (หน่วยงาน picker), /commerce/inventory
+/projects/{id}/...        → the existing project routes stay verbatim (Projects domain work views)
 ```
 
-Business + workspace are ambient (switcher → cookie/context), never in the path. Deep-linking
-a sub-domain resolves it inside the currently-selected business; if that business lacks the
-domain, land on its group overview with a notice.
+Business + workspace are ambient — set by the **selection pages** (Home, `/workspaces`,
+`/projects`) into cookie/context, never in the path; the **breadcrumb** reflects them (§2b).
+Deep-linking a sub-domain resolves it inside the currently-selected business; if that business
+lacks the domain, land on its Business Overview with a notice.
 
 ## 6. Mapping onto today's app (what changes)
 

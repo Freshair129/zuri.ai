@@ -54,13 +54,16 @@ Group (Portfolio)   ── consolidation ──             Group (Portfolio)   
 ```
 
 ### D3 — Dual scope lens (ERP ⇄ PM), a per-user toggle, same selection state
-Implemented in `src/config/scope-views.js` + `ScopeContext.viewMode`; only labels and the hero
-switcher differ. Default = **ERP** (Zuri is ERP-shaped).
+Implemented in `src/config/scope-views.js` + `ScopeContext.viewMode`; the lens changes only the
+**labels** (table below). Default = **ERP** (Zuri is ERP-shaped). Scope itself is **selected on
+pages and shown in the breadcrumb** (§D4; SITEMAP §2b) — there are **no persistent topbar scope
+dropdowns**; each breadcrumb crumb links back to its picker page, so the breadcrumb *is* the
+switcher. (Refines the earlier "hero switcher" shell.)
 
 | Level (schema) | ERP lens | PM lens |
 |---|---|---|
-| Portfolio | กลุ่มบริษัท — *consolidation, "รวมงบทุกบริษัท"* | **Workspace** — *hero (Notion top container)* |
-| Business | **บริษัท** — *hero (SAP Company Code / legal anchor)* | Business — *teamspace* |
+| Portfolio | กลุ่มบริษัท — *consolidation, "รวมงบทุกบริษัท"* | **Workspace** — *top container (Notion)* |
+| Business | **บริษัท** — *company / legal anchor (SAP Company Code)* | Business — *teamspace* |
 | Workspace | หน่วยงาน — *operating unit* | Space — *ClickUp Space* |
 | Project | โปรเจกต์ | Project |
 
