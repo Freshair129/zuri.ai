@@ -9,6 +9,29 @@
 | **Goal** | The fastest credible executive demo ("ส่งมอบตัวอย่างให้ทีมบริหาร") for Business-01 SmartGift |
 | **Basis** | Read-only scan of 5 systems (`smartgift-demo-scoping` workflow, 2026-08-12) |
 
+## Build status (2026-08-12)
+
+Branch `demo/smartgift-seam` in `D:\workspace\zuri-command-agent` — **code side done,
+tsc clean (exit 0), one blocker fixed**:
+
+- Seam wired; the hardcoded fixture executor is **gone** (unknown queryId + unset
+  `SMARTGIFT_DUCKDB_PATH` fail closed). Four registered read-only queries
+  (`monthly_sales`, `top_customers`, `tier_counts`, `pipeline_by_stage`) over real
+  `sot.duckdb`. Phone and dashboard now compute **identical** values (the
+  orders+quotes / regulated-widening divergence was fixed).
+- MSP memory wired (channel-keyed `business-01-smartgift` — **demo-only**, per ADR-007
+  it must become principal-keyed after Identity).
+- **GATE-0 fix (2026-08-12):** the headless Claude Code path (the demo's primary model
+  layer) did not expose the four analytics tools and did not pass `SMARTGIFT_DUCKDB_PATH`
+  to its spawned MCP server, so "ยอดขายเดือนนี้" would have failed closed on stage.
+  Fixed in `src/answer/headless.ts` (added the 4 tools to the allow-list + passed the
+  env through). tsc still exit 0.
+
+**Do not demo until the branch is built** (`npm run build`) — until then the running
+code is still the old fixture. The remaining steps are owner-run (secrets / live
+process): see `zuri-command-agent/docs/DEMO-OPS-CHECKLIST.md` and §3 below. The
+`demo/smartgift-seam` changes are uncommitted for owner review (`git diff`).
+
 ## 0. The one-sentence story
 
 Everything the demo needs **already exists and runs** — it is scattered across five

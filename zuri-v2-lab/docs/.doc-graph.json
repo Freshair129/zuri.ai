@@ -3,14 +3,14 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 384,
+    "total_nodes": 385,
     "total_edges": 214,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 5,
       "document": 9,
       "roadmap": 1,
-      "spec": 32,
+      "spec": 33,
       "adr": 7,
       "v1_inherited": 234,
       "requirement": 51,
@@ -35,10 +35,11 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "spec:DEMO-RUNBOOK-SMARTGIFT"
+    ],
     "added": [
-      "spec:PARALLEL-EXECUTION-PLAN",
-      "spec:EXTRACT-MSP.codex"
+      "spec:IMPACT-SCAN-IDENTITY"
     ],
     "removed": []
   },
@@ -1285,8 +1286,8 @@
       "title": "Demo Runbook — SmartGift Executive Demo",
       "version": "1.0.0",
       "doc_status": "Active — four owner decisions made 2026-08-12 (§6); topology in §5a",
-      "hash": "34206485",
-      "status": "current"
+      "hash": "3363635b",
+      "status": "changed"
     },
     {
       "id": "spec:DOMAIN-MODEL",
@@ -1320,6 +1321,16 @@
       "path": "docs/prompts/EXTRACT-MSP.codex.md",
       "title": "Codex task — Extract MSP from GoVibe into a standalone repo `Freshair129/msp`",
       "hash": "4c11d9b8",
+      "status": "current"
+    },
+    {
+      "id": "spec:IMPACT-SCAN-IDENTITY",
+      "type": "spec",
+      "path": "docs/replacement/IMPACT-SCAN-IDENTITY.md",
+      "title": "Impact Scan — Identity (ExternalIdentity / Principal), P2.5",
+      "version": "1.0.0",
+      "doc_status": "Complete — this is the gate before P3 Identity touches the Zuri slice",
+      "hash": "8f3f3b5b",
       "status": "current"
     },
     {
