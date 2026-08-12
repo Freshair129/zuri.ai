@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 430,
-    "total_edges": 319,
+    "total_nodes": 434,
+    "total_edges": 329,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 5,
@@ -13,17 +13,17 @@
       "spec": 33,
       "adr": 7,
       "v1_inherited": 234,
-      "requirement": 59,
-      "test": 29,
-      "code_file": 53
+      "requirement": 60,
+      "test": 30,
+      "code_file": 55
     },
     "coverage": {
-      "requirements": 59,
-      "fr_with_code": "100% (28/28)",
-      "fr_with_tests": "100% (28/28)",
+      "requirements": 60,
+      "fr_with_code": "100% (29/29)",
+      "fr_with_tests": "100% (29/29)",
       "rules_anchored_in_code": "83% (20/24)",
       "nfr_evidence_based": "7 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 53,
+      "annotated_code_files": 55,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -37,23 +37,20 @@
   },
   "drift": {
     "changed": [
+      "doc:A-api-spec",
       "doc:D-traceability",
       "doc:FEATURE-MAP",
       "doc:PRD-SDD-v1.0",
+      "code:src/modules/agent/context.js",
       "code:src/modules/agent/index.js",
+      "code:src/modules/agent/turn.js",
       "code:src/modules/knowledge/index.js"
     ],
     "added": [
-      "req:FR-027",
-      "req:FR-028",
-      "test:tests/integration/agent-msp-port.test.js",
-      "test:tests/integration/agent-turn.test.js",
-      "test:tests/integration/agent-webhook-route.test.js",
-      "test:tests/integration/knowledge-genesis-sink.test.js",
-      "code:src/app/api/agent/line-webhook/route.js",
-      "code:src/modules/agent/msp-memory-port.js",
-      "code:src/modules/agent/turn.js",
-      "code:src/modules/knowledge/genesisblockdb-sink.js"
+      "req:FR-029",
+      "test:tests/integration/agent-runtime.test.js",
+      "code:src/modules/agent/runtime.js",
+      "code:src/modules/knowledge/graph-query.js"
     ],
     "removed": []
   },
@@ -297,8 +294,8 @@
       "id": "code:src/modules/agent/context.js",
       "type": "code_file",
       "path": "src/modules/agent/context.js",
-      "hash": "82d85c9a",
-      "status": "current",
+      "hash": "427690de",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-025"
@@ -312,13 +309,14 @@
       "id": "code:src/modules/agent/index.js",
       "type": "code_file",
       "path": "src/modules/agent/index.js",
-      "hash": "e4d7e3b9",
+      "hash": "91e08b8f",
       "status": "changed",
       "annotations": {
         "@req": [
           "FR-025",
           "FR-026",
-          "FR-027"
+          "FR-027",
+          "FR-029"
         ],
         "@tested": [
           "tests/integration/agent-context.test.js",
@@ -357,6 +355,21 @@
       }
     },
     {
+      "id": "code:src/modules/agent/runtime.js",
+      "type": "code_file",
+      "path": "src/modules/agent/runtime.js",
+      "hash": "6298f487",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-029"
+        ],
+        "@tested": [
+          "tests/integration/agent-runtime.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/agent/step-up.js",
       "type": "code_file",
       "path": "src/modules/agent/step-up.js",
@@ -390,8 +403,8 @@
       "id": "code:src/modules/agent/turn.js",
       "type": "code_file",
       "path": "src/modules/agent/turn.js",
-      "hash": "42f8442c",
-      "status": "current",
+      "hash": "e85c8c89",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-027"
@@ -540,10 +553,25 @@
       }
     },
     {
+      "id": "code:src/modules/knowledge/graph-query.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/graph-query.js",
+      "hash": "ce8b924b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-024"
+        ],
+        "@tested": [
+          "tests/integration/agent-runtime.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/index.js",
       "type": "code_file",
       "path": "src/modules/knowledge/index.js",
-      "hash": "d6398d48",
+      "hash": "69bb5233",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -957,8 +985,8 @@
       "title": "Appendix A — API Specification",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "e7dd796f",
-      "status": "current"
+      "hash": "c6ce6312",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE-NOTES",
@@ -987,7 +1015,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "c19abcc7",
+      "hash": "a4878041",
       "status": "changed"
     },
     {
@@ -1037,7 +1065,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "c285a1ca",
+      "hash": "98940870",
       "status": "changed"
     },
     {
@@ -1077,7 +1105,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.3.0",
       "doc_status": "Draft",
-      "hash": "e7afdddd",
+      "hash": "5215b816",
       "status": "changed"
     },
     {
@@ -1427,6 +1455,15 @@
       "type": "requirement",
       "family": "FR",
       "label": "LINE webhook API route (ADR-007 P7 wiring): `POST /api/agent/line-webhook` normalizes LINE message events → `handleAgentTurn` (Gate E read/answer), tenant-scoped (refuses an unresolved tenant — no minting under a DEFAULT tenant); the zuri-cli LINE bot forwards webhook events here (two runtimes, HTTP seam, real E2E)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-029",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -2006,6 +2043,13 @@
       "type": "test",
       "path": "tests/integration/agent-msp-port.test.js",
       "hash": "5e335371",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/agent-runtime.test.js",
+      "type": "test",
+      "path": "tests/integration/agent-runtime.test.js",
+      "hash": "184d2ce0",
       "status": "current"
     },
     {
@@ -3793,6 +3837,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:FR-029",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/memory-port.js",
       "to": "req:FR-025",
       "type": "implements",
@@ -3802,6 +3853,13 @@
     {
       "from": "code:src/modules/agent/msp-memory-port.js",
       "to": "req:FR-025",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/runtime.js",
+      "to": "req:FR-029",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -3934,6 +3992,13 @@
     },
     {
       "from": "code:src/modules/knowledge/genesisblockdb-sink.js",
+      "to": "req:FR-024",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/graph-query.js",
       "to": "req:FR-024",
       "type": "implements",
       "status": "current",
@@ -4577,6 +4642,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-029",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -4942,6 +5014,13 @@
     },
     {
       "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-029",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
       "to": "req:SDD-009",
       "type": "verifies",
       "status": "current",
@@ -4990,6 +5069,13 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-029",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/agent-msp-port.test.js",
       "to": "code:src/modules/agent/msp-memory-port.js",
       "type": "tests",
@@ -4999,6 +5085,34 @@
     {
       "from": "test:tests/integration/agent-msp-port.test.js",
       "to": "req:FR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-runtime.test.js",
+      "to": "code:src/modules/agent/runtime.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-runtime.test.js",
+      "to": "code:src/modules/knowledge/graph-query.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-runtime.test.js",
+      "to": "req:FR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-runtime.test.js",
+      "to": "req:FR-029",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

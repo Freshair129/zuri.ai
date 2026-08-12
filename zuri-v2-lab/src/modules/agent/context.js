@@ -33,7 +33,7 @@ import { defaultReadOnlyTools } from './tools'
  *   capabilities: { readOnly: true, gate: 'E' },
  * }>}
  */
-export async function assembleAgentContext({ tenantId, lineUserId, displayName, memory, tools }) {
+export async function assembleAgentContext({ tenantId, lineUserId, displayName, memory, tools, knowledge: knowledgeReader }) {
   const principal = await resolveLinePrincipal({ tenantId, lineUserId, displayName })
 
   const identity = {
@@ -46,7 +46,9 @@ export async function assembleAgentContext({ tenantId, lineUserId, displayName, 
   const key = memoryKey(tenantId, principal.principalType, principal.personId)
   const mem = await (memory ?? createInMemoryMemory()).recall(key)
 
-  const knowledge = await queryKnowledge({ tenantId, principalId: principal.personId })
+  // Knowledge reader is injectable: the Prisma-relation default, or a GenesisBlockDB-backed
+  // reader (createGraphKnowledgeReader) when the graph is wired — same {found,relations} shape.
+  const knowledge = await (knowledgeReader ?? queryKnowledge)({ tenantId, principalId: principal.personId })
 
   const toolList = (tools ?? defaultReadOnlyTools()).list()
 

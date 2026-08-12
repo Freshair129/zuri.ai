@@ -26,7 +26,7 @@ const GRACEFUL = /^(AGENT_ACTION_DENIED|STEP_UP_REQUIRED)/
  * @param {object} [ports.writeRegistry]                       defaults to defaultWriteTools()
  * @returns {Promise<{ inbound, identity, knowledge, action, response }>}
  */
-export async function handleAgentTurn(input, { memory, readTools, writeRegistry } = {}) {
+export async function handleAgentTurn(input, { memory, knowledge, readTools, writeRegistry } = {}) {
   const { tenantId, businessId, lineUserId, displayName, text, threadId, externalMessageId, action } =
     zHandleAgentTurnInput.parse(input)
 
@@ -34,7 +34,7 @@ export async function handleAgentTurn(input, { memory, readTools, writeRegistry 
   const inbound = await ingestLineMessage({ tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId })
 
   // 2. Assemble the read-only context (identity + memory + knowledge + read tools).
-  const context = await assembleAgentContext({ tenantId, lineUserId, displayName, memory, tools: readTools })
+  const context = await assembleAgentContext({ tenantId, lineUserId, displayName, memory, knowledge, tools: readTools })
 
   // 3. Optional Gate F action; a denial / step-up requirement is a graceful outcome.
   let actionResult = null

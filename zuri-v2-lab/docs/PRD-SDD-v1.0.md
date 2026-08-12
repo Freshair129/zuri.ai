@@ -30,6 +30,7 @@
 | 1.6.0 | 2026-08-12 | Claude | FR-026 (P7 Gate F agent write/action gate: RBAC + ownership + sensitivity authorization, single-use step-up, audited transactional execute) ✅ — the Gate E→F boundary |
 | 1.7.0 | 2026-08-12 | Claude | FR-027 (P7 end-to-end agent turn: `handleAgentTurn` composing ingest→read context→optional Gate F action→response) ✅ — the full LINE→Identity→Knowledge→Agent→Tool→response path |
 | 1.8.0 | 2026-08-12 | Claude | FR-028 (LINE webhook API route → `handleAgentTurn`, tenant-scoped) ✅ + MSP memory port (real `msp_memory_upsert`/`_list`, principal-keyed, fail-closed) + GenesisBlockDB sink (real NAPI `addNode`/`addEdge`, live-fact guarded) wired into the stack |
+| 1.9.0 | 2026-08-12 | Claude | FR-029 (agent runtime ports: `createAgentPorts` binds the agent to real MSP memory + GenesisBlockDB knowledge, injectable, graceful fallback) ✅ — the agent now genuinely runs on MSP + GKS when configured |
 
 ## Referenced Standards
 
@@ -101,6 +102,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-026 | Agent write/action gate (ADR-007 P7, Gate F): write tools in a **separate** registry (effect WRITE + executor); `authorizeAgentAction` decides by RBAC (Membership role) + resource ownership + sensitivity; **HIGH-sensitivity actions require a single-use step-up token**; `executeAgentAction` resolves the principal → authorizes → enforces step-up → runs the write in one transaction with an append-only audit. Read stays Gate E | ✅ |
 | FR-027 | End-to-end agent turn (ADR-007 P7): `handleAgentTurn` composes the full path — LINE ingest (FR-023) → read context (FR-025) → optional Gate F action (FR-026) → response — over injectable memory/knowledge/tool ports; unauthorized/step-up-needed actions degrade to a graceful response, never a crash | ✅ |
 | FR-028 | LINE webhook API route (ADR-007 P7 wiring): `POST /api/agent/line-webhook` normalizes LINE message events → `handleAgentTurn` (Gate E read/answer), tenant-scoped (refuses an unresolved tenant — no minting under a DEFAULT tenant); the zuri-cli LINE bot forwards webhook events here (two runtimes, HTTP seam, real E2E) | ✅ |
+| FR-029 | Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent | ✅ |
 
 ## 1.4 Non-functional requirements
 
