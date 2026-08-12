@@ -4,9 +4,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { DOMAINS, domainForPath } from '@/config/domains'
 
-// Tier 2 (SITEMAP-V2): the domain bar under the topbar. Picking a domain lands on its
-// first sub-domain (always the Dashboard). `soon` domains are visible but disabled —
-// they lift from V1 per module at cutover.
+// Tier 2 (SITEMAP-V2): the domain bar. It is the "original" module layer (V1 kept its
+// module tabs in the topbar); V2 lifts it into its own chrome bar, tinted a shade
+// LIGHTER than the workspace/scope topbar above it, so the two chrome layers alternate
+// and the workspace layer visibly wraps the domain layer. Picking a domain lands on its
+// first sub-domain (the Dashboard). `soon` domains are visible but disabled.
 export default function DomainBar() {
   const pathname = usePathname()
   const activeKey = domainForPath(pathname).key
@@ -14,19 +16,20 @@ export default function DomainBar() {
   return (
     <nav
       aria-label="Domains"
-      className="flex items-center gap-1 overflow-x-auto border-b border-[var(--border)] bg-[var(--surface-card)] px-3 py-2"
+      className="flex items-center gap-1 overflow-x-auto border-b border-black/25 px-3 py-2 text-white"
+      style={{ background: '#2b3646' }}
     >
       {DOMAINS.map((d) => {
         const Icon = d.icon
         const isActive = d.key === activeKey
         const cls = `flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
           isActive
-            ? 'bg-[#eaf0ff] text-[#2f4fe0]'
-            : 'text-[var(--muted)] hover:bg-[var(--surface-mid)] hover:text-[var(--text)]'
+            ? 'bg-[rgba(232,130,12,0.18)] text-[var(--brand)]'
+            : 'text-white/55 hover:bg-white/10 hover:text-white'
         }`
         if (d.soon) {
           return (
-            <span key={d.key} className={`${cls} cursor-default opacity-50`} title="Lifts from V1 at cutover">
+            <span key={d.key} className={`${cls} cursor-default text-white/30 hover:bg-transparent hover:text-white/30`} title="Lifts from V1 at cutover">
               <Icon size={15} aria-hidden /> {d.label}
             </span>
           )
