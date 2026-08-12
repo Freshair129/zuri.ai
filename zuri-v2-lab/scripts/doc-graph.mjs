@@ -235,7 +235,10 @@ function coverage(nodes, edges) {
   const linked = (r, types) => edges.some((e) => e.to === r.id && types.includes(e.type))
   const pct = (n, d) => `${d ? Math.round((n / d) * 100) : 0}% (${n}/${d})`
 
-  const fr = reqs.filter((r) => r.family === 'FR')
+  // A registry FR marked 🔜 (declared === 'planned') is expected to have no code
+  // yet — it is not a coverage defect. Only "built" FRs (✅) must have code+tests.
+  const fr = reqs.filter((r) => r.family === 'FR' && r.declared !== 'planned')
+  const frPlanned = reqs.filter((r) => r.family === 'FR' && r.declared === 'planned').map((r) => r.id.slice(4))
   const frImpl = fr.filter((r) => linked(r, ['implements']))
   const frTest = fr.filter((r) => linked(r, ['verifies']))
   const rules = reqs.filter((r) => ['BR', 'SEC', 'SDD'].includes(r.family))
@@ -249,6 +252,7 @@ function coverage(nodes, edges) {
     rules_anchored_in_code: pct(rulesLinked.length, rules.length),
     nfr_evidence_based: `${nfr.length} (verified by the acceptance matrix, not code-linked)`,
     annotated_code_files: nodes.filter((n) => n.type === 'code_file').length,
+    fr_planned: frPlanned,
     fr_without_code: fr.filter((r) => !frImpl.includes(r)).map((r) => r.id.slice(4)),
     fr_without_tests: fr.filter((r) => !frTest.includes(r)).map((r) => r.id.slice(4)),
     rules_without_anchor: rules.filter((r) => !rulesLinked.includes(r)).map((r) => r.id.slice(4)),

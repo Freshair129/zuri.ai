@@ -33,10 +33,11 @@ model Tenant {
   updatedAt   DateTime @updatedAt
   version     Int      @default(1)
 
-  portfolio   Portfolio    @relation(fields: [portfolioId], references: [id])
-  businesses  Business[]
-  workspaces  Workspace[]
-  memberships Membership[]
+  portfolio          Portfolio          @relation(fields: [portfolioId], references: [id])
+  businesses         Business[]
+  workspaces         Workspace[]
+  memberships        Membership[]
+  externalIdentities ExternalIdentity[]
 
   @@index([portfolioId])
 }
@@ -116,7 +117,8 @@ model Person {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  memberships Membership[]
+  memberships        Membership[]
+  externalIdentities ExternalIdentity[]
 }
 
 model Membership {
@@ -360,6 +362,29 @@ model ProjectRepository {
 // internal UUID. Generalizes LegalEntityIdentifier / Repository.externalRepoId.
 // An external value is NEVER a primary key and never becomes our `code`
 // (code = our namespace, value = the customer's namespace).
+// @req FR-021 — a channel/auth identity (a LINE user) mapped to a Person (the
+// principal), tenant-scoped. Because V2 unified identity into Person (ADR-003 §D10),
+// principalId is a real FK to Person — no polymorphic CUSTOMER|EMPLOYEE landmine.
+// providerSubject (the lineUserId) is an attribute, never a PK (BR-002).
+model ExternalIdentity {
+  id              String    @id @default(uuid())
+  tenantId        String
+  personId        String
+  provider        String // 'LINE' (later FACEBOOK | GOOGLE)
+  providerSubject String // the lineUserId
+  verifiedAt      DateTime?
+  linkedAt        DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, provider, providerSubject])
+  @@index([personId])
+}
+
 model ExternalRef {
   id         String    @id @default(uuid())
   entityType String // PROJECT | WORKSTREAM | WORK_CONTAINER | WORK_ITEM | MILESTONE | GATE

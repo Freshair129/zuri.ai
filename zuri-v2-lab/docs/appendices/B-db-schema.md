@@ -35,3 +35,8 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 
 `ExternalRef { entityType, entityId, system, value, labelAs }` unique(system,value)
 — generalization ของ LegalEntityIdentifier/externalRepoId สำหรับ enterprise mapping
+
+`ExternalIdentity { tenantId, personId→Person, provider, providerSubject, verifiedAt, linkedAt, revokedAt }`
+unique(tenantId, provider, providerSubject) — FR-021: channel/auth identity (LINE user)
+→ Person principal, tenant-scoped; personId is a real FK (V2 unified identity into Person,
+ADR-003 §D10, so no polymorphic principal). Distinct from ExternalRef (data mapping).

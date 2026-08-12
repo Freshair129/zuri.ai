@@ -27,6 +27,7 @@ live_document: true
 
 | Phase | Goal | Exit Criteria | Status | Progress |
 | --- | --- | --- | --- | --- |
+| PHASE-SG-FOUNDATION | Shared foundation (ADR-007): extract MSP · Zuri identity primitive | MSP Gate A passed · ExternalIdentity + resolver (FR-021) tested | in-progress | 55 |
 | PHASE-SG-DATA | ไมเกรทเอกสารธุรกิจดิบ → DuckDB SoT ที่สะอาด มี provenance | SoT ครบ 13 ตาราง, ทุกแถวมีที่มา, business-01 ไฟล์เข้าครบ | done | 100 |
 | PHASE-SG-GRAPH | ฉาย SoT เป็น knowledge graph (GenesisBlockDB) + RAG/MCP | graph sync + eval ผ่าน + MCP server อ่านอย่างเดียวใช้งานได้ | done | 92 |
 | PHASE-SG-COPILOT | LINE OA ตอบคำถามธุรกิจ/วิเคราะห์/วิจัยเหนือข้อมูล SmartGift | ถามไทยผ่าน LINE → ตอบจาก SoT จริง พร้อม citation + guard | in-progress | 45 |
@@ -45,7 +46,10 @@ live_document: true
 | SG-COP-SEAM | PHASE-SG-COPILOT | task | ต่อท่อ: LINE (zuri-command-agent) → query จริงเหนือ sot.duckdb → ตอบมี guard | P0 | Claude | in-progress | SG-DATA-SOT | DEMO-RUNBOOK §3 D1 |
 | SG-COP-FIXTURE | PHASE-SG-COPILOT | task | ลบ fetchQueryData ตัวปลอม (hardcoded revenue) — query ที่ไม่รู้จัก fail-closed | P0 | Claude | planned | SG-COP-SEAM | DEMO-RUNBOOK §5 risk 1 |
 | SG-COP-QUERIES | PHASE-SG-COPILOT | task | เพิ่ม query อ่านอย่างเดียว: monthly_sales / top_customers / tier_counts / pipeline | P1 | Claude | planned | SG-COP-SEAM | DEMO-RUNBOOK §3 D2 |
-| SG-COP-MEMORY | PHASE-SG-COPILOT | task | ต่อ MSP memory (GoVibe msp-runtime) เป็น memory OS ของ agent | P1 | Claude | planned | SG-COP-SEAM | DEMO-RUNBOOK §3 D3 |
+| SG-MSP-EXTRACT | PHASE-SG-FOUNDATION | task | Extract MSP → standalone Freshair129/msp (Gate A: standalone + GoVibe still works) — verified 176 vitest + 30 security green | P0 | Codex | done | - | ADR-007 P1; docs/prompts/EXTRACT-MSP.codex.md |
+| SG-IDENTITY-PRIM | PHASE-SG-FOUNDATION | task | ExternalIdentity model + resolveLineIdentity (LINE→Person, tenant-scoped, idempotent, audited) | P0 | Claude | done | - | FR-021; IMPACT-SCAN-IDENTITY |
+| SG-IDENTITY-P3 | PHASE-SG-FOUNDATION | task | Full P3 gate on FR-021: route all sites through the resolver, account linking, erase-revoke, staff/customer split (FR-022) | P0 | Claude | planned | SG-IDENTITY-PRIM | ADR-007 P3; IMPACT-SCAN-IDENTITY |
+| SG-COP-MEMORY | PHASE-SG-COPILOT | task | ต่อ MSP memory (msp-client) เป็น memory OS ของ agent — **principal-keyed หลัง Identity** ไม่ใช่ channel-keyed | P1 | Claude | planned | SG-IDENTITY-PRIM | DEMO-RUNBOOK §3 D3; ADR-007 |
 | SG-COP-PROD | PHASE-SG-COPILOT | task | ย้ายไป line-copilot-runtime ตัว production (หลังผ่าน contract gate REQ-CR-012) | P2 | Owen | planned | SG-COP-QUERIES | REQ-CR-012 §16 |
 | SG-CLOUD-PDPA | PHASE-SG-CLOUD | task | ตัดสิน PDPA: ข้อมูลลูกค้าออกนอกเครื่องได้ไหม — ตัดสินแล้ว: ออกได้ (override local_only เฉพาะเดโม) | P0 | Owen | done | - | DEMO-RUNBOOK §6.1 |
 | SG-CLOUD-MIRROR | PHASE-SG-CLOUD | task | สคริปต์ mirror SoT → Supabase (aggregate ก่อน) จาก copy นอก dir บังคับ, DuckDB คง static | P1 | Claude | planned | SG-CLOUD-PDPA | DEMO-RUNBOOK §3 D3 |

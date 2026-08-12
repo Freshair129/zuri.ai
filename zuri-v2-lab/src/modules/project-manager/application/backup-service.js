@@ -32,6 +32,10 @@ const SNAPSHOT_MODELS = [
   // still restore (a missing table reads as an empty list), so the snapshot
   // schemaVersion stays 1.0.
   'externalRef',
+  // FR-021 — identity mappings must survive a restore; losing them orphans every
+  // linked LINE user. A snapshot written before this model existed still restores
+  // (a missing table reads as an empty list), so the snapshot version stays 1.0.
+  'externalIdentity',
   'auditEvent',
 ]
 

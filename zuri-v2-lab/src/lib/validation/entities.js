@@ -59,6 +59,13 @@ export const zBusinessInGroupInput = z.object({
   workspaceName: z.string().min(1).optional(),
 })
 
+// FR-021 — resolve a LINE user to a Person principal within a tenant.
+export const zResolveLineIdentityInput = z.object({
+  tenantId: z.string().min(1),
+  lineUserId: z.string().min(1),
+  displayName: z.string().optional(),
+})
+
 export const zBranchInput = z.object({
   code: z.string().min(1).optional(),
   tenantId: z.string().min(1),

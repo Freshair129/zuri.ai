@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 385,
-    "total_edges": 214,
+    "total_nodes": 389,
+    "total_edges": 223,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 5,
@@ -13,17 +13,20 @@
       "spec": 33,
       "adr": 7,
       "v1_inherited": 234,
-      "requirement": 51,
-      "test": 14,
-      "code_file": 31
+      "requirement": 53,
+      "test": 15,
+      "code_file": 32
     },
     "coverage": {
-      "requirements": 51,
-      "fr_with_code": "100% (20/20)",
-      "fr_with_tests": "100% (20/20)",
+      "requirements": 53,
+      "fr_with_code": "100% (21/21)",
+      "fr_with_tests": "100% (21/21)",
       "rules_anchored_in_code": "83% (20/24)",
       "nfr_evidence_based": "7 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 31,
+      "annotated_code_files": 32,
+      "fr_planned": [
+        "FR-022"
+      ],
       "fr_without_code": [],
       "fr_without_tests": [],
       "rules_without_anchor": [
@@ -36,11 +39,10 @@
   },
   "drift": {
     "changed": [
-      "spec:DEMO-RUNBOOK-SMARTGIFT"
+      "doc:D-traceability",
+      "doc:PRD-SDD-v1.0"
     ],
-    "added": [
-      "spec:IMPACT-SCAN-IDENTITY"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -246,6 +248,25 @@
       }
     },
     {
+      "id": "code:src/modules/identity/resolve-line-identity.js",
+      "type": "code_file",
+      "path": "src/modules/identity/resolve-line-identity.js",
+      "hash": "4133ba8f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-021"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/identity-resolve.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
@@ -287,7 +308,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "10f07f01",
+      "hash": "34db8796",
       "status": "current",
       "annotations": {
         "@req": [
@@ -599,7 +620,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "4f67d11a",
+      "hash": "bf9fd174",
       "status": "current"
     },
     {
@@ -609,8 +630,8 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "00b0c5fc",
-      "status": "current"
+      "hash": "f78f3016",
+      "status": "changed"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -659,7 +680,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "3f48a5aa",
+      "hash": "a5284591",
       "status": "current"
     },
     {
@@ -697,10 +718,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.0.2",
+      "version": "1.2.0",
       "doc_status": "Draft",
-      "hash": "335d3537",
-      "status": "current"
+      "hash": "6870be1a",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-zuri-v2-lab",
@@ -980,6 +1001,24 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
+    },
+    {
+      "id": "req:FR-021",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Identity resolution: `ExternalIdentity` (LINE→Person, tenant-scoped) + `resolveLineIdentity` — idempotent, tenant-required, audited, revoke-aware (ADR-007 P3 foundation primitive)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-022",
+      "type": "requirement",
+      "family": "FR",
+      "label": "LINE as an identity provider end-to-end (account linking, login/OIDC, staff/customer split) — the full P3 gate on top of FR-021",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
     },
     {
       "id": "req:NFR-001",
@@ -1287,7 +1326,7 @@
       "version": "1.0.0",
       "doc_status": "Active — four owner decisions made 2026-08-12 (§6); topology in §5a",
       "hash": "3363635b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:DOMAIN-MODEL",
@@ -1488,7 +1527,7 @@
       "type": "spec",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "ae8de596",
+      "hash": "a0899c38",
       "status": "current"
     },
     {
@@ -1549,6 +1588,13 @@
       "type": "test",
       "path": "tests/integration/external-ref-import.test.js",
       "hash": "8e2f4a11",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/identity-resolve.test.js",
+      "type": "test",
+      "path": "tests/integration/identity-resolve.test.js",
+      "hash": "64b6340d",
       "status": "current"
     },
     {
@@ -3182,6 +3228,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/resolve-line-identity.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-line-identity.js",
+      "to": "req:FR-021",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-line-identity.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "doc:FR-019-enterprise-api",
       "type": "references",
@@ -3700,6 +3767,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-021",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-022",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -4080,6 +4161,34 @@
     {
       "from": "test:tests/integration/external-ref-import.test.js",
       "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-resolve.test.js",
+      "to": "code:src/modules/identity/resolve-line-identity.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/identity-resolve.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-resolve.test.js",
+      "to": "req:FR-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/identity-resolve.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
