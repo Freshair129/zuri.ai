@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
 import ProjectTabs from '@/modules/project-manager/components/ProjectTabs'
+import WorkViewTabs from '@/modules/project-manager/components/WorkViewTabs'
 import WbsCanvas from '@/modules/project-manager/views/WbsCanvas'
 import { ErrorState } from '@/components/ui'
 
@@ -29,6 +30,8 @@ export default function ProjectStructurePage() {
           <p className="text-xs text-muted">Plan the project structure and define part projects, part tasks and work packages.</p>
         </div>
       </div>
+
+      <WorkViewTabs projectId={projectId} />
 
       {project.loading ? (
         <LoadingCard />
