@@ -31,7 +31,7 @@
 | FR-014 | Audit log (immutable) + UI browser | project-manager | v2-native | ✅ live | `modules/project-manager/application/audit.js` | 2 | — | — |
 | FR-015 | Command palette (Ctrl+K), filters, search | shell | v2-native | ✅ live | `components/layouts/CommandPalette.jsx` | 1 | — | — |
 | FR-016 | Seed/demo dataset idempotent ครบ 7 โหมด | seed | v2-native | ✅ live | `prisma/seed.js` | 1 | — | — |
-| FR-017 | UI wizard intake ("เริ่มจากเป้าหมาย") → สร้าง envelope เข้า pipeline เดิม | shell | v2-native | ✅ live | `app/(pm)/projects/new/page.jsx` | 1 | — | TASK-FR-017 |
+| FR-017 | UI wizard intake ("เริ่มจากเป้าหมาย") → สร้าง envelope เข้า pipeline เดิม | shell | v2-native | ✅ live | `app/(pm)/projects/new/page.jsx`, `app/api/projects/[id]/tree/route.js` | 2 | — | TASK-FR-017 |
 | FR-018 | Excel template intake: generator จาก Zod schema + xlsx→envelope converter + error รายแถว | project-manager | v2-native | ✅ live | `modules/project-manager/import/xlsx-convert.js`, `modules/project-manager/import/xlsx-template.js` | 2 | — | TASK-FR-018 |
 | FR-019 | Enterprise API: ExternalRef mapping + upsert-by-external-id + OpenAPI docs | shell, project-manager | v2-native | ✅ live | `app/api/docs/route.js` +4 | 5 | [doc](features/FR-019-enterprise-api.md) | TASK-FR-019 |
 | FR-020 | Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing) | shell, project-manager | v2-native | ✅ live | `app/(pm)/overview/page.jsx` +8 | 5 | [doc](features/FR-020-adaptive-shell.md) | TASK-FR-020 |

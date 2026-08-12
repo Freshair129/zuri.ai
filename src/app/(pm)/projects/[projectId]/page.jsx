@@ -10,6 +10,7 @@ import { useFetch, api, LoadingCard } from '@/modules/project-manager/components
 import ProgressExplain from '@/modules/project-manager/components/ProgressExplain'
 import WorkstreamModal from '@/modules/project-manager/components/WorkstreamModal'
 import ProjectModal from '@/modules/project-manager/components/ProjectModal'
+import ProjectTabs from '@/modules/project-manager/components/ProjectTabs'
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams()
@@ -31,6 +32,7 @@ export default function ProjectDetailPage() {
 
   return (
     <div>
+      <ProjectTabs projectId={p.id} active="project" />
       <PageHeader
         eyebrow={`${p.workspace?.code || ''} · ${p.code}`}
         title={p.name}

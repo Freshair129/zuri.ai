@@ -12,7 +12,7 @@
 > transitive test → code → requirement paths.
 
 **Coverage** — FR with code **100% (30/30)** · FR with tests **100% (30/30)** ·
-rules anchored in code **83% (20/24)** · annotated source files **56**
+rules anchored in code **83% (20/24)** · annotated source files **57**
 
 ## Functional requirements
 
@@ -36,7 +36,7 @@ Each FR must have code that declares `@req` and a test that reaches it.
 | FR-014 | Audit log (immutable) + UI browser | `modules/project-manager/application/audit.js` | `integration/plan-import.test.js`, `integration/project-core.test.js` | ✅ |
 | FR-015 | Command palette (Ctrl+K), filters, search | `components/layouts/CommandPalette.jsx` | `e2e/smoke.spec.js` | ✅ |
 | FR-016 | Seed/demo dataset idempotent ครบ 7 โหมด | `prisma/seed.js` | `e2e/smoke.spec.js` | ✅ |
-| FR-017 | UI wizard intake ("เริ่มจากเป้าหมาย") → สร้าง envelope เข้า pipeline เดิม | `app/(pm)/projects/new/page.jsx` | `e2e/smoke.spec.js` | ✅ |
+| FR-017 | UI wizard intake ("เริ่มจากเป้าหมาย") → สร้าง envelope เข้า pipeline เดิม | `app/(pm)/projects/new/page.jsx`, `app/api/projects/[id]/tree/route.js` | `e2e/smoke.spec.js`, `integration/project-core.test.js` | ✅ |
 | FR-018 | Excel template intake: generator จาก Zod schema + xlsx→envelope converter + error รายแถว | `modules/project-manager/import/xlsx-convert.js`, `modules/project-manager/import/xlsx-template.js` | `e2e/smoke.spec.js`, `integration/xlsx-intake.test.js` | ✅ |
 | FR-019 | Enterprise API: ExternalRef mapping + upsert-by-external-id + OpenAPI docs | `app/api/docs/route.js`, `modules/project-manager/api-docs/openapi.js`, `modules/project-manager/import/external-ref.js`, `modules/project-manager/import/plan-import-service.js`, `modules/project-manager/import/plan-schema.js` | `e2e/smoke.spec.js`, `integration/external-ref-import.test.js`, `integration/openapi-docs.test.js`, `integration/plan-import.test.js`, `unit/plan-schema.test.js` | ✅ |
 | FR-020 | Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing) | `app/(pm)/overview/page.jsx`, `app/(pm)/settings/page.jsx`, `app/api/progress/portfolio/route.js`, `components/layouts/Topbar.jsx`, `context/ScopeContext.jsx`, `lib/shell-mode.js`, `modules/project-manager/application/progress-service.js`, `modules/project-manager/application/scope-service.js`, `modules/project-manager/progress/rollup.js` | `e2e/smoke.spec.js`, `integration/adaptive-shell.test.js`, `integration/scope-and-isolation.test.js`, `unit/rollup.test.js`, `unit/shell-mode.test.js` | ✅ |

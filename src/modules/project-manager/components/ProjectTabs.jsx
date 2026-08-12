@@ -1,0 +1,45 @@
+'use client'
+
+import Link from 'next/link'
+import { CircleDot, Flag, Users, ListTree, TriangleAlert, ChartPie, Folder } from 'lucide-react'
+
+// Indest-style per-project domain tab bar. Built tabs link; the rest are visible but
+// marked "soon" so the shape is complete while the sections land one by one.
+const TABS = [
+  { key: 'project', label: 'Project', icon: CircleDot, href: (id) => `/projects/${id}` },
+  { key: 'requirements', label: 'Requirements', icon: Flag, soon: true },
+  { key: 'team', label: 'Team', icon: Users, soon: true },
+  { key: 'work', label: 'Work', icon: ListTree, href: (id) => `/projects/${id}/structure` },
+  { key: 'risks', label: 'Risks', icon: TriangleAlert, soon: true },
+  { key: 'resources', label: 'Resources', icon: ChartPie, soon: true },
+  { key: 'files', label: 'Files', icon: Folder, soon: true },
+]
+
+export default function ProjectTabs({ projectId, active }) {
+  return (
+    <nav
+      aria-label="Project sections"
+      className="mb-4 flex items-center gap-1 overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface-card)] p-1.5"
+    >
+      {TABS.map((t) => {
+        const Icon = t.icon
+        const isActive = t.key === active
+        const cls = `flex items-center gap-2 whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-semibold transition ${
+          isActive ? 'bg-[#eaf0ff] text-[#2f4fe0]' : 'text-[var(--muted)] hover:bg-[var(--surface-mid)] hover:text-[var(--text)]'
+        }`
+        if (t.soon || !t.href) {
+          return (
+            <span key={t.key} className={`${cls} cursor-default opacity-55`} title="Coming soon">
+              <Icon size={15} aria-hidden /> {t.label}
+            </span>
+          )
+        }
+        return (
+          <Link key={t.key} href={t.href(projectId)} className={cls} aria-current={isActive ? 'page' : undefined}>
+            <Icon size={15} aria-hidden /> {t.label}
+          </Link>
+        )
+      })}
+    </nav>
+  )
+}

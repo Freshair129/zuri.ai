@@ -4,14 +4,14 @@
   "scanned": {
     "docs": 58,
     "v1_inherited": 234,
-    "routes": 33,
+    "routes": 34,
     "test_files": 31
   },
   "summary": {
     "critical": 0,
-    "warning": 0,
+    "warning": 1,
     "info": 23,
-    "overall": "PASS"
+    "overall": "WARN"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -258,7 +258,18 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I23",
+      "id": "W23",
+      "severity": "warning",
+      "check": "staleness",
+      "title": "API appendix does not list every route",
+      "details": "/api/projects/[id]/tree",
+      "files": [
+        "docs/appendices/A-api-spec.md"
+      ],
+      "action": "Add the new endpoints to Appendix A"
+    },
+    {
+      "id": "I24",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
