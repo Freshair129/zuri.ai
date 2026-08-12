@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 381,
+    "total_nodes": 382,
     "total_edges": 214,
     "dangling_edges": 0,
     "node_types": {
@@ -11,7 +11,7 @@
       "document": 9,
       "roadmap": 1,
       "spec": 30,
-      "adr": 6,
+      "adr": 7,
       "v1_inherited": 234,
       "requirement": 51,
       "test": 14,
@@ -36,10 +36,11 @@
   },
   "drift": {
     "changed": [
-      "spec:DEMO-RUNBOOK-SMARTGIFT",
-      "spec:ROADMAP-business01-smartgift-delivery"
+      "spec:IMPLEMENTATION-PLAN-V2-REPLACE"
     ],
-    "added": [],
+    "added": [
+      "spec:ADR-007-LINE-AI-STACK-SEQUENCING"
+    ],
     "removed": []
   },
   "nodes": [
@@ -1243,6 +1244,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
+      "type": "adr",
+      "path": "docs/ADR-007-LINE-AI-STACK-SEQUENCING.md",
+      "title": "ADR-007 — LINE/AI Stack: Dependency Sequencing and Production Gates",
+      "hash": "7e6e6c4c",
+      "status": "current"
+    },
+    {
       "id": "spec:ARCHITECTURE",
       "type": "spec",
       "path": "docs/ARCHITECTURE.md",
@@ -1278,7 +1287,7 @@
       "version": "1.0.0",
       "doc_status": "Active — four owner decisions made 2026-08-12 (§6); topology in §5a",
       "hash": "34206485",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:DOMAIN-MODEL",
@@ -1321,8 +1330,8 @@
       "title": "Implementation Plan — PHASE-V2-REPLACE",
       "version": "1.0.0",
       "doc_status": "Draft — awaiting owner sign-off on §4 (capacity) and §6 (first cutover)",
-      "hash": "fbc24459",
-      "status": "current"
+      "hash": "8941cb54",
+      "status": "changed"
     },
     {
       "id": "spec:INTEGRATION-MAP-ZURI",
@@ -1452,7 +1461,7 @@
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
       "hash": "ae8de596",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ROUTES-SITEMAP",

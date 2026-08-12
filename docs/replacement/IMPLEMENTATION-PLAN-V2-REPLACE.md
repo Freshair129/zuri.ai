@@ -9,6 +9,14 @@
 | **Preflight** | PASS — 0 critical, 0 warnings (`zuri-v2-lab/docs/.preflight-report.json`) |
 | **Note** | Filed here, not at `docs/IMPLEMENTATION-PLAN.md` — that file is the original MVP plan and stays untouched (ADR-004 layering) |
 
+> **Sequencing refined by [ADR-007](../ADR-007-LINE-AI-STACK-SEQUENCING.md) (2026-08-12).**
+> The LINE/AI stack has a strict dependency order — **extract MSP → Zuri backend slice
+> (impact-scan first) → Identity → Persistence → Knowledge → Agent → E2E**, behind six
+> production gates (A–F), with a read-only agent (Gate E) shipping before a writing
+> agent (Gate F). W3/W4/W6/W7 below are the same work; ADR-007 fixes their order and
+> inserts MSP extraction ahead of them. Memory must be keyed by **principal, not
+> channel** — do not connect MSP to Zuri before Identity.
+
 ## 1. Scope
 
 ### 1.1 By the numbers
