@@ -16,7 +16,7 @@ export default function DomainBar() {
   return (
     <nav
       aria-label="Domains"
-      className="flex items-center gap-1 overflow-x-auto border-b border-black/25 px-3 py-2 text-white"
+      className="flex h-14 shrink-0 items-center gap-1 overflow-x-auto border-b border-black/25 px-3 text-white"
       style={{ background: '#2b3646' }}
     >
       {DOMAINS.map((d) => {
