@@ -8,7 +8,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Command, Plus, ChevronDown, Layers, Check } from 'lucide-react'
+import { Command, Plus, ChevronDown, Layers, Check, Bell } from 'lucide-react'
 import { useScope } from '@/context/ScopeContext'
 
 function ScopeSelect({ label, value, options, onChange, placeholder, grow }) {
@@ -207,11 +207,27 @@ export default function Topbar({ onOpenPalette }) {
         >
           <Plus size={14} aria-hidden /> New Project
         </button>
-        <div
-          className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-[#374151] text-[11px] font-extrabold"
-          title="Local owner (demo identity)"
-        >
-          LO
+
+        {/* Profile cluster (row 1, right) — mirrors V1's TH/EN · bell · avatar. */}
+        <div className="ml-1 flex items-center gap-2 border-l border-white/10 pl-2">
+          <div className="flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] font-bold tracking-wider max-md:hidden">
+            <span style={{ color: 'var(--brand)' }}>TH</span>
+            <span className="opacity-20">|</span>
+            <span className="opacity-50">EN</span>
+          </div>
+          <button
+            type="button"
+            className="grid h-9 w-9 place-items-center rounded-xl text-white/60 transition hover:bg-white/10 hover:text-white"
+            aria-label="Notifications"
+          >
+            <Bell size={16} aria-hidden />
+          </button>
+          <div
+            className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-[#374151] text-[11px] font-extrabold"
+            title="Local owner (demo identity)"
+          >
+            LO
+          </div>
         </div>
       </div>
     </header>

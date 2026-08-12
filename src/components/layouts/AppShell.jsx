@@ -21,7 +21,7 @@ export default function AppShell({ children }) {
   }, [])
 
   return (
-    <div className="grid h-screen grid-cols-[210px_minmax(0,1fr)] max-md:grid-cols-[64px_minmax(0,1fr)]">
+    <div className="grid h-screen grid-cols-[80px_minmax(0,1fr)] max-md:grid-cols-[64px_minmax(0,1fr)]">
       <Sidebar />
       <div className="grid min-w-0 grid-rows-[auto_auto_minmax(0,1fr)_28px]">
         <Topbar onOpenPalette={() => setPaletteOpen(true)} />
