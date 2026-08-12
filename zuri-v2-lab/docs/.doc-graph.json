@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 400,
-    "total_edges": 253,
+    "total_nodes": 415,
+    "total_edges": 286,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 5,
@@ -13,17 +13,17 @@
       "spec": 33,
       "adr": 7,
       "v1_inherited": 234,
-      "requirement": 54,
-      "test": 20,
-      "code_file": 37
+      "requirement": 56,
+      "test": 24,
+      "code_file": 46
     },
     "coverage": {
-      "requirements": 54,
-      "fr_with_code": "100% (23/23)",
-      "fr_with_tests": "100% (23/23)",
+      "requirements": 56,
+      "fr_with_code": "100% (25/25)",
+      "fr_with_tests": "100% (25/25)",
       "rules_anchored_in_code": "83% (20/24)",
       "nfr_evidence_based": "7 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 37,
+      "annotated_code_files": 46,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -37,21 +37,27 @@
   },
   "drift": {
     "changed": [
-      "doc:B-db-schema",
+      "doc:D-traceability",
+      "doc:FEATURE-MAP",
       "doc:PRD-SDD-v1.0",
-      "spec:ROADMAP-business01-smartgift-delivery",
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/project-manager/application/backup-service.js"
+      "spec:ROADMAP-business01-smartgift-delivery"
     ],
     "added": [
-      "test:tests/integration/identity-classify.test.js",
-      "test:tests/integration/identity-erase.test.js",
-      "test:tests/integration/identity-gate.test.js",
-      "test:tests/integration/identity-link.test.js",
-      "code:src/modules/identity/classify-principal.js",
-      "code:src/modules/identity/erase-principal.js",
-      "code:src/modules/identity/gate.js",
-      "code:src/modules/identity/link-line-identity.js"
+      "req:FR-024",
+      "req:FR-025",
+      "test:tests/integration/agent-context.test.js",
+      "test:tests/integration/agent-tools.test.js",
+      "test:tests/integration/knowledge-project.test.js",
+      "test:tests/integration/knowledge-query.test.js",
+      "code:src/modules/agent/context.js",
+      "code:src/modules/agent/index.js",
+      "code:src/modules/agent/memory-port.js",
+      "code:src/modules/agent/tools.js",
+      "code:src/modules/knowledge/index.js",
+      "code:src/modules/knowledge/live-facts.js",
+      "code:src/modules/knowledge/project-graph.js",
+      "code:src/modules/knowledge/query.js",
+      "code:src/modules/knowledge/sink.js"
     ],
     "removed": []
   },
@@ -245,7 +251,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "d9a4757a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@spec": [
           "SDD-002",
@@ -254,6 +260,66 @@
         "@tested": [
           "tests/unit/plan-schema.test.js",
           "tests/integration/xlsx-intake.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/context.js",
+      "type": "code_file",
+      "path": "src/modules/agent/context.js",
+      "hash": "82d85c9a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-025"
+        ],
+        "@tested": [
+          "tests/integration/agent-context.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/index.js",
+      "type": "code_file",
+      "path": "src/modules/agent/index.js",
+      "hash": "0ce49040",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-025"
+        ],
+        "@tested": [
+          "tests/integration/agent-context.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/memory-port.js",
+      "type": "code_file",
+      "path": "src/modules/agent/memory-port.js",
+      "hash": "daf1d93a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-025"
+        ],
+        "@tested": [
+          "tests/integration/agent-context.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/tools.js",
+      "type": "code_file",
+      "path": "src/modules/agent/tools.js",
+      "hash": "5ddbe186",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-025"
+        ],
+        "@tested": [
+          "tests/integration/agent-tools.test.js"
         ]
       }
     },
@@ -366,6 +432,90 @@
       }
     },
     {
+      "id": "code:src/modules/knowledge/index.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/index.js",
+      "hash": "7bb86c72",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-024"
+        ],
+        "@tested": [
+          "tests/integration/knowledge-project.test.js",
+          "tests/integration/knowledge-query.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/live-facts.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/live-facts.js",
+      "hash": "40ddcb72",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-024"
+        ],
+        "@tested": [
+          "tests/integration/knowledge-project.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/project-graph.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/project-graph.js",
+      "hash": "9da965c8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-024"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/knowledge-project.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/query.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/query.js",
+      "hash": "164bba8e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-024"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/knowledge-query.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/sink.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/sink.js",
+      "hash": "a83523ff",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-024"
+        ],
+        "@tested": [
+          "tests/integration/knowledge-project.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
@@ -408,7 +558,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "8262bdc0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013"
@@ -720,7 +870,7 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "e4a6b644",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:D-traceability",
@@ -729,8 +879,8 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "b5291c83",
-      "status": "current"
+      "hash": "d38162c0",
+      "status": "changed"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -779,8 +929,8 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "7e46ad6d",
-      "status": "current"
+      "hash": "2936eb0a",
+      "status": "changed"
     },
     {
       "id": "doc:FR-019-enterprise-api",
@@ -819,7 +969,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.3.0",
       "doc_status": "Draft",
-      "hash": "163a59ef",
+      "hash": "d68691f2",
       "status": "changed"
     },
     {
@@ -1124,6 +1274,24 @@
       "type": "requirement",
       "family": "FR",
       "label": "Zuri Backend Slice CRM core (ADR-007 P2): Customer (per-tenant, linked to Person) + Conversation + Message + LINE gateway `ingestLineMessage` (resolves through FR-021, idempotent)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-024",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-025",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Agent read-only context contract (ADR-007 P6, Gate E): `assembleAgentContext` binds a resolved principal (via the P3 gate) to Identity + MSP memory (**principal-keyed, not channel-keyed**) + GKS knowledge (FR-024) + Zuri **read-only** tools; a write-classified tool is refused at registration (Gate E→F boundary)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -1635,7 +1803,7 @@
       "type": "spec",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "96969baa",
+      "hash": "f94fa372",
       "status": "changed"
     },
     {
@@ -1685,6 +1853,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/agent-context.test.js",
+      "type": "test",
+      "path": "tests/integration/agent-context.test.js",
+      "hash": "cba6a0a2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/agent-tools.test.js",
+      "type": "test",
+      "path": "tests/integration/agent-tools.test.js",
+      "hash": "d4c6e494",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
@@ -1731,6 +1913,20 @@
       "type": "test",
       "path": "tests/integration/identity-resolve.test.js",
       "hash": "64b6340d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/knowledge-project.test.js",
+      "type": "test",
+      "path": "tests/integration/knowledge-project.test.js",
+      "hash": "7e9761b1",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/knowledge-query.test.js",
+      "type": "test",
+      "path": "tests/integration/knowledge-query.test.js",
+      "hash": "bf0dac7e",
       "status": "current"
     },
     {
@@ -3371,6 +3567,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/context.js",
+      "to": "req:FR-025",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:FR-025",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/memory-port.js",
+      "to": "req:FR-025",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/tools.js",
+      "to": "req:FR-025",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/crm/line-ingest-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -3465,6 +3689,69 @@
       "from": "code:src/modules/identity/resolve-line-identity.js",
       "to": "req:SEC-001",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/index.js",
+      "to": "req:FR-024",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/live-facts.js",
+      "to": "req:FR-024",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/project-graph.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/project-graph.js",
+      "to": "req:FR-024",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/project-graph.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/query.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/query.js",
+      "to": "req:FR-024",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/query.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/sink.js",
+      "to": "req:FR-024",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -4008,6 +4295,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-024",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-025",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -4316,6 +4617,48 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "code:src/modules/agent/context.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "code:src/modules/agent/index.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "code:src/modules/agent/memory-port.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-tools.test.js",
+      "to": "code:src/modules/agent/tools.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-tools.test.js",
+      "to": "req:FR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/backup.test.js",
       "to": "code:src/modules/project-manager/application/backup-service.js",
       "type": "tests",
@@ -4506,6 +4849,90 @@
     },
     {
       "from": "test:tests/integration/identity-resolve.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "code:src/modules/knowledge/index.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "code:src/modules/knowledge/live-facts.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "code:src/modules/knowledge/project-graph.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "code:src/modules/knowledge/sink.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "req:FR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/knowledge-query.test.js",
+      "to": "code:src/modules/knowledge/index.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/knowledge-query.test.js",
+      "to": "code:src/modules/knowledge/query.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/knowledge-query.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/knowledge-query.test.js",
+      "to": "req:FR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/knowledge-query.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",

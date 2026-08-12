@@ -43,6 +43,7 @@ live_document: true
 | SG-GRAPH-SYNC | PHASE-SG-GRAPH | task | ฉาย SoT → GenesisBlockDB: 17.9k nodes / 9.7k edges, eval recall=precision=1.0 | P0 | Agent | done | SG-DATA-SOT | docs/rag-design-genesisblockdb.md |
 | SG-GRAPH-MCP | PHASE-SG-GRAPH | task | MCP server อ่านอย่างเดียว: smartgift_ask_knowledge_base + graph_traverse (fail-closed) | P1 | Agent | done | SG-GRAPH-SYNC | explore_agent/mcp_server.py |
 | SG-GRAPH-P54 | PHASE-SG-GRAPH | task | เส้น Document→Product line-item ("ลูกค้าคนนี้ซื้ออะไร") | P2 | Agent | blocked | SG-GRAPH-SYNC | docs/rag-design-genesisblockdb.md P5.4 |
+| SG-KG-PROJECTION | PHASE-SG-GRAPH | task | Production P5 (FR-024): project Zuri **relations** → GKS/KG via pluggable sink, **live facts stay a Zuri query** (assertNoLiveFacts) + `queryKnowledge` contract — tested | P1 | Claude | done | SG-BACKEND-SLICE | ADR-007 P5; FR-024 |
 | SG-COP-SEAM | PHASE-SG-COPILOT | task | ต่อท่อ: LINE (zuri-command-agent) → query จริงเหนือ sot.duckdb → ตอบมี guard | P0 | Claude | in-progress | SG-DATA-SOT | DEMO-RUNBOOK §3 D1 |
 | SG-COP-FIXTURE | PHASE-SG-COPILOT | task | ลบ fetchQueryData ตัวปลอม (hardcoded revenue) — query ที่ไม่รู้จัก fail-closed | P0 | Claude | planned | SG-COP-SEAM | DEMO-RUNBOOK §5 risk 1 |
 | SG-COP-QUERIES | PHASE-SG-COPILOT | task | เพิ่ม query อ่านอย่างเดียว: monthly_sales / top_customers / tier_counts / pipeline | P1 | Claude | planned | SG-COP-SEAM | DEMO-RUNBOOK §3 D2 |
@@ -50,7 +51,8 @@ live_document: true
 | SG-IDENTITY-PRIM | PHASE-SG-FOUNDATION | task | ExternalIdentity model + resolveLineIdentity (LINE→Person, tenant-scoped, idempotent, audited) | P0 | Claude | done | - | FR-021; IMPACT-SCAN-IDENTITY |
 | SG-BACKEND-SLICE | PHASE-SG-FOUNDATION | task | Zuri Backend Slice CRM core (FR-023): Customer+Conversation+Message + LINE ingest through the identity seam (tested 140/140) | P0 | Claude | done | SG-IDENTITY-PRIM | ADR-007 P2; FR-023 |
 | SG-IDENTITY-P3 | PHASE-SG-FOUNDATION | task | Full P3 gate on FR-021 (FR-022): `resolveLinePrincipal` seam + account linking (single-use token, merge-aware) + PDPA erase-revoke + staff/customer split — tested 160/160 | P0 | Claude | done | SG-IDENTITY-PRIM | ADR-007 P3; IMPACT-SCAN-IDENTITY; FR-022 |
-| SG-COP-MEMORY | PHASE-SG-COPILOT | task | ต่อ MSP memory (msp-client) เป็น memory OS ของ agent — **principal-keyed หลัง Identity** ไม่ใช่ channel-keyed | P1 | Claude | planned | SG-IDENTITY-PRIM | DEMO-RUNBOOK §3 D3; ADR-007 |
+| SG-AGENT-CONTEXT | PHASE-SG-COPILOT | task | Production P6 (FR-025): `assembleAgentContext` = Identity + MSP memory (**principal-keyed**) + KG (FR-024) + **read-only** tools, Gate E (write tool refused at registration) — tested | P1 | Claude | done | SG-IDENTITY-P3, SG-KG-PROJECTION | ADR-007 P6; FR-025 |
+| SG-COP-MEMORY | PHASE-SG-COPILOT | task | ต่อ MSP memory (msp-client จริง) หลัง port — **principal-keyed** ผ่าน `memoryKey` (FR-025) แทน in-memory | P1 | Claude | planned | SG-AGENT-CONTEXT | DEMO-RUNBOOK §3 D3; ADR-007 |
 | SG-COP-PROD | PHASE-SG-COPILOT | task | ย้ายไป line-copilot-runtime ตัว production (หลังผ่าน contract gate REQ-CR-012) | P2 | Owen | planned | SG-COP-QUERIES | REQ-CR-012 §16 |
 | SG-CLOUD-PDPA | PHASE-SG-CLOUD | task | ตัดสิน PDPA: ข้อมูลลูกค้าออกนอกเครื่องได้ไหม — ตัดสินแล้ว: ออกได้ (override local_only เฉพาะเดโม) | P0 | Owen | done | - | DEMO-RUNBOOK §6.1 |
 | SG-CLOUD-MIRROR | PHASE-SG-CLOUD | task | สคริปต์ mirror SoT → Supabase (aggregate ก่อน) จาก copy นอก dir บังคับ, DuckDB คง static | P1 | Claude | planned | SG-CLOUD-PDPA | DEMO-RUNBOOK §3 D3 |
