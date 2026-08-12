@@ -10,8 +10,8 @@
 | **Layer** | 0 — product (above the per-module PRD/SDD) |
 
 Layer 0: what Zuri V2 *is*. Module-level requirements live one layer down
-(`zuri-v2-lab/docs/PRD-SDD-v1.0.md` for Project Manager); the live index of every
-feature is `zuri-v2-lab/docs/FEATURE-MAP.md` (generated).
+(`docs/PRD-SDD-v1.0.md` for Project Manager); the live index of every
+feature is `docs/FEATURE-MAP.md` (generated).
 
 ## 1. What V2 is
 
@@ -58,6 +58,11 @@ In V1 a "tenant" *is* one shop, so an owner with two shops has two logins, two
 customer sets and no way to see across them. V2 keeps the full chain in the schema
 and shows only the levels that offer a real choice (FR-020).
 
+This chain is the **schema truth**. How it is *presented* — Business-centric root, the
+dual **ERP ⇄ PM** lens over the same entities, and the `login → RBAC → Home → Business
+Overview` entry flow — is defined in [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md).
+Project and Campaign are two **domains** (Projects · Growth), never the app root.
+
 ## 3. Non-negotiables
 
 | Rule | Source |
@@ -84,12 +89,13 @@ The SmartGift executive demo is a **spike ahead of Track 2**, on demo-only short
 
 | Concern | Document |
 |---|---|
-| Feature index + cutover state | `zuri-v2-lab/docs/FEATURE-MAP.md` (generated) |
-| Project Manager module | `zuri-v2-lab/docs/PRD-SDD-v1.0.md` + `docs/features/` |
+| Feature index + cutover state | `docs/FEATURE-MAP.md` (generated) |
+| Project Manager module | `docs/PRD-SDD-v1.0.md` + `docs/features/` |
+| Shell · scope lens · entry flow | `docs/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md` + `docs/SITEMAP-V2-DOMAIN-NAV.md` |
 | AI + LINE surface | `docs/ai-system/` |
 | Replacing V1 | `docs/replacement/` |
 | Decisions | `docs/ADR-00*.md` |
-| Delivery state | `zuri-v2-lab/docs/roadmap/ROADMAP-zuri-v2-lab.md` |
+| Delivery state | `docs/roadmap/ROADMAP-zuri-v2-lab.md` |
 
 ## 5. Delivery state (2026-08-12)
 

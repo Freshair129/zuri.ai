@@ -120,6 +120,14 @@ if (!existsSync(GRAPH)) {
     for (let i = sorted[0]; i < sorted[sorted.length - 1]; i++) if (!sorted.includes(i)) gaps.push(`${fam}-${String(i).padStart(3, '0')}`)
     if (gaps.length) add('info', 'requirement-coverage', `Gaps in ${fam} numbering`, gaps.join(', '), [], 'Intentional gaps are fine — confirm nothing was lost')
   }
+
+  // Lineage integrity — a doc marked superseded must carry a successor edge, so
+  // "what replaced it" is answerable from the graph (RWANG lineage guard).
+  for (const n of (g.nodes || []).filter((n) => n.status === 'superseded' || /supersed/i.test(n.doc_status || ''))) {
+    if (!(g.edges || []).some((e) => e.to === n.id && e.type === 'supersedes')) {
+      add('warning', 'lineage', 'Superseded doc without a successor edge', n.id, [n.path].filter(Boolean), 'Add **Superseded by:** [X](X.md) so the graph records what replaced it')
+    }
+  }
 }
 
 // ---- Check 4: superseded documents still cited as current ----------------

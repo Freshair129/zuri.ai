@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Layers3, BriefcaseBusiness, ListChecks, GanttChartSquare,
   Network, Flag, GitBranch, Rocket, ScrollText, DatabaseBackup, Settings,
-  ShoppingCart, Users, Megaphone, UtensilsCrossed, ServerCog,
+  ShoppingCart, Users, Megaphone, UtensilsCrossed, ServerCog, Target,
 } from 'lucide-react'
 
 // V2 domain registry (SITEMAP-V2-DOMAIN-NAV.md). Tier 2 = domains (the bar under the
@@ -19,7 +19,11 @@ export const DOMAINS = [
   },
   {
     key: 'growth', label: 'Growth', icon: Megaphone, soon: true,
-    sub: [{ label: 'Dashboard', path: '/growth', icon: LayoutDashboard }],
+    sub: [
+      { label: 'Dashboard', path: '/growth', icon: LayoutDashboard },
+      // Campaign belongs to marketing (HubSpot-style), NOT the Projects/WBS domain.
+      { label: 'Campaigns', path: '/growth/campaigns', icon: Target },
+    ],
   },
   {
     key: 'operations', label: 'Operations', icon: UtensilsCrossed, soon: true,

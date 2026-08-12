@@ -44,6 +44,10 @@ export const DEPENDENCY_TYPES = [
   'RELATES_TO',
   'START_AFTER',
   'FINISH_BEFORE',
+  // Lineage (ADR-009 §D3): "what replaced what" and "where it came from". Used by the
+  // self-governance import (doc-graph supersedes/relates → Dependency rows).
+  'SUPERSEDES',
+  'DERIVES_FROM',
 ]
 
 export const DEPENDENCY_ENDPOINT_TYPES = [

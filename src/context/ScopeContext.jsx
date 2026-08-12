@@ -2,15 +2,18 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { deriveShell } from '@/lib/shell-mode'
+import { resolveView, DEFAULT_VIEW } from '@/config/scope-views'
 
 // @req FR-002, FR-020 — scope selectors + persisted selection + adaptive shell
 // @tested tests/e2e/smoke.spec.js
 // Scope hierarchy: Portfolio → Tenant → Business → Workspace → Project.
 // Tenant is derived from the selected Business (tenant = isolation, never a branch).
+// `viewMode` (erp | pm) is a presentation lens over the same hierarchy — see scope-views.js.
 
 const ScopeContext = createContext(null)
 
 const STORAGE_KEY = 'zuri-v2-scope'
+const VIEW_KEY = 'zuri-v2-view'
 
 export function ScopeProvider({ children }) {
   const [data, setData] = useState({
@@ -27,6 +30,7 @@ export function ScopeProvider({ children }) {
     workspaceId: null,
     projectId: null,
   })
+  const [viewMode, setViewMode] = useState(DEFAULT_VIEW)
 
   const refresh = useCallback(async () => {
     try {
@@ -45,6 +49,8 @@ export function ScopeProvider({ children }) {
     try {
       const saved = localStorage.getItem(STORAGE_KEY)
       if (saved) setSelection((s) => ({ ...s, ...JSON.parse(saved) }))
+      const savedView = localStorage.getItem(VIEW_KEY)
+      if (savedView) setViewMode(savedView)
     } catch {}
     setRestored(true)
     refresh()
@@ -56,8 +62,9 @@ export function ScopeProvider({ children }) {
     if (!restored) return
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(selection))
+      localStorage.setItem(VIEW_KEY, viewMode)
     } catch {}
-  }, [selection, restored])
+  }, [selection, viewMode, restored])
 
   const select = useCallback((patch) => {
     setSelection((s) => {
@@ -99,6 +106,9 @@ export function ScopeProvider({ children }) {
       select,
       refresh,
       shell,
+      viewMode,
+      setViewMode,
+      view: resolveView(viewMode),
       currentPortfolio: data.portfolios.find((p) => p.id === selection.portfolioId) || data.portfolios[0] || null,
       currentBusiness: business,
       currentTenant: tenant,
@@ -107,7 +117,7 @@ export function ScopeProvider({ children }) {
       scopedWorkspaces: workspaces,
       scopedProjects: projects,
     }
-  }, [data, selection, select, refresh])
+  }, [data, selection, select, refresh, viewMode])
 
   return <ScopeContext.Provider value={value}>{children}</ScopeContext.Provider>
 }

@@ -92,6 +92,12 @@ function requirementNodes(prdPath) {
 const ANNOTATION = /@(req|spec|tested|designs)\s+([^\n]*)/g
 const ID_LIST = /(?:FR|NFR|BR|SEC|SDD)-\d{3}/g
 
+// Typed lineage in a document control block: **Supersedes:** / **Superseded by:** /
+// **Relates to:** followed by the targets (markdown links, ADR-### tokens, requirement ids).
+const LINEAGE_LINE = /^\*\*(Supersedes(?:\s*\([^)]*\))?|Superseded by|Relates to):\*\*\s*(.+)$/gim
+const MD_LINK = /\[[^\]]*\]\(([^)\s]+\.md)[^)]*\)/g
+const ADR_NUM = /ADR-\d{3}/g
+
 function annotationsOf(body) {
   const found = { req: [], spec: [], tested: [], designs: [] }
   for (const [, kind, rest] of body.matchAll(ANNOTATION)) {
@@ -124,8 +130,8 @@ function build() {
   // Documents: one docs/ tree (post-flatten) — appendices, roadmap, ADRs, spec, module docs.
   // v1-inherited is handled separately below (evidence, not authority).
   const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
-  for (const file of walk(path.join(ROOT, 'docs'), ['.md'])) {
-    if (file.startsWith(V1_DIR)) continue
+  const docFiles = walk(path.join(ROOT, 'docs'), ['.md']).filter((f) => !f.startsWith(V1_DIR))
+  for (const file of docFiles) {
     const base = path.basename(file)
     const isAppendix = file.includes(`${path.sep}appendices${path.sep}`)
     const isRoadmap = file.includes(`${path.sep}roadmap${path.sep}`)
@@ -150,6 +156,38 @@ function build() {
   const reqs = requirementNodes(prd)
   nodes.push(...reqs)
   for (const r of reqs) addEdge(r.id, 'doc:PRD-SDD-v1.0', 'specifies', 'prd-registry')
+
+  // Typed lineage from document control blocks (**Supersedes:** / **Superseded by:** /
+  // **Relates to:**) → supersedes · relates edges. This is what makes "what replaced what"
+  // and "where did this come from" answerable from the graph (RWANG lineage layer).
+  const docLike = nodes.filter((n) => ['adr', 'document', 'appendix', 'roadmap'].includes(n.type))
+  const byBasename = new Map(docLike.map((n) => [n.id.slice(n.id.indexOf(':') + 1), n.id]))
+  const adrById = new Map()
+  for (const n of docLike) {
+    const m = /:(ADR-\d{3})/.exec(n.id)
+    if (m) adrById.set(m[1], n.id)
+  }
+  for (const file of docFiles) {
+    const base = path.basename(file, '.md')
+    const selfId = (base.startsWith('ADR-') ? 'spec:' : 'doc:') + base
+    for (const m of read(file).matchAll(LINEAGE_LINE)) {
+      const kind = m[1].toLowerCase()
+      const targets = new Set()
+      for (const l of m[2].matchAll(MD_LINK)) {
+        const id = byBasename.get(path.basename(l[1], '.md'))
+        if (id) targets.add(id)
+      }
+      for (const a of m[2].match(ADR_NUM) || []) if (adrById.has(a)) targets.add(adrById.get(a))
+      for (const r of m[2].match(ID_LIST) || []) targets.add(`req:${r}`)
+      for (const t of targets) {
+        if (t === selfId) continue
+        // "supersedes" points newer → older, so an incoming edge = "what replaced me".
+        if (kind.startsWith('supersedes')) addEdge(selfId, t, 'supersedes', 'control-block')
+        else if (kind.startsWith('superseded')) addEdge(t, selfId, 'supersedes', 'control-block')
+        else addEdge(selfId, t, 'relates', 'control-block')
+      }
+    }
+  }
 
   // Tests first, so @tested names can be resolved to real test nodes.
   const testFiles = walk(path.join(ROOT, 'tests'), ['.test.js', '.spec.js'])

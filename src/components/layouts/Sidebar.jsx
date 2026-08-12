@@ -7,9 +7,11 @@ import { domainForPath } from '@/config/domains'
 
 // Tier 3 (SITEMAP-V2): the active domain's sub-domains, Dashboard pinned first.
 // Behaviour matched to V1 (G:\zuri Sidebar.jsx): an 80px icon rail that expands to 256px
-// on hover, transition-all duration-500 ease cubic-bezier(0.25,0.8,0.25,1) (no delay),
+// on hover, transition duration-500 ease cubic-bezier(0.25,0.8,0.25,1) (no delay),
 // labels fade over 300ms, active item is a solid brand pill with a glow, and the
-// collapsed rail shows a brand indicator bar on the active item.
+// collapsed rail shows a brand indicator bar on the active item. The rail sits in-flow
+// below the topbar + domain bar, so expanding it PUSHES the content responsively rather
+// than overlaying it.
 export default function Sidebar() {
   const pathname = usePathname()
   const domain = domainForPath(pathname)
@@ -17,18 +19,14 @@ export default function Sidebar() {
   const expanded = hovered
 
   return (
-    // The rail footprint stays 80px in the grid; the aside overlays content when expanded,
-    // so hovering never reflows the page.
-    <div
-      className="relative w-20 shrink-0 max-md:w-16"
+    <aside
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      className={`nav-glass relative z-30 flex shrink-0 flex-col overflow-hidden border-r border-white/10 shadow-2xl transition-[width] duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] ${
+        expanded ? 'w-64' : 'w-20 max-md:w-16'
+      }`}
     >
-      <aside
-        className={`nav-glass absolute inset-y-0 left-0 z-40 flex flex-col overflow-hidden border-r border-white/10 shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.25,0.8,0.25,1)] ${
-          expanded ? 'w-64' : 'w-20 max-md:w-16'
-        }`}
-      >
+      <>
         {/* Header: domain context (icon + label + "menu") */}
         <Link href={domain.sub[0].path} className="flex h-14 shrink-0 items-center gap-3 border-b border-white/10 px-5" aria-label={`${domain.label} home`}>
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/5 font-bold text-[var(--brand)] shadow-inner">
@@ -67,7 +65,7 @@ export default function Sidebar() {
             )
           })}
         </nav>
-      </aside>
-    </div>
+      </>
+    </aside>
   )
 }

@@ -2,14 +2,18 @@
 
 // @req FR-002, FR-020 — scope selectors, adaptive to how many businesses exist.
 // Single business  → static identity, no switcher, workspace hidden unless > 1.
-// Many businesses  → Slack-style business switcher in the identity corner.
+// Many businesses  → Slack-style switcher in the identity corner.
 // Tenant and Portfolio never appear as selectable levels (isolation is backend).
+// The whole row is driven by the active scope VIEW (ERP | PM) — same selection state,
+// different labels + a different hero switcher. See src/config/scope-views.js.
 // @tested tests/e2e/smoke.spec.js
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Command, Plus, ChevronDown, Layers, Check, Bell } from 'lucide-react'
 import { useScope } from '@/context/ScopeContext'
+import { domainForPath } from '@/config/domains'
+import { SCOPE_VIEWS } from '@/config/scope-views'
 
 function ScopeSelect({ label, value, options, onChange, placeholder, grow }) {
   return (
@@ -46,8 +50,11 @@ function Avatar({ name }) {
   )
 }
 
-function BusinessSwitcher({ businesses, active, onPick, onAddBusiness }) {
+// Slack-style primary switcher — used for whichever level the active view marks `hero`
+// (Business in ERP, the Workspace/Portfolio in PM). `onPick(null)` selects the "all" roll-up.
+function HeroSwitcher({ eyebrow, items, activeId, allLabel, addLabel, onPick, onAdd }) {
   const [open, setOpen] = useState(false)
+  const active = items.find((i) => i.id === activeId) || null
 
   useEffect(() => {
     if (!open) return undefined
@@ -61,15 +68,15 @@ function BusinessSwitcher({ businesses, active, onPick, onAddBusiness }) {
       <button
         type="button"
         className="flex h-11 max-w-[230px] items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-2.5 text-left"
-        aria-label="สลับธุรกิจ"
+        aria-label={`สลับ${eyebrow}`}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
       >
-        <Avatar name={active ? active.name : 'ทุกธุรกิจ'} />
+        <Avatar name={active ? active.name : allLabel} />
         <span className="min-w-0 flex-1">
-          <span className="block text-[8px] uppercase tracking-[0.09em] text-[#9EA8B5]">ธุรกิจ</span>
-          <span className="block truncate text-xs font-bold text-white">{active ? active.name : 'ทุกธุรกิจ'}</span>
+          <span className="block text-[8px] uppercase tracking-[0.09em] text-[#9EA8B5]">{eyebrow}</span>
+          <span className="block truncate text-xs font-bold text-white">{active ? active.name : allLabel}</span>
         </span>
         <ChevronDown size={13} aria-hidden />
       </button>
@@ -79,26 +86,26 @@ function BusinessSwitcher({ businesses, active, onPick, onAddBusiness }) {
           <div
             className="absolute left-0 top-[calc(100%+6px)] z-50 w-[250px] rounded-2xl border border-[var(--border)] bg-white p-1.5 shadow-2xl"
             role="menu"
-            aria-label="รายการธุรกิจ"
+            aria-label={`รายการ${eyebrow}`}
           >
-            {businesses.map((b) => (
+            {items.map((it) => (
               <button
-                key={b.id}
+                key={it.id}
                 type="button"
                 role="menuitem"
-                aria-label={b.name}
+                aria-label={it.name}
                 className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left hover:bg-brand-surface"
                 onClick={() => {
                   setOpen(false)
-                  onPick(b.id)
+                  onPick(it.id)
                 }}
               >
-                <Avatar name={b.name} />
+                <Avatar name={it.name} />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[11px] font-bold">{b.name}</span>
-                  <span className="block text-[9px] text-muted">{b.code}</span>
+                  <span className="block truncate text-[11px] font-bold">{it.name}</span>
+                  <span className="block text-[9px] text-muted">{it.code}</span>
                 </span>
-                {active?.id === b.id && <Check size={13} aria-hidden style={{ color: 'var(--brand)' }} />}
+                {activeId === it.id && <Check size={13} aria-hidden style={{ color: 'var(--brand)' }} />}
               </button>
             ))}
             <div className="my-1 border-t border-[var(--border)]" />
@@ -111,20 +118,22 @@ function BusinessSwitcher({ businesses, active, onPick, onAddBusiness }) {
                 onPick(null)
               }}
             >
-              <Layers size={14} aria-hidden /> ทุกธุรกิจ
-              {!active && <Check size={13} aria-hidden style={{ color: 'var(--brand)' }} />}
+              <Layers size={14} aria-hidden /> {allLabel}
+              {!activeId && <Check size={13} aria-hidden style={{ color: 'var(--brand)' }} />}
             </button>
-            <button
-              type="button"
-              role="menuitem"
-              className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[11px] font-bold hover:bg-brand-surface"
-              onClick={() => {
-                setOpen(false)
-                onAddBusiness()
-              }}
-            >
-              <Plus size={14} aria-hidden /> เพิ่มธุรกิจ
-            </button>
+            {onAdd && (
+              <button
+                type="button"
+                role="menuitem"
+                className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[11px] font-bold hover:bg-brand-surface"
+                onClick={() => {
+                  setOpen(false)
+                  onAdd()
+                }}
+              >
+                <Plus size={14} aria-hidden /> {addLabel}
+              </button>
+            )}
           </div>
         </>
       )}
@@ -132,64 +141,112 @@ function BusinessSwitcher({ businesses, active, onPick, onAddBusiness }) {
   )
 }
 
+// ERP ⇄ PM lens toggle — flips labels + which level is the hero switcher.
+function ViewToggle({ mode, onChange }) {
+  return (
+    <div className="flex items-center rounded-lg border border-white/10 bg-white/5 p-0.5 max-md:hidden" role="group" aria-label="Scope view">
+      {Object.values(SCOPE_VIEWS).map((v) => {
+        const Icon = v.icon
+        const active = v.key === mode
+        return (
+          <button
+            key={v.key}
+            type="button"
+            onClick={() => onChange(v.key)}
+            aria-pressed={active}
+            title={`${v.label} view`}
+            className={`flex items-center gap-1 rounded-md px-2 py-1 text-[10px] font-bold transition ${
+              active ? 'bg-[var(--brand)] text-[#1A1710]' : 'text-white/55 hover:text-white'
+            }`}
+          >
+            <Icon size={12} aria-hidden /> {v.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function Topbar({ onOpenPalette }) {
   const scope = useScope()
   const router = useRouter()
-  const { selection, select, shell } = scope
+  const pathname = usePathname()
+  const domain = domainForPath(pathname)
+  const DomainIcon = domain.icon
+  const { selection, select, view, viewMode, setViewMode } = scope
 
-  const pickBusiness = (id) => {
-    select({ businessId: id })
-    // Switching context always lands on that scope's overview — never leaves a
-    // stale page from the previous business on screen.
-    router.push('/overview')
+  // Options + current value + change handler, keyed by the schema entity each level maps to.
+  const optionsFor = {
+    portfolio: scope.portfolios,
+    business: scope.businesses,
+    workspace: scope.scopedWorkspaces,
+    project: scope.scopedProjects,
+  }
+  const valueFor = {
+    portfolio: selection.portfolioId,
+    business: selection.businessId,
+    workspace: selection.workspaceId,
+    project: selection.projectId,
+  }
+  const pick = (schema, id) => {
+    if (schema === 'portfolio') {
+      select({ portfolioId: id })
+      router.push('/overview')
+    } else if (schema === 'business') {
+      select({ businessId: id })
+      router.push('/overview')
+    } else if (schema === 'workspace') {
+      select({ workspaceId: id })
+    } else if (schema === 'project') {
+      select({ projectId: id })
+      if (id) router.push(`/projects/${id}`)
+    }
+  }
+  // A level is worth showing only when it has something to choose (project always shows).
+  const visible = {
+    portfolio: scope.portfolios.length > 1,
+    business: scope.businesses.length > 0,
+    workspace: scope.scopedWorkspaces.length > 0,
+    project: true,
   }
 
+  const heroLevel = view.levels.find((l) => l.hero) || view.levels.find((l) => l.schema === 'business')
+  const restLevels = view.levels.filter((l) => l !== heroLevel && visible[l.schema])
+
   return (
-    <header className="nav-glass flex items-center gap-3 border-b border-white/10 px-4 py-2.5 text-white max-md:flex-wrap">
-      {shell.showBusinessSwitcher ? (
-        <BusinessSwitcher
-          businesses={scope.businesses}
-          active={shell.activeBusiness}
-          onPick={pickBusiness}
-          onAddBusiness={() => router.push('/settings')}
-        />
-      ) : (
-        <div className="flex h-11 items-center gap-2 pr-1" aria-label="ธุรกิจของคุณ">
-          <Avatar name={shell.activeBusiness?.name} />
-          <span className="truncate text-xs font-bold">{shell.activeBusiness?.name || 'Zuri v2'}</span>
-        </div>
-      )}
-      <div className="flex min-w-0 flex-1 flex-wrap gap-2" role="group" aria-label="Scope selectors">
-        {shell.showPortfolioSelector && (
-          <ScopeSelect
-            label="Portfolio"
-            value={selection.portfolioId}
-            options={scope.portfolios}
-            onChange={(v) => select({ portfolioId: v })}
-            placeholder="All portfolios"
-          />
-        )}
-        {shell.showWorkspaceSelector && (
-          <ScopeSelect
-            label="Workspace"
-            value={selection.workspaceId}
-            options={scope.scopedWorkspaces}
-            onChange={(v) => select({ workspaceId: v })}
-            placeholder="All workspaces"
-          />
-        )}
-        <ScopeSelect
-          label="Project"
-          value={selection.projectId}
-          options={scope.scopedProjects}
-          onChange={(v) => {
-            select({ projectId: v })
-            if (v) router.push(`/projects/${v}`)
-          }}
-          placeholder="Select project"
-          grow
-        />
+    <header className="nav-glass relative z-50 flex items-center gap-3 border-b border-white/10 px-4 py-2.5 text-white max-md:flex-wrap">
+      <HeroSwitcher
+        eyebrow={heroLevel.label}
+        items={optionsFor[heroLevel.schema]}
+        activeId={valueFor[heroLevel.schema]}
+        allLabel={view.allLabel}
+        addLabel={view.addLabel}
+        onPick={(id) => pick(heroLevel.schema, id)}
+        onAdd={heroLevel.schema === 'business' ? () => router.push('/settings') : undefined}
+      />
+
+      {/* Viewed-domain context — the icon of the domain currently on screen. */}
+      <div className="flex items-center gap-2 border-l border-white/10 pl-3 max-md:hidden" aria-label={`Viewing ${domain.label}`}>
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-white/5 text-[var(--brand)] shadow-inner">
+          <DomainIcon size={16} aria-hidden />
+        </span>
+        <span className="whitespace-nowrap text-xs font-bold text-white/90">{domain.label}</span>
       </div>
+
+      <div className="flex min-w-0 flex-1 flex-wrap gap-2" role="group" aria-label="Scope selectors">
+        {restLevels.map((lvl) => (
+          <ScopeSelect
+            key={lvl.schema}
+            label={lvl.label}
+            value={valueFor[lvl.schema]}
+            options={optionsFor[lvl.schema]}
+            onChange={(v) => pick(lvl.schema, v)}
+            placeholder={lvl.placeholder}
+            grow={lvl.schema === 'project'}
+          />
+        ))}
+      </div>
+
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -208,8 +265,9 @@ export default function Topbar({ onOpenPalette }) {
           <Plus size={14} aria-hidden /> New Project
         </button>
 
-        {/* Profile cluster (row 1, right) — mirrors V1's TH/EN · bell · avatar. */}
+        {/* Profile cluster (row 1, right) — view toggle · TH/EN · bell · avatar. */}
         <div className="ml-1 flex items-center gap-2 border-l border-white/10 pl-2">
+          <ViewToggle mode={viewMode} onChange={setViewMode} />
           <div className="flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] font-bold tracking-wider max-md:hidden">
             <span style={{ color: 'var(--brand)' }}>TH</span>
             <span className="opacity-20">|</span>

@@ -6,11 +6,17 @@
 | **Status** | Proposed |
 | **Author** | Claude |
 | **Date** | 2026-08-12 |
-| **Relates to** | ADR-003 (V2 replaces V1 by reuse), ADR-006 (shell lift · URLs don't carry scope), FR-020 (adaptive shell), PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
+| **Relates to** | ADR-008 (business-centric shell · ERP⇄PM lens · entry flow — authoritative), ADR-003 (V2 replaces V1 by reuse), ADR-006 (shell lift · URLs don't carry scope), FR-020 (adaptive shell), PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
 
 Adopts V1's information architecture — **top-level = domain, sidebar = the domain's
 sub-features, the first sub-feature is always a Dashboard** — and binds it to V2's new
 **Business** layer, adding a **second bar under the current topbar** for the domains.
+
+> **Scope presentation & entry flow moved to [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md).**
+> This document is the authoritative **domain → sub-domain map** (§3) and business-binding
+> rules (§4). How Tier-1 scope is *labelled and anchored* (the dual ERP⇄PM lens) and what the
+> user lands on (`login → RBAC → Home → Business Overview`) are defined there; §1–§2 below show
+> the ERP-lens default.
 
 ## 1. The three navigation tiers
 
@@ -164,13 +170,13 @@ domain, land on its group overview with a notice.
   its parity items (PARITY-INVENTORY) are met. Until a domain is lifted, its tab is hidden
   (business-binding), so the shell degrades cleanly to just Projects + Platform today.
 
-## 7. Open decisions for the owner
+## 7. Decisions (resolved — [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) §D6)
 
-1. **Domain order & labels** — proposed: Commerce · Customer · Growth · Operations · Projects
-   · Platform. Thai labels above are drafts.
-2. **Is Projects a peer domain or folded into Platform?** Proposed: a peer domain (it is the
-   cross-cutting delivery view).
-3. **B2B & Products** — placed under Commerce; could be their own domain if they grow.
-4. **Per-business module registry storage** — a `BusinessModule` table vs a JSON field on
-   Business. (Recommend a small table so Platform can toggle without a migration.)
-5. **AI Copilot placement** — under Growth (marketing lens) vs a global top-level launcher.
+1. **Domain order & labels** — ✅ Commerce · Customer · Growth · Operations · Projects · Platform.
+   Thai labels above stand.
+2. **Projects — peer domain or folded into Platform?** — ✅ a **peer domain** (cross-cutting
+   delivery view), never the app root.
+3. **B2B & Products** — ✅ under Commerce for now; may split out if they grow.
+4. **Per-business module registry storage** — ✅ a small **`BusinessModule` table** (toggles
+   without a migration). Deferred to the Platform → Business-config build.
+5. **AI Copilot & Campaigns placement** — ✅ under **Growth** (marketing lens).

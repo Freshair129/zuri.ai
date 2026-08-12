@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 441,
-    "total_edges": 336,
+    "total_nodes": 443,
+    "total_edges": 357,
     "dangling_edges": 0,
     "node_types": {
       "document": 44,
-      "adr": 7,
+      "adr": 9,
       "appendix": 5,
       "roadmap": 2,
       "v1_inherited": 234,
@@ -37,7 +37,7 @@
   "drift": {
     "changed": [],
     "added": [
-      "code:src/app/api/projects/[id]/tree/route.js"
+      "spec:ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY"
     ],
     "removed": []
   },
@@ -192,7 +192,7 @@
       "id": "code:src/components/layouts/Topbar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Topbar.jsx",
-      "hash": "6b652710",
+      "hash": "d91fdabc",
       "status": "current",
       "annotations": {
         "@req": [
@@ -208,7 +208,7 @@
       "id": "code:src/context/ScopeContext.jsx",
       "type": "code_file",
       "path": "src/context/ScopeContext.jsx",
-      "hash": "1a64917c",
+      "hash": "5b262912",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1010,7 +1010,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "c6ce6312",
+      "hash": "7b9d11b0",
       "status": "current"
     },
     {
@@ -1084,7 +1084,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "179a74b3",
+      "hash": "3a30d992",
       "status": "current"
     },
     {
@@ -1104,7 +1104,7 @@
       "title": "Decision Brief — GATE-AB: โมดูลใน Zuri v1 (A) หรือฐานของ Zuri v2 (B)",
       "version": "1.2.0",
       "doc_status": "Superseded — ADR-003 (2026-08-12): V2 แทน V1 ด้วยการ reuse",
-      "hash": "64064c34",
+      "hash": "bb6a204b",
       "status": "superseded"
     },
     {
@@ -1178,7 +1178,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "7cbd59d2",
+      "hash": "e52edfba",
       "status": "current"
     },
     {
@@ -1368,7 +1368,7 @@
       "title": "Zuri V2 — Product Definition",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "130ac83c",
+      "hash": "e0f551a3",
       "status": "current"
     },
     {
@@ -1420,7 +1420,7 @@
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
       "version": "0.1.0 (design draft — sitemap before build)",
       "doc_status": "Proposed",
-      "hash": "23ec4b63",
+      "hash": "efdba2c9",
       "status": "current"
     },
     {
@@ -2060,6 +2060,22 @@
       "path": "docs/ADR-007-LINE-AI-STACK-SEQUENCING.md",
       "title": "ADR-007 — LINE/AI Stack: Dependency Sequencing and Production Gates",
       "hash": "8274a688",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "type": "adr",
+      "path": "docs/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md",
+      "title": "ADR-008 — Business-centric shell, dual scope lens (ERP ⇄ PM), and entry flow",
+      "hash": "082153a8",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY",
+      "type": "adr",
+      "path": "docs/ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md",
+      "title": "ADR-009 — Self-governance: doc-graph lineage, the IR boundary, and dogfooding the PM",
+      "hash": "edf7b5bf",
       "status": "current"
     },
     {
@@ -4881,6 +4897,153 @@
       "type": "specifies",
       "status": "current",
       "source": "prd-registry"
+    },
+    {
+      "from": "spec:ADR-002-INTEGRATION-DIRECTION",
+      "to": "spec:ADR-001-STANDALONE-ZURI-V2",
+      "type": "supersedes",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "to": "doc:DECISION-BRIEF-AB",
+      "type": "supersedes",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "to": "spec:ADR-002-INTEGRATION-DIRECTION",
+      "type": "supersedes",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
+      "to": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-005-V1-DOCUMENTATION-CORPUS",
+      "to": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-005-V1-DOCUMENTATION-CORPUS",
+      "to": "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER",
+      "to": "req:FR-020",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER",
+      "to": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
+      "to": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
+      "to": "spec:ADR-005-V1-DOCUMENTATION-CORPUS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "to": "doc:PRODUCT-V2",
+      "type": "supersedes",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "to": "doc:SITEMAP-V2-DOMAIN-NAV",
+      "type": "supersedes",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "to": "req:FR-002",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "to": "req:FR-020",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "to": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "to": "spec:ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "to": "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY",
+      "to": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY",
+      "to": "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY",
+      "to": "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY",
+      "to": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
