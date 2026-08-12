@@ -66,12 +66,45 @@ early; a writing agent is not, until authorization, audit and step-up auth are p
 - DuckDB survives as a cache/analytics tier; the DuckDB→Supabase "mirror" in the demo
   is an aggregates snapshot for the dashboard, not the persistence architecture (P4).
 
-## Open question for the owner (does not block recording this ADR)
+## Program structure — two parallel tracks (owner-confirmed 2026-08-12)
 
-Is the LINE/AI stack (this ADR) the **same program** as the V1→V2 per-tenant cutover
-(ADR-003), or a **parallel track** that only shares the Zuri Backend Slice? The answer
-decides whether the roadmap shows one gated sequence or two converging at P2. Recorded
-here so the roadmap can be structured once the owner confirms.
+The LINE/AI stack and the V1→V2 cutover are **parallel programs**, not one sequence.
+They share a foundation built **once**; everything after diverges.
+
+```text
+        SHARED FOUNDATION  (build once, both tracks consume)
+        ─────────────────────────────────────────────────
+        P2  Zuri Backend Slice   (Gate B)   ← P2.5 impact-scan before any Zuri change
+              Tenant · Customer · Conversation · LINE Gateway · Permission
+        P3  Identity             (Gate C)   ← Principal / ExternalIdentity / AccountLink
+        P4  Persistence (Zuri)   (Gate D)   ← Zuri → Postgres/Supabase
+                              │
+              ┌───────────────┴────────────────┐
+   TRACK 1    │                                 │   TRACK 2
+   V1 → V2 cutover (ADR-003)                    │   SmartGift LINE/AI copilot (ADR-007)
+   culinary-school tenant                       │   P1 Extract MSP  (Gate A) — independent,
+   per-tenant module lifts,                     │      can start NOW, in parallel
+   shell lift (ADR-006),                        │   P5 Knowledge → P6 Agent (Gate E read-only)
+   nine-owner switch (§7),                      │      → P7 E2E → Gate F (write/action)
+   cutover runbook                              │   MSP DB (separate from Zuri DB)
+```
+
+- **Shared (do once):** P2 Zuri Backend Slice, P3 Identity, P4 Zuri persistence. Both
+  tracks stand on these; neither duplicates them.
+- **Track 2 only:** P1 MSP extraction (independent of Zuri — startable immediately), the
+  MSP persistent store, P5 Knowledge, P6 Agent, P7 E2E, gates A/E/F.
+- **Track 1 only:** the per-tenant cutover machinery in `IMPLEMENTATION-PLAN-V2-REPLACE`
+  — module lifts, shell lift (ADR-006), the nine-owner single-writer switch (ADR-003 §7),
+  the cutover runbook.
+- **The SmartGift executive demo (`DEMO-RUNBOOK-SMARTGIFT.md`) is a spike *ahead of*
+  Track 2** — deliberate shortcuts (channel-keyed memory, DuckDB brain, aggregates
+  mirror) to prove the copilot's value to executives before Track 2 is built on the
+  hardened foundation. Its shortcuts are recorded as demo-only and must not harden.
+
+Consequence for the roadmap: two Mission Control tabs already exist
+(`ROADMAP-zuri-v2-lab` = Track 1's home, `ROADMAP-business01-smartgift-delivery` =
+Track 2's home); the shared foundation (P2/P3/P4) appears in both as a common
+dependency, owned once.
 
 ## Review
 

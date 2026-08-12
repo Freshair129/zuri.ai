@@ -36,11 +36,10 @@
   },
   "drift": {
     "changed": [
-      "spec:IMPLEMENTATION-PLAN-V2-REPLACE"
+      "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
+      "spec:PRODUCT-V2"
     ],
-    "added": [
-      "spec:ADR-007-LINE-AI-STACK-SEQUENCING"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -1248,8 +1247,8 @@
       "type": "adr",
       "path": "docs/ADR-007-LINE-AI-STACK-SEQUENCING.md",
       "title": "ADR-007 — LINE/AI Stack: Dependency Sequencing and Production Gates",
-      "hash": "7e6e6c4c",
-      "status": "current"
+      "hash": "8274a688",
+      "status": "changed"
     },
     {
       "id": "spec:ARCHITECTURE",
@@ -1331,7 +1330,7 @@
       "version": "1.0.0",
       "doc_status": "Draft — awaiting owner sign-off on §4 (capacity) and §6 (first cutover)",
       "hash": "8941cb54",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:INTEGRATION-MAP-ZURI",
@@ -1442,8 +1441,8 @@
       "title": "Zuri V2 — Product Definition",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "344143e7",
-      "status": "current"
+      "hash": "130ac83c",
+      "status": "changed"
     },
     {
       "id": "spec:prompt-engineering",

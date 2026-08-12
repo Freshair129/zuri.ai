@@ -71,6 +71,17 @@ and shows only the levels that offer a real choice (FR-020).
 
 ## 4. Where the pieces are
 
+### Two parallel programs, one shared foundation (ADR-007)
+
+V2 work runs as **two parallel tracks** that share a foundation built once:
+
+- **Shared** — Zuri Backend Slice (Tenant · Customer · Conversation · LINE · Permission) → Identity → Zuri persistence.
+- **Track 1** — V1→V2 per-tenant cutover of the culinary-school tenant ([ADR-003](ADR-003-V2-REPLACES-V1-BY-REUSE.md), `replacement/IMPLEMENTATION-PLAN-V2-REPLACE.md`).
+- **Track 2** — SmartGift LINE/AI copilot: extract MSP → Knowledge → Agent → E2E ([ADR-007](ADR-007-LINE-AI-STACK-SEQUENCING.md)), behind gates A–F, read-only agent before writing agent.
+
+The SmartGift executive demo is a **spike ahead of Track 2**, on demo-only shortcuts
+(`replacement/DEMO-RUNBOOK-SMARTGIFT.md`).
+
 | Concern | Document |
 |---|---|
 | Feature index + cutover state | `zuri-v2-lab/docs/FEATURE-MAP.md` (generated) |
