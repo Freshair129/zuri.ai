@@ -57,6 +57,7 @@ Error shape: `{ error, issues? }` — 400 validation/domain, 404 not found, 500 
 | GET | `/api/docs` | OpenAPI 3 spec generated from the live Zod schemas (FR-019) |
 | GET | `/api/resolve?system=&value=` | external ID → internal id via ExternalRef; 404 unmapped, 410 dangling (FR-019) |
 | POST | `/api/agent/line-webhook` | `{tenantId, businessId?, events[]}` — zuri-cli forwards LINE events → `handleAgentTurn` per text message (Gate E); tenant-scoped, 400 without tenantId (FR-028) |
+| GET | `/api/projects/[id]/tree` | nested project → part-projects → part-tasks → workpackages for the Structure Plan (WBS) canvas |
 
 > Endpoint ทั้งหมดในไฟล์นี้ถูกตรวจโดย `scripts/doc-preflight.mjs` — ถ้ามี route ใหม่
 > ใน `src/app/api` ที่ไม่ได้ระบุไว้ที่นี่ preflight จะรายงานเป็น staleness ทันที
