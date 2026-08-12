@@ -54,10 +54,10 @@ for CRM, POS, Marketing, Inbox, Employees:
 ## Outcome (2026-08-12) — superseded the same day
 
 1. Owner first chose **A → B under the DECISION-BRIEF §6 conditions**
-   ([ADR-002](../../docs/ADR-002-INTEGRATION-DIRECTION.md), now **superseded**).
+   ([ADR-002](ADR-002-INTEGRATION-DIRECTION.md), now **superseded**).
 2. The destination then changed: **V2 replaces V1 outright** (LINE-first,
    AI-native, web demoted to back-office), which cancels option A entirely.
-   Binding decision: [**ADR-003**](../../docs/ADR-003-V2-REPLACES-V1-BY-REUSE.md)
+   Binding decision: [**ADR-003**](ADR-003-V2-REPLACES-V1-BY-REUSE.md)
    — reuse V1's web UI except auth, lift per module at each module's cutover.
    GATE-AB is PASSED against ADR-003.
 

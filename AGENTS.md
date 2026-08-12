@@ -15,7 +15,7 @@ The existing `Freshair129/zuri` repository is read-only reference during this bu
 The existing `G:\zuri` is the current working Zuri V1 project — **read-only compatibility
 reference**. Do not copy it into this repo; `zuri-v2-lab` is built standalone per
 ADR-001. Porting V1 modules happens only in a later integration phase
-(see `zuri-v2-lab/docs/ZURI-INTEGRATION-ASSESSMENT.md`), decided after MVP dogfooding.
+(see `docs/ZURI-INTEGRATION-ASSESSMENT.md`), decided after MVP dogfooding.
 The existing `D:\workspace\zuri-command-agent` is a LINE OA agent — out of MVP scope
 (LINE is on the do-not-implement list). Never read or copy its `.env` (secrets).
 Revisit merge-vs-rebuild at the integration phase.
@@ -294,7 +294,7 @@ Annotate every non-trivial file:
 // @tested tests/unit/shell-mode.test.js — where the proof lives
 ```
 
-A requirement id used in code but not declared in `zuri-v2-lab/docs/PRD-SDD-v1.0.md`
+A requirement id used in code but not declared in `docs/PRD-SDD-v1.0.md`
 is a preflight CRITICAL. Do not chase 100% coverage by adding annotations to files
 that do not really enforce the rule — an unanchored rule is information, a false
 anchor is a lie.
@@ -355,12 +355,12 @@ one of them is written by hand at feature level:
 
 ```text
 Layer 0  docs/PRODUCT-V2.md            what Zuri V2 is: surfaces, scope chain, non-negotiables
-Layer 1-2  zuri-v2-lab/docs/PRD-SDD-v1.0.md   the Project Manager MODULE (FR/NFR/BR/SEC/SDD registry)
+Layer 1-2  docs/PRD-SDD-v1.0.md   the Project Manager MODULE (FR/NFR/BR/SEC/SDD registry)
 Layer 3  docs/ai-system/               intent pipeline · prompts · PDPA/ethics · model lifecycle
          docs/replacement/             parity inventory · cutover runbook · contract tests
-Feature  zuri-v2-lab/docs/features/    one note per feature that has rationale worth recording
-Index    zuri-v2-lab/docs/FEATURE-MAP.md        GENERATED — never hand-edit
-Appendix zuri-v2-lab/docs/appendices/  A api · B db · C model cards · D traceability (generated) · E risks · F glossary
+Feature  docs/features/    one note per feature that has rationale worth recording
+Index    docs/FEATURE-MAP.md        GENERATED — never hand-edit
+Appendix docs/appendices/  A api · B db · C model cards · D traceability (generated) · E risks · F glossary
 ```
 
 **Feature notes** carry frontmatter so the generator can link them by id, not path:

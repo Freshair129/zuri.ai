@@ -11,7 +11,8 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const SPEC_PACK = path.resolve(ROOT, '..', 'docs')
+// Post-flatten: spec pack and module docs are one tree under ROOT/docs.
+const SPEC_PACK = path.join(ROOT, 'docs')
 const REPORT = path.join(ROOT, 'docs', '.preflight-report.json')
 const GRAPH = path.join(ROOT, 'docs', '.doc-graph.json')
 
@@ -32,14 +33,15 @@ function walk(dir, ext, out = []) {
   return out
 }
 
-const labDocs = walk(path.join(ROOT, 'docs'), '.md')
 // ADR-005 §D9 — the imported V1 corpus is read-only evidence: it is not checked for
 // control blocks (it never had ours) and its links point at V1 paths that do not
 // exist here. 238 findings nobody can act on would drown the real ones.
 const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
-const specDocs = walk(SPEC_PACK, '.md').filter((f) => !f.startsWith(V1_DIR))
+// Post-flatten: one docs/ tree. Everything (minus v1-inherited) is scanned once.
+const labDocs = walk(path.join(ROOT, 'docs'), '.md').filter((f) => !f.startsWith(V1_DIR))
+const specDocs = []
 const inherited = walk(V1_DIR, '.md')
-const allDocs = [...labDocs, ...specDocs]
+const allDocs = labDocs
 
 // ---- Check 1: document control blocks ------------------------------------
 for (const f of allDocs) {
@@ -55,9 +57,13 @@ for (const f of allDocs) {
     (k) => !new RegExp(`\\*\\*${k}\\*\\*`).test(body) && !new RegExp(`^${k.toLowerCase()}:`, 'm').test(frontmatter)
   )
   if (missing.length) {
-    // The inherited spec pack predates RWANG doc control. It is authority, not a
-    // managed document, so a missing block there is information, not a defect.
-    const managed = f.startsWith(path.join(ROOT, 'docs'))
+    // The spec pack (ADRs, PRODUCT-V2, replacement/, parity, prompts) predates RWANG doc
+    // control — authority, not managed, so a missing block there is info. The actively
+    // managed module docs (appendices, features, PRD, FEATURE-MAP) still warn.
+    const managed =
+      f.includes(`${path.sep}appendices${path.sep}`) ||
+      f.includes(`${path.sep}features${path.sep}`) ||
+      /^(PRD-SDD|FEATURE-MAP|DB-MIGRATION)/.test(path.basename(f))
     add(managed ? 'warning' : 'info', 'doc-control', `Missing control fields: ${missing.join(', ')}`, path.basename(f), [rel(f)],
       managed ? 'Add the document control table' : 'Inherited spec pack — add a control block at its next revision')
   }

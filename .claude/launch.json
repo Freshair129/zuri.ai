@@ -4,7 +4,7 @@
     {
       "name": "zuri-v2-lab",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "zuri-v2-lab", "run", "dev", "--", "-p", "3100"],
+      "runtimeArgs": ["run", "dev", "--", "-p", "3100"],
       "port": 3100
     }
   ]

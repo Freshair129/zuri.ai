@@ -3,15 +3,14 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 437,
+    "total_nodes": 440,
     "total_edges": 333,
     "dangling_edges": 0,
     "node_types": {
-      "appendix": 5,
-      "document": 9,
-      "roadmap": 1,
-      "spec": 33,
+      "document": 44,
       "adr": 7,
+      "appendix": 5,
+      "roadmap": 2,
       "v1_inherited": 234,
       "requirement": 61,
       "test": 31,
@@ -37,17 +36,10 @@
   },
   "drift": {
     "changed": [
-      "doc:D-traceability",
-      "doc:DB-MIGRATION-NOTES",
-      "doc:FEATURE-MAP",
-      "doc:PRD-SDD-v1.0",
-      "spec:ROADMAP-business01-smartgift-delivery"
+      "doc:DECISION-BRIEF-AB",
+      "doc:ZURI-INTEGRATION-ASSESSMENT"
     ],
-    "added": [
-      "req:FR-030",
-      "test:tests/unit/db-boundary.test.js",
-      "code:src/lib/db-boundary.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -990,6 +982,14 @@
       }
     },
     {
+      "id": "doc:.rwang-progress",
+      "type": "document",
+      "path": "docs/.rwang-progress.md",
+      "title": "RWANG Subagent Progress Ledger — TASK-V2-PARITY",
+      "hash": "202bfd30",
+      "status": "current"
+    },
+    {
       "id": "doc:A-api-spec",
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
@@ -997,6 +997,30 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "c6ce6312",
+      "status": "current"
+    },
+    {
+      "id": "doc:ACCEPTANCE-CRITERIA",
+      "type": "document",
+      "path": "docs/ACCEPTANCE-CRITERIA.md",
+      "title": "Acceptance Criteria",
+      "hash": "b3d91c23",
+      "status": "current"
+    },
+    {
+      "id": "doc:AGENTS-zuri-v2-lab",
+      "type": "document",
+      "path": "docs/AGENTS-zuri-v2-lab.md",
+      "title": "AGENTS.md — zuri-v2-lab",
+      "hash": "36f5edff",
+      "status": "current"
+    },
+    {
+      "id": "doc:ARCHITECTURE",
+      "type": "document",
+      "path": "docs/ARCHITECTURE.md",
+      "title": "Architecture",
+      "hash": "4256bf07",
       "status": "current"
     },
     {
@@ -1020,14 +1044,34 @@
       "status": "current"
     },
     {
+      "id": "doc:CONTRACT-TESTS",
+      "type": "document",
+      "path": "docs/replacement/CONTRACT-TESTS.md",
+      "title": "Contract Tests — freezing V1's endpoint behaviour before reimplementing it",
+      "version": "0.1.0",
+      "doc_status": "Skeleton — to be filled by `TASK-V2-CONTRACTS`",
+      "hash": "09ca7851",
+      "status": "current"
+    },
+    {
+      "id": "doc:CUTOVER-RUNBOOK",
+      "type": "document",
+      "path": "docs/replacement/CUTOVER-RUNBOOK.md",
+      "title": "Cutover Runbook — one tenant at a time",
+      "version": "0.1.0",
+      "doc_status": "Skeleton — to be completed by `TASK-V2-CUTOVER-RULES` before any cutover",
+      "hash": "693bc884",
+      "status": "current"
+    },
+    {
       "id": "doc:D-traceability",
       "type": "appendix",
       "path": "docs/appendices/D-traceability.md",
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "ff54d95c",
-      "status": "changed"
+      "hash": "179a74b3",
+      "status": "current"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -1037,7 +1081,7 @@
       "version": "1.0.1",
       "doc_status": "Approved",
       "hash": "cfc8aa55",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DECISION-BRIEF-AB",
@@ -1046,8 +1090,26 @@
       "title": "Decision Brief — GATE-AB: โมดูลใน Zuri v1 (A) หรือฐานของ Zuri v2 (B)",
       "version": "1.2.0",
       "doc_status": "Superseded — ADR-003 (2026-08-12): V2 แทน V1 ด้วยการ reuse",
-      "hash": "5e08252f",
-      "status": "superseded"
+      "hash": "64064c34",
+      "status": "changed"
+    },
+    {
+      "id": "doc:DEMO-RUNBOOK-SMARTGIFT",
+      "type": "document",
+      "path": "docs/replacement/DEMO-RUNBOOK-SMARTGIFT.md",
+      "title": "Demo Runbook — SmartGift Executive Demo",
+      "version": "1.0.0",
+      "doc_status": "Active — four owner decisions made 2026-08-12 (§6); topology in §5a",
+      "hash": "3363635b",
+      "status": "current"
+    },
+    {
+      "id": "doc:DOMAIN-MODEL",
+      "type": "document",
+      "path": "docs/DOMAIN-MODEL.md",
+      "title": "Domain Model",
+      "hash": "8a6a9333",
+      "status": "current"
     },
     {
       "id": "doc:E-risk-matrix",
@@ -1057,6 +1119,32 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "c97277aa",
+      "status": "current"
+    },
+    {
+      "id": "doc:ethics-governance",
+      "type": "document",
+      "path": "docs/ai-system/ethics-governance.md",
+      "title": "AI Ethics & Data Governance (PDPA)",
+      "version": "1.0.0",
+      "doc_status": "Draft — blocking for `TASK-V2-LINE-INTENT`",
+      "hash": "6c23a732",
+      "status": "current"
+    },
+    {
+      "id": "doc:EXECUTION-MODES",
+      "type": "document",
+      "path": "docs/EXECUTION-MODES.md",
+      "title": "Seven Execution Modes",
+      "hash": "fb4dcb5c",
+      "status": "current"
+    },
+    {
+      "id": "doc:EXTRACT-MSP.codex",
+      "type": "document",
+      "path": "docs/prompts/EXTRACT-MSP.codex.md",
+      "title": "Codex task — Extract MSP from GoVibe into a standalone repo `Freshair129/msp`",
+      "hash": "4c11d9b8",
       "status": "current"
     },
     {
@@ -1076,8 +1164,8 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "a6174340",
-      "status": "changed"
+      "hash": "7cbd59d2",
+      "status": "current"
     },
     {
       "id": "doc:FR-019-enterprise-api",
@@ -1110,6 +1198,146 @@
       "status": "current"
     },
     {
+      "id": "doc:IMPACT-SCAN-IDENTITY",
+      "type": "document",
+      "path": "docs/replacement/IMPACT-SCAN-IDENTITY.md",
+      "title": "Impact Scan — Identity (ExternalIdentity / Principal), P2.5",
+      "version": "1.0.0",
+      "doc_status": "Complete — this is the gate before P3 Identity touches the Zuri slice",
+      "hash": "8f3f3b5b",
+      "status": "current"
+    },
+    {
+      "id": "doc:IMPLEMENTATION-PLAN",
+      "type": "document",
+      "path": "docs/IMPLEMENTATION-PLAN.md",
+      "title": "Implementation Plan",
+      "hash": "20221080",
+      "status": "current"
+    },
+    {
+      "id": "doc:IMPLEMENTATION-PLAN-V2-REPLACE",
+      "type": "document",
+      "path": "docs/replacement/IMPLEMENTATION-PLAN-V2-REPLACE.md",
+      "title": "Implementation Plan — PHASE-V2-REPLACE",
+      "version": "1.0.0",
+      "doc_status": "Draft — awaiting owner sign-off on §4 (capacity) and §6 (first cutover)",
+      "hash": "8941cb54",
+      "status": "current"
+    },
+    {
+      "id": "doc:INTEGRATION-MAP-ZURI",
+      "type": "document",
+      "path": "docs/INTEGRATION-MAP-ZURI.md",
+      "title": "Future Integration Map — Current Zuri → Zuri v2",
+      "hash": "d7219230",
+      "status": "current"
+    },
+    {
+      "id": "doc:intent-pipeline",
+      "type": "document",
+      "path": "docs/ai-system/intent-pipeline.md",
+      "title": "AI Intent Pipeline — LINE as the fifth intake surface",
+      "version": "1.0.0",
+      "doc_status": "Draft — not implemented (`TASK-V2-LINE-INTENT`)",
+      "hash": "15e7b203",
+      "status": "current"
+    },
+    {
+      "id": "doc:model-lifecycle",
+      "type": "document",
+      "path": "docs/ai-system/model-lifecycle.md",
+      "title": "Model Lifecycle",
+      "version": "1.0.0",
+      "doc_status": "Draft",
+      "hash": "9c35127c",
+      "status": "current"
+    },
+    {
+      "id": "doc:PARALLEL-EXECUTION-PLAN",
+      "type": "document",
+      "path": "docs/PARALLEL-EXECUTION-PLAN.md",
+      "title": "Parallel Execution Plan — Agent Types & Gate Model",
+      "version": "1.0.0",
+      "doc_status": "Active",
+      "hash": "4cb7f88e",
+      "status": "current"
+    },
+    {
+      "id": "doc:parity-audit",
+      "type": "document",
+      "path": "docs/.rwang-tasks/parity-audit.md",
+      "title": "Parity Scan — Cross-Area Audit",
+      "hash": "c35e8699",
+      "status": "current"
+    },
+    {
+      "id": "doc:parity-commerce",
+      "type": "document",
+      "path": "docs/.rwang-tasks/parity-commerce.md",
+      "title": "P1 Commerce — Parity Inventory (Zuri V1 → V2)",
+      "hash": "50172614",
+      "status": "current"
+    },
+    {
+      "id": "doc:parity-customer",
+      "type": "document",
+      "path": "docs/.rwang-tasks/parity-customer.md",
+      "title": "Parity Inventory — CUSTOMER (P2)",
+      "hash": "c7b93821",
+      "status": "current"
+    },
+    {
+      "id": "doc:parity-gaps",
+      "type": "document",
+      "path": "docs/.rwang-tasks/parity-gaps.md",
+      "title": "P9 — Coverage Gaps (the seventh scan)",
+      "hash": "689f9bc3",
+      "status": "current"
+    },
+    {
+      "id": "doc:parity-growth",
+      "type": "document",
+      "path": "docs/.rwang-tasks/parity-growth.md",
+      "title": "Parity Inventory — GROWTH (P3)",
+      "hash": "cfcb0b3b",
+      "status": "current"
+    },
+    {
+      "id": "doc:PARITY-INVENTORY",
+      "type": "document",
+      "path": "docs/replacement/PARITY-INVENTORY.md",
+      "title": "Parity Inventory — what must exist in V2 before a tenant can cut over",
+      "version": "1.0.0",
+      "doc_status": "Complete (first pass) — verdicts are recommendations; the owner confirms",
+      "hash": "210bdf2b",
+      "status": "current"
+    },
+    {
+      "id": "doc:parity-operations",
+      "type": "document",
+      "path": "docs/.rwang-tasks/parity-operations.md",
+      "title": "Parity Inventory — Operations (P4)",
+      "hash": "5eeb0b77",
+      "status": "current"
+    },
+    {
+      "id": "doc:parity-platform",
+      "type": "document",
+      "path": "docs/.rwang-tasks/parity-platform.md",
+      "title": "Parity Inventory — PLATFORM (V1 `G:\\zuri`)",
+      "hash": "8d0db055",
+      "status": "current"
+    },
+    {
+      "id": "doc:parity-workers",
+      "type": "document",
+      "path": "docs/.rwang-tasks/parity-workers.md",
+      "title": "Parity Inventory — Workers & Background Execution (P6)",
+      "hash": "c9492c51",
+      "status": "current"
+    },
+    {
       "id": "doc:PRD-SDD-v1.0",
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
@@ -1117,7 +1345,43 @@
       "version": "1.3.0",
       "doc_status": "Draft",
       "hash": "5fdd8672",
-      "status": "changed"
+      "status": "current"
+    },
+    {
+      "id": "doc:PRODUCT-V2",
+      "type": "document",
+      "path": "docs/PRODUCT-V2.md",
+      "title": "Zuri V2 — Product Definition",
+      "version": "1.0.0",
+      "doc_status": "Draft",
+      "hash": "130ac83c",
+      "status": "current"
+    },
+    {
+      "id": "doc:prompt-engineering",
+      "type": "document",
+      "path": "docs/ai-system/prompt-engineering.md",
+      "title": "Prompt Engineering Guidelines",
+      "version": "1.0.0",
+      "doc_status": "Draft",
+      "hash": "fae6e398",
+      "status": "current"
+    },
+    {
+      "id": "doc:README-zuri-v2-lab",
+      "type": "document",
+      "path": "docs/README-zuri-v2-lab.md",
+      "title": "zuri-v2-lab — Project Manager",
+      "hash": "b4134910",
+      "status": "current"
+    },
+    {
+      "id": "doc:ROADMAP-business01-smartgift-delivery",
+      "type": "roadmap",
+      "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
+      "title": "ROADMAP: Business-01 SmartGift — Delivery",
+      "hash": "144bfa6c",
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-zuri-v2-lab",
@@ -1128,13 +1392,55 @@
       "status": "current"
     },
     {
+      "id": "doc:ROUTES-SITEMAP",
+      "type": "document",
+      "path": "docs/ROUTES-SITEMAP.md",
+      "title": "Routes / Sitemap",
+      "hash": "de76f0f1",
+      "status": "current"
+    },
+    {
+      "id": "doc:SITEMAP-V2-DOMAIN-NAV",
+      "type": "document",
+      "path": "docs/SITEMAP-V2-DOMAIN-NAV.md",
+      "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
+      "version": "0.1.0 (design draft — sitemap before build)",
+      "doc_status": "Proposed",
+      "hash": "23ec4b63",
+      "status": "current"
+    },
+    {
+      "id": "doc:TEST-PLAN",
+      "type": "document",
+      "path": "docs/TEST-PLAN.md",
+      "title": "Test Plan",
+      "hash": "ddcd235a",
+      "status": "current"
+    },
+    {
+      "id": "doc:UI-DESIGN-SYSTEM",
+      "type": "document",
+      "path": "docs/UI-DESIGN-SYSTEM.md",
+      "title": "UI Design System — Zuri Heritage",
+      "hash": "e38f305c",
+      "status": "current"
+    },
+    {
       "id": "doc:ZURI-INTEGRATION-ASSESSMENT",
       "type": "document",
       "path": "docs/ZURI-INTEGRATION-ASSESSMENT.md",
       "title": "Zuri Integration Assessment",
       "version": "1.1.0",
       "doc_status": "Decided — A→B (ADR-002, 2026-08-12)",
-      "hash": "75827aa5",
+      "hash": "8f430275",
+      "status": "changed"
+    },
+    {
+      "id": "doc:ZURI-V2-HANDOFF",
+      "type": "document",
+      "path": "docs/ZURI-V2-HANDOFF.md",
+      "title": "Zuri v2 Handoff Checklist",
+      "hash": "8adbcd06",
       "status": "current"
     },
     {
@@ -1687,22 +1993,6 @@
       "status": "planned"
     },
     {
-      "id": "spec:.rwang-progress",
-      "type": "spec",
-      "path": "docs/.rwang-progress.md",
-      "title": "RWANG Subagent Progress Ledger — TASK-V2-PARITY",
-      "hash": "202bfd30",
-      "status": "current"
-    },
-    {
-      "id": "spec:ACCEPTANCE-CRITERIA",
-      "type": "spec",
-      "path": "docs/ACCEPTANCE-CRITERIA.md",
-      "title": "Acceptance Criteria",
-      "hash": "b3d91c23",
-      "status": "current"
-    },
-    {
       "id": "spec:ADR-001-STANDALONE-ZURI-V2",
       "type": "adr",
       "path": "docs/ADR-001-STANDALONE-ZURI-V2.md",
@@ -1756,278 +2046,6 @@
       "path": "docs/ADR-007-LINE-AI-STACK-SEQUENCING.md",
       "title": "ADR-007 — LINE/AI Stack: Dependency Sequencing and Production Gates",
       "hash": "8274a688",
-      "status": "current"
-    },
-    {
-      "id": "spec:ARCHITECTURE",
-      "type": "spec",
-      "path": "docs/ARCHITECTURE.md",
-      "title": "Architecture",
-      "hash": "4256bf07",
-      "status": "current"
-    },
-    {
-      "id": "spec:CONTRACT-TESTS",
-      "type": "spec",
-      "path": "docs/replacement/CONTRACT-TESTS.md",
-      "title": "Contract Tests — freezing V1's endpoint behaviour before reimplementing it",
-      "version": "0.1.0",
-      "doc_status": "Skeleton — to be filled by `TASK-V2-CONTRACTS`",
-      "hash": "09ca7851",
-      "status": "current"
-    },
-    {
-      "id": "spec:CUTOVER-RUNBOOK",
-      "type": "spec",
-      "path": "docs/replacement/CUTOVER-RUNBOOK.md",
-      "title": "Cutover Runbook — one tenant at a time",
-      "version": "0.1.0",
-      "doc_status": "Skeleton — to be completed by `TASK-V2-CUTOVER-RULES` before any cutover",
-      "hash": "693bc884",
-      "status": "current"
-    },
-    {
-      "id": "spec:DEMO-RUNBOOK-SMARTGIFT",
-      "type": "spec",
-      "path": "docs/replacement/DEMO-RUNBOOK-SMARTGIFT.md",
-      "title": "Demo Runbook — SmartGift Executive Demo",
-      "version": "1.0.0",
-      "doc_status": "Active — four owner decisions made 2026-08-12 (§6); topology in §5a",
-      "hash": "3363635b",
-      "status": "current"
-    },
-    {
-      "id": "spec:DOMAIN-MODEL",
-      "type": "spec",
-      "path": "docs/DOMAIN-MODEL.md",
-      "title": "Domain Model",
-      "hash": "8a6a9333",
-      "status": "current"
-    },
-    {
-      "id": "spec:ethics-governance",
-      "type": "spec",
-      "path": "docs/ai-system/ethics-governance.md",
-      "title": "AI Ethics & Data Governance (PDPA)",
-      "version": "1.0.0",
-      "doc_status": "Draft — blocking for `TASK-V2-LINE-INTENT`",
-      "hash": "6c23a732",
-      "status": "current"
-    },
-    {
-      "id": "spec:EXECUTION-MODES",
-      "type": "spec",
-      "path": "docs/EXECUTION-MODES.md",
-      "title": "Seven Execution Modes",
-      "hash": "fb4dcb5c",
-      "status": "current"
-    },
-    {
-      "id": "spec:EXTRACT-MSP.codex",
-      "type": "spec",
-      "path": "docs/prompts/EXTRACT-MSP.codex.md",
-      "title": "Codex task — Extract MSP from GoVibe into a standalone repo `Freshair129/msp`",
-      "hash": "4c11d9b8",
-      "status": "current"
-    },
-    {
-      "id": "spec:IMPACT-SCAN-IDENTITY",
-      "type": "spec",
-      "path": "docs/replacement/IMPACT-SCAN-IDENTITY.md",
-      "title": "Impact Scan — Identity (ExternalIdentity / Principal), P2.5",
-      "version": "1.0.0",
-      "doc_status": "Complete — this is the gate before P3 Identity touches the Zuri slice",
-      "hash": "8f3f3b5b",
-      "status": "current"
-    },
-    {
-      "id": "spec:IMPLEMENTATION-PLAN",
-      "type": "spec",
-      "path": "docs/IMPLEMENTATION-PLAN.md",
-      "title": "Implementation Plan",
-      "hash": "20221080",
-      "status": "current"
-    },
-    {
-      "id": "spec:IMPLEMENTATION-PLAN-V2-REPLACE",
-      "type": "spec",
-      "path": "docs/replacement/IMPLEMENTATION-PLAN-V2-REPLACE.md",
-      "title": "Implementation Plan — PHASE-V2-REPLACE",
-      "version": "1.0.0",
-      "doc_status": "Draft — awaiting owner sign-off on §4 (capacity) and §6 (first cutover)",
-      "hash": "8941cb54",
-      "status": "current"
-    },
-    {
-      "id": "spec:INTEGRATION-MAP-ZURI",
-      "type": "spec",
-      "path": "docs/INTEGRATION-MAP-ZURI.md",
-      "title": "Future Integration Map — Current Zuri → Zuri v2",
-      "hash": "d7219230",
-      "status": "current"
-    },
-    {
-      "id": "spec:intent-pipeline",
-      "type": "spec",
-      "path": "docs/ai-system/intent-pipeline.md",
-      "title": "AI Intent Pipeline — LINE as the fifth intake surface",
-      "version": "1.0.0",
-      "doc_status": "Draft — not implemented (`TASK-V2-LINE-INTENT`)",
-      "hash": "15e7b203",
-      "status": "current"
-    },
-    {
-      "id": "spec:model-lifecycle",
-      "type": "spec",
-      "path": "docs/ai-system/model-lifecycle.md",
-      "title": "Model Lifecycle",
-      "version": "1.0.0",
-      "doc_status": "Draft",
-      "hash": "9c35127c",
-      "status": "current"
-    },
-    {
-      "id": "spec:PARALLEL-EXECUTION-PLAN",
-      "type": "spec",
-      "path": "docs/PARALLEL-EXECUTION-PLAN.md",
-      "title": "Parallel Execution Plan — Agent Types & Gate Model",
-      "version": "1.0.0",
-      "doc_status": "Active",
-      "hash": "4cb7f88e",
-      "status": "current"
-    },
-    {
-      "id": "spec:parity-audit",
-      "type": "spec",
-      "path": "docs/.rwang-tasks/parity-audit.md",
-      "title": "Parity Scan — Cross-Area Audit",
-      "hash": "c35e8699",
-      "status": "current"
-    },
-    {
-      "id": "spec:parity-commerce",
-      "type": "spec",
-      "path": "docs/.rwang-tasks/parity-commerce.md",
-      "title": "P1 Commerce — Parity Inventory (Zuri V1 → V2)",
-      "hash": "50172614",
-      "status": "current"
-    },
-    {
-      "id": "spec:parity-customer",
-      "type": "spec",
-      "path": "docs/.rwang-tasks/parity-customer.md",
-      "title": "Parity Inventory — CUSTOMER (P2)",
-      "hash": "c7b93821",
-      "status": "current"
-    },
-    {
-      "id": "spec:parity-gaps",
-      "type": "spec",
-      "path": "docs/.rwang-tasks/parity-gaps.md",
-      "title": "P9 — Coverage Gaps (the seventh scan)",
-      "hash": "689f9bc3",
-      "status": "current"
-    },
-    {
-      "id": "spec:parity-growth",
-      "type": "spec",
-      "path": "docs/.rwang-tasks/parity-growth.md",
-      "title": "Parity Inventory — GROWTH (P3)",
-      "hash": "cfcb0b3b",
-      "status": "current"
-    },
-    {
-      "id": "spec:PARITY-INVENTORY",
-      "type": "spec",
-      "path": "docs/replacement/PARITY-INVENTORY.md",
-      "title": "Parity Inventory — what must exist in V2 before a tenant can cut over",
-      "version": "1.0.0",
-      "doc_status": "Complete (first pass) — verdicts are recommendations; the owner confirms",
-      "hash": "210bdf2b",
-      "status": "current"
-    },
-    {
-      "id": "spec:parity-operations",
-      "type": "spec",
-      "path": "docs/.rwang-tasks/parity-operations.md",
-      "title": "Parity Inventory — Operations (P4)",
-      "hash": "5eeb0b77",
-      "status": "current"
-    },
-    {
-      "id": "spec:parity-platform",
-      "type": "spec",
-      "path": "docs/.rwang-tasks/parity-platform.md",
-      "title": "Parity Inventory — PLATFORM (V1 `G:\\zuri`)",
-      "hash": "8d0db055",
-      "status": "current"
-    },
-    {
-      "id": "spec:parity-workers",
-      "type": "spec",
-      "path": "docs/.rwang-tasks/parity-workers.md",
-      "title": "Parity Inventory — Workers & Background Execution (P6)",
-      "hash": "c9492c51",
-      "status": "current"
-    },
-    {
-      "id": "spec:PRODUCT-V2",
-      "type": "spec",
-      "path": "docs/PRODUCT-V2.md",
-      "title": "Zuri V2 — Product Definition",
-      "version": "1.0.0",
-      "doc_status": "Draft",
-      "hash": "130ac83c",
-      "status": "current"
-    },
-    {
-      "id": "spec:prompt-engineering",
-      "type": "spec",
-      "path": "docs/ai-system/prompt-engineering.md",
-      "title": "Prompt Engineering Guidelines",
-      "version": "1.0.0",
-      "doc_status": "Draft",
-      "hash": "fae6e398",
-      "status": "current"
-    },
-    {
-      "id": "spec:ROADMAP-business01-smartgift-delivery",
-      "type": "spec",
-      "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
-      "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "144bfa6c",
-      "status": "changed"
-    },
-    {
-      "id": "spec:ROUTES-SITEMAP",
-      "type": "spec",
-      "path": "docs/ROUTES-SITEMAP.md",
-      "title": "Routes / Sitemap",
-      "hash": "de76f0f1",
-      "status": "current"
-    },
-    {
-      "id": "spec:TEST-PLAN",
-      "type": "spec",
-      "path": "docs/TEST-PLAN.md",
-      "title": "Test Plan",
-      "hash": "ddcd235a",
-      "status": "current"
-    },
-    {
-      "id": "spec:UI-DESIGN-SYSTEM",
-      "type": "spec",
-      "path": "docs/UI-DESIGN-SYSTEM.md",
-      "title": "UI Design System — Zuri Heritage",
-      "hash": "e38f305c",
-      "status": "current"
-    },
-    {
-      "id": "spec:ZURI-V2-HANDOFF",
-      "type": "spec",
-      "path": "docs/ZURI-V2-HANDOFF.md",
-      "title": "Zuri v2 Handoff Checklist",
-      "hash": "8adbcd06",
       "status": "current"
     },
     {

@@ -12,7 +12,8 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const SPEC_PACK = path.resolve(ROOT, '..', 'docs')
+// Post-flatten: the spec pack and the module docs are one tree under ROOT/docs.
+const SPEC_PACK = path.join(ROOT, 'docs')
 const GRAPH_PATH = path.join(ROOT, 'docs', '.doc-graph.json')
 const MATRIX_PATH = path.join(ROOT, 'docs', 'appendices', 'D-traceability.md')
 const FEATURE_MAP_PATH = path.join(ROOT, 'docs', 'FEATURE-MAP.md')
@@ -120,19 +121,17 @@ function build() {
     }
   }
 
-  // Documents: lab docs, appendices, roadmap, and the governing spec pack.
-  const labDocs = walk(path.join(ROOT, 'docs'), ['.md'])
-  for (const file of labDocs) {
+  // Documents: one docs/ tree (post-flatten) — appendices, roadmap, ADRs, spec, module docs.
+  // v1-inherited is handled separately below (evidence, not authority).
+  const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
+  for (const file of walk(path.join(ROOT, 'docs'), ['.md'])) {
+    if (file.startsWith(V1_DIR)) continue
+    const base = path.basename(file)
     const isAppendix = file.includes(`${path.sep}appendices${path.sep}`)
     const isRoadmap = file.includes(`${path.sep}roadmap${path.sep}`)
-    nodes.push(docNode(file, isAppendix ? 'appendix' : isRoadmap ? 'roadmap' : 'document', 'doc'))
-  }
-  const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
-  for (const file of walk(SPEC_PACK, ['.md'])) {
-    if (file.startsWith(V1_DIR)) continue // handled below, as evidence not authority
-    const node = docNode(file, path.basename(file).startsWith('ADR-') ? 'adr' : 'spec', 'spec')
-    node.path = path.relative(path.resolve(ROOT, '..'), file).split(path.sep).join('/')
-    nodes.push(node)
+    const isAdr = base.startsWith('ADR-')
+    const type = isAppendix ? 'appendix' : isRoadmap ? 'roadmap' : isAdr ? 'adr' : 'document'
+    nodes.push(docNode(file, type, isAdr ? 'spec' : 'doc'))
   }
   // ADR-005 — V1's imported corpus. Indexed so a V2 document can cite an inherited
   // file and have the reference validated, but kept out of coverage and drift: it
@@ -141,7 +140,7 @@ function build() {
     nodes.push({
       id: `v1:${path.relative(V1_DIR, file).split(path.sep).join('/')}`,
       type: 'v1_inherited',
-      path: path.relative(path.resolve(ROOT, '..'), file).split(path.sep).join('/'),
+      path: rel(file),
       status: 'read-only',
     })
   }

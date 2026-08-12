@@ -5,7 +5,8 @@ This file is the short version: where things are, what to run, what never to tou
 
 ## What this repo is (as of 2026-08-12)
 
-`zuri-v2-lab/` is Zuri V2. It began as a standalone Project Manager lab and is now
+This repo (root) is Zuri V2. It began as a nested `zuri-v2-lab/` Project Manager lab,
+flattened to the root on 2026-08-12, and is now
 **the system that replaces Zuri V1** — see [ADR-003](docs/ADR-003-V2-REPLACES-V1-BY-REUSE.md).
 
 - **V2 = V1's domain + what V1 never had**: workspace, business group, project, B2B.
@@ -16,7 +17,7 @@ This file is the short version: where things are, what to run, what never to tou
 
 Current state: the Project Manager MVP plus all four intake surfaces are done
 (FR-001…FR-020, 129 Vitest + 28 Playwright green). Next phase is `PHASE-V2-REPLACE`
-in `zuri-v2-lab/docs/roadmap/ROADMAP-zuri-v2-lab.md`.
+in `docs/roadmap/ROADMAP-zuri-v2-lab.md`.
 
 ## Hard rules (these do not bend)
 
@@ -31,20 +32,23 @@ in `zuri-v2-lab/docs/roadmap/ROADMAP-zuri-v2-lab.md`.
 
 ## Layout
 
+The app was flattened to the repo root (2026-08-12) — one Next.js app + the spec pack
+in one tree, one `docs/`. (It began as a nested `zuri-v2-lab/` lab; historical docs
+still cite that path as a record.)
+
 ```
-docs/                     spec pack + ADRs (authority; ADR-003 is current)
-zuri-v2-lab/
-  src/app/(pm)/           UI routes      src/app/api/   route handlers
-  src/modules/project-manager/
-    application/          services (the only place that writes)
-    progress/             pure calculators + roll-up (no I/O, no clock)
-    import/               the one intake pipeline every surface ends at
-  src/lib/                db, ids, validation/enums.js (enum source of truth), shell-mode.js
-  prisma/schema.prisma    20 models, SQLite, string-persisted enums
-  tests/{unit,integration,e2e}
-  scripts/                doc governance generators
-  contracts/              JSON Schema + sample envelopes
-  docs/                   PRD-SDD, appendices, roadmap, .doc-graph.json
+docs/                     spec pack + ADRs + module docs (PRD-SDD, appendices, roadmap) — one tree
+src/app/(pm)/             UI routes      src/app/api/   route handlers
+src/modules/project-manager/
+  application/            services (the only place that writes)
+  progress/               pure calculators + roll-up (no I/O, no clock)
+  import/                 the one intake pipeline every surface ends at
+src/modules/{crm,identity,agent,knowledge}   LINE/AI stack (ADR-007: ingest · P3 gate · agent · GKS)
+src/lib/                  db, ids, validation/enums.js (enum source of truth), shell-mode.js, db-boundary.js
+prisma/schema.prisma      SQLite dev/test; schema.postgres.prisma + postgres/ for Supabase (FR-030)
+tests/{unit,integration,e2e}
+scripts/                  doc governance generators + Postgres cutover
+contracts/                JSON Schema + sample envelopes
 ```
 
 ## Toolchain
@@ -72,12 +76,11 @@ docs/PRODUCT-V2.md              Layer 0 — what V2 is (surfaces, scope chain, r
 docs/ai-system/                 LINE + AI: intent pipeline, prompts, PDPA, model lifecycle
 docs/replacement/               replacing V1: parity inventory, cutover runbook, contract tests
 docs/ADR-*.md                   decisions (ADR-003 = current direction, ADR-004 = this structure)
-zuri-v2-lab/docs/
-  PRD-SDD-v1.0.md               the Project Manager MODULE — the FR/NFR/BR/SEC/SDD registry
-  FEATURE-MAP.md                GENERATED index of every feature + cutover state — never hand-edit
-  features/FR-0xx-*.md          one note per feature that has rationale worth recording
-  appendices/                   A api · B db · D traceability (generated) · E risks · F glossary
-  roadmap/                      live delivery state (GoVibe Mission Control reads this)
+docs/PRD-SDD-v1.0.md            the Project Manager MODULE — the FR/NFR/BR/SEC/SDD registry
+docs/FEATURE-MAP.md             GENERATED index of every feature + cutover state — never hand-edit
+docs/features/FR-0xx-*.md       one note per feature that has rationale worth recording
+docs/appendices/                A api · B db · D traceability (generated) · E risks · F glossary
+docs/roadmap/                   live delivery state (GoVibe Mission Control reads this)
 ```
 
 Feature notes declare their feature in frontmatter (`feature: FR-020`), so the map
@@ -122,7 +125,7 @@ missing annotation shows up as a coverage gap rather than being silently lost:
 
 `@req` → functional requirement · `@spec` → business/security rule or design
 decision (or a doc path) · `@tested` → test file. Requirement ids live in
-`zuri-v2-lab/docs/PRD-SDD-v1.0.md`; using an id that is not declared there is a
+`docs/PRD-SDD-v1.0.md`; using an id that is not declared there is a
 preflight CRITICAL.
 
 ## Conventions worth knowing before writing code

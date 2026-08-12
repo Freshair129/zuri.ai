@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 55,
+    "docs": 58,
     "v1_inherited": 234,
     "routes": 33,
     "test_files": 31
@@ -10,7 +10,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 21,
+    "info": 23,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -22,7 +22,7 @@
       "title": "Missing control fields: Version, Status",
       "details": ".rwang-progress.md",
       "files": [
-        "../docs/.rwang-progress.md"
+        "docs/.rwang-progress.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -33,7 +33,7 @@
       "title": "Missing control fields: Version, Status",
       "details": "parity-audit.md",
       "files": [
-        "../docs/.rwang-tasks/parity-audit.md"
+        "docs/.rwang-tasks/parity-audit.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -44,7 +44,7 @@
       "title": "Missing control fields: Version",
       "details": "parity-commerce.md",
       "files": [
-        "../docs/.rwang-tasks/parity-commerce.md"
+        "docs/.rwang-tasks/parity-commerce.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -55,7 +55,7 @@
       "title": "Missing control fields: Version",
       "details": "parity-customer.md",
       "files": [
-        "../docs/.rwang-tasks/parity-customer.md"
+        "docs/.rwang-tasks/parity-customer.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -66,7 +66,7 @@
       "title": "Missing control fields: Version",
       "details": "parity-gaps.md",
       "files": [
-        "../docs/.rwang-tasks/parity-gaps.md"
+        "docs/.rwang-tasks/parity-gaps.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -77,7 +77,7 @@
       "title": "Missing control fields: Version",
       "details": "parity-growth.md",
       "files": [
-        "../docs/.rwang-tasks/parity-growth.md"
+        "docs/.rwang-tasks/parity-growth.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -88,7 +88,7 @@
       "title": "Missing control fields: Version",
       "details": "parity-operations.md",
       "files": [
-        "../docs/.rwang-tasks/parity-operations.md"
+        "docs/.rwang-tasks/parity-operations.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -99,7 +99,7 @@
       "title": "Missing control fields: Version",
       "details": "parity-platform.md",
       "files": [
-        "../docs/.rwang-tasks/parity-platform.md"
+        "docs/.rwang-tasks/parity-platform.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -110,7 +110,7 @@
       "title": "Missing control fields: Version",
       "details": "parity-workers.md",
       "files": [
-        "../docs/.rwang-tasks/parity-workers.md"
+        "docs/.rwang-tasks/parity-workers.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -121,7 +121,7 @@
       "title": "Missing control fields: Version, Status",
       "details": "ACCEPTANCE-CRITERIA.md",
       "files": [
-        "../docs/ACCEPTANCE-CRITERIA.md"
+        "docs/ACCEPTANCE-CRITERIA.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -130,9 +130,9 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "ARCHITECTURE.md",
+      "details": "AGENTS-zuri-v2-lab.md",
       "files": [
-        "../docs/ARCHITECTURE.md"
+        "docs/AGENTS-zuri-v2-lab.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -141,9 +141,9 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "DOMAIN-MODEL.md",
+      "details": "ARCHITECTURE.md",
       "files": [
-        "../docs/DOMAIN-MODEL.md"
+        "docs/ARCHITECTURE.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -152,9 +152,9 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "EXECUTION-MODES.md",
+      "details": "DOMAIN-MODEL.md",
       "files": [
-        "../docs/EXECUTION-MODES.md"
+        "docs/DOMAIN-MODEL.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -163,9 +163,9 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "IMPLEMENTATION-PLAN.md",
+      "details": "EXECUTION-MODES.md",
       "files": [
-        "../docs/IMPLEMENTATION-PLAN.md"
+        "docs/EXECUTION-MODES.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -174,9 +174,9 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "INTEGRATION-MAP-ZURI.md",
+      "details": "IMPLEMENTATION-PLAN.md",
       "files": [
-        "../docs/INTEGRATION-MAP-ZURI.md"
+        "docs/IMPLEMENTATION-PLAN.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -185,9 +185,9 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "EXTRACT-MSP.codex.md",
+      "details": "INTEGRATION-MAP-ZURI.md",
       "files": [
-        "../docs/prompts/EXTRACT-MSP.codex.md"
+        "docs/INTEGRATION-MAP-ZURI.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -196,9 +196,9 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "ROUTES-SITEMAP.md",
+      "details": "EXTRACT-MSP.codex.md",
       "files": [
-        "../docs/ROUTES-SITEMAP.md"
+        "docs/prompts/EXTRACT-MSP.codex.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -207,9 +207,9 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "TEST-PLAN.md",
+      "details": "README-zuri-v2-lab.md",
       "files": [
-        "../docs/TEST-PLAN.md"
+        "docs/README-zuri-v2-lab.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -218,9 +218,9 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "UI-DESIGN-SYSTEM.md",
+      "details": "ROUTES-SITEMAP.md",
       "files": [
-        "../docs/UI-DESIGN-SYSTEM.md"
+        "docs/ROUTES-SITEMAP.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -229,14 +229,36 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "ZURI-V2-HANDOFF.md",
+      "details": "TEST-PLAN.md",
       "files": [
-        "../docs/ZURI-V2-HANDOFF.md"
+        "docs/TEST-PLAN.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
       "id": "I21",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "UI-DESIGN-SYSTEM.md",
+      "files": [
+        "docs/UI-DESIGN-SYSTEM.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I22",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "ZURI-V2-HANDOFF.md",
+      "files": [
+        "docs/ZURI-V2-HANDOFF.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I23",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
