@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 52,
+    "docs": 54,
     "v1_inherited": 234,
     "routes": 32,
     "test_files": 14
@@ -10,7 +10,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 20,
+    "info": 21,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -185,6 +185,17 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
+      "details": "EXTRACT-MSP.codex.md",
+      "files": [
+        "../docs/prompts/EXTRACT-MSP.codex.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I17",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
       "details": "ROUTES-SITEMAP.md",
       "files": [
         "../docs/ROUTES-SITEMAP.md"
@@ -192,7 +203,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I17",
+      "id": "I18",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -203,7 +214,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I18",
+      "id": "I19",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -214,7 +225,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I19",
+      "id": "I20",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -225,7 +236,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I20",
+      "id": "I21",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",

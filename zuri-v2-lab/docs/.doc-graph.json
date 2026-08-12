@@ -3,14 +3,14 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 382,
+    "total_nodes": 384,
     "total_edges": 214,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 5,
       "document": 9,
       "roadmap": 1,
-      "spec": 30,
+      "spec": 32,
       "adr": 7,
       "v1_inherited": 234,
       "requirement": 51,
@@ -35,11 +35,11 @@
     }
   },
   "drift": {
-    "changed": [
-      "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
-      "spec:PRODUCT-V2"
+    "changed": [],
+    "added": [
+      "spec:PARALLEL-EXECUTION-PLAN",
+      "spec:EXTRACT-MSP.codex"
     ],
-    "added": [],
     "removed": []
   },
   "nodes": [
@@ -1248,7 +1248,7 @@
       "path": "docs/ADR-007-LINE-AI-STACK-SEQUENCING.md",
       "title": "ADR-007 — LINE/AI Stack: Dependency Sequencing and Production Gates",
       "hash": "8274a688",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ARCHITECTURE",
@@ -1315,6 +1315,14 @@
       "status": "current"
     },
     {
+      "id": "spec:EXTRACT-MSP.codex",
+      "type": "spec",
+      "path": "docs/prompts/EXTRACT-MSP.codex.md",
+      "title": "Codex task — Extract MSP from GoVibe into a standalone repo `Freshair129/msp`",
+      "hash": "4c11d9b8",
+      "status": "current"
+    },
+    {
       "id": "spec:IMPLEMENTATION-PLAN",
       "type": "spec",
       "path": "docs/IMPLEMENTATION-PLAN.md",
@@ -1358,6 +1366,16 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "9c35127c",
+      "status": "current"
+    },
+    {
+      "id": "spec:PARALLEL-EXECUTION-PLAN",
+      "type": "spec",
+      "path": "docs/PARALLEL-EXECUTION-PLAN.md",
+      "title": "Parallel Execution Plan — Agent Types & Gate Model",
+      "version": "1.0.0",
+      "doc_status": "Active",
+      "hash": "4cb7f88e",
       "status": "current"
     },
     {
@@ -1442,7 +1460,7 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "130ac83c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:prompt-engineering",
