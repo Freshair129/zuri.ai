@@ -108,6 +108,23 @@ export const zClassifyPrincipalInput = z.object({
   personId: z.string().min(1),
 })
 
+// FR-026 — Gate F: step-up re-auth token for HIGH-sensitivity agent actions.
+export const zIssueStepUpInput = z.object({
+  tenantId: z.string().min(1),
+  personId: z.string().min(1),
+  ttlSeconds: z.number().int().positive().default(300),
+})
+
+// FR-026 — Gate F: an agent attempts a write action for a resolved LINE subject.
+export const zExecuteAgentActionInput = z.object({
+  tenantId: z.string().min(1),
+  lineUserId: z.string().min(1),
+  actionName: z.string().min(1),
+  target: z.record(z.any()).default({}),
+  payload: z.record(z.any()).default({}),
+  stepUpToken: z.string().optional(),
+})
+
 export const zBranchInput = z.object({
   code: z.string().min(1).optional(),
   tenantId: z.string().min(1),

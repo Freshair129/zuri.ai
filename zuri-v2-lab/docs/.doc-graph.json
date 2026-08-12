@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 415,
-    "total_edges": 286,
+    "total_nodes": 420,
+    "total_edges": 302,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 5,
@@ -13,17 +13,17 @@
       "spec": 33,
       "adr": 7,
       "v1_inherited": 234,
-      "requirement": 56,
-      "test": 24,
-      "code_file": 46
+      "requirement": 57,
+      "test": 25,
+      "code_file": 49
     },
     "coverage": {
-      "requirements": 56,
-      "fr_with_code": "100% (25/25)",
-      "fr_with_tests": "100% (25/25)",
+      "requirements": 57,
+      "fr_with_code": "100% (26/26)",
+      "fr_with_tests": "100% (26/26)",
       "rules_anchored_in_code": "83% (20/24)",
       "nfr_evidence_based": "7 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 46,
+      "annotated_code_files": 49,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -40,24 +40,15 @@
       "doc:D-traceability",
       "doc:FEATURE-MAP",
       "doc:PRD-SDD-v1.0",
-      "spec:ROADMAP-business01-smartgift-delivery"
+      "spec:ROADMAP-business01-smartgift-delivery",
+      "code:src/modules/agent/index.js"
     ],
     "added": [
-      "req:FR-024",
-      "req:FR-025",
-      "test:tests/integration/agent-context.test.js",
-      "test:tests/integration/agent-tools.test.js",
-      "test:tests/integration/knowledge-project.test.js",
-      "test:tests/integration/knowledge-query.test.js",
-      "code:src/modules/agent/context.js",
-      "code:src/modules/agent/index.js",
-      "code:src/modules/agent/memory-port.js",
-      "code:src/modules/agent/tools.js",
-      "code:src/modules/knowledge/index.js",
-      "code:src/modules/knowledge/live-facts.js",
-      "code:src/modules/knowledge/project-graph.js",
-      "code:src/modules/knowledge/query.js",
-      "code:src/modules/knowledge/sink.js"
+      "req:FR-026",
+      "test:tests/integration/agent-action-gate.test.js",
+      "code:src/modules/agent/action-gate.js",
+      "code:src/modules/agent/step-up.js",
+      "code:src/modules/agent/write-tools.js"
     ],
     "removed": []
   },
@@ -264,6 +255,25 @@
       }
     },
     {
+      "id": "code:src/modules/agent/action-gate.js",
+      "type": "code_file",
+      "path": "src/modules/agent/action-gate.js",
+      "hash": "a4727da5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-026"
+        ],
+        "@spec": [
+          "BR-009",
+          "SDD-009"
+        ],
+        "@tested": [
+          "tests/integration/agent-action-gate.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/agent/context.js",
       "type": "code_file",
       "path": "src/modules/agent/context.js",
@@ -282,14 +292,16 @@
       "id": "code:src/modules/agent/index.js",
       "type": "code_file",
       "path": "src/modules/agent/index.js",
-      "hash": "0ce49040",
-      "status": "current",
+      "hash": "69953a9d",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-025"
+          "FR-025",
+          "FR-026"
         ],
         "@tested": [
-          "tests/integration/agent-context.test.js"
+          "tests/integration/agent-context.test.js",
+          "tests/integration/agent-action-gate.test.js"
         ]
       }
     },
@@ -309,6 +321,21 @@
       }
     },
     {
+      "id": "code:src/modules/agent/step-up.js",
+      "type": "code_file",
+      "path": "src/modules/agent/step-up.js",
+      "hash": "7504b7a5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-026"
+        ],
+        "@tested": [
+          "tests/integration/agent-action-gate.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/agent/tools.js",
       "type": "code_file",
       "path": "src/modules/agent/tools.js",
@@ -320,6 +347,21 @@
         ],
         "@tested": [
           "tests/integration/agent-tools.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/write-tools.js",
+      "type": "code_file",
+      "path": "src/modules/agent/write-tools.js",
+      "hash": "f505b544",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-026"
+        ],
+        "@tested": [
+          "tests/integration/agent-action-gate.test.js"
         ]
       }
     },
@@ -879,7 +921,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "d38162c0",
+      "hash": "8df8da2b",
       "status": "changed"
     },
     {
@@ -929,7 +971,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "2936eb0a",
+      "hash": "db6acaa8",
       "status": "changed"
     },
     {
@@ -969,7 +1011,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.3.0",
       "doc_status": "Draft",
-      "hash": "d68691f2",
+      "hash": "82405d12",
       "status": "changed"
     },
     {
@@ -1292,6 +1334,15 @@
       "type": "requirement",
       "family": "FR",
       "label": "Agent read-only context contract (ADR-007 P6, Gate E): `assembleAgentContext` binds a resolved principal (via the P3 gate) to Identity + MSP memory (**principal-keyed, not channel-keyed**) + GKS knowledge (FR-024) + Zuri **read-only** tools; a write-classified tool is refused at registration (Gate E→F boundary)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-026",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Agent write/action gate (ADR-007 P7, Gate F): write tools in a **separate** registry (effect WRITE + executor); `authorizeAgentAction` decides by RBAC (Membership role) + resource ownership + sensitivity; **HIGH-sensitivity actions require a single-use step-up token**; `executeAgentAction` resolves the principal → authorizes → enforces step-up → runs the write in one transaction with an append-only audit. Read stays Gate E",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -1803,7 +1854,7 @@
       "type": "spec",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "f94fa372",
+      "hash": "7c7bd8a6",
       "status": "changed"
     },
     {
@@ -1850,6 +1901,13 @@
       "type": "test",
       "path": "tests/integration/adaptive-shell.test.js",
       "hash": "7b1f5f58",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/agent-action-gate.test.js",
+      "type": "test",
+      "path": "tests/integration/agent-action-gate.test.js",
+      "hash": "e5682fc7",
       "status": "current"
     },
     {
@@ -3567,6 +3625,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/action-gate.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/action-gate.js",
+      "to": "req:FR-026",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/action-gate.js",
+      "to": "req:SDD-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/context.js",
       "to": "req:FR-025",
       "type": "implements",
@@ -3581,6 +3660,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:FR-026",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/memory-port.js",
       "to": "req:FR-025",
       "type": "implements",
@@ -3588,8 +3674,22 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/step-up.js",
+      "to": "req:FR-026",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/tools.js",
       "to": "req:FR-025",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/write-tools.js",
+      "to": "req:FR-026",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -4309,6 +4409,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-026",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -4617,6 +4724,62 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "code:src/modules/agent/action-gate.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "code:src/modules/agent/index.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "code:src/modules/agent/step-up.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "code:src/modules/agent/write-tools.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/agent-context.test.js",
       "to": "code:src/modules/agent/context.js",
       "type": "tests",
@@ -4643,6 +4806,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/agent-tools.test.js",

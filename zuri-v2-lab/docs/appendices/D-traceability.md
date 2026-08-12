@@ -11,8 +11,8 @@
 > annotations in the source, from requirement ids named inside tests, and from
 > transitive test → code → requirement paths.
 
-**Coverage** — FR with code **100% (25/25)** · FR with tests **100% (25/25)** ·
-rules anchored in code **83% (20/24)** · annotated source files **46**
+**Coverage** — FR with code **100% (26/26)** · FR with tests **100% (26/26)** ·
+rules anchored in code **83% (20/24)** · annotated source files **49**
 
 ## Functional requirements
 
@@ -44,7 +44,8 @@ Each FR must have code that declares `@req` and a test that reaches it.
 | FR-022 | LINE as an identity provider end-to-end: account linking (single-use token → bind to existing Person, idempotent, merge-aware), PDPA erase-revoke, staff/customer split, and `resolveLinePrincipal` (the single P3 seam) — the full P3 gate on top of FR-021 | `modules/identity/classify-principal.js`, `modules/identity/erase-principal.js`, `modules/identity/gate.js`, `modules/identity/link-line-identity.js` | `integration/identity-classify.test.js`, `integration/identity-erase.test.js`, `integration/identity-gate.test.js`, `integration/identity-link.test.js` | ✅ |
 | FR-023 | Zuri Backend Slice CRM core (ADR-007 P2): Customer (per-tenant, linked to Person) + Conversation + Message + LINE gateway `ingestLineMessage` (resolves through FR-021, idempotent) | `modules/crm/line-ingest-service.js` | `integration/line-ingest.test.js` | ✅ |
 | FR-024 | Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes | `modules/knowledge/index.js`, `modules/knowledge/live-facts.js`, `modules/knowledge/project-graph.js`, `modules/knowledge/query.js`, `modules/knowledge/sink.js` | `integration/knowledge-project.test.js`, `integration/knowledge-query.test.js` | ✅ |
-| FR-025 | Agent read-only context contract (ADR-007 P6, Gate E): `assembleAgentContext` binds a resolved principal (via the P3 gate) to Identity + MSP memory (**principal-keyed, not channel-keyed**) + GKS knowledge (FR-024) + Zuri **read-only** tools; a write-classified tool is refused at registration (Gate E→F boundary) | `modules/agent/context.js`, `modules/agent/index.js`, `modules/agent/memory-port.js`, `modules/agent/tools.js` | `integration/agent-context.test.js`, `integration/agent-tools.test.js` | ✅ |
+| FR-025 | Agent read-only context contract (ADR-007 P6, Gate E): `assembleAgentContext` binds a resolved principal (via the P3 gate) to Identity + MSP memory (**principal-keyed, not channel-keyed**) + GKS knowledge (FR-024) + Zuri **read-only** tools; a write-classified tool is refused at registration (Gate E→F boundary) | `modules/agent/context.js`, `modules/agent/index.js`, `modules/agent/memory-port.js`, `modules/agent/tools.js` | `integration/agent-action-gate.test.js`, `integration/agent-context.test.js`, `integration/agent-tools.test.js` | ✅ |
+| FR-026 | Agent write/action gate (ADR-007 P7, Gate F): write tools in a **separate** registry (effect WRITE + executor); `authorizeAgentAction` decides by RBAC (Membership role) + resource ownership + sensitivity; **HIGH-sensitivity actions require a single-use step-up token**; `executeAgentAction` resolves the principal → authorizes → enforces step-up → runs the write in one transaction with an append-only audit. Read stays Gate E | `modules/agent/action-gate.js`, `modules/agent/index.js`, `modules/agent/step-up.js`, `modules/agent/write-tools.js` | `integration/agent-action-gate.test.js`, `integration/agent-context.test.js` | ✅ |
 
 ## Business rules, security rules and design decisions
 
@@ -60,7 +61,7 @@ Anchored by `@spec` in the code that enforces them.
 | BR-006 | Required gate ที่ยังไม่ผ่าน cap progress ที่ 99% พร้อม warning | `modules/project-manager/progress/strategies.js` | `unit/strategies.test.js` | ✅ |
 | BR-007 | แผนที่ import เป็นข้อมูลเท่านั้น — ไม่มีการ execute code จาก plan | `modules/project-manager/import/plan-schema.js` | `unit/plan-schema.test.js` | ✅ |
 | BR-008 | Restore snapshot ต้อง preview + confirm เสมอ — ไม่มี silent overwrite | `modules/project-manager/application/backup-service.js` | `integration/backup.test.js` | ✅ |
-| BR-009 | ทุก intake surface (UI/Excel/agent/API) ต้องจบที่ pipeline validate→dry-run→commit เดียวกัน | `modules/project-manager/import/plan-import-service.js` | `integration/external-ref-import.test.js`, `integration/plan-import.test.js` | ✅ |
+| BR-009 | ทุก intake surface (UI/Excel/agent/API) ต้องจบที่ pipeline validate→dry-run→commit เดียวกัน | `modules/agent/action-gate.js`, `modules/project-manager/import/plan-import-service.js` | `integration/agent-action-gate.test.js`, `integration/external-ref-import.test.js`, `integration/plan-import.test.js` | ✅ |
 | SDD-001 | ~~Standalone repo ก่อน integrate (ADR-001)~~ **superseded by ADR-003** — V2 แทน V1 ด้วยการ reuse (ยก UI ทีละโมดูลตอน cutover) | — | — | 🔴 no anchor |
 | SDD-002 | Persisted enums เป็น string, Zod (`src/lib/validation/enums.js`) เป็น source of truth เดียว | `lib/validation/enums.js` | `integration/xlsx-intake.test.js`, `unit/plan-schema.test.js` | ✅ |
 | SDD-003 | UUID PK + human code (unique) พร้อม collision retry | `lib/ids.js` | `unit/ids.test.js` | ✅ |
@@ -69,7 +70,7 @@ Anchored by `@spec` in the code that enforces them.
 | SDD-006 | Import commit ใน `prisma.$transaction` เดียว, upsert by code | `modules/project-manager/import/plan-import-service.js` | `integration/external-ref-import.test.js`, `integration/plan-import.test.js` | ✅ |
 | SDD-007 | UI เป็น client fetch (`useFetch`) เรียก API handlers ซึ่ง delegate ให้ services | `modules/project-manager/components/useApi.js` | — | 🟠 no test |
 | SDD-008 | JavaScript + Zod ที่ boundary (ไม่ใช่ TypeScript) — **ยึดกับไฟล์ใดไฟล์หนึ่งไม่ได้โดยธรรมชาติ** | — | — | 🔴 no anchor |
-| SDD-009 | Unified intake: ทุก surface แปลงเป็น envelope เดียว | `modules/project-manager/import/plan-import-service.js` | `integration/external-ref-import.test.js`, `integration/plan-import.test.js` | ✅ |
+| SDD-009 | Unified intake: ทุก surface แปลงเป็น envelope เดียว | `modules/agent/action-gate.js`, `modules/project-manager/import/plan-import-service.js` | `integration/agent-action-gate.test.js`, `integration/external-ref-import.test.js`, `integration/plan-import.test.js` | ✅ |
 | SEC-001 | Cross-tenant/business guard (`assertWorkspaceInScope`) — ปฏิเสธข้าม scope | `modules/crm/line-ingest-service.js`, `modules/identity/classify-principal.js`, `modules/identity/resolve-line-identity.js`, `modules/knowledge/project-graph.js`, `modules/knowledge/query.js`, `modules/project-manager/application/scope-service.js` | `integration/identity-classify.test.js`, `integration/identity-resolve.test.js`, `integration/knowledge-project.test.js`, `integration/knowledge-query.test.js`, `integration/line-ingest.test.js`, `integration/scope-and-isolation.test.js` | ✅ |
 | SEC-002 | ไม่ execute code จาก imported plans (strict Zod, additionalProperties rejected) | `modules/project-manager/import/plan-import-service.js`, `modules/project-manager/import/plan-schema.js` | `integration/external-ref-import.test.js`, `integration/plan-import.test.js`, `unit/plan-schema.test.js` | ✅ |
 | SEC-003 | AuditEvent append-only สำหรับทุก mutation สำคัญ | `modules/identity/erase-principal.js`, `modules/project-manager/application/audit.js` | `integration/identity-erase.test.js`, `integration/plan-import.test.js`, `integration/project-core.test.js` | ✅ |

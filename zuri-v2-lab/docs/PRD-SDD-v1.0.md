@@ -27,6 +27,7 @@
 | 1.3.0 | 2026-08-12 | Claude | FR-023 (Zuri Backend Slice CRM core: Customer/Conversation/Message + LINE ingest) ✅ — ADR-007 P2 |
 | 1.4.0 | 2026-08-12 | Claude | FR-022 (full P3 identity gate: account linking + PDPA erase-revoke + staff/customer split + `resolveLinePrincipal`) ✅ — ADR-007 P3 complete |
 | 1.5.0 | 2026-08-12 | Claude | FR-024 (P5 knowledge projection: relations→graph, live-facts guard, `queryKnowledge`) + FR-025 (P6 agent read-only context contract, Gate E) ✅ — built as two parallel tracks over the shared P3 gate |
+| 1.6.0 | 2026-08-12 | Claude | FR-026 (P7 Gate F agent write/action gate: RBAC + ownership + sensitivity authorization, single-use step-up, audited transactional execute) ✅ — the Gate E→F boundary |
 
 ## Referenced Standards
 
@@ -95,6 +96,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-023 | Zuri Backend Slice CRM core (ADR-007 P2): Customer (per-tenant, linked to Person) + Conversation + Message + LINE gateway `ingestLineMessage` (resolves through FR-021, idempotent) | ✅ |
 | FR-024 | Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes | ✅ |
 | FR-025 | Agent read-only context contract (ADR-007 P6, Gate E): `assembleAgentContext` binds a resolved principal (via the P3 gate) to Identity + MSP memory (**principal-keyed, not channel-keyed**) + GKS knowledge (FR-024) + Zuri **read-only** tools; a write-classified tool is refused at registration (Gate E→F boundary) | ✅ |
+| FR-026 | Agent write/action gate (ADR-007 P7, Gate F): write tools in a **separate** registry (effect WRITE + executor); `authorizeAgentAction` decides by RBAC (Membership role) + resource ownership + sensitivity; **HIGH-sensitivity actions require a single-use step-up token**; `executeAgentAction` resolves the principal → authorizes → enforces step-up → runs the write in one transaction with an append-only audit. Read stays Gate E | ✅ |
 
 ## 1.4 Non-functional requirements
 
