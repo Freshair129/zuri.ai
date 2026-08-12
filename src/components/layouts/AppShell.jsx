@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
+import DomainBar from './DomainBar'
 import CommandPalette from './CommandPalette'
 
 export default function AppShell({ children }) {
@@ -20,10 +21,11 @@ export default function AppShell({ children }) {
   }, [])
 
   return (
-    <div className="grid h-screen grid-cols-[86px_minmax(0,1fr)] max-md:grid-cols-[64px_minmax(0,1fr)]">
+    <div className="grid h-screen grid-cols-[210px_minmax(0,1fr)] max-md:grid-cols-[64px_minmax(0,1fr)]">
       <Sidebar />
-      <div className="grid min-w-0 grid-rows-[auto_minmax(0,1fr)_28px]">
+      <div className="grid min-w-0 grid-rows-[auto_auto_minmax(0,1fr)_28px]">
         <Topbar onOpenPalette={() => setPaletteOpen(true)} />
+        <DomainBar />
         <main className="overflow-y-auto p-6 max-md:p-4">{children}</main>
         <footer className="flex items-center gap-3 border-t border-[var(--border)] bg-white px-3 text-[10px] text-[#7B8490]">
           <span style={{ color: 'var(--success)' }}>● local</span>
