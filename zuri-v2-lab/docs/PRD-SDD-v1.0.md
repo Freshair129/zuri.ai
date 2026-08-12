@@ -28,6 +28,8 @@
 | 1.4.0 | 2026-08-12 | Claude | FR-022 (full P3 identity gate: account linking + PDPA erase-revoke + staff/customer split + `resolveLinePrincipal`) ✅ — ADR-007 P3 complete |
 | 1.5.0 | 2026-08-12 | Claude | FR-024 (P5 knowledge projection: relations→graph, live-facts guard, `queryKnowledge`) + FR-025 (P6 agent read-only context contract, Gate E) ✅ — built as two parallel tracks over the shared P3 gate |
 | 1.6.0 | 2026-08-12 | Claude | FR-026 (P7 Gate F agent write/action gate: RBAC + ownership + sensitivity authorization, single-use step-up, audited transactional execute) ✅ — the Gate E→F boundary |
+| 1.7.0 | 2026-08-12 | Claude | FR-027 (P7 end-to-end agent turn: `handleAgentTurn` composing ingest→read context→optional Gate F action→response) ✅ — the full LINE→Identity→Knowledge→Agent→Tool→response path |
+| 1.8.0 | 2026-08-12 | Claude | FR-028 (LINE webhook API route → `handleAgentTurn`, tenant-scoped) ✅ + MSP memory port (real `msp_memory_upsert`/`_list`, principal-keyed, fail-closed) + GenesisBlockDB sink (real NAPI `addNode`/`addEdge`, live-fact guarded) wired into the stack |
 
 ## Referenced Standards
 
@@ -97,6 +99,8 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-024 | Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes | ✅ |
 | FR-025 | Agent read-only context contract (ADR-007 P6, Gate E): `assembleAgentContext` binds a resolved principal (via the P3 gate) to Identity + MSP memory (**principal-keyed, not channel-keyed**) + GKS knowledge (FR-024) + Zuri **read-only** tools; a write-classified tool is refused at registration (Gate E→F boundary) | ✅ |
 | FR-026 | Agent write/action gate (ADR-007 P7, Gate F): write tools in a **separate** registry (effect WRITE + executor); `authorizeAgentAction` decides by RBAC (Membership role) + resource ownership + sensitivity; **HIGH-sensitivity actions require a single-use step-up token**; `executeAgentAction` resolves the principal → authorizes → enforces step-up → runs the write in one transaction with an append-only audit. Read stays Gate E | ✅ |
+| FR-027 | End-to-end agent turn (ADR-007 P7): `handleAgentTurn` composes the full path — LINE ingest (FR-023) → read context (FR-025) → optional Gate F action (FR-026) → response — over injectable memory/knowledge/tool ports; unauthorized/step-up-needed actions degrade to a graceful response, never a crash | ✅ |
+| FR-028 | LINE webhook API route (ADR-007 P7 wiring): `POST /api/agent/line-webhook` normalizes LINE message events → `handleAgentTurn` (Gate E read/answer), tenant-scoped (refuses an unresolved tenant — no minting under a DEFAULT tenant); the zuri-cli LINE bot forwards webhook events here (two runtimes, HTTP seam, real E2E) | ✅ |
 
 ## 1.4 Non-functional requirements
 

@@ -6,4 +6,5 @@
 export { projectKnowledgeGraph } from './project-graph'
 export { queryKnowledge } from './query'
 export { writeGraph, createJsonSink } from './sink'
+export { createGenesisBlockDBSink } from './genesisblockdb-sink'
 export { assertNoLiveFacts, LIVE_FACT_FIELDS } from './live-facts'

@@ -6,7 +6,10 @@
 
 export { assembleAgentContext } from './context'
 export { memoryKey, createInMemoryMemory } from './memory-port'
+export { createMspMemoryPort } from './msp-memory-port'
 export { createToolRegistry, defaultReadOnlyTools } from './tools'
 export { authorizeAgentAction, executeAgentAction } from './action-gate'
 export { createWriteToolRegistry, defaultWriteTools } from './write-tools'
 export { issueStepUp } from './step-up'
+// @req FR-027 — the end-to-end agent turn.
+export { handleAgentTurn } from './turn'

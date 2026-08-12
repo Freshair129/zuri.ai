@@ -125,6 +125,25 @@ export const zExecuteAgentActionInput = z.object({
   stepUpToken: z.string().optional(),
 })
 
+// FR-027 — one end-to-end agent turn over a LINE message (optionally requesting an action).
+export const zHandleAgentTurnInput = z.object({
+  tenantId: z.string().min(1),
+  businessId: z.string().optional(),
+  lineUserId: z.string().min(1),
+  displayName: z.string().optional(),
+  text: z.string(),
+  threadId: z.string().min(1),
+  externalMessageId: z.string().optional(),
+  action: z
+    .object({
+      name: z.string().min(1),
+      target: z.record(z.any()).default({}),
+      payload: z.record(z.any()).default({}),
+      stepUpToken: z.string().optional(),
+    })
+    .optional(),
+})
+
 export const zBranchInput = z.object({
   code: z.string().min(1).optional(),
   tenantId: z.string().min(1),

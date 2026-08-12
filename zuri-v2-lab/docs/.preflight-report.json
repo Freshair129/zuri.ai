@@ -4,8 +4,8 @@
   "scanned": {
     "docs": 55,
     "v1_inherited": 234,
-    "routes": 32,
-    "test_files": 25
+    "routes": 33,
+    "test_files": 29
   },
   "summary": {
     "critical": 0,
@@ -244,7 +244,7 @@
       "files": [
         "docs/roadmap/ROADMAP-zuri-v2-lab.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 25 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 29 files"
     }
   ]
 }
