@@ -67,6 +67,13 @@ export const CHANNELS = ['LINE', 'FACEBOOK', 'WEB']
 export const MESSAGE_DIRECTIONS = ['INBOUND', 'OUTBOUND']
 export const CUSTOMER_LIFECYCLE = ['LEAD', 'ACTIVE', 'DORMANT', 'LOST']
 
+// FR-022 — the P3 gate's staff/customer split. In V2's unified identity a Person
+// is STAFF when it holds a Membership in the tenant (RBAC side) and CUSTOMER when
+// it holds a Customer record (CRM side); a Person that is both resolves to STAFF
+// (precedence), and one that is neither is UNKNOWN. Structural, not a stored column.
+export const PRINCIPAL_TYPES = ['STAFF', 'CUSTOMER', 'UNKNOWN']
+export const IDENTITY_PROVIDERS = ['LINE']
+
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
 export const zDependencyType = z.enum(DEPENDENCY_TYPES)
@@ -80,6 +87,8 @@ export const zWorkspaceScopeType = z.enum(WORKSPACE_SCOPE_TYPES)
 export const zChannel = z.enum(CHANNELS)
 export const zMessageDirection = z.enum(MESSAGE_DIRECTIONS)
 export const zCustomerLifecycle = z.enum(CUSTOMER_LIFECYCLE)
+export const zPrincipalType = z.enum(PRINCIPAL_TYPES)
+export const zIdentityProvider = z.enum(IDENTITY_PROVIDERS)
 
 // Container subtype vocabulary per mode (open set; these are the documented ones).
 export const CONTAINER_SUBTYPES = [

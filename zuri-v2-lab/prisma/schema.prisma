@@ -38,6 +38,7 @@ model Tenant {
   workspaces         Workspace[]
   memberships        Membership[]
   externalIdentities ExternalIdentity[]
+  identityLinkTokens IdentityLinkToken[]
   customers          Customer[]
 
   @@index([portfolioId])
@@ -121,6 +122,7 @@ model Person {
 
   memberships        Membership[]
   externalIdentities ExternalIdentity[]
+  identityLinkTokens IdentityLinkToken[]
   customers          Customer[]
 }
 
@@ -386,6 +388,26 @@ model ExternalIdentity {
 
   @@unique([tenantId, provider, providerSubject])
   @@index([personId])
+}
+
+// FR-022 — account linking: a single-use, expiring nonce that binds a channel
+// subject (a LINE user) to an EXISTING Person, instead of minting a fresh one.
+// Persisted because redemption crosses a stateless webhook boundary.
+model IdentityLinkToken {
+  id         String    @id @default(uuid())
+  tenantId   String
+  personId   String
+  provider   String    @default("LINE")
+  token      String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([personId])
+  @@index([tenantId])
 }
 
 model ExternalRef {

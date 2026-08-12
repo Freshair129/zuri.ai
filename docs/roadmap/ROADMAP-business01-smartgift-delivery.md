@@ -27,7 +27,7 @@ live_document: true
 
 | Phase | Goal | Exit Criteria | Status | Progress |
 | --- | --- | --- | --- | --- |
-| PHASE-SG-FOUNDATION | Shared foundation (ADR-007): extract MSP · Zuri identity primitive | MSP Gate A passed · ExternalIdentity + resolver (FR-021) tested | in-progress | 55 |
+| PHASE-SG-FOUNDATION | Shared foundation (ADR-007): extract MSP · Zuri identity primitive + full P3 gate + backend slice | MSP Gate A passed · FR-021 primitive + FR-023 slice + FR-022 P3 gate (link/erase/split) all tested | done | 100 |
 | PHASE-SG-DATA | ไมเกรทเอกสารธุรกิจดิบ → DuckDB SoT ที่สะอาด มี provenance | SoT ครบ 13 ตาราง, ทุกแถวมีที่มา, business-01 ไฟล์เข้าครบ | done | 100 |
 | PHASE-SG-GRAPH | ฉาย SoT เป็น knowledge graph (GenesisBlockDB) + RAG/MCP | graph sync + eval ผ่าน + MCP server อ่านอย่างเดียวใช้งานได้ | done | 92 |
 | PHASE-SG-COPILOT | LINE OA ตอบคำถามธุรกิจ/วิเคราะห์/วิจัยเหนือข้อมูล SmartGift | ถามไทยผ่าน LINE → ตอบจาก SoT จริง พร้อม citation + guard | in-progress | 45 |
@@ -49,7 +49,7 @@ live_document: true
 | SG-MSP-EXTRACT | PHASE-SG-FOUNDATION | task | Extract MSP → standalone Freshair129/msp (Gate A: standalone + GoVibe still works) — verified 176 vitest + 30 security green | P0 | Codex | done | - | ADR-007 P1; docs/prompts/EXTRACT-MSP.codex.md |
 | SG-IDENTITY-PRIM | PHASE-SG-FOUNDATION | task | ExternalIdentity model + resolveLineIdentity (LINE→Person, tenant-scoped, idempotent, audited) | P0 | Claude | done | - | FR-021; IMPACT-SCAN-IDENTITY |
 | SG-BACKEND-SLICE | PHASE-SG-FOUNDATION | task | Zuri Backend Slice CRM core (FR-023): Customer+Conversation+Message + LINE ingest through the identity seam (tested 140/140) | P0 | Claude | done | SG-IDENTITY-PRIM | ADR-007 P2; FR-023 |
-| SG-IDENTITY-P3 | PHASE-SG-FOUNDATION | task | Full P3 gate on FR-021: route all sites through the resolver, account linking, erase-revoke, staff/customer split (FR-022) | P0 | Claude | planned | SG-IDENTITY-PRIM | ADR-007 P3; IMPACT-SCAN-IDENTITY |
+| SG-IDENTITY-P3 | PHASE-SG-FOUNDATION | task | Full P3 gate on FR-021 (FR-022): `resolveLinePrincipal` seam + account linking (single-use token, merge-aware) + PDPA erase-revoke + staff/customer split — tested 160/160 | P0 | Claude | done | SG-IDENTITY-PRIM | ADR-007 P3; IMPACT-SCAN-IDENTITY; FR-022 |
 | SG-COP-MEMORY | PHASE-SG-COPILOT | task | ต่อ MSP memory (msp-client) เป็น memory OS ของ agent — **principal-keyed หลัง Identity** ไม่ใช่ channel-keyed | P1 | Claude | planned | SG-IDENTITY-PRIM | DEMO-RUNBOOK §3 D3; ADR-007 |
 | SG-COP-PROD | PHASE-SG-COPILOT | task | ย้ายไป line-copilot-runtime ตัว production (หลังผ่าน contract gate REQ-CR-012) | P2 | Owen | planned | SG-COP-QUERIES | REQ-CR-012 §16 |
 | SG-CLOUD-PDPA | PHASE-SG-CLOUD | task | ตัดสิน PDPA: ข้อมูลลูกค้าออกนอกเครื่องได้ไหม — ตัดสินแล้ว: ออกได้ (override local_only เฉพาะเดโม) | P0 | Owen | done | - | DEMO-RUNBOOK §6.1 |

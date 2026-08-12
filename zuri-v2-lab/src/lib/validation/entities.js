@@ -78,6 +78,36 @@ export const zIngestLineMessageInput = z.object({
   direction: z.enum(['INBOUND', 'OUTBOUND']).default('INBOUND'),
 })
 
+// FR-022 — account linking: issue a single-use token for an existing Person, then
+// redeem it against a LINE subject so the subject binds to that Person (not a new one).
+export const zIssueLinkTokenInput = z.object({
+  tenantId: z.string().min(1),
+  personId: z.string().min(1),
+  ttlSeconds: z.number().int().positive().default(900),
+})
+
+export const zRedeemLinkTokenInput = z.object({
+  tenantId: z.string().min(1),
+  token: z.string().min(1),
+  lineUserId: z.string().min(1),
+  displayName: z.string().optional(),
+  merge: z.boolean().default(false),
+})
+
+// FR-022 — PDPA erase: revoke every channel identity for a principal and redact the
+// CRM record, so the person can no longer be silently re-contacted or re-resolved.
+export const zErasePrincipalInput = z.object({
+  tenantId: z.string().min(1),
+  personId: z.string().min(1),
+  reason: z.string().optional(),
+})
+
+// FR-022 — staff/customer split for a resolved principal within a tenant.
+export const zClassifyPrincipalInput = z.object({
+  tenantId: z.string().min(1),
+  personId: z.string().min(1),
+})
+
 export const zBranchInput = z.object({
   code: z.string().min(1).optional(),
   tenantId: z.string().min(1),

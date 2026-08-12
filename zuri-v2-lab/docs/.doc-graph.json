@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 392,
-    "total_edges": 232,
+    "total_nodes": 400,
+    "total_edges": 253,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 5,
@@ -14,19 +14,17 @@
       "adr": 7,
       "v1_inherited": 234,
       "requirement": 54,
-      "test": 16,
-      "code_file": 33
+      "test": 20,
+      "code_file": 37
     },
     "coverage": {
       "requirements": 54,
-      "fr_with_code": "100% (22/22)",
-      "fr_with_tests": "100% (22/22)",
+      "fr_with_code": "100% (23/23)",
+      "fr_with_tests": "100% (23/23)",
       "rules_anchored_in_code": "83% (20/24)",
       "nfr_evidence_based": "7 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 33,
-      "fr_planned": [
-        "FR-022"
-      ],
+      "annotated_code_files": 37,
+      "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
       "rules_without_anchor": [
@@ -39,11 +37,22 @@
   },
   "drift": {
     "changed": [
-      "doc:D-traceability",
-      "doc:FEATURE-MAP",
-      "doc:PRD-SDD-v1.0"
+      "doc:B-db-schema",
+      "doc:PRD-SDD-v1.0",
+      "spec:ROADMAP-business01-smartgift-delivery",
+      "code:src/lib/validation/enums.js",
+      "code:src/modules/project-manager/application/backup-service.js"
     ],
-    "added": [],
+    "added": [
+      "test:tests/integration/identity-classify.test.js",
+      "test:tests/integration/identity-erase.test.js",
+      "test:tests/integration/identity-gate.test.js",
+      "test:tests/integration/identity-link.test.js",
+      "code:src/modules/identity/classify-principal.js",
+      "code:src/modules/identity/erase-principal.js",
+      "code:src/modules/identity/gate.js",
+      "code:src/modules/identity/link-line-identity.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -235,8 +244,8 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "df99a24b",
-      "status": "current",
+      "hash": "d9a4757a",
+      "status": "changed",
       "annotations": {
         "@spec": [
           "SDD-002",
@@ -264,6 +273,76 @@
         ],
         "@tested": [
           "tests/integration/line-ingest.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/classify-principal.js",
+      "type": "code_file",
+      "path": "src/modules/identity/classify-principal.js",
+      "hash": "bb78b5e9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-022"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/integration/identity-classify.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/erase-principal.js",
+      "type": "code_file",
+      "path": "src/modules/identity/erase-principal.js",
+      "hash": "2ad5cf6b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-022"
+        ],
+        "@spec": [
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/identity-erase.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/gate.js",
+      "type": "code_file",
+      "path": "src/modules/identity/gate.js",
+      "hash": "16e56236",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-022"
+        ],
+        "@tested": [
+          "tests/integration/identity-gate.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/link-line-identity.js",
+      "type": "code_file",
+      "path": "src/modules/identity/link-line-identity.js",
+      "hash": "38b1e276",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-022"
+        ],
+        "@spec": [
+          "BR-002"
+        ],
+        "@tested": [
+          "tests/integration/identity-link.test.js"
         ]
       }
     },
@@ -328,8 +407,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "4a893950",
-      "status": "current",
+      "hash": "8262bdc0",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-013"
@@ -640,8 +719,8 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "e28ddc26",
-      "status": "current"
+      "hash": "e4a6b644",
+      "status": "changed"
     },
     {
       "id": "doc:D-traceability",
@@ -651,7 +730,7 @@
       "version": "2.0.0",
       "doc_status": "Auto-generated",
       "hash": "b5291c83",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -701,7 +780,7 @@
       "version": "1.0.0",
       "doc_status": "Auto-generated",
       "hash": "7e46ad6d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-019-enterprise-api",
@@ -740,7 +819,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.3.0",
       "doc_status": "Draft",
-      "hash": "e6eea525",
+      "hash": "163a59ef",
       "status": "changed"
     },
     {
@@ -1035,10 +1114,10 @@
       "id": "req:FR-022",
       "type": "requirement",
       "family": "FR",
-      "label": "LINE as an identity provider end-to-end (account linking, login/OIDC, staff/customer split) — the full P3 gate on top of FR-021",
+      "label": "LINE as an identity provider end-to-end: account linking (single-use token → bind to existing Person, idempotent, merge-aware), PDPA erase-revoke, staff/customer split, and `resolveLinePrincipal` (the single P3 seam) — the full P3 gate on top of FR-021",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned"
+      "declared": "done",
+      "status": "current"
     },
     {
       "id": "req:FR-023",
@@ -1556,8 +1635,8 @@
       "type": "spec",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "9ee645f9",
-      "status": "current"
+      "hash": "96969baa",
+      "status": "changed"
     },
     {
       "id": "spec:ROUTES-SITEMAP",
@@ -1617,6 +1696,34 @@
       "type": "test",
       "path": "tests/integration/external-ref-import.test.js",
       "hash": "8e2f4a11",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/identity-classify.test.js",
+      "type": "test",
+      "path": "tests/integration/identity-classify.test.js",
+      "hash": "7c78b3d0",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/identity-erase.test.js",
+      "type": "test",
+      "path": "tests/integration/identity-erase.test.js",
+      "hash": "31421c6e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/identity-gate.test.js",
+      "type": "test",
+      "path": "tests/integration/identity-gate.test.js",
+      "hash": "b2d57b96",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/identity-link.test.js",
+      "type": "test",
+      "path": "tests/integration/identity-link.test.js",
+      "hash": "feef8680",
       "status": "current"
     },
     {
@@ -3285,6 +3392,62 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/classify-principal.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/classify-principal.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/classify-principal.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/erase-principal.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/erase-principal.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/gate.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/link-line-identity.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/link-line-identity.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/resolve-line-identity.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -4228,6 +4391,97 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-classify.test.js",
+      "to": "code:src/modules/identity/classify-principal.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/identity-classify.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-classify.test.js",
+      "to": "req:FR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/identity-classify.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-erase.test.js",
+      "to": "code:src/modules/identity/erase-principal.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/identity-erase.test.js",
+      "to": "req:FR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/identity-erase.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-gate.test.js",
+      "to": "code:src/modules/identity/gate.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/identity-gate.test.js",
+      "to": "req:FR-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/identity-gate.test.js",
+      "to": "req:FR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/identity-link.test.js",
+      "to": "code:src/modules/identity/link-line-identity.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/identity-link.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-link.test.js",
+      "to": "req:FR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/identity-resolve.test.js",

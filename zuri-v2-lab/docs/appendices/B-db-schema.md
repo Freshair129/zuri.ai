@@ -50,3 +50,15 @@ tenant's businesses).
 `Message { conversationId→Conversation, direction, body, externalMessageId@unique?, createdAt }`
 The LINE gateway `ingestLineMessage` resolves through FR-021 then upserts customer →
 conversation → message in one transaction; idempotent on externalMessageId.
+
+## Identity P3 gate (FR-022, ADR-007 P3)
+
+`IdentityLinkToken { tenantId, personId→Person, provider, token@unique, expiresAt, consumedAt?, createdAt }`
+— a single-use, expiring nonce for **account linking**: bind a LINE subject to an
+EXISTING Person instead of minting a fresh one. Redemption re-points (merges) a
+subject that was auto-minted to a throwaway principal, carrying its Customer along so
+the principal never forks. No new columns on identity — the **staff/customer split**
+is structural (Membership ⇒ STAFF, Customer ⇒ CUSTOMER, both ⇒ STAFF). **PDPA erase**
+revokes the ExternalIdentity (a revoked binding refuses to resolve), invalidates
+outstanding tokens, and redacts the CRM record. `resolveLinePrincipal` is the single
+seam that resolves + classifies in one call.
