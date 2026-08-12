@@ -47,8 +47,9 @@ live_document: true
 | SG-COP-QUERIES | PHASE-SG-COPILOT | task | เพิ่ม query อ่านอย่างเดียว: monthly_sales / top_customers / tier_counts / pipeline | P1 | Claude | planned | SG-COP-SEAM | DEMO-RUNBOOK §3 D2 |
 | SG-COP-MEMORY | PHASE-SG-COPILOT | task | ต่อ MSP memory (GoVibe msp-runtime) เป็น memory OS ของ agent | P1 | Claude | planned | SG-COP-SEAM | DEMO-RUNBOOK §3 D3 |
 | SG-COP-PROD | PHASE-SG-COPILOT | task | ย้ายไป line-copilot-runtime ตัว production (หลังผ่าน contract gate REQ-CR-012) | P2 | Owen | planned | SG-COP-QUERIES | REQ-CR-012 §16 |
-| SG-CLOUD-PDPA | PHASE-SG-CLOUD | task | ตัดสิน PDPA: ข้อมูลลูกค้าออกนอกเครื่องได้ไหม (aggregate / masked / full) | P0 | Owen | planned | - | DEMO-RUNBOOK §6.1 |
-| SG-CLOUD-MIRROR | PHASE-SG-CLOUD | task | สคริปต์ mirror SoT → Supabase (aggregate ก่อน), DuckDB คง static | P1 | Claude | planned | SG-CLOUD-PDPA | DEMO-RUNBOOK §3 D3 |
+| SG-CLOUD-PDPA | PHASE-SG-CLOUD | task | ตัดสิน PDPA: ข้อมูลลูกค้าออกนอกเครื่องได้ไหม — ตัดสินแล้ว: ออกได้ (override local_only เฉพาะเดโม) | P0 | Owen | done | - | DEMO-RUNBOOK §6.1 |
+| SG-CLOUD-MIRROR | PHASE-SG-CLOUD | task | สคริปต์ mirror SoT → Supabase (aggregate ก่อน) จาก copy นอก dir บังคับ, DuckDB คง static | P1 | Claude | planned | SG-CLOUD-PDPA | DEMO-RUNBOOK §3 D3 |
+| SG-CLOUD-DASH | PHASE-SG-CLOUD | task | ชี้ dashboard-app (Vercel) อ่านจาก Supabase — ปิดวง local→cloud→จอ cloud | P1 | Claude | planned | SG-CLOUD-MIRROR | DEMO-RUNBOOK §5a |
 | SG-SCALE-B02 | PHASE-SG-SCALE | task | ออนบอร์ด Business-02 ด้วย pipeline เดียวกัน | P2 | Agent | planned | SG-DATA-PIPE | migration-status-per-business |
 | SG-SCALE-B03 | PHASE-SG-SCALE | task | ออนบอร์ด Business-03 | P2 | Agent | planned | SG-SCALE-B02 | migration-status-per-business |
 | SG-SCALE-B04 | PHASE-SG-SCALE | task | ออนบอร์ด Business-04 | P2 | Agent | planned | SG-SCALE-B03 | migration-status-per-business |

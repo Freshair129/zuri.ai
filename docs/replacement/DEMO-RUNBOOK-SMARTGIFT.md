@@ -3,7 +3,7 @@
 | Field | Value |
 |-------|-------|
 | **Version** | 1.0.0 |
-| **Status** | Draft — blocked on four owner decisions (§6) |
+| **Status** | Active — four owner decisions made 2026-08-12 (§6); topology in §5a |
 | **Author** | Claude |
 | **Created** | 2026-08-12 |
 | **Goal** | The fastest credible executive demo ("ส่งมอบตัวอย่างให้ทีมบริหาร") for Business-01 SmartGift |
@@ -40,7 +40,7 @@ picture behind the answers.
 | 1 | **LINE Q&A on a real phone** | 5 min | Asks in Thai "ยอดขายเดือนนี้เท่าไหร่", "ลูกค้า top 10 คือใคร" → answered from real `sot.duckdb`; one open question routed to the RAG brain, answered with citations | The AI answers over real business data |
 | 2 | **Mission Control** | 3 min | GoVibe board, two tabs — Zuri V2 + SmartGift delivery — plus the `migrate-status --json` feed as "the machine-readable truth behind this board" | Roadmap visibility, per-business and per-workstream (incl. the live migration) |
 | 3 | **Memory** | 2 min | Tell the agent a fact in LINE, restart the process on screen, ask "เมื่อกี้ผมบอกอะไรไว้" → answered from MSP; flash `msp_memory_history` | The agent remembers across restarts |
-| 4 | **Data to cloud** | 1 min | Run the mirror live, refresh Supabase, aggregate tables appear — **only if the PDPA aggregates-only decision is made** (§6.1); else substitute the migrate-status feed | Data flows to the cloud |
+| 4 | **Data to cloud** | 1 min | Run the mirror live → Supabase → **the Vercel-deployed dashboard refreshes and shows the cloud tables** (PDPA cleared, §6.1). Full loop: local brain → cloud mirror → cloud dashboard | Data flows to the cloud, visibly, on a public URL |
 | 5 | **Graph visual** *(optional)* | — | `graph-viewer.html` or the Obsidian vault (2,659 notes) as "the knowledge graph behind the answers" | The knowledge structure is real |
 
 **Every beat is rehearsable via `zuri-agent chat say`** — the identical answer path
@@ -58,7 +58,35 @@ Ordered so the riskiest seam is proven first, per the assessment.
 | **D2 AM** | Add 2–4 registered read-only queries: `monthly_sales`, `top_customers`, `tier_counts`, `pipeline_by_stage`. Wire matching evidence-tools in `src/answer/tools.ts` + `src/answer/llm.ts` + the MCP pricing server. | These are the demo questions. |
 | **D2 PM** | Copy `ROADMAP-zuri-v2-lab.md` (demo copy, `PHASE-V2-REPLACE` first) and the new `ROADMAP-business01-smartgift-delivery.md` into `G:\govibe\docs\roadmap\`. Set `GOVIBE_MCP_TOKEN` + `VITE_GOVIBE_MCP_TOKEN`. Boot the board. | Highest wow-to-effort; near zero code. |
 | **D3 AM** | Spawn `msp-runtime` with `MSP_DB_PATH` in the agent's own data dir; vendor `createMspStdioCaller` (~100 lines) behind the existing `src/answer/memory.ts` interface. Prove upsert → restart → search. | Supporting beat; keep it to upsert/search/history only. |
-| **D3 PM** | Pre-warm GenesisBlockDB (~36s cold start) and Ollama. If PDPA cleared: write the ~150-line aggregates-only mirror (DuckDB `ATTACH postgres`). Rehearse all 5 beats end to end via the CLI harness. Record the backup video. | Remove live-day latency; capture the fallback. |
+| **D3 PM** | Write the ~150-line aggregates-first mirror (DuckDB `ATTACH postgres` → Supabase) from a copy of `sot.duckdb`; point the Vercel `dashboard-app` at the Supabase tables. Stand up the **named** tunnel and register its stable URL with LINE once. Pre-warm GenesisBlockDB (~36s cold) and Ollama. Rehearse all 5 beats via the CLI harness **and** the Ollama fallback path. Record the backup video. | PDPA is cleared, so the full cloud loop is in scope; remove live-day latency; capture the fallback. |
+
+## 5a. Topology — Vercel presentation, this PC does the thinking
+
+The owner chose "deploy on Vercel, webhook on this PC". Vercel is stateless
+serverless — it **cannot** host the headless Claude Code layer, Ollama, DuckDB or
+GenesisBlockDB, all of which are process- or win32-binary-bound to this machine. So
+the two halves split cleanly:
+
+```text
+LINE Platform ──(named tunnel, stable URL)──▶  THIS PC
+                                               ├─ zuri-command-agent webhook server
+                                               ├─ brain: Claude Code headless → Ollama fallback
+                                               ├─ sot.duckdb · GenesisBlockDB · MSP  (all local)
+                                               └─ mirror job ──▶ Supabase (cloud)
+                                                                    ▲ reads
+                              VERCEL (public):  dashboard-app + Mission Control board
+```
+
+- **This PC** owns everything that touches PII, the local models, and the local
+  data/graph. The LINE webhook runs here and is exposed with a **named** tunnel
+  (Cloudflare named tunnel or an ngrok reserved domain) so the URL registered with
+  LINE is stable — do **not** use an ephemeral Quick Tunnel for the demo (it changes
+  on every restart; that was risk 2).
+- **Vercel** owns only presentation: the existing `dashboard-app` (already deployed)
+  and, if wanted, the Mission Control board. It reads the cloud mirror, so beat 4's
+  "data to cloud" is visible on a real public URL rather than a localhost tab.
+- **The cutover-safety principle still holds**: exactly one process owns the local
+  data and the MSP DB file. Vercel never writes back to the PC.
 
 ## 4. Freeze and safety checklist (before rehearsals start)
 
@@ -75,35 +103,44 @@ Ordered so the riskiest seam is proven first, per the assessment.
 | # | Risk | Mitigation |
 |---|---|---|
 | 1 | **Fake numbers reach the executives** — the DuckDB executor returns hardcoded fixture revenue; prices are 100% unapproved; 1-of-4 coverage could look like group coverage | Delete the fixture on D1; unapproved-price refusal is shown as a *governance feature*; denominators on every slide |
-| 2 | **Live-infra fragility** — ephemeral Cloudflare tunnel, Ollama latency, ~36s graph cold start, GoVibe WIP HEAD: four SPOFs stacked | Boot-test D1; pre-warm; script the questions; CLI-harness fallback; backup video |
-| 3 | **PDPA breach** — a Supabase mirror pushes customer PII off-machine, against the workspace's enforced local-only rule; a cloud LLM over PII raises the same question | Aggregates/non-PII only (or reuse `smartgift-mask.mjs`); prefer local/subscription answer layer; **owner decision in writing before demo day** |
+| 2 | **Live-infra fragility** — Ollama latency, ~36s graph cold start, GoVibe WIP HEAD, and a tunnel between LINE and the PC: SPOFs stacked | **Named** tunnel (not ephemeral) registered once; boot-test D1; pre-warm; script the questions; CLI-harness + Ollama fallback both rehearsed; backup video |
+| 3 | **PDPA — owner cleared it, but the workspace rule still enforces local-only** — the mirror contradicts SmartGift's `local_only` rule mechanically (git-ignored PII, blocked `:cloud` models) | Run the mirror from a **copy** outside the enforced dir; **aggregates first**; rotate any token immediately after the demo; the override is scoped to the demo, not adopted as policy |
 | 4 | **Governance self-violation + credential exposure** — new data tools change `zuri-command-agent`'s capability surface (its own AGENTS.md gates this); plaintext secrets in two files | New tools stay strictly read-only registered queries with recorded owner sign-off; remove/rotate the secret files first |
 | 5 | **Integration-seam underestimation** — Python/uv MCP spawned from a Node agent, two fail-closed philosophies, Thai answer stitching, never run together | Wire the seam on D1 before polishing anything; freeze both repos |
 
-## 6. Owner decisions that block this runbook
+## 6. Owner decisions — MADE 2026-08-12
 
-### 6.1 PDPA — the pacing decision
-May customer-level data leave this machine at all (Supabase mirror, cloud-LLM
-context)? **Aggregates-only / masked / full fidelity?** This gates beat 4 and the
-answer-model choice. If undecided by demo day, beat 4 becomes the `migrate-status`
-feed and the narrative loses nothing.
+### 6.1 PDPA — DECIDED: data may leave the machine
+Customer data **may** be mirrored to Supabase and reasoned over by a cloud-backed
+model. Beat 4 is live (mirror → Supabase → Vercel dashboard).
 
-### 6.2 Which model layer powers the LINE agent on stage
-- **Anthropic API key** — cloud, has cost, exposes PII to a cloud model
-- **Headless Claude Code subscription** — local-ish, billed to subscription
-- **Ollama-only** (via `explore_agent`'s brain) — fully local, PDPA-clean, slower
+> **Recorded caveat (owner reaffirmed after the concern was raised):** the SmartGift
+> workspace enforces a `local_only` rule — PII is git-ignored and Ollama `:cloud`
+> models are structurally blocked. This decision **overrides that rule for the
+> demo**. Consequence: the mirror job must run from a **copy** of `sot.duckdb`
+> outside the enforced directory, or the enforcement is toggled for the run.
+> Recommendation kept: mirror **aggregates first** (revenue by month, tier counts,
+> pipeline) as the default; full-fidelity PII is now permitted but is not required
+> for the story, and starting narrow limits the blast radius if a token leaks.
 
-Each is a different rehearsal.
+### 6.2 Model layer — DECIDED: headless Claude Code, Ollama fallback
+Primary: **headless Claude Code** (billed to the subscription, no per-token API
+cost). Fallback: **Ollama local** via `explore_agent`'s brain (fully local, works
+offline, PDPA-clean). No Anthropic API key on stage. Rehearse **both** paths — the
+fallback must answer the scripted questions if the subscription layer stalls.
 
-### 6.3 Capability + posture sign-off
-Approve the new **read-only** analytics capability in `zuri-command-agent` under its
-own AGENTS.md permission matrix, and the temporary posture of demoing LINE via
-`zuri-command-agent` while `line-copilot-runtime` stays the gated production path.
+### 6.3 Capability + posture — assumed approved, confirm in writing
+Proceeding on the basis that the new **read-only** analytics queries in
+`zuri-command-agent` are permitted under its AGENTS.md matrix (DuckDB reads are an
+allowed class), and that demoing LINE via `zuri-command-agent` while
+`line-copilot-runtime` stays the gated production path is acceptable. A one-line
+written sign-off before rehearsals closes this.
 
-### 6.4 Demo logistics
-Live LINE on a real phone (tunnel risk) vs projected screen with the CLI harness vs
-pre-recorded segments? Everything runs on **one Windows machine** (win32 binaries,
-local Ollama, local graph store) — is the demo on that machine?
+### 6.4 Logistics — DECIDED: deploy on Vercel, webhook on this PC
+Presentation (dashboard, Mission Control) on **Vercel**; the LINE webhook, brain,
+data and models on **this Windows machine**, exposed with a **named** tunnel for a
+stable URL. See §5a for the topology. Everything binary-/process-bound stays on the
+PC by necessity, not choice.
 
 ## 7. What is explicitly deferred (post-demo, not on the critical path)
 
@@ -112,9 +149,9 @@ local Ollama, local graph store) — is the demo on that machine?
 - MSP → GKS knowledge promotion — fail-closed stub, no provider anywhere
 - A Zuri-owned GenesisBlockDB sync of `.doc-graph.json` + Prisma rows — good second act; adds nothing SmartGift's existing graph does not already show
 - Zuri V2 `/api/import` PlanEnvelope posting from the LINE agent — a **new write** capability; the demo stays read-only Q&A
-- Full-fidelity PII Supabase mirror — blocked on 6.1
+- Full-fidelity PII Supabase mirror — now *permitted* (6.1) but not required for the story; aggregates-first ships, full fidelity is a later widening
 - Cost/margin analytics (cost Excels are Drive-only), "what did this customer buy" (P5.4 blocked on a FlowAccount export), contact history (interaction table empty), the other 3 businesses (no SoT)
-- A stable webhook address — accept the ephemeral tunnel for the demo with the CLI fallback
+- Moving the brain off this PC — impossible for the demo (win32 binaries, local Ollama, local graph); the PC is the runtime, Vercel is only the window onto it
 
 ## 8. The reuse map (who owns what, so nothing is rebuilt)
 
@@ -123,5 +160,5 @@ local Ollama, local graph store) — is the demo on that machine?
 | 1 LINE Q&A | `zuri-command-agent` transport + `explore_agent`/`sot.duckdb` brain | real `fetchQueryData` + 2–4 registered queries + matching tools |
 | 2 Mission Control | GoVibe Mission Control React app + roadmap parser | one SmartGift roadmap markdown file (§ next commit) |
 | 3 Memory | GoVibe `msp-runtime` | ~100-line vendored stdio caller |
-| 4 Data → cloud | `sot.duckdb` (clean source) | ~150-line aggregates-only mirror *(if PDPA cleared)* |
+| 4 Data → cloud | `sot.duckdb` (clean source) + the Vercel `dashboard-app` (already deployed) | ~150-line aggregates-first mirror → Supabase; point the dashboard at it |
 | 5 Graph | SmartGift's already-synced GenesisBlockDB projection | none |

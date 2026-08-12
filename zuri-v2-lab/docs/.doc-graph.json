@@ -35,11 +35,11 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [
+    "changed": [
       "spec:DEMO-RUNBOOK-SMARTGIFT",
       "spec:ROADMAP-business01-smartgift-delivery"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -1276,9 +1276,9 @@
       "path": "docs/replacement/DEMO-RUNBOOK-SMARTGIFT.md",
       "title": "Demo Runbook — SmartGift Executive Demo",
       "version": "1.0.0",
-      "doc_status": "Draft — blocked on four owner decisions (§6)",
-      "hash": "5f3e55e7",
-      "status": "current"
+      "doc_status": "Active — four owner decisions made 2026-08-12 (§6); topology in §5a",
+      "hash": "34206485",
+      "status": "changed"
     },
     {
       "id": "spec:DOMAIN-MODEL",
@@ -1451,8 +1451,8 @@
       "type": "spec",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "f3b00e51",
-      "status": "current"
+      "hash": "ae8de596",
+      "status": "changed"
     },
     {
       "id": "spec:ROUTES-SITEMAP",
