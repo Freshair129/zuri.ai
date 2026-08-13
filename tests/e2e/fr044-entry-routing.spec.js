@@ -5,6 +5,7 @@ const { test, expect } = require('@playwright/test')
 // @tested tests/e2e/fr044-entry-routing.spec.js
 
 async function clearBusinessSelection(page) {
+  await page.context().clearCookies()
   await page.goto('/')
   await page.evaluate(() => localStorage.removeItem('zuri-v2-scope'))
   await page.reload()
@@ -21,7 +22,7 @@ test.describe('FR-044 entry to BusinessShell', () => {
     await expect(page.locator('[data-shell="entry"]')).toBeVisible()
     await expect(page.getByRole('navigation', { name: 'Domains' })).toHaveCount(0)
 
-    await page.getByRole('link', { name: /demo login/i }).click()
+    await page.getByRole('button', { name: /demo login/i }).click()
     await expect(page).toHaveURL(/\/businesses$/)
     await expect(page.getByRole('heading', { name: 'Choose a Business' })).toBeVisible()
     await expect(page.getByRole('button', { name: /Open Business Business 01/i })).toBeVisible()
@@ -31,6 +32,8 @@ test.describe('FR-044 entry to BusinessShell', () => {
   test('requires an explicit Business selection before mounting BusinessShell', async ({ page }) => {
     await clearBusinessSelection(page)
     await page.goto('/overview')
+    await expect(page).toHaveURL(/\/login$/)
+    await page.getByRole('button', { name: /demo login/i }).click()
     await expect(page).toHaveURL(/\/businesses$/)
     await expect(page.getByRole('heading', { name: 'Choose a Business' })).toBeVisible()
 

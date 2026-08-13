@@ -1,14 +1,16 @@
 # HANDOFF — V2 business-centric shell (for Codex)
 
-**Status:** Implemented handoff — FR-044 + N1/N2 navigation alignment complete
-**Version:** 1.1.0
-**Date:** 2026-08-13
+**Status:** Implemented handoff — FR-044 + N1/N2 + N4 complete
+**Version:** 1.3.0
+**Date:** 2026-08-14
 **Author:** Owen + Claude (design/docs session)
 **Relates to:** [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md), [ADR-009](ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md), [SITEMAP-V2](SITEMAP-V2-DOMAIN-NAV.md), FR-002, FR-020
 
 > This handoff is the implementation record for the approved shell boundary. FR-044
 > entry routing and the N1/N2 Business Overview navigation correction are implemented;
-> N4 viewer/session API design remains a separate contract slice.
+> N4 viewer/session API design is implemented as ADR-017 / FR-046: Business Routing
+> uses the minimized `/api/entry` response and protected compatibility APIs resolve a
+> trusted request session. A real login provider remains a separate owner decision.
 > The human also has a visual companion (screen-inventory + wireframes artifact); it is
 > private, so the inventory is reproduced below in text — implement from this file.
 
@@ -123,8 +125,8 @@ Each step: land a fresh FR id in `docs/PRD-SDD-v1.0.md`, annotate code `@req/@sp
 
 The original eight-step sequence below is retained as traceability and is complete for
 the accepted FR-044 entry boundary and N1/N2 navigation alignment. Do not rebuild those
-steps. The current follow-up is the N4 viewer-scoped API contract in
-`docs/roadmap/PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT.md`.
+steps. ADR-017, FR-046, SDD-024, SEC-008 and ZV2-CR-002 are approved and implemented;
+the concrete web login/session provider remains the next separately gated identity decision.
 
 1. **RBAC gate seam** — `resolveViewer()` + context (`visibleBusinessIds`, `visibleDomains`, `role`).
    Default dev = OWNER-of-all. Everything below reads from it. *(needed by Home + dropdown removal)*

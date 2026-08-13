@@ -1,14 +1,17 @@
 // @req FR-045 - authorized managed local-file content read.
 // @spec SDD-023, SEC-007
 // @tested tests/unit/fr045-api-ui-contract.test.js
-import { resolveViewer } from '@/modules/identity/resolve-viewer'
+// @req FR-046 — protected API identity comes from the trusted request session.
+// @spec ADR-017, SDD-024, SEC-008
+// @tested tests/unit/fr046-api-ui-contract.test.js
+import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { resolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(_request, { params }) {
+export async function GET(request, { params }) {
   try {
-    const viewer = await resolveViewer()
+    const viewer = await resolveRequestViewer(request)
     const { asset, content } = await resolveFileAssetContent(params.id, { visibleBusinessIds: viewer.visibleBusinessIds })
     const safeName = asset.name.replace(/["\r\n]/g, '_')
     return new Response(content, { headers: {

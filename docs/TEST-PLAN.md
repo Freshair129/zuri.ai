@@ -116,3 +116,13 @@ npm run docs:graph
 npm run docs:check
 npm run docs:preflight
 ```
+
+## FR-046 security matrix (implemented beta)
+
+Coverage is implemented in `tests/unit/fr046-session-port.test.js`,
+`tests/unit/fr046-entry-read-model.test.js`, `tests/unit/fr046-api-ui-contract.test.js`,
+`tests/integration/fr046-entry-contract.test.js` and
+`tests/e2e/fr046-entry-contract.spec.js`. It proves OWNER/MEMBER/trusted DEV/empty
+grant behavior, absent/expired/revoked session denial, adapter failure, forged-input
+immunity, cross-tenant non-disclosure, one-fetch Business Routing and production
+demo-fallback denial. The full regression suite also covers the migrated protected APIs.

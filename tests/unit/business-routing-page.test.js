@@ -9,15 +9,15 @@ const page = readFileSync(resolve(process.cwd(), 'src/app/(entry)/businesses/pag
 // @tested tests/unit/business-routing-page.test.js
 
 describe('FR-044 Business Routing page', () => {
-  it('resolves viewer and scope inventory through the shared fetch hook', () => {
-    expect(page).toContain("useFetch('/api/viewer')")
-    expect(page).toContain("useFetch('/api/scope')")
-    expect(page).toContain('buildBusinessRouting({')
+  it('resolves the authorized entry read model through one shared fetch hook', () => {
+    expect(page).toContain("useFetch('/api/entry')")
+    expect(page).not.toContain("useFetch('/api/viewer')")
+    expect(page).not.toContain("useFetch('/api/scope')")
     expect(page).toContain('BusinessRoutingShell')
   })
 
   it('persists Business selection in ScopeContext before entering Overview', () => {
-    expect(page).toContain('scope.select({ portfolioId: tenant?.portfolioId || null, businessId: business.id })')
+    expect(page).toContain('scope.select({ portfolioId: business.portfolio?.id || null, businessId: business.id })')
     expect(page).toContain("router.push('/overview')")
   })
 

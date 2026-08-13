@@ -151,4 +151,4 @@ feature remains candidate and FR-037 stays operational.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | candidate | Initial stories, TDD, AC, security and compatibility boundary | — | ATHER |
 | 0.2.0b | 2026-08-14 | beta | Added verified W0-W3 delivery status without promoting full AC | — | ATHER |
-| 0.3.0b | 2026-08-14 | beta | Completed W4-W9, all AC, compatibility, backup/remount and retained-reference decision | pending | ATHER |
+| 0.3.0b | 2026-08-14 | beta | Completed W4-W9, all AC, compatibility, backup/remount and retained-reference decision | fb5906a | ATHER |

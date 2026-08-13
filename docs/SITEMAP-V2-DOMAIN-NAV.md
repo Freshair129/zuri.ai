@@ -2,10 +2,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 0.4.0 |
+| **Version** | 0.4.1 |
 | **Status** | Accepted |
 | **Author** | Claude |
-| **Date** | 2026-08-13 |
+| **Date** | 2026-08-14 |
 | **Relates to** | ADR-011 (context-bar and Business scope ceiling — authoritative), ADR-008, ADR-003, ADR-006, FR-020, FR-039, PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
 
 Adopts V1's information architecture — **top-level = domain, sidebar = the domain's
@@ -21,8 +21,9 @@ sub-features, with an explicit root contract per domain** — and binds it to V2
 > **Accepted entry amendment:** ADR-015 / FR-044 changes the pre-shell journey to
 > `Landing (/) → Login stub (/login) → Business Routing (/businesses) → BusinessShell
 > (/overview)`. This amendment is routing-only: no auth implementation and no design-token
-> change. The route boundary and Business Routing proof are implemented; viewer/session
-> authorization remains a separate contract slice.
+> change. The route boundary and Business Routing proof are implemented. ADR-017 /
+> FR-046 now implement the separate trusted viewer/session consumer contract; the
+> concrete production login provider remains a separately gated decision.
 
 ## 1. The three navigation tiers
 

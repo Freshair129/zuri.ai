@@ -1,12 +1,16 @@
 'use client'
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { deriveShell } from '@/lib/shell-mode'
 import { resolveView, DEFAULT_VIEW } from '@/config/scope-views'
 
 // @req FR-002, FR-020, FR-039 — persisted data selection with a Business-bound shell.
 // @spec SDD-018, ADR-011
 // @tested tests/e2e/smoke.spec.js, tests/unit/scope-view-context.test.js
+// @req FR-046 — entry surfaces never prefetch the broad compatibility scope inventory.
+// @spec ADR-017, SDD-024, SEC-008
+// @tested tests/unit/fr046-api-ui-contract.test.js, tests/e2e/fr046-entry-contract.spec.js
 // Scope hierarchy: Portfolio → Tenant → Business → Workspace → Project.
 // Tenant is derived from the selected Business (tenant = isolation, never a branch).
 // `viewMode` (erp | pm) is a presentation lens over the same hierarchy — see scope-views.js.
@@ -15,8 +19,10 @@ const ScopeContext = createContext(null)
 
 const STORAGE_KEY = 'zuri-v2-scope'
 const VIEW_KEY = 'zuri-v2-view'
+const ENTRY_PATHS = new Set(['/', '/login', '/businesses'])
 
 export function ScopeProvider({ children }) {
+  const pathname = usePathname()
   const [data, setData] = useState({
     portfolios: [],
     tenants: [],
@@ -54,8 +60,9 @@ export function ScopeProvider({ children }) {
       if (savedView) setViewMode(savedView)
     } catch {}
     setRestored(true)
+    if (ENTRY_PATHS.has(pathname)) return
     refresh()
-  }, [refresh])
+  }, [pathname, refresh])
 
   useEffect(() => {
     // Never write before the saved selection has been read back, or the empty

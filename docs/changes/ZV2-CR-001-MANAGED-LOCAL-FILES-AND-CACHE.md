@@ -86,4 +86,4 @@ manifest before any filesystem mutation. Unknown files are retained and reported
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | Original scope approved; additive W0-W3 complete; destructive gates remain closed | — | ATHER |
-| 0.2.0b | 2026-08-14 | beta | W4-W9 implemented; legacy and all external mock files retained; no destructive cutover | pending | ATHER |
+| 0.2.0b | 2026-08-14 | beta | W4-W9 implemented; legacy and all external mock files retained; no destructive cutover | fb5906a | ATHER |

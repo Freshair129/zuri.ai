@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Version** | 0.2.0 |
-| **Status** | Implemented — N1/N2/N3 gates passed; N4 deferred |
+| **Version** | 0.3.0 |
+| **Status** | N1/N2/N3 implemented; N4 candidate contract written, awaiting approval |
 | **Date** | 2026-08-13 |
 | **Inputs** | FR-039, FR-044, ADR-011, ADR-015, SDD-018, SDD-022 |
 | **Preflight** | PASS — 0 critical, 0 warning |
@@ -37,7 +37,7 @@ a production authorization boundary.
 | N1 — Canonical domain registry | Remove Overview from Development sub-domain registry and keep `/overview` as BusinessShell root | 5 points | ✅ complete |
 | N2 — Navigation proof | Update Sidebar/DomainBar/Breadcrumb/command-palette contracts and route tests | 6 points | ✅ complete |
 | N3 — Documentation sync | Update sitemap, interface inventory, handoff, acceptance evidence, graph/preflight | 3 points | ✅ complete |
-| N4 — Viewer-scoped API design | ADR + API/FR proposal for server-filtered Business Routing and session boundary | 8 points | Documentation only; separate approval |
+| N4 — Viewer-scoped API design | ADR-017 + FR-046/API/SEC proposal for server-filtered Business Routing and session boundary | 8 points | Candidate docs complete; separate approval before code |
 
 Out of scope: production authentication, session/token storage, new ERP domains,
 Business Strategy mutations, Project schema changes, and design-token redesign.
@@ -105,20 +105,18 @@ regression in Project, People, or Platform routes.
 graph has zero dangling edges, preflight has zero critical/warning findings, and all
 existing protected-route smoke tests enter through Business Routing. ✅
 
-### N4 — Viewer-scoped API contract (separate slice)
+### N4 — Viewer-scoped API contract (candidate package complete)
 
 **Goal:** Replace demo-only client filtering with an explicitly authorized server
 boundary before production authentication.
 
-Deliverables for a later approval:
+Candidate deliverables prepared for owner approval:
 
-1. ADR defining whether `/api/viewer` returns the scope inventory or whether a new
-   viewer-scoped `/api/entry` read model is required.
-2. FR/API contract for Business Routing that makes unauthorized Business rows
-   impossible to infer from the response.
-3. Contract tests for OWNER, MEMBER, DEV, empty grants, and cross-tenant denial.
-4. Migration/rollback note for the eventual session provider; no auth implementation
-   is included in this plan.
+1. ADR-017 selects a new atomic, viewer-scoped `/api/entry` read model.
+2. FR-046 / SDD-024 / SEC-008 define response minimization and trusted-session rules.
+3. PLAN-FR-046 defines OWNER, MEMBER, DEV, empty, forged and cross-tenant tests.
+4. ZV2-CR-002 preserves `/api/viewer` compatibility and excludes `/api/scope` from
+   Business Routing; concrete auth provider/session persistence remains undecided.
 
 ## 5. Risk register
 
@@ -137,8 +135,8 @@ Deliverables for a later approval:
 - [x] Business Overview, DomainBar, Sidebar, Breadcrumb, and command palette agree on
   the same route ownership.
 - [x] Focused and full tests, build, browser proof, and docs gates are green.
-- [x] N4 is explicitly deferred for separate ADR/API approval; no real auth
-claim is made by N1–N3.
+- [x] N4 candidate ADR/API/security package is written for separate approval; no real
+auth claim or code change is made by N1-N3.
 
 ## 7. Verification evidence
 

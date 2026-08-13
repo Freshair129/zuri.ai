@@ -2,12 +2,14 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.2.0 |
+| **Version** | 1.4.0 |
 | **Status** | Draft |
 | **Last Updated** | 2026-08-14 |
 
-ทุก endpoint เป็น local route handler (ไม่มี auth ใน MVP — local demo identity)
-Error shape: `{ error, issues? }` — 400 validation/domain, 404 not found, 500 อื่น ๆ
+ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
+seam; local demo capability เปิดได้เฉพาะ non-production เท่านั้น Error shape คือ
+`{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
+503 session unavailable และ 500 unexpected failure
 
 ## Scope
 
@@ -22,21 +24,40 @@ Error shape: `{ error, issues? }` — 400 validation/domain, 404 not found, 500 
 | GET | `/api/business/strategy?businessId=` | Business-scoped Roadmap, two/three ordered goal horizons, and goal progress read model (FR-041) |
 | GET | `/api/people?businessId=` | viewer-filtered Business People Directory over Person/Membership (FR-042) |
 
-## Entry and Business Routing (FR-044 — planned)
+## Entry and Business Routing (FR-044 and FR-046 implemented beta)
 
-The entry slice intentionally adds **no login/auth endpoint**. `/` and `/login` are
-UI-only stubs; the Login button is a local demo transition to `/businesses` and must
-not be treated as credential validation or session issuance.
+The entry slice selects no real login provider. `/` and `/login` remain UI stubs; in
+non-production the Login form posts to an explicit local demo-session capability.
 
 | Interface | Contract |
 |---|---|
-| `GET /api/viewer` | Resolve the current viewer seam before Business Routing: `principal`, `role`, `visibleBusinessIds`, `visibleDomains`, and `isPlatform`. |
-| `GET /api/scope` | Supply Portfolio/Tenant/Business labels and ids used to render routing ancestry. The selectable operating node is Business. Production authorization must filter this response server-side or introduce a viewer-scoped entry response before real auth is enabled. |
+| `GET /api/viewer` | Compatibility endpoint resolved from the same trusted request session; not used by Business Routing. |
+| `GET /api/scope` | Internal broad scope-management compatibility interface; entry surfaces do not request it. Production hardening remains separately gated. |
 | `BusinessShell guard` | Not an API route: `/overview` and Business domain routes require an authorized `activeBusinessId`; missing selection resolves to `/businesses`, and missing viewer resolves to `/login`. |
 
 No password, OIDC, LINE login, token, session, or new persisted auth contract is part
 of FR-044. Those belong to the later identity implementation and must not be implied
 by the demo Login button.
+
+### Production-shaped boundary (FR-046 / ADR-017)
+
+| Method | Path | Success | Failure |
+|---|---|---|---|
+| GET | `/api/entry` | `200 { viewer, businesses[] }`; each Business embeds only its required Tenant/Portfolio ancestry | `401 { error: "AUTH_REQUIRED" }`; `503 { error: "SESSION_UNAVAILABLE" }` |
+| POST | `/api/session/demo` | non-production only: sets an HttpOnly SameSite=Lax local demo cookie and redirects `303 /businesses` | `404 { error: "NOT_FOUND" }` when disabled or in production |
+
+Contract constraints:
+
+- identity is resolved by a trusted server `SessionPort`; client principal, role,
+  platform grant, visible IDs and domains are never inputs;
+- `/businesses` uses this response alone and stops requesting `/api/viewer` plus
+  `/api/scope`;
+- authenticated empty scope is `200` with `businesses: []`, not `401`;
+- response excludes Membership, Workspace, Project, Branch, LegalEntity, hidden
+  Business and unrelated ancestry rows;
+- `/api/viewer` remains compatibility-only and must use the same trusted request
+  session; `/api/scope` remains outside the pre-shell routing contract;
+- no concrete login provider or session persistence model is selected by FR-046.
 
 ## Project core
 
