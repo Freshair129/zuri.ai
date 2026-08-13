@@ -61,9 +61,10 @@ auto-skip is deferred so the boundary can be verified. It may be reconsidered in
 later ADR without changing the data model.
 
 The final BusinessShell must retain exactly one visible, non-dropdown return action to
-`/businesses`: the selected Business value in the top `Workspace › Organization › Business`
-context bar. The breadcrumb is local to BusinessShell: its Home and Workspace entries
-return to `/overview`, and it is not a second Business selector or an exit to EntryShell.
+`/businesses`: the selected Organization value in the top `Workspace › Organization › Business`
+context bar. The Business value is read-only. The breadcrumb is local to BusinessShell:
+its Home and Workspace entries return to `/overview`, and it is not a second Business
+selector or an exit to EntryShell.
 
 ### D3 — Demo login is explicitly non-authentication
 

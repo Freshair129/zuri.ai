@@ -116,9 +116,9 @@ FR-041/042 and SDD-020, and no known regression exists in Development project ro
 - [x] `/overview` and Business domain routes redirect to `/businesses` when Business is missing and never show an in-shell Business picker.
 - [x] A single visible Business still passes through `/businesses` in this proof slice.
 - [x] Existing Zuri design tokens are reused; no token or landing visual redesign is included.
-- [x] A selected Business can return to `/businesses` only by clicking the Business
-  value in the top `Workspace > Organization > Business` context bar; no separate
-  action, breadcrumb link, or shell dropdown is introduced.
+- [x] A selected Business can return to `/businesses` only by clicking the Organization
+  value in the top `Workspace > Organization > Business` context bar; the Business
+  value is read-only, and no separate action, breadcrumb link, or shell dropdown is introduced.
 - [x] BusinessShell breadcrumb navigation is local-only: Home and Workspace return
   to `/overview` and never exit to `/` or `/businesses`.
 

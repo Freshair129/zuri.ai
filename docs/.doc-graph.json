@@ -778,7 +778,7 @@
       "id": "code:src/components/layouts/Topbar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Topbar.jsx",
-      "hash": "2e8f05a8",
+      "hash": "89b9aae2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1999,7 +1999,7 @@
       "type": "document",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
       "title": "Acceptance Criteria",
-      "hash": "ea9ecf2e",
+      "hash": "9ed40644",
       "status": "current"
     },
     {
@@ -2314,7 +2314,7 @@
       "path": "docs/features/FR-044-entry-landing-login-business-routing.md",
       "title": "FR-044 — Minimal entry and Business Routing before BusinessShell",
       "doc_status": "Implemented — owner-approved; exit gates verified",
-      "hash": "b7153492",
+      "hash": "d6f62852",
       "status": "current"
     },
     {
@@ -3558,7 +3558,7 @@
       "path": "docs/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md",
       "title": "ADR-015 — Minimal entry, demo login, and Business Routing before BusinessShell",
       "doc_status": "Accepted — implementation complete",
-      "hash": "2722ba79",
+      "hash": "554d7797",
       "status": "current"
     },
     {
@@ -3579,7 +3579,7 @@
       "id": "test:tests/e2e/fr044-entry-routing.spec.js",
       "type": "test",
       "path": "tests/e2e/fr044-entry-routing.spec.js",
-      "hash": "e29c4210",
+      "hash": "99d3d38e",
       "status": "current"
     },
     {
@@ -3992,7 +3992,7 @@
       "id": "test:tests/unit/topbar-no-dropdown.test.js",
       "type": "test",
       "path": "tests/unit/topbar-no-dropdown.test.js",
-      "hash": "a149d37a",
+      "hash": "7fbe6b01",
       "status": "current"
     },
     {

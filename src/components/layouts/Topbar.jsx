@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-033, FR-039, FR-044 — topbar is chrome with a read-only three-level context bar and a Business return path.
+// @req FR-033, FR-039, FR-044 — topbar is chrome with a three-level context bar; Organization opens Business Routing and Business is read-only.
 // @spec SDD-012, SDD-018, ADR-011
 // @tested tests/unit/topbar-no-dropdown.test.js, tests/unit/scope-view-context.test.js
 // @req FR-043 - direct Project owner fills the Business context when a deep link has no saved shell selection.
@@ -76,11 +76,11 @@ export default function Topbar({ onOpenPalette }) {
           return (
             <span key={level.schema} className="flex min-w-0 items-center">
               {index > 0 && <span className="mx-2 text-white/25">›</span>}
-              {level.schema === 'business' ? (
+              {level.schema === 'tenant' ? (
                 <Link
                   href="/businesses"
-                  aria-label="Change Business"
-                  title="Select a different Business"
+                  aria-label="Select Business from Organization"
+                  title="Choose a Business in this Organization"
                   className="group min-w-0 rounded-md px-1 py-0.5 transition hover:bg-white/10"
                 >
                   {contextContent}

@@ -16,10 +16,12 @@ describe('Topbar scope boundary', () => {
     expect(topbar).toContain('ViewToggle')
   })
 
-  it('provides an explicit return path to Business Routing without a dropdown', () => {
-    expect(topbar).toContain('Change Business')
+  it('opens Business Routing from Organization while keeping Business read-only', () => {
+    expect(topbar).toContain('Select Business from Organization')
     expect(topbar).toContain('href="/businesses"')
-    expect(topbar).toContain("level.schema === 'business'")
+    expect(topbar).toContain("level.schema === 'tenant'")
+    expect(topbar).not.toContain('Change Business')
+    expect(topbar).not.toContain("level.schema === 'business' ?")
     expect(topbar).not.toContain('ArrowLeftRight')
   })
 

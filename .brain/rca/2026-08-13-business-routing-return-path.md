@@ -31,8 +31,8 @@ breadcrumb.
 
 ## Implemented prevention
 
-The BusinessShell now exposes exactly one `Change Business` link by making the
-Business value in the top context bar navigate to `/businesses`. The breadcrumb is
-local-only: Home and Workspace return to `/overview`, while Business remains read-only.
-Unit and FR-044 browser tests assert the single external affordance, the local root,
-and the no-dropdown rule.
+The BusinessShell now exposes exactly one Business Routing link by making the
+Organization value in the top context bar navigate to `/businesses`. The Business
+value remains read-only. The breadcrumb is local-only: Home and Workspace return to
+`/overview`. Unit and FR-044 browser tests assert the Organization affordance, the
+local root, and the no-dropdown rule.
