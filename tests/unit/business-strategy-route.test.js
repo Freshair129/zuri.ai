@@ -6,7 +6,7 @@ const route = readFileSync(resolve(process.cwd(), 'src/app/api/business/strategy
 
 describe('Business Strategy API contract', () => {
   it('requires the viewer gate and delegates by businessId', () => {
-    expect(route).toContain('resolveViewer')
+    expect(route).toContain('resolveRequestViewer(request)')
     expect(route).toContain('businessId')
     expect(route).toContain('getBusinessStrategy')
   })

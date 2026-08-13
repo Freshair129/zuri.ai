@@ -102,4 +102,4 @@ states, backup/remount proof, documentation traceability and clean release gates
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | candidate | Initial dependency DAG and exit gates | — | ATHER |
 | 0.2.0b | 2026-08-14 | in-progress | Added W0-W3 execution evidence; W4-W9 remain gated | — | ATHER |
-| 0.3.0b | 2026-08-14 | complete | W4-W9 and G1 complete; external mock retained, so no destructive G2 action | pending | ATHER |
+| 0.3.0b | 2026-08-14 | complete | W4-W9 and G1 complete; external mock retained, so no destructive G2 action | fb5906a | ATHER |

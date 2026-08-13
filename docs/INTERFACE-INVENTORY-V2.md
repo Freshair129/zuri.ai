@@ -2,11 +2,11 @@
 
 | Field | Value |
 |---|---|
-| **Version** | 0.2.0 |
-| **Status** | Implemented — FR-044 route boundary verified |
-| **Date** | 2026-08-13 |
+| **Version** | 0.4.0 |
+| **Status** | FR-044 and FR-046 verified beta |
+| **Date** | 2026-08-14 |
 | **Scope** | Entry, Business shell, domains, sub-domains, Project resources, content, indicators, and API contracts |
-| **Authority** | ADR-008, ADR-011, SITEMAP-V2-DOMAIN-NAV, HANDOFF-SHELL-V2-CODEX |
+| **Authority** | ADR-008, ADR-011, ADR-015, ADR-017; SITEMAP-V2-DOMAIN-NAV, HANDOFF-SHELL-V2-CODEX |
 
 ## Executive finding
 
@@ -76,7 +76,7 @@ route layout files: **3** (root, guarded PM, project resource). Actual reusable 
 
 ## 2. Current page/view/content inventory
 
-### 2.1 Page routes (34 page files)
+### 2.1 Page routes (35 page files)
 
 | Surface | Count | Current routes |
 |---|---:|---|
@@ -193,36 +193,36 @@ Topbar/DomainBar/Sidebar mount. If viewer resolution fails, the guard redirects 
 
 ### 6.1 Route coverage
 
-There are **43 API route handlers** under `src/app/api`. Appendix A lists all 43 route
-paths, so path-level API documentation coverage is currently **43/43**.
+There are **55 API route handlers** under `src/app/api`. Appendix A lists their route
+families, including the FR-046 entry and demo-session endpoints.
 
 Key existing interfaces:
 
 | Interface | Role | Status |
 |---|---|---|
-| `GET /api/viewer` | `resolveViewer()` seam: principal, role, visible Business IDs, visible domain keys | present; local development fallback |
+| `GET /api/viewer` | request-session compatibility seam: principal, role, visible Business IDs, visible domain keys | present; fail-closed without trusted request session |
 | `GET /api/scope` | portfolio/tenant/business/workspace/project inventory | present; currently returns the full scope inventory and relies on client filtering |
 | `GET /api/business/strategy?businessId=` | Business roadmap and goal read model | present |
 | `GET /api/people?businessId=` | Business-scoped people directory | present |
 | `GET /api/projects?businessId=` | Business-owned Project list | present |
 | `GET /api/projects/[id]` | Project detail with Business + Space context | present |
-| remaining 37 handlers | PM, import, audit, backup, agent, repository, work, and progress contracts | present and listed in Appendix A |
+| `GET /api/entry` | minimized viewer plus authorized Business ancestry for Business Routing | present; implemented beta |
+| `POST /api/session/demo` | explicit non-production demo-session capability | present; production returns 404 |
+| remaining handlers | PM, import, audit, backup, agent, repository, work, and progress contracts | present and listed by family in Appendix A |
 
-### 6.2 Deferred interface contracts
+### 6.2 Implemented production-shaped entry contract
 
-The following remain intentionally deferred outside FR-044:
+FR-046 / ADR-017 implements the first four boundaries below:
 
-1. authenticated session/login (`/login` is deliberately a stub in FR-044 and has no auth API);
-2. a server-side entry decision (`AUTH_REQUIRED` vs `BUSINESS_REQUIRED` vs `READY`);
-3. route authorization before rendering BusinessShell;
-4. viewer-filtered scope inventory for Business Routing (the current `/api/scope` is broader than the
-   viewer-facing Home contract); and
+1. a trusted request-session consumer seam (the concrete login provider remains undecided);
+2. a server-side entry decision (`AUTH_REQUIRED` vs an authenticated empty/ready response);
+3. protected routes resolving the same trusted viewer before authorization;
+4. one minimal `GET /api/entry` response replacing client intersection of broad `/api/scope`; and
 5. per-Business enabled-domain resolution (the BusinessModule registry is documented as
    deferred, while `visibleDomains` is currently role/domain-grant based).
 
-Appendix A is complete for the **current PM API paths**. Entry routing is a client
-interface boundary in this slice; production authentication and server-side viewer
-filtering remain future contracts.
+Appendix A records the implemented entry endpoints. Credential-provider selection and
+session persistence remain future owner decisions.
 
 ## 7. Documentation coverage audit
 
@@ -248,7 +248,7 @@ the currently declared requirements are linked.
 flowchart LR
   W0[Approve shell boundary] --> W1[Define EntryShell + BusinessShell + ResourceShell]
   W1 --> W2[Define route-state indicator contract]
-  W2 --> W3[Define viewer/session/entry API contract]
+  W2 --> W3[Define viewer/session/entry API contract: ADR-017]
   W3 --> W4[Reconcile ADR-011, SITEMAP, HANDOFF, ROUTES-SITEMAP, Appendix A]
   W4 --> W5[Add fresh FR/SDD + acceptance/exit gates]
   W5 --> W6[Implement route groups and guard]
@@ -267,8 +267,8 @@ this shell boundary; it should not be undone.
    the registry and navigation proof enforce the boundary.
 3. **Implemented:** no selected Business redirects to `/businesses`; no viewer redirects
    to `/login`; unauthorized domain returns `FORBIDDEN`/Business Overview.
-4. **Follow-up:** decide whether `/api/scope` remains an internal broad inventory or a
-   new viewer-scoped entry/session endpoint supplies the production Home contract (N4).
+4. **Implemented beta:** `/api/scope` stays outside pre-shell routing; atomic,
+   viewer-scoped `GET /api/entry` is active (ADR-017 / FR-046).
 
-FR-044 and N1/N2 are implemented and verified. N4 remains documentation-only until its
-separate ADR/API contract is approved.
+FR-044, N1/N2 and N4 are implemented and verified. A concrete login provider and
+persisted session remain separately gated.

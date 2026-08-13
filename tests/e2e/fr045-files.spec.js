@@ -5,7 +5,7 @@ const { test, expect } = require('@playwright/test')
 
 async function chooseBusiness(page) {
   await page.goto('/login')
-  await page.getByRole('link', { name: /demo login/i }).click()
+  await page.getByRole('button', { name: /demo login/i }).click()
   await page.getByRole('button', { name: /Open Business Business 01/i }).click()
   await expect(page).toHaveURL(/overview/)
 }
@@ -22,6 +22,7 @@ test.describe('FR-045 Business File Manager', () => {
   })
 
   test('fails a Business aggregation request outside the viewer scope', async ({ request }) => {
+    await request.post('/api/session/demo', { maxRedirects: 0 })
     const response = await request.get('/api/business/files?businessId=not-visible')
     expect(response.status()).toBe(400)
     expect((await response.json()).error).toMatch(/not visible/i)

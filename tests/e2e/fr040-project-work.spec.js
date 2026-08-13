@@ -5,7 +5,7 @@ const { test, expect } = require('@playwright/test')
 
 async function chooseBusiness(page, name = 'Business 01') {
   await page.goto('/login')
-  await page.getByRole('link', { name: /demo login/i }).click()
+  await page.getByRole('button', { name: /demo login/i }).click()
   await page.getByRole('button', { name: new RegExp(`Open Business ${name}`) }).click()
   await expect(page).toHaveURL(/overview/)
 }

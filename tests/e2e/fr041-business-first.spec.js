@@ -6,7 +6,7 @@ const { test, expect } = require('@playwright/test')
 
 async function chooseBusiness(page, name = 'Business 01') {
   await page.goto('/login')
-  await page.getByRole('link', { name: /demo login/i }).click()
+  await page.getByRole('button', { name: /demo login/i }).click()
   await page.getByRole('button', { name: new RegExp(`Open Business ${name}`) }).click()
   await expect(page).toHaveURL(/overview/)
 }
@@ -38,6 +38,7 @@ test.describe('FR-041/042 Business-first shell', () => {
   })
 
   test('strategy and people API contracts stay Business-scoped', async ({ request }) => {
+    await request.post('/api/session/demo', { maxRedirects: 0 })
     const scope = await (await request.get('/api/scope')).json()
     const business = scope.businesses.find((item) => item.code === 'BUS-001')
     const strategy = await request.get(`/api/business/strategy?businessId=${business.id}`)
