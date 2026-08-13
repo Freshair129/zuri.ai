@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-034, FR-039, FR-043 — breadcrumb mirrors shell context and direct Project ownership.
+// @req FR-034, FR-039, FR-043, FR-044 — breadcrumb mirrors shell context, direct Project ownership, and Business return path.
 // @spec SDD-018, SDD-021, ADR-011, ADR-014
 // @tested tests/unit/breadcrumb-switcher.test.js, tests/unit/scope-view-context.test.js
 import Link from 'next/link'
@@ -33,7 +33,7 @@ export default function Breadcrumb() {
     crumbs.push({ label: displayTenant.name, eyebrow: 'Organization' })
   }
   if (displayBusiness) {
-    crumbs.push({ label: displayBusiness.name, eyebrow: 'Business', href: '/', switcher: true })
+    crumbs.push({ label: displayBusiness.name, eyebrow: 'Business', href: '/businesses', switcher: true })
   }
   if (project) {
     crumbs.push({ label: project.code || project.name, eyebrow: 'Project' })

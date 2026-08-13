@@ -6,7 +6,7 @@ source: v2-native
 
 # FR-044 — Minimal entry and Business Routing before BusinessShell
 
-**Version**: 0.2.0
+**Version**: 0.3.0
 
 | Field | Value |
 |---|---|
@@ -38,6 +38,7 @@ shell. The first slice contains only routing proof surfaces:
 | AC-044.6 | `/businesses` remains visible for a single-Business viewer in this slice; auto-skip is not used because the routing boundary is the feature under proof. |
 | AC-044.7 | Landing, Login, and Business Routing reuse existing design tokens and primitives. No new token, font, palette, spacing, or visual-system document is introduced. |
 | AC-044.8 | The implementation preserves `Project.businessId` as the owner and `Project.workspaceId` as Space context; this feature changes entry routing only. |
+| AC-044.9 | A selected Business can return to `/businesses` through the shell's `Change Business` action and the Business breadcrumb; no dropdown is introduced. |
 
 ## Exit gate
 
@@ -51,6 +52,8 @@ shell. The first slice contains only routing proof surfaces:
 - [x] Existing tokens are reused; no design-system diff beyond route composition.
 - [x] `npm test`, `npm run build`, `npm run docs:graph`, `npm run docs:preflight`, and
       `npm run docs:check` pass.
+- [x] The selected Business has a visible return path to Business Routing from the
+      BusinessShell and the breadcrumb points to `/businesses`.
 
 ## Out of scope
 

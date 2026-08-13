@@ -1,13 +1,13 @@
 'use client'
 
-// @req FR-033, FR-039 — topbar is chrome with a read-only three-level context bar.
+// @req FR-033, FR-039, FR-044 — topbar is chrome with a read-only three-level context bar and a Business return path.
 // @spec SDD-012, SDD-018, ADR-011
 // @tested tests/unit/topbar-no-dropdown.test.js, tests/unit/scope-view-context.test.js
 // @req FR-043 - direct Project owner fills the Business context when a deep link has no saved shell selection.
 // @spec ADR-014, SDD-021
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Bell, Command, Plus, Sparkles } from 'lucide-react'
+import { ArrowLeftRight, Bell, Command, Plus, Sparkles } from 'lucide-react'
 import { useScope } from '@/context/ScopeContext'
 import { BASE_CONTEXT_LEVELS, SCOPE_VIEWS } from '@/config/scope-views'
 
@@ -82,6 +82,14 @@ export default function Topbar({ onOpenPalette }) {
       <div className="min-w-0 flex-1" />
 
       <div className="flex items-center gap-2">
+        <Link
+          href="/businesses"
+          aria-label="Change Business"
+          title="Select a different Business"
+          className="flex h-9 items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 text-xs text-white/80 transition hover:bg-white/15 hover:text-white"
+        >
+          <ArrowLeftRight size={13} aria-hidden /> <span className="max-md:hidden">Change Business</span>
+        </Link>
         <button
           type="button"
           className="flex h-9 items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 text-xs"

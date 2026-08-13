@@ -5,8 +5,9 @@ import { describe, expect, it } from 'vitest'
 const breadcrumb = readFileSync(resolve(process.cwd(), 'src/components/layouts/Breadcrumb.jsx'), 'utf8')
 
 describe('Breadcrumb scope switcher', () => {
-  it('maps only shell context back to Home', () => {
+  it('maps the Business context back to Business Routing and the outer context to Home', () => {
     expect(breadcrumb).toContain("href: '/', switcher: true")
+    expect(breadcrumb).toContain("href: '/businesses', switcher: true")
   })
 
   it('keeps Workspace, Organization, and Business in the context trail', () => {

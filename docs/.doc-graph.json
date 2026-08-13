@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 580,
-    "total_edges": 812,
+    "total_edges": 817,
     "dangling_edges": 0,
     "node_types": {
       "document": 60,
@@ -644,13 +644,14 @@
       "id": "code:src/components/layouts/Breadcrumb.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Breadcrumb.jsx",
-      "hash": "1f43695a",
+      "hash": "fcf99b02",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-034",
           "FR-039",
-          "FR-043"
+          "FR-043",
+          "FR-044"
         ],
         "@spec": [
           "SDD-018",
@@ -777,12 +778,13 @@
       "id": "code:src/components/layouts/Topbar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Topbar.jsx",
-      "hash": "afb56dbe",
+      "hash": "20602fa7",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-033",
           "FR-039",
+          "FR-044",
           "FR-043"
         ],
         "@spec": [
@@ -1997,7 +1999,7 @@
       "type": "document",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
       "title": "Acceptance Criteria",
-      "hash": "b79928f4",
+      "hash": "64d456b3",
       "status": "current"
     },
     {
@@ -2063,7 +2065,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "c3f47c7c",
+      "hash": "ae32a330",
       "status": "current"
     },
     {
@@ -2157,7 +2159,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "55111f46",
+      "hash": "0367cdba",
       "status": "current"
     },
     {
@@ -2312,7 +2314,7 @@
       "path": "docs/features/FR-044-entry-landing-login-business-routing.md",
       "title": "FR-044 — Minimal entry and Business Routing before BusinessShell",
       "doc_status": "Implemented — owner-approved; exit gates verified",
-      "hash": "c6285de0",
+      "hash": "7aad2597",
       "status": "current"
     },
     {
@@ -3556,7 +3558,7 @@
       "path": "docs/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md",
       "title": "ADR-015 — Minimal entry, demo login, and Business Routing before BusinessShell",
       "doc_status": "Accepted — implementation complete",
-      "hash": "bd01dbde",
+      "hash": "356ec57f",
       "status": "current"
     },
     {
@@ -3577,7 +3579,7 @@
       "id": "test:tests/e2e/fr044-entry-routing.spec.js",
       "type": "test",
       "path": "tests/e2e/fr044-entry-routing.spec.js",
-      "hash": "fdb76f6a",
+      "hash": "4186a393",
       "status": "current"
     },
     {
@@ -3766,7 +3768,7 @@
       "id": "test:tests/unit/breadcrumb-switcher.test.js",
       "type": "test",
       "path": "tests/unit/breadcrumb-switcher.test.js",
-      "hash": "2a94d301",
+      "hash": "8461bcd7",
       "status": "current"
     },
     {
@@ -3990,7 +3992,7 @@
       "id": "test:tests/unit/topbar-no-dropdown.test.js",
       "type": "test",
       "path": "tests/unit/topbar-no-dropdown.test.js",
-      "hash": "8f8a1ec7",
+      "hash": "d7e02dbd",
       "status": "current"
     },
     {
@@ -6087,6 +6089,13 @@
     },
     {
       "from": "code:src/components/layouts/Breadcrumb.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Breadcrumb.jsx",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -6207,6 +6216,13 @@
     {
       "from": "code:src/components/layouts/Topbar.jsx",
       "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Topbar.jsx",
+      "to": "req:FR-044",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -9923,6 +9939,13 @@
     },
     {
       "from": "test:tests/unit/breadcrumb-switcher.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/breadcrumb-switcher.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -10875,6 +10898,13 @@
     },
     {
       "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
       "to": "req:SDD-012",
       "type": "verifies",
       "status": "current",
@@ -10995,6 +11025,13 @@
     {
       "from": "test:tests/unit/topbar-no-dropdown.test.js",
       "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/topbar-no-dropdown.test.js",
+      "to": "req:FR-044",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

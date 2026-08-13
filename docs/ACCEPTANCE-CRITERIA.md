@@ -116,6 +116,8 @@ FR-041/042 and SDD-020, and no known regression exists in Development project ro
 - [x] `/overview` and Business domain routes redirect to `/businesses` when Business is missing and never show an in-shell Business picker.
 - [x] A single visible Business still passes through `/businesses` in this proof slice.
 - [x] Existing Zuri design tokens are reused; no token or landing visual redesign is included.
+- [x] A selected Business can return to `/businesses` from the BusinessShell via the
+  `Change Business` action and Business breadcrumb; no shell dropdown is introduced.
 
 Exit gate: FR-044, ADR-015, and SDD-022 are approved; route-state tests, browser
 journey proof, build, full tests, and docs graph/preflight/check all pass. ✅
