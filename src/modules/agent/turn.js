@@ -2,6 +2,7 @@ import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { assembleAgentContext } from './context'
 import { executeAgentAction } from './action-gate'
 import { zHandleAgentTurnInput } from '@/lib/validation/entities'
+import { answerBusinessQuestion } from './grounded-business-answer'
 
 // @req FR-027 — one end-to-end agent turn: the full ADR-007 P7 path composed in one
 //   entry — LINE ingest (FR-023) → read context (FR-025) → optional Gate F action
@@ -26,7 +27,7 @@ const GRACEFUL = /^(AGENT_ACTION_DENIED|STEP_UP_REQUIRED)/
  * @param {object} [ports.writeRegistry]                       defaults to defaultWriteTools()
  * @returns {Promise<{ inbound, identity, knowledge, action, response }>}
  */
-export async function handleAgentTurn(input, { memory, knowledge, readTools, writeRegistry } = {}) {
+export async function handleAgentTurn(input, { memory, knowledge, readTools, writeRegistry, businessKnowledge, model } = {}) {
   const { tenantId, businessId, lineUserId, displayName, text, threadId, externalMessageId, action } =
     zHandleAgentTurnInput.parse(input)
 
@@ -54,6 +55,23 @@ export async function handleAgentTurn(input, { memory, knowledge, readTools, wri
         action: action.name,
         reason: msg,
       }
+    }
+  } else if (businessId && businessKnowledge && model && inbound.created.message === false) {
+    response = { kind: 'DUPLICATE', skipReply: true }
+  } else if (businessId && businessKnowledge && model) {
+    const answer = await answerBusinessQuestion(
+      { businessId, question: text },
+      { knowledge: businessKnowledge, model },
+    )
+    response = {
+      kind: 'ANSWER',
+      text: answer.text,
+      grounded: answer.grounded,
+      evidenceCount: answer.evidence.records.length,
+      sourceRefs: [...new Set(answer.evidence.records.map((record) => record.source_ref))],
+      asOf: answer.evidence.asOf,
+      provider: answer.provider,
+      verification: answer.verification,
     }
   } else {
     // Read-only answer path (no LLM in the lab): a structured answer grounded in the KG.

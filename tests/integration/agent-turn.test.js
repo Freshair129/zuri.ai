@@ -45,6 +45,55 @@ describe('handleAgentTurn (FR-027)', () => {
     expect(r.identity.principalType).toBe('CUSTOMER')
   })
 
+  it('uses the Phase 1 grounded business-answer ports when configured', async () => {
+    const businessKnowledge = {
+      query: async ({ businessId }) => ({
+        queryId: 'product_detail', queryVersion: '1.0.0', businessId,
+        sensitivity: 'PUBLIC', asOf: '2026-08-12T00:00:00.000Z',
+        records: [{
+          knowledge_id: 'sg:sku:USB-001', business_id: businessId, knowledge_type: 'PRODUCT',
+          product_code: 'USB-001', name: 'แฟลชไดรฟ์ไม้', category: 'USB', description: null,
+          unit: 'ชิ้น', sell_price: 120, currency: 'THB', moq: 100, colors: ['ไม้'],
+          specification: { capacity: '32GB' }, source_ref: 'catalog:usb',
+          source_sha256: 'a'.repeat(64), as_of: '2026-08-12T00:00:00.000Z',
+          approved_at: '2026-08-14T00:00:00.000Z', is_active: true,
+          sensitivity: 'PUBLIC', contract_version: '1.0.0',
+        }],
+      }),
+    }
+    const model = {
+      provider: 'openai', model: 'test',
+      generate: async () => ({ provider: 'openai', model: 'test', status: 'ok', text: 'ราคา 120 บาท ขั้นต่ำ 100 ชิ้น' }),
+    }
+    const r = await handleAgentTurn({
+      tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-p1',
+      threadId: 'T-trn-p1', text: 'USB-001 ราคาเท่าไร', externalMessageId: 'MT-P1',
+    }, { businessKnowledge, model })
+
+    expect(r.response.kind).toBe('ANSWER')
+    expect(r.response.text).toContain('120')
+    expect(r.response.grounded).toBe(true)
+    expect(r.response.evidenceCount).toBe(1)
+    expect(r.response.sourceRefs).toEqual(['catalog:usb'])
+  })
+
+  it('does not call the provider again for a redelivered Phase 1 external message', async () => {
+    const businessKnowledge = { query: async ({ businessId }) => ({
+      queryId: 'product_detail', queryVersion: '1.0.0', businessId, sensitivity: 'PUBLIC',
+      asOf: '2026-08-12T00:00:00.000Z', records: [],
+    }) }
+    let calls = 0
+    const model = { provider: 'openai', model: 'test', generate: async () => { calls++; return { text: 'x' } } }
+    const input = {
+      tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-p1-retry',
+      threadId: 'T-trn-p1-retry', text: 'USB-404 ราคาเท่าไร', externalMessageId: 'MT-P1-RETRY',
+    }
+    await handleAgentTurn(input, { businessKnowledge, model })
+    const replay = await handleAgentTurn(input, { businessKnowledge, model })
+    expect(calls).toBe(0)
+    expect(replay.response).toMatchObject({ kind: 'DUPLICATE', skipReply: true })
+  })
+
   it('a staff turn requesting a LOW action executes it (ACTION_DONE)', async () => {
     await staffSubject('PSN-trn-staff1', 'Utrn-staff1')
     // a customer conversation to close

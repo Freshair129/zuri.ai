@@ -50,6 +50,23 @@ early; a writing agent is not, until authorization, audit and step-up auth are p
 
 ## Consequences
 
+### Approved minimum pilot amendment (2026-08-14)
+
+The owner approved `docs/roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md`
+as a bounded read-only pilot before the later memory stack. This amendment does not reorder the
+production gates above. It authorizes only:
+
+- `FR-047`: curated SmartGift public knowledge through a DuckDB/Supabase adapter boundary;
+- `FR-048`: configured model-provider ports using OpenRouter OAuth references or provider API keys;
+- `FR-049`: evidence-grounded Thai answers with deterministic fail-closed fallback; and
+- `FR-050`: one idempotent reply through the existing signature-verified `zuri-cli` transport.
+
+For this pilot, `zuri-cli` owns LINE signature verification and Reply API delivery; `zuri-ai`
+owns the business-knowledge contract, provider invocation, and answer verification. MSP, GKS,
+GenesisBlockDB, identity linking, group behavior, actions and OmiChat remain outside Phase 1.
+Supabase provisioning, production traffic, credentials and real data upload still require the
+owner-provided target project and secret boundary.
+
 - **This refines, does not replace, `IMPLEMENTATION-PLAN-V2-REPLACE.md`.** That plan's
   W3 (identity), W4 (Postgres), W6 (LINE/AI), W7 (PDPA) are the same work; this ADR
   fixes their **order and gating** and inserts **P1 (extract MSP)** ahead of them as a

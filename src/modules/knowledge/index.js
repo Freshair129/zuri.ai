@@ -9,3 +9,10 @@ export { writeGraph, createJsonSink } from './sink'
 export { createGenesisBlockDBSink } from './genesisblockdb-sink'
 export { createGraphKnowledgeReader } from './graph-query'
 export { assertNoLiveFacts, LIVE_FACT_FIELDS } from './live-facts'
+export {
+  PUBLIC_BUSINESS_KNOWLEDGE_FIELDS,
+  normalizeBusinessKnowledgeRecord,
+  parseBusinessKnowledgeQuery,
+  createInMemoryBusinessKnowledgeReader,
+} from './business-contract'
+export { createSupabaseBusinessKnowledgeReader } from './supabase-business-knowledge'
