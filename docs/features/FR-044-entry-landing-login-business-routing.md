@@ -6,7 +6,7 @@ source: v2-native
 
 # FR-044 — Minimal entry and Business Routing before BusinessShell
 
-**Version**: 0.4.0
+**Version**: 0.5.0
 
 | Field | Value |
 |---|---|
@@ -39,6 +39,7 @@ shell. The first slice contains only routing proof surfaces:
 | AC-044.7 | Landing, Login, and Business Routing reuse existing design tokens and primitives. No new token, font, palette, spacing, or visual-system document is introduced. |
 | AC-044.8 | The implementation preserves `Project.businessId` as the owner and `Project.workspaceId` as Space context; this feature changes entry routing only. |
 | AC-044.9 | A selected Business can return to `/businesses` by clicking the Business value in the top context bar (`Workspace › Organization › Business`); no separate action or dropdown is introduced, and the breadcrumb remains read-only. |
+| AC-044.10 | The BusinessShell breadcrumb is local navigation only: Home and Workspace return to `/overview`, while it never exits to Landing or Business Routing; changing Business remains exclusive to the Topbar Business value. |
 
 ## Exit gate
 
@@ -54,6 +55,8 @@ shell. The first slice contains only routing proof surfaces:
       `npm run docs:check` pass.
 - [x] The selected Business has exactly one visible return path to Business Routing:
       the Business value in the top context bar; the breadcrumb is read-only.
+- [x] BusinessShell breadcrumb navigation stays inside `/overview`; it does not link to
+      `/` or `/businesses`.
 
 ## Out of scope
 

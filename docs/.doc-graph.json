@@ -644,7 +644,7 @@
       "id": "code:src/components/layouts/Breadcrumb.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Breadcrumb.jsx",
-      "hash": "a3ae854e",
+      "hash": "b6a489c3",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1999,7 +1999,7 @@
       "type": "document",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
       "title": "Acceptance Criteria",
-      "hash": "129717ed",
+      "hash": "ea9ecf2e",
       "status": "current"
     },
     {
@@ -2314,7 +2314,7 @@
       "path": "docs/features/FR-044-entry-landing-login-business-routing.md",
       "title": "FR-044 — Minimal entry and Business Routing before BusinessShell",
       "doc_status": "Implemented — owner-approved; exit gates verified",
-      "hash": "5b1a88be",
+      "hash": "b7153492",
       "status": "current"
     },
     {
@@ -3558,7 +3558,7 @@
       "path": "docs/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md",
       "title": "ADR-015 — Minimal entry, demo login, and Business Routing before BusinessShell",
       "doc_status": "Accepted — implementation complete",
-      "hash": "c4f47a9a",
+      "hash": "2722ba79",
       "status": "current"
     },
     {
@@ -3579,7 +3579,7 @@
       "id": "test:tests/e2e/fr044-entry-routing.spec.js",
       "type": "test",
       "path": "tests/e2e/fr044-entry-routing.spec.js",
-      "hash": "599b854a",
+      "hash": "e29c4210",
       "status": "current"
     },
     {
@@ -3768,7 +3768,7 @@
       "id": "test:tests/unit/breadcrumb-switcher.test.js",
       "type": "test",
       "path": "tests/unit/breadcrumb-switcher.test.js",
-      "hash": "3d346281",
+      "hash": "ffa81b51",
       "status": "current"
     },
     {

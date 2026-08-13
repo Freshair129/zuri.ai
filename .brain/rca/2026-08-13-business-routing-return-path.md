@@ -33,5 +33,6 @@ breadcrumb.
 
 The BusinessShell now exposes exactly one `Change Business` link by making the
 Business value in the top context bar navigate to `/businesses`. The breadcrumb is
-read-only. Unit and FR-044 browser tests assert the single affordance and destination
-while preserving the no-dropdown rule.
+local-only: Home and Workspace return to `/overview`, while Business remains read-only.
+Unit and FR-044 browser tests assert the single external affordance, the local root,
+and the no-dropdown rule.

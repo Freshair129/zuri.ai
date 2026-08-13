@@ -62,7 +62,8 @@ later ADR without changing the data model.
 
 The final BusinessShell must retain exactly one visible, non-dropdown return action to
 `/businesses`: the selected Business value in the top `Workspace › Organization › Business`
-context bar. The breadcrumb is read-only and is not a second Business selector.
+context bar. The breadcrumb is local to BusinessShell: its Home and Workspace entries
+return to `/overview`, and it is not a second Business selector or an exit to EntryShell.
 
 ### D3 — Demo login is explicitly non-authentication
 

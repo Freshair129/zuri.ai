@@ -6,9 +6,15 @@ const breadcrumb = readFileSync(resolve(process.cwd(), 'src/components/layouts/B
 
 describe('Breadcrumb scope switcher', () => {
   it('keeps the Business breadcrumb read-only; only the top context bar changes Business', () => {
-    expect(breadcrumb).toContain("href: '/', switcher: true")
+    expect(breadcrumb).toContain("href: shellRoot, switcher: true")
     expect(breadcrumb).toContain("crumbs.push({ label: displayBusiness.name, eyebrow: 'Business' })")
     expect(breadcrumb).not.toContain("href: '/businesses'")
+  })
+
+  it('keeps Home and Workspace breadcrumb navigation inside BusinessShell', () => {
+    expect(breadcrumb).toContain("const shellRoot = '/overview'")
+    expect(breadcrumb).toContain('href={shellRoot} aria-label="Home"')
+    expect(breadcrumb).not.toContain('href="/" aria-label="Home"')
   })
 
   it('keeps Workspace, Organization, and Business in the context trail', () => {

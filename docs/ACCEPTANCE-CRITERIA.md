@@ -119,6 +119,8 @@ FR-041/042 and SDD-020, and no known regression exists in Development project ro
 - [x] A selected Business can return to `/businesses` only by clicking the Business
   value in the top `Workspace > Organization > Business` context bar; no separate
   action, breadcrumb link, or shell dropdown is introduced.
+- [x] BusinessShell breadcrumb navigation is local-only: Home and Workspace return
+  to `/overview` and never exit to `/` or `/businesses`.
 
 Exit gate: FR-044, ADR-015, and SDD-022 are approved; route-state tests, browser
 journey proof, build, full tests, and docs graph/preflight/check all pass. ✅
