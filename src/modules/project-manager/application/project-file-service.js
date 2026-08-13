@@ -5,6 +5,7 @@ import prisma from '@/lib/db'
 import { uniqueHumanCode } from '@/lib/ids'
 import { zProjectFileInput } from '@/lib/validation/entities'
 import { recordAudit } from './audit'
+import { legacyFileAssetDto } from './file-asset-service'
 
 const codeExists = async (code) => Boolean(await prisma.projectFile.findUnique({ where: { code } }))
 
@@ -16,11 +17,19 @@ async function assertProject(db, projectId) {
 
 export async function listProjectFiles(projectId, { db = prisma } = {}) {
   await assertProject(db, projectId)
-  return db.projectFile.findMany({
+  const legacy = await db.projectFile.findMany({
     where: { projectId },
     orderBy: { createdAt: 'desc' },
     include: { workItem: { select: { id: true, code: true, title: true } } },
   })
+  if (!db.fileAsset?.findMany) return legacy
+  const managed = await db.fileAsset.findMany({
+    where: { projectId, deletedAt: null },
+    orderBy: { createdAt: 'desc' },
+    include: { workItem: { select: { id: true, code: true, title: true } } },
+  })
+  const managedIds = new Set(managed.map((file) => file.id))
+  return [...managed.map(legacyFileAssetDto), ...legacy.filter((file) => !managedIds.has(file.id))]
 }
 
 export async function createProjectFile(projectId, input, { db = prisma } = {}) {
@@ -52,8 +61,12 @@ export async function createProjectFile(projectId, input, { db = prisma } = {}) 
 export async function deleteProjectFile(projectId, fileId, { db = prisma } = {}) {
   await assertProject(db, projectId)
   const file = await db.projectFile.findFirst({ where: { id: fileId, projectId } })
-  if (!file) throw new Error('Project file not found')
-  await db.projectFile.delete({ where: { id: fileId } })
-  await recordAudit(db, { entityType: 'PROJECT_FILE', entityId: fileId, action: 'DELETED', payload: { projectId, code: file.code } })
+  const asset = db.fileAsset?.findFirst
+    ? await db.fileAsset.findFirst({ where: { id: fileId, projectId, deletedAt: null } })
+    : null
+  if (!file && !asset) throw new Error('Project file not found')
+  if (file) await db.projectFile.delete({ where: { id: fileId } })
+  if (asset) await db.fileAsset.update({ where: { id: fileId }, data: { deletedAt: new Date(), version: { increment: 1 } } })
+  await recordAudit(db, { entityType: asset ? 'FILE_ASSET' : 'PROJECT_FILE', entityId: fileId, action: 'DELETED', payload: { projectId, code: asset?.code || file?.code } })
   return { id: fileId }
 }

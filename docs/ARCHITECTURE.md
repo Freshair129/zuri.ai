@@ -154,3 +154,27 @@ Snapshot contains:
 
 Do not silently overwrite a database on import.
 Always preview counts/conflicts first.
+
+## Managed local file workspace (implemented FR-045)
+
+```text
+Business / Project File Manager
+              |
+              v
+       File application service
+        |                  |
+        v                  v
+SQLite repository       Filesystem port
+(identity, scope,       (content under a
+ links, audit, state)    mounted root)
+        |
+        v
+Disposable cache projection (.zuri/cache)
+```
+
+SQLite remains the only relational authority. The filesystem port accepts only
+normalized relative paths contained by a device-local Business mount. Product and
+Workstream relations remain queryable links rather than canonical folders. A local
+runtime bridge may reveal a file in Explorer; ordinary hosted web routes may not
+launch an OS process. Detailed contracts and migration gates are in ADR-016,
+FR-045 and ZV2-CR-001.

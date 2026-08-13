@@ -186,3 +186,30 @@ Fields:
 - actorType
 - actorId?
 - occurredAt
+
+## Managed local files (implemented FR-045)
+
+`FileAsset` is the stable identity and metadata record for one file. It carries
+Tenant/Business authorization, optional primary Project/WorkItem scope, explicit
+storage kind, normalized relative path or external reference, hash, size, status,
+version and timestamps.
+
+`FileLink` links one FileAsset into approved secondary entity views. Its typed
+target is validated by the application service for existence and Tenant/Business
+scope; clients cannot invent an arbitrary entity type.
+
+`LocalWorkspaceMount` maps a Business and device to an absolute filesystem root.
+The root is device-local configuration, not portable identity. FileAsset relative
+paths and UUIDs survive remounting at another root.
+
+```text
+Business ----< Project
+   |             |
+   +----< FileAsset >---- FileLink ----> approved entity
+                |
+                +---- relative path ----> LocalWorkspaceMount root
+```
+
+The existing `ProjectFile` remains active behind the compatibility adapter during
+the evidence window. Removal requires a separate future change; FR-045 does not
+delete legacy rows or routes.

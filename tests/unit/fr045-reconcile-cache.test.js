@@ -1,0 +1,52 @@
+// @req FR-045 — reconcile and cache are explicit, audited and rebuildable.
+// @spec SDD-023, BR-010, SEC-007
+// @tested tests/unit/fr045-reconcile-cache.test.js
+import { describe, expect, it, vi } from 'vitest'
+import { reconcileLocalFiles, rebuildBusinessFileCache } from '@/modules/project-manager/application/file-reconcile-cache-service'
+import { buildBusinessFileManagerReadModel } from '@/modules/project-manager/application/file-manager-read-model'
+
+describe('FR-045 reconcile and cache', () => {
+  it('dry-runs missing/untracked changes and mutates only after confirm', async () => {
+    const updateMany = vi.fn().mockResolvedValue({ count: 1 })
+    const db = {
+      localWorkspaceMount: { findUnique: vi.fn().mockResolvedValue({ id: 'mount-a', businessId: 'business-a', rootPath: 'D:\\workspace', status: 'ACTIVE' }) },
+      fileAsset: {
+        findMany: vi.fn().mockResolvedValue([
+          { id: 'a', businessId: 'business-a', storageKind: 'LOCAL_FILE', relativePath: 'Projects/P/file-a.txt', status: 'ACTIVE' },
+          { id: 'b', businessId: 'business-a', storageKind: 'LOCAL_FILE', relativePath: 'Projects/P/file-b.txt', status: 'MISSING' },
+        ]),
+        updateMany,
+      },
+      auditEvent: { create: vi.fn().mockResolvedValue({}) },
+      $transaction: vi.fn(async (callback) => callback(db)),
+    }
+    const scan = vi.fn().mockResolvedValue(['Projects/P/file-b.txt', 'Inbox/untracked.pdf'])
+    const preview = await reconcileLocalFiles({ businessId: 'business-a', mountId: 'mount-a', confirm: false }, { db, visibleBusinessIds: ['business-a'], scan })
+    expect(preview).toMatchObject({ confirmed: false, missing: ['a'], restored: ['b'], untracked: ['Inbox/untracked.pdf'] })
+    expect(updateMany).not.toHaveBeenCalled()
+    const committed = await reconcileLocalFiles({ businessId: 'business-a', mountId: 'mount-a', confirm: true }, { db, visibleBusinessIds: ['business-a'], scan })
+    expect(committed.confirmed).toBe(true)
+    expect(updateMany).toHaveBeenCalledTimes(2)
+  })
+
+  it('rebuilds a revisioned cache from the canonical read model via atomic promotion', async () => {
+    const db = {
+      localWorkspaceMount: { findUnique: vi.fn().mockResolvedValue({ id: 'mount-a', businessId: 'business-a', rootPath: 'D:\\workspace', status: 'ACTIVE' }) },
+      project: { findMany: vi.fn().mockResolvedValue([{ id: 'p', code: 'P', businessId: 'business-a', deletedAt: null }]) },
+      fileAsset: { findMany: vi.fn().mockResolvedValue([{ id: 'a', code: 'A', businessId: 'business-a', projectId: 'p', status: 'ACTIVE', storageKind: 'LOCAL_FILE', name: 'a', mime: 'text/plain', size: 1, version: 1 }]) },
+      auditEvent: { create: vi.fn().mockResolvedValue({}) },
+    }
+    const port = { stageWrite: vi.fn().mockResolvedValue('tmp'), promote: vi.fn().mockResolvedValue('cache') }
+    const result = await rebuildBusinessFileCache({ businessId: 'business-a', mountId: 'mount-a' }, { db, visibleBusinessIds: ['business-a'], filesystemPort: port })
+    expect(result).toMatchObject({ businessId: 'business-a', assetCount: 1, relativePath: '.zuri/cache/business-overview/files.json' })
+    expect(result.sourceRevision).toMatch(/^[a-f0-9]{64}$/)
+    expect(port.stageWrite).toHaveBeenCalled()
+    expect(port.promote).toHaveBeenCalled()
+    const staged = JSON.parse(port.stageWrite.mock.calls[0][0].content.toString())
+    expect(staged.readModel).toEqual(buildBusinessFileManagerReadModel({
+      businessId: 'business-a', visibleBusinessIds: ['business-a'],
+      projects: await db.project.findMany(), assets: await db.fileAsset.findMany(),
+      localCapability: { available: false, reason: 'Cache projection' },
+    }))
+  })
+})

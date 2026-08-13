@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-11 |
+| **Last Updated** | 2026-08-14 |
 
 | Term | ไทย (คำที่ใช้ใน UI) | ความหมาย |
 |---|---|---|
@@ -29,3 +29,8 @@
 | Human code | รหัสอ่านได้ | `PRJ-…`, `WST-…` — ตัวระบุแสดงผล ไม่ใช่ PK |
 | External ID | รหัสจากระบบลูกค้า | core id ของธุรกิจลูกค้า — map ผ่าน ExternalRef ไม่ทับ code |
 | AuditEvent | บันทึกเหตุการณ์ | สายเหตุการณ์ append-only ของการเปลี่ยนแปลงสำคัญ |
+| FileAsset | ไฟล์ | ตัวตนและ metadata ที่ SQLite เป็นเจ้าของ; content อาจเป็น local file, managed blob หรือ external URL |
+| FileLink | ลิงก์ไฟล์ | ความสัมพันธ์รองจาก FileAsset ไปยัง entity view ที่ผ่านการตรวจ scope |
+| LocalWorkspaceMount | ตำแหน่งไฟล์ในเครื่อง | absolute root เฉพาะอุปกรณ์; identity ใช้ UUID + relative path ไม่ใช้ root เป็นคีย์ |
+| Managed cache | แคชที่สร้างใหม่ได้ | projection ใต้ `.zuri/cache`; ลบได้โดยไม่สูญเสีย domain data |
+| Reconcile | กระทบยอดไฟล์ | ตรวจ metadata เทียบ content แล้วเสนอ missing/untracked/relink ก่อน commit |

@@ -6,11 +6,13 @@ import {
   Flag,
   GitBranch,
   Rocket,
+  FolderOpen,
 } from 'lucide-react'
 
 // @req FR-039 — Development owns project-management resources, not shell scope.
+// @req FR-045 - the command palette exposes Business Files within Development.
 // @spec SDD-018, ADR-011
-// @tested tests/unit/domain-navigation.test.js
+// @tested tests/unit/domain-navigation.test.js, tests/unit/fr045-api-ui-contract.test.js
 // Command-palette registry for the Development domain. HR / People is registered
 // in the domain map but intentionally has its own peer route, not a Development
 // sidebar entry.
@@ -29,6 +31,7 @@ export const modules = {
       { label: 'Timeline', path: '/timeline', icon: GanttChartSquare },
       { label: 'Dependencies', path: '/dependencies', icon: Network },
       { label: 'Milestones & Gates', path: '/milestones', icon: Flag },
+      { label: 'Files', path: '/files', icon: FolderOpen },
       { label: 'Repositories', path: '/repositories', icon: GitBranch },
     ],
   },

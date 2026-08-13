@@ -37,6 +37,7 @@ no fixed location, no link from the feature to its note, and no single place to 
 | D7 | `docs/ai-system/` — intent pipeline, prompt engineering, ethics/PDPA, model lifecycle | LINE-first has no home otherwise, and the PDPA decisions block the LINE work |
 | D8 | `docs/replacement/` — parity inventory, cutover runbook, contract tests | ADR-003 §D3/§D6/§D8 mandate these artefacts; they had no files |
 | D9 | **No requirement id is renumbered** by this restructure | AGENTS.md §18 — ids are keys, not labels |
+| D10 | Cross-cutting changes with migration, compatibility or retirement work live in `docs/changes/ZV2-CR-*.md`; V1 evidence retains the `V1-CR-*` namespace | ADR-016 needs one bounded envelope for effects that span schema, API, UI, backup and filesystem without turning the FR or ADR into a mutable task ledger |
 
 Template basis: the RWANG **AI/ML Project** template (scored 88) — a superset of the
 3-Layer + Appendix structure already in use, so nothing is discarded.
@@ -57,6 +58,10 @@ Template basis: the RWANG **AI/ML Project** template (scored 88) — a superset 
 - Doc count rises from 21 to 29. The preflight "missing control block" findings on
   the inherited spec pack stay at INFO: those are authority documents, not
   RWANG-managed ones.
+- `docs/changes/` is not a general backlog. A ZV2-CR exists only when one approved
+  change crosses document/module boundaries and needs an explicit migration,
+  compatibility, deletion or rollback inventory. It supplements—but never replaces—
+  immutable FR/ADR ids and generated traceability.
 
 ## Review
 

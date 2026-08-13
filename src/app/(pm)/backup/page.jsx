@@ -1,5 +1,9 @@
 'use client'
 
+// @req FR-013, FR-045 - portable backup UI exposes content inclusion and remount gaps.
+// @spec BR-008, SDD-023, ADR-016 D10
+// @tested tests/integration/backup.test.js, tests/unit/fr045-backup-contract.test.js
+
 import { useState } from 'react'
 import { Download, Upload } from 'lucide-react'
 import { PageHeader, Card, SectionTitle, EmptyState } from '@/components/ui'
@@ -13,12 +17,14 @@ export default function BackupPage() {
   const [error, setError] = useState(null)
   const [restored, setRestored] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [includeBinaryContent, setIncludeBinaryContent] = useState(false)
+  const [remountsText, setRemountsText] = useState('[]')
 
   const exportSnapshot = async () => {
     setBusy(true)
     setError(null)
     try {
-      const snapshot = await api('/api/backup/export')
+      const snapshot = await api(`/api/backup/export?includeBinaryContent=${includeBinaryContent ? '1' : '0'}`)
       const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -42,15 +48,27 @@ export default function BackupPage() {
     }
   }
 
+  const parseRemounts = () => {
+    try {
+      const value = JSON.parse(remountsText)
+      if (!Array.isArray(value)) throw new Error()
+      return value
+    } catch {
+      setError('Remounts must be a JSON array')
+      return null
+    }
+  }
+
   const runPreview = async () => {
     setError(null)
     setRestored(false)
     setPreview(null)
     const snapshot = parseSnapshot()
-    if (!snapshot) return
+    const remounts = parseRemounts()
+    if (!snapshot || !remounts) return
     setBusy(true)
     try {
-      const result = await api('/api/backup/import', { method: 'POST', body: { snapshot } })
+      const result = await api('/api/backup/import', { method: 'POST', body: { snapshot, remounts } })
       if (!result.valid) setError(result.errors.join('; '))
       else setPreview(result)
     } catch (err) {
@@ -62,12 +80,13 @@ export default function BackupPage() {
 
   const confirmRestore = async () => {
     const snapshot = parseSnapshot()
-    if (!snapshot) return
+    const remounts = parseRemounts()
+    if (!snapshot || !remounts) return
     if (!window.confirm('Restore this snapshot? Current local data will be REPLACED.')) return
     setBusy(true)
     setError(null)
     try {
-      const result = await api('/api/backup/import', { method: 'POST', body: { snapshot, confirm: true } })
+      const result = await api('/api/backup/import', { method: 'POST', body: { snapshot, remounts, confirm: true } })
       if (result.restored) {
         setRestored(true)
         setPreview(null)
@@ -92,6 +111,7 @@ export default function BackupPage() {
       <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
         <Card>
           <SectionTitle caption="Full-domain JSON snapshot: scope, projects, work data, repositories, audit metadata">Export</SectionTitle>
+          <label className="mb-3 flex items-center gap-2 text-xs"><input type="checkbox" checked={includeBinaryContent} onChange={(event) => setIncludeBinaryContent(event.target.checked)} /> Include available local file content explicitly</label>
           <button type="button" className="btn btn-primary flex items-center gap-1.5" onClick={exportSnapshot} disabled={busy}>
             <Download size={13} aria-hidden /> Download snapshot
           </button>
@@ -105,6 +125,8 @@ export default function BackupPage() {
             placeholder='{ "schemaVersion": "1.0", "exportedAt": "...", "tables": { ... } }'
             aria-label="Snapshot JSON"
           />
+          <label className="mt-3 block text-[10px] font-bold">Device remounts (portable snapshots never contain absolute paths)</label>
+          <textarea className="input mt-1 h-24 font-mono text-[10px]" value={remountsText} onChange={(event) => setRemountsText(event.target.value)} aria-label="Device remount JSON" />
           <div className="mt-3 flex gap-2">
             <button type="button" className="btn flex items-center gap-1.5" onClick={runPreview} disabled={busy || !snapshotText.trim()}>
               <Upload size={13} aria-hidden /> Preview
@@ -140,6 +162,8 @@ export default function BackupPage() {
                   ))}
                 </tbody>
               </table>
+              {preview.mountRequiredBusinessIds?.length > 0 && <p className="mt-2 text-[10px] text-[var(--warning)]">Remount required: {preview.mountRequiredBusinessIds.join(', ')}</p>}
+              {preview.missingContentFileIds?.length > 0 && <p className="mt-1 text-[10px] text-muted">Metadata-only files: {preview.missingContentFileIds.length}</p>}
             </div>
           )}
           {restored && (

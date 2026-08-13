@@ -17,6 +17,7 @@ describe('Business domain navigation', () => {
       'Timeline',
       'Dependencies',
       'Milestones & Gates',
+      'Files',
       'Repositories',
     ])
     expect(development.sub.map((item) => item.path)).not.toContain('/overview')
@@ -45,6 +46,7 @@ describe('Business domain navigation', () => {
       'Timeline',
       'Dependencies',
       'Milestones & Gates',
+      'Files',
       'Repositories',
     ])
     expect(modules.projectManager.nav.map((item) => item.path)).not.toContain('/overview')

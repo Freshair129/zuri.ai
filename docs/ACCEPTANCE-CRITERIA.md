@@ -145,3 +145,23 @@ warning findings, and unit/E2E/build gates pass.
 - [ ] tenant/business isolation test
 - [ ] Playwright smoke test for all 7 views
 - [ ] backup export/import test
+
+## FR-045 — Managed local file workspace (implemented; beta)
+
+- [x] SQLite is the sole authority for FileAsset identity, ownership, links, state, version and audit.
+- [x] Business File Manager aggregates Business-owned and owned-Project files without copying content or leaking another Business.
+- [x] Project Files preserves FR-037 compatibility while serving only the opened Project.
+- [x] Managed ingest is staged, validated/hashed, audited and atomically promoted with recoverable failure states.
+- [x] Absolute/traversal and symlink/junction/reparse escape paths are denied.
+- [x] External move/delete yields `MISSING`; relink requires explicit operator input and never guesses.
+- [x] `.zuri/cache` can be deleted and rebuilt to the same canonical DTO.
+- [x] Remount to a second absolute root preserves ids, links and relative paths.
+- [x] Hosted mode cannot invoke OS reveal; authorized local capability remains contained to the mount.
+- [x] Backup preview exposes missing content/mount mapping and binary inclusion is explicit.
+- [x] ProjectFile dry-run/commit migration has no silent drops and rollback rehearsal passes.
+- [x] SQLite and generated Postgres metadata schemas preserve the same semantics.
+
+Exit gate: ADR-016, FR-045 and ZV2-CR-001 are approved; all checks above are
+checked; implementation/tests carry truthful `@req FR-045`, `@spec SDD-023,
+SEC-007` and `@tested` edges; full tests/build/docs gates pass; no mock or user file
+is deleted without a separately reviewed exact path/hash manifest.

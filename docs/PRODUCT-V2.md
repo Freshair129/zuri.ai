@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | Draft |
 | **Author** | Owen + Claude |
 | **Created** | 2026-08-12 |
-| **Last Updated** | 2026-08-12 |
+| **Last Updated** | 2026-08-14 |
 | **Layer** | 0 — product (above the per-module PRD/SDD) |
 
 Layer 0: what Zuri V2 *is*. Module-level requirements live one layer down
@@ -74,6 +74,16 @@ Project and Campaign are two **domains** (Projects · Growth), never the app roo
 | One tenant is owned by exactly one system at any instant (LINE OA + workers + writes flip together) | ADR-003 §D8 |
 | Migrated rows keep V1's UUIDs | ADR-003 §D4 |
 | `G:\zuri` is never modified — reuse is one-directional | AGENTS.md §1 |
+| Local-first relations and file metadata have one authority: SQLite. Physical files may live in a mounted Business workspace; cache is disposable and rebuildable | ADR-016, BR-010 |
+
+### 3.1 Local-first data and file boundary (implemented beta)
+
+V2 does not encode its relationship graph as folders. SQLite owns identities,
+ownership, links, status, audit and versions. A user-visible Business workspace may
+hold real Business/Project working files, while `.zuri/cache` contains only derived
+artifacts that can be deleted and rebuilt. Business File Manager is an aggregate
+view over SQLite links, not a second copy of every Project file. See accepted
+[ADR-016](ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE.md).
 
 ## 4. Where the pieces are
 

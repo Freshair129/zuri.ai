@@ -3,26 +3,26 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 580,
-    "total_edges": 817,
+    "total_nodes": 633,
+    "total_edges": 980,
     "dangling_edges": 0,
     "node_types": {
-      "document": 60,
-      "adr": 15,
+      "document": 73,
+      "adr": 16,
       "appendix": 5,
-      "roadmap": 7,
+      "roadmap": 8,
       "v1_inherited": 234,
-      "requirement": 89,
-      "test": 64,
-      "code_file": 106
+      "requirement": 94,
+      "test": 76,
+      "code_file": 127
     },
     "coverage": {
-      "requirements": 89,
-      "fr_with_code": "100% (44/44)",
-      "fr_with_tests": "100% (44/44)",
-      "rules_anchored_in_code": "86% (32/37)",
-      "nfr_evidence_based": "8 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 106,
+      "requirements": 94,
+      "fr_with_code": "100% (45/45)",
+      "fr_with_tests": "100% (45/45)",
+      "rules_anchored_in_code": "88% (35/40)",
+      "nfr_evidence_based": "9 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 127,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -78,6 +78,46 @@
         "@tested": [
           "tests/unit/business-routing-page.test.js",
           "tests/unit/business-routing.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/backup/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/backup/page.jsx",
+      "hash": "6c5f77c8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-013",
+          "FR-045"
+        ],
+        "@spec": [
+          "BR-008",
+          "SDD-023"
+        ],
+        "@tested": [
+          "tests/integration/backup.test.js",
+          "tests/unit/fr045-backup-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/files/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/files/page.jsx",
+      "hash": "4baddfdc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-api-ui-contract.test.js"
         ]
       }
     },
@@ -214,21 +254,21 @@
       "id": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/files/page.jsx",
-      "hash": "9d408be0",
+      "hash": "21c34dff",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-037"
+          "FR-037",
+          "FR-045"
         ],
         "@spec": [
           "SDD-016",
-          "BR-002",
-          "SEC-003",
-          "FR-037",
-          "SDD-016, BR-002, SEC-003, docs/features/FR-037-project-files.md"
+          "SDD-023",
+          "SEC-007"
         ],
         "@tested": [
-          "tests/unit/project-file-service.test.js"
+          "tests/unit/project-file-service.test.js",
+          "tests/unit/fr045-api-ui-contract.test.js"
         ]
       }
     },
@@ -359,6 +399,67 @@
       }
     },
     {
+      "id": "code:src/app/api/backup/export/route.js",
+      "type": "code_file",
+      "path": "src/app/api/backup/export/route.js",
+      "hash": "06b3a91e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-013",
+          "FR-045"
+        ],
+        "@spec": [
+          "BR-008",
+          "SDD-023"
+        ],
+        "@tested": [
+          "tests/integration/backup.test.js",
+          "tests/unit/fr045-backup-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/backup/import/route.js",
+      "type": "code_file",
+      "path": "src/app/api/backup/import/route.js",
+      "hash": "d9b2e445",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-013",
+          "FR-045"
+        ],
+        "@spec": [
+          "BR-008",
+          "SDD-023"
+        ],
+        "@tested": [
+          "tests/integration/backup.test.js",
+          "tests/unit/fr045-backup-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/business/files/route.js",
+      "type": "code_file",
+      "path": "src/app/api/business/files/route.js",
+      "hash": "dcf21b1a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/business/strategy/route.js",
       "type": "code_file",
       "path": "src/app/api/business/strategy/route.js",
@@ -392,6 +493,173 @@
         ],
         "@tested": [
           "tests/integration/openapi-docs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/files/[id]/content/route.js",
+      "type": "code_file",
+      "path": "src/app/api/files/[id]/content/route.js",
+      "hash": "c065345f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/files/[id]/relink/route.js",
+      "type": "code_file",
+      "path": "src/app/api/files/[id]/relink/route.js",
+      "hash": "0fa715fc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/files/[id]/reveal/route.js",
+      "type": "code_file",
+      "path": "src/app/api/files/[id]/reveal/route.js",
+      "hash": "550e0b5e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-reveal.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/files/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/files/[id]/route.js",
+      "hash": "6015bd44",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/files/cache/rebuild/route.js",
+      "type": "code_file",
+      "path": "src/app/api/files/cache/rebuild/route.js",
+      "hash": "8db5cfb2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023"
+        ],
+        "@tested": [
+          "tests/unit/fr045-reconcile-cache.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/files/migrate/route.js",
+      "type": "code_file",
+      "path": "src/app/api/files/migrate/route.js",
+      "hash": "cb720e36",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023"
+        ],
+        "@tested": [
+          "tests/unit/fr045-file-asset-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/files/mounts/route.js",
+      "type": "code_file",
+      "path": "src/app/api/files/mounts/route.js",
+      "hash": "bb30384a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023"
+        ],
+        "@tested": [
+          "tests/unit/fr045-file-asset-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/files/reconcile/route.js",
+      "type": "code_file",
+      "path": "src/app/api/files/reconcile/route.js",
+      "hash": "34efb37f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023"
+        ],
+        "@tested": [
+          "tests/unit/fr045-reconcile-cache.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/files/route.js",
+      "type": "code_file",
+      "path": "src/app/api/files/route.js",
+      "hash": "c3da1027",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-api-ui-contract.test.js"
         ]
       }
     },
@@ -820,11 +1088,12 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "81fb103e",
+      "hash": "48432910",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
+          "FR-045",
           "FR-039"
         ],
         "@spec": [
@@ -832,6 +1101,7 @@
         ],
         "@tested": [
           "tests/unit/domain-navigation.test.js",
+          "tests/unit/fr045-api-ui-contract.test.js",
           "tests/e2e/fr041-business-first.spec.js"
         ]
       }
@@ -840,17 +1110,19 @@
       "id": "code:src/config/modules.js",
       "type": "code_file",
       "path": "src/config/modules.js",
-      "hash": "e203f73a",
+      "hash": "95974a45",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-039"
+          "FR-039",
+          "FR-045"
         ],
         "@spec": [
           "SDD-018"
         ],
         "@tested": [
-          "tests/unit/domain-navigation.test.js"
+          "tests/unit/domain-navigation.test.js",
+          "tests/unit/fr045-api-ui-contract.test.js"
         ]
       }
     },
@@ -1542,17 +1814,20 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "8262bdc0",
+      "hash": "c6179c05",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-013"
+          "FR-013",
+          "FR-045"
         ],
         "@spec": [
-          "BR-008"
+          "BR-008",
+          "SDD-023"
         ],
         "@tested": [
-          "tests/integration/backup.test.js"
+          "tests/integration/backup.test.js",
+          "tests/unit/fr045-backup-contract.test.js"
         ]
       }
     },
@@ -1573,6 +1848,85 @@
         "@tested": [
           "tests/integration/project-core.test.js",
           "tests/unit/project-dependency-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/file-asset-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/file-asset-service.js",
+      "hash": "879ce7e5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "BR-010",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-file-asset-service.test.js",
+          "tests/integration/fr045-managed-files.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/file-manager-read-model.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/file-manager-read-model.js",
+      "hash": "766c40a9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-file-manager-read-model.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/file-reconcile-cache-service.js",
+      "hash": "80d7ba87",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "BR-010",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-reconcile-cache.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/local-file-reveal-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/local-file-reveal-service.js",
+      "hash": "20c1261a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SEC-007",
+          "SDD-023"
+        ],
+        "@tested": [
+          "tests/unit/fr045-reveal.test.js"
         ]
       }
     },
@@ -1625,7 +1979,7 @@
       "id": "code:src/modules/project-manager/application/project-file-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-file-service.js",
-      "hash": "ae6519b9",
+      "hash": "ce3ebefe",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1744,6 +2098,25 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "hash": "499d2f92",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/components/ProjectTabs.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/ProjectTabs.jsx",
@@ -1765,11 +2138,17 @@
       "id": "code:src/modules/project-manager/components/useApi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/components/useApi.js",
-      "hash": "27b4f140",
+      "hash": "8b5c5aa7",
       "status": "current",
       "annotations": {
+        "@req": [
+          "FR-045"
+        ],
         "@spec": [
           "SDD-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-api-ui-contract.test.js"
         ]
       }
     },
@@ -1890,6 +2269,44 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/local-files/filesystem-port.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/local-files/filesystem-port.js",
+      "hash": "6f13e9b4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-filesystem-port.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/local-files/path-security.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/local-files/path-security.js",
+      "hash": "291e047d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045"
+        ],
+        "@spec": [
+          "SDD-023",
+          "SEC-007"
+        ],
+        "@tested": [
+          "tests/unit/fr045-path-security.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/progress/rollup.js",
       "type": "code_file",
       "path": "src/modules/project-manager/progress/rollup.js",
@@ -1981,7 +2398,7 @@
       "type": "document",
       "path": "docs/.rwang-progress.md",
       "title": "RWANG Subagent Progress Ledger — TASK-V2-PARITY",
-      "hash": "202bfd30",
+      "hash": "c02e9f53",
       "status": "current"
     },
     {
@@ -1989,9 +2406,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "doc_status": "Draft",
-      "hash": "332fae2f",
+      "hash": "80099107",
       "status": "current"
     },
     {
@@ -1999,7 +2416,7 @@
       "type": "document",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
       "title": "Acceptance Criteria",
-      "hash": "9ed40644",
+      "hash": "7a5c04c6",
       "status": "current"
     },
     {
@@ -2015,7 +2432,7 @@
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "4256bf07",
+      "hash": "1345ddb3",
       "status": "current"
     },
     {
@@ -2033,9 +2450,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "doc_status": "Draft",
-      "hash": "20ca6e51",
+      "hash": "f81a33ad",
       "status": "current"
     },
     {
@@ -2065,7 +2482,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "ae32a330",
+      "hash": "6f20a27b",
       "status": "current"
     },
     {
@@ -2103,7 +2520,7 @@
       "type": "document",
       "path": "docs/DOMAIN-MODEL.md",
       "title": "Domain Model",
-      "hash": "8a6a9333",
+      "hash": "594ebc6f",
       "status": "current"
     },
     {
@@ -2111,9 +2528,9 @@
       "type": "appendix",
       "path": "docs/appendices/E-risk-matrix.md",
       "title": "Appendix E — Risk Matrix",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "doc_status": "Draft",
-      "hash": "c97277aa",
+      "hash": "8d747866",
       "status": "current"
     },
     {
@@ -2147,9 +2564,9 @@
       "type": "appendix",
       "path": "docs/appendices/F-glossary.md",
       "title": "Appendix F — Glossary",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "doc_status": "Draft",
-      "hash": "5d5531ac",
+      "hash": "329a5dec",
       "status": "current"
     },
     {
@@ -2159,7 +2576,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "0367cdba",
+      "hash": "7495413f",
       "status": "current"
     },
     {
@@ -2247,9 +2664,9 @@
       "type": "document",
       "path": "docs/features/FR-037-project-files.md",
       "title": "FR-037 — Project Files",
-      "version": "1.0.0",
-      "doc_status": "Implemented",
-      "hash": "f2c45db6",
+      "version": "1.1.0",
+      "doc_status": "Implemented; compatibility boundary retained by FR-045",
+      "hash": "22bd46a0",
       "status": "current"
     },
     {
@@ -2315,6 +2732,86 @@
       "title": "FR-044 — Minimal entry and Business Routing before BusinessShell",
       "doc_status": "Implemented — owner-approved; exit gates verified",
       "hash": "d6f62852",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-045-managed-local-file-workspace",
+      "type": "document",
+      "path": "docs/features/FR-045-managed-local-file-workspace.md",
+      "title": "FR-045 — Managed local file workspace",
+      "hash": "7b6ed69a",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr045-w0-brief",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr045-w0-brief.md",
+      "title": "FR-045 W0 task brief",
+      "hash": "285c4b28",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr045-w0-report",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr045-w0-report.md",
+      "title": "fr045-w0-report",
+      "hash": "3ae352ac",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr045-w1-brief",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr045-w1-brief.md",
+      "title": "FR-045 W1 task brief — additive schema",
+      "hash": "dcc98ba1",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr045-w1-report",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr045-w1-report.md",
+      "title": "fr045-w1-report",
+      "hash": "b97a1f75",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr045-w2-brief",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr045-w2-brief.md",
+      "title": "FR-045 W2 task brief — path security and filesystem port",
+      "hash": "0bb62f7c",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr045-w2-report",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr045-w2-report.md",
+      "title": "FR-045 W2 report — path security and filesystem port",
+      "hash": "d093f154",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr045-w3-brief",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr045-w3-brief.md",
+      "title": "FR-045 W3 task brief — File Manager read model",
+      "hash": "dc2e745a",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr045-w3-report",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr045-w3-report.md",
+      "title": "FR-045 W3 — File Manager read-model report",
+      "hash": "43ffd44c",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr045-w4-w9-report",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr045-w4-w9-report.md",
+      "title": "FR-045 W4-W9 Final Report",
+      "hash": "8680e56c",
       "status": "current"
     },
     {
@@ -2520,6 +3017,14 @@
       "status": "current"
     },
     {
+      "id": "doc:PLAN-FR-045-MANAGED-LOCAL-FILE-WORKSPACE",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-FR-045-MANAGED-LOCAL-FILE-WORKSPACE.md",
+      "title": "Implementation Plan — FR-045 Managed Local File Workspace",
+      "hash": "ea01fc74",
+      "status": "current"
+    },
+    {
       "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT.md",
@@ -2534,9 +3039,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.27.0",
+      "version": "1.30.0",
       "doc_status": "Draft",
-      "hash": "4661f0e9",
+      "hash": "35af3441",
       "status": "current"
     },
     {
@@ -2544,9 +3049,9 @@
       "type": "document",
       "path": "docs/PRODUCT-V2.md",
       "title": "Zuri V2 — Product Definition",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "doc_status": "Draft",
-      "hash": "65dc1ed4",
+      "hash": "11effd75",
       "status": "current"
     },
     {
@@ -2580,7 +3085,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-zuri-v2-lab.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
-      "hash": "bbb58bc3",
+      "hash": "6cc46be2",
       "status": "current"
     },
     {
@@ -2608,7 +3113,7 @@
       "type": "document",
       "path": "docs/TEST-PLAN.md",
       "title": "Test Plan",
-      "hash": "ddcd235a",
+      "hash": "e494cfee",
       "status": "current"
     },
     {
@@ -2637,6 +3142,30 @@
       "path": "docs/ZURI-V2-HANDOFF.md",
       "title": "Zuri v2 Handoff Checklist",
       "hash": "8adbcd06",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-001-MANAGED-LOCAL-FILES-AND-CACHE",
+      "type": "document",
+      "path": "docs/changes/ZV2-CR-001-MANAGED-LOCAL-FILES-AND-CACHE.md",
+      "title": "ZV2-CR-001 — Managed local files and cache",
+      "hash": "2799eef1",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-001-W0-INVENTORY",
+      "type": "document",
+      "path": "docs/changes/ZV2-CR-001-W0-INVENTORY.md",
+      "title": "ZV2-CR-001 W0 — Contract and migration inventory",
+      "hash": "204c9d9a",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-001-W9-RETENTION-DECISION",
+      "type": "document",
+      "path": "docs/changes/ZV2-CR-001-W9-RETENTION-DECISION.md",
+      "title": "ZV2-CR-001 W9 — External mock retention decision",
+      "hash": "6d9c61de",
       "status": "current"
     },
     {
@@ -2716,6 +3245,15 @@
       "type": "requirement",
       "family": "BR",
       "label": "ทุก intake surface (UI/Excel/agent/API) ต้องจบที่ pipeline validate→dry-run→commit เดียวกัน",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-010",
+      "type": "requirement",
+      "family": "BR",
+      "label": "SQLite is the sole transactional authority for file identity and relations. Filesystem content and `.zuri/cache` are projections/storage, never a second writable relationship database; Business aggregation must query IDs/links and never duplicate a file merely to show it in another view.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -3117,6 +3655,15 @@
       "status": "current"
     },
     {
+      "id": "req:FR-045",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Managed local file workspace: SQLite is authoritative for FileAsset identity, Business/Project ownership, links, version, status and audit; the filesystem stores real content plus disposable cache. Business File Manager aggregates Business-owned and child Project assets without copying content. Existing FR-037 ProjectFile rows/routes migrate through a compatibility boundary; local OS reveal is capability-gated and hosted mode denies it.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -3184,6 +3731,15 @@
       "type": "requirement",
       "family": "NFR",
       "label": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity boundary จนกว่าจะ cutover",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-009",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Local file operations are crash-recoverable and portable: authoritative metadata survives restart/remount, cache is fully rebuildable, absolute device paths never become identity, and canonical results are available when cache is stale or absent.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -3387,6 +3943,15 @@
       "status": "current"
     },
     {
+      "id": "req:SDD-023",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "`FileAsset` + validated `FileLink` form the portable file metadata graph; `LocalWorkspaceMount` maps one device-local absolute root to stable relative paths. Managed ingest is staged and audited, missing files require explicit reconcile/relink, cache entries carry source revision and are disposable, and the legacy ProjectFile API remains behind a migration adapter until ZV2-CR-001 parity/rollback gates pass.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -3441,6 +4006,15 @@
       "status": "planned"
     },
     {
+      "id": "req:SEC-007",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Every local file operation must authorize Tenant/Business/Project scope and enforce mounted-root containment, rejecting absolute/traversal and symlink/junction/reparse escape. OS reveal is local-capability-only; hosted requests can never launch a server process.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
       "id": "spec:ADR-001-STANDALONE-ZURI-V2",
       "type": "adr",
       "path": "docs/ADR-001-STANDALONE-ZURI-V2.md",
@@ -3469,7 +4043,7 @@
       "type": "adr",
       "path": "docs/ADR-004-DOCUMENTATION-ARCHITECTURE.md",
       "title": "ADR-004 — Documentation Architecture: Product Layer, Feature-Driven Notes, Generated Index",
-      "hash": "c4e87ce7",
+      "hash": "43361c7d",
       "status": "current"
     },
     {
@@ -3562,6 +4136,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
+      "type": "adr",
+      "path": "docs/ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE.md",
+      "title": "ADR-016 — SQLite authority and managed local file workspace",
+      "hash": "e7e9b9b6",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -3580,6 +4162,13 @@
       "type": "test",
       "path": "tests/e2e/fr044-entry-routing.spec.js",
       "hash": "99d3d38e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr045-files.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr045-files.spec.js",
+      "hash": "bebe1e89",
       "status": "current"
     },
     {
@@ -3657,6 +4246,13 @@
       "type": "test",
       "path": "tests/integration/external-ref-import.test.js",
       "hash": "8e2f4a11",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr045-managed-files.test.js",
+      "type": "test",
+      "path": "tests/integration/fr045-managed-files.test.js",
+      "hash": "78661e6f",
       "status": "current"
     },
     {
@@ -3831,7 +4427,7 @@
       "id": "test:tests/unit/domain-navigation.test.js",
       "type": "test",
       "path": "tests/unit/domain-navigation.test.js",
-      "hash": "762c02a5",
+      "hash": "f6f6b710",
       "status": "current"
     },
     {
@@ -3846,6 +4442,76 @@
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
       "hash": "f5cc6be9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/fr045-api-ui-contract.test.js",
+      "hash": "935977ac",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr045-backup-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/fr045-backup-contract.test.js",
+      "hash": "6f0f830c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr045-file-asset-service.test.js",
+      "type": "test",
+      "path": "tests/unit/fr045-file-asset-service.test.js",
+      "hash": "ea4c2492",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr045-file-manager-read-model.test.js",
+      "type": "test",
+      "path": "tests/unit/fr045-file-manager-read-model.test.js",
+      "hash": "16ff4f7f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr045-filesystem-port.test.js",
+      "type": "test",
+      "path": "tests/unit/fr045-filesystem-port.test.js",
+      "hash": "b6e53419",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr045-path-security.test.js",
+      "type": "test",
+      "path": "tests/unit/fr045-path-security.test.js",
+      "hash": "84902750",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr045-reconcile-cache.test.js",
+      "type": "test",
+      "path": "tests/unit/fr045-reconcile-cache.test.js",
+      "hash": "d6a760ba",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr045-reveal.test.js",
+      "type": "test",
+      "path": "tests/unit/fr045-reveal.test.js",
+      "hash": "6bb0aa8c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr045-schema-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/fr045-schema-contract.test.js",
+      "hash": "413c9265",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr045-w0-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/fr045-w0-contract.test.js",
+      "hash": "29a9a761",
       "status": "current"
     },
     {
@@ -5458,6 +6124,55 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/backup/page.jsx",
+      "to": "req:BR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/backup/page.jsx",
+      "to": "req:FR-013",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/backup/page.jsx",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/backup/page.jsx",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/files/page.jsx",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/files/page.jsx",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/files/page.jsx",
+      "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/layout.jsx",
       "to": "req:FR-044",
       "type": "implements",
@@ -5592,20 +6307,6 @@
     },
     {
       "from": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
-      "to": "doc:FR-037-project-files",
-      "type": "references",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
-      "to": "req:BR-002",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
       "to": "req:FR-037",
       "type": "implements",
       "status": "current",
@@ -5613,8 +6314,8 @@
     },
     {
       "from": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
-      "to": "req:FR-037",
-      "type": "follows",
+      "to": "req:FR-045",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -5627,7 +6328,14 @@
     },
     {
       "from": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
-      "to": "req:SEC-003",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "to": "req:SEC-007",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -5745,6 +6453,83 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/backup/export/route.js",
+      "to": "req:BR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/export/route.js",
+      "to": "req:FR-013",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/export/route.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/export/route.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/import/route.js",
+      "to": "req:BR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/import/route.js",
+      "to": "req:FR-013",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/import/route.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/import/route.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/files/route.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/files/route.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/files/route.js",
+      "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/business/strategy/route.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -5775,6 +6560,167 @@
     {
       "from": "code:src/app/api/docs/route.js",
       "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/[id]/content/route.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/[id]/content/route.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/[id]/content/route.js",
+      "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/[id]/relink/route.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/[id]/relink/route.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/[id]/relink/route.js",
+      "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/[id]/reveal/route.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/[id]/reveal/route.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/[id]/reveal/route.js",
+      "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/[id]/route.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/[id]/route.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/[id]/route.js",
+      "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/cache/rebuild/route.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/cache/rebuild/route.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/migrate/route.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/migrate/route.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/mounts/route.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/mounts/route.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/reconcile/route.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/reconcile/route.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/route.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/route.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/files/route.js",
+      "to": "req:SEC-007",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -6278,6 +7224,13 @@
     },
     {
       "from": "code:src/config/domains.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -6286,6 +7239,13 @@
     {
       "from": "code:src/config/modules.js",
       "to": "req:FR-039",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/modules.js",
+      "to": "req:FR-045",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -6928,6 +7888,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/dependency-service.js",
       "to": "req:FR-007",
       "type": "implements",
@@ -6944,6 +7918,104 @@
     {
       "from": "code:src/modules/project-manager/application/dependency-service.js",
       "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-asset-service.js",
+      "to": "req:BR-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-asset-service.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-asset-service.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-asset-service.js",
+      "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-manager-read-model.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-manager-read-model.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-manager-read-model.js",
+      "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
+      "to": "req:BR-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
+      "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/local-file-reveal-service.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/local-file-reveal-service.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/local-file-reveal-service.js",
+      "to": "req:SEC-007",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -7166,6 +8238,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/components/ProjectTabs.jsx",
       "to": "req:FR-040",
       "type": "implements",
@@ -7176,6 +8269,13 @@
       "from": "code:src/modules/project-manager/components/ProjectTabs.jsx",
       "to": "req:SDD-019",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/useApi.js",
+      "to": "req:FR-045",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -7337,6 +8437,48 @@
       "from": "code:src/modules/project-manager/import/xlsx-template.js",
       "to": "req:FR-018",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/local-files/filesystem-port.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/local-files/filesystem-port.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/local-files/filesystem-port.js",
+      "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/local-files/path-security.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/local-files/path-security.js",
+      "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/local-files/path-security.js",
+      "to": "req:SEC-007",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -7510,6 +8652,13 @@
     },
     {
       "from": "req:BR-009",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-010",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -7824,6 +8973,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-045",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -7874,6 +9030,13 @@
     },
     {
       "from": "req:NFR-008",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-009",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -8034,6 +9197,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-023",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -8070,6 +9240,13 @@
     },
     {
       "from": "req:SEC-006",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-007",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -8489,6 +9666,55 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
+      "to": "req:BR-010",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
+      "to": "req:FR-013",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
+      "to": "req:FR-037",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
+      "to": "req:FR-045",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
+      "to": "req:NFR-009",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
+      "to": "req:SDD-023",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
+      "to": "req:SEC-007",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-040",
       "type": "verifies",
@@ -8609,6 +9835,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -8659,6 +9892,27 @@
     {
       "from": "test:tests/e2e/fr044-entry-routing.spec.js",
       "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr045-files.spec.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr045-files.spec.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr045-files.spec.js",
+      "to": "req:SEC-007",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -9064,6 +10318,27 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "code:src/app/(pm)/backup/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "code:src/app/api/backup/export/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "code:src/app/api/backup/import/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "code:src/modules/project-manager/application/backup-service.js",
       "type": "tests",
       "status": "current",
@@ -9079,6 +10354,20 @@
     {
       "from": "test:tests/integration/backup.test.js",
       "to": "req:FR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -9166,6 +10455,41 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr045-managed-files.test.js",
+      "to": "code:src/modules/project-manager/application/file-asset-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr045-managed-files.test.js",
+      "to": "req:BR-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr045-managed-files.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr045-managed-files.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr045-managed-files.test.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/identity-classify.test.js",
@@ -10212,6 +11536,13 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -10290,6 +11621,461 @@
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
       "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "code:src/app/(pm)/files/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "code:src/app/api/business/files/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "code:src/app/api/files/[id]/content/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "code:src/app/api/files/[id]/relink/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "code:src/app/api/files/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "code:src/app/api/files/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "code:src/config/domains.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "code:src/config/modules.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "code:src/modules/project-manager/components/useApi.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-037",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:SDD-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:SDD-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "code:src/app/(pm)/backup/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "code:src/app/api/backup/export/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "code:src/app/api/backup/import/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "code:src/modules/project-manager/application/backup-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-asset-service.test.js",
+      "to": "code:src/app/api/files/migrate/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-asset-service.test.js",
+      "to": "code:src/app/api/files/mounts/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-asset-service.test.js",
+      "to": "code:src/modules/project-manager/application/file-asset-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-asset-service.test.js",
+      "to": "req:BR-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-asset-service.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-asset-service.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-asset-service.test.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-manager-read-model.test.js",
+      "to": "code:src/modules/project-manager/application/file-manager-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-manager-read-model.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-manager-read-model.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-manager-read-model.test.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-filesystem-port.test.js",
+      "to": "code:src/modules/project-manager/local-files/filesystem-port.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-filesystem-port.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-filesystem-port.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-filesystem-port.test.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-path-security.test.js",
+      "to": "code:src/modules/project-manager/local-files/path-security.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-path-security.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-path-security.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-path-security.test.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-reconcile-cache.test.js",
+      "to": "code:src/app/api/files/cache/rebuild/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-reconcile-cache.test.js",
+      "to": "code:src/app/api/files/reconcile/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-reconcile-cache.test.js",
+      "to": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-reconcile-cache.test.js",
+      "to": "req:BR-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-reconcile-cache.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-reconcile-cache.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-reconcile-cache.test.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-reveal.test.js",
+      "to": "code:src/app/api/files/[id]/reveal/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-reveal.test.js",
+      "to": "code:src/modules/project-manager/application/local-file-reveal-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr045-reveal.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-reveal.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-reveal.test.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-schema-contract.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-schema-contract.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-w0-contract.test.js",
+      "to": "req:FR-037",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-w0-contract.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-w0-contract.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-w0-contract.test.js",
+      "to": "req:SEC-007",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -10695,6 +12481,13 @@
     },
     {
       "from": "test:tests/unit/project-file-service.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
       "to": "req:SDD-016",
       "type": "verifies",
       "status": "current",
@@ -10702,7 +12495,21 @@
     },
     {
       "from": "test:tests/unit/project-file-service.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
       "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
+      "to": "req:SEC-007",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

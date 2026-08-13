@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.2.0 |
+| **Version** | 1.3.0 |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-13 |
+| **Last Updated** | 2026-08-14 |
 
 Source of truth: `prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md)
 Conventions: UUID PK · unique human `code` · `createdAt/updatedAt` · `version` บน aggregate
@@ -67,3 +67,21 @@ is structural (Membership ⇒ STAFF, Customer ⇒ CUSTOMER, both ⇒ STAFF). **P
 revokes the ExternalIdentity (a revoked binding refuses to resolve), invalidates
 outstanding tokens, and redacts the CRM record. `resolveLinePrincipal` is the single
 seam that resolves + classifies in one call.
+
+## Managed local files (FR-045 — implemented additively)
+
+`LocalWorkspaceMount { id, tenantId, businessId, deviceKey, rootPath, status,
+lastScanAt, createdAt, updatedAt }` maps one device-local absolute root. `rootPath`
+is not exported as portable identity and must be remapped during restore.
+
+`FileAsset { id, code, tenantId, businessId, projectId?, workItemId?, storageKind,
+relativePath?, externalUrl?, blobRef?, name, mime, size, sha256?, status, version,
+createdAt, updatedAt, deletedAt? }` is the authoritative metadata record.
+
+`FileLink { id, fileId, entityType, entityId, relationType, createdAt, updatedAt }`
+is a typed secondary relation validated at the service boundary. Initial entity
+types are limited to approved FR-045 targets; arbitrary polymorphic input is denied.
+
+These models are additive. `ProjectFile` remains for compatibility and is not
+removed by ZV2-CR-001. SQLite is canonical for MVP; the generated Postgres schema
+preserves metadata semantics while device root paths remain local configuration.

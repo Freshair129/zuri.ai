@@ -1,0 +1,147 @@
+// @req FR-045 — managed assets and legacy migration are lossless and Business scoped.
+// @spec SDD-023, BR-010, SEC-007, ADR-016
+// @tested tests/unit/fr045-file-asset-service.test.js
+import { describe, expect, it, vi } from 'vitest'
+import {
+  createManagedFileAsset,
+  deleteManagedFileAsset,
+  legacyFileAssetDto,
+  migrateProjectFiles,
+  upsertLocalWorkspaceMount,
+  relinkFileAsset,
+  resolveFileAssetContent,
+} from '@/modules/project-manager/application/file-asset-service'
+
+function migrationDb() {
+  const tx = {
+    fileAsset: { create: vi.fn(async ({ data }) => data) },
+    fileLink: { create: vi.fn(async ({ data }) => data) },
+    auditEvent: { create: vi.fn(async () => ({})) },
+  }
+  return {
+    projectFile: { findMany: vi.fn().mockResolvedValue([{
+      id: 'legacy-id', code: 'FIL-OLD', projectId: 'project-a', workItemId: null,
+      name: 'old.pdf', mime: 'application/pdf', size: 5, url: 'https://example.test/old.pdf',
+      blobRef: null, version: 2, uploadedBy: 'person-a', createdAt: new Date('2026-01-01'),
+      updatedAt: new Date('2026-01-02'), project: { id: 'project-a', businessId: 'business-a', business: { tenantId: 'tenant-a' } },
+    }]) },
+    fileAsset: {
+      findMany: vi.fn().mockResolvedValue([]),
+      findFirst: vi.fn().mockResolvedValue(null),
+      create: tx.fileAsset.create,
+    },
+    fileLink: tx.fileLink,
+    auditEvent: tx.auditEvent,
+    $transaction: vi.fn(async (callback) => callback(tx)),
+    tx,
+  }
+}
+
+describe('FR-045 FileAsset service', () => {
+  it('dry-runs then commits a lossless ProjectFile migration with the same UUID', async () => {
+    const db = migrationDb()
+    const preview = await migrateProjectFiles({ confirm: false }, { db })
+    expect(preview).toMatchObject({ confirmed: false, accepted: 1, conflicts: 0 })
+    expect(db.$transaction).not.toHaveBeenCalled()
+
+    const committed = await migrateProjectFiles({ confirm: true }, { db })
+    expect(committed).toMatchObject({ confirmed: true, migrated: 1, conflicts: 0 })
+    expect(db.tx.fileAsset.create).toHaveBeenCalledWith({ data: expect.objectContaining({
+      id: 'legacy-id', code: 'FIL-OLD', projectId: 'project-a', tenantId: 'tenant-a',
+      businessId: 'business-a', storageKind: 'EXTERNAL_URL', externalUrl: 'https://example.test/old.pdf', version: 2,
+    }) })
+    expect(db.tx.fileLink.create).toHaveBeenCalledWith({ data: expect.objectContaining({
+      fileId: 'legacy-id', entityType: 'PROJECT', entityId: 'project-a', relationType: 'OWNER',
+    }) })
+  })
+
+  it('reports a Project without direct Business ownership instead of silently dropping it', async () => {
+    const db = migrationDb()
+    db.projectFile.findMany.mockResolvedValue([{
+      id: 'shared', code: 'FIL-SHARED', projectId: 'shared-project', name: 'x', mime: 'text/plain', size: 1,
+      version: 1, project: { id: 'shared-project', businessId: null, business: null },
+    }])
+    await expect(migrateProjectFiles({ confirm: false }, { db })).resolves.toMatchObject({ accepted: 0, conflicts: 1 })
+  })
+
+  it('creates external metadata only inside a visible Business and preserves the legacy DTO', async () => {
+    const db = {
+      business: { findUnique: vi.fn().mockResolvedValue({ id: 'business-a', tenantId: 'tenant-a' }) },
+      project: { findUnique: vi.fn().mockResolvedValue({ id: 'project-a', businessId: 'business-a', deletedAt: null }) },
+      fileAsset: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        create: vi.fn(async ({ data }) => ({ id: 'asset-a', version: 1, status: 'ACTIVE', createdAt: new Date(), updatedAt: new Date(), ...data })),
+      },
+      fileLink: { create: vi.fn().mockResolvedValue({}) },
+      auditEvent: { create: vi.fn().mockResolvedValue({}) },
+      $transaction: vi.fn(async (callback) => callback(db)),
+    }
+    const asset = await createManagedFileAsset({
+      code: 'FIL-A', businessId: 'business-a', projectId: 'project-a', storageKind: 'EXTERNAL_URL',
+      name: 'brief.pdf', mime: 'application/pdf', size: 10, externalUrl: 'https://example.test/brief.pdf',
+    }, { db, visibleBusinessIds: ['business-a'] })
+    expect(asset).toMatchObject({ businessId: 'business-a', projectId: 'project-a', status: 'ACTIVE' })
+    expect(legacyFileAssetDto(asset)).toMatchObject({ id: 'asset-a', url: 'https://example.test/brief.pdf', blobRef: null })
+    await expect(createManagedFileAsset({
+      code: 'FIL-BAD', businessId: 'business-a', projectId: 'project-a', storageKind: 'EXTERNAL_URL',
+      name: 'bad', mime: 'text/plain', size: 0, externalUrl: 'file:///C:/secret.txt',
+    }, { db, visibleBusinessIds: ['business-a'] })).rejects.toThrow('HTTP or HTTPS')
+  })
+
+  it('leaves failed local promotion quarantined and cleans staging', async () => {
+    const updates = []
+    const db = {
+      business: { findUnique: vi.fn().mockResolvedValue({ id: 'business-a', tenantId: 'tenant-a' }) },
+      project: { findUnique: vi.fn().mockResolvedValue({ id: 'project-a', businessId: 'business-a', deletedAt: null }) },
+      localWorkspaceMount: { findFirst: vi.fn().mockResolvedValue({ id: 'mount-a', businessId: 'business-a', rootPath: 'D:\\workspace', status: 'ACTIVE' }) },
+      fileAsset: {
+        findUnique: vi.fn().mockResolvedValue(null),
+        create: vi.fn(async ({ data }) => ({ id: 'asset-local', version: 1, createdAt: new Date(), updatedAt: new Date(), ...data })),
+        update: vi.fn(async ({ data }) => { updates.push(data); return data }),
+      },
+      fileLink: { create: vi.fn().mockResolvedValue({}) },
+      auditEvent: { create: vi.fn().mockResolvedValue({}) },
+      $transaction: vi.fn(async (callback) => callback(db)),
+    }
+    const port = {
+      stageWrite: vi.fn().mockResolvedValue('D:\\workspace\\.zuri\\temp\\asset-local.tmp'),
+      promote: vi.fn().mockRejectedValue(new Error('disk full')),
+      cleanupStaged: vi.fn().mockResolvedValue(undefined),
+    }
+    await expect(createManagedFileAsset({
+      code: 'FIL-LOCAL', businessId: 'business-a', projectId: 'project-a', storageKind: 'LOCAL_FILE',
+      mountId: 'mount-a', relativePath: 'Projects/P-A/Documents/file.txt', contentBase64: 'aGVsbG8=',
+      name: 'file.txt', mime: 'text/plain', size: 5,
+    }, { db, visibleBusinessIds: ['business-a'], filesystemPort: port })).rejects.toThrow('disk full')
+    expect(updates).toContainEqual(expect.objectContaining({ status: 'QUARANTINED' }))
+    expect(port.cleanupStaged).toHaveBeenCalled()
+  })
+
+  it('remounts one Business/device mapping without changing file identity', async () => {
+    const upsert = vi.fn().mockResolvedValue({ id: 'mount-a', businessId: 'business-a', deviceKey: 'desktop-a', rootPath: 'E:\\zuri' })
+    const db = {
+      business: { findUnique: vi.fn().mockResolvedValue({ id: 'business-a', tenantId: 'tenant-a' }) },
+      localWorkspaceMount: { upsert },
+      auditEvent: { create: vi.fn().mockResolvedValue({}) },
+    }
+    await expect(upsertLocalWorkspaceMount({ businessId: 'business-a', deviceKey: 'desktop-a', rootPath: 'E:\\zuri' }, { db, visibleBusinessIds: ['business-a'] }))
+      .resolves.toMatchObject({ rootPath: 'E:\\zuri' })
+    expect(upsert).toHaveBeenCalledWith(expect.objectContaining({
+      where: { businessId_deviceKey: { businessId: 'business-a', deviceKey: 'desktop-a' } },
+    }))
+  })
+
+  it('authorizes content, explicit relink and metadata-only delete through the managed model', async () => {
+    const update = vi.fn(async ({ data }) => ({ id: 'asset-a', ...data }))
+    const db = {
+      fileAsset: { findUnique: vi.fn().mockResolvedValue({ id: 'asset-a', businessId: 'business-a', storageKind: 'LOCAL_FILE', relativePath: 'old.txt', status: 'ACTIVE', name: 'old.txt' }), update },
+      localWorkspaceMount: { findFirst: vi.fn().mockResolvedValue({ id: 'mount-a', businessId: 'business-a', rootPath: 'D:\\workspace', status: 'ACTIVE' }) },
+      auditEvent: { create: vi.fn().mockResolvedValue({}) },
+    }
+    const filesystemPort = { read: vi.fn().mockResolvedValue(Buffer.from('ok')), stat: vi.fn().mockResolvedValue({ size: 2 }) }
+    await expect(resolveFileAssetContent('asset-a', { db, visibleBusinessIds: ['business-a'], filesystemPort })).resolves.toMatchObject({ content: Buffer.from('ok') })
+    await expect(relinkFileAsset('asset-a', { mountId: 'mount-a', relativePath: 'new.txt' }, { db, visibleBusinessIds: ['business-a'], filesystemPort })).resolves.toMatchObject({ relativePath: 'new.txt', status: 'ACTIVE' })
+    await expect(deleteManagedFileAsset('asset-a', { db, visibleBusinessIds: ['business-a'] })).resolves.toMatchObject({ status: 'MISSING' })
+    expect(filesystemPort.stat).toHaveBeenCalledWith({ mountRoot: 'D:\\workspace', relativePath: 'new.txt' })
+  })
+})

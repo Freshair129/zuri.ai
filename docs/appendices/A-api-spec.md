@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-13 |
+| **Last Updated** | 2026-08-14 |
 
 ทุก endpoint เป็น local route handler (ไม่มี auth ใน MVP — local demo identity)
 Error shape: `{ error, issues? }` — 400 validation/domain, 404 not found, 500 อื่น ๆ
@@ -73,6 +73,26 @@ by the demo Login button.
 | GET | `/api/backup/export` | full snapshot JSON |
 | POST | `/api/backup/import` | `{snapshot}` = preview; `{snapshot, confirm:true}` = restore |
 | GET | `/api/audit` | events (filter: entityType, entityId, limit) |
+
+## Managed local files (FR-045 — implemented beta)
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET/POST | `/api/files` | viewer-authorized FileAsset query / managed ingest by Business or Project scope |
+| GET | `/api/business/files?businessId=` | selected Business plus its owned Projects, one row per asset |
+| GET/POST | `/api/projects/[id]/files` | existing compatibility contract backed by the new read/write service after migration |
+| GET | `/api/files/[id]/content` | authorized content stream or download; no arbitrary filesystem path input |
+| POST | `/api/files/[id]/relink` | explicitly confirm a contained new relative path for a missing asset |
+| POST | `/api/files/[id]/reveal` | local-runtime capability only; hosted mode returns capability-disabled |
+| POST | `/api/files/reconcile` | dry-run by default; confirm applies audited missing/untracked decisions |
+| POST | `/api/files/cache/rebuild` | rebuild disposable projections from SQLite/content metadata |
+| GET/POST | `/api/files/mounts` | list or upsert a device-local Business mount |
+| POST | `/api/files/migrate` | owner/dev dry-run or confirmed ProjectFile migration |
+| DELETE | `/api/files/[id]` | soft-delete managed metadata; physical content is not silently deleted |
+
+Storage-kind requests are Zod-validated and scope is resolved server-side. No
+content endpoint accepts an absolute client-supplied path. The existing Project
+Files endpoints remain available through the compatibility boundary.
 
 ## Intake surfaces (FR-017..FR-020 — shipped)
 

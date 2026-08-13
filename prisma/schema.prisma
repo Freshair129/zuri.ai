@@ -40,6 +40,8 @@ model Tenant {
   externalIdentities ExternalIdentity[]
   identityLinkTokens IdentityLinkToken[]
   customers          Customer[]
+  localWorkspaceMounts LocalWorkspaceMount[]
+  fileAssets           FileAsset[]
 
   @@index([portfolioId])
 }
@@ -94,6 +96,8 @@ model Business {
   roadmaps    BusinessRoadmap[]
   goals       BusinessGoal[]
   projects    Project[]
+  localWorkspaceMounts LocalWorkspaceMount[]
+  fileAssets           FileAsset[]
 
   @@index([tenantId])
 }
@@ -195,6 +199,7 @@ model Project {
   workstreams  Workstream[]
   repositories ProjectRepository[]
   files        ProjectFile[]
+  fileAssets   FileAsset[]
   milestones   Milestone[]
   gates        Gate[]
   goalLinks    ProjectGoal[]
@@ -356,6 +361,7 @@ model WorkItem {
   workstream Workstream     @relation(fields: [workstreamId], references: [id], onDelete: Cascade)
   container  WorkContainer? @relation(fields: [containerId], references: [id])
   files      ProjectFile[]
+  fileAssets FileAsset[]
 
   @@index([workstreamId])
   @@index([containerId])
@@ -475,6 +481,80 @@ model ProjectFile {
 
   @@index([projectId])
   @@index([workItemId])
+}
+
+// @req FR-045 - device-local root for the authoritative SQLite file metadata graph.
+// @spec ADR-016, SDD-023, ZV2-CR-001
+model LocalWorkspaceMount {
+  id         String    @id @default(uuid())
+  tenantId   String
+  businessId String
+  deviceKey  String
+  rootPath   String
+  status     String    @default("ACTIVE")
+  lastScanAt DateTime?
+  version    Int       @default(1)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  business Business @relation(fields: [businessId], references: [id])
+
+  @@unique([businessId, deviceKey])
+  @@index([tenantId])
+}
+
+// @req FR-045 - authoritative, portable metadata identity for managed local files.
+// @spec ADR-016, SDD-023, ZV2-CR-001
+model FileAsset {
+  id           String    @id @default(uuid())
+  code         String    @unique
+  tenantId     String
+  businessId   String
+  projectId    String?
+  workItemId   String?
+  storageKind  String
+  relativePath String?
+  externalUrl  String?
+  blobRef      String?
+  name         String
+  mime         String
+  size         Int
+  sha256       String?
+  status       String    @default("ACTIVE")
+  version      Int       @default(1)
+  uploadedBy   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  business Business  @relation(fields: [businessId], references: [id])
+  project  Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  workItem WorkItem? @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+  links    FileLink[]
+
+  @@index([tenantId])
+  @@index([businessId])
+  @@index([projectId])
+  @@index([workItemId])
+}
+
+// @req FR-045 - typed secondary FileAsset relation with indexed entity lookup.
+// @spec ADR-016, SDD-023, ZV2-CR-001
+model FileLink {
+  id           String   @id @default(uuid())
+  fileId       String
+  entityType   String
+  entityId     String
+  relationType String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  file FileAsset @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@unique([fileId, entityType, entityId, relationType])
+  @@index([entityType, entityId])
 }
 
 // FR-019 — Enterprise integration: a customer's own core id mapped onto our

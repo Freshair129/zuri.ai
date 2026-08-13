@@ -7,11 +7,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.27.0 |
+| **Version** | 1.30.0 |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-13 |
+| **Last Updated** | 2026-08-14 |
 | **Approved By** | — |
 
 ## Version History
@@ -49,6 +49,9 @@
 | 1.25.0 | 2026-08-13 | ATHER | FR-043 + ADR-014: direct Project Business ownership with Space as secondary Development context |
 | 1.26.0 | 2026-08-13 | ATHER | Planned FR-044 + SDD-022: minimal Landing/Login stubs, pre-shell Business Routing, and guarded BusinessShell entry |
 | 1.27.0 | 2026-08-13 | ATHER | FR-044 implementation: provider-only root, EntryShell, Business Routing, guarded BusinessShell, browser proof, and release gates ✅ |
+| 1.28.0 | 2026-08-14 | ATHER | Proposed FR-045 + NFR-009 + BR-010 + SEC-007 + SDD-023: SQLite-authoritative managed local files, rebuildable cache, migration/rollback and local capability boundary (ADR-016 / ZV2-CR-001) |
+| 1.29.0 | 2026-08-14 | ATHER | Owner-approved FR-045 foundation: W0 inventory, W1 additive schema, W2 contained filesystem port and W3 isolated File Manager read model; W4-W8 remain |
+| 1.30.0 | 2026-08-14 | ATHER | FR-045 W4-W9 implemented: managed file APIs/UI, reconcile/cache, local reveal, portable backup/remount, all AC and retained-reference W9 decision |
 
 ## Referenced Standards
 
@@ -136,6 +139,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-042 | HR / People is a peer ERP domain (route key `people`) with a Business-scoped People Directory over Person/Membership. It is not nested under Development; Project Team remains Project-local. Attendance, leave, payroll, and performance are out of scope for this slice. | ✅ |
 | FR-043 | Project stores a direct nullable `businessId` owner plus `workspaceId` as Development Space context. Business-scoped projects must match their Space owner; explicit portfolio/tenant shared projects remain null-owner and are never attributed to a Business Overview. | ✅ |
 | FR-044 | Entry routing is split into a minimal Landing (`/`), a demo Login stub (`/login`), a Business Routing page (`/businesses`) that shows only viewer-visible Businesses, and the final BusinessShell (`/overview`) mounted only after a Business is selected. No real auth or new design tokens are included in this slice. | ✅ implemented |
+| FR-045 | Managed local file workspace: SQLite is authoritative for FileAsset identity, Business/Project ownership, links, version, status and audit; the filesystem stores real content plus disposable cache. Business File Manager aggregates Business-owned and child Project assets without copying content. Existing FR-037 ProjectFile rows/routes migrate through a compatibility boundary; local OS reveal is capability-gated and hosted mode denies it. | ✅ implemented (beta); W0-W9 and AC-045-01..12 complete |
 
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
 > superseded for the operational shell. Home may show Organization/Portfolio ancestry
@@ -154,6 +158,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | NFR-006 | Persistence ย้ายไป Postgres ได้โดยไม่แก้ semantics (string enums, UUID, JSON strings) | DB-MIGRATION-NOTES.md |
 | NFR-007 | Seed idempotent / reset ได้ (`db:seed`, `db:reset`) | verified double-run |
 | NFR-008 | UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity boundary จนกว่าจะ cutover | ADR-010 + design-system test + visual route check |
+| NFR-009 | Local file operations are crash-recoverable and portable: authoritative metadata survives restart/remount, cache is fully rebuildable, absolute device paths never become identity, and canonical results are available when cache is stale or absent. | FR-045 unit/integration/remount/cache parity gates |
 
 ## 1.5 Business rules
 
@@ -168,6 +173,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | BR-007 | แผนที่ import เป็นข้อมูลเท่านั้น — ไม่มีการ execute code จาก plan |
 | BR-008 | Restore snapshot ต้อง preview + confirm เสมอ — ไม่มี silent overwrite |
 | BR-009 | ทุก intake surface (UI/Excel/agent/API) ต้องจบที่ pipeline validate→dry-run→commit เดียวกัน |
+| BR-010 | SQLite is the sole transactional authority for file identity and relations. Filesystem content and `.zuri/cache` are projections/storage, never a second writable relationship database; Business aggregation must query IDs/links and never duplicate a file merely to show it in another view. |
 
 ## 1.6 Acceptance criteria
 
@@ -219,6 +225,7 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SDD-020 | Business Strategy is a read model over `BusinessRoadmap`, `BusinessRoadmapHorizon`, `BusinessGoal`, and `ProjectGoal`. The service returns two or three ordered horizons and filters by the selected Business; no Project or Organization is promoted to shell scope. | FR-041; ADR-013, BR-001 |
 | SDD-021 | Project ownership is direct through nullable `businessId`; `workspaceId` is a Development Space context. Services derive and validate the owner against the Space, allow null only for explicit portfolio/tenant shared work, and render Business before Space in Project context. | FR-043; ADR-014, BR-001, SEC-001 |
 | SDD-022 | Route groups enforce the interface boundary: EntryShell owns `/` and `/login`, BusinessRoutingShell owns `/businesses`, BusinessShell owns `/overview` and Business-bound domains, and ProjectResourceShell remains nested below BusinessShell. Missing viewer/business context redirects before shell render. Existing Zuri tokens are reused; token redesign is deferred. | FR-044; ADR-015, SDD-011, SDD-014 |
+| SDD-023 | `FileAsset` + validated `FileLink` form the portable file metadata graph; `LocalWorkspaceMount` maps one device-local absolute root to stable relative paths. Managed ingest is staged and audited, missing files require explicit reconcile/relink, cache entries carry source revision and are disposable, and the legacy ProjectFile API remains behind a migration adapter until ZV2-CR-001 parity/rollback gates pass. | FR-045; ADR-016, BR-010, NFR-009, SEC-007 |
 
 ## 2.3 Security requirements
 
@@ -230,6 +237,7 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SEC-004 | MVP ไม่มี customer PII ในระบบ | ✅ by scope **— เป็นจริงเฉพาะวันนี้**: ADR-003 พา LINE เข้ามาเป็น surface หลัก ข้อความลูกค้าคือ PII ต้องรื้อข้อนี้ก่อนงาน LINE เริ่ม (`TASK-V2-LINE-INTENT`) |
 | SEC-005 | PDPA: consent ต่อธุรกิจใน `CustomerBusinessProfile` เมื่อทำ CRM sharing | 🔜 **เลื่อนขึ้นเป็น P0 ของ PHASE-V2-REPLACE** — ไม่ใช่ "เฟส CRM ทีหลัง" อีกแล้ว เพราะ LINE-first แปลว่าข้อมูลลูกค้าเข้าระบบตั้งแต่วันแรก |
 | SEC-006 | Enterprise API ต้องมี token auth ต่อ tenant ก่อนเปิดใช้จริง | 🔜 |
+| SEC-007 | Every local file operation must authorize Tenant/Business/Project scope and enforce mounted-root containment, rejecting absolute/traversal and symlink/junction/reparse escape. OS reveal is local-capability-only; hosted requests can never launch a server process. | ✅ tested; ADR-016 / FR-045 security gates |
 
 ## 2.4 API / DB / Testing / Deployment
 
