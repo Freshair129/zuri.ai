@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.30.0 |
+| **Version** | 1.32.0 |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -52,6 +52,8 @@
 | 1.28.0 | 2026-08-14 | ATHER | Proposed FR-045 + NFR-009 + BR-010 + SEC-007 + SDD-023: SQLite-authoritative managed local files, rebuildable cache, migration/rollback and local capability boundary (ADR-016 / ZV2-CR-001) |
 | 1.29.0 | 2026-08-14 | ATHER | Owner-approved FR-045 foundation: W0 inventory, W1 additive schema, W2 contained filesystem port and W3 isolated File Manager read model; W4-W8 remain |
 | 1.30.0 | 2026-08-14 | ATHER | FR-045 W4-W9 implemented: managed file APIs/UI, reconcile/cache, local reveal, portable backup/remount, all AC and retained-reference W9 decision |
+
+| 1.32.0 | 2026-08-14 | ATHER | Owner-approved Phase 1 LINE business agent: FR-047..050 + NFR-010 + BR-011 + SEC-009 + SDD-025; curated SmartGift knowledge, provider port, grounded answer and single-reply delivery |
 
 ## Referenced Standards
 
@@ -141,6 +143,11 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-044 | Entry routing is split into a minimal Landing (`/`), a demo Login stub (`/login`), a Business Routing page (`/businesses`) that shows only viewer-visible Businesses, and the final BusinessShell (`/overview`) mounted only after a Business is selected. No real auth or new design tokens are included in this slice. | ✅ implemented |
 | FR-045 | Managed local file workspace: SQLite is authoritative for FileAsset identity, Business/Project ownership, links, version, status and audit; the filesystem stores real content plus disposable cache. Business File Manager aggregates Business-owned and child Project assets without copying content. Existing FR-037 ProjectFile rows/routes migrate through a compatibility boundary; local OS reveal is capability-gated and hosted mode denies it. | ✅ implemented (beta); W0-W9 and AC-045-01..12 complete |
 
+| FR-047 | Curated business-knowledge read contract: the SmartGift pilot exposes only an allow-listed, versioned public product projection through `BusinessKnowledgeReadPort`; DuckDB and Supabase are adapters. PII, cost, margin, invoice, unrestricted SQL and local paths are excluded. | Phase 1 active - owner-approved 2026-08-14 |
+| FR-048 | Provider selection contract: `ModelProviderPort` normalizes OpenRouter OAuth credential references and API-key adapters for OpenAI, Anthropic, Gemini and Groq. Public LINE cannot select consumer-plan CLI credentials, and automatic fallback is disabled. | Phase 1 active - owner-approved 2026-08-14 |
+| FR-049 | Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient. | Phase 1 active - owner-approved 2026-08-14 |
+| FR-050 | Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics. | Phase 1 active - owner-approved 2026-08-14 |
+
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
 > superseded for the operational shell. Home may show Organization/Portfolio ancestry
 > while choosing a Business, but it never enters a Group Overview; `/overview` requires
@@ -160,6 +167,8 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | NFR-008 | UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity boundary จนกว่าจะ cutover | ADR-010 + design-system test + visual route check |
 | NFR-009 | Local file operations are crash-recoverable and portable: authoritative metadata survives restart/remount, cache is fully rebuildable, absolute device paths never become identity, and canonical results are available when cache is stale or absent. | FR-045 unit/integration/remount/cache parity gates |
 
+| NFR-010 | LINE business answers fail closed within a bounded request deadline: network calls use explicit timeouts/cancellation, duplicate delivery is idempotent, provider failure cannot expose secrets or raw data, and offline/local evaluation remains possible through an injected adapter. | FR-047..050 contract, timeout and redelivery tests |
+
 ## 1.5 Business rules
 
 | ID | Rule |
@@ -174,6 +183,8 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | BR-008 | Restore snapshot ต้อง preview + confirm เสมอ — ไม่มี silent overwrite |
 | BR-009 | ทุก intake surface (UI/Excel/agent/API) ต้องจบที่ pipeline validate→dry-run→commit เดียวกัน |
 | BR-010 | SQLite is the sole transactional authority for file identity and relations. Filesystem content and `.zuri/cache` are projections/storage, never a second writable relationship database; Business aggregation must query IDs/links and never duplicate a file merely to show it in another view. |
+
+| BR-011 | A LINE event has exactly one reply owner. When stack answering is enabled, `zuri-cli` owns signature verification and Reply API transport while `zuri-ai` owns knowledge/provider/answer policy; the legacy local answer path must not also consume the same `replyToken`. |
 
 ## 1.6 Acceptance criteria
 
@@ -227,6 +238,8 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SDD-022 | Route groups enforce the interface boundary: EntryShell owns `/` and `/login`, BusinessRoutingShell owns `/businesses`, BusinessShell owns `/overview` and Business-bound domains, and ProjectResourceShell remains nested below BusinessShell. Missing viewer/business context redirects before shell render. Existing Zuri tokens are reused; token redesign is deferred. | FR-044; ADR-015, SDD-011, SDD-014 |
 | SDD-023 | `FileAsset` + validated `FileLink` form the portable file metadata graph; `LocalWorkspaceMount` maps one device-local absolute root to stable relative paths. Managed ingest is staged and audited, missing files require explicit reconcile/relink, cache entries carry source revision and are disposable, and the legacy ProjectFile API remains behind a migration adapter until ZV2-CR-001 parity/rollback gates pass. | FR-045; ADR-016, BR-010, NFR-009, SEC-007 |
 
+| SDD-025 | The Phase 1 LINE pilot is a ports-and-adapters vertical slice. `BusinessKnowledgeReadPort` owns registered bounded reads, `ModelProviderPort` owns normalized generation, and the grounded-answer service verifies evidence before returning reply text. `zuri-cli` remains the only LINE signature/reply transport. Supabase is operational relational storage; GenesisBlockDB/MSP/GKS are not Phase 1 dependencies. | FR-047..050; ADR-007 amendment; ZV2-CR-003 |
+
 ## 2.3 Security requirements
 
 | ID | Requirement | สถานะ |
@@ -238,6 +251,8 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SEC-005 | PDPA: consent ต่อธุรกิจใน `CustomerBusinessProfile` เมื่อทำ CRM sharing | 🔜 **เลื่อนขึ้นเป็น P0 ของ PHASE-V2-REPLACE** — ไม่ใช่ "เฟส CRM ทีหลัง" อีกแล้ว เพราะ LINE-first แปลว่าข้อมูลลูกค้าเข้าระบบตั้งแต่วันแรก |
 | SEC-006 | Enterprise API ต้องมี token auth ต่อ tenant ก่อนเปิดใช้จริง | 🔜 |
 | SEC-007 | Every local file operation must authorize Tenant/Business/Project scope and enforce mounted-root containment, rejecting absolute/traversal and symlink/junction/reparse escape. OS reveal is local-capability-only; hosted requests can never launch a server process. | ✅ tested; ADR-016 / FR-045 security gates |
+
+| SEC-009 | Public LINE knowledge access is server-only and deny-by-default: server-owned tenant/business binding, no public service-role key, explicit Supabase grants plus RLS for exposed tables, allow-listed fields/queries, prompt-data treated as untrusted, and secrets/PII/cost/margin/invoice data excluded from prompts, logs and responses. | Phase 1 security gate; FR-047..050 / ZV2-CR-003 |
 
 ## 2.4 API / DB / Testing / Deployment
 

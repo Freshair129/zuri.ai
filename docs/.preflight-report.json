@@ -2,15 +2,15 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 102,
+    "docs": 114,
     "v1_inherited": 234,
     "routes": 53,
-    "test_files": 76
+    "test_files": 81
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 31,
+    "info": 34,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -348,13 +348,40 @@
     {
       "id": "I31",
       "severity": "info",
+      "check": "requirement-coverage",
+      "title": "Gaps in FR numbering",
+      "details": "FR-046",
+      "files": [],
+      "action": "Intentional gaps are fine — confirm nothing was lost"
+    },
+    {
+      "id": "I32",
+      "severity": "info",
+      "check": "requirement-coverage",
+      "title": "Gaps in SDD numbering",
+      "details": "SDD-024",
+      "files": [],
+      "action": "Intentional gaps are fine — confirm nothing was lost"
+    },
+    {
+      "id": "I33",
+      "severity": "info",
+      "check": "requirement-coverage",
+      "title": "Gaps in SEC numbering",
+      "details": "SEC-008",
+      "files": [],
+      "action": "Intentional gaps are fine — confirm nothing was lost"
+    },
+    {
+      "id": "I34",
+      "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
       "details": "\"| PHASE-ZV2-MVP | Build offline-first PM MVP (spec phases 00-07) | ACCEPTANCE-CRITERIA all PASS — MVP shipped \"",
       "files": [
         "docs/roadmap/ROADMAP-zuri-v2-lab.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 76 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 81 files"
     }
   ]
 }

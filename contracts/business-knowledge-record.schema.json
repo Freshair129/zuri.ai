@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.local/contracts/business-knowledge-record.schema.json",
+  "title": "Business Knowledge Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "knowledge_id", "business_id", "knowledge_type", "product_code", "name", "category",
+    "description", "unit", "sell_price", "currency", "moq", "colors", "specification",
+    "source_ref", "source_sha256", "as_of", "approved_at", "is_active", "sensitivity",
+    "contract_version"
+  ],
+  "properties": {
+    "knowledge_id": { "type": "string", "minLength": 1 },
+    "business_id": { "type": "string", "minLength": 1 },
+    "knowledge_type": { "const": "PRODUCT" },
+    "product_code": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "category": { "type": ["string", "null"] },
+    "description": { "type": ["string", "null"] },
+    "unit": { "type": ["string", "null"] },
+    "sell_price": { "type": ["number", "null"], "minimum": 0 },
+    "currency": { "type": ["string", "null"], "minLength": 3, "maxLength": 3 },
+    "moq": { "type": ["integer", "null"], "minimum": 0 },
+    "colors": { "type": "array", "items": { "type": "string" }, "maxItems": 40 },
+    "specification": { "type": "object" },
+    "source_ref": { "type": "string", "minLength": 1 },
+    "source_sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+    "as_of": { "type": "string", "format": "date-time" },
+    "approved_at": { "type": "string", "format": "date-time" },
+    "is_active": { "const": true },
+    "sensitivity": { "const": "PUBLIC" },
+    "contract_version": { "const": "1.0.0" }
+  }
+}

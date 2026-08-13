@@ -1,6 +1,10 @@
 import { z } from 'zod'
 import { handle } from '../../_helpers'
-import { handleAgentTurn } from '@/modules/agent'
+import { assertPhase1TransportAuthorization, createPhase1BusinessAgentPortsFromEnv, handleAgentTurn } from '@/modules/agent'
+
+// @req FR-050 — return event-correlated verified reply text/skipReply state to the sole
+// LINE transport owner without receiving or consuming the LINE replyToken here.
+// @spec BR-011 — zuri-cli is the sole LINE reply owner when stack answering is enabled.
 
 // @req FR-028 — the LINE webhook seam: the zuri-cli LINE bot forwards webhook events
 //   here; each text message becomes one end-to-end agent turn (FR-027) at Gate E.
@@ -12,6 +16,7 @@ import { handleAgentTurn } from '@/modules/agent'
 export const dynamic = 'force-dynamic'
 
 const zLineEvent = z.object({
+  webhookEventId: z.string().optional(),
   type: z.string(),
   source: z.object({ userId: z.string().optional(), groupId: z.string().optional(), roomId: z.string().optional() }).optional(),
   message: z.object({ id: z.string().optional(), type: z.string().optional(), text: z.string().optional() }).optional(),
@@ -34,8 +39,10 @@ const zBody = z.object({
  */
 export async function POST(request) {
   return handle(async () => {
+    assertPhase1TransportAuthorization(request.headers)
     const body = zBody.parse(await request.json())
     const results = []
+    const phase1Ports = createPhase1BusinessAgentPortsFromEnv()
 
     for (const ev of body.events) {
       if (ev.type !== 'message' || ev.message?.type !== 'text') {
@@ -49,6 +56,7 @@ export async function POST(request) {
         continue
       }
       try {
+        const eventId = ev.webhookEventId || ev.message.id
         const turn = await handleAgentTurn({
           tenantId: body.tenantId,
           businessId: body.businessId,
@@ -57,8 +65,14 @@ export async function POST(request) {
           threadId,
           text: ev.message.text ?? '',
           externalMessageId: ev.message.id,
+        }, phase1Ports ?? undefined)
+        results.push({
+          ok: true,
+          eventId,
+          principalType: turn.identity.principalType,
+          skipReply: turn.response.skipReply === true,
+          response: turn.response,
         })
-        results.push({ ok: true, principalType: turn.identity.principalType, response: turn.response })
       } catch (err) {
         results.push({ ok: false, error: err?.message || 'turn failed' })
       }
