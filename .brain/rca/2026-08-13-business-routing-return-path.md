@@ -31,6 +31,7 @@ breadcrumb.
 
 ## Implemented prevention
 
-The BusinessShell now exposes a `Change Business` link to `/businesses`, and the
-Business breadcrumb uses the same route. Unit and FR-044 browser tests assert both
-the affordance and the destination while preserving the no-dropdown rule.
+The BusinessShell now exposes exactly one `Change Business` link by making the
+Business value in the top context bar navigate to `/businesses`. The breadcrumb is
+read-only. Unit and FR-044 browser tests assert the single affordance and destination
+while preserving the no-dropdown rule.

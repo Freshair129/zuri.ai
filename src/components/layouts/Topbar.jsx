@@ -7,7 +7,7 @@
 // @spec ADR-014, SDD-021
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeftRight, Bell, Command, Plus, Sparkles } from 'lucide-react'
+import { Bell, Command, Plus, Sparkles } from 'lucide-react'
 import { useScope } from '@/context/ScopeContext'
 import { BASE_CONTEXT_LEVELS, SCOPE_VIEWS } from '@/config/scope-views'
 
@@ -67,13 +67,27 @@ export default function Topbar({ onOpenPalette }) {
       <div className="flex min-w-0 items-center border-l border-white/10 pl-3 max-md:hidden" aria-label="Current workspace, organization, and business">
         {BASE_CONTEXT_LEVELS.map((level, index) => {
           const item = contextBySchema[level.schema]
+          const contextContent = (
+            <>
+              <span className="block text-[9px] leading-none text-white/45">{level.label}</span>
+              <span className="block max-w-36 truncate text-xs font-bold text-white/90" title={item?.code}>{item?.name || level.fallback}</span>
+            </>
+          )
           return (
             <span key={level.schema} className="flex min-w-0 items-center">
               {index > 0 && <span className="mx-2 text-white/25">›</span>}
-              <span className="min-w-0">
-                <span className="block text-[9px] leading-none text-white/45">{level.label}</span>
-                <span className="block max-w-36 truncate text-xs font-bold text-white/90" title={item?.code}>{item?.name || level.fallback}</span>
-              </span>
+              {level.schema === 'business' ? (
+                <Link
+                  href="/businesses"
+                  aria-label="Change Business"
+                  title="Select a different Business"
+                  className="group min-w-0 rounded-md px-1 py-0.5 transition hover:bg-white/10"
+                >
+                  {contextContent}
+                </Link>
+              ) : (
+                <span className="min-w-0">{contextContent}</span>
+              )}
             </span>
           )
         })}
@@ -82,14 +96,6 @@ export default function Topbar({ onOpenPalette }) {
       <div className="min-w-0 flex-1" />
 
       <div className="flex items-center gap-2">
-        <Link
-          href="/businesses"
-          aria-label="Change Business"
-          title="Select a different Business"
-          className="flex h-9 items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 text-xs text-white/80 transition hover:bg-white/15 hover:text-white"
-        >
-          <ArrowLeftRight size={13} aria-hidden /> <span className="max-md:hidden">Change Business</span>
-        </Link>
         <button
           type="button"
           className="flex h-9 items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 text-xs"

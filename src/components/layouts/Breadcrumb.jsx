@@ -33,7 +33,7 @@ export default function Breadcrumb() {
     crumbs.push({ label: displayTenant.name, eyebrow: 'Organization' })
   }
   if (displayBusiness) {
-    crumbs.push({ label: displayBusiness.name, eyebrow: 'Business', href: '/businesses', switcher: true })
+    crumbs.push({ label: displayBusiness.name, eyebrow: 'Business' })
   }
   if (project) {
     crumbs.push({ label: project.code || project.name, eyebrow: 'Project' })

@@ -19,6 +19,8 @@ describe('Topbar scope boundary', () => {
   it('provides an explicit return path to Business Routing without a dropdown', () => {
     expect(topbar).toContain('Change Business')
     expect(topbar).toContain('href="/businesses"')
+    expect(topbar).toContain("level.schema === 'business'")
+    expect(topbar).not.toContain('ArrowLeftRight')
   })
 
   it('shows the three-level Base Context Bar, not a repeated domain chip', () => {

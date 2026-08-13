@@ -60,10 +60,9 @@ The Business Routing page is shown even when exactly one Business is visible. Ad
 auto-skip is deferred so the boundary can be verified. It may be reconsidered in a
 later ADR without changing the data model.
 
-The final BusinessShell must retain a visible, non-dropdown return action to
-`/businesses` so a selected Business can be changed without editing the URL. The
-Business breadcrumb uses the same route; this is navigation back to the pre-shell
-selector, not an in-shell Business switcher.
+The final BusinessShell must retain exactly one visible, non-dropdown return action to
+`/businesses`: the selected Business value in the top `Workspace › Organization › Business`
+context bar. The breadcrumb is read-only and is not a second Business selector.
 
 ### D3 — Demo login is explicitly non-authentication
 
