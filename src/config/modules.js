@@ -1,5 +1,4 @@
 import {
-  LayoutDashboard,
   BriefcaseBusiness,
   ListChecks,
   GanttChartSquare,
@@ -20,9 +19,10 @@ export const modules = {
     key: 'projectManager',
     label: 'Development',
     icon: BriefcaseBusiness,
+    // The Business Overview is the shell root; it is not a Development
+    // command-palette or sidebar entry.
     basePath: '/overview',
     nav: [
-      { label: 'Overview', path: '/overview', icon: LayoutDashboard },
       { label: 'Projects', path: '/projects', icon: BriefcaseBusiness },
       { label: 'All Work', path: '/work', icon: ListChecks },
       { label: 'Execution', path: '/execution', icon: Rocket },

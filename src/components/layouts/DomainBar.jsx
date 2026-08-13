@@ -13,7 +13,9 @@ import { useFetch } from '@/modules/project-manager/components/useApi'
 // module tabs in the topbar); V2 lifts it into its own chrome bar, tinted a shade
 // LIGHTER than the workspace/scope topbar above it, so the two chrome layers alternate
 // and the workspace layer visibly wraps the domain layer. Picking a domain lands on its
-// first sub-domain (the Dashboard). `soon` domains are visible but disabled.
+// root path (Business Overview for Development, otherwise the first sub-domain).
+// `soon` domains are visible but disabled.
+// @tested tests/unit/domain-navigation.test.js, tests/e2e/fr041-business-first.spec.js
 export default function DomainBar() {
   const pathname = usePathname()
   const activeKey = domainForPath(pathname).key
@@ -42,7 +44,7 @@ export default function DomainBar() {
           )
         }
         return (
-          <Link key={d.key} href={d.sub[0].path} className={cls} aria-current={isActive ? 'page' : undefined}>
+          <Link key={d.key} href={d.basePath || d.sub[0].path} className={cls} aria-current={isActive ? 'page' : undefined}>
             <Icon size={15} aria-hidden /> {d.label}
           </Link>
         )

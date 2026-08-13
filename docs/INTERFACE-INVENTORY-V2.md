@@ -81,7 +81,8 @@ route layout files: **3** (root, guarded PM, project resource). Actual reusable 
 | Surface | Count | Current routes |
 |---|---:|---|
 | Entry/routing | 3 | `/` Landing, `/login` demo stub, `/businesses` Business Routing |
-| Development top-level | 10 | `/overview`, `/projects`, `/projects/new`, `/work`, `/execution`, `/execution/[mode]`, `/timeline`, `/dependencies`, `/milestones`, `/repositories` |
+| BusinessShell root | 1 | `/overview` Business Overview |
+| Development top-level | 9 | `/projects`, `/projects/new`, `/work`, `/execution`, `/execution/[mode]`, `/timeline`, `/dependencies`, `/milestones`, `/repositories` |
 | HR / People | 2 | `/people`, `/people/directory` |
 | Platform / identity | 5 | `/platform/users`, `/profile`, `/settings`, `/audit`, `/backup` |
 | Workspace compatibility pages | 2 | `/workspaces`, `/workspaces/[workspaceId]` |
@@ -119,14 +120,14 @@ commerce · customer · growth · operations · people · projects · platform
 Display labels are Commerce, CRM, Marketing, Operations, HR / People, Development,
 and Platform. **Business Overview is not a domain**; it is the BusinessShell root.
 
-Current `domains.js` still places `/overview` as the first Development sidebar item,
-while SITEMAP-V2/ADR-013 describe Overview as the Business-level root. FR-044 keeps
-the route boundary correct but does not silently change this separate navigation
-registry; moving that item is a follow-up IA change.
+`domains.js` now keeps `/overview` as the explicit BusinessShell root (`basePath`) and
+excludes it from the Development sidebar. `DomainBar`, the sidebar header, and the
+Business Overview links all preserve that root path while Development sub-domains
+remain project capabilities.
 
 ### 3.2 Current sub-domain count
 
-The registry currently declares **20 sub-domain entries**:
+The registry currently declares **19 sub-domain entries**:
 
 | Runtime domain | Current entries | Count | Status |
 |---|---|---:|---|
@@ -135,24 +136,24 @@ The registry currently declares **20 sub-domain entries**:
 | Marketing (`growth`) | Dashboard, Campaigns | 2 | reserved/soon |
 | Operations | Dashboard | 1 | reserved/soon |
 | HR / People | Dashboard, People Directory | 2 | active |
-| Development (`projects`) | Overview, Projects, All Work, Execution, Timeline, Dependencies, Milestones & Gates, Repositories | 8 | active; Overview placement needs correction |
+| Development (`projects`) | Projects, All Work, Execution, Timeline, Dependencies, Milestones & Gates, Repositories | 7 | active; Business Overview is the shell root |
 | Platform | Dashboard, Users, Audit, Backup, Settings | 5 | active |
-| **Total** |  | **20** |  |
+| **Total** |  | **19** |  |
 
-After moving Business Overview out of Development, the Development registry has **7**
-sub-domains and the Business domain registry has **19** current sub-domain entries.
+The Business domain registry has **19** current sub-domain entries; `/overview` is
+counted once as the BusinessShell root and is not a sub-domain entry.
 
 ### 3.3 Documented future sub-domain inventory
 
-SITEMAP-V2 defines the future lifted domain surface as **49 sub-domain entries** (excluding
+SITEMAP-V2 defines the future lifted domain surface as **48 sub-domain entries** (excluding
 the Business Overview root): Commerce 9, Customer 7, Growth 7, Operations 7,
-Development 8, HR / People 2, Platform 9. Most are reserved lift slots, not shipped
-features. The runtime registry intentionally contains only the 20 current entries above.
+Development 7, HR / People 2, Platform 9. Most are reserved lift slots, not shipped
+features. The runtime registry intentionally contains only the 19 current entries above.
 
 ## 4. Feature inventory
 
-The Project Manager PRD currently declares **43 functional requirements** (`FR-001` to
-`FR-043`) and the generated graph reports 43/43 with code and 43/43 with tests.
+The Project Manager PRD currently declares **44 functional requirements** (`FR-001` to
+`FR-044`) and the generated graph reports 44/44 with code and 44/44 with tests.
 
 FR-044 now records the implemented interface boundary:
 
@@ -229,8 +230,8 @@ filtering remain future contracts.
 |---|---|---|
 | ADR-008 | Business-centric shell, dual lens, entry journey | FR-044 supplies the accepted pre-shell boundary; legacy entry wording is retained for traceability |
 | ADR-011 | three context labels and Business ceiling | says the shell may select context; must be clarified as selection-before-shell for this request |
-| SITEMAP-V2 §2b/§3/§5 | journey, domain/sub-domain map, URL intent | strongest IA source; route implementation is incomplete and Overview placement conflicts with `domains.js` |
-| HANDOFF §4 | screen inventory and status | exists, but `/login` is still marked new, Group Overview rows are stale, and the inventory does not describe separate EntryShell/BusinessShell layouts |
+| SITEMAP-V2 §2b/§3/§5 | journey, domain/sub-domain map, URL intent | aligned; Business Overview is the root and Development contains capabilities only |
+| HANDOFF §4 | screen inventory and status | aligned to FR-044; historical Group Overview rows remain traceability only |
 | `docs/ROUTES-SITEMAP.md` | route/shell tree | aligned to 34 page files and FR-044 shell boundaries |
 | Appendix A | API path families | path coverage is 43/43; no login API by deliberate FR-044 scope |
 | UI-DESIGN-SYSTEM / ADR-010 | tokens, primitives, accessibility states | visual system is documented; shell-state and route-gate indicators are not centralized |
@@ -258,17 +259,16 @@ No code should be changed at W6 until W0–W5 are approved. The existing Project
 Business ownership (`businessId` + `workspaceId`) remains valid and is downstream of
 this shell boundary; it should not be undone.
 
-## 9. Owner decisions required
+## 9. Owner decisions and follow-up
 
-1. Confirm FR-044/ADR-015: `/` and `/login` are EntryShell routes, `/businesses` is
+1. **Implemented:** `/` and `/login` are EntryShell routes, `/businesses` is
    BusinessRoutingShell, and none has final BusinessShell chrome.
-2. Confirm that `/overview` is Business Overview outside Development's sidebar; remove
-   `Overview` from the Development sub-domain registry.
-3. Confirm the route guard outcome: no selected Business redirects to `/`; no viewer
-   redirects to `/login`; unauthorized domain returns `FORBIDDEN`/Business Overview.
-4. Confirm whether `/api/scope` becomes viewer-filtered or remains an internal broad
-   inventory while a new entry/session endpoint supplies the Home contract.
-5. Approve the FR-044/ADR-015/SDD-022 implementation plan before route/layout code.
+2. **Implemented:** `/overview` is Business Overview outside Development's sidebar;
+   the registry and navigation proof enforce the boundary.
+3. **Implemented:** no selected Business redirects to `/businesses`; no viewer redirects
+   to `/login`; unauthorized domain returns `FORBIDDEN`/Business Overview.
+4. **Follow-up:** decide whether `/api/scope` remains an internal broad inventory or a
+   new viewer-scoped entry/session endpoint supplies the production Home contract (N4).
 
-Until these decisions are approved, this inventory is the working truth for the next
-documentation pass and no router/shell code change is authorized.
+FR-044 and N1/N2 are implemented and verified. N4 remains documentation-only until its
+separate ADR/API contract is approved.

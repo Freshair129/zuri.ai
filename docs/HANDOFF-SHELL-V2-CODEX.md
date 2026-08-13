@@ -1,13 +1,14 @@
 # HANDOFF — V2 business-centric shell (for Codex)
 
-**Status:** Ready to implement
-**Version:** 1.0.0
+**Status:** Implemented handoff — FR-044 + N1/N2 navigation alignment complete
+**Version:** 1.1.0
 **Date:** 2026-08-13
 **Author:** Owen + Claude (design/docs session)
 **Relates to:** [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md), [ADR-009](ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md), [SITEMAP-V2](SITEMAP-V2-DOMAIN-NAV.md), FR-002, FR-020
 
-> This session produced **decisions + docs only — no app code changed.** This is the
-> implementation hand-off. Everything Codex needs is in this file plus the linked ADRs.
+> This handoff is the implementation record for the approved shell boundary. FR-044
+> entry routing and the N1/N2 Business Overview navigation correction are implemented;
+> N4 viewer/session API design remains a separate contract slice.
 > The human also has a visual companion (screen-inventory + wireframes artifact); it is
 > private, so the inventory is reproduced below in text — implement from this file.
 
@@ -22,9 +23,10 @@
   L-layout: Topbar (row 1, full width) → DomainBar (row 2, full width) → Sidebar + content (row 3).
   Sidebar is an in-flow hover rail (80→256px, pushes content). Header has `relative z-50`.
 - **Dual scope lens:** `src/config/scope-views.js` + `ScopeContext.viewMode` (`erp` default, `pm`).
-  Topbar has an ERP·PM toggle; labels switch. **Scope selectors (Business switcher + Workspace +
-  Project dropdowns) are STILL in the topbar — this phase removes them.**
-- **Domains registry:** `src/config/domains.js` (6 domains; Campaigns under Growth).
+  Topbar has an ERP·PM toggle; labels switch. Scope selection occurs before BusinessShell;
+  the shell context bar is read-only and has no Business/Workspace/Project dropdowns.
+- **Domains registry:** `src/config/domains.js` (7 domains; Campaigns under Growth; HR / People
+  is a peer of Development).
 - **Governance:** `scripts/doc-graph.mjs` (typed lineage edges) + `scripts/doc-preflight.mjs`
   (lineage guard). `scripts/self-plan.mjs` imports the repo's own roadmap into the PM
   (`PRJ-ZURI-GOV`); `npm run self:plan`.
@@ -60,7 +62,7 @@ visibleDomains }`), default it to OWNER-of-everything in dev, and route all visi
 
 ## 4. Screen inventory (status)
 
-> **FR-044 / ADR-015 entry amendment (draft):** the next implementation slice changes
+> **FR-044 / ADR-015 entry amendment (accepted):** the implementation changes
 > the entry sequence to `/` Landing → `/login` demo stub → `/businesses` Business Routing
 > → `/overview` guarded BusinessShell. The historical Home/Group rows below are retained
 > as traceability; they must not be implemented as final-shell chrome before Business
@@ -70,27 +72,27 @@ visibleDomains }`), default it to OWNER-of-everything in dev, and route all visi
 
 | Screen | Route | Does | Status |
 |---|---|---|---|
-| Landing | `/` | one CTA to Login; no BusinessShell | planned |
-| Login stub | `/login` | one demo CTA to Business Routing; no auth | planned |
-| Business Routing | `/businesses` | viewer-visible Business selection | planned |
-| Business Overview / BusinessShell | `/overview` | mounts only after authorized Business selection | guarded target |
+| Landing | `/` | one CTA to Login; no BusinessShell | implemented |
+| Login stub | `/login` | one demo CTA to Business Routing; no auth | implemented |
+| Business Routing | `/businesses` | viewer-visible Business selection | implemented |
+| Business Overview / BusinessShell | `/overview` | mounts only after authorized Business selection | implemented |
 Legend: ✅ built · ◐ partial/rebuild · ○ new · ◇ soon (lift from V1, ADR-003).
 
-**Entry & global**
+**Entry & global (historical rows retained for traceability)**
 | Screen | Route | Does | |
 |---|---|---|---|
 | Login | `/login` | auth → RBAC | ○ |
 | Home | `/` | pick/create Company → Business, or enter Group | ○ |
 
-**Group context (ทุกธุรกิจ / Portfolio)**
+**Group context (ทุกธุรกิจ / Portfolio; reporting-only legacy rows)**
 | Group Overview | `/overview` (no business) | consolidation roll-up + shared projects | ◐ |
 | Shared/Platform projects | `/projects` | PORTFOLIO-scoped workspaces (PRJ-ZURI-GOV) | ✅ |
 
 **Business context**
-| Business Overview | `/overview` (business selected) | cross-domain home (KPIs + domain shortcuts) | ○ |
+| Business Overview | `/overview` (business selected) | cross-domain home (KPIs + domain shortcuts) | ✅ |
 
 **Projects domain** (shipped module, FR-001…020)
-| Dashboard | `/overview` | weighted roll-up, gates, milestones | ✅ |
+| Development root | `/overview` | BusinessShell root; not a Development sidebar item | ✅ |
 | Workspaces | `/workspaces` (+`/[id]`) | หน่วยงาน/Space picker | ✅ |
 | Projects | `/projects` (+`/new`) | project picker | ✅ |
 | Project home | `/projects/{id}` | tabs: Project·Requirements·Team·Work·Risks·Resources·Files | ◐ |
@@ -115,9 +117,14 @@ Legend: ✅ built · ◐ partial/rebuild · ○ new · ◇ soon (lift from V1, A
 Customer (CRM·Leads·Inbox·PDPA) · Growth (**Campaigns**·Ads·Automations·AI Copilot) ·
 Operations (Kitchen·Runner·Courses·Attendance·Certificates·Team).
 
-## 5. Build order (dependency-first)
+## 5. Historical build order (dependency-first; complete through N1/N2)
 Each step: land a fresh FR id in `docs/PRD-SDD-v1.0.md`, annotate code `@req/@spec/@tested`, then
 `npm run docs:graph && npm run docs:preflight`.
+
+The original eight-step sequence below is retained as traceability and is complete for
+the accepted FR-044 entry boundary and N1/N2 navigation alignment. Do not rebuild those
+steps. The current follow-up is the N4 viewer-scoped API contract in
+`docs/roadmap/PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT.md`.
 
 1. **RBAC gate seam** — `resolveViewer()` + context (`visibleBusinessIds`, `visibleDomains`, `role`).
    Default dev = OWNER-of-all. Everything below reads from it. *(needed by Home + dropdown removal)*

@@ -32,7 +32,9 @@ test.describe('FR-041/042 Business-first shell', () => {
     await expect(page.getByRole('heading', { name: 'People Directory' })).toBeVisible()
     await expect(page.getByText('Local Owner')).toBeVisible()
     await expect(page.getByText(/Project Team is a separate Project-local view/)).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Development' })).toBeVisible()
+    const developmentLink = page.getByRole('link', { name: 'Development' }).first()
+    await expect(developmentLink).toBeVisible()
+    await expect(developmentLink).toHaveAttribute('href', '/overview')
   })
 
   test('strategy and people API contracts stay Business-scoped', async ({ request }) => {

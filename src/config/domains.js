@@ -47,10 +47,10 @@ export const DOMAINS = [
   },
   {
     // Existing route/RBAC key remains `projects`; only its Business-bound
-    // display label changes so the resource list stays Projects.
-    key: 'projects', label: 'Development', icon: BriefcaseBusiness,
+    // display label changes so the resource list stays Projects. `/overview`
+    // is the BusinessShell root, not a Development sub-domain.
+    key: 'projects', label: 'Development', icon: BriefcaseBusiness, basePath: '/overview',
     sub: [
-      { label: 'Overview', path: '/overview', icon: LayoutDashboard },
       { label: 'Projects', path: '/projects', icon: BriefcaseBusiness },
       { label: 'All Work', path: '/work', icon: ListChecks },
       { label: 'Execution', path: '/execution', icon: Rocket },

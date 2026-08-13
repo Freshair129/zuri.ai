@@ -75,7 +75,7 @@ MVP is complete only when all boxes pass.
 - [ ] Zuri Heritage tokens used
 - [ ] no purple/cyber theme
 - [ ] sidebar/topbar responsive
-- [ ] context selectors visible
+- [x] Business context is visible in the read-only Workspace > Organization > Business bar; Business selection occurs before BusinessShell and no shell dropdown is required.
 - [ ] universal views do not use software-only vocabulary
 - [ ] mode-specific vocabulary shown only inside correct view
 - [ ] empty states are usable
@@ -89,7 +89,7 @@ MVP is complete only when all boxes pass.
 - [x] Empty, loading, error, keyboard focus, reduced-motion, and narrow viewport states remain usable.
 - [x] No Prisma model, migration, UUID, or Tenant/Business isolation rule changes for this display-only feature.
 
-- [x] Full repository test gate: `npm test` passes with 48 test files and 278 tests.
+- [x] Full repository test gate: `npm test` passes with 60 test files and 321 tests.
 - [x] FR-040 Playwright proof (2/2), production build, and documentation gates pass.
 
 ## FR-041/042 — Business-first Strategy and HR / People
@@ -119,6 +119,18 @@ FR-041/042 and SDD-020, and no known regression exists in Development project ro
 
 Exit gate: FR-044, ADR-015, and SDD-022 are approved; route-state tests, browser
 journey proof, build, full tests, and docs graph/preflight/check all pass. ✅
+
+## N1/N2 — Business Overview root and Development navigation
+
+- [x] `/overview` is represented exactly once as the BusinessShell root.
+- [x] Development sidebar contains only Projects, All Work, Execution, Timeline,
+  Dependencies, Milestones & Gates, and Repositories.
+- [x] DomainBar and the Development sidebar header link to `/overview` as the root.
+- [x] Command palette does not expose Overview as a Development route.
+- [x] Project, People, and Platform routes retain their existing ownership and URLs.
+
+Exit gate: generated graph has zero dangling edges, docs preflight has zero critical or
+warning findings, and unit/E2E/build gates pass.
 
 ## Tests
 

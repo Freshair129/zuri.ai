@@ -19,7 +19,7 @@ export default function Sidebar() {
     >
       <>
         {/* Header: domain context (icon + label + "menu") */}
-        <Link href={domain.sub[0].path} className="flex h-14 shrink-0 items-center gap-3 border-b border-white/10 px-5 max-md:px-3" aria-label={`${domain.label} home`}>
+        <Link href={domain.basePath || domain.sub[0].path} className="flex h-14 shrink-0 items-center gap-3 border-b border-white/10 px-5 max-md:px-3" aria-label={`${domain.label} home`}>
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/5 font-bold text-[var(--brand)] shadow-inner">
             <domain.icon className="h-5 w-5" aria-hidden />
           </span>

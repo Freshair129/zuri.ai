@@ -2,15 +2,15 @@
 // @spec SDD-018, ADR-011
 // @tested tests/unit/domain-navigation.test.js
 import { describe, expect, it } from 'vitest'
-import { DOMAINS } from '@/config/domains'
+import { DOMAINS, domainForPath } from '@/config/domains'
 import { modules } from '@/config/modules'
 
 describe('Business domain navigation', () => {
-  it('uses Development for project management and leaves Space out of its sidebar', () => {
+  it('keeps Business Overview as the Development root, outside its sidebar', () => {
     const development = DOMAINS.find((domain) => domain.key === 'projects')
     expect(development.label).toBe('Development')
+    expect(development.basePath).toBe('/overview')
     expect(development.sub.map((item) => item.label)).toEqual([
-      'Overview',
       'Projects',
       'All Work',
       'Execution',
@@ -19,6 +19,8 @@ describe('Business domain navigation', () => {
       'Milestones & Gates',
       'Repositories',
     ])
+    expect(development.sub.map((item) => item.path)).not.toContain('/overview')
+    expect(domainForPath('/overview').key).toBe('projects')
   })
 
   it('uses ERP-friendly display labels without changing RBAC route keys', () => {
@@ -35,8 +37,8 @@ describe('Business domain navigation', () => {
 
   it('keeps Space out of the Development command palette registry', () => {
     expect(modules.projectManager.label).toBe('Development')
+    expect(modules.projectManager.basePath).toBe('/overview')
     expect(modules.projectManager.nav.map((item) => item.label)).toEqual([
-      'Overview',
       'Projects',
       'All Work',
       'Execution',
@@ -45,5 +47,6 @@ describe('Business domain navigation', () => {
       'Milestones & Gates',
       'Repositories',
     ])
+    expect(modules.projectManager.nav.map((item) => item.path)).not.toContain('/overview')
   })
 })

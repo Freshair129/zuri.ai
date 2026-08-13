@@ -88,6 +88,10 @@ sidebar is:
 Projects · All Work · Execution · Timeline · Dependencies · Milestones & Gates · Repositories
 ```
 
+The Development item in the DomainBar and its sidebar header use `/overview` as the
+BusinessShell root. The sidebar list itself contains only the seven Development
+capabilities above.
+
 HR / People has:
 
 ```text

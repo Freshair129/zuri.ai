@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 580,
-    "total_edges": 806,
+    "total_edges": 812,
     "dangling_edges": 0,
     "node_types": {
       "document": 60,
@@ -719,7 +719,7 @@
       "id": "code:src/components/layouts/DomainBar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/DomainBar.jsx",
-      "hash": "e7bf2f67",
+      "hash": "cb7b5f0a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -731,7 +731,9 @@
           "SDD-017, docs/features/FR-038-profile-and-permissions.md"
         ],
         "@tested": [
-          "tests/unit/profile-permission-service.test.js"
+          "tests/unit/profile-permission-service.test.js",
+          "tests/unit/domain-navigation.test.js",
+          "tests/e2e/fr041-business-first.spec.js"
         ]
       }
     },
@@ -757,7 +759,7 @@
       "id": "code:src/components/layouts/Sidebar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Sidebar.jsx",
-      "hash": "7bb3b34a",
+      "hash": "b10c90bb",
       "status": "current",
       "annotations": {
         "@req": [
@@ -816,7 +818,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "3df15cbc",
+      "hash": "81fb103e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -836,7 +838,7 @@
       "id": "code:src/config/modules.js",
       "type": "code_file",
       "path": "src/config/modules.js",
-      "hash": "665c01d4",
+      "hash": "e203f73a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1995,7 +1997,7 @@
       "type": "document",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
       "title": "Acceptance Criteria",
-      "hash": "c8021c9e",
+      "hash": "b79928f4",
       "status": "current"
     },
     {
@@ -2061,7 +2063,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "c2211cf3",
+      "hash": "c3f47c7c",
       "status": "current"
     },
     {
@@ -2155,7 +2157,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "5c018355",
+      "hash": "55111f46",
       "status": "current"
     },
     {
@@ -2328,7 +2330,7 @@
       "type": "document",
       "path": "docs/HANDOFF-SHELL-V2-CODEX.md",
       "title": "HANDOFF — V2 business-centric shell (for Codex)",
-      "hash": "6c470154",
+      "hash": "040c09e0",
       "status": "current"
     },
     {
@@ -2384,7 +2386,7 @@
       "title": "Zuri V2 — Interface Inventory and Shell Boundary",
       "version": "0.2.0",
       "doc_status": "Implemented — FR-044 route boundary verified",
-      "hash": "e95ff425",
+      "hash": "fa4a9bb4",
       "status": "current"
     },
     {
@@ -2520,9 +2522,9 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT.md",
       "title": "Next Implementation Plan — Business Navigation Alignment and Viewer Contract",
-      "version": "0.1.0",
-      "doc_status": "Proposed — owner approval required",
-      "hash": "ca0405f5",
+      "version": "0.2.0",
+      "doc_status": "Implemented — N1/N2/N3 gates passed; N4 deferred",
+      "hash": "b911167f",
       "status": "current"
     },
     {
@@ -2586,7 +2588,7 @@
       "title": "Zuri V2 — Route and Shell Sitemap",
       "version": "1.0.0",
       "doc_status": "Accepted — implemented FR-044 route/shell boundary",
-      "hash": "94d68f79",
+      "hash": "ecf801ff",
       "status": "current"
     },
     {
@@ -2594,9 +2596,9 @@
       "type": "document",
       "path": "docs/SITEMAP-V2-DOMAIN-NAV.md",
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "doc_status": "Accepted",
-      "hash": "f3d89ce8",
+      "hash": "28070026",
       "status": "current"
     },
     {
@@ -3568,21 +3570,21 @@
       "id": "test:tests/e2e/fr041-business-first.spec.js",
       "type": "test",
       "path": "tests/e2e/fr041-business-first.spec.js",
-      "hash": "7993d406",
+      "hash": "c831932f",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/fr044-entry-routing.spec.js",
       "type": "test",
       "path": "tests/e2e/fr044-entry-routing.spec.js",
-      "hash": "acf53d9f",
+      "hash": "fdb76f6a",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
-      "hash": "39ad32e9",
+      "hash": "92f73109",
       "status": "current"
     },
     {
@@ -3827,7 +3829,7 @@
       "id": "test:tests/unit/domain-navigation.test.js",
       "type": "test",
       "path": "tests/unit/domain-navigation.test.js",
-      "hash": "56a022ff",
+      "hash": "762c02a5",
       "status": "current"
     },
     {
@@ -3974,7 +3976,7 @@
       "id": "test:tests/unit/sidebar-visible-subdomains.test.js",
       "type": "test",
       "path": "tests/unit/sidebar-visible-subdomains.test.js",
-      "hash": "bc9e9c24",
+      "hash": "9d1018f5",
       "status": "current"
     },
     {
@@ -8514,6 +8516,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "code:src/components/layouts/DomainBar.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "code:src/config/domains.js",
       "type": "tests",
       "status": "current",
@@ -8543,6 +8552,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-038",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -8585,6 +8601,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:SDD-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -10124,6 +10147,13 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "code:src/components/layouts/DomainBar.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "code:src/config/domains.js",
       "type": "tests",
       "status": "current",
@@ -10138,6 +10168,13 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:FR-039",
       "type": "verifies",
       "status": "current",
@@ -10146,6 +10183,13 @@
     {
       "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

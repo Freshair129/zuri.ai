@@ -81,6 +81,8 @@ test.describe('universal routes', () => {
     await page.getByRole('button', { name: /Open command palette/i }).click()
     const input = page.getByLabel('Command palette search')
     await expect(input).toBeVisible()
+    await input.fill('Overview')
+    await expect(page.getByText(/No matches for/i)).toBeVisible()
     await input.fill('Projects')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/projects/)

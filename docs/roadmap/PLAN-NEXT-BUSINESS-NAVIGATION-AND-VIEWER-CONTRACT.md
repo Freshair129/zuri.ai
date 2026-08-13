@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Version** | 0.1.0 |
-| **Status** | Proposed — owner approval required |
+| **Version** | 0.2.0 |
+| **Status** | Implemented — N1/N2/N3 gates passed; N4 deferred |
 | **Date** | 2026-08-13 |
 | **Inputs** | FR-039, FR-044, ADR-011, ADR-015, SDD-018, SDD-022 |
 | **Preflight** | PASS — 0 critical, 0 warning |
@@ -34,9 +34,9 @@ a production authorization boundary.
 
 | Workstream | Scope | Complexity | Immediate implementation? |
 |---|---|---:|---|
-| N1 — Canonical domain registry | Remove Overview from Development sub-domain registry and keep `/overview` as BusinessShell root | 5 points | Yes, after approval |
-| N2 — Navigation proof | Update Sidebar/DomainBar/Breadcrumb/command-palette contracts and route tests | 6 points | Yes, after N1 |
-| N3 — Documentation sync | Update sitemap, interface inventory, handoff, acceptance evidence, graph/preflight | 3 points | Yes, after N2 |
+| N1 — Canonical domain registry | Remove Overview from Development sub-domain registry and keep `/overview` as BusinessShell root | 5 points | ✅ complete |
+| N2 — Navigation proof | Update Sidebar/DomainBar/Breadcrumb/command-palette contracts and route tests | 6 points | ✅ complete |
+| N3 — Documentation sync | Update sitemap, interface inventory, handoff, acceptance evidence, graph/preflight | 3 points | ✅ complete |
 | N4 — Viewer-scoped API design | ADR + API/FR proposal for server-filtered Business Routing and session boundary | 8 points | Documentation only; separate approval |
 
 Out of scope: production authentication, session/token storage, new ERP domains,
@@ -46,7 +46,7 @@ Business Strategy mutations, Project schema changes, and design-token redesign.
 
 ```mermaid
 flowchart LR
-  A[Approve this plan] --> B[N1 canonical domain registry]
+A[Owner approved 2026-08-13] --> B[N1 canonical domain registry]
   B --> C[N2 navigation and route tests]
   C --> D[N3 docs graph/preflight/build/e2e]
   D --> E[Exit gate: Overview outside Development]
@@ -103,7 +103,7 @@ regression in Project, People, or Platform routes.
 
 **Exit:** Overview is represented exactly once as BusinessShell root, the generated
 graph has zero dangling edges, preflight has zero critical/warning findings, and all
-existing protected-route smoke tests enter through Business Routing.
+existing protected-route smoke tests enter through Business Routing. ✅
 
 ### N4 — Viewer-scoped API contract (separate slice)
 
@@ -132,10 +132,18 @@ Deliverables for a later approval:
 
 ## 6. Definition of done
 
-- [ ] Owner approves this plan and the N1 navigation interpretation.
-- [ ] Development registry contains no `/overview` sub-domain entry.
-- [ ] Business Overview, DomainBar, Sidebar, Breadcrumb, and command palette agree on
+- [x] Owner approved this plan and the N1 navigation interpretation.
+- [x] Development registry contains no `/overview` sub-domain entry.
+- [x] Business Overview, DomainBar, Sidebar, Breadcrumb, and command palette agree on
   the same route ownership.
-- [ ] Focused and full tests, build, browser proof, and docs gates are green.
-- [ ] N4 is either separately approved or explicitly recorded as deferred; no real auth
-  claim is made by N1–N3.
+- [x] Focused and full tests, build, browser proof, and docs gates are green.
+- [x] N4 is explicitly deferred for separate ADR/API approval; no real auth
+claim is made by N1–N3.
+
+## 7. Verification evidence
+
+- `npm test -- --run`: 60 test files, 321 tests passed.
+- `npm run test:e2e -- --workers=1 --retries=0`: 31 passed, 4 intentional skips.
+- `npm run build`: clean production build from a fresh `.next` artifact.
+- `npm run docs:graph`: 580 nodes, 812 edges, 0 dangling edges.
+- `npm run docs:preflight`: 0 critical, 0 warning; `npm run docs:check`: up to date.
