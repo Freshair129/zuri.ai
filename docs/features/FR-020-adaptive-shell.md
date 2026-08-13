@@ -34,6 +34,14 @@ Project) แต่ UI แสดงเฉพาะชั้นที่มีท�
 (นับจำนวน business ที่ผู้ใช้มี membership) — ไม่ใช่ setting ที่ต้องเลือกเอง
 และ**ไม่มีหน้า gate คั่นก่อนเข้าแอป**ในทุกกรณี
 
+## ADR-013 supersession note (2026-08-13)
+
+The adaptive shell still derives visibility and Business switchers from data, but
+multi-Business mode no longer lands on a Portfolio/Group Overview. A viewer without
+an active Business sees the Home Business choice; `/overview` is always Business-first.
+The portfolio progress service remains available for reporting and does not become
+an operational shell scope.
+
 ## Personas
 
 - **Owen A (ธุรกิจเดียว):** ร้านอาหาร 1 แบรนด์ อาจหลายสาขา ไม่รู้จักคำว่า

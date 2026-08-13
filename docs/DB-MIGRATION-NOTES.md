@@ -10,6 +10,11 @@
 
 The MVP schema was designed to move to Postgres without semantic changes.
 
+FR-043 adds nullable `Project.businessId` alongside the existing `workspaceId`.
+The additive backfill copies `Workspace.businessId`; null is retained only for
+explicit portfolio/tenant shared Projects. The generated Postgres schema carries
+the same relation and index, so export/import preserves both UUID references.
+
 ## What already migrates cleanly
 
 - All enums are persisted as `String` + validated by Zod — swap to native Postgres

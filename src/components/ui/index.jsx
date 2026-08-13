@@ -1,18 +1,20 @@
 'use client'
 
-// Shared UI primitives — Zuri Heritage styling.
+// @req NFR-008 — shared V2 UI exposes consistent state, accessibility, and token-backed primitives.
+// @spec SDD-010, ADR-010 — components consume the Zuri Heritage semantic/component token contract.
+// @tested tests/unit/design-system.test.js
 
 export function PageHeader({ eyebrow, title, subtitle, actions }) {
   return (
     <div className="mb-5 flex items-end justify-between gap-4 max-md:flex-col max-md:items-start">
       <div>
         {eyebrow && (
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.08em]" style={{ color: 'var(--brand)' }}>
+          <p className="text-xs font-semibold" style={{ color: 'var(--action-primary)' }}>
             {eyebrow}
           </p>
         )}
-        <h1 className="mt-0.5 text-[25px] font-bold leading-tight tracking-tight">{title}</h1>
-        {subtitle && <p className="mt-1 text-xs text-muted">{subtitle}</p>}
+        <h1 className="mt-0.5 text-[28px] font-bold leading-9 tracking-tight">{title}</h1>
+        {subtitle && <p className="mt-1 text-[13px] leading-5 text-muted">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>
@@ -21,7 +23,7 @@ export function PageHeader({ eyebrow, title, subtitle, actions }) {
 
 export function Card({ children, warm, className = '', ...rest }) {
   return (
-    <div className={`card ${warm ? 'card-warm' : ''} p-4 ${className}`} {...rest}>
+    <div className={`card ${warm ? 'card-subtle' : ''} p-4 ${className}`} {...rest}>
       {children}
     </div>
   )
@@ -128,14 +130,14 @@ export function Modal({ open, title, onClose, children, wide }) {
   if (!open) return null
   return (
     <div
-      className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-[rgba(17,24,39,0.58)] p-6 pt-[8vh] backdrop-blur-sm"
+      className="modal-backdrop flex items-start justify-center overflow-y-auto p-6 pt-[8vh] backdrop-blur-sm"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label={title}
     >
       <div
-        className={`w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} rounded-2xl bg-white p-5 shadow-2xl`}
+        className={`modal-surface w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} p-5`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
@@ -166,13 +168,13 @@ export function DataTable({ columns, rows, empty, rowKey, onRowClick }) {
   }
   return (
     <div className="card overflow-x-auto p-0">
-      <table className="w-full border-collapse text-[11px]">
+      <table className="w-full border-collapse text-[13px]">
         <thead>
           <tr>
             {columns.map((c) => (
               <th
                 key={c.key}
-                className="border-b border-[var(--border)] p-2.5 text-left font-bold text-[#8A94A1]"
+                className="border-b border-[var(--border)] p-2.5 text-left font-semibold text-[var(--text-tertiary)]"
               >
                 {c.label}
               </th>

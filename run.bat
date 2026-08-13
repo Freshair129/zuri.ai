@@ -7,6 +7,10 @@ REM ============================================================
 setlocal
 cd /d "%~dp0"
 
+REM Prisma 5.22's Windows schema engine needs a supported Rust log mode
+REM under the repository's Node 24 toolchain (warn can terminate bootstrap).
+set "RUST_LOG=info"
+
 if not exist "node_modules" (
   echo [zuri] Installing dependencies ^(first run only^)...
   call npm install

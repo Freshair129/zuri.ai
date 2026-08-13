@@ -19,13 +19,13 @@ export default function WorkspaceDetailPage() {
   return (
     <div>
       <PageHeader
-        eyebrow={workspace ? `${workspace.code} · ${workspace.scopeType}` : 'Workspace'}
-        title={workspace?.name || 'Workspace'}
-        subtitle="Projects in this workspace."
+        eyebrow={workspace ? `${workspace.code} · ${workspace.scopeType}` : 'Space'}
+        title={workspace?.name || 'Space'}
+        subtitle="Projects in this Space."
         actions={<Link className="btn btn-primary" href="/projects/new">New project</Link>}
       />
       {(data || []).length === 0 ? (
-        <EmptyState title="No projects here" hint="Create a project in this workspace to start tracking execution." />
+        <EmptyState title="No projects here" hint="Create a project in this Space to start tracking execution." />
       ) : (
         <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
           {(data || []).map((p) => (

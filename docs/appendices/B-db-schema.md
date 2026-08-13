@@ -2,15 +2,15 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
+| **Version** | 1.3.0 |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-11 |
+| **Last Updated** | 2026-08-14 |
 
 Source of truth: `prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md)
 Conventions: UUID PK · unique human `code` · `createdAt/updatedAt` · `version` บน aggregate
 roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · JSON เก็บเป็น string
 
-## Models (19)
+## Models
 
 | Model | Key fields | หมายเหตุ |
 |---|---|---|
@@ -19,9 +19,9 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | LegalEntity / LegalEntityIdentifier | portfolioId; (country,type,value) unique | external identifier ไม่ใช่ PK (BR-002) |
 | Business | tenantId, legalEntityId? | ธุรกิจปฏิบัติการ |
 | Branch | tenantId, businessId | tenantId ต้องตรงกับ business (tested) |
-| Person / Membership | tenant, business?, branch?, role | local demo identity |
+| Person / Membership | tenant, business?, branch?, role, domainKeysJson | local identity; MEMBER domain allow-list, OWNER/DEV role grant (FR-038) |
 | Workspace | scopeType (PORTFOLIO/TENANT/BUSINESS) + denormalized ancestor ids | ต้องมี scope ชัดเจน |
-| Project | workspaceId, type, status, startAt/targetAt | soft delete |
+| Project | businessId?, workspaceId, type, status, startAt/targetAt | direct Business owner; schema Workspace is Development Space; null owner only for explicit shared work; soft delete |
 | Workstream | projectId, executionMode, progressStrategy, progressWeight, progressCache, viewConfigJson | หัวใจของ 7 โหมด |
 | WorkContainer | workstreamId, parentId (hierarchy), subtype, metadataJson | SPRINT/MIGRATION_STAGE/… |
 | WorkItem | workstreamId, containerId?, subtype, weight, numericValue, probability, metricDataJson, metadataJson | atomic ทุกโหมด |
@@ -29,6 +29,11 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Gate | projectId, workstreamId?, required, evidenceJson, status | cap progress (BR-006) |
 | Dependency | (sourceType,sourceId,targetType,targetId,dependencyType) unique | cycle-checked ที่ service |
 | Repository / ProjectRepository | provider, externalRepoId?, fullName; (projectId,repoId,role) unique | local metadata, m2m |
+| ProjectFile | projectId, workItemId?, name, mime, size, url/blobRef, version, uploadedBy | metadata/reference only; optional WorkItem must belong to Project (FR-037) |
+| BusinessRoadmap | businessId, code, title, status, startAt/targetAt | Business-level direction container (FR-041) |
+| BusinessRoadmapHorizon | roadmapId, key, label, position, targetAt | ordered short/medium/long horizon; service allows 2 or 3 |
+| BusinessGoal | businessId, roadmapId?, horizonId?, code, title, status, progress | Business goal displayed in Strategy Overview |
+| ProjectGoal | projectId, goalId | optional many-to-many link; Project remains a Development resource |
 | AuditEvent | entityType, entityId, action, payloadJson, actorType | append-only (SEC-003) |
 
 ## Planned (FR-019)
@@ -62,3 +67,21 @@ is structural (Membership ⇒ STAFF, Customer ⇒ CUSTOMER, both ⇒ STAFF). **P
 revokes the ExternalIdentity (a revoked binding refuses to resolve), invalidates
 outstanding tokens, and redacts the CRM record. `resolveLinePrincipal` is the single
 seam that resolves + classifies in one call.
+
+## Managed local files (FR-045 — implemented additively)
+
+`LocalWorkspaceMount { id, tenantId, businessId, deviceKey, rootPath, status,
+lastScanAt, createdAt, updatedAt }` maps one device-local absolute root. `rootPath`
+is not exported as portable identity and must be remapped during restore.
+
+`FileAsset { id, code, tenantId, businessId, projectId?, workItemId?, storageKind,
+relativePath?, externalUrl?, blobRef?, name, mime, size, sha256?, status, version,
+createdAt, updatedAt, deletedAt? }` is the authoritative metadata record.
+
+`FileLink { id, fileId, entityType, entityId, relationType, createdAt, updatedAt }`
+is a typed secondary relation validated at the service boundary. Initial entity
+types are limited to approved FR-045 targets; arbitrary polymorphic input is denied.
+
+These models are additive. `ProjectFile` remains for compatibility and is not
+removed by ZV2-CR-001. SQLite is canonical for MVP; the generated Postgres schema
+preserves metadata semantics while device root paths remain local configuration.

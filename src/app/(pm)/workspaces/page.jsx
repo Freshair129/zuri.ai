@@ -17,7 +17,7 @@ function WorkspaceModal({ open, onClose, scope, workspace, onSaved }) {
   const [error, setError] = useState(null)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   return (
-    <Modal open={open} onClose={onClose} title={workspace ? `Edit ${workspace.code}` : 'New workspace'}>
+    <Modal open={open} onClose={onClose} title={workspace ? `Edit ${workspace.code}` : 'New space'}>
       <form
         onSubmit={async (e) => {
           e.preventDefault()
@@ -51,7 +51,7 @@ function WorkspaceModal({ open, onClose, scope, workspace, onSaved }) {
         </Field>
         {!workspace && (
           <>
-            <Field label="Scope type" hint="A workspace belongs to an explicit scope — portfolio-wide or one business">
+            <Field label="Scope type" hint="A Space belongs to an explicit scope — portfolio-wide or one business">
               <select className="input" value={form.scopeType} onChange={(e) => set('scopeType', e.target.value)}>
                 <option value="BUSINESS">BUSINESS</option>
                 <option value="PORTFOLIO">PORTFOLIO</option>
@@ -102,16 +102,16 @@ export default function WorkspacesPage() {
     <div>
       <PageHeader
         eyebrow="Scope"
-        title="Workspaces"
-        subtitle="Working contexts inside your business. Group-level workspaces are shared by every business in the group."
+        title="Spaces"
+        subtitle="Working contexts inside your business. Group-level Spaces are shared by every business in the group."
         actions={
           <button type="button" className="btn btn-primary flex items-center gap-1" onClick={() => setModal(true)}>
-            <Plus size={12} aria-hidden /> New workspace
+            <Plus size={12} aria-hidden /> New space
           </button>
         }
       />
       {scope.scopedWorkspaces.length === 0 ? (
-        <EmptyState title="No workspaces" hint="Run npm run db:seed for the demo dataset, or create a workspace." />
+        <EmptyState title="No spaces" hint="Run npm run db:seed for the demo dataset, or create a Space." />
       ) : (
         <div className="grid grid-cols-3 gap-3 max-md:grid-cols-1">
           {scope.scopedWorkspaces.map((ws) => (

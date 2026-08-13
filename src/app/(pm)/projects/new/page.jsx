@@ -61,7 +61,8 @@ export default function ProjectWizardPage() {
   const [errors, setErrors] = useState(null)
   const [busy, setBusy] = useState(false)
 
-  // Workspaces are already narrowed to the active business by the shell (FR-020).
+  // Spaces are narrowed to the active business by the shell (FR-020); this
+  // selection stays inside Development and never becomes shell context (FR-039).
   const options = scope.scopedWorkspaces
   const effectiveWorkspaceId = workspaceId || scope.selection.workspaceId || options[0]?.id || ''
   const workspace = options.find((w) => w.id === effectiveWorkspaceId)
@@ -214,14 +215,14 @@ export default function ProjectWizardPage() {
           </Field>
           <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
             <Field
-              label="Workspace"
+              label="Space"
               hint={destinationBusiness ? `ปลายทาง: ${destinationBusiness.name}` : 'ปลายทาง: งานระดับเครือ'}
             >
               <select
                 className="input"
                 value={effectiveWorkspaceId}
                 onChange={(e) => setWorkspaceId(e.target.value)}
-                aria-label="Workspace ปลายทาง"
+                aria-label="Space ปลายทาง"
               >
                 {workspaceGroups
                   ? workspaceGroups.map((g) => (

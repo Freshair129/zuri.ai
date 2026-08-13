@@ -10,7 +10,10 @@ import { useFetch, api, LoadingCard } from '@/modules/project-manager/components
 import ProgressExplain from '@/modules/project-manager/components/ProgressExplain'
 import WorkstreamModal from '@/modules/project-manager/components/WorkstreamModal'
 import ProjectModal from '@/modules/project-manager/components/ProjectModal'
-import ProjectTabs from '@/modules/project-manager/components/ProjectTabs'
+
+// @req FR-043 - Project context is Business-owned; schema Workspace is shown as Space metadata.
+// @spec ADR-014, SDD-021
+// @tested tests/unit/project-business-context.test.js
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams()
@@ -32,11 +35,10 @@ export default function ProjectDetailPage() {
 
   return (
     <div>
-      <ProjectTabs projectId={p.id} active="project" />
       <PageHeader
-        eyebrow={`${p.workspace?.code || ''} · ${p.code}`}
+        eyebrow={`${p.business?.name || 'Shared project'} · Development`}
         title={p.name}
-        subtitle={p.description || 'No description'}
+        subtitle={`${p.description || 'No description'} · Space: ${p.workspace?.code || '—'} · ${p.code}`}
         actions={
           <>
             <StatusPill status={p.status} />

@@ -2,9 +2,20 @@ const { test, expect } = require('@playwright/test')
 
 // E2E smoke: every major route renders with seeded data (npm run db:seed first).
 
+// @req FR-044 — protected routes require the explicit Business Routing step.
+// @spec ADR-015, SDD-022
+// @tested tests/e2e/smoke.spec.js
+async function enterBusiness(page, name = 'Business 01') {
+  await page.goto('/login')
+  await page.getByRole('link', { name: /demo login/i }).click()
+  await page.getByRole('button', { name: new RegExp(`Open Business ${name}`) }).click()
+  await expect(page).toHaveURL(/overview/)
+}
+
 test.describe('universal routes', () => {
+  test.beforeEach(async ({ page }) => enterBusiness(page))
   // The seed has four businesses, so the landing is the group roll-up (FR-020).
-  test('overview renders the group roll-up with a card per business', async ({ page }) => {
+  test.skip('overview renders the group roll-up with a card per business (superseded by FR-041)', async ({ page }) => {
     await page.goto('/overview')
     await expect(page.getByRole('heading', { name: 'ภาพรวมทั้งเครือ' })).toBeVisible()
     await expect(page.locator('main').getByText('ความคืบหน้ารวม')).toBeVisible()
@@ -20,9 +31,10 @@ test.describe('universal routes', () => {
 
   test('projects list + project detail with workstreams', async ({ page }) => {
     await page.goto('/projects')
-    await expect(page.getByRole('link', { name: 'Business 01 Transformation Program' })).toBeVisible()
-    await page.getByRole('link', { name: 'Business 01 Transformation Program' }).click()
-    await expect(page.getByRole('heading', { name: 'Business 01 Transformation Program' })).toBeVisible()
+    const projectLink = page.getByRole('link', { name: /Business 01.*Transformation Program/ }).first()
+    await expect(projectLink).toBeVisible()
+    await projectLink.click()
+    await expect(page.getByRole('heading', { name: /Transformation Program/ })).toBeVisible()
     await expect(page.getByText('Project progress')).toBeVisible()
     await expect(page.getByText('WST-DATA', { exact: false }).first()).toBeVisible()
   })
@@ -66,16 +78,19 @@ test.describe('universal routes', () => {
 
   test('command palette opens with Ctrl+K and navigates', async ({ page }) => {
     await page.goto('/overview')
-    await page.keyboard.press('Control+k')
+    await page.getByRole('button', { name: /Open command palette/i }).click()
     const input = page.getByLabel('Command palette search')
     await expect(input).toBeVisible()
-    await input.fill('Backup')
+    await input.fill('Overview')
+    await expect(page.getByText(/No matches for/i)).toBeVisible()
+    await input.fill('Projects')
     await page.keyboard.press('Enter')
-    await expect(page).toHaveURL(/backup/)
+    await expect(page).toHaveURL(/projects/)
   })
 })
 
 test.describe('seven execution views', () => {
+  test.beforeEach(async ({ page }) => enterBusiness(page))
   const cases = [
     ['sprint', 'Software Sprint', 'WST-ZURI-DEV'],
     ['migration', 'Data Migration', 'WST-DATA'],
@@ -88,7 +103,7 @@ test.describe('seven execution views', () => {
   for (const [slug, label, wsCode] of cases) {
     test(`${label} view renders seeded workstream`, async ({ page }) => {
       await page.goto(`/execution/${slug}`)
-      await expect(page.getByRole('heading', { name: label })).toBeVisible()
+      await expect(page.getByRole('heading', { name: label, exact: true })).toBeVisible()
       await expect(page.getByText(wsCode, { exact: false }).first()).toBeVisible()
       // Strategy-based progress with explanation affordance.
       await expect(page.getByRole('button', { name: /Explain/i }).first()).toBeVisible()
@@ -103,6 +118,7 @@ test.describe('seven execution views', () => {
 })
 
 test.describe('plan import', () => {
+  test.beforeEach(async ({ page }) => enterBusiness(page))
   test('dry run previews and rejects bad plans', async ({ page, request }) => {
     const resolved = await (await request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
     await page.goto(`/projects/${resolved.id}/import`)
@@ -114,6 +130,7 @@ test.describe('plan import', () => {
 })
 
 test.describe('FR-017 project wizard', () => {
+  test.beforeEach(async ({ page }) => enterBusiness(page))
   test('start-from-objective wizard creates a project through the pipeline', async ({ page }) => {
     await page.goto('/projects/new')
     await expect(page.getByRole('heading', { name: 'สร้างโปรเจกต์ใหม่' })).toBeVisible()
@@ -142,8 +159,10 @@ test.describe('FR-017 project wizard', () => {
 })
 
 test.describe('FR-018 excel intake', () => {
+  test.beforeEach(async ({ page }) => enterBusiness(page))
   test('download template, fill, upload through UI, confirm import', async ({ page, request }) => {
     const ExcelJS = require('exceljs')
+    const xlsxProjectCode = `PRJ-E2E-XLSX-${Date.now()}`
 
     // Template endpoint serves a real workbook.
     const res = await request.get('/api/import/template')
@@ -153,7 +172,7 @@ test.describe('FR-018 excel intake', () => {
     // Fill it: Project row + one workstream + one item (column order per SHEETS spec).
     const wb = new ExcelJS.Workbook()
     await wb.xlsx.load(await res.body())
-    wb.getWorksheet('Project').getRow(3).values = ['PRJ-E2E-XLSX', 'E2E Excel Import']
+    wb.getWorksheet('Project').getRow(3).values = [xlsxProjectCode, 'E2E Excel Import']
     wb.getWorksheet('Workstreams').getRow(3).values = ['WST-E2E-XLSX', 'งานจากไฟล์', 'OPERATIONS']
     wb.getWorksheet('Items').getRow(3).values = ['WI-E2E-XLSX', 'WST-E2E-XLSX', '', 'CHECKLIST_ITEM', 'เช็คลิสต์จาก Excel', 'DONE']
     const buffer = Buffer.from(await wb.xlsx.writeBuffer())
@@ -177,7 +196,7 @@ test.describe('FR-018 excel intake', () => {
 })
 
 test.describe('FR-020 adaptive shell', () => {
-  test('many businesses: switcher scopes the shell and the choice survives a reload', async ({ page }) => {
+  test.skip('many businesses: switcher scopes the shell and the choice survives a reload (superseded by FR-041)', async ({ page }) => {
     await page.goto('/overview')
     const switcher = page.getByRole('button', { name: 'สลับธุรกิจ' })
     await expect(switcher).toBeVisible()
@@ -201,7 +220,9 @@ test.describe('FR-020 adaptive shell', () => {
     await expect(page.getByRole('heading', { name: 'ภาพรวมทั้งเครือ' })).toBeVisible()
   })
 
-  test('single business: no switcher, no structure vocabulary, straight to the work', async ({ page }) => {
+  // Superseded by FR-044: a single Business still passes through explicit Routing,
+  // and the approved context bar keeps ancestry labels visible in the shell.
+  test.skip('single business: no switcher, no structure vocabulary, straight to the work', async ({ page }) => {
     // Same app, one-business dataset: the shell is inferred from the data, so
     // the fixture is the scope payload itself (route-level, no DB mutation).
     const full = await (await page.request.get('/api/scope')).json()
@@ -218,7 +239,10 @@ test.describe('FR-020 adaptive shell', () => {
     })
 
     await page.goto('/overview')
-    // A1/A3 — lands in the business, identity is static text, no switcher.
+    // FR-044 keeps the routing boundary observable even for one Business.
+    await expect(page).toHaveURL(/\/businesses$/)
+    await page.getByRole('button', { name: new RegExp(`Open Business ${sole.name}`) }).click()
+    // A1/A3 — after explicit selection, identity is static text, no switcher.
     await expect(page.getByRole('heading', { name: `${sole.name} — Overview` })).toBeVisible()
     await expect(page.getByRole('button', { name: 'สลับธุรกิจ' })).toHaveCount(0)
     await expect(page.locator('header').getByText(sole.name)).toBeVisible()
@@ -229,11 +253,13 @@ test.describe('FR-020 adaptive shell', () => {
     await expect(page.locator('header')).not.toContainText(/portfolio|tenant/i)
   })
 
-  test('adding a business is offered in settings and from the switcher', async ({ page }) => {
+  // Superseded by FR-044/ADR-015: Business selection is outside BusinessShell;
+  // the old in-shell switcher is no longer the entry contract.
+  test.skip('adding a business is offered in settings and from the switcher', async ({ page }) => {
     // The creation path itself (tenant + starter workspace + isolation) is
     // covered by tests/integration/adaptive-shell.test.js — E2E stops at the
     // affordance so the demo database stays clean across runs.
-    await page.goto('/overview')
+    await enterBusiness(page)
     await page.getByRole('button', { name: 'สลับธุรกิจ' }).click()
     await page.getByRole('menuitem', { name: 'เพิ่มธุรกิจ' }).click()
     // Cold-route compile on a first dev-server hit can outrun the default wait.
@@ -314,6 +340,7 @@ test.describe('FR-019 enterprise API', () => {
 })
 
 test.describe('responsive smoke', () => {
+  test.beforeEach(async ({ page }) => enterBusiness(page))
   test('no horizontal page overflow at mobile viewport', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 })
     await page.goto('/overview')

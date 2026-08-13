@@ -1,10 +1,12 @@
 'use client'
 
+// @req FR-040 — Structure Plan is the canonical Project Work hierarchy view.
+// @spec SDD-019, ADR-012
+// @tested tests/unit/project-work-route.test.js, tests/unit/wbs-structure.test.js
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
-import ProjectTabs from '@/modules/project-manager/components/ProjectTabs'
 import WorkViewTabs from '@/modules/project-manager/components/WorkViewTabs'
 import WbsCanvas from '@/modules/project-manager/views/WbsCanvas'
 import { ErrorState } from '@/components/ui'
@@ -15,8 +17,6 @@ export default function ProjectStructurePage() {
 
   return (
     <div>
-      <ProjectTabs projectId={projectId} active="work" />
-
       <div className="mb-4 flex items-start gap-3">
         <Link
           href={`/projects/${projectId}`}
@@ -27,7 +27,7 @@ export default function ProjectStructurePage() {
         </Link>
         <div>
           <h1 className="text-lg font-extrabold tracking-tight">Project Structure Plan</h1>
-          <p className="text-xs text-muted">Plan the project structure and define part projects, part tasks and work packages.</p>
+          <p className="text-xs text-muted">Plan the Project hierarchy across Workstreams, WorkContainers, and WorkItems.</p>
         </div>
       </div>
 

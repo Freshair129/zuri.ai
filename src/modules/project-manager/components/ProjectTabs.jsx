@@ -1,5 +1,8 @@
 'use client'
 
+// @req FR-040 — Project Work owns Structure Plan, Board, Schedule, and Dependency Map.
+// @spec SDD-019, ADR-012
+// @tested tests/unit/project-work-route.test.js
 import Link from 'next/link'
 import { CircleDot, Flag, Users, ListTree, TriangleAlert, ChartPie, Folder } from 'lucide-react'
 
@@ -8,11 +11,11 @@ import { CircleDot, Flag, Users, ListTree, TriangleAlert, ChartPie, Folder } fro
 const TABS = [
   { key: 'project', label: 'Project', icon: CircleDot, href: (id) => `/projects/${id}` },
   { key: 'requirements', label: 'Requirements', icon: Flag, soon: true },
-  { key: 'team', label: 'Team', icon: Users, soon: true },
+  { key: 'team', label: 'Team', icon: Users, href: (id) => `/projects/${id}/team` },
   { key: 'work', label: 'Work', icon: ListTree, href: (id) => `/projects/${id}/structure` },
   { key: 'risks', label: 'Risks', icon: TriangleAlert, soon: true },
   { key: 'resources', label: 'Resources', icon: ChartPie, soon: true },
-  { key: 'files', label: 'Files', icon: Folder, soon: true },
+  { key: 'files', label: 'Files', icon: Folder, href: (id) => `/projects/${id}/files` },
 ]
 
 export default function ProjectTabs({ projectId, active }) {

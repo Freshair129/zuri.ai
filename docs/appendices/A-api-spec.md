@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
+| **Version** | 1.2.0 |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-11 |
+| **Last Updated** | 2026-08-14 |
 
 ทุก endpoint เป็น local route handler (ไม่มี auth ใน MVP — local demo identity)
 Error shape: `{ error, issues? }` — 400 validation/domain, 404 not found, 500 อื่น ๆ
@@ -15,14 +15,40 @@ Error shape: `{ error, issues? }` — 400 validation/domain, 404 not found, 500 
 |---|---|---|
 | GET | `/api/scope` | รายการ portfolio/tenant/business/workspace/project ทั้งหมด |
 | POST | `/api/scope` | สร้าง scope entity: `{entity: portfolio\|tenant\|business\|workspace\|legalEntity\|branch, data}` |
+| GET | `/api/viewer` | viewer gate สำหรับ Home: role + ธุรกิจ/โดเมนที่เห็นได้จาก `resolveViewer()` |
+| GET | `/api/profile` | resolved local account, linked identity state, and local session boundary |
 | PATCH/DELETE | `/api/workspaces/[id]` | แก้ไข / archive workspace |
+
+| GET | `/api/business/strategy?businessId=` | Business-scoped Roadmap, two/three ordered goal horizons, and goal progress read model (FR-041) |
+| GET | `/api/people?businessId=` | viewer-filtered Business People Directory over Person/Membership (FR-042) |
+
+## Entry and Business Routing (FR-044 — planned)
+
+The entry slice intentionally adds **no login/auth endpoint**. `/` and `/login` are
+UI-only stubs; the Login button is a local demo transition to `/businesses` and must
+not be treated as credential validation or session issuance.
+
+| Interface | Contract |
+|---|---|
+| `GET /api/viewer` | Resolve the current viewer seam before Business Routing: `principal`, `role`, `visibleBusinessIds`, `visibleDomains`, and `isPlatform`. |
+| `GET /api/scope` | Supply Portfolio/Tenant/Business labels and ids used to render routing ancestry. The selectable operating node is Business. Production authorization must filter this response server-side or introduce a viewer-scoped entry response before real auth is enabled. |
+| `BusinessShell guard` | Not an API route: `/overview` and Business domain routes require an authorized `activeBusinessId`; missing selection resolves to `/businesses`, and missing viewer resolves to `/login`. |
+
+No password, OIDC, LINE login, token, session, or new persisted auth contract is part
+of FR-044. Those belong to the later identity implementation and must not be implied
+by the demo Login button.
 
 ## Project core
 
 | Method | Path | ทำอะไร |
 |---|---|---|
-| GET/POST | `/api/projects` | list (filter: workspaceId, businessId, tenantId, status, q) / create |
-| GET/PATCH/DELETE | `/api/projects/[id]` | detail (รวม workstreams+milestones+gates+repos) / update / archive |
+| GET/POST | `/api/projects` | list (filter: workspaceId, businessId, tenantId, status, q) / create; create derives `businessId` from the target Space and rejects owner/Space mismatch |
+| GET/PATCH/DELETE | `/api/projects/[id]` | detail (includes direct Business owner and Space context) / update with owner/Space invariant / archive |
+| GET/POST/PATCH/DELETE | `/api/projects/[id]/team` | team in business scope / add member / change role / remove business-scoped member |
+| GET/POST | `/api/projects/[id]/files` | list/add ProjectFile metadata reference; optional WorkItem must belong to Project |
+| DELETE | `/api/projects/[id]/files/[fileId]` | delete ProjectFile reference within its owning Project |
+| GET | `/api/projects/[id]/dependencies` | project-local Dependency Map graph; includes only edges whose endpoints both belong to the opened Project |
+| GET/PATCH | `/api/platform/users` | OWNER-only list/update of Membership role and domain allow-list |
 | GET/POST | `/api/workstreams` | list (filter: projectId, executionMode) / create |
 | PATCH/DELETE | `/api/workstreams/[id]` | update / archive |
 | GET/POST | `/api/work` | list work items (filter: projectId, workstreamId, executionMode, subtype, status, q) / create |
@@ -41,12 +67,32 @@ Error shape: `{ error, issues? }` — 400 validation/domain, 404 not found, 500 
 |---|---|---|
 | GET | `/api/progress/workstream/[id]` | strategy progress + evidence + warnings |
 | GET | `/api/progress/project/[id]` | weighted roll-up + per-workstream results |
-| GET | `/api/progress/portfolio` | FR-020 group landing: one health card per business + group-level work |
+| GET | `/api/progress/portfolio` | portfolio/group progress reporting API; not the operational `/overview` landing (FR-041 / ADR-013) |
 | POST | `/api/import/dry-run` | `{plan, workspaceId?}` → valid/errors + preview (insert/update/conflict) — read-only |
 | POST | `/api/import/commit` | เหมือน dry-run แล้ว commit ใน transaction เดียว + audit |
 | GET | `/api/backup/export` | full snapshot JSON |
 | POST | `/api/backup/import` | `{snapshot}` = preview; `{snapshot, confirm:true}` = restore |
 | GET | `/api/audit` | events (filter: entityType, entityId, limit) |
+
+## Managed local files (FR-045 — implemented beta)
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET/POST | `/api/files` | viewer-authorized FileAsset query / managed ingest by Business or Project scope |
+| GET | `/api/business/files?businessId=` | selected Business plus its owned Projects, one row per asset |
+| GET/POST | `/api/projects/[id]/files` | existing compatibility contract backed by the new read/write service after migration |
+| GET | `/api/files/[id]/content` | authorized content stream or download; no arbitrary filesystem path input |
+| POST | `/api/files/[id]/relink` | explicitly confirm a contained new relative path for a missing asset |
+| POST | `/api/files/[id]/reveal` | local-runtime capability only; hosted mode returns capability-disabled |
+| POST | `/api/files/reconcile` | dry-run by default; confirm applies audited missing/untracked decisions |
+| POST | `/api/files/cache/rebuild` | rebuild disposable projections from SQLite/content metadata |
+| GET/POST | `/api/files/mounts` | list or upsert a device-local Business mount |
+| POST | `/api/files/migrate` | owner/dev dry-run or confirmed ProjectFile migration |
+| DELETE | `/api/files/[id]` | soft-delete managed metadata; physical content is not silently deleted |
+
+Storage-kind requests are Zod-validated and scope is resolved server-side. No
+content endpoint accepts an absolute client-supplied path. The existing Project
+Files endpoints remain available through the compatibility boundary.
 
 ## Intake surfaces (FR-017..FR-020 — shipped)
 

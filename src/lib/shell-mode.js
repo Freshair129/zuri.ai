@@ -5,10 +5,15 @@
 //
 // The schema always stores the full chain (Portfolio → Tenant → Business →
 // Workspace → Project). Tenant is an isolation boundary and never appears in
-// the shell; Portfolio appears only as the "all businesses" roll-up view.
+// the shell; Portfolio remains ancestry/reporting context, never the
+// operational Overview landing.
 
 export const SHELL_SINGLE = 'SINGLE_BUSINESS'
 export const SHELL_MULTI = 'MULTI_BUSINESS'
+
+// @req FR-041 - multi-business without a pick is Business-required, never a group landing.
+// @spec ADR-013
+// @tested tests/unit/shell-mode.test.js, tests/integration/adaptive-shell.test.js, tests/e2e/fr041-business-first.spec.js
 
 /**
  * Workspaces visible inside a business scope — mirrors the server rule in
@@ -24,7 +29,7 @@ export function visibleWorkspaces(workspaces, business) {
  * Derive the whole shell shape from scope data + the persisted selection.
  *
  * @returns {{mode: string, multiBusiness: boolean, activeBusiness: object|null,
- *   activeBusinessId: string|null, landing: 'PORTFOLIO'|'BUSINESS',
+ *   activeBusinessId: string|null, landing: 'BUSINESS_REQUIRED'|'BUSINESS',
  *   showBusinessSwitcher: boolean, showWorkspaceSelector: boolean,
  *   scopedWorkspaces: object[]}}
  */
@@ -42,9 +47,9 @@ export function deriveShell({ portfolios = [], businesses = [], workspaces = [],
     multiBusiness,
     activeBusiness,
     activeBusinessId: activeBusiness ? activeBusiness.id : null,
-    // Only a multi-business owner who has not picked a business lands on the
-    // group roll-up; everyone else lands straight in business work.
-    landing: multiBusiness && !activeBusiness ? 'PORTFOLIO' : 'BUSINESS',
+    // A multi-business viewer without a selection must choose a Business from
+    // Home; it never lands on a portfolio/group operational roll-up.
+    landing: multiBusiness && !activeBusiness ? 'BUSINESS_REQUIRED' : 'BUSINESS',
     showBusinessSwitcher: multiBusiness,
     showWorkspaceSelector: scopedWorkspaces.length > 1,
     // Same rule one level up: a portfolio picker only exists for an owner who

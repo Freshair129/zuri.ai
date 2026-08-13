@@ -44,6 +44,10 @@ export const DEPENDENCY_TYPES = [
   'RELATES_TO',
   'START_AFTER',
   'FINISH_BEFORE',
+  // Lineage (ADR-009 §D3): "what replaced what" and "where it came from". Used by the
+  // self-governance import (doc-graph supersedes/relates → Dependency rows).
+  'SUPERSEDES',
+  'DERIVES_FROM',
 ]
 
 export const DEPENDENCY_ENDPOINT_TYPES = [
@@ -61,6 +65,7 @@ export const WORK_STATUSES = ['PLANNED', 'READY', 'IN_PROGRESS', 'REVIEW', 'BLOC
 export const MILESTONE_STATUSES = ['PLANNED', 'IN_PROGRESS', 'DONE', 'MISSED']
 export const GATE_STATUSES = ['OPEN', 'PASSED', 'BLOCKED', 'WAIVED']
 export const WORKSPACE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
+export const MEMBERSHIP_ROLES = ['OWNER', 'MEMBER']
 
 // FR-023 — CRM slice (ADR-007 P2)
 export const CHANNELS = ['LINE', 'FACEBOOK', 'WEB']
@@ -84,6 +89,7 @@ export const zWorkStatus = z.enum(WORK_STATUSES)
 export const zMilestoneStatus = z.enum(MILESTONE_STATUSES)
 export const zGateStatus = z.enum(GATE_STATUSES)
 export const zWorkspaceScopeType = z.enum(WORKSPACE_SCOPE_TYPES)
+export const zMembershipRole = z.enum(MEMBERSHIP_ROLES)
 export const zChannel = z.enum(CHANNELS)
 export const zMessageDirection = z.enum(MESSAGE_DIRECTIONS)
 export const zCustomerLifecycle = z.enum(CUSTOMER_LIFECYCLE)

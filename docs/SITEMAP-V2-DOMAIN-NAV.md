@@ -2,64 +2,124 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 0.1.0 (design draft — sitemap before build) |
-| **Status** | Proposed |
+| **Version** | 0.4.0 |
+| **Status** | Accepted |
 | **Author** | Claude |
-| **Date** | 2026-08-12 |
-| **Relates to** | ADR-003 (V2 replaces V1 by reuse), ADR-006 (shell lift · URLs don't carry scope), FR-020 (adaptive shell), PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
+| **Date** | 2026-08-13 |
+| **Relates to** | ADR-011 (context-bar and Business scope ceiling — authoritative), ADR-008, ADR-003, ADR-006, FR-020, FR-039, PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
 
 Adopts V1's information architecture — **top-level = domain, sidebar = the domain's
-sub-features, the first sub-feature is always a Dashboard** — and binds it to V2's new
+sub-features, with an explicit root contract per domain** — and binds it to V2's new
 **Business** layer, adding a **second bar under the current topbar** for the domains.
+
+> **Scope presentation & entry flow moved to [ADR-011](ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md).**
+> This document is the authoritative **domain → sub-domain map** (§3) and business-binding
+> rules (§4). How Tier-1 scope is *labelled and anchored* (the dual ERP⇄PM lens) and what the
+> user lands on (`login → RBAC → Home → Business Overview`) are defined there; §1–§2 below show
+> the ERP-lens default.
+
+> **Accepted entry amendment:** ADR-015 / FR-044 changes the pre-shell journey to
+> `Landing (/) → Login stub (/login) → Business Routing (/businesses) → BusinessShell
+> (/overview)`. This amendment is routing-only: no auth implementation and no design-token
+> change. The route boundary and Business Routing proof are implemented; viewer/session
+> authorization remains a separate contract slice.
 
 ## 1. The three navigation tiers
 
 ```
-Tier 1  Scope      Portfolio → Tenant → Business → Workspace   (the topbar switcher)
-Tier 2  Domain     Commerce · Customer · Growth · Operations · Projects · Platform
+Tier 1  Context    Portfolio → Tenant → Business  (Workspace → Organization → Business in UI; shell stops here)
+Tier 2  Domain     Commerce · CRM · Marketing · Operations · HR / People · Development · Platform
                    (a NEW bar under the topbar; the set is BOUND to the Business)
-Tier 3  Sub-domain the active domain's sidebar; item #1 is ALWAYS "Dashboard"
+Tier 3  Sub-domain the active domain's sidebar; each domain defines its own root contract
 ```
 
+- **Context is chosen on pages, not dropdowns.** The Base Context Bar exposes exactly Workspace,
+  Organization, and Business. Schema Workspace and Project are module-local resources: they do not
+  appear as shell selectors, breadcrumb switchers, or sidebar parents.
 - **Business binds the domain bar.** A Business exposes only the domains it has enabled
-  (module registry per business). The culinary school (TVS) shows *Operations → Courses*;
-  a pure-retail business hides it. This is FR-020's adaptive shell taken one level deeper:
-  single business ⇒ no business switcher; the domain bar still shows.
-- **First sub-domain = Dashboard, always.** Opening a domain lands on its dashboard
-  (`/{domain}` → `/{domain}/dashboard`), mirroring V1's `LayoutDashboard` first entry.
-- **URLs never carry scope (ADR-006).** Business/tenant come from the switcher (ambient
-  context), not the path — so `/commerce/inventory`, never `/business/{id}/commerce/...`.
+  (per-business module registry). TVS shows *Operations → Courses*; a pure-retail business hides
+  it — FR-020's adaptive shell one level deeper. Single business ⇒ Home skips straight to it.
+- **Domain root is explicit.** Development opens `/overview` (the BusinessShell root),
+  while the Development sidebar starts at Projects. Reserved domains keep their Dashboard
+  as the first sub-domain.
+- **URLs never carry scope (ADR-006).** Business/workspace are ambient (selection pages →
+  cookie/context), not the path — so `/commerce/inventory`, never `/business/{id}/commerce/...`.
   Switching Business keeps you on the same domain+sub-domain where it exists.
 
 ## 2. Layout — two bars
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ Zuri   [ธุรกิจ: The V School ▾] [Workspace ▾]      ⌘K   ◐  👤  │  Topbar (Tier 1: scope + global)
+│ Zuri   Workspace › Organization › Business    ERP · PM   ⌘K   ◐   👤 │  Base Context Bar — exactly 3 levels
+├──────────────────────────────────────────────────────────────┤     (no Space or Project selector)
+│  Commerce   CRM   Marketing   Operations   HR / People   Development · Platform │  Domain bar (Tier 2, per-business)
 ├──────────────────────────────────────────────────────────────┤
-│  Commerce   Customer   Growth   Operations   Projects · Platform │  Domain bar (Tier 2, per-business)
+│ 🏠  Workspace › Organization › Business › PRJ-x › Files          │  Breadcrumb — context plus opened resource
 ├───────────────┬──────────────────────────────────────────────┤
-│ ● Dashboard   │                                                │
-│   หน้าร้าน POS │                                                │
-│   คลังสินค้า    │              content                          │  Sidebar (Tier 3: sub-domains,
-│   สินค้า       │                                                │  Dashboard pinned first)
-│   ใบเสร็จ      │                                                │
-│   จัดส่ง       │                                                │
-│   จัดซื้อ       │                                                │
+│   Projects    │                                                │
+│   All Work    │              content                          │  Sidebar (Tier 3: Development only)
 └───────────────┴──────────────────────────────────────────────┘
 ```
 
 ```mermaid
 flowchart TD
   B[Business: The V School] --> D1[Commerce]
-  B --> D2[Customer]
-  B --> D3[Growth]
+  B --> D2[CRM]
+  B --> D3[Marketing]
   B --> D4[Operations]
-  B --> D5[Projects]
-  B --> D6[Platform]
+  B --> D5[HR / People]
+  B --> D6[Development]
+  B --> D7[Platform]
   D1 --> C0["Dashboard (always #1)"]
   D1 --> C1[POS] --> C2[Inventory] --> C3[Products] --> C4[Invoices] --> C5[Delivery] --> C6[Procurement]
 ```
+
+## 2b. Navigation journey & selection-by-page
+
+Selection happens on **pages**, never in a topbar dropdown. The Base Context Bar and breadcrumb
+show only `Workspace > Organization > Business`; an opened Project is a resource, not a selectable
+shell scope. The active lens changes labels, never identity or isolation.
+
+| # | Page | How you pick the next scope (no dropdown) | Breadcrumb |
+|---|---|---|---|
+| 0 | `/login` | auth + RBAC (who sees which businesses/domains) | — |
+| 1 | **`/` Home** | cards → pick / create **Company** | 🏠 หน้าแรก |
+| 2 | Home (company chosen) | cards → pick / create **Business** | 🏠 › ABC |
+| 3 | **`/overview` Business Overview** | domain bar → pick a **domain** | 🏠 › ABC › ภาพรวม |
+| 4 | **`/projects`… domain home** | sidebar → **sub-domain** | 🏠 › ABC › Projects |
+| 5 | **`/projects` (list)** | open a Project resource | 🏠 › Workspace › Organization › Business › Projects |
+| 6 | **`/projects/{id}`** | tabs → work view | 🏠 › Workspace › Organization › Business › PRJ-x |
+| 7 | **`/projects/{id}/files`** | — (leaf) | 🏠 › Workspace › Organization › Business › PRJ-x › Files |
+
+- **Accepted FR-044 route contract:** `/` is minimal Landing,
+  `/login` is a demo Login stub, `/businesses` is Business Routing, and `/overview` is the
+  guarded BusinessShell. Business Routing is shown even for one visible Business; no final
+  shell chrome renders before selection. Historical rows above remain for traceability only.
+- **The context bar is the shell boundary.** To change Workspace, Organization, or Business, return
+  to Home. Project navigation stays in Development.
+- **Desktop sidebar is always labelled.** It exposes the active domain's sub-domains without hover;
+  icon-only presentation is reserved for the mobile breakpoint.
+- **Adaptive (FR-020).** A single visible context level may be shown as static identity, but the
+  Base Context Bar never gains a fourth Space or Project level.
+- Single-business owners effectively land on their Business Overview; multi-business owners pass
+  through Home each time they switch — the ERP "pick your company" gesture. Overview never
+  substitutes a portfolio/group roll-up for the selected Business.
+
+### Project ownership versus Space context
+
+Inside Development, a Project is owned directly by its Business. The schema
+`Workspace` entity is displayed as **Space** and is only a grouping context:
+
+```text
+Business
+  └─ Development
+      └─ Space (schema Workspace)
+          └─ Project
+```
+
+Project detail pages show `Business > Development > Project` as the primary
+context and `Space: <code>` as secondary metadata. Portfolio/tenant shared
+Projects may remain ownerless and are never included in a Business Overview.
 
 ## 3. Domain → sub-domain map (V2)
 
@@ -104,16 +164,24 @@ Legend: **lift** = reuse V1 UI per ADR-003 · **rebuild** = V1 defect, rebuild i
 6. ใบรับรอง / Certificates — BASIC_30H · PRO_111H · MASTER_201H *(lift)*
 7. ทีมงาน / Team — employees · roles · schedule *(lift)*
 
-### Projects — โปรเจกต์/แผนงาน  *(new — the module V2 already shipped, FR-001…020)*
-1. **Dashboard** — weighted roll-up · gates ค้าง · หมุดหมายถัดไป *(= today's `/overview`)*
-2. Workspaces
-3. Projects
-4. All Work
-5. Execution — 7 modes (sprint · migration · b2b-sales · b2c-campaign · product-launch · operations · expansion)
-6. Timeline
-7. Dependencies
-8. Milestones & Gates
-9. Repositories
+### Development — project management  *(new — existing `projects` route key, FR-001…020)*
+1. Projects
+2. All Work
+3. Execution — 7 modes (sprint · migration · b2b-sales · b2c-campaign · product-launch · operations · expansion)
+4. Timeline
+5. Dependencies
+6. Milestones & Gates
+7. Repositories
+
+`/overview` is the BusinessShell root and is intentionally excluded from this
+Development sub-domain list.
+
+### HR / People — workforce directory *(new — route key `people`, FR-042)*
+1. **Dashboard** — Business workforce summary
+2. People Directory — Person/Membership records visible in the selected Business
+
+Project Team remains a Project-local Development view. Attendance, leave, payroll,
+and performance are future HR slices.
 
 ### Platform — ระบบ/ตั้งค่า  *(V1: platform + gaps)*
 1. **Dashboard** — สุขภาพระบบ · integrations status
@@ -128,7 +196,7 @@ Legend: **lift** = reuse V1 UI per ADR-003 · **rebuild** = V1 defect, rebuild i
 
 ## 4. Business-binding rules (which domains appear)
 
-| Business kind | Commerce | Customer | Growth | Operations | Projects | Platform |
+| Business kind | Commerce | CRM | Marketing | Operations | HR / People | Development | Platform |
 |---|---|---|---|---|---|---|
 | Culinary school (TVS) | ✓ | ✓ | ✓ | ✓ (Courses) | ✓ | ✓ |
 | Retail / F&B (no courses) | ✓ | ✓ | ✓ | ✓ (no Courses) | ✓ | ✓ |
@@ -137,40 +205,59 @@ Legend: **lift** = reuse V1 UI per ADR-003 · **rebuild** = V1 defect, rebuild i
 
 - The enabled set is a per-Business module registry (Platform → Business config edits it).
 - A domain with zero enabled sub-domains is hidden from the bar entirely.
-- **Portfolio landing** (no business selected) shows only the group **Overview** + Projects
-  roll-up across businesses — today's `/overview`. Picking a business reveals the domain bar.
+- **No-business state** (no business selected) shows a Business-required Home action. It does
+  not render a portfolio/group card grid. Portfolio progress remains a reporting API only.
 
 ## 5. URL scheme (scope-free, ADR-006)
 
 ```
-/                         → group overview (portfolio landing)
+/                         → Home: the entry — pick / create Company → Business (RBAC-gated; the picker)
+/overview                 → Business Overview (cross-domain) for the selected Business; Business-required state otherwise
+ /people                  → HR / People Dashboard
+ /people/directory        → Business-scoped People Directory
 /{domain}                 → 302 /{domain}/dashboard        (first sub is always the dashboard)
-/{domain}/{subdomain}     → e.g. /commerce/inventory, /operations/courses, /customer/crm
-/projects/...             → the existing project routes stay verbatim (Projects domain sidebar)
+/{domain}/{subdomain}     → e.g. /projects (Project resource list), /commerce/inventory
+/projects/{id}/...        → existing Project routes stay verbatim (Development work views)
 ```
 
-Business + workspace are ambient (switcher → cookie/context), never in the path. Deep-linking
-a sub-domain resolves it inside the currently-selected business; if that business lacks the
-domain, land on its group overview with a notice.
+Workspace, Organization, and Business are the only ambient context; schema Workspace is a
+module-local Space/filter, never a shell context level.
+Deep-linking a sub-domain resolves it inside the currently-selected business; if that business
+lacks the domain, land on its Business Overview with a notice.
+
+### 5.1 Project-local Work views
+
+`/projects/{id}` opens a resource within Development. Its tabs are not shell navigation and do
+not add a Development sidebar item:
+
+```text
+Project tabs: Project | Requirements | Team | Work | Risks | Resources | Files
+
+Work views:   Structure Plan | Board | Schedule | Dependency Map
+```
+
+- **Structure Plan** is the WBS hierarchy for the opened Project only.
+- **Dependency Map** is the graph of dependency edges whose source and target are both owned by
+  that Project.
+- **Development > Dependencies** remains the Business-wide register for cross-project and
+  cross-workstream dependency analysis. It is intentionally not duplicated as a project tab.
 
 ## 6. Mapping onto today's app (what changes)
 
-- Today's single left "Modules" rail (Overview · Workspaces · Projects · …) **becomes the
-  Projects domain's sidebar** — no route changes; it just moves under the Projects tab.
-- A **new domain bar** is added under the existing topbar; the business switcher already
-  present (`สลับธุรกิจ`) becomes the Tier-1 binder for it.
+- Today's single left rail becomes the **Development** sidebar. Workspace is removed because it
+  is a resource, not a Development capability.
+- The Base Context Bar is the Tier-1 binder; the Business binds the domain bar.
 - Commerce / Customer / Growth / Operations / Platform domains are **lifted per module at
   that module's cutover** (ADR-003) — the sitemap reserves their slots now; each lands when
   its parity items (PARITY-INVENTORY) are met. Until a domain is lifted, its tab is hidden
-  (business-binding), so the shell degrades cleanly to just Projects + Platform today.
+  (business-binding), so the shell degrades cleanly to just Development + Platform today.
 
-## 7. Open decisions for the owner
+## 7. Decisions (resolved — [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) §D6)
 
-1. **Domain order & labels** — proposed: Commerce · Customer · Growth · Operations · Projects
-   · Platform. Thai labels above are drafts.
-2. **Is Projects a peer domain or folded into Platform?** Proposed: a peer domain (it is the
-   cross-cutting delivery view).
-3. **B2B & Products** — placed under Commerce; could be their own domain if they grow.
-4. **Per-business module registry storage** — a `BusinessModule` table vs a JSON field on
-   Business. (Recommend a small table so Platform can toggle without a migration.)
-5. **AI Copilot placement** — under Growth (marketing lens) vs a global top-level launcher.
+1. **Domain order & labels** — ✅ Business Overview root; Commerce · CRM · Marketing · Operations · HR / People · Development · Platform.
+2. **Development — peer domain or folded into Platform?** — ✅ a **peer domain** (cross-cutting
+   delivery view), never the app root.
+3. **B2B & Products** — ✅ under Commerce for now; may split out if they grow.
+4. **Per-business module registry storage** — ✅ a small **`BusinessModule` table** (toggles
+   without a migration). Deferred to the Platform → Business-config build.
+5. **AI Copilot & Campaigns placement** — ✅ under **Growth** (marketing lens).

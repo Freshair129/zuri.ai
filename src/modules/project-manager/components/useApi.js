@@ -4,10 +4,13 @@
 // delegate to services; there is no server-component read path in the MVP.
 import { useCallback, useEffect, useState } from 'react'
 
-export async function api(path, { method = 'GET', body } = {}) {
+// @req FR-045 - capability requests may add explicit, narrow headers without bypassing JSON error handling.
+// @tested tests/unit/fr045-api-ui-contract.test.js
+
+export async function api(path, { method = 'GET', body, headers } = {}) {
   const res = await fetch(path, {
     method,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: { ...(body ? { 'Content-Type': 'application/json' } : {}), ...headers },
     body: body ? JSON.stringify(body) : undefined,
   })
   const data = await res.json().catch(() => null)

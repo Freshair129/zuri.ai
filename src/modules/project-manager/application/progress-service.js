@@ -88,6 +88,7 @@ export async function computeProjectProgress(projectId) {
 // so a card can never show a number the project page would disagree with.
 
 const PROJECT_BUNDLE_INCLUDE = {
+  business: { select: { id: true, code: true, name: true } },
   workspace: { select: { businessId: true, scopeType: true } },
   milestones: { orderBy: { targetAt: 'asc' } },
   gates: true,
@@ -151,7 +152,7 @@ export async function computePortfolioProgress() {
       include: PROJECT_BUNDLE_INCLUDE,
     }),
   ])
-  const summaries = projects.map((p) => ({ ...summarizeLoadedProject(p), businessId: p.workspace?.businessId || null }))
+  const summaries = projects.map((p) => ({ ...summarizeLoadedProject(p), businessId: p.businessId || null }))
 
   const businessCards = businesses.map((b) =>
     bucketSummary(b, summaries.filter((s) => s.businessId === b.id))

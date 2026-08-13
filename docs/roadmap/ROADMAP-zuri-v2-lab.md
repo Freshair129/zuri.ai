@@ -39,6 +39,8 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-017 | PHASE-ZV2-INTAKE | task | UI wizard: start-from-objective, builds envelope into validate/dry-run/commit pipeline | P0 | Claude | done | - | PRD-SDD FR-017 |
 | TASK-FR-018 | PHASE-ZV2-INTAKE | task | Excel template generator (from Zod schema) + xlsx-to-envelope converter with per-row errors | P1 | Claude | done | TASK-FR-017 | PRD-SDD FR-018 |
 | TASK-FR-020 | PHASE-ZV2-INTAKE | task | Adaptive shell: single business hides switchers, multi business gets portfolio landing | P1 | Claude | done | - | features/FR-020-adaptive-shell |
+| TASK-FR-040 | PHASE-V2-REPLACE | task | Project-local Work views: WBS Structure Plan plus Dependency Map, without changing shell scope or persistence | P1 | Codex | done | FR-005; FR-007; FR-039; ADR-012 | features/FR-040-project-work-views |
+| TASK-FR-041-042 | PHASE-V2-REPLACE | task | Business-first Overview with Business Strategy Roadmap/Goals and HR / People peer domain | P0 | Codex | done | FR-035; FR-039; ADR-013 | features/FR-041-business-strategy-overview.md; features/FR-042-hr-people-peer-domain.md |
 | TASK-FR-019 | PHASE-ZV2-INTAKE | task | Enterprise API: ExternalRef mapping, upsert-by-external-id, OpenAPI from Zod | P2 | Claude | done | TASK-FR-018 | features/FR-019-enterprise-api |
 | TASK-ZV2-DECISION | PHASE-ZV2-DECIDE | task | Record owner decision: merge as v1 module or promote to v2 foundation — decided A→B, ADR-002 | P1 | Owen | done | TASK-FR-017; TASK-FR-020 | ZURI-INTEGRATION-ASSESSMENT |
 | TASK-MERGE-VOCAB | PHASE-ZV2-MERGE | task | ~~Adopt canonical scope vocabulary in Zuri v1~~ | P1 | Owen | cancelled | - | ADR-003 |
@@ -54,3 +56,4 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-V2-PILOT | PHASE-V2-REPLACE | task | Pilot one low-risk module end to end (lift UI + shim + migrate ids + reimplement endpoints) and measure the real cost per module | P1 | Claude | planned | TASK-V2-CONTRACTS | ADR-003 §D3 |
 | TASK-V2-CROSSBIZ | PHASE-V2-REPLACE | task | Ship one genuinely cross-business screen early, proving V2 is not V1 with new plumbing; time-box the useTenant shim | P1 | Claude | planned | TASK-V2-IDENTITY | ADR-003 §D9 |
 | TASK-V2-LASTDATE | PHASE-V2-REPLACE | task | Set and hold the date for the final per-tenant cutover; V1 goes read-only then off | P0 | Owen | planned | TASK-V2-CUTOVER-RULES | ADR-003 §D1 |
+| TASK-FR-045 | PHASE-V2-REPLACE | task | SQLite-authoritative managed local file workspace, Business/Project File Manager, disposable cache and legacy ProjectFile migration | P0 | Codex | done (beta) | ADR-016; ZV2-CR-001 | features/FR-045-managed-local-file-workspace.md; roadmap/PLAN-FR-045-MANAGED-LOCAL-FILE-WORKSPACE.md |
