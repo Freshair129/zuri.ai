@@ -151,6 +151,8 @@ warning findings, and unit/E2E/build gates pass.
 - [x] `/api/entry` returns only the authorized Business and minimum Tenant/Portfolio ancestry.
 - [x] Protected compatibility routes resolve trusted request identity and re-authorize resources.
 - [x] The explicit local demo cookie is HttpOnly/SameSite and cannot activate in production.
+- [x] Playwright creates and seeds an isolated `prisma/e2e.db`; it does not depend on developer `.env` or `dev.db` state.
+- [x] The clean-worktree browser suite completes explicitly: 34 passed, 4 intentionally skipped.
 
 Exit gate: unit/contract/integration/browser suites, production build, docs graph,
 preflight/check and diff check pass; provider selection remains a separate decision.

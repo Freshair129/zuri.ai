@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 688,
-    "total_edges": 1245,
+    "total_nodes": 689,
+    "total_edges": 1248,
     "dangling_edges": 0,
     "node_types": {
       "document": 78,
@@ -13,7 +13,7 @@
       "roadmap": 17,
       "v1_inherited": 234,
       "requirement": 110,
-      "test": 87,
+      "test": 88,
       "code_file": 139
     },
     "coverage": {
@@ -2735,7 +2735,7 @@
       "type": "document",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
       "title": "Acceptance Criteria",
-      "hash": "0a036413",
+      "hash": "23ba4e82",
       "status": "current"
     },
     {
@@ -2801,7 +2801,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "2afb630c",
+      "hash": "33f56bb5",
       "status": "current"
     },
     {
@@ -2895,7 +2895,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "d72a2040",
+      "hash": "1e1d7f91",
       "status": "current"
     },
     {
@@ -3524,7 +3524,7 @@
       "type": "document",
       "path": "docs/TEST-PLAN.md",
       "title": "Test Plan",
-      "hash": "eecace75",
+      "hash": "9112c2d2",
       "status": "current"
     },
     {
@@ -5231,6 +5231,13 @@
       "type": "test",
       "path": "tests/unit/plan-schema.test.js",
       "hash": "d3ff0836",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/playwright-database-bootstrap.test.js",
+      "type": "test",
+      "path": "tests/unit/playwright-database-bootstrap.test.js",
+      "hash": "5a9dfc60",
       "status": "current"
     },
     {
@@ -14709,6 +14716,27 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/playwright-database-bootstrap.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/playwright-database-bootstrap.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/playwright-database-bootstrap.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/postgres-business-knowledge.test.js",

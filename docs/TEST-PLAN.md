@@ -127,6 +127,12 @@ grant behavior, absent/expired/revoked session denial, adapter failure, forged-i
 immunity, cross-tenant non-disclosure, one-fetch Business Routing and production
 demo-fallback denial. The full regression suite also covers the migrated protected APIs.
 
+Playwright owns `prisma/e2e.db` through `tests/e2e/global-setup.js`: every run removes only
+that exact ignored database and journal, applies the schema, runs the idempotent seed, and starts
+a non-reused server with the same explicit `DATABASE_URL`. The infrastructure contract is anchored
+by `tests/unit/playwright-database-bootstrap.test.js`; clean-worktree browser proof is 34 passed and
+4 intentionally skipped.
+
 ## FR-051 production isolation hardening (repository-local beta)
 
 - [x] binding resolution is server-owned and rejects an unknown, inactive, or destination-mismatched binding;
