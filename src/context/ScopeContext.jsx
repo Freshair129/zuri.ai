@@ -4,8 +4,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { deriveShell } from '@/lib/shell-mode'
 import { resolveView, DEFAULT_VIEW } from '@/config/scope-views'
 
-// @req FR-002, FR-020 — scope selectors + persisted selection + adaptive shell
-// @tested tests/e2e/smoke.spec.js
+// @req FR-002, FR-020, FR-039 — persisted data selection with a Business-bound shell.
+// @spec SDD-018, ADR-011
+// @tested tests/e2e/smoke.spec.js, tests/unit/scope-view-context.test.js
 // Scope hierarchy: Portfolio → Tenant → Business → Workspace → Project.
 // Tenant is derived from the selected Business (tenant = isolation, never a branch).
 // `viewMode` (erp | pm) is a presentation lens over the same hierarchy — see scope-views.js.
@@ -70,11 +71,11 @@ export function ScopeProvider({ children }) {
     setSelection((s) => {
       const next = { ...s, ...patch }
       // Selecting up the hierarchy clears descendants.
-      if ('portfolioId' in patch) {
+      if ('portfolioId' in patch && !('businessId' in patch)) {
         next.businessId = null
         next.workspaceId = null
         next.projectId = null
-      } else if ('businessId' in patch) {
+      } else if ('businessId' in patch && !('workspaceId' in patch)) {
         next.workspaceId = null
         next.projectId = null
       } else if ('workspaceId' in patch) {
@@ -94,10 +95,20 @@ export function ScopeProvider({ children }) {
     })
     const business = shell.activeBusiness
     const tenant = business ? data.tenants.find((t) => t.id === business.tenantId) || null : null
+    // Portfolio is the PM lens's top Workspace. Prefer the explicit selection,
+    // otherwise inherit it from the selected business. Never silently pick the
+    // first group when several are visible.
+    const portfolioId = selection.portfolioId || tenant?.portfolioId || null
+    const portfolio = data.portfolios.find((item) => item.id === portfolioId)
+      || (data.portfolios.length === 1 ? data.portfolios[0] : null)
     const workspaces = shell.scopedWorkspaces
+    // @req FR-043 - Business scope uses direct Project ownership; Workspace
+    // remains a compatibility fallback while old snapshots are backfilled.
     const projects = data.projects.filter((p) => {
       if (selection.workspaceId) return p.workspaceId === selection.workspaceId
-      if (shell.activeBusinessId) return workspaces.some((w) => w.id === p.workspaceId)
+      if (shell.activeBusinessId) return p.businessId !== undefined
+        ? p.businessId === shell.activeBusinessId
+        : workspaces.some((w) => w.id === p.workspaceId)
       return true
     })
     return {
@@ -109,7 +120,7 @@ export function ScopeProvider({ children }) {
       viewMode,
       setViewMode,
       view: resolveView(viewMode),
-      currentPortfolio: data.portfolios.find((p) => p.id === selection.portfolioId) || data.portfolios[0] || null,
+      currentPortfolio: portfolio,
       currentBusiness: business,
       currentTenant: tenant,
       currentWorkspace: data.workspaces.find((w) => w.id === selection.workspaceId) || null,

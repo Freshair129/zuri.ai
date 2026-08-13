@@ -81,6 +81,45 @@ MVP is complete only when all boxes pass.
 - [ ] empty states are usable
 - [ ] command palette works
 
+## FR-040 — Project Work views (implemented; G5 passed)
+
+- [x] `Project > Work > Structure Plan` renders the Project → Workstream → WorkContainer → WorkItem tree from the canonical project tree API.
+- [x] `Project > Work > Dependency Map` renders a labelled node and directed edge for every dependency whose two endpoints belong to the opened Project.
+- [x] A Project-local Dependency Map excludes cross-project edges; those remain visible only in Development > Dependencies.
+- [x] Empty, loading, error, keyboard focus, reduced-motion, and narrow viewport states remain usable.
+- [x] No Prisma model, migration, UUID, or Tenant/Business isolation rule changes for this display-only feature.
+
+- [x] Full repository test gate: `npm test` passes with 48 test files and 278 tests.
+- [x] FR-040 Playwright proof (2/2), production build, and documentation gates pass.
+
+## FR-041/042 — Business-first Strategy and HR / People
+
+- [x] `/overview` is always Business-scoped; no portfolio/group business-card grid is rendered.
+- [x] A missing Business selection renders a Business-required Home action.
+- [x] Selected Business project KPIs/list exclude other Business workspaces and do not silently attribute portfolio-shared projects.
+- [ ] Project owner/Space invariant: Business projects persist direct `businessId` matching their Business Space; explicit portfolio/tenant shared projects remain null-owner and are not attributed to a Business.
+- [ ] Project detail context shows Business as owner and schema Workspace as secondary `Space` metadata.
+- [x] Business Strategy renders Roadmap plus exactly two or three ordered goal horizons.
+- [x] `HR / People` is a peer top-level domain with a Business-scoped People Directory.
+- [x] People Directory is isolated by viewer-visible Business IDs; Project Team remains Project-local.
+- [x] Targeted Playwright proof, full unit/integration suite, build, docs graph, and docs preflight pass.
+
+Exit gate: all FR-041/042 checks above are checked, generated traceability contains
+FR-041/042 and SDD-020, and no known regression exists in Development project routes.
+
+## FR-044 — Minimal entry and Business Routing (implemented)
+
+- [x] `/` is a minimal Landing page with one CTA to `/login`; no final BusinessShell chrome renders.
+- [x] `/login` is a demo Login stub with one CTA to `/businesses`; no credentials, auth provider, token, or session is implemented.
+- [x] `/businesses` is a Business Routing page that shows only viewer-visible Businesses and uses Portfolio/Organization only as ancestry labels.
+- [x] Selecting a Business persists the existing scope and enters `/overview`, where BusinessShell mounts only after authorization.
+- [x] `/overview` and Business domain routes redirect to `/businesses` when Business is missing and never show an in-shell Business picker.
+- [x] A single visible Business still passes through `/businesses` in this proof slice.
+- [x] Existing Zuri design tokens are reused; no token or landing visual redesign is included.
+
+Exit gate: FR-044, ADR-015, and SDD-022 are approved; route-state tests, browser
+journey proof, build, full tests, and docs graph/preflight/check all pass. ✅
+
 ## Tests
 
 - [ ] unit tests for progress engine

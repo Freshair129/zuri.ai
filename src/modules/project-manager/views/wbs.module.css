@@ -1,5 +1,9 @@
 /* Work-breakdown-structure canvas — Indest-style org-chart on a dotted board. */
 
+/* @req FR-040 — Structure Plan remains readable at desktop and narrow viewport sizes. */
+/* @spec SDD-019, ADR-012 — read-only Project > Work WBS presentation. */
+/* @tested tests/unit/wbs-structure.test.js */
+
 .canvas {
   position: relative;
   background-color: var(--surface-card);
@@ -8,14 +12,19 @@
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 40px 28px 56px;
-  overflow: auto;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
-.tree { display: inline-flex; flex-direction: column; align-items: center; min-width: 100%; }
+.state { min-width: 0; }
+.tree { display: inline-flex; flex-direction: column; align-items: center; width: max-content; min-width: 100%; }
 .node { display: inline-flex; flex-direction: column; align-items: center; }
 
-/* Horizontal org-chart branch (Project→Part Projects, Part Project→Part Tasks) */
-.branch { display: flex; justify-content: center; position: relative; padding-top: 34px; }
+/* Horizontal org-chart branch (Project → Workstream → WorkContainer). */
+.branch { display: flex; flex-wrap: nowrap; justify-content: center; position: relative; padding-top: 34px; }
 .branch::before {
   content: ''; position: absolute; top: 0; left: 50%;
   width: 2px; height: 17px; background: #cfd4dc; transform: translateX(-50%);
@@ -30,7 +39,7 @@
 .leaf:last-child::before { right: 50%; }
 .leaf:only-child::before { display: none; }
 
-/* Vertical chain (Part Task → Workpackages) */
+/* Vertical chain (WorkContainer → WorkItem). */
 .chain { display: flex; flex-direction: column; align-items: stretch; margin-top: 20px; }
 .chainItem { position: relative; margin-top: 16px; }
 .chainItem:first-child { margin-top: 0; }
@@ -53,6 +62,7 @@
   cursor: default;
 }
 .card:hover { box-shadow: 0 6px 16px rgba(16, 24, 40, 0.10); border-color: #c3c9d4; transform: translateY(-1px); }
+.card:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
 
 .eyebrow { font-size: 8px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted-2); font-weight: 600; }
 .title { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.25; margin-top: 1px;
@@ -69,3 +79,14 @@
 .rootCard { border-color: #c7d2fe; box-shadow: 0 2px 10px rgba(79, 70, 229, 0.10); }
 
 .addStub { margin-top: 12px; color: var(--muted-2); font-size: 16px; line-height: 1; }
+
+@media (max-width: 640px) {
+  .canvas { padding: 28px 16px 40px; border-radius: 12px; }
+  .leaf { padding-left: 10px; padding-right: 10px; }
+  .card { min-width: 148px; max-width: 190px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: none; }
+  .card:hover { transform: none; }
+}

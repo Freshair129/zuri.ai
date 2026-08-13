@@ -34,7 +34,7 @@ export default function CommandPalette({ open, onClose }) {
       path: `/projects/${p.id}`,
     }))
     const workspaces = scope.scopedWorkspaces.map((w) => ({
-      kind: 'Workspace',
+      kind: 'Space',
       label: `${w.code} · ${w.name}`,
       path: `/workspaces/${w.id}`,
     }))
@@ -81,7 +81,7 @@ export default function CommandPalette({ open, onClose }) {
           <input
             ref={inputRef}
             className="flex-1 text-sm outline-none"
-            placeholder="Search routes, projects, workspaces…"
+            placeholder="Search routes, projects, spaces…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {

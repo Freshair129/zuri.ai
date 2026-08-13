@@ -100,6 +100,7 @@ describe('plan envelope import', () => {
     expect(project.milestones.length).toBe(1)
     expect(project.gates.length).toBe(1)
     expect(project.repositories.length).toBe(1)
+    expect(project.businessId).toBe(workspace.businessId)
     const dep = await prisma.dependency.findFirst({ where: { dependencyType: 'RELATES_TO' } })
     expect(dep).toBeTruthy()
     const audit = await prisma.auditEvent.findFirst({

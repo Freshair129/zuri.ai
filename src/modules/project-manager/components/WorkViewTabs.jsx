@@ -1,16 +1,20 @@
 'use client'
 
+// @req FR-040 — Project Work owns the project-local Dependency Map sub-view.
+// @spec SDD-019, ADR-012
+// @tested tests/unit/project-work-route.test.js
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Network, Columns3, GanttChartSquare } from 'lucide-react'
+import { Network, Columns3, GanttChartSquare, Share2 } from 'lucide-react'
 
-// Sub-views of the project "Work" tab (Indest: Structure Plan · Board · Schedule).
+// Sub-views of the project "Work" tab (Structure Plan · Board · Schedule · Dependency Map).
 export default function WorkViewTabs({ projectId }) {
   const pathname = usePathname()
   const views = [
     { key: 'structure', label: 'Structure Plan', icon: Network, href: `/projects/${projectId}/structure` },
     { key: 'board', label: 'Board', icon: Columns3, href: `/projects/${projectId}/board` },
     { key: 'timeline', label: 'Schedule', icon: GanttChartSquare, href: `/projects/${projectId}/timeline` },
+    { key: 'dependencies', label: 'Dependency Map', icon: Share2, href: `/projects/${projectId}/dependencies` },
   ]
   return (
     <div className="mb-4 inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface-mid)] p-1">

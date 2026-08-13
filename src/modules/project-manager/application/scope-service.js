@@ -30,7 +30,7 @@ export async function listScope() {
     prisma.project.findMany({
       orderBy: { code: 'asc' },
       where: { deletedAt: null, status: { not: 'ARCHIVED' } },
-      select: { id: true, code: true, name: true, workspaceId: true, status: true },
+      select: { id: true, code: true, name: true, businessId: true, workspaceId: true, status: true },
     }),
   ])
   return { portfolios, tenants, businesses, workspaces, projects }

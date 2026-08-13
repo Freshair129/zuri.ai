@@ -59,6 +59,21 @@ into cross-tenant. Today's identity is a demo principal ("LO"); wire real auth l
 visibleDomains }`), default it to OWNER-of-everything in dev, and route all visibility through it.
 
 ## 4. Screen inventory (status)
+
+> **FR-044 / ADR-015 entry amendment (draft):** the next implementation slice changes
+> the entry sequence to `/` Landing → `/login` demo stub → `/businesses` Business Routing
+> → `/overview` guarded BusinessShell. The historical Home/Group rows below are retained
+> as traceability; they must not be implemented as final-shell chrome before Business
+> selection. Landing/Login use existing tokens and remain intentionally undesigned.
+
+### FR-044 routing slice
+
+| Screen | Route | Does | Status |
+|---|---|---|---|
+| Landing | `/` | one CTA to Login; no BusinessShell | planned |
+| Login stub | `/login` | one demo CTA to Business Routing; no auth | planned |
+| Business Routing | `/businesses` | viewer-visible Business selection | planned |
+| Business Overview / BusinessShell | `/overview` | mounts only after authorized Business selection | guarded target |
 Legend: ✅ built · ◐ partial/rebuild · ○ new · ◇ soon (lift from V1, ADR-003).
 
 **Entry & global**

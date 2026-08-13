@@ -5,7 +5,7 @@ import { Modal, Field } from '@/components/ui'
 import { PROJECT_STATUSES } from '@/lib/validation/enums'
 import { api } from './useApi'
 
-export default function ProjectModal({ open, onClose, workspaces = [], project, defaultWorkspaceId, onSaved }) {
+export default function ProjectModal({ open, onClose, workspaces = [], project, defaultWorkspaceId, workspaceLabel = 'Space', onSaved }) {
   const [form, setForm] = useState(() => ({
     name: project?.name || '',
     description: project?.description || '',
@@ -57,9 +57,9 @@ export default function ProjectModal({ open, onClose, workspaces = [], project, 
         </Field>
         <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
           {!project && (
-            <Field label="Workspace">
+            <Field label={workspaceLabel}>
               <select className="input" value={form.workspaceId} onChange={(e) => set('workspaceId', e.target.value)} required>
-                <option value="">Select workspace…</option>
+                <option value="">Select {workspaceLabel.toLowerCase()}…</option>
                 {workspaces.map((w) => (
                   <option key={w.id} value={w.id}>{w.code} · {w.name}</option>
                 ))}

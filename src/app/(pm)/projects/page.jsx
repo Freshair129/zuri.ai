@@ -75,7 +75,7 @@ function ProjectsPageInner() {
                 <Link href={`/projects/${p.id}`} className="font-bold hover:text-brand-dark">{p.name}</Link>
               ),
             },
-            { key: 'workspace', label: 'Workspace', render: (p) => p.workspace?.code },
+            { key: 'workspace', label: 'Space', render: (p) => p.workspace?.code },
             { key: 'streams', label: 'Streams', render: (p) => p.workstreams?.length || 0 },
             { key: 'status', label: 'Status', render: (p) => <StatusPill status={p.status} /> },
             {
@@ -136,6 +136,7 @@ function ProjectsPageInner() {
           workspaces={scope.scopedWorkspaces}
           project={editing}
           defaultWorkspaceId={scope.selection.workspaceId}
+          workspaceLabel="Space"
           onSaved={() => {
             reload()
             scope.refresh()

@@ -162,6 +162,7 @@ export const zWorkspaceInput = z.object({
 
 export const zProjectInput = z.object({
   code: z.string().min(1).optional(),
+  businessId: z.string().min(1).nullish(),
   workspaceId: z.string().min(1),
   name: z.string().min(1),
   description: z.string().nullish(),
@@ -268,3 +269,16 @@ export const zProjectRepositoryInput = z.object({
   pathScope: z.string().nullish(),
   branch: z.string().nullish(),
 })
+
+export const zProjectFileInput = z
+  .object({
+    code: z.string().min(1).optional(),
+    workItemId: z.string().min(1).nullish(),
+    name: z.string().min(1),
+    mime: z.string().min(1),
+    size: z.number().int().nonnegative(),
+    url: z.string().min(1).nullish(),
+    blobRef: z.string().min(1).nullish(),
+    uploadedBy: z.string().min(1).nullish(),
+  })
+  .refine((data) => data.url || data.blobRef, { message: 'url or blobRef is required' })

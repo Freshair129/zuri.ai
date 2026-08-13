@@ -41,6 +41,17 @@ describe('deriveShell — single business', () => {
     expect(two.showPortfolioSelector).toBe(true)
   })
 
+  it('keeps Portfolio as a real selection level without changing the business isolation model', () => {
+    const shell = deriveShell({
+      portfolios: [{ id: 'p1' }, { id: 'p2' }],
+      businesses: [BUS_A, BUS_B],
+      workspaces: [WS_A1, WS_B1],
+      selection: { portfolioId: 'p1', businessId: 'b1' },
+    })
+    expect(shell.activeBusinessId).toBe('b1')
+    expect(shell.showPortfolioSelector).toBe(true)
+  })
+
   it('survives an empty install with no businesses at all', () => {
     const shell = deriveShell({ businesses: [], workspaces: [], selection: {} })
     expect(shell.mode).toBe(SHELL_SINGLE)
@@ -50,12 +61,12 @@ describe('deriveShell — single business', () => {
 })
 
 describe('deriveShell — multi business', () => {
-  it('shows the switcher and lands on the group roll-up until a business is picked', () => {
+  it('shows the switcher and requires a Business before operational work', () => {
     const shell = deriveShell({ businesses: [BUS_A, BUS_B], workspaces: [WS_A1, WS_B1, WS_GROUP], selection: {} })
     expect(shell.mode).toBe(SHELL_MULTI)
     expect(shell.showBusinessSwitcher).toBe(true)
     expect(shell.activeBusinessId).toBeNull()
-    expect(shell.landing).toBe('PORTFOLIO')
+    expect(shell.landing).toBe('BUSINESS_REQUIRED')
     expect(shell.scopedWorkspaces).toHaveLength(3)
   })
 

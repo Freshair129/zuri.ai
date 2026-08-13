@@ -1,5 +1,14 @@
 import { Building2, LayoutGrid } from 'lucide-react'
 
+// @req FR-039 — Base Context Bar maps schema identity to user-facing labels.
+// @spec SDD-018, ADR-011 — IDs and tenant isolation are unchanged.
+// @tested tests/unit/scope-view-context.test.js
+export const BASE_CONTEXT_LEVELS = [
+  { schema: 'portfolio', label: 'Workspace', fallback: 'Select workspace' },
+  { schema: 'tenant', label: 'Organization', fallback: 'Select organization' },
+  { schema: 'business', label: 'Business', fallback: 'Select business' },
+]
+
 // Two lenses over the SAME scope entities (Portfolio → Business → Workspace → Project) —
 // no schema change, just relabelling + re-anchoring the switcher. This mirrors Dynamics 365's
 // "organization hierarchy purpose": one set of org units, several hierarchies over it.

@@ -1,9 +1,13 @@
 import prisma from '@/lib/db'
 import { zDependencyInput } from '@/lib/validation/entities'
 import { recordAudit } from './audit'
+import { projectDependencyGraph } from './project-dependency-map'
 
 // @req FR-007 — dependencies with self/cycle rejection + blocked evaluation
+// @req FR-040 - project-local Dependency Map reads are strictly contained.
+// @spec SDD-019, ADR-012
 // @tested tests/integration/project-core.test.js
+// @tested tests/unit/project-dependency-service.test.js
 // Dependencies link domain objects by stable internal IDs.
 // Endpoint types: PROJECT, WORKSTREAM, MILESTONE, GATE, WORK_CONTAINER, WORK_ITEM.
 
@@ -110,6 +114,28 @@ export async function listDependencies({ projectId } = {}) {
   return resolved.filter(
     (d) => belongs.has(nodeKey(d.sourceType, d.sourceId)) || belongs.has(nodeKey(d.targetType, d.targetId))
   )
+}
+
+/**
+ * Read model for the opened Project's Dependency Map.
+ *
+ * Unlike the Business-wide `listDependencies({ projectId })` compatibility
+ * filter above, this projection includes an edge only when both endpoints are
+ * owned by the Project. The pure graph mapper owns deterministic ordering and
+ * the stable node/edge DTO shape.
+ */
+export async function getProjectDependencyGraph(projectId) {
+  if (!projectId) throw new Error('projectId is required')
+
+  const project = await prisma.project.findUnique({ where: { id: projectId }, select: { id: true } })
+  if (!project) throw new Error('Project not found')
+
+  const [dependencies, entityKeys] = await Promise.all([
+    listDependencies(),
+    projectEntityIds(projectId),
+  ])
+
+  return projectDependencyGraph({ projectId, dependencies, entityKeys })
 }
 
 async function projectEntityIds(projectId) {

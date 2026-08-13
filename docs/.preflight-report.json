@@ -2,15 +2,15 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 60,
+    "docs": 87,
     "v1_inherited": 234,
-    "routes": 34,
-    "test_files": 31
+    "routes": 43,
+    "test_files": 64
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 23,
+    "info": 22,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -174,6 +174,17 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
+      "details": "HANDOFF-SHELL-V2-CODEX.md",
+      "files": [
+        "docs/HANDOFF-SHELL-V2-CODEX.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I16",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
       "details": "IMPLEMENTATION-PLAN.md",
       "files": [
         "docs/IMPLEMENTATION-PLAN.md"
@@ -181,7 +192,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I16",
+      "id": "I17",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -192,7 +203,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I17",
+      "id": "I18",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -203,24 +214,13 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I18",
+      "id": "I19",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
       "details": "README-zuri-v2-lab.md",
       "files": [
         "docs/README-zuri-v2-lab.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I19",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "ROUTES-SITEMAP.md",
-      "files": [
-        "docs/ROUTES-SITEMAP.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -240,17 +240,6 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "UI-DESIGN-SYSTEM.md",
-      "files": [
-        "docs/UI-DESIGN-SYSTEM.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I22",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
       "details": "ZURI-V2-HANDOFF.md",
       "files": [
         "docs/ZURI-V2-HANDOFF.md"
@@ -258,7 +247,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I23",
+      "id": "I22",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
@@ -266,7 +255,7 @@
       "files": [
         "docs/roadmap/ROADMAP-zuri-v2-lab.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 31 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 64 files"
     }
   ]
 }

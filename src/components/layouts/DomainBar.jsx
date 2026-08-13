@@ -1,8 +1,13 @@
 'use client'
 
+// @req FR-038 — domain navigation is filtered by the resolved viewer grant.
+// @spec SDD-017, docs/features/FR-038-profile-and-permissions.md
+// @tested tests/unit/profile-permission-service.test.js
+
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { DOMAINS, domainForPath } from '@/config/domains'
+import { useFetch } from '@/modules/project-manager/components/useApi'
 
 // Tier 2 (SITEMAP-V2): the domain bar. It is the "original" module layer (V1 kept its
 // module tabs in the topbar); V2 lifts it into its own chrome bar, tinted a shade
@@ -12,6 +17,8 @@ import { DOMAINS, domainForPath } from '@/config/domains'
 export default function DomainBar() {
   const pathname = usePathname()
   const activeKey = domainForPath(pathname).key
+  const viewer = useFetch('/api/viewer')
+  const visibleDomains = new Set(viewer.data?.visibleDomains || [])
 
   return (
     <nav
@@ -19,7 +26,7 @@ export default function DomainBar() {
       className="flex h-14 shrink-0 items-center gap-1 overflow-x-auto border-b border-black/25 px-3 text-white"
       style={{ background: '#2b3646' }}
     >
-      {DOMAINS.map((d) => {
+      {DOMAINS.filter((domain) => visibleDomains.has(domain.key)).map((d) => {
         const Icon = d.icon
         const isActive = d.key === activeKey
         const cls = `flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition ${

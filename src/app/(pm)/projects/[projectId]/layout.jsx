@@ -1,46 +1,29 @@
 'use client'
 
-import Link from 'next/link'
 import { usePathname, useParams } from 'next/navigation'
+import ProjectTabs from '@/modules/project-manager/components/ProjectTabs'
 
-// Project context shell: universal tabs use neutral vocabulary.
-const TABS = [
-  { label: 'Overview', suffix: '' },
-  { label: 'All Work', suffix: '/all-work' },
-  { label: 'Timeline', suffix: '/timeline' },
-  { label: 'Dependencies', suffix: '/dependencies' },
-  { label: 'Milestones & Gates', suffix: '/milestones' },
-  { label: 'Repositories', suffix: '/repositories' },
-  { label: 'Import', suffix: '/import' },
-]
+// @req FR-040 — Project-local navigation has one canonical tab bar.
+// @spec SDD-019, ADR-012
+// @tested tests/unit/project-work-route.test.js
 
 export default function ProjectLayout({ children }) {
   const pathname = usePathname()
   const { projectId } = useParams()
   const base = `/projects/${projectId}`
+  const active = pathname === base
+    ? 'project'
+    : pathname.includes('/team')
+      ? 'team'
+      : pathname.includes('/files')
+        ? 'files'
+        : ['/structure', '/board', '/timeline', '/dependencies', '/all-work', '/execution'].some((suffix) => pathname.includes(suffix))
+          ? 'work'
+          : undefined
 
   return (
     <div>
-      <nav className="mb-4 flex flex-wrap gap-1.5" aria-label="Project views">
-        {TABS.map((t) => {
-          const href = `${base}${t.suffix}`
-          const active = t.suffix === '' ? pathname === base : pathname.startsWith(href)
-          return (
-            <Link
-              key={t.suffix}
-              href={href}
-              aria-current={active ? 'page' : undefined}
-              className={`rounded-xl border px-3 py-2 text-[10px] font-extrabold tracking-wide transition ${
-                active
-                  ? 'border-[#F4C38A] bg-brand-tint text-brand-dark shadow-sm'
-                  : 'border-[var(--border)] bg-white text-muted hover:border-[#F4C38A] hover:bg-brand-surface hover:text-brand-dark'
-              }`}
-            >
-              {t.label}
-            </Link>
-          )
-        })}
-      </nav>
+      <ProjectTabs projectId={projectId} active={active} />
       {children}
     </div>
   )

@@ -59,8 +59,9 @@ customer sets and no way to see across them. V2 keeps the full chain in the sche
 and shows only the levels that offer a real choice (FR-020).
 
 This chain is the **schema truth**. How it is *presented* — Business-centric root, the
-dual **ERP ⇄ PM** lens over the same entities, and the `login → RBAC → Home → Business
-Overview` entry flow — is defined in [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md).
+dual **ERP ⇄ PM** lens over the same entities, and the `Landing → Login stub → Business
+Routing → Business Overview` entry flow — is defined by draft [ADR-015](ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md),
+which amends the earlier [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) journey for this slice.
 Project and Campaign are two **domains** (Projects · Growth), never the app root.
 
 ## 3. Non-negotiables
@@ -91,7 +92,7 @@ The SmartGift executive demo is a **spike ahead of Track 2**, on demo-only short
 |---|---|
 | Feature index + cutover state | `docs/FEATURE-MAP.md` (generated) |
 | Project Manager module | `docs/PRD-SDD-v1.0.md` + `docs/features/` |
-| Shell · scope lens · entry flow | `docs/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md` + `docs/SITEMAP-V2-DOMAIN-NAV.md` |
+| Shell · scope lens · entry flow | `docs/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md` + `docs/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md` + `docs/SITEMAP-V2-DOMAIN-NAV.md` |
 | AI + LINE surface | `docs/ai-system/` |
 | Replacing V1 | `docs/replacement/` |
 | Decisions | `docs/ADR-00*.md` |

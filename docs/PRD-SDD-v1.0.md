@@ -7,11 +7,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.3.0 |
+| **Version** | 1.27.0 |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-12 |
+| **Last Updated** | 2026-08-13 |
 | **Approved By** | — |
 
 ## Version History
@@ -32,6 +32,23 @@
 | 1.8.0 | 2026-08-12 | Claude | FR-028 (LINE webhook API route → `handleAgentTurn`, tenant-scoped) ✅ + MSP memory port (real `msp_memory_upsert`/`_list`, principal-keyed, fail-closed) + GenesisBlockDB sink (real NAPI `addNode`/`addEdge`, live-fact guarded) wired into the stack |
 | 1.9.0 | 2026-08-12 | Claude | FR-029 (agent runtime ports: `createAgentPorts` binds the agent to real MSP memory + GenesisBlockDB knowledge, injectable, graceful fallback) ✅ — the agent now genuinely runs on MSP + GKS when configured |
 | 1.10.0 | 2026-08-12 | Claude | FR-030 (P4 persistence: Postgres/Supabase-ready — generated `schema.postgres.prisma` + init DDL, `assertDbBoundary` Zuri≠MSP, UUID-preserving snapshot cutover) ✅ — Gate D groundwork; live provisioning is owner-run |
+| 1.11.0 | 2026-08-13 | ATHER | NFR-008 + SDD-010: Zuri Heritage v2 token, accessibility, component-state, and V1-compatible migration contract (ADR-010) |
+| 1.12.0 | 2026-08-13 | ATHER | FR-031: RBAC viewer gate seam (`resolveViewer`) for the ADR-008 entry journey |
+| 1.13.0 | 2026-08-13 | ATHER | FR-032: viewer-gated Home entry chooses group/business scope before Overview |
+| 1.14.0 | 2026-08-13 | ATHER | FR-033: Topbar scope dropdowns removed; Home and later breadcrumb own scope switching |
+| 1.15.0 | 2026-08-13 | ATHER | FR-034: breadcrumb becomes the page-based Group/Business, Workspace, and Project switcher |
+| 1.16.0 | 2026-08-13 | ATHER | FR-035: split Group consolidation from cross-domain Business Overview |
+| 1.17.0 | 2026-08-13 | ATHER | FR-036: Project Team manager over scoped Membership with assignee load |
+| 1.18.0 | 2026-08-13 | ATHER | FR-037: Project Files metadata manager with ProjectFile schema and additive migration artifact |
+| 1.19.0 | 2026-08-13 | ATHER | FR-038: My Profile plus owner-gated users and per-domain Membership permissions |
+| 1.20.0 | 2026-08-13 | ATHER | FR-039 + SDD-018: Business-bound shell context (`Workspace > Organization > Business`), Development domain, and no deep shell scope |
+| 1.21.0 | 2026-08-13 | ATHER | Proposed FR-040 + SDD-019: Project Work views, separating the project-local Structure Plan and Dependency Map from the cross-project Development dependency register |
+| 1.22.0 | 2026-08-13 | ATHER | FR-040 + SDD-019 implementation: Project Work shell, canonical Structure Plan, contained Dependency Map read model, and release-gate evidence (G5 remains open on the existing Prisma test bootstrap error) |
+| 1.23.0 | 2026-08-13 | ATHER | FR-040 G5 closure: Prisma test bootstrap repair; full 48-file / 278-test suite, build, browser proof, and documentation gates pass |
+| 1.24.0 | 2026-08-13 | ATHER | FR-041/042 + ADR-013: Business-first Overview with Roadmap/Goals and HR / People as a peer domain |
+| 1.25.0 | 2026-08-13 | ATHER | FR-043 + ADR-014: direct Project Business ownership with Space as secondary Development context |
+| 1.26.0 | 2026-08-13 | ATHER | Planned FR-044 + SDD-022: minimal Landing/Login stubs, pre-shell Business Routing, and guarded BusinessShell entry |
+| 1.27.0 | 2026-08-13 | ATHER | FR-044 implementation: provider-only root, EntryShell, Business Routing, guarded BusinessShell, browser proof, and release gates ✅ |
 
 ## Referenced Standards
 
@@ -105,6 +122,25 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-028 | LINE webhook API route (ADR-007 P7 wiring): `POST /api/agent/line-webhook` normalizes LINE message events → `handleAgentTurn` (Gate E read/answer), tenant-scoped (refuses an unresolved tenant — no minting under a DEFAULT tenant); the zuri-cli LINE bot forwards webhook events here (two runtimes, HTTP seam, real E2E) | ✅ |
 | FR-029 | Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent | ✅ |
 | FR-030 | Persistence: Postgres/Supabase readiness (ADR-007 P4): generated `schema.postgres.prisma` + init DDL (provider swap only, models identical); `assertDbBoundary` enforces **Zuri DB ≠ MSP DB**; UUID-preserving cutover via the provider-agnostic backup snapshot (`db:pg:export`/`import`). DuckDB stays a cache/analytics tier, not the transactional store | ✅ |
+| FR-031 | Viewer gate: `resolveViewer()` resolves the current principal into one role (`OWNER`, `MEMBER`, or platform `DEV`), `visibleBusinessIds`, and `visibleDomains` before the ADR-008 Home journey. DEV is an explicit platform grant, never a widened Membership; development fallback is OWNER-of-all only when no real principal exists. | ✅ |
+| FR-032 | Home (`/`) is the ADR-008 entry journey: it shows only groups and businesses permitted by `resolveViewer()`, lets the user enter the Group (“all businesses”) or one Business scope, and then navigates to Overview. A single visible group skips the group choice. Creating a business remains the existing Settings flow. | ✅ |
+| FR-033 | Topbar contains Zuri identity, the viewed-domain chip, ERP/PM lens toggle, command palette, New Project, and profile cluster—but no scope dropdown or selector. Scope choice begins at Home and moves to breadcrumb switching in the following slice. | ✅ |
+| FR-034 | Breadcrumb is the scope switcher: its Group/Business crumb returns to Home (`/`), Workspace crumb opens `/workspaces`, and Project crumb opens `/projects`. It labels Group versus Business correctly and uses the active ERP/PM lens; a single workspace omits its crumb. | ✅ |
+| FR-035 | Overview is the selected Business's operational home: scoped execution KPIs, project health, strategy, and shortcuts to enabled V2 domains. A missing Business selection is an actionable Home state, never a Group card roll-up. | ✅ |
+| FR-036 | Project Team (`/projects/{id}/team`) lists Memberships in the project’s business scope, adds/removes business-scoped members, changes Owner/Member role, and shows each member’s active WorkItem assignee load. Group-workspace memberships remain read-only because they are tenant-wide. | ✅ |
+| FR-037 | Project Files (`/projects/{id}/files`) manages metadata references for documents and attachments linked to a Project and optionally a WorkItem. `ProjectFile` uses UUID + human code, validates a non-empty `url` or `blobRef`, and records every create/delete in audit. Binary upload/storage is outside the local MVP. | ✅ |
+| FR-038 | My Profile (`/profile`) shows the resolved local account, language preference, LINE-link state, and local session. Users & Permissions (`/platform/users`) is OWNER-only and edits Membership role plus per-domain visibility; MEMBER receives no domain visibility unless explicitly granted, while OWNER/DEV retain role-bound all-domain access. | ✅ |
+| FR-039 | The Base Context Bar maps `Portfolio > Tenant > Business` to `Workspace > Organization > Business` and stops global shell scope at Business. Schema Workspace and Project are Development resources, not shell or sidebar parents; Organization is a UI label for Tenant, whose UUID and isolation semantics remain unchanged. | ✅ |
+| FR-040 | Project Work views: every Project provides a Structure Plan (WBS) and a project-local Dependency Map. Structure Plan renders the existing Project → Workstream → WorkContainer → WorkItem hierarchy. Dependency Map renders only dependency edges whose two endpoints both belong to the opened Project. The cross-project register remains Development → Dependencies. No new persistence model is introduced. | ✅ implemented; G5 passed |
+| FR-041 | Business Overview renders the selected Business's Projects plus a Business Strategy read model: Roadmap and two or three ordered goal horizons. The service enforces horizon cardinality and viewer/business isolation; roadmap editing and Project links are a follow-up mutation slice. | ✅ |
+| FR-042 | HR / People is a peer ERP domain (route key `people`) with a Business-scoped People Directory over Person/Membership. It is not nested under Development; Project Team remains Project-local. Attendance, leave, payroll, and performance are out of scope for this slice. | ✅ |
+| FR-043 | Project stores a direct nullable `businessId` owner plus `workspaceId` as Development Space context. Business-scoped projects must match their Space owner; explicit portfolio/tenant shared projects remain null-owner and are never attributed to a Business Overview. | ✅ |
+| FR-044 | Entry routing is split into a minimal Landing (`/`), a demo Login stub (`/login`), a Business Routing page (`/businesses`) that shows only viewer-visible Businesses, and the final BusinessShell (`/overview`) mounted only after a Business is selected. No real auth or new design tokens are included in this slice. | ✅ implemented |
+
+> **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
+> superseded for the operational shell. Home may show Organization/Portfolio ancestry
+> while choosing a Business, but it never enters a Group Overview; `/overview` requires
+> a selected Business. Portfolio progress remains a reporting API.
 
 ## 1.4 Non-functional requirements
 
@@ -117,6 +153,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | NFR-005 | Progress calculators deterministic (pure, no clock/random) | 31 unit tests |
 | NFR-006 | Persistence ย้ายไป Postgres ได้โดยไม่แก้ semantics (string enums, UUID, JSON strings) | DB-MIGRATION-NOTES.md |
 | NFR-007 | Seed idempotent / reset ได้ (`db:seed`, `db:reset`) | verified double-run |
+| NFR-008 | UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity boundary จนกว่าจะ cutover | ADR-010 + design-system test + visual route check |
 
 ## 1.5 Business rules
 
@@ -136,6 +173,10 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 
 AC ทั้งชุดอยู่ที่ `../../docs/ACCEPTANCE-CRITERIA.md`; ผลการตรวจรายข้อ (ทุกข้อ PASS)
 อยู่ที่ `../.agent/reports/FINAL.md` — traceability ราย FR ดู Appendix D
+
+FR-040 acceptance criteria and its implementation exit gates are defined in
+[`features/FR-040-project-work-views.md`](features/FR-040-project-work-views.md)
+and [`roadmap/PLAN-FR-040-PROJECT-WORK-VIEWS.md`](roadmap/PLAN-FR-040-PROJECT-WORK-VIEWS.md).
 
 ---
 
@@ -165,6 +206,19 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SDD-007 | UI เป็น client fetch (`useFetch`) เรียก API handlers ซึ่ง delegate ให้ services | MVP-simple; server-component read path เป็นงานอนาคต |
 | SDD-008 | JavaScript + Zod ที่ boundary (ไม่ใช่ TypeScript) — **ยึดกับไฟล์ใดไฟล์หนึ่งไม่ได้โดยธรรมชาติ** | mandate จาก MASTER-PROMPT tree · ความเสี่ยงที่ตามมา: ไม่มี compiler บังคับสัญญา จึงต้องมี contract test ก่อนเขียนไส้ endpoint ใหม่ (ADR-003 §D6) |
 | SDD-009 | Unified intake: ทุก surface แปลงเป็น envelope เดียว | BR-009; เทสต์ pipeline ชุดเดียวคุ้มทุกทาง |
+| SDD-010 | Zuri Heritage UI ใช้ CSS token 3 ชั้น (primitive → semantic → component); legacy aliases ช่วย migrate, shared V2 primitives มาก่อน, V1 lift เปลี่ยนเฉพาะ cutover ที่ parity-tested | ADR-010; NFR-008; ลด global restyle risk |
+| SDD-011 | Home derives its cards from the viewer gate plus the already-loaded scope inventory. The viewer decides visibility; the client never infers authorization from the full scope list. A group selection persists Portfolio scope, a business selection persists Portfolio + Business scope, then Home navigates to Overview. | FR-031, FR-032; ADR-008 |
+| SDD-012 | Topbar is navigation chrome, not a scope-editor. Removing its selectors avoids a second scope-control surface; its remaining controls do not alter the ambient Portfolio/Business/Workspace/Project selection. | FR-033; ADR-008, SITEMAP-V2 §5 |
+| SDD-013 | Breadcrumb scope links are deterministic page routes, not menus: Home owns Group/Business, Workspaces owns Workspace, and Projects owns Project. The current lens provides display labels only; it never changes the underlying scope identity. | FR-034; SITEMAP-V2 §2b |
+| SDD-014 | Overview is Business-first. A selected Business renders only its scoped project aggregates and links to active V2 domain entry points; an unselected Business renders a Home-required state. Portfolio progress remains a reporting API, not an operational landing. | FR-035; ADR-013 |
+| SDD-015 | Project Team reuses Membership rather than inventing a ProjectMember model. For a business workspace, mutation is limited to memberships whose `businessId` equals the project workspace; tenant-wide memberships are visible but immutable in this view. Assignee load counts non-deleted WorkItems in the project where `assigneeRef` equals the member’s person id. | FR-036; BR-001, SEC-003 |
+| SDD-016 | `ProjectFile` is an additive SQLite schema change with an equivalent generated Postgres schema. It stores only file metadata plus a local/remote reference (`url` or `blobRef`); a service confirms an optional WorkItem belongs to the Project before persisting. The repo has no Prisma migration baseline, so the additive SQL is recorded as an artifact while the established `db:push` workflow applies local schema. | FR-037; BR-002, SEC-003 |
+| SDD-017 | `Membership.domainKeysJson` persists an allow-list of DOMAINS keys for MEMBER. Empty is deny-by-default. Owner and DEV derive all current domains from their role, not from checkbox state. The resolver is the only interpreter; DomainBar reads its `visibleDomains`, and owner-only API mutations audit the resulting role/domain grant. | FR-038; FR-031, SEC-003 |
+| SDD-018 | `ScopeContext` keeps the existing identity fields but exposes only Portfolio, Tenant, and Business to shell context. `scope-views` supplies their ERP/PM vocabulary. Domain configuration renders the existing `projects` key as Development; schema Workspace/Project stay module-local and never drive shell navigation. | FR-039; ADR-011, BR-001 |
+| SDD-019 | `ProjectTabs` is the project-local boundary. Its `Work` tab owns `Structure Plan`, `Board`, `Schedule`, and `Dependency Map`. The map is a read model built from existing Dependency records and project-owned endpoints only; it never becomes a Development sidebar item, a shell scope, or a new persisted aggregate. | FR-040; ADR-012, FR-005, FR-007, NFR-008 |
+| SDD-020 | Business Strategy is a read model over `BusinessRoadmap`, `BusinessRoadmapHorizon`, `BusinessGoal`, and `ProjectGoal`. The service returns two or three ordered horizons and filters by the selected Business; no Project or Organization is promoted to shell scope. | FR-041; ADR-013, BR-001 |
+| SDD-021 | Project ownership is direct through nullable `businessId`; `workspaceId` is a Development Space context. Services derive and validate the owner against the Space, allow null only for explicit portfolio/tenant shared work, and render Business before Space in Project context. | FR-043; ADR-014, BR-001, SEC-001 |
+| SDD-022 | Route groups enforce the interface boundary: EntryShell owns `/` and `/login`, BusinessRoutingShell owns `/businesses`, BusinessShell owns `/overview` and Business-bound domains, and ProjectResourceShell remains nested below BusinessShell. Missing viewer/business context redirects before shell render. Existing Zuri tokens are reused; token redesign is deferred. | FR-044; ADR-015, SDD-011, SDD-014 |
 
 ## 2.3 Security requirements
 

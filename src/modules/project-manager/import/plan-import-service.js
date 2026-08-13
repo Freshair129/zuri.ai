@@ -7,7 +7,9 @@ import { recordAudit } from '../application/audit'
 // with identity resolved by external id before code (Salesforce-style upsert).
 // @spec SDD-006, SDD-009, SEC-002, BR-009 — single transaction; every surface
 // converges on this one envelope pipeline
-// @tested tests/integration/plan-import.test.js, tests/integration/external-ref-import.test.js
+// @req FR-043 - imported Projects inherit and preserve the target Space owner
+// @spec ADR-014, SDD-021, BR-001, SEC-001
+// @tested tests/integration/plan-import.test.js, tests/integration/external-ref-import.test.js, tests/integration/project-business-binding.test.js
 // PlanEnvelope import pipeline:
 //   JSON → Zod validation → semantic validation → dry-run diff → transactional commit → AuditEvent.
 // Imported plans are data only; nothing in a plan is ever executed.
@@ -117,11 +119,13 @@ export async function dryRunPlan(rawPlan, { workspaceId } = {}) {
     return existing
   }
 
-  const existingProject = await classify('project', 'project', plan.project, plan.project.name, (existing) =>
-    existing && existing.workspaceId !== workspace.id
-      ? `Project exists in a different workspace (${existing.workspaceId})`
-      : null
-  )
+  const targetBusinessId = workspace.businessId || null
+  const existingProject = await classify('project', 'project', plan.project, plan.project.name, (existing) => {
+    if (!existing) return null
+    if (existing.workspaceId !== workspace.id) return `Project exists in a different workspace (${existing.workspaceId})`
+    if ((existing.businessId || null) !== targetBusinessId) return 'Project Business owner does not match the target Space'
+    return null
+  })
 
   for (const ws of plan.workstreams) {
     await classify('workstream', 'workstream', ws, ws.name, (existing) =>
@@ -149,7 +153,7 @@ export async function dryRunPlan(rawPlan, { workspaceId } = {}) {
     valid: conflicts.length === 0,
     errors: conflicts.map((c) => `${c.kind} ${c.code}: ${c.reason}`),
     plan,
-    workspace: { id: workspace.id, code: workspace.code, name: workspace.name },
+    workspace: { id: workspace.id, code: workspace.code, name: workspace.name, businessId: targetBusinessId },
     resolution,
     preview: {
       inserts,
@@ -205,6 +209,8 @@ export async function commitPlan(rawPlan, { workspaceId } = {}) {
       'project',
       plan.project.code,
       {
+        businessId: workspace.businessId || null,
+        workspaceId: workspace.id,
         name: plan.project.name,
         description: plan.project.description ?? undefined,
         type: plan.project.type ?? undefined,
@@ -213,6 +219,7 @@ export async function commitPlan(rawPlan, { workspaceId } = {}) {
       },
       {
         code: plan.project.code,
+        businessId: workspace.businessId || null,
         workspaceId: workspace.id,
         name: plan.project.name,
         description: plan.project.description ?? null,

@@ -1,6 +1,5 @@
 import {
   LayoutDashboard,
-  Layers3,
   BriefcaseBusiness,
   ListChecks,
   GanttChartSquare,
@@ -8,32 +7,29 @@ import {
   Flag,
   GitBranch,
   Rocket,
-  ScrollText,
-  DatabaseBackup,
-  Settings,
 } from 'lucide-react'
 
-// Module registry — mirrors current Zuri's src/config/modules.js pattern.
-// Project Manager is the first (and only) module of the v2 lab shell.
+// @req FR-039 — Development owns project-management resources, not shell scope.
+// @spec SDD-018, ADR-011
+// @tested tests/unit/domain-navigation.test.js
+// Command-palette registry for the Development domain. HR / People is registered
+// in the domain map but intentionally has its own peer route, not a Development
+// sidebar entry.
 export const modules = {
   projectManager: {
     key: 'projectManager',
-    label: 'Projects',
+    label: 'Development',
     icon: BriefcaseBusiness,
     basePath: '/overview',
     nav: [
       { label: 'Overview', path: '/overview', icon: LayoutDashboard },
-      { label: 'Workspaces', path: '/workspaces', icon: Layers3 },
       { label: 'Projects', path: '/projects', icon: BriefcaseBusiness },
       { label: 'All Work', path: '/work', icon: ListChecks },
       { label: 'Execution', path: '/execution', icon: Rocket },
       { label: 'Timeline', path: '/timeline', icon: GanttChartSquare },
       { label: 'Dependencies', path: '/dependencies', icon: Network },
-      { label: 'Milestones', path: '/milestones', icon: Flag },
-      { label: 'Repos', path: '/repositories', icon: GitBranch },
-      { label: 'Audit', path: '/audit', icon: ScrollText },
-      { label: 'Backup', path: '/backup', icon: DatabaseBackup },
-      { label: 'Settings', path: '/settings', icon: Settings },
+      { label: 'Milestones & Gates', path: '/milestones', icon: Flag },
+      { label: 'Repositories', path: '/repositories', icon: GitBranch },
     ],
   },
 }

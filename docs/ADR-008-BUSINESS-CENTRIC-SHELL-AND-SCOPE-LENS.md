@@ -11,6 +11,10 @@ lands on, how scope is presented, and where Project vs Campaign live. Where PROD
 SITEMAP-V2 §1–2 say something narrower, this ADR wins; those documents keep their **schema
 truth and per-domain maps** and now point here for the lens + entry flow.
 
+> **Draft amendment:** ADR-015 / FR-044 refines the entry sequence to Landing → Login
+> stub → Business Routing → BusinessShell. This preserves D1's Business-centric root
+> while moving Business selection before final shell mount; it does not implement auth.
+
 ## Context
 
 We compared org-hierarchy patterns across two families of tools before deciding:

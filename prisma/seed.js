@@ -3,6 +3,10 @@
 // @tested tests/e2e/smoke.spec.js — the whole e2e suite asserts against this data
 const { PrismaClient } = require('@prisma/client')
 
+// @req FR-041 - seed Business Strategy horizons for the Business-first Overview.
+// @spec ADR-013
+// @tested tests/e2e/fr041-business-first.spec.js
+
 const prisma = new PrismaClient()
 
 async function main() {
@@ -109,14 +113,60 @@ async function main() {
       },
     })
   }
+  const wsBusiness = await prisma.workspace.findUnique({ where: { code: 'WS-B01-MIG' } })
+
+  // ---- Business Strategy (FR-041) -----------------------------------------
+  // Strategy is intentionally Business-level; the shared portfolio project
+  // below remains unowned by a Business and is not attributed to this roadmap.
+  const strategyRoadmap = await prisma.businessRoadmap.upsert({
+    where: { code: 'RM-B01-2026' },
+    update: { title: 'Business 01 Direction 2026', status: 'ACTIVE' },
+    create: {
+      code: 'RM-B01-2026',
+      businessId: businesses['BUS-001'].id,
+      title: 'Business 01 Direction 2026',
+      description: 'Business-level direction above project execution.',
+      status: 'ACTIVE',
+      startAt: new Date('2026-01-01'),
+      targetAt: new Date('2026-12-31'),
+    },
+  })
+  const horizon = async (key, label, position, targetAt) =>
+    prisma.businessRoadmapHorizon.upsert({
+      where: { roadmapId_position: { roadmapId: strategyRoadmap.id, position } },
+      update: { key, label, targetAt: new Date(targetAt) },
+      create: { roadmapId: strategyRoadmap.id, key, label, position, targetAt: new Date(targetAt) },
+    })
+  const shortHorizon = await horizon('SHORT', 'Short term', 1, '2026-03-31')
+  const mediumHorizon = await horizon('MEDIUM', 'Medium term', 2, '2026-08-31')
+  const longHorizon = await horizon('LONG', 'Long term', 3, '2026-12-31')
+  const goal = async (code, title, horizonId, progress, priority = 'MEDIUM') =>
+    prisma.businessGoal.upsert({
+      where: { code },
+      update: { title, horizonId, progress, priority, status: progress >= 100 ? 'DONE' : 'ACTIVE' },
+      create: {
+        code,
+        businessId: businesses['BUS-001'].id,
+        roadmapId: strategyRoadmap.id,
+        horizonId,
+        title,
+        progress,
+        priority,
+        status: progress >= 100 ? 'DONE' : 'ACTIVE',
+      },
+    })
+  await goal('GOAL-B01-FOUNDATION', 'Stabilize the operating foundation', shortHorizon.id, 72, 'HIGH')
+  await goal('GOAL-B01-GROWTH', 'Reach the next growth milestone', mediumHorizon.id, 38, 'HIGH')
+  await goal('GOAL-B01-EXPANSION', 'Prepare the next business expansion', longHorizon.id, 12, 'MEDIUM')
 
   // ---- Demo project: one workstream per execution mode ---------------------
   const project = await prisma.project.upsert({
     where: { code: 'PRJ-B01-TRANSFORM' },
-    update: {},
+    update: { businessId: businesses['BUS-001'].id, workspaceId: wsBusiness.id },
     create: {
       code: 'PRJ-B01-TRANSFORM',
-      workspaceId: wsPlatform.id,
+      businessId: businesses['BUS-001'].id,
+      workspaceId: wsBusiness.id,
       name: 'Business 01 Transformation Program',
       description: 'Mixed-mode demo project covering all seven execution modes.',
       type: 'TRANSFORMATION',
@@ -355,6 +405,18 @@ async function main() {
     })
   }
 
+  // @req FR-043 - additive backfill for existing Business-space Projects.
+  // Shared portfolio/tenant Projects intentionally remain ownerless.
+  const legacyProjects = await prisma.project.findMany({
+    where: { businessId: null },
+    select: { id: true, workspace: { select: { businessId: true } } },
+  })
+  for (const legacy of legacyProjects) {
+    if (legacy.workspace?.businessId) {
+      await prisma.project.update({ where: { id: legacy.id }, data: { businessId: legacy.workspace.businessId } })
+    }
+  }
+
   const auditCount = await prisma.auditEvent.count({ where: { action: 'SEEDED' } })
   if (auditCount === 0) {
     await prisma.auditEvent.create({
@@ -368,7 +430,7 @@ async function main() {
     })
   }
 
-  console.log('Seed complete: PF-001, 4 tenants, 5 workspaces, PRJ-B01-TRANSFORM with 7 workstreams.')
+  console.log('Seed complete: PF-001, 4 tenants, 5 workspaces, Business 01 project with 7 workstreams.')
 }
 
 main()

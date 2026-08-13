@@ -3,32 +3,33 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 443,
-    "total_edges": 357,
+    "total_nodes": 580,
+    "total_edges": 806,
     "dangling_edges": 0,
     "node_types": {
-      "document": 44,
-      "adr": 9,
+      "document": 60,
+      "adr": 15,
       "appendix": 5,
-      "roadmap": 2,
+      "roadmap": 7,
       "v1_inherited": 234,
-      "requirement": 61,
-      "test": 31,
-      "code_file": 57
+      "requirement": 89,
+      "test": 64,
+      "code_file": 106
     },
     "coverage": {
-      "requirements": 61,
-      "fr_with_code": "100% (30/30)",
-      "fr_with_tests": "100% (30/30)",
-      "rules_anchored_in_code": "83% (20/24)",
-      "nfr_evidence_based": "7 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 57,
+      "requirements": 89,
+      "fr_with_code": "100% (44/44)",
+      "fr_with_tests": "100% (44/44)",
+      "rules_anchored_in_code": "86% (32/37)",
+      "nfr_evidence_based": "8 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 106,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
       "rules_without_anchor": [
         "SDD-001",
         "SDD-008",
+        "SDD-013",
         "SEC-004",
         "SEC-005"
       ]
@@ -36,9 +37,7 @@
   },
   "drift": {
     "changed": [],
-    "added": [
-      "spec:ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -46,17 +45,58 @@
       "id": "code:prisma/seed.js",
       "type": "code_file",
       "path": "prisma/seed.js",
-      "hash": "817a7efd",
+      "hash": "5e9ab17c",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-016"
+          "FR-016",
+          "FR-041",
+          "FR-043"
         ],
         "@spec": [
           "NFR-007"
         ],
         "@tested": [
-          "tests/e2e/smoke.spec.js"
+          "tests/e2e/smoke.spec.js",
+          "tests/e2e/fr041-business-first.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(entry)/businesses/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(entry)/businesses/page.jsx",
+      "hash": "b4d37e3f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044"
+        ],
+        "@spec": [
+          "SDD-022"
+        ],
+        "@tested": [
+          "tests/unit/business-routing-page.test.js",
+          "tests/unit/business-routing.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/layout.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/layout.jsx",
+      "hash": "d0b26b1b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044"
+        ],
+        "@spec": [
+          "SDD-022"
+        ],
+        "@tested": [
+          "tests/unit/entry-routing-boundary.test.js",
+          "tests/unit/business-shell-guard.test.js"
         ]
       }
     },
@@ -64,15 +104,208 @@
       "id": "code:src/app/(pm)/overview/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/overview/page.jsx",
-      "hash": "2dabf9d8",
+      "hash": "5121978c",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-002",
-          "FR-020"
+          "FR-035",
+          "FR-041"
+        ],
+        "@spec": [
+          "SDD-014",
+          "SDD-020"
         ],
         "@tested": [
-          "tests/e2e/smoke.spec.js"
+          "tests/unit/overview-split.test.js",
+          "tests/e2e/fr041-business-first.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/people/directory/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/people/directory/page.jsx",
+      "hash": "7fffd843",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-042"
+        ],
+        "@tested": [
+          "tests/e2e/fr041-business-first.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/people/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/people/page.jsx",
+      "hash": "8dc425cc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-042"
+        ],
+        "@tested": [
+          "tests/e2e/fr041-business-first.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/platform/users/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/platform/users/page.jsx",
+      "hash": "8b20e275",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-038"
+        ],
+        "@spec": [
+          "SDD-017",
+          "SEC-003",
+          "FR-038",
+          "SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md"
+        ],
+        "@tested": [
+          "tests/unit/profile-permission-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/profile/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/profile/page.jsx",
+      "hash": "af2b6ca2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-038"
+        ],
+        "@spec": [
+          "SDD-017",
+          "FR-038",
+          "SDD-017, docs/features/FR-038-profile-and-permissions.md"
+        ],
+        "@tested": [
+          "tests/unit/profile-permission-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/projects/[projectId]/dependencies/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/projects/[projectId]/dependencies/page.jsx",
+      "hash": "4e1e11db",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-040"
+        ],
+        "@spec": [
+          "SDD-019"
+        ],
+        "@tested": [
+          "tests/unit/project-work-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "hash": "9d408be0",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-037"
+        ],
+        "@spec": [
+          "SDD-016",
+          "BR-002",
+          "SEC-003",
+          "FR-037",
+          "SDD-016, BR-002, SEC-003, docs/features/FR-037-project-files.md"
+        ],
+        "@tested": [
+          "tests/unit/project-file-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/projects/[projectId]/layout.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/projects/[projectId]/layout.jsx",
+      "hash": "74bcf017",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-040"
+        ],
+        "@spec": [
+          "SDD-019"
+        ],
+        "@tested": [
+          "tests/unit/project-work-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/projects/[projectId]/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/projects/[projectId]/page.jsx",
+      "hash": "279bd112",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-043"
+        ],
+        "@spec": [
+          "SDD-021"
+        ],
+        "@tested": [
+          "tests/unit/project-business-context.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/projects/[projectId]/structure/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/projects/[projectId]/structure/page.jsx",
+      "hash": "891b34f8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-040"
+        ],
+        "@spec": [
+          "SDD-019"
+        ],
+        "@tested": [
+          "tests/unit/project-work-route.test.js",
+          "tests/unit/wbs-structure.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/projects/[projectId]/team/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/projects/[projectId]/team/page.jsx",
+      "hash": "dafa0472",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-036"
+        ],
+        "@spec": [
+          "SDD-015",
+          "BR-001",
+          "SEC-003",
+          "FR-036",
+          "SDD-015, BR-001, SEC-003, docs/features/FR-036-project-team.md"
+        ],
+        "@tested": [
+          "tests/unit/project-team-service.test.js"
         ]
       }
     },
@@ -80,7 +313,7 @@
       "id": "code:src/app/(pm)/projects/new/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/new/page.jsx",
-      "hash": "a227442a",
+      "hash": "621b30b1",
       "status": "current",
       "annotations": {
         "@req": [
@@ -126,6 +359,25 @@
       }
     },
     {
+      "id": "code:src/app/api/business/strategy/route.js",
+      "type": "code_file",
+      "path": "src/app/api/business/strategy/route.js",
+      "hash": "e0df17cb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-041"
+        ],
+        "@spec": [
+          "SDD-020",
+          "BR-001"
+        ],
+        "@tested": [
+          "tests/unit/business-strategy-route.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/docs/route.js",
       "type": "code_file",
       "path": "src/app/api/docs/route.js",
@@ -140,6 +392,65 @@
         ],
         "@tested": [
           "tests/integration/openapi-docs.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/people/route.js",
+      "type": "code_file",
+      "path": "src/app/api/people/route.js",
+      "hash": "41088527",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-042"
+        ],
+        "@spec": [
+          "BR-001"
+        ],
+        "@tested": [
+          "tests/unit/people-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/users/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/users/route.js",
+      "hash": "435f7b61",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-038"
+        ],
+        "@spec": [
+          "SDD-017",
+          "SEC-003",
+          "FR-038",
+          "SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md"
+        ],
+        "@tested": [
+          "tests/unit/profile-permission-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/profile/route.js",
+      "type": "code_file",
+      "path": "src/app/api/profile/route.js",
+      "hash": "9c686835",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-038"
+        ],
+        "@spec": [
+          "SDD-017",
+          "FR-038",
+          "SDD-017, docs/features/FR-038-profile-and-permissions.md"
+        ],
+        "@tested": [
+          "tests/unit/profile-permission-service.test.js"
         ]
       }
     },
@@ -159,6 +470,87 @@
       }
     },
     {
+      "id": "code:src/app/api/projects/[id]/dependencies/route.js",
+      "type": "code_file",
+      "path": "src/app/api/projects/[id]/dependencies/route.js",
+      "hash": "303f2cb4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-040"
+        ],
+        "@spec": [
+          "SDD-019"
+        ],
+        "@tested": [
+          "tests/unit/project-dependency-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/projects/[id]/files/[fileId]/route.js",
+      "hash": "2e02a137",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-037"
+        ],
+        "@spec": [
+          "SDD-016",
+          "SEC-003",
+          "FR-037",
+          "SDD-016, SEC-003, docs/features/FR-037-project-files.md"
+        ],
+        "@tested": [
+          "tests/unit/project-file-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/projects/[id]/files/route.js",
+      "type": "code_file",
+      "path": "src/app/api/projects/[id]/files/route.js",
+      "hash": "438dc160",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-037"
+        ],
+        "@spec": [
+          "SDD-016",
+          "SEC-003",
+          "FR-037",
+          "SDD-016, SEC-003, docs/features/FR-037-project-files.md"
+        ],
+        "@tested": [
+          "tests/unit/project-file-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/projects/[id]/team/route.js",
+      "type": "code_file",
+      "path": "src/app/api/projects/[id]/team/route.js",
+      "hash": "0d235e61",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-036"
+        ],
+        "@spec": [
+          "SDD-015",
+          "SEC-003",
+          "FR-036",
+          "SDD-015, SEC-003, docs/features/FR-036-project-team.md"
+        ],
+        "@tested": [
+          "tests/unit/project-team-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/projects/[id]/tree/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/[id]/tree/route.js",
@@ -174,10 +566,145 @@
       }
     },
     {
+      "id": "code:src/app/api/viewer/route.js",
+      "type": "code_file",
+      "path": "src/app/api/viewer/route.js",
+      "hash": "042e384b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-031",
+          "FR-032"
+        ],
+        "@spec": [
+          "SDD-011",
+          "FR-031",
+          "SDD-011, docs/features/FR-031-viewer-gate.md"
+        ],
+        "@tested": [
+          "tests/unit/viewer-gate.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/layout.jsx",
+      "type": "code_file",
+      "path": "src/app/layout.jsx",
+      "hash": "5f67b82d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044"
+        ],
+        "@spec": [
+          "SDD-022"
+        ],
+        "@tested": [
+          "tests/unit/entry-routing-boundary.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/login/page.jsx",
+      "type": "code_file",
+      "path": "src/app/login/page.jsx",
+      "hash": "9c9a4750",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044"
+        ],
+        "@spec": [
+          "SDD-022"
+        ],
+        "@tested": [
+          "tests/unit/entry-surfaces.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/page.jsx",
+      "type": "code_file",
+      "path": "src/app/page.jsx",
+      "hash": "de86ee88",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044"
+        ],
+        "@spec": [
+          "SDD-022"
+        ],
+        "@tested": [
+          "tests/unit/entry-surfaces.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/layouts/Breadcrumb.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/Breadcrumb.jsx",
+      "hash": "1f43695a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-034",
+          "FR-039",
+          "FR-043"
+        ],
+        "@spec": [
+          "SDD-018",
+          "SDD-021"
+        ],
+        "@tested": [
+          "tests/unit/breadcrumb-switcher.test.js",
+          "tests/unit/scope-view-context.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/layouts/BusinessRoutingShell.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/BusinessRoutingShell.jsx",
+      "hash": "ec18541c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044"
+        ],
+        "@spec": [
+          "SDD-022"
+        ],
+        "@tested": [
+          "tests/unit/business-routing-page.test.js",
+          "tests/e2e/fr044-entry-routing.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/layouts/BusinessShellGuard.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/BusinessShellGuard.jsx",
+      "hash": "01a3c330",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044"
+        ],
+        "@spec": [
+          "SDD-022"
+        ],
+        "@tested": [
+          "tests/unit/business-shell-guard.test.js",
+          "tests/unit/entry-routing-boundary.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/components/layouts/CommandPalette.jsx",
       "type": "code_file",
       "path": "src/components/layouts/CommandPalette.jsx",
-      "hash": "96d4ecc1",
+      "hash": "507e82f3",
       "status": "current",
       "annotations": {
         "@req": [
@@ -189,18 +716,155 @@
       }
     },
     {
-      "id": "code:src/components/layouts/Topbar.jsx",
+      "id": "code:src/components/layouts/DomainBar.jsx",
       "type": "code_file",
-      "path": "src/components/layouts/Topbar.jsx",
-      "hash": "d91fdabc",
+      "path": "src/components/layouts/DomainBar.jsx",
+      "hash": "e7bf2f67",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-002",
-          "FR-020"
+          "FR-038"
+        ],
+        "@spec": [
+          "SDD-017",
+          "FR-038",
+          "SDD-017, docs/features/FR-038-profile-and-permissions.md"
         ],
         "@tested": [
-          "tests/e2e/smoke.spec.js"
+          "tests/unit/profile-permission-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/layouts/EntryShell.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/EntryShell.jsx",
+      "hash": "57dcec78",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044"
+        ],
+        "@spec": [
+          "SDD-022"
+        ],
+        "@tested": [
+          "tests/unit/entry-surfaces.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/layouts/Sidebar.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/Sidebar.jsx",
+      "hash": "7bb3b34a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-039"
+        ],
+        "@spec": [
+          "SDD-018"
+        ],
+        "@tested": [
+          "tests/unit/sidebar-visible-subdomains.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/layouts/Topbar.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/Topbar.jsx",
+      "hash": "afb56dbe",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-033",
+          "FR-039",
+          "FR-043"
+        ],
+        "@spec": [
+          "SDD-012",
+          "SDD-018",
+          "SDD-021"
+        ],
+        "@tested": [
+          "tests/unit/topbar-no-dropdown.test.js",
+          "tests/unit/scope-view-context.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/ui/index.jsx",
+      "type": "code_file",
+      "path": "src/components/ui/index.jsx",
+      "hash": "adc81aa5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "NFR-008"
+        ],
+        "@spec": [
+          "SDD-010"
+        ],
+        "@tested": [
+          "tests/unit/design-system.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/config/domains.js",
+      "type": "code_file",
+      "path": "src/config/domains.js",
+      "hash": "3df15cbc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-042",
+          "FR-039"
+        ],
+        "@spec": [
+          "SDD-018"
+        ],
+        "@tested": [
+          "tests/unit/domain-navigation.test.js",
+          "tests/e2e/fr041-business-first.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/config/modules.js",
+      "type": "code_file",
+      "path": "src/config/modules.js",
+      "hash": "665c01d4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-039"
+        ],
+        "@spec": [
+          "SDD-018"
+        ],
+        "@tested": [
+          "tests/unit/domain-navigation.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/config/scope-views.js",
+      "type": "code_file",
+      "path": "src/config/scope-views.js",
+      "hash": "828e368f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-039"
+        ],
+        "@spec": [
+          "SDD-018"
+        ],
+        "@tested": [
+          "tests/unit/scope-view-context.test.js"
         ]
       }
     },
@@ -208,15 +872,57 @@
       "id": "code:src/context/ScopeContext.jsx",
       "type": "code_file",
       "path": "src/context/ScopeContext.jsx",
-      "hash": "5b262912",
+      "hash": "5a3336c0",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-002",
-          "FR-020"
+          "FR-020",
+          "FR-039",
+          "FR-043"
+        ],
+        "@spec": [
+          "SDD-018"
         ],
         "@tested": [
-          "tests/e2e/smoke.spec.js"
+          "tests/e2e/smoke.spec.js",
+          "tests/unit/scope-view-context.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/business-routing.js",
+      "type": "code_file",
+      "path": "src/lib/business-routing.js",
+      "hash": "44cbd448",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044"
+        ],
+        "@spec": [
+          "SDD-022"
+        ],
+        "@tested": [
+          "tests/unit/business-routing.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/business-shell-guard.js",
+      "type": "code_file",
+      "path": "src/lib/business-shell-guard.js",
+      "hash": "7a17e315",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044"
+        ],
+        "@spec": [
+          "SDD-022"
+        ],
+        "@tested": [
+          "tests/unit/business-shell-guard.test.js"
         ]
       }
     },
@@ -232,6 +938,26 @@
         ],
         "@tested": [
           "tests/unit/db-boundary.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/home-scope.js",
+      "type": "code_file",
+      "path": "src/lib/home-scope.js",
+      "hash": "3adc39eb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-032"
+        ],
+        "@spec": [
+          "SDD-011",
+          "FR-032",
+          "SDD-011, docs/features/FR-032-home-entry.md"
+        ],
+        "@tested": [
+          "tests/unit/home-scope.test.js"
         ]
       }
     },
@@ -255,11 +981,12 @@
       "id": "code:src/lib/shell-mode.js",
       "type": "code_file",
       "path": "src/lib/shell-mode.js",
-      "hash": "45eb8a39",
+      "hash": "27e0ff99",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-020"
+          "FR-020",
+          "FR-041"
         ],
         "@spec": [
           "FR-020",
@@ -267,7 +994,9 @@
         ],
         "@tested": [
           "tests/unit/shell-mode.test.js",
-          "tests/e2e/smoke.spec.js"
+          "tests/e2e/smoke.spec.js",
+          "tests/integration/adaptive-shell.test.js",
+          "tests/e2e/fr041-business-first.spec.js"
         ]
       }
     },
@@ -275,7 +1004,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "d9a4757a",
+      "hash": "4d0e19ef",
       "status": "current",
       "annotations": {
         "@spec": [
@@ -447,6 +1176,26 @@
       }
     },
     {
+      "id": "code:src/modules/business/application/business-strategy-service.js",
+      "type": "code_file",
+      "path": "src/modules/business/application/business-strategy-service.js",
+      "hash": "dd030eae",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-041",
+          "FR-043"
+        ],
+        "@spec": [
+          "SDD-020",
+          "BR-001"
+        ],
+        "@tested": [
+          "tests/unit/business-strategy-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/crm/line-ingest-service.js",
       "type": "code_file",
       "path": "src/modules/crm/line-ingest-service.js",
@@ -536,6 +1285,27 @@
       }
     },
     {
+      "id": "code:src/modules/identity/profile-permission-service.js",
+      "type": "code_file",
+      "path": "src/modules/identity/profile-permission-service.js",
+      "hash": "afb3596c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-038"
+        ],
+        "@spec": [
+          "SDD-017",
+          "SEC-003",
+          "FR-038",
+          "SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md"
+        ],
+        "@tested": [
+          "tests/unit/profile-permission-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/resolve-line-identity.js",
       "type": "code_file",
       "path": "src/modules/identity/resolve-line-identity.js",
@@ -551,6 +1321,27 @@
         ],
         "@tested": [
           "tests/integration/identity-resolve.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/resolve-viewer.js",
+      "type": "code_file",
+      "path": "src/modules/identity/resolve-viewer.js",
+      "hash": "53b21d76",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-031",
+          "FR-038"
+        ],
+        "@spec": [
+          "FR-031",
+          "ADR-008 §D4, docs/features/FR-031-viewer-gate.md",
+          "SDD-017"
+        ],
+        "@tested": [
+          "tests/unit/viewer-gate.test.js"
         ]
       }
     },
@@ -669,6 +1460,43 @@
       }
     },
     {
+      "id": "code:src/modules/people/application/people-service.js",
+      "type": "code_file",
+      "path": "src/modules/people/application/people-service.js",
+      "hash": "67d06dd2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-042"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/unit/people-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/people/components/PeopleDirectory.jsx",
+      "type": "code_file",
+      "path": "src/modules/people/components/PeopleDirectory.jsx",
+      "hash": "c9bf4f75",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-042"
+        ],
+        "@spec": [
+          "SDD-020"
+        ],
+        "@tested": [
+          "tests/unit/people-directory.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
@@ -728,14 +1556,19 @@
       "id": "code:src/modules/project-manager/application/dependency-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/dependency-service.js",
-      "hash": "88904c97",
+      "hash": "af7a0a28",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-007"
+          "FR-007",
+          "FR-040"
+        ],
+        "@spec": [
+          "SDD-019"
         ],
         "@tested": [
-          "tests/integration/project-core.test.js"
+          "tests/integration/project-core.test.js",
+          "tests/unit/project-dependency-service.test.js"
         ]
       }
     },
@@ -758,7 +1591,7 @@
       "id": "code:src/modules/project-manager/application/progress-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/progress-service.js",
-      "hash": "c10c4751",
+      "hash": "aa279b8f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -767,22 +1600,89 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/application/project-dependency-map.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/project-dependency-map.js",
+      "hash": "c56fd162",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-040"
+        ],
+        "@spec": [
+          "SDD-019"
+        ],
+        "@tested": [
+          "tests/unit/project-dependency-map.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/project-file-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/project-file-service.js",
+      "hash": "ae6519b9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-037"
+        ],
+        "@spec": [
+          "SDD-016",
+          "BR-002",
+          "SEC-003",
+          "FR-037",
+          "SDD-016, BR-002, SEC-003, docs/features/FR-037-project-files.md"
+        ],
+        "@tested": [
+          "tests/unit/project-file-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/application/project-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-service.js",
-      "hash": "944448cc",
+      "hash": "1e26721e",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-003",
-          "FR-004"
+          "FR-004",
+          "FR-043"
         ],
         "@spec": [
           "BR-004",
-          "SDD-004"
+          "SDD-004",
+          "SDD-021",
+          "BR-001",
+          "SEC-001"
         ],
         "@tested": [
-          "tests/integration/project-core.test.js"
+          "tests/integration/project-core.test.js",
+          "tests/integration/project-business-binding.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/project-team-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/project-team-service.js",
+      "hash": "54c380b4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-036"
+        ],
+        "@spec": [
+          "SDD-015",
+          "BR-001",
+          "SEC-003",
+          "FR-036",
+          "SDD-015, BR-001, SEC-003, docs/features/FR-036-project-team.md"
+        ],
+        "@tested": [
+          "tests/unit/project-team-service.test.js"
         ]
       }
     },
@@ -808,7 +1708,7 @@
       "id": "code:src/modules/project-manager/application/scope-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/scope-service.js",
-      "hash": "9cde0045",
+      "hash": "e9b33d8b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -840,6 +1740,24 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/components/ProjectTabs.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/ProjectTabs.jsx",
+      "hash": "343b7535",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-040"
+        ],
+        "@spec": [
+          "SDD-019"
+        ],
+        "@tested": [
+          "tests/unit/project-work-route.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/components/useApi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/components/useApi.js",
@@ -848,6 +1766,24 @@
       "annotations": {
         "@spec": [
           "SDD-007"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/WorkViewTabs.jsx",
+      "hash": "521730fb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-040"
+        ],
+        "@spec": [
+          "SDD-019"
+        ],
+        "@tested": [
+          "tests/unit/project-work-route.test.js"
         ]
       }
     },
@@ -874,22 +1810,27 @@
       "id": "code:src/modules/project-manager/import/plan-import-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
-      "hash": "ea8d6062",
+      "hash": "d28e6608",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
-          "FR-019"
+          "FR-019",
+          "FR-043"
         ],
         "@spec": [
           "SDD-006",
           "SDD-009",
           "SEC-002",
-          "BR-009"
+          "BR-009",
+          "SDD-021",
+          "BR-001",
+          "SEC-001"
         ],
         "@tested": [
           "tests/integration/plan-import.test.js",
-          "tests/integration/external-ref-import.test.js"
+          "tests/integration/external-ref-import.test.js",
+          "tests/integration/project-business-binding.test.js"
         ]
       }
     },
@@ -981,6 +1922,24 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/views/DependencyMap.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/views/DependencyMap.jsx",
+      "hash": "720dc9bd",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-040"
+        ],
+        "@spec": [
+          "SDD-019"
+        ],
+        "@tested": [
+          "tests/unit/dependency-map-view.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/views/execution/mode-bodies.jsx",
@@ -992,6 +1951,24 @@
         ],
         "@tested": [
           "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/views/WbsCanvas.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/views/WbsCanvas.jsx",
+      "hash": "a3a2bfba",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-040"
+        ],
+        "@spec": [
+          "SDD-019"
+        ],
+        "@tested": [
+          "tests/unit/wbs-structure.test.js"
         ]
       }
     },
@@ -1008,9 +1985,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "doc_status": "Draft",
-      "hash": "7b9d11b0",
+      "hash": "332fae2f",
       "status": "current"
     },
     {
@@ -1018,7 +1995,7 @@
       "type": "document",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
       "title": "Acceptance Criteria",
-      "hash": "b3d91c23",
+      "hash": "c8021c9e",
       "status": "current"
     },
     {
@@ -1052,9 +2029,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.0.0",
+      "version": "1.2.0",
       "doc_status": "Draft",
-      "hash": "e4a6b644",
+      "hash": "20ca6e51",
       "status": "current"
     },
     {
@@ -1084,7 +2061,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "3a30d992",
+      "hash": "c2211cf3",
       "status": "current"
     },
     {
@@ -1094,7 +2071,7 @@
       "title": "Database Migration Notes — SQLite → PostgreSQL",
       "version": "1.0.1",
       "doc_status": "Approved",
-      "hash": "cfc8aa55",
+      "hash": "55c2e4fb",
       "status": "current"
     },
     {
@@ -1178,7 +2155,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "e52edfba",
+      "hash": "5c018355",
       "status": "current"
     },
     {
@@ -1198,7 +2175,142 @@
       "title": "UX Spec — Single-Business vs Multi-Business Owner",
       "version": "1.1.0",
       "doc_status": "Implemented (FR-020)",
-      "hash": "b2693c6b",
+      "hash": "fc5fac09",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-031-viewer-gate",
+      "type": "document",
+      "path": "docs/features/FR-031-viewer-gate.md",
+      "title": "FR-031: Viewer gate seam",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "dbeec90f",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-032-home-entry",
+      "type": "document",
+      "path": "docs/features/FR-032-home-entry.md",
+      "title": "FR-032 — Home entry journey",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "34c6cc2f",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-033-topbar-without-scope-dropdowns",
+      "type": "document",
+      "path": "docs/features/FR-033-topbar-without-scope-dropdowns.md",
+      "title": "FR-033 — Topbar without scope dropdowns",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "6ed008ed",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-034-breadcrumb-scope-switcher",
+      "type": "document",
+      "path": "docs/features/FR-034-breadcrumb-scope-switcher.md",
+      "title": "FR-034 — Breadcrumb scope switcher",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "2f8857d0",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-035-business-and-group-overview",
+      "type": "document",
+      "path": "docs/features/FR-035-business-and-group-overview.md",
+      "title": "FR-035 - Business Overview",
+      "version": "1.1.0",
+      "doc_status": "Implemented",
+      "hash": "7a83b40e",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-036-project-team",
+      "type": "document",
+      "path": "docs/features/FR-036-project-team.md",
+      "title": "FR-036 — Project Team manager",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "0ee64d58",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-037-project-files",
+      "type": "document",
+      "path": "docs/features/FR-037-project-files.md",
+      "title": "FR-037 — Project Files",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "f2c45db6",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-038-profile-and-permissions",
+      "type": "document",
+      "path": "docs/features/FR-038-profile-and-permissions.md",
+      "title": "FR-038 — My Profile and Users & Permissions",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "90262609",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-039-business-scope-ceiling",
+      "type": "document",
+      "path": "docs/features/FR-039-business-scope-ceiling.md",
+      "title": "FR-039 — Business scope ceiling",
+      "hash": "bcf267ba",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-040-project-work-views",
+      "type": "document",
+      "path": "docs/features/FR-040-project-work-views.md",
+      "title": "FR-040 — Project Work views",
+      "hash": "b28ce743",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-041-business-strategy-overview",
+      "type": "document",
+      "path": "docs/features/FR-041-business-strategy-overview.md",
+      "title": "FR-041 - Business Strategy Overview",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "22d55756",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-042-hr-people-peer-domain",
+      "type": "document",
+      "path": "docs/features/FR-042-hr-people-peer-domain.md",
+      "title": "FR-042 - HR / People peer domain",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "5b3b0bd8",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-043-project-business-ownership",
+      "type": "document",
+      "path": "docs/features/FR-043-project-business-ownership.md",
+      "title": "FR-043 - Project Business Ownership and Space Context",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "934acb96",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-044-entry-landing-login-business-routing",
+      "type": "document",
+      "path": "docs/features/FR-044-entry-landing-login-business-routing.md",
+      "title": "FR-044 — Minimal entry and Business Routing before BusinessShell",
+      "doc_status": "Implemented — owner-approved; exit gates verified",
+      "hash": "c6285de0",
       "status": "current"
     },
     {
@@ -1209,6 +2321,14 @@
       "version": "1.0.0",
       "doc_status": "Active",
       "hash": "4d125220",
+      "status": "current"
+    },
+    {
+      "id": "doc:HANDOFF-SHELL-V2-CODEX",
+      "type": "document",
+      "path": "docs/HANDOFF-SHELL-V2-CODEX.md",
+      "title": "HANDOFF — V2 business-centric shell (for Codex)",
+      "hash": "6c470154",
       "status": "current"
     },
     {
@@ -1255,6 +2375,16 @@
       "version": "1.0.0",
       "doc_status": "Draft — not implemented (`TASK-V2-LINE-INTENT`)",
       "hash": "15e7b203",
+      "status": "current"
+    },
+    {
+      "id": "doc:INTERFACE-INVENTORY-V2",
+      "type": "document",
+      "path": "docs/INTERFACE-INVENTORY-V2.md",
+      "title": "Zuri V2 — Interface Inventory and Shell Boundary",
+      "version": "0.2.0",
+      "doc_status": "Implemented — FR-044 route boundary verified",
+      "hash": "e95ff425",
       "status": "current"
     },
     {
@@ -1352,13 +2482,57 @@
       "status": "current"
     },
     {
+      "id": "doc:PLAN-FR-040-PROJECT-WORK-VIEWS",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-FR-040-PROJECT-WORK-VIEWS.md",
+      "title": "Implementation Plan — FR-040 Project Work Views",
+      "doc_status": "Implemented; G5 release gate passed",
+      "hash": "1afaa7bf",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-FR-041-BUSINESS-FIRST-STRATEGY-AND-HR",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-FR-041-BUSINESS-FIRST-STRATEGY-AND-HR.md",
+      "title": "Implementation plan",
+      "hash": "ce759780",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-FR-043-PROJECT-BUSINESS-OWNERSHIP",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-FR-043-PROJECT-BUSINESS-OWNERSHIP.md",
+      "title": "Implementation plan",
+      "hash": "a7ebe7f6",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-FR-044-ENTRY-LANDING-LOGIN-BUSINESS-ROUTING",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-FR-044-ENTRY-LANDING-LOGIN-BUSINESS-ROUTING.md",
+      "title": "Implementation Plan — FR-044 Entry → Business Routing → BusinessShell",
+      "doc_status": "Complete — owner-approved; exit gates verified",
+      "hash": "1a916709",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT.md",
+      "title": "Next Implementation Plan — Business Navigation Alignment and Viewer Contract",
+      "version": "0.1.0",
+      "doc_status": "Proposed — owner approval required",
+      "hash": "ca0405f5",
+      "status": "current"
+    },
+    {
       "id": "doc:PRD-SDD-v1.0",
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.3.0",
+      "version": "1.27.0",
       "doc_status": "Draft",
-      "hash": "5fdd8672",
+      "hash": "4661f0e9",
       "status": "current"
     },
     {
@@ -1368,7 +2542,7 @@
       "title": "Zuri V2 — Product Definition",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "e0f551a3",
+      "hash": "65dc1ed4",
       "status": "current"
     },
     {
@@ -1402,15 +2576,17 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-zuri-v2-lab.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
-      "hash": "c7589977",
+      "hash": "bbb58bc3",
       "status": "current"
     },
     {
       "id": "doc:ROUTES-SITEMAP",
       "type": "document",
       "path": "docs/ROUTES-SITEMAP.md",
-      "title": "Routes / Sitemap",
-      "hash": "de76f0f1",
+      "title": "Zuri V2 — Route and Shell Sitemap",
+      "version": "1.0.0",
+      "doc_status": "Accepted — implemented FR-044 route/shell boundary",
+      "hash": "94d68f79",
       "status": "current"
     },
     {
@@ -1418,9 +2594,9 @@
       "type": "document",
       "path": "docs/SITEMAP-V2-DOMAIN-NAV.md",
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
-      "version": "0.1.0 (design draft — sitemap before build)",
-      "doc_status": "Proposed",
-      "hash": "efdba2c9",
+      "version": "0.3.0",
+      "doc_status": "Accepted",
+      "hash": "f3d89ce8",
       "status": "current"
     },
     {
@@ -1435,8 +2611,10 @@
       "id": "doc:UI-DESIGN-SYSTEM",
       "type": "document",
       "path": "docs/UI-DESIGN-SYSTEM.md",
-      "title": "UI Design System — Zuri Heritage",
-      "hash": "e38f305c",
+      "title": "UI Design System: Zuri Heritage v2",
+      "version": "2.0.0",
+      "doc_status": "Accepted",
+      "hash": "6f15ca8e",
       "status": "current"
     },
     {
@@ -1809,6 +2987,132 @@
       "status": "current"
     },
     {
+      "id": "req:FR-031",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Viewer gate: `resolveViewer()` resolves the current principal into one role (`OWNER`, `MEMBER`, or platform `DEV`), `visibleBusinessIds`, and `visibleDomains` before the ADR-008 Home journey. DEV is an explicit platform grant, never a widened Membership; development fallback is OWNER-of-all only when no real principal exists.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-032",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Home (`/`) is the ADR-008 entry journey: it shows only groups and businesses permitted by `resolveViewer()`, lets the user enter the Group (“all businesses”) or one Business scope, and then navigates to Overview. A single visible group skips the group choice. Creating a business remains the existing Settings flow.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-033",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Topbar contains Zuri identity, the viewed-domain chip, ERP/PM lens toggle, command palette, New Project, and profile cluster—but no scope dropdown or selector. Scope choice begins at Home and moves to breadcrumb switching in the following slice.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-034",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Breadcrumb is the scope switcher: its Group/Business crumb returns to Home (`/`), Workspace crumb opens `/workspaces`, and Project crumb opens `/projects`. It labels Group versus Business correctly and uses the active ERP/PM lens; a single workspace omits its crumb.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-035",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Overview is the selected Business's operational home: scoped execution KPIs, project health, strategy, and shortcuts to enabled V2 domains. A missing Business selection is an actionable Home state, never a Group card roll-up.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-036",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Project Team (`/projects/{id}/team`) lists Memberships in the project’s business scope, adds/removes business-scoped members, changes Owner/Member role, and shows each member’s active WorkItem assignee load. Group-workspace memberships remain read-only because they are tenant-wide.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-037",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Project Files (`/projects/{id}/files`) manages metadata references for documents and attachments linked to a Project and optionally a WorkItem. `ProjectFile` uses UUID + human code, validates a non-empty `url` or `blobRef`, and records every create/delete in audit. Binary upload/storage is outside the local MVP.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-038",
+      "type": "requirement",
+      "family": "FR",
+      "label": "My Profile (`/profile`) shows the resolved local account, language preference, LINE-link state, and local session. Users & Permissions (`/platform/users`) is OWNER-only and edits Membership role plus per-domain visibility; MEMBER receives no domain visibility unless explicitly granted, while OWNER/DEV retain role-bound all-domain access.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-039",
+      "type": "requirement",
+      "family": "FR",
+      "label": "The Base Context Bar maps `Portfolio > Tenant > Business` to `Workspace > Organization > Business` and stops global shell scope at Business. Schema Workspace and Project are Development resources, not shell or sidebar parents; Organization is a UI label for Tenant, whose UUID and isolation semantics remain unchanged.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-040",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Project Work views: every Project provides a Structure Plan (WBS) and a project-local Dependency Map. Structure Plan renders the existing Project → Workstream → WorkContainer → WorkItem hierarchy. Dependency Map renders only dependency edges whose two endpoints both belong to the opened Project. The cross-project register remains Development → Dependencies. No new persistence model is introduced.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-041",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Business Overview renders the selected Business's Projects plus a Business Strategy read model: Roadmap and two or three ordered goal horizons. The service enforces horizon cardinality and viewer/business isolation; roadmap editing and Project links are a follow-up mutation slice.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-042",
+      "type": "requirement",
+      "family": "FR",
+      "label": "HR / People is a peer ERP domain (route key `people`) with a Business-scoped People Directory over Person/Membership. It is not nested under Development; Project Team remains Project-local. Attendance, leave, payroll, and performance are out of scope for this slice.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-043",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Project stores a direct nullable `businessId` owner plus `workspaceId` as Development Space context. Business-scoped projects must match their Space owner; explicit portfolio/tenant shared projects remain null-owner and are never attributed to a Business Overview.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-044",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Entry routing is split into a minimal Landing (`/`), a demo Login stub (`/login`), a Business Routing page (`/businesses`) that shows only viewer-visible Businesses, and the final BusinessShell (`/overview`) mounted only after a Business is selected. No real auth or new design tokens are included in this slice.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -1867,6 +3171,15 @@
       "type": "requirement",
       "family": "NFR",
       "label": "Seed idempotent / reset ได้ (`db:seed`, `db:reset`)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-008",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity boundary จนกว่าจะ cutover",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -1948,6 +3261,123 @@
       "type": "requirement",
       "family": "SDD",
       "label": "Unified intake: ทุก surface แปลงเป็น envelope เดียว",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-010",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Zuri Heritage UI ใช้ CSS token 3 ชั้น (primitive → semantic → component); legacy aliases ช่วย migrate, shared V2 primitives มาก่อน, V1 lift เปลี่ยนเฉพาะ cutover ที่ parity-tested",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-011",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Home derives its cards from the viewer gate plus the already-loaded scope inventory. The viewer decides visibility; the client never infers authorization from the full scope list. A group selection persists Portfolio scope, a business selection persists Portfolio + Business scope, then Home navigates to Overview.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-012",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Topbar is navigation chrome, not a scope-editor. Removing its selectors avoids a second scope-control surface; its remaining controls do not alter the ambient Portfolio/Business/Workspace/Project selection.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-013",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Breadcrumb scope links are deterministic page routes, not menus: Home owns Group/Business, Workspaces owns Workspace, and Projects owns Project. The current lens provides display labels only; it never changes the underlying scope identity.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-014",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Overview is Business-first. A selected Business renders only its scoped project aggregates and links to active V2 domain entry points; an unselected Business renders a Home-required state. Portfolio progress remains a reporting API, not an operational landing.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-015",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Project Team reuses Membership rather than inventing a ProjectMember model. For a business workspace, mutation is limited to memberships whose `businessId` equals the project workspace; tenant-wide memberships are visible but immutable in this view. Assignee load counts non-deleted WorkItems in the project where `assigneeRef` equals the member’s person id.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-016",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "`ProjectFile` is an additive SQLite schema change with an equivalent generated Postgres schema. It stores only file metadata plus a local/remote reference (`url` or `blobRef`); a service confirms an optional WorkItem belongs to the Project before persisting. The repo has no Prisma migration baseline, so the additive SQL is recorded as an artifact while the established `db:push` workflow applies local schema.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-017",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "`Membership.domainKeysJson` persists an allow-list of DOMAINS keys for MEMBER. Empty is deny-by-default. Owner and DEV derive all current domains from their role, not from checkbox state. The resolver is the only interpreter; DomainBar reads its `visibleDomains`, and owner-only API mutations audit the resulting role/domain grant.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-018",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "`ScopeContext` keeps the existing identity fields but exposes only Portfolio, Tenant, and Business to shell context. `scope-views` supplies their ERP/PM vocabulary. Domain configuration renders the existing `projects` key as Development; schema Workspace/Project stay module-local and never drive shell navigation.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-019",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "`ProjectTabs` is the project-local boundary. Its `Work` tab owns `Structure Plan`, `Board`, `Schedule`, and `Dependency Map`. The map is a read model built from existing Dependency records and project-owned endpoints only; it never becomes a Development sidebar item, a shell scope, or a new persisted aggregate.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-020",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Business Strategy is a read model over `BusinessRoadmap`, `BusinessRoadmapHorizon`, `BusinessGoal`, and `ProjectGoal`. The service returns two or three ordered horizons and filters by the selected Business; no Project or Organization is promoted to shell scope.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-021",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Project ownership is direct through nullable `businessId`; `workspaceId` is a Development Space context. Services derive and validate the owner against the Space, allow null only for explicit portfolio/tenant shared work, and render Business before Space in Project context.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-022",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Route groups enforce the interface boundary: EntryShell owns `/` and `/login`, BusinessRoutingShell owns `/businesses`, BusinessShell owns `/overview` and Business-bound domains, and ProjectResourceShell remains nested below BusinessShell. Missing viewer/business context redirects before shell render. Existing Zuri tokens are reused; token redesign is deferred.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -2067,7 +3497,7 @@
       "type": "adr",
       "path": "docs/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md",
       "title": "ADR-008 — Business-centric shell, dual scope lens (ERP ⇄ PM), and entry flow",
-      "hash": "082153a8",
+      "hash": "b13d9447",
       "status": "current"
     },
     {
@@ -2079,17 +3509,87 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-010-ZURI-HERITAGE-DESIGN-SYSTEM",
+      "type": "adr",
+      "path": "docs/ADR-010-ZURI-HERITAGE-DESIGN-SYSTEM.md",
+      "title": "ADR-010: Zuri Heritage Design System and V1-Compatible Migration",
+      "hash": "c45e612e",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "type": "adr",
+      "path": "docs/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md",
+      "title": "ADR-011 — Context bar and Business scope ceiling",
+      "hash": "3ec036d7",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
+      "type": "adr",
+      "path": "docs/ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY.md",
+      "title": "ADR-012 — Project Work views and dependency boundary",
+      "hash": "047b0075",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
+      "type": "adr",
+      "path": "docs/ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN.md",
+      "title": "ADR-013 - Business-first Overview, Strategy, and HR domain boundary",
+      "hash": "1962c68c",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "type": "adr",
+      "path": "docs/ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT.md",
+      "title": "ADR-014 - Project Business Ownership and Space Context",
+      "hash": "e05c479d",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING",
+      "type": "adr",
+      "path": "docs/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md",
+      "title": "ADR-015 — Minimal entry, demo login, and Business Routing before BusinessShell",
+      "doc_status": "Accepted — implementation complete",
+      "hash": "bd01dbde",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr040-project-work.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr040-project-work.spec.js",
+      "hash": "6985b1d0",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr041-business-first.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr041-business-first.spec.js",
+      "hash": "7993d406",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr044-entry-routing.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr044-entry-routing.spec.js",
+      "hash": "acf53d9f",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/smoke.spec.js",
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
-      "hash": "9f5680a9",
+      "hash": "39ad32e9",
       "status": "current"
     },
     {
       "id": "test:tests/integration/adaptive-shell.test.js",
       "type": "test",
       "path": "tests/integration/adaptive-shell.test.js",
-      "hash": "7b1f5f58",
+      "hash": "ce182ea1",
       "status": "current"
     },
     {
@@ -2229,7 +3729,14 @@
       "id": "test:tests/integration/plan-import.test.js",
       "type": "test",
       "path": "tests/integration/plan-import.test.js",
-      "hash": "1f6ff672",
+      "hash": "fe5ac486",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/project-business-binding.test.js",
+      "type": "test",
+      "path": "tests/integration/project-business-binding.test.js",
+      "hash": "23f9caaa",
       "status": "current"
     },
     {
@@ -2254,10 +3761,94 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/breadcrumb-switcher.test.js",
+      "type": "test",
+      "path": "tests/unit/breadcrumb-switcher.test.js",
+      "hash": "2a94d301",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/business-routing-page.test.js",
+      "type": "test",
+      "path": "tests/unit/business-routing-page.test.js",
+      "hash": "e0de1ebe",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/business-routing.test.js",
+      "type": "test",
+      "path": "tests/unit/business-routing.test.js",
+      "hash": "606208d2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/business-shell-guard.test.js",
+      "type": "test",
+      "path": "tests/unit/business-shell-guard.test.js",
+      "hash": "ba772ba9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/business-strategy-route.test.js",
+      "type": "test",
+      "path": "tests/unit/business-strategy-route.test.js",
+      "hash": "70a5d920",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/business-strategy-service.test.js",
+      "type": "test",
+      "path": "tests/unit/business-strategy-service.test.js",
+      "hash": "0dab6997",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/db-boundary.test.js",
       "type": "test",
       "path": "tests/unit/db-boundary.test.js",
       "hash": "0cf8429a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/dependency-map-view.test.js",
+      "type": "test",
+      "path": "tests/unit/dependency-map-view.test.js",
+      "hash": "dc51363c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/design-system.test.js",
+      "type": "test",
+      "path": "tests/unit/design-system.test.js",
+      "hash": "2fb35f1c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/domain-navigation.test.js",
+      "type": "test",
+      "path": "tests/unit/domain-navigation.test.js",
+      "hash": "56a022ff",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/entry-routing-boundary.test.js",
+      "type": "test",
+      "path": "tests/unit/entry-routing-boundary.test.js",
+      "hash": "a6ec2bcd",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/entry-surfaces.test.js",
+      "type": "test",
+      "path": "tests/unit/entry-surfaces.test.js",
+      "hash": "f5cc6be9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/home-scope.test.js",
+      "type": "test",
+      "path": "tests/unit/home-scope.test.js",
+      "hash": "45de87ca",
       "status": "current"
     },
     {
@@ -2268,10 +3859,94 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/overview-split.test.js",
+      "type": "test",
+      "path": "tests/unit/overview-split.test.js",
+      "hash": "e418cfaf",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/people-directory.test.js",
+      "type": "test",
+      "path": "tests/unit/people-directory.test.js",
+      "hash": "cc657879",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/people-route.test.js",
+      "type": "test",
+      "path": "tests/unit/people-route.test.js",
+      "hash": "45124031",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/people-service.test.js",
+      "type": "test",
+      "path": "tests/unit/people-service.test.js",
+      "hash": "85b22003",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/plan-schema.test.js",
       "type": "test",
       "path": "tests/unit/plan-schema.test.js",
       "hash": "2bfad8c0",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/profile-permission-service.test.js",
+      "type": "test",
+      "path": "tests/unit/profile-permission-service.test.js",
+      "hash": "ef92dcd3",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-business-context.test.js",
+      "type": "test",
+      "path": "tests/unit/project-business-context.test.js",
+      "hash": "4ce8a983",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-dependency-map.test.js",
+      "type": "test",
+      "path": "tests/unit/project-dependency-map.test.js",
+      "hash": "29c1cc67",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-dependency-route.test.js",
+      "type": "test",
+      "path": "tests/unit/project-dependency-route.test.js",
+      "hash": "0b75b91f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-dependency-service.test.js",
+      "type": "test",
+      "path": "tests/unit/project-dependency-service.test.js",
+      "hash": "0675840e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-file-service.test.js",
+      "type": "test",
+      "path": "tests/unit/project-file-service.test.js",
+      "hash": "13f93dea",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-team-service.test.js",
+      "type": "test",
+      "path": "tests/unit/project-team-service.test.js",
+      "hash": "418095eb",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-work-route.test.js",
+      "type": "test",
+      "path": "tests/unit/project-work-route.test.js",
+      "hash": "c63d342e",
       "status": "current"
     },
     {
@@ -2282,10 +3957,24 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/scope-view-context.test.js",
+      "type": "test",
+      "path": "tests/unit/scope-view-context.test.js",
+      "hash": "0a6f4793",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/shell-mode.test.js",
       "type": "test",
       "path": "tests/unit/shell-mode.test.js",
-      "hash": "c0804b87",
+      "hash": "48190a69",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/sidebar-visible-subdomains.test.js",
+      "type": "test",
+      "path": "tests/unit/sidebar-visible-subdomains.test.js",
+      "hash": "bc9e9c24",
       "status": "current"
     },
     {
@@ -2293,6 +3982,27 @@
       "type": "test",
       "path": "tests/unit/strategies.test.js",
       "hash": "d55aa65b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/topbar-no-dropdown.test.js",
+      "type": "test",
+      "path": "tests/unit/topbar-no-dropdown.test.js",
+      "hash": "8f8a1ec7",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/viewer-gate.test.js",
+      "type": "test",
+      "path": "tests/unit/viewer-gate.test.js",
+      "hash": "197e1b60",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/wbs-structure.test.js",
+      "type": "test",
+      "path": "tests/unit/wbs-structure.test.js",
+      "hash": "37f2e054",
       "status": "current"
     },
     {
@@ -3710,22 +5420,295 @@
     },
     {
       "from": "code:prisma/seed.js",
+      "to": "req:FR-041",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:prisma/seed.js",
+      "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:prisma/seed.js",
       "to": "req:NFR-007",
       "type": "follows",
       "status": "current",
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(entry)/businesses/page.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/businesses/page.jsx",
+      "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/layout.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/layout.jsx",
+      "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/overview/page.jsx",
-      "to": "req:FR-002",
+      "to": "req:FR-035",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/(pm)/overview/page.jsx",
-      "to": "req:FR-020",
+      "to": "req:FR-041",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/overview/page.jsx",
+      "to": "req:SDD-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/overview/page.jsx",
+      "to": "req:SDD-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/people/directory/page.jsx",
+      "to": "req:FR-042",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/people/page.jsx",
+      "to": "req:FR-042",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/users/page.jsx",
+      "to": "doc:FR-038-profile-and-permissions",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/users/page.jsx",
+      "to": "req:FR-038",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/users/page.jsx",
+      "to": "req:FR-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/users/page.jsx",
+      "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/users/page.jsx",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/profile/page.jsx",
+      "to": "doc:FR-038-profile-and-permissions",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/profile/page.jsx",
+      "to": "req:FR-038",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/profile/page.jsx",
+      "to": "req:FR-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/profile/page.jsx",
+      "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/dependencies/page.jsx",
+      "to": "req:FR-040",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/dependencies/page.jsx",
+      "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "to": "doc:FR-037-project-files",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "to": "req:FR-037",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "to": "req:FR-037",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "to": "req:SDD-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/layout.jsx",
+      "to": "req:FR-040",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/layout.jsx",
+      "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/page.jsx",
+      "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/page.jsx",
+      "to": "req:SDD-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/structure/page.jsx",
+      "to": "req:FR-040",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/structure/page.jsx",
+      "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/team/page.jsx",
+      "to": "doc:FR-036-project-team",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/team/page.jsx",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/team/page.jsx",
+      "to": "req:FR-036",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/team/page.jsx",
+      "to": "req:FR-036",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/team/page.jsx",
+      "to": "req:SDD-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/team/page.jsx",
+      "to": "req:SEC-003",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -3758,6 +5741,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/business/strategy/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/strategy/route.js",
+      "to": "req:FR-041",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/strategy/route.js",
+      "to": "req:SDD-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/docs/route.js",
       "to": "req:FR-019",
       "type": "implements",
@@ -3772,9 +5776,205 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/people/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/people/route.js",
+      "to": "req:FR-042",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/route.js",
+      "to": "doc:FR-038-profile-and-permissions",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/route.js",
+      "to": "req:FR-038",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/route.js",
+      "to": "req:FR-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/route.js",
+      "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/profile/route.js",
+      "to": "doc:FR-038-profile-and-permissions",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/profile/route.js",
+      "to": "req:FR-038",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/profile/route.js",
+      "to": "req:FR-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/profile/route.js",
+      "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/progress/portfolio/route.js",
       "to": "req:FR-020",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/dependencies/route.js",
+      "to": "req:FR-040",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/dependencies/route.js",
+      "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
+      "to": "doc:FR-037-project-files",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
+      "to": "req:FR-037",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
+      "to": "req:FR-037",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
+      "to": "req:SDD-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/route.js",
+      "to": "doc:FR-037-project-files",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/route.js",
+      "to": "req:FR-037",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/route.js",
+      "to": "req:FR-037",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/route.js",
+      "to": "req:SDD-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/team/route.js",
+      "to": "doc:FR-036-project-team",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/team/route.js",
+      "to": "req:FR-036",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/team/route.js",
+      "to": "req:FR-036",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/team/route.js",
+      "to": "req:SDD-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/team/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -3786,6 +5986,146 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/viewer/route.js",
+      "to": "doc:FR-031-viewer-gate",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/viewer/route.js",
+      "to": "req:FR-031",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/viewer/route.js",
+      "to": "req:FR-031",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/viewer/route.js",
+      "to": "req:FR-032",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/viewer/route.js",
+      "to": "req:SDD-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/layout.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/layout.jsx",
+      "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/login/page.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/login/page.jsx",
+      "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/page.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/page.jsx",
+      "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Breadcrumb.jsx",
+      "to": "req:FR-034",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Breadcrumb.jsx",
+      "to": "req:FR-039",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Breadcrumb.jsx",
+      "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Breadcrumb.jsx",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Breadcrumb.jsx",
+      "to": "req:SDD-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/BusinessRoutingShell.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/BusinessRoutingShell.jsx",
+      "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/BusinessShellGuard.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/BusinessShellGuard.jsx",
+      "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/components/layouts/CommandPalette.jsx",
       "to": "req:FR-015",
       "type": "implements",
@@ -3793,16 +6133,163 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/components/layouts/DomainBar.jsx",
+      "to": "doc:FR-038-profile-and-permissions",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/DomainBar.jsx",
+      "to": "req:FR-038",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/DomainBar.jsx",
+      "to": "req:FR-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/DomainBar.jsx",
+      "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/EntryShell.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/EntryShell.jsx",
+      "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Sidebar.jsx",
+      "to": "req:FR-039",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Sidebar.jsx",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/components/layouts/Topbar.jsx",
-      "to": "req:FR-002",
+      "to": "req:FR-033",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/components/layouts/Topbar.jsx",
-      "to": "req:FR-020",
+      "to": "req:FR-039",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Topbar.jsx",
+      "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Topbar.jsx",
+      "to": "req:SDD-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Topbar.jsx",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Topbar.jsx",
+      "to": "req:SDD-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/ui/index.jsx",
+      "to": "req:NFR-008",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/ui/index.jsx",
+      "to": "req:SDD-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
+      "to": "req:FR-039",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
+      "to": "req:FR-042",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/modules.js",
+      "to": "req:FR-039",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/modules.js",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/scope-views.js",
+      "to": "req:FR-039",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/scope-views.js",
+      "to": "req:SDD-018",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -3817,6 +6304,55 @@
       "from": "code:src/context/ScopeContext.jsx",
       "to": "req:FR-020",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/context/ScopeContext.jsx",
+      "to": "req:FR-039",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/context/ScopeContext.jsx",
+      "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/context/ScopeContext.jsx",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/business-routing.js",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/business-routing.js",
+      "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/business-shell-guard.js",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/business-shell-guard.js",
+      "to": "req:SDD-022",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -3824,6 +6360,34 @@
       "from": "code:src/lib/db-boundary.js",
       "to": "req:FR-030",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/home-scope.js",
+      "to": "doc:FR-032-home-entry",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/home-scope.js",
+      "to": "req:FR-032",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/home-scope.js",
+      "to": "req:FR-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/home-scope.js",
+      "to": "req:SDD-011",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -3859,6 +6423,13 @@
       "from": "code:src/lib/shell-mode.js",
       "to": "req:FR-020",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/shell-mode.js",
+      "to": "req:FR-041",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -3982,6 +6553,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/business/application/business-strategy-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/business/application/business-strategy-service.js",
+      "to": "req:FR-041",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/business/application/business-strategy-service.js",
+      "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/business/application/business-strategy-service.js",
+      "to": "req:SDD-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/crm/line-ingest-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -4059,6 +6658,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/profile-permission-service.js",
+      "to": "doc:FR-038-profile-and-permissions",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/profile-permission-service.js",
+      "to": "req:FR-038",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/profile-permission-service.js",
+      "to": "req:FR-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/profile-permission-service.js",
+      "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/profile-permission-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/resolve-line-identity.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -4075,6 +6709,41 @@
     {
       "from": "code:src/modules/identity/resolve-line-identity.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "doc:FR-031-viewer-gate",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:FR-031",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:FR-031",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:FR-038",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:SDD-017",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -4157,6 +6826,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/people/application/people-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/people-service.js",
+      "to": "req:FR-042",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/people-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/components/PeopleDirectory.jsx",
+      "to": "req:FR-042",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/components/PeopleDirectory.jsx",
+      "to": "req:SDD-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "doc:FR-019-enterprise-api",
       "type": "references",
@@ -4213,6 +6917,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/application/dependency-service.js",
+      "to": "req:FR-040",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/dependency-service.js",
+      "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/milestone-gate-service.js",
       "to": "req:FR-006",
       "type": "implements",
@@ -4223,6 +6941,69 @@
       "from": "code:src/modules/project-manager/application/progress-service.js",
       "to": "req:FR-020",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-dependency-map.js",
+      "to": "req:FR-040",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-dependency-map.js",
+      "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-file-service.js",
+      "to": "doc:FR-037-project-files",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-file-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-file-service.js",
+      "to": "req:FR-037",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-file-service.js",
+      "to": "req:FR-037",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-file-service.js",
+      "to": "req:SDD-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-file-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -4249,7 +7030,70 @@
     },
     {
       "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
       "to": "req:SDD-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:SDD-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-team-service.js",
+      "to": "doc:FR-036-project-team",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-team-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-team-service.js",
+      "to": "req:FR-036",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-team-service.js",
+      "to": "req:FR-036",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-team-service.js",
+      "to": "req:SDD-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-team-service.js",
+      "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -4304,8 +7148,36 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/components/ProjectTabs.jsx",
+      "to": "req:FR-040",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/ProjectTabs.jsx",
+      "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/components/useApi.js",
       "to": "req:SDD-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
+      "to": "req:FR-040",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
+      "to": "req:SDD-019",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -4333,6 +7205,13 @@
     },
     {
       "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
       "to": "req:BR-009",
       "type": "follows",
       "status": "current",
@@ -4354,6 +7233,13 @@
     },
     {
       "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
       "to": "req:SDD-006",
       "type": "follows",
       "status": "current",
@@ -4362,6 +7248,20 @@
     {
       "from": "code:src/modules/project-manager/import/plan-import-service.js",
       "to": "req:SDD-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:SDD-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -4465,11 +7365,74 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/views/DependencyMap.jsx",
+      "to": "req:FR-040",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/DependencyMap.jsx",
+      "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
       "to": "req:FR-009",
       "type": "implements",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/WbsCanvas.jsx",
+      "to": "req:FR-040",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/WbsCanvas.jsx",
+      "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "doc:HANDOFF-SHELL-V2-CODEX",
+      "to": "doc:SITEMAP-V2-DOMAIN-NAV",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:HANDOFF-SHELL-V2-CODEX",
+      "to": "req:FR-002",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:HANDOFF-SHELL-V2-CODEX",
+      "to": "req:FR-020",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:HANDOFF-SHELL-V2-CODEX",
+      "to": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "doc:HANDOFF-SHELL-V2-CODEX",
+      "to": "spec:ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
     },
     {
       "from": "req:BR-001",
@@ -4745,6 +7708,104 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-031",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-032",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-033",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-034",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-035",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-036",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-037",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-038",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-039",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-040",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-041",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-042",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-043",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-044",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -4788,6 +7849,13 @@
     },
     {
       "from": "req:NFR-007",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-008",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -4851,6 +7919,97 @@
     },
     {
       "from": "req:SDD-009",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-010",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-011",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-012",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-013",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-014",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-015",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-016",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-017",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-018",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-019",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-020",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-021",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-022",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -5046,15 +8205,428 @@
       "source": "control-block"
     },
     {
-      "from": "test:tests/e2e/smoke.spec.js",
+      "from": "spec:ADR-010-ZURI-HERITAGE-DESIGN-SYSTEM",
+      "to": "req:NFR-008",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-010-ZURI-HERITAGE-DESIGN-SYSTEM",
+      "to": "req:SDD-010",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-010-ZURI-HERITAGE-DESIGN-SYSTEM",
+      "to": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-010-ZURI-HERITAGE-DESIGN-SYSTEM",
+      "to": "spec:ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-010-ZURI-HERITAGE-DESIGN-SYSTEM",
+      "to": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "req:BR-001",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "req:FR-001",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "req:FR-020",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "req:FR-033",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "req:FR-034",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "req:FR-039",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "req:FR-041",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "req:FR-042",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
+      "to": "req:FR-005",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
+      "to": "req:FR-007",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
+      "to": "req:FR-039",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
+      "to": "req:FR-040",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
+      "to": "req:NFR-008",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
+      "to": "req:SDD-019",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
+      "to": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
+      "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
+      "to": "req:BR-001",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
+      "to": "req:FR-035",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
+      "to": "req:FR-039",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
+      "to": "req:FR-041",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
+      "to": "req:FR-042",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
+      "to": "req:SDD-014",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
+      "to": "req:SDD-020",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "to": "req:BR-001",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "to": "req:FR-039",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "to": "req:FR-041",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "to": "req:FR-043",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "to": "req:SDD-018",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "to": "req:SDD-020",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "to": "req:SDD-021",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "to": "req:SEC-001",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "test:tests/e2e/fr040-project-work.spec.js",
+      "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr040-project-work.spec.js",
+      "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "code:prisma/seed.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
     },
     {
-      "from": "test:tests/e2e/smoke.spec.js",
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "code:src/app/(pm)/overview/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "code:src/app/(pm)/people/directory/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "code:src/app/(pm)/people/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "code:src/config/domains.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "code:src/lib/shell-mode.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:NFR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SDD-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr044-entry-routing.spec.js",
+      "to": "code:src/components/layouts/BusinessRoutingShell.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr044-entry-routing.spec.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr044-entry-routing.spec.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:prisma/seed.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
@@ -5076,13 +8648,6 @@
     {
       "from": "test:tests/e2e/smoke.spec.js",
       "to": "code:src/components/layouts/CommandPalette.jsx",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/e2e/smoke.spec.js",
-      "to": "code:src/components/layouts/Topbar.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
@@ -5173,10 +8738,52 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/adaptive-shell.test.js",
@@ -5194,10 +8801,24 @@
     },
     {
       "from": "test:tests/integration/adaptive-shell.test.js",
+      "to": "code:src/lib/shell-mode.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/adaptive-shell.test.js",
       "to": "req:FR-020",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/adaptive-shell.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/agent-action-gate.test.js",
@@ -5439,6 +9060,13 @@
     },
     {
       "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
       "to": "req:BR-009",
       "type": "verifies",
       "status": "current",
@@ -5460,6 +9088,13 @@
     },
     {
       "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -5468,6 +9103,20 @@
     {
       "from": "test:tests/integration/external-ref-import.test.js",
       "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -5775,6 +9424,13 @@
     },
     {
       "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
       "to": "req:BR-009",
       "type": "verifies",
       "status": "current",
@@ -5803,6 +9459,13 @@
     },
     {
       "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -5817,6 +9480,20 @@
     },
     {
       "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SEC-002",
       "type": "verifies",
       "status": "current",
@@ -5825,6 +9502,118 @@
     {
       "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "code:src/modules/project-manager/application/project-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "code:src/modules/project-manager/import/plan-import-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:SDD-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:SDD-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:SEC-002",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -5877,6 +9666,13 @@
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/project-core.test.js",
@@ -5950,7 +9746,42 @@
     },
     {
       "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
       "to": "req:SDD-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -6040,6 +9871,202 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/breadcrumb-switcher.test.js",
+      "to": "code:src/components/layouts/Breadcrumb.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/breadcrumb-switcher.test.js",
+      "to": "req:FR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/breadcrumb-switcher.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/breadcrumb-switcher.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/breadcrumb-switcher.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/breadcrumb-switcher.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-routing-page.test.js",
+      "to": "code:src/app/(entry)/businesses/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-routing-page.test.js",
+      "to": "code:src/components/layouts/BusinessRoutingShell.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-routing-page.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-routing-page.test.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-routing.test.js",
+      "to": "code:src/app/(entry)/businesses/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-routing.test.js",
+      "to": "code:src/lib/business-routing.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-routing.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-routing.test.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-shell-guard.test.js",
+      "to": "code:src/app/(pm)/layout.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-shell-guard.test.js",
+      "to": "code:src/components/layouts/BusinessShellGuard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-shell-guard.test.js",
+      "to": "code:src/lib/business-shell-guard.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-shell-guard.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-shell-guard.test.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-strategy-route.test.js",
+      "to": "code:src/app/api/business/strategy/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-strategy-route.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-strategy-route.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-strategy-route.test.js",
+      "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-strategy-service.test.js",
+      "to": "code:src/modules/business/application/business-strategy-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-strategy-service.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-strategy-service.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-strategy-service.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-strategy-service.test.js",
+      "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/db-boundary.test.js",
       "to": "code:src/lib/db-boundary.js",
       "type": "tests",
@@ -6052,6 +10079,174 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/dependency-map-view.test.js",
+      "to": "code:src/modules/project-manager/views/DependencyMap.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/dependency-map-view.test.js",
+      "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/dependency-map-view.test.js",
+      "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/design-system.test.js",
+      "to": "code:src/components/ui/index.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/design-system.test.js",
+      "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/design-system.test.js",
+      "to": "req:SDD-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "code:src/config/domains.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "code:src/config/modules.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/entry-routing-boundary.test.js",
+      "to": "code:src/app/(pm)/layout.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/entry-routing-boundary.test.js",
+      "to": "code:src/app/layout.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/entry-routing-boundary.test.js",
+      "to": "code:src/components/layouts/BusinessShellGuard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/entry-routing-boundary.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/entry-routing-boundary.test.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "code:src/app/login/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "code:src/app/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "code:src/components/layouts/EntryShell.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/home-scope.test.js",
+      "to": "code:src/lib/home-scope.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/home-scope.test.js",
+      "to": "req:FR-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/home-scope.test.js",
+      "to": "req:SDD-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/ids.test.js",
@@ -6070,6 +10265,111 @@
     {
       "from": "test:tests/unit/ids.test.js",
       "to": "req:SDD-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/overview-split.test.js",
+      "to": "code:src/app/(pm)/overview/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/overview-split.test.js",
+      "to": "req:FR-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/overview-split.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/overview-split.test.js",
+      "to": "req:SDD-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/overview-split.test.js",
+      "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/people-directory.test.js",
+      "to": "code:src/modules/people/components/PeopleDirectory.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/people-directory.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/people-directory.test.js",
+      "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/people-route.test.js",
+      "to": "code:src/app/api/people/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/people-route.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/people-route.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/people-service.test.js",
+      "to": "code:src/modules/people/application/people-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/people-service.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/people-service.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/people-service.test.js",
+      "to": "req:SEC-003",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -6131,6 +10431,314 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "code:src/app/(pm)/platform/users/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "code:src/app/(pm)/profile/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "code:src/app/api/platform/users/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "code:src/app/api/profile/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "code:src/components/layouts/DomainBar.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "code:src/modules/identity/profile-permission-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:FR-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:SDD-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-business-context.test.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-business-context.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-business-context.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-map.test.js",
+      "to": "code:src/modules/project-manager/application/project-dependency-map.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-map.test.js",
+      "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-map.test.js",
+      "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-route.test.js",
+      "to": "code:src/app/api/projects/[id]/dependencies/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-route.test.js",
+      "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-route.test.js",
+      "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-service.test.js",
+      "to": "code:src/modules/project-manager/application/dependency-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-service.test.js",
+      "to": "req:FR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-service.test.js",
+      "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-service.test.js",
+      "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
+      "to": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
+      "to": "code:src/app/api/projects/[id]/files/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
+      "to": "code:src/modules/project-manager/application/project-file-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
+      "to": "req:FR-037",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
+      "to": "req:SDD-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-team-service.test.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/team/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-team-service.test.js",
+      "to": "code:src/app/api/projects/[id]/team/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-team-service.test.js",
+      "to": "code:src/modules/project-manager/application/project-team-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-team-service.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-team-service.test.js",
+      "to": "req:FR-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-team-service.test.js",
+      "to": "req:SDD-015",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-team-service.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/dependencies/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/layout.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/structure/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "code:src/modules/project-manager/components/ProjectTabs.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/rollup.test.js",
       "to": "code:src/modules/project-manager/progress/rollup.js",
       "type": "tests",
@@ -6152,6 +10760,97 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "code:src/components/layouts/Breadcrumb.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "code:src/components/layouts/Topbar.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "code:src/config/scope-views.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "code:src/context/ScopeContext.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:FR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:FR-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:FR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:SDD-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/shell-mode.test.js",
       "to": "code:src/lib/shell-mode.js",
       "type": "tests",
@@ -6161,6 +10860,34 @@
     {
       "from": "test:tests/unit/shell-mode.test.js",
       "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/shell-mode.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
+      "to": "code:src/components/layouts/Sidebar.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
+      "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -6199,6 +10926,132 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/topbar-no-dropdown.test.js",
+      "to": "code:src/components/layouts/Topbar.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/topbar-no-dropdown.test.js",
+      "to": "req:FR-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/topbar-no-dropdown.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/topbar-no-dropdown.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/topbar-no-dropdown.test.js",
+      "to": "req:SDD-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/topbar-no-dropdown.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/topbar-no-dropdown.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "code:src/app/api/viewer/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "code:src/modules/identity/resolve-viewer.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:FR-031",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:FR-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:FR-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:SDD-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:SDD-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/wbs-structure.test.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/structure/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/wbs-structure.test.js",
+      "to": "code:src/modules/project-manager/views/WbsCanvas.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/wbs-structure.test.js",
+      "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/wbs-structure.test.js",
+      "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     }
   ],
   "dangling_edges": []

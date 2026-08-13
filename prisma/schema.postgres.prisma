@@ -39,7 +39,7 @@ model Tenant {
   updatedAt   DateTime @updatedAt
   version     Int      @default(1)
 
-  portfolio          Portfolio          @relation(fields: [portfolioId], references: [id])
+  portfolio          Portfolio           @relation(fields: [portfolioId], references: [id])
   businesses         Business[]
   workspaces         Workspace[]
   memberships        Membership[]
@@ -91,12 +91,15 @@ model Business {
   updatedAt     DateTime @updatedAt
   version       Int      @default(1)
 
-  tenant      Tenant       @relation(fields: [tenantId], references: [id])
-  legalEntity LegalEntity? @relation(fields: [legalEntityId], references: [id])
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
+  legalEntity LegalEntity?      @relation(fields: [legalEntityId], references: [id])
   branches    Branch[]
   workspaces  Workspace[]
   memberships Membership[]
   customers   Customer[]
+  roadmaps    BusinessRoadmap[]
+  goals       BusinessGoal[]
+  projects    Project[]
 
   @@index([tenantId])
 }
@@ -133,14 +136,15 @@ model Person {
 }
 
 model Membership {
-  id          String   @id @default(uuid())
-  personId    String
-  tenantId    String
-  businessId  String?
-  branchId    String?
-  employeeRef String?
-  role        String   @default("OWNER")
-  createdAt   DateTime @default(now())
+  id             String   @id @default(uuid())
+  personId       String
+  tenantId       String
+  businessId     String?
+  branchId       String?
+  employeeRef    String?
+  role           String   @default("OWNER")
+  domainKeysJson String   @default("[]")
+  createdAt      DateTime @default(now())
 
   person   Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
   tenant   Tenant    @relation(fields: [tenantId], references: [id])
@@ -174,9 +178,12 @@ model Workspace {
   @@index([businessId])
 }
 
+// @req FR-043 - direct Business owner plus Development Space context.
+// @spec ADR-014, SDD-021, BR-001
 model Project {
   id          String    @id @default(uuid())
   code        String    @unique
+  businessId  String?
   workspaceId String
   name        String
   description String?
@@ -189,14 +196,95 @@ model Project {
   updatedAt   DateTime  @updatedAt
   version     Int       @default(1)
 
+  business     Business?           @relation(fields: [businessId], references: [id])
   workspace    Workspace           @relation(fields: [workspaceId], references: [id])
   workstreams  Workstream[]
   repositories ProjectRepository[]
+  files        ProjectFile[]
   milestones   Milestone[]
   gates        Gate[]
+  goalLinks    ProjectGoal[]
 
+  @@index([businessId])
   @@index([workspaceId])
   @@index([status])
+}
+
+model BusinessRoadmap {
+  id          String    @id @default(uuid())
+  businessId  String
+  code        String    @unique
+  title       String
+  description String?
+  status      String    @default("ACTIVE")
+  startAt     DateTime?
+  targetAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  version     Int       @default(1)
+
+  business Business                 @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  horizons BusinessRoadmapHorizon[]
+  goals    BusinessGoal[]
+
+  @@index([businessId, status])
+}
+
+model BusinessRoadmapHorizon {
+  id          String    @id @default(uuid())
+  roadmapId   String
+  key         String
+  label       String
+  position    Int
+  description String?
+  targetAt    DateTime?
+  createdAt   DateTime  @default(now())
+
+  roadmap BusinessRoadmap @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  goals   BusinessGoal[]
+
+  @@unique([roadmapId, key])
+  @@unique([roadmapId, position])
+  @@index([roadmapId])
+}
+
+model BusinessGoal {
+  id          String    @id @default(uuid())
+  businessId  String
+  roadmapId   String?
+  horizonId   String?
+  code        String    @unique
+  title       String
+  description String?
+  status      String    @default("PLANNED")
+  priority    String    @default("MEDIUM")
+  progress    Float     @default(0)
+  startAt     DateTime?
+  targetAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  version     Int       @default(1)
+
+  business Business                @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  roadmap  BusinessRoadmap?        @relation(fields: [roadmapId], references: [id])
+  horizon  BusinessRoadmapHorizon? @relation(fields: [horizonId], references: [id])
+  projects ProjectGoal[]
+
+  @@index([businessId, status])
+  @@index([roadmapId])
+  @@index([horizonId])
+}
+
+model ProjectGoal {
+  projectId String
+  goalId    String
+  createdAt DateTime @default(now())
+
+  project Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  goal    BusinessGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, goalId])
+  @@index([goalId])
 }
 
 model Workstream {
@@ -273,6 +361,7 @@ model WorkItem {
 
   workstream Workstream     @relation(fields: [workstreamId], references: [id], onDelete: Cascade)
   container  WorkContainer? @relation(fields: [containerId], references: [id])
+  files      ProjectFile[]
 
   @@index([workstreamId])
   @@index([containerId])
@@ -369,6 +458,31 @@ model ProjectRepository {
   @@index([repoId])
 }
 
+// FR-037 — metadata/reference record for a Project document or attachment.
+// Binary bytes are intentionally outside the offline MVP. `url`/`blobRef` are
+// storage references, never identifiers; the record keeps its own UUID + code.
+model ProjectFile {
+  id         String   @id @default(uuid())
+  code       String   @unique
+  projectId  String
+  workItemId String?
+  name       String
+  mime       String
+  size       Int
+  url        String?
+  blobRef    String?
+  version    Int      @default(1)
+  uploadedBy String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  project  Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  workItem WorkItem? @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([workItemId])
+}
+
 // FR-019 — Enterprise integration: a customer's own core id mapped onto our
 // internal UUID. Generalizes LegalEntityIdentifier / Repository.externalRepoId.
 // An external value is NEVER a primary key and never becomes our `code`
@@ -458,15 +572,15 @@ model Customer {
 }
 
 model Conversation {
-  id              String   @id @default(uuid())
-  tenantId        String
-  businessId      String?
-  customerId      String
-  channel         String // LINE | FACEBOOK | WEB
-  externalThreadId String  @unique
-  status          String   @default("OPEN")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               String   @id @default(uuid())
+  tenantId         String
+  businessId       String?
+  customerId       String
+  channel          String // LINE | FACEBOOK | WEB
+  externalThreadId String   @unique
+  status           String   @default("OPEN")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   customer Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
   messages Message[]

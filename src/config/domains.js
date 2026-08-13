@@ -1,9 +1,16 @@
 import {
-  LayoutDashboard, Layers3, BriefcaseBusiness, ListChecks, GanttChartSquare,
+  LayoutDashboard, BriefcaseBusiness, ListChecks, GanttChartSquare,
   Network, Flag, GitBranch, Rocket, ScrollText, DatabaseBackup, Settings,
   ShoppingCart, Users, Megaphone, UtensilsCrossed, ServerCog, Target,
 } from 'lucide-react'
 
+// @req FR-042 - HR / People is a peer domain with route key `people`.
+// @spec ADR-013, SITEMAP-V2-DOMAIN-NAV
+// @tested tests/unit/domain-navigation.test.js, tests/e2e/fr041-business-first.spec.js
+
+// @req FR-039 — Business-bound ERP domains use display labels without changing route keys.
+// @spec SDD-018, ADR-011
+// @tested tests/unit/domain-navigation.test.js
 // V2 domain registry (SITEMAP-V2-DOMAIN-NAV.md). Tier 2 = domains (the bar under the
 // topbar); Tier 3 = each domain's sub-domains (the left sidebar). The FIRST sub-domain
 // of every domain is always its Dashboard. Domains marked `soon` are reserved slots —
@@ -14,11 +21,11 @@ export const DOMAINS = [
     sub: [{ label: 'Dashboard', path: '/commerce', icon: LayoutDashboard }],
   },
   {
-    key: 'customer', label: 'Customer', icon: Users, soon: true,
+    key: 'customer', label: 'CRM', icon: Users, soon: true,
     sub: [{ label: 'Dashboard', path: '/customer', icon: LayoutDashboard }],
   },
   {
-    key: 'growth', label: 'Growth', icon: Megaphone, soon: true,
+    key: 'growth', label: 'Marketing', icon: Megaphone, soon: true,
     sub: [
       { label: 'Dashboard', path: '/growth', icon: LayoutDashboard },
       // Campaign belongs to marketing (HubSpot-style), NOT the Projects/WBS domain.
@@ -30,23 +37,34 @@ export const DOMAINS = [
     sub: [{ label: 'Dashboard', path: '/operations', icon: LayoutDashboard }],
   },
   {
-    key: 'projects', label: 'Projects', icon: BriefcaseBusiness,
+    // HR / People is a Business domain peer of Development. The internal key is
+    // deliberately `people` so it does not collide with a future `/hr` module.
+    key: 'people', label: 'HR / People', icon: Users, soon: false,
     sub: [
-      { label: 'Dashboard', path: '/overview', icon: LayoutDashboard },
-      { label: 'Workspaces', path: '/workspaces', icon: Layers3 },
+      { label: 'Dashboard', path: '/people', icon: LayoutDashboard },
+      { label: 'People Directory', path: '/people/directory', icon: Users },
+    ],
+  },
+  {
+    // Existing route/RBAC key remains `projects`; only its Business-bound
+    // display label changes so the resource list stays Projects.
+    key: 'projects', label: 'Development', icon: BriefcaseBusiness,
+    sub: [
+      { label: 'Overview', path: '/overview', icon: LayoutDashboard },
       { label: 'Projects', path: '/projects', icon: BriefcaseBusiness },
       { label: 'All Work', path: '/work', icon: ListChecks },
       { label: 'Execution', path: '/execution', icon: Rocket },
       { label: 'Timeline', path: '/timeline', icon: GanttChartSquare },
       { label: 'Dependencies', path: '/dependencies', icon: Network },
-      { label: 'Milestones', path: '/milestones', icon: Flag },
-      { label: 'Repos', path: '/repositories', icon: GitBranch },
+      { label: 'Milestones & Gates', path: '/milestones', icon: Flag },
+      { label: 'Repositories', path: '/repositories', icon: GitBranch },
     ],
   },
   {
     key: 'platform', label: 'Platform', icon: ServerCog,
     sub: [
       { label: 'Dashboard', path: '/settings', icon: LayoutDashboard },
+      { label: 'Users', path: '/platform/users', icon: Users },
       { label: 'Audit', path: '/audit', icon: ScrollText },
       { label: 'Backup', path: '/backup', icon: DatabaseBackup },
       { label: 'Settings', path: '/settings', icon: Settings },

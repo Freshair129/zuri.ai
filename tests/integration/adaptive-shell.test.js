@@ -53,7 +53,7 @@ describe('add a business to the group', () => {
       selection: {},
     })
     expect(two.showBusinessSwitcher).toBe(true)
-    expect(two.landing).toBe('PORTFOLIO')
+    expect(two.landing).toBe('BUSINESS_REQUIRED')
   })
 })
 
