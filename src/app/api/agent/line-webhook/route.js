@@ -4,13 +4,15 @@ import { assertPhase1TransportAuthorization, createPhase1BusinessAgentPortsFromE
 
 // @req FR-050 — return event-correlated verified reply text/skipReply state to the sole
 // LINE transport owner without receiving or consuming the LINE replyToken here.
+// @req FR-051 — enabled production requests resolve scope from a server-owned binding.
 // @spec BR-011 — zuri-cli is the sole LINE reply owner when stack answering is enabled.
+// @spec SDD-026, BR-012, SEC-010 — caller-selected Tenant/Business scope is rejected.
 
 // @req FR-028 — the LINE webhook seam: the zuri-cli LINE bot forwards webhook events
 //   here; each text message becomes one end-to-end agent turn (FR-027) at Gate E.
-// @spec ADR-007 §P7 — LINE is a channel/shell; the turn runs in Zuri. Tenant-scoped:
-//   the body MUST carry a resolved tenantId (zuri-cli resolves OA→tenant), because the
-//   identity seam refuses to mint under an unresolved/DEFAULT tenant (IMPACT-SCAN §4).
+// @spec ADR-007 §P7 — LINE is a channel/shell; the turn runs in Zuri. The legacy-disabled
+//   route accepts resolved scope for compatibility, while the enabled production route
+//   derives scope only from its configured binding (SDD-026).
 // @tested tests/integration/agent-webhook-route.test.js
 
 export const dynamic = 'force-dynamic'
@@ -24,12 +26,19 @@ const zLineEvent = z.object({
   timestamp: z.number().optional(),
 })
 
-const zBody = z.object({
+const zLegacyBody = z.object({
   tenantId: z.string().min(1),
   businessId: z.string().optional(),
   displayName: z.string().optional(),
   events: z.array(zLineEvent).default([]),
 })
+
+const zBoundBody = z.object({
+  bindingId: z.string().min(1),
+  destination: z.string().min(1),
+  displayName: z.string().optional(),
+  events: z.array(zLineEvent).default([]),
+}).strict()
 
 /**
  * POST a normalized LINE webhook batch. Only text-message events drive a turn;
@@ -40,9 +49,13 @@ const zBody = z.object({
 export async function POST(request) {
   return handle(async () => {
     assertPhase1TransportAuthorization(request.headers)
-    const body = zBody.parse(await request.json())
+    const productionBound = process.env.ZURI_LINE_BUSINESS_AGENT_ENABLED === 'true'
+    const body = (productionBound ? zBoundBody : zLegacyBody).parse(await request.json())
     const results = []
-    const phase1Ports = createPhase1BusinessAgentPortsFromEnv()
+    const phase1Ports = productionBound ? createPhase1BusinessAgentPortsFromEnv() : null
+    const scope = productionBound
+      ? await phase1Ports.binding.resolve({ bindingId: body.bindingId, destination: body.destination })
+      : { tenantId: body.tenantId, businessId: body.businessId }
 
     for (const ev of body.events) {
       if (ev.type !== 'message' || ev.message?.type !== 'text') {
@@ -58,8 +71,8 @@ export async function POST(request) {
       try {
         const eventId = ev.webhookEventId || ev.message.id
         const turn = await handleAgentTurn({
-          tenantId: body.tenantId,
-          businessId: body.businessId,
+          tenantId: scope.tenantId,
+          businessId: scope.businessId,
           lineUserId,
           displayName: body.displayName,
           threadId,

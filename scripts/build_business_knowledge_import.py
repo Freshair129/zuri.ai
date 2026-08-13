@@ -1,7 +1,7 @@
 """Build a validated direct-Postgres import transaction for approved knowledge JSONL."""
 
-# @req FR-047 - reconciled DuckDB-to-Supabase business-knowledge migration.
-# @spec SDD-025, SEC-009
+# @req FR-047, FR-051 - reconciled import mapped to reserved production scope.
+# @spec SDD-025, SDD-026, SEC-009, SEC-010
 # @tested tests/python/test_build_business_knowledge_import.py
 
 from __future__ import annotations
@@ -21,6 +21,11 @@ PUBLIC_FIELDS = (
     "contract_version",
 )
 
+SMARTGIFT_SOURCE_BUSINESS = "smartgift"
+SMARTGIFT_TENANT_ID = "77cdbe70-3111-4a04-922a-8059be99a8b0"
+SMARTGIFT_BUSINESS_ID = "834fa869-62f3-431c-a287-e9a95e91175b"
+BOOTSTRAP_BATCH_ID = "948076f9-6a0-43f3-88f5-d7225345ac8a"
+
 
 def _load_records(path: Path) -> tuple[list[dict[str, Any]], bytes]:
     artifact = path.read_bytes()
@@ -37,6 +42,8 @@ def _load_records(path: Path) -> tuple[list[dict[str, Any]], bytes]:
             raise ValueError("only PUBLIC PRODUCT knowledge is importable")
         if record["contract_version"] != "1.0.0":
             raise ValueError("unsupported business-knowledge contract version")
+        if record["business_id"] != SMARTGIFT_SOURCE_BUSINESS:
+            raise ValueError("artifact business_id is not the approved SmartGift source code")
         sha = str(record["source_sha256"]).lower()
         if len(sha) != 64 or any(ch not in "0123456789abcdef" for ch in sha):
             raise ValueError("source_sha256 must be 64 lowercase hex characters")
@@ -73,18 +80,18 @@ begin;
 set local statement_timeout = '60s';
 
 create temporary table zuri_business_knowledge_import
-(like public.business_knowledge including defaults)
+(like zuri_core.business_knowledge including defaults)
 on commit drop;
 
 insert into zuri_business_knowledge_import (
-  knowledge_id, business_id, knowledge_type, product_code, name, category, description,
+  knowledge_id, tenant_id, business_id, knowledge_type, product_code, name, category, description,
   unit, sell_price, currency, moq, colors, specification, source_ref, source_sha256,
-  as_of, approved_at, is_active, sensitivity, contract_version
+  as_of, approved_at, is_active, sensitivity, contract_version, bootstrap_batch_id
 )
 select
-  knowledge_id, business_id, knowledge_type, product_code, name, category, description,
+  knowledge_id, '{SMARTGIFT_TENANT_ID}', '{SMARTGIFT_BUSINESS_ID}', knowledge_type, product_code, name, category, description,
   unit, sell_price, currency, moq, colors, specification, source_ref, source_sha256,
-  as_of, approved_at, is_active, sensitivity, contract_version
+  as_of, approved_at, is_active, sensitivity, contract_version, '{BOOTSTRAP_BATCH_ID}'
 from jsonb_to_recordset(
   convert_from(decode('{encoded}', 'base64'), 'UTF8')::jsonb
 ) as incoming (
@@ -103,17 +110,17 @@ begin
 end
 $zuri_validation$;
 
-insert into public.business_knowledge (
-  knowledge_id, business_id, knowledge_type, product_code, name, category, description,
+insert into zuri_core.business_knowledge (
+  knowledge_id, tenant_id, business_id, knowledge_type, product_code, name, category, description,
   unit, sell_price, currency, moq, colors, specification, source_ref, source_sha256,
-  as_of, approved_at, is_active, sensitivity, contract_version
+  as_of, approved_at, is_active, sensitivity, contract_version, bootstrap_batch_id
 )
 select
-  knowledge_id, business_id, knowledge_type, product_code, name, category, description,
+  knowledge_id, tenant_id, business_id, knowledge_type, product_code, name, category, description,
   unit, sell_price, currency, moq, colors, specification, source_ref, source_sha256,
-  as_of, approved_at, is_active, sensitivity, contract_version
+  as_of, approved_at, is_active, sensitivity, contract_version, bootstrap_batch_id
 from zuri_business_knowledge_import
-on conflict (business_id, product_code) do update set
+on conflict (tenant_id, business_id, product_code) do update set
   knowledge_id = excluded.knowledge_id,
   knowledge_type = excluded.knowledge_type,
   name = excluded.name,
@@ -131,7 +138,8 @@ on conflict (business_id, product_code) do update set
   approved_at = excluded.approved_at,
   is_active = excluded.is_active,
   sensitivity = excluded.sensitivity,
-  contract_version = excluded.contract_version;
+  contract_version = excluded.contract_version,
+  bootstrap_batch_id = excluded.bootstrap_batch_id;
 
 select count(*) as imported_rows from zuri_business_knowledge_import;
 commit;

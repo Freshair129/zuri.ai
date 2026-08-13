@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '@/modules/project-manager/application/scope-service'
 import { POST } from '@/app/api/agent/line-webhook/route'
+import crypto from 'node:crypto'
 
 // @req FR-050 — event-correlated reply payload, bearer boundary, and no local token consumption.
 
@@ -10,10 +11,10 @@ import { POST } from '@/app/api/agent/line-webhook/route'
 
 let tenant, business
 
-function post(body) {
+function post(body, headers = {}) {
   return POST(new Request('http://local/api/agent/line-webhook', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...headers },
     body: JSON.stringify(body),
   }))
 }
@@ -76,6 +77,46 @@ describe('POST /api/agent/line-webhook (FR-028)', () => {
       else process.env.ZURI_LINE_BUSINESS_AGENT_ENABLED = previousEnabled
       if (previousToken === undefined) delete process.env.ZURI_LINE_TRANSPORT_TOKEN
       else process.env.ZURI_LINE_TRANSPORT_TOKEN = previousToken
+    }
+  })
+
+  it('rejects caller-selected Tenant/Business scope when production binding mode is enabled', async () => {
+    const keys = ['ZURI_LINE_BUSINESS_AGENT_ENABLED', 'ZURI_LINE_TRANSPORT_TOKEN']
+    const previous = Object.fromEntries(keys.map((key) => [key, process.env[key]]))
+    process.env.ZURI_LINE_BUSINESS_AGENT_ENABLED = 'true'
+    process.env.ZURI_LINE_TRANSPORT_TOKEN = 'transport-secret-long-enough'
+    try {
+      const res = await post(
+        { tenantId: tenant.id, businessId: business.id, events: [] },
+        { authorization: 'Bearer transport-secret-long-enough' },
+      )
+      expect(res.status).toBe(400)
+    } finally {
+      for (const key of keys) previous[key] === undefined ? delete process.env[key] : process.env[key] = previous[key]
+    }
+  })
+
+  it('resolves an enabled non-message batch through the server-owned binding', async () => {
+    const config = {
+      ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true', ZURI_LINE_TRANSPORT_TOKEN: 'transport-secret-long-enough',
+      ZURI_LINE_DATABASE_URL: 'postgresql://zuri_line_smartgift_ro:secret@db.example/zuri',
+      ZURI_LINE_BINDING_ID: 'binding-1', ZURI_LINE_BINDING_DESTINATION_SHA256: crypto.createHash('sha256').update('destination-1').digest('hex'),
+      ZURI_LINE_BINDING_TENANT_ID: tenant.id, ZURI_LINE_BINDING_BUSINESS_ID: business.id,
+      ZURI_LINE_BINDING_STATUS: 'ACTIVE', ZURI_MODEL_PROVIDER: 'groq', ZURI_MODEL_NAME: 'model',
+      ZURI_MODEL_CREDENTIAL: 'provider-secret',
+    }
+    const previous = Object.fromEntries(Object.keys(config).map((key) => [key, process.env[key]]))
+    Object.assign(process.env, config)
+    try {
+      const res = await post(
+        { bindingId: 'binding-1', destination: 'destination-1', events: [{ type: 'follow' }] },
+        { authorization: 'Bearer transport-secret-long-enough' },
+      )
+      expect(res.status).toBe(200)
+      const json = await res.json()
+      expect(json.results).toEqual([{ skipped: true, type: 'follow' }])
+    } finally {
+      for (const key of Object.keys(config)) previous[key] === undefined ? delete process.env[key] : process.env[key] = previous[key]
     }
   })
 

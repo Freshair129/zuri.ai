@@ -62,7 +62,10 @@ class BusinessKnowledgeImportTests(unittest.TestCase):
 
         self.assertIn("begin;", sql.lower())
         self.assertIn("jsonb_to_recordset", sql)
-        self.assertIn("on conflict (business_id, product_code)", sql.lower())
+        self.assertIn("zuri_core.business_knowledge", sql)
+        self.assertIn("77cdbe70-3111-4a04-922a-8059be99a8b0", sql)
+        self.assertIn("834fa869-62f3-431c-a287-e9a95e91175b", sql)
+        self.assertIn("on conflict (tenant_id, business_id, product_code)", sql.lower())
         self.assertIn("commit;", sql.lower())
         self.assertNotIn("ของขวัญ", sql)
 

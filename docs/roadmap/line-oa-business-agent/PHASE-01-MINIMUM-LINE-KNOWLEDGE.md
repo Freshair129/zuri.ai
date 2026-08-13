@@ -80,10 +80,10 @@ sequenceDiagram
 |---|---|---|
 | P1-W0 | Implemented | FR-047..050, NFR-010, BR-011, SDD-025 and SEC-009 registered; ADR-007 amended; doc graph/preflight pass |
 | P1-W1 | Implemented | Strict public projection and registered-query contract; PII/cost/margin/invoice fields rejected |
-| P1-W2 | Approved export ready, production isolation gate | Owner designated Supabase project `qcnmhyglarzcpudjorzc`. Reconciled export contains 74 price-disabled rows. ADR-018/ZV2-CR-004 must be approved and implemented before upload because the current table/REST adapter does not yet provide production tenant isolation; no database credential is configured and SQL has not run remotely |
+| P1-W2 | Local isolation implemented; remote gate | Owner designated Supabase project `qcnmhyglarzcpudjorzc`. Reconciled export contains 74 price-disabled rows. FR-051 adds private-schema/composite-FK/RLS SQL and internal UUID mapping; no database credential is configured and SQL has not run remotely |
 | P1-W3 | Implemented, configuration pending | Five provider adapters, bounded fetch, OpenRouter OAuth PKCE helper and server-only environment boundary pass tests; no real credential has been installed |
 | P1-W4 | Implemented | Evidence packet, deterministic fallback, unsupported-number/code rejection and provider-failure fallback pass tests |
-| P1-W5 | Implemented locally | Internal bearer, event correlation, one reply owner and hashed dedupe across restart pass; real LINE canary is pending |
+| P1-W5 | Implemented locally | Internal bearer, server-owned binding/destination scope, event correlation, one reply owner and hashed dedupe across restart pass; real LINE canary is pending |
 | P1-W6 | Partially complete | Full automated suites/build/docs pass; 20 approved business golden questions and real canary remain blocked by approved product dataset and credentials |
 
 This status does not claim Supabase deployment, production traffic, provider configuration,

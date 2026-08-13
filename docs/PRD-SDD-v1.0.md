@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.32.0 |
+| **Version** | 1.33.0 |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -56,6 +56,7 @@
 | 1.32.0 | 2026-08-14 | ATHER | FR-046 implemented: trusted request-session seam, minimized `/api/entry`, explicit local demo session, protected-route migration and cross-tenant/browser proof |
 
 | 1.32.0 | 2026-08-14 | ATHER | Owner-approved Phase 1 LINE business agent: FR-047..050 + NFR-010 + BR-011 + SEC-009 + SDD-025; curated SmartGift knowledge, provider port, grounded answer and single-reply delivery |
+| 1.33.0 | 2026-08-14 | ATHER | Owner-approved ADR-018 / CR-004 local hardening: FR-051 + NFR-011 + BR-012 + SDD-026 + SEC-010; server-owned LINE binding, tenant-leading knowledge reads and no service-role runtime |
 
 ## Referenced Standards
 
@@ -150,6 +151,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-048 | Provider selection contract: `ModelProviderPort` normalizes OpenRouter OAuth credential references and API-key adapters for OpenAI, Anthropic, Gemini and Groq. Public LINE cannot select consumer-plan CLI credentials, and automatic fallback is disabled. | Phase 1 active - owner-approved 2026-08-14 |
 | FR-049 | Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient. | Phase 1 active - owner-approved 2026-08-14 |
 | FR-050 | Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics. | Phase 1 active - owner-approved 2026-08-14 |
+| FR-051 | Production-isolated LINE knowledge entry: an enabled LINE request supplies only a binding identifier, destination proof and normalized events. Zuri resolves the active binding to immutable Tenant/Business scope, and knowledge reads use a tenant-leading private-schema query through a least-privilege database role. Client-selected Tenant/Business scope and Supabase secret/service-role runtime credentials are rejected. | Local hardening approved 2026-08-14; remote deployment remains gated |
 
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
 > superseded for the operational shell. Home may show Organization/Portfolio ancestry
@@ -171,6 +173,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | NFR-009 | Local file operations are crash-recoverable and portable: authoritative metadata survives restart/remount, cache is fully rebuildable, absolute device paths never become identity, and canonical results are available when cache is stale or absent. | FR-045 unit/integration/remount/cache parity gates |
 
 | NFR-010 | LINE business answers fail closed within a bounded request deadline: network calls use explicit timeouts/cancellation, duplicate delivery is idempotent, provider failure cannot expose secrets or raw data, and offline/local evaluation remains possible through an injected adapter. | FR-047..050 contract, timeout and redelivery tests |
+| NFR-011 | Production LINE knowledge fails closed before model work when binding, destination, database role, Tenant/Business ancestry or runtime configuration is missing/mismatched. Database calls use bounded timeouts and never log connection strings, bearer tokens or raw credentials. | FR-051 isolation/configuration tests |
 
 ## 1.5 Business rules
 
@@ -188,6 +191,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | BR-010 | SQLite is the sole transactional authority for file identity and relations. Filesystem content and `.zuri/cache` are projections/storage, never a second writable relationship database; Business aggregation must query IDs/links and never duplicate a file merely to show it in another view. |
 
 | BR-011 | A LINE event has exactly one reply owner. When stack answering is enabled, `zuri-cli` owns signature verification and Reply API transport while `zuri-ai` owns knowledge/provider/answer policy; the legacy local answer path must not also consume the same `replyToken`. |
+| BR-012 | Public LINE callers cannot choose `tenantId` or `businessId`. The active server-owned binding is the sole authority for channel Tenant/Business scope; unknown, inactive, expired or destination-mismatched bindings are denied before knowledge/model work. |
 
 ## 1.6 Acceptance criteria
 
@@ -243,6 +247,7 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SDD-024 | A provider-neutral `SessionPort` resolves trusted request identity before `resolveViewer()`. `GET /api/entry` queries outward only from viewer-visible Business IDs and returns minimal Business plus Portfolio/Tenant ancestry in one response. `/businesses` stops consuming broad `/api/scope`; `/api/viewer` remains compatibility-only and uses the same trusted seam. | Implemented beta; FR-046, ADR-017, SEC-008, ZV2-CR-002 |
 
 | SDD-025 | The Phase 1 LINE pilot is a ports-and-adapters vertical slice. `BusinessKnowledgeReadPort` owns registered bounded reads, `ModelProviderPort` owns normalized generation, and the grounded-answer service verifies evidence before returning reply text. `zuri-cli` remains the only LINE signature/reply transport. Supabase is operational relational storage; GenesisBlockDB/MSP/GKS are not Phase 1 dependencies. | FR-047..050; ADR-007 amendment; ZV2-CR-003 |
+| SDD-026 | Production LINE composition separates `LineChannelBindingResolver`, a tenant-bound direct-Postgres `BusinessKnowledgeReadPort`, and `ModelProviderPort`. The resolver owns Tenant/Business scope; the knowledge adapter issues only registered parameterized reads against `zuri_core.business_knowledge`; production configuration rejects migration, postgres, service-role and secret-key identities. | FR-051; ADR-018; ZV2-CR-004 |
 
 ## 2.3 Security requirements
 
@@ -258,6 +263,7 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SEC-008 | Pre-shell identity and authorization fail closed: principal, role, platform grant, visible Business IDs and domains come only from a trusted server session plus persisted authority. Missing/invalid sessions return 401 before scope queries; adapter failure returns 503; production can never activate the seeded-owner demo fallback. | Implemented beta; ADR-017 / FR-046 security gate |
 
 | SEC-009 | Public LINE knowledge access is server-only and deny-by-default: server-owned tenant/business binding, no public service-role key, explicit Supabase grants plus RLS for exposed tables, allow-listed fields/queries, prompt-data treated as untrusted, and secrets/PII/cost/margin/invoice data excluded from prompts, logs and responses. | Phase 1 security gate; FR-047..050 / ZV2-CR-003 |
+| SEC-010 | Production knowledge rows carry non-null Tenant and Business IDs with composite ancestry enforcement; base tables live outside `public`, forced RLS is deny-by-default, and the LINE runtime uses a scope-bound `NOBYPASSRLS` read role. Inbound body scope and Supabase service/secret keys are prohibited. | Local migration/route/runtime contract implemented; remote probes pending |
 
 ## 2.4 API / DB / Testing / Deployment
 

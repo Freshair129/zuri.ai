@@ -1,8 +1,8 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-08-14T03:52:31+07:00,ATHER"
-last_update: "2026-08-14T03:52:31+07:00,ATHER"
-status: "candidate"
+last_update: "2026-08-14T05:10:00+07:00,ATHER"
+status: "beta"
 superseded_by: null
 attributes:
   domain: "data-security"
@@ -12,12 +12,12 @@ attributes:
 
 # ADR-018 — Supabase production tenant isolation
 
-**Status:** Candidate — awaiting owner approval
+**Status:** Beta — owner approved local implementation; remote mutation remains gated
 
 | Field | Value |
 |---|---|
-| **Version** | 0.1.0b |
-| **Status** | Candidate — awaiting owner approval |
+| **Version** | 0.2.0b |
+| **Status** | Beta — local implementation approved; remote mutation gated |
 | **Project** | `qcnmhyglarzcpudjorzc` |
 
 ## Context and observed risk
@@ -253,10 +253,11 @@ unchanged. Production rollback never drops the whole Supabase project or deletes
 
 ## Approval gate
 
-This ADR reserves identifiers and proposes the production boundary only. It does not claim the
-remote database was inspected or changed. After owner approval, implementation starts test-first
-with remote read-only inventory, then creates migrations and applies them only with an approved
-database migration credential supplied through the local secret environment.
+The owner approved local implementation with `fix it` on 2026-08-14. This approval authorizes
+tests, private-schema migrations, server-owned binding resolution and least-privilege runtime
+ports in the repository. It does not authorize remote database mutation or production traffic.
+Remote inventory and application still require an approved migration credential supplied through
+the local secret environment.
 
 Canonical requirement labels are intentionally not registered in the PRD yet. Registration happens
 with the first real code/test anchors after approval so the document graph does not claim false
@@ -267,3 +268,4 @@ implementation coverage.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | candidate | Proposed production Supabase schemas, stable IDs, composite tenancy, RLS roles, LINE binding and gated bootstrap | working-tree | ATHER |
+| 0.2.0b | 2026-08-14 | beta | Owner approved local isolation implementation; remote inventory, migration and canary remain gated | working-tree | ATHER |

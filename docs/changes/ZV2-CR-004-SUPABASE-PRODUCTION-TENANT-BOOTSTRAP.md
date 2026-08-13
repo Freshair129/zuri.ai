@@ -1,8 +1,8 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-08-14T03:52:31+07:00,ATHER"
-last_update: "2026-08-14T03:52:31+07:00,ATHER"
-status: "candidate"
+last_update: "2026-08-14T05:10:00+07:00,ATHER"
+status: "beta"
 superseded_by: null
 attributes:
   domain: "data-security"
@@ -63,6 +63,13 @@ Business isolation before importing the approved 74-row knowledge dataset or ena
 - rollback is rehearsed without deleting source or unrelated database data; and
 - docs graph/preflight, tests and build pass.
 
+## Local implementation result
+
+Repository-local scope approved on 2026-08-14 now provides FR-051/SDD-026/SEC-010 anchors,
+private tenant-aware migration SQL, reserved inactive binding metadata, a scope-bound direct
+Postgres reader, strict binding-owned webhook scope, and internal-UUID import mapping. No remote
+inventory, migration, credential installation, data upload or LINE enablement was performed.
+
 ## Out of scope
 
 - enabling production LINE traffic;
@@ -79,3 +86,4 @@ test anchor exists yet. This prevents false coverage in the generated document g
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | candidate | Proposed production isolation bootstrap and implementation gate | working-tree | ATHER |
+| 0.2.0b | 2026-08-14 | beta | Owner approved repository-local hardening; remote mutation and production enablement remain gated | working-tree | ATHER |

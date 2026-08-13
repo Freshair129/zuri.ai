@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
+import crypto from 'node:crypto'
 import { assertPhase1TransportAuthorization, createPhase1BusinessAgentPortsFromEnv } from '@/modules/agent/phase1-runtime'
 import { createOpenRouterAuthorization, exchangeOpenRouterCode } from '@/modules/agent/openrouter-oauth'
 
@@ -12,20 +13,36 @@ describe('Phase 1 business-agent runtime', () => {
     expect(() => createPhase1BusinessAgentPortsFromEnv({ ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true' })).toThrow(/configuration/i)
   })
 
-  it('builds Supabase and selected provider ports from server-only environment values', () => {
+  it('builds tenant-bound Postgres and selected provider ports from server-only values', () => {
     const ports = createPhase1BusinessAgentPortsFromEnv({
       ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true',
-      SUPABASE_URL: 'https://example.supabase.co',
-      SUPABASE_SECRET_KEY: 'server-only',
+      ZURI_LINE_DATABASE_URL: 'postgresql://zuri_line_smartgift_ro:secret@db.example/zuri',
+      ZURI_LINE_BINDING_ID: 'binding-1',
+      ZURI_LINE_BINDING_DESTINATION_SHA256: crypto.createHash('sha256').update('destination-1').digest('hex'),
+      ZURI_LINE_BINDING_TENANT_ID: 'tenant-1',
+      ZURI_LINE_BINDING_BUSINESS_ID: 'business-1',
+      ZURI_LINE_BINDING_STATUS: 'ACTIVE',
       ZURI_MODEL_PROVIDER: 'groq',
       ZURI_MODEL_NAME: 'llama-test',
       ZURI_MODEL_CREDENTIAL: 'provider-secret',
       ZURI_LINE_TRANSPORT_TOKEN: 'transport-secret-long-enough',
-    }, { fetchFn: vi.fn() })
+    }, { fetchFn: vi.fn(), queryFn: vi.fn() })
     expect(ports.businessKnowledge.query).toBeTypeOf('function')
     expect(ports.model.provider).toBe('groq')
-    expect(JSON.stringify(ports)).not.toContain('server-only')
+    expect(ports.binding.resolve).toBeTypeOf('function')
+    expect(JSON.stringify(ports)).not.toContain('postgresql://')
     expect(JSON.stringify(ports)).not.toContain('provider-secret')
+  })
+
+  it('rejects Supabase secret/service-role and migration-role production configuration', () => {
+    const base = {
+      ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true', ZURI_MODEL_PROVIDER: 'groq', ZURI_MODEL_NAME: 'm',
+      ZURI_MODEL_CREDENTIAL: 'provider-secret', ZURI_LINE_TRANSPORT_TOKEN: 'transport-secret-long-enough',
+      ZURI_LINE_BINDING_ID: 'binding-1', ZURI_LINE_BINDING_DESTINATION_SHA256: crypto.createHash('sha256').update('destination-1').digest('hex'),
+      ZURI_LINE_BINDING_TENANT_ID: 'tenant-1', ZURI_LINE_BINDING_BUSINESS_ID: 'business-1', ZURI_LINE_BINDING_STATUS: 'ACTIVE',
+    }
+    expect(() => createPhase1BusinessAgentPortsFromEnv({ ...base, SUPABASE_SECRET_KEY: 'forbidden', ZURI_LINE_DATABASE_URL: 'postgresql://zuri_line_smartgift_ro:x@db/zuri' })).toThrow(/forbidden/i)
+    expect(() => createPhase1BusinessAgentPortsFromEnv({ ...base, ZURI_LINE_DATABASE_URL: 'postgresql://postgres:x@db/zuri' })).toThrow(/role/i)
   })
 
   it('requires a server-to-server bearer token before Phase 1 work', () => {
