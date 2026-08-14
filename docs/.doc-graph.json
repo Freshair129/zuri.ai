@@ -3,26 +3,26 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 650,
-    "total_edges": 1152,
+    "total_nodes": 695,
+    "total_edges": 1254,
     "dangling_edges": 0,
     "node_types": {
-      "document": 75,
-      "adr": 17,
+      "document": 80,
+      "adr": 18,
       "appendix": 5,
-      "roadmap": 9,
+      "roadmap": 17,
       "v1_inherited": 234,
-      "requirement": 97,
-      "test": 81,
-      "code_file": 132
+      "requirement": 111,
+      "test": 90,
+      "code_file": 140
     },
     "coverage": {
-      "requirements": 97,
-      "fr_with_code": "100% (46/46)",
-      "fr_with_tests": "100% (46/46)",
-      "rules_anchored_in_code": "88% (37/42)",
-      "nfr_evidence_based": "9 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 132,
+      "requirements": 111,
+      "fr_with_code": "100% (52/52)",
+      "fr_with_tests": "100% (52/52)",
+      "rules_anchored_in_code": "90% (43/48)",
+      "nfr_evidence_based": "11 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 140,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -392,11 +392,19 @@
       "id": "code:src/app/api/agent/line-webhook/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
-      "hash": "cc8c0a52",
+      "hash": "4c06a2a1",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-028"
+          "FR-050",
+          "FR-028",
+          "FR-052"
+        ],
+        "@spec": [
+          "BR-011",
+          "BR-012",
+          "SDD-026",
+          "SEC-010"
         ],
         "@tested": [
           "tests/integration/agent-webhook-route.test.js"
@@ -1439,21 +1447,82 @@
       }
     },
     {
+      "id": "code:src/modules/agent/grounded-business-answer.js",
+      "type": "code_file",
+      "path": "src/modules/agent/grounded-business-answer.js",
+      "hash": "3aeb7504",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-049"
+        ],
+        "@spec": [
+          "SDD-025",
+          "SEC-009"
+        ],
+        "@tested": [
+          "tests/unit/grounded-business-answer.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/agent/index.js",
       "type": "code_file",
       "path": "src/modules/agent/index.js",
-      "hash": "1269aa77",
+      "hash": "5e235bac",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-025",
           "FR-026",
           "FR-027",
-          "FR-029"
+          "FR-029",
+          "FR-048",
+          "FR-049"
         ],
         "@tested": [
           "tests/integration/agent-context.test.js",
           "tests/integration/agent-action-gate.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/line-binding-resolver.js",
+      "type": "code_file",
+      "path": "src/modules/agent/line-binding-resolver.js",
+      "hash": "4b4d81ff",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-052"
+        ],
+        "@spec": [
+          "SDD-026",
+          "SEC-010"
+        ],
+        "@tested": [
+          "tests/unit/line-binding-resolver.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/line-channel-binding.js",
+      "type": "code_file",
+      "path": "src/modules/agent/line-channel-binding.js",
+      "hash": "a98aa9ce",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-051"
+        ],
+        "@spec": [
+          "SDD-026",
+          "BR-012",
+          "SEC-010"
+        ],
+        "@tested": [
+          "tests/unit/line-channel-binding.test.js",
+          "tests/integration/agent-webhook-route.test.js"
         ]
       }
     },
@@ -1473,6 +1542,25 @@
       }
     },
     {
+      "id": "code:src/modules/agent/model-provider.js",
+      "type": "code_file",
+      "path": "src/modules/agent/model-provider.js",
+      "hash": "64009f74",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-048"
+        ],
+        "@spec": [
+          "SDD-025",
+          "SEC-009"
+        ],
+        "@tested": [
+          "tests/unit/model-provider-port.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/agent/msp-memory-port.js",
       "type": "code_file",
       "path": "src/modules/agent/msp-memory-port.js",
@@ -1484,6 +1572,47 @@
         ],
         "@tested": [
           "tests/integration/agent-msp-port.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/openrouter-oauth.js",
+      "type": "code_file",
+      "path": "src/modules/agent/openrouter-oauth.js",
+      "hash": "48c7fb21",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-048"
+        ],
+        "@spec": [
+          "SEC-009"
+        ],
+        "@tested": [
+          "tests/unit/phase1-business-agent-runtime.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/phase1-runtime.js",
+      "type": "code_file",
+      "path": "src/modules/agent/phase1-runtime.js",
+      "hash": "aa452132",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-047",
+          "FR-048",
+          "FR-052"
+        ],
+        "@spec": [
+          "SDD-025",
+          "SDD-026",
+          "SEC-009",
+          "SEC-010"
+        ],
+        "@tested": [
+          "tests/unit/phase1-business-agent-runtime.test.js"
         ]
       }
     },
@@ -1536,7 +1665,7 @@
       "id": "code:src/modules/agent/turn.js",
       "type": "code_file",
       "path": "src/modules/agent/turn.js",
-      "hash": "d7732f98",
+      "hash": "1348f706",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1791,6 +1920,25 @@
       }
     },
     {
+      "id": "code:src/modules/knowledge/business-contract.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/business-contract.js",
+      "hash": "3b32d708",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-047"
+        ],
+        "@spec": [
+          "SDD-025",
+          "SEC-009"
+        ],
+        "@tested": [
+          "tests/unit/business-knowledge-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/genesisblockdb-sink.js",
       "type": "code_file",
       "path": "src/modules/knowledge/genesisblockdb-sink.js",
@@ -1824,7 +1972,7 @@
       "id": "code:src/modules/knowledge/index.js",
       "type": "code_file",
       "path": "src/modules/knowledge/index.js",
-      "hash": "c809a132",
+      "hash": "f833cec8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1848,6 +1996,25 @@
         ],
         "@tested": [
           "tests/integration/knowledge-project.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/postgres-business-knowledge.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/postgres-business-knowledge.js",
+      "hash": "5f9130c4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-051"
+        ],
+        "@spec": [
+          "SDD-026",
+          "SEC-010"
+        ],
+        "@tested": [
+          "tests/unit/postgres-business-knowledge.test.js"
         ]
       }
     },
@@ -2577,7 +2744,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.4.0",
       "doc_status": "Draft",
-      "hash": "72ac5c63",
+      "hash": "0955b266",
       "status": "current"
     },
     {
@@ -2585,7 +2752,7 @@
       "type": "document",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
       "title": "Acceptance Criteria",
-      "hash": "0a57895e",
+      "hash": "23ba4e82",
       "status": "current"
     },
     {
@@ -2651,7 +2818,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "19d4427e",
+      "hash": "ee44aea7",
       "status": "current"
     },
     {
@@ -2745,7 +2912,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "3b2d22e3",
+      "hash": "ef191924",
       "status": "current"
     },
     {
@@ -2922,6 +3089,30 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-047-line-business-knowledge-pilot",
+      "type": "document",
+      "path": "docs/features/FR-047-line-business-knowledge-pilot.md",
+      "title": "LINE business-knowledge pilot",
+      "hash": "27070f51",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-051-production-supabase-tenant-isolation",
+      "type": "document",
+      "path": "docs/features/FR-051-production-supabase-tenant-isolation.md",
+      "title": "FR-051 — Production Supabase tenant isolation",
+      "hash": "a4e724d9",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-052-server-owned-line-scope-binding",
+      "type": "document",
+      "path": "docs/features/FR-052-server-owned-line-scope-binding.md",
+      "title": "FR-052 — Server-owned LINE scope binding",
+      "hash": "4379cf28",
+      "status": "current"
+    },
+    {
       "id": "doc:fr045-w0-brief",
       "type": "document",
       "path": "docs/.rwang-tasks/fr045-w0-brief.md",
@@ -3064,7 +3255,7 @@
       "title": "Zuri V2 — Interface Inventory and Shell Boundary",
       "version": "0.4.0",
       "doc_status": "FR-044 and FR-046 verified beta",
-      "hash": "b87327cc",
+      "hash": "901c4e23",
       "status": "current"
     },
     {
@@ -3162,6 +3353,62 @@
       "status": "current"
     },
     {
+      "id": "doc:PHASE-01-MINIMUM-LINE-KNOWLEDGE",
+      "type": "roadmap",
+      "path": "docs/roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md",
+      "title": "Phase 1: Minimum LINE OA Business Knowledge Answer",
+      "hash": "727d2ce0",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-02-CLOUD-RUNTIME-OPERATIONS",
+      "type": "roadmap",
+      "path": "docs/roadmap/line-oa-business-agent/PHASE-02-CLOUD-RUNTIME-OPERATIONS.md",
+      "title": "Phase 2: Cloud Runtime and Operations",
+      "hash": "4426f5ad",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-03-IDENTITY-PERMISSION",
+      "type": "roadmap",
+      "path": "docs/roadmap/line-oa-business-agent/PHASE-03-IDENTITY-PERMISSION.md",
+      "title": "Phase 3: Identity and Permission",
+      "hash": "5279ef19",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-04-MSP-EPISODIC-MEMORY",
+      "type": "roadmap",
+      "path": "docs/roadmap/line-oa-business-agent/PHASE-04-MSP-EPISODIC-MEMORY.md",
+      "title": "Phase 4: MSP Episodic Memory",
+      "hash": "67741011",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-05-GKS-GENESIS-SEMANTIC-MEMORY",
+      "type": "roadmap",
+      "path": "docs/roadmap/line-oa-business-agent/PHASE-05-GKS-GENESIS-SEMANTIC-MEMORY.md",
+      "title": "Phase 5: GKS and GenesisBlockDB Semantic Memory",
+      "hash": "ecd5dc36",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-06-GROUP-ASSISTANT-ACTIONS",
+      "type": "roadmap",
+      "path": "docs/roadmap/line-oa-business-agent/PHASE-06-GROUP-ASSISTANT-ACTIONS.md",
+      "title": "Phase 6: LINE Group Assistant and Governed Actions",
+      "hash": "8df3d2a0",
+      "status": "current"
+    },
+    {
+      "id": "doc:PHASE-07-OMICHAT-UNIFIED-INBOX",
+      "type": "roadmap",
+      "path": "docs/roadmap/line-oa-business-agent/PHASE-07-OMICHAT-UNIFIED-INBOX.md",
+      "title": "Phase 7: OmiChat Unified Inbox",
+      "hash": "deefe0de",
+      "status": "current"
+    },
+    {
       "id": "doc:PLAN-FR-040-PROJECT-WORK-VIEWS",
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-FR-040-PROJECT-WORK-VIEWS.md",
@@ -3228,9 +3475,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.32.0",
+      "version": "1.36.0",
       "doc_status": "Draft",
-      "hash": "33bf9fc1",
+      "hash": "2f2ba19b",
       "status": "current"
     },
     {
@@ -3251,6 +3498,14 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "b8a8e65f",
+      "status": "current"
+    },
+    {
+      "id": "doc:README",
+      "type": "roadmap",
+      "path": "docs/roadmap/line-oa-business-agent/README.md",
+      "title": "Implementation Plan: LINE OA Business Agent",
+      "hash": "399c65ba",
       "status": "current"
     },
     {
@@ -3294,7 +3549,7 @@
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
       "version": "0.4.1",
       "doc_status": "Accepted",
-      "hash": "c389794b",
+      "hash": "3d4b0756",
       "status": "current"
     },
     {
@@ -3302,7 +3557,7 @@
       "type": "document",
       "path": "docs/TEST-PLAN.md",
       "title": "Test Plan",
-      "hash": "1898549e",
+      "hash": "9112c2d2",
       "status": "current"
     },
     {
@@ -3365,6 +3620,22 @@
       "version": "0.2.0b",
       "doc_status": "Implemented — beta",
       "hash": "c400e092",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-003-LINE-BUSINESS-KNOWLEDGE-PILOT",
+      "type": "document",
+      "path": "docs/changes/ZV2-CR-003-LINE-BUSINESS-KNOWLEDGE-PILOT.md",
+      "title": "ZV2-CR-003 - LINE Business Knowledge Pilot",
+      "hash": "d6b8700b",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP",
+      "type": "document",
+      "path": "docs/changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md",
+      "title": "ZV2-CR-004 — Supabase production tenant bootstrap",
+      "hash": "cd823618",
       "status": "current"
     },
     {
@@ -3453,6 +3724,24 @@
       "type": "requirement",
       "family": "BR",
       "label": "SQLite is the sole transactional authority for file identity and relations. Filesystem content and `.zuri/cache` are projections/storage, never a second writable relationship database; Business aggregation must query IDs/links and never duplicate a file merely to show it in another view.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-011",
+      "type": "requirement",
+      "family": "BR",
+      "label": "A LINE event has exactly one reply owner. When stack answering is enabled, `zuri-cli` owns signature verification and Reply API transport while `zuri-ai` owns knowledge/provider/answer policy; the legacy local answer path must not also consume the same `replyToken`.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-012",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Tenant and Business scope are server authority. In production a caller may present only binding identity, destination and binding-scoped credential; inbound `tenantId`/`businessId` never authorize access. A missing, mismatched, inactive, expired or database-unavailable binding fails closed before model or persistence work.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -3868,7 +4157,61 @@
       "family": "FR",
       "label": "Production viewer entry contract: Business Routing consumes one atomic, server-filtered `/api/entry` response derived from a trusted request session and `resolveViewer()`. Hidden Businesses and unrelated ancestry are never returned; missing sessions fail closed; client-supplied identity/role/platform claims are never authorization input.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "done",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-047",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Curated business-knowledge read contract: the SmartGift pilot exposes only an allow-listed, versioned public product projection through `BusinessKnowledgeReadPort`; DuckDB and Supabase are adapters. PII, cost, margin, invoice, unrestricted SQL and local paths are excluded.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-048",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Provider selection contract: `ModelProviderPort` normalizes OpenRouter OAuth credential references and API-key adapters for OpenAI, Anthropic, Gemini and Groq. Public LINE cannot select consumer-plan CLI credentials, and automatic fallback is disabled.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-049",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-050",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-051",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-052",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Server-owned LINE scope binding: the webhook rejects client-selected Tenant/Business IDs and resolves scope only from an active, destination-bound, hash-verified LINE binding. Runtime connects through an unprivileged login and executes each read with `SET LOCAL ROLE zuri_line_smartgift_ro`.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
       "status": "current"
     },
     {
@@ -3948,6 +4291,24 @@
       "type": "requirement",
       "family": "NFR",
       "label": "Local file operations are crash-recoverable and portable: authoritative metadata survives restart/remount, cache is fully rebuildable, absolute device paths never become identity, and canonical results are available when cache is stale or absent.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-010",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "LINE business answers fail closed within a bounded request deadline: network calls use explicit timeouts/cancellation, duplicate delivery is idempotent, provider failure cannot expose secrets or raw data, and offline/local evaluation remains possible through an injected adapter.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-011",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Production tenancy changes are migration-first, idempotent and reversible: advisory/lock timeouts bound deployment, reserved code/UUID collisions abort, schema history and backups are inspected before apply, and no runtime secret or service-role key is stored in source, migration SQL, logs or browser code.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -4169,6 +4530,24 @@
       "status": "current"
     },
     {
+      "id": "req:SDD-025",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "The Phase 1 LINE pilot is a ports-and-adapters vertical slice. `BusinessKnowledgeReadPort` owns registered bounded reads, `ModelProviderPort` owns normalized generation, and the grounded-answer service verifies evidence before returning reply text. `zuri-cli` remains the only LINE signature/reply transport. Supabase is operational relational storage; GenesisBlockDB/MSP/GKS are not Phase 1 dependencies.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-026",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Supabase production authority uses a private `zuri_core` schema with stable internal UUIDs, composite Tenant/Business foreign keys and forced RLS. A `NOLOGIN` scope role owns the policies; a separate unprivileged login has no direct grants and every query uses a short transaction plus `SET LOCAL ROLE`. Curated DuckDB data is imported through a reconciled, hash-bound transaction and does not make GenesisBlockDB a Supabase replacement.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -4241,6 +4620,24 @@
       "status": "current"
     },
     {
+      "id": "req:SEC-009",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Public LINE knowledge access is server-only and deny-by-default: server-owned tenant/business binding, no public service-role key, explicit Supabase grants plus RLS for exposed tables, allow-listed fields/queries, prompt-data treated as untrusted, and secrets/PII/cost/margin/invoice data excluded from prompts, logs and responses.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-010",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Production LINE reads require both database-enforced scope and verified server binding: private-schema base grants are revoked from `public`, `anon`, `authenticated` and `service_role`; the runtime rejects privileged credentials and client-selected scope; credential/destination hashes are compared in constant time; inactive or expired bindings return no data.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
       "id": "spec:ADR-001-STANDALONE-ZURI-V2",
       "type": "adr",
       "path": "docs/ADR-001-STANDALONE-ZURI-V2.md",
@@ -4293,7 +4690,7 @@
       "type": "adr",
       "path": "docs/ADR-007-LINE-AI-STACK-SEQUENCING.md",
       "title": "ADR-007 — LINE/AI Stack: Dependency Sequencing and Production Gates",
-      "hash": "d721c6cd",
+      "hash": "b623b391",
       "status": "current"
     },
     {
@@ -4376,6 +4773,16 @@
       "title": "ADR-017 — Production viewer session and viewer-scoped entry read model",
       "version": "0.2.0b",
       "hash": "a47d2add",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION",
+      "type": "adr",
+      "path": "docs/ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION.md",
+      "title": "ADR-018 — Supabase production tenant isolation",
+      "version": "0.3.0b",
+      "doc_status": "Accepted; production database slice deployed, LINE activation gated",
+      "hash": "5417b5da",
       "status": "current"
     },
     {
@@ -4466,14 +4873,14 @@
       "id": "test:tests/integration/agent-turn.test.js",
       "type": "test",
       "path": "tests/integration/agent-turn.test.js",
-      "hash": "0ce464f1",
+      "hash": "faf2539d",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-webhook-route.test.js",
       "type": "test",
       "path": "tests/integration/agent-webhook-route.test.js",
-      "hash": "1a9ee8ed",
+      "hash": "d4f4dc4e",
       "status": "current"
     },
     {
@@ -4614,6 +5021,13 @@
       "type": "test",
       "path": "tests/unit/breadcrumb-switcher.test.js",
       "hash": "1ca0386f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/business-knowledge-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/business-knowledge-contract.test.js",
+      "hash": "bc773000",
       "status": "current"
     },
     {
@@ -4785,6 +5199,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/grounded-business-answer.test.js",
+      "type": "test",
+      "path": "tests/unit/grounded-business-answer.test.js",
+      "hash": "ee152b62",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/home-scope.test.js",
       "type": "test",
       "path": "tests/unit/home-scope.test.js",
@@ -4796,6 +5217,27 @@
       "type": "test",
       "path": "tests/unit/ids.test.js",
       "hash": "28016e12",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-binding-resolver.test.js",
+      "type": "test",
+      "path": "tests/unit/line-binding-resolver.test.js",
+      "hash": "cb832f90",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-channel-binding.test.js",
+      "type": "test",
+      "path": "tests/unit/line-channel-binding.test.js",
+      "hash": "e81dca9c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/model-provider-port.test.js",
+      "type": "test",
+      "path": "tests/unit/model-provider-port.test.js",
+      "hash": "e3a469b1",
       "status": "current"
     },
     {
@@ -4827,10 +5269,31 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "type": "test",
+      "path": "tests/unit/phase1-business-agent-runtime.test.js",
+      "hash": "21974141",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/plan-schema.test.js",
       "type": "test",
       "path": "tests/unit/plan-schema.test.js",
       "hash": "d3ff0836",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/playwright-database-bootstrap.test.js",
+      "type": "test",
+      "path": "tests/unit/playwright-database-bootstrap.test.js",
+      "hash": "5a9dfc60",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/postgres-business-knowledge.test.js",
+      "type": "test",
+      "path": "tests/unit/postgres-business-knowledge.test.js",
+      "hash": "d9520015",
       "status": "current"
     },
     {
@@ -4922,6 +5385,13 @@
       "type": "test",
       "path": "tests/unit/strategies.test.js",
       "hash": "889a7e52",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/supabase-production-isolation.test.js",
+      "type": "test",
+      "path": "tests/unit/supabase-production-isolation.test.js",
+      "hash": "8a9cec35",
       "status": "current"
     },
     {
@@ -6738,8 +7208,50 @@
     },
     {
       "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:BR-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
       "to": "req:FR-028",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:FR-050",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:FR-052",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:SDD-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:SEC-010",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -8123,6 +8635,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/grounded-business-answer.js",
+      "to": "req:FR-049",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/grounded-business-answer.js",
+      "to": "req:SDD-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/grounded-business-answer.js",
+      "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/index.js",
       "to": "req:FR-025",
       "type": "implements",
@@ -8151,6 +8684,69 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:FR-048",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:FR-049",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-resolver.js",
+      "to": "req:FR-052",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-resolver.js",
+      "to": "req:SDD-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-resolver.js",
+      "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-channel-binding.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-channel-binding.js",
+      "to": "req:FR-051",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-channel-binding.js",
+      "to": "req:SDD-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-channel-binding.js",
+      "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/memory-port.js",
       "to": "req:FR-025",
       "type": "implements",
@@ -8158,9 +8754,93 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/model-provider.js",
+      "to": "req:FR-048",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/model-provider.js",
+      "to": "req:SDD-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/model-provider.js",
+      "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/msp-memory-port.js",
       "to": "req:FR-025",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/openrouter-oauth.js",
+      "to": "req:FR-048",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/openrouter-oauth.js",
+      "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:FR-047",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:FR-048",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:FR-052",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:SDD-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:SDD-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:SEC-010",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -8459,6 +9139,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/business-contract.js",
+      "to": "req:FR-047",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/business-contract.js",
+      "to": "req:SDD-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/business-contract.js",
+      "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/genesisblockdb-sink.js",
       "to": "req:FR-024",
       "type": "implements",
@@ -8483,6 +9184,27 @@
       "from": "code:src/modules/knowledge/live-facts.js",
       "to": "req:FR-024",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/postgres-business-knowledge.js",
+      "to": "req:FR-051",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/postgres-business-knowledge.js",
+      "to": "req:SDD-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/postgres-business-knowledge.js",
+      "to": "req:SEC-010",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -9397,6 +10119,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:BR-011",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-012",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:FR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -9719,6 +10455,48 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-047",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-048",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-049",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-050",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-051",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-052",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -9776,6 +10554,20 @@
     },
     {
       "from": "req:NFR-009",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-010",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-011",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -9950,6 +10742,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-025",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-026",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -10000,6 +10806,20 @@
     },
     {
       "from": "req:SEC-008",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-009",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-010",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -11050,6 +11870,20 @@
     },
     {
       "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
       "to": "req:SDD-009",
       "type": "verifies",
       "status": "current",
@@ -11100,6 +11934,20 @@
     {
       "from": "test:tests/integration/agent-context.test.js",
       "to": "req:FR-029",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-049",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -11183,10 +12031,66 @@
     },
     {
       "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "code:src/modules/agent/line-channel-binding.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
       "to": "req:FR-028",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:FR-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:FR-051",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/backup.test.js",
@@ -12188,6 +13092,34 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-knowledge-contract.test.js",
+      "to": "code:src/modules/knowledge/business-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/business-knowledge-contract.test.js",
+      "to": "req:FR-047",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-knowledge-contract.test.js",
+      "to": "req:SDD-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-knowledge-contract.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/business-routing-page.test.js",
@@ -13492,6 +14424,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/grounded-business-answer.test.js",
+      "to": "code:src/modules/agent/grounded-business-answer.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/grounded-business-answer.test.js",
+      "to": "req:FR-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/grounded-business-answer.test.js",
+      "to": "req:SDD-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/grounded-business-answer.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/home-scope.test.js",
       "to": "code:src/lib/home-scope.js",
       "type": "tests",
@@ -13532,6 +14492,97 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-binding-resolver.test.js",
+      "to": "code:src/modules/agent/line-binding-resolver.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-binding-resolver.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-binding-resolver.test.js",
+      "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-binding-resolver.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-channel-binding.test.js",
+      "to": "code:src/modules/agent/line-channel-binding.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-channel-binding.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-channel-binding.test.js",
+      "to": "req:FR-051",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-channel-binding.test.js",
+      "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-channel-binding.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/model-provider-port.test.js",
+      "to": "code:src/modules/agent/model-provider.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/model-provider-port.test.js",
+      "to": "req:FR-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/model-provider-port.test.js",
+      "to": "req:SDD-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/model-provider-port.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/overview-split.test.js",
@@ -13660,6 +14711,69 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "code:src/modules/agent/openrouter-oauth.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "code:src/modules/agent/phase1-runtime.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:FR-047",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:FR-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:SDD-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/plan-schema.test.js",
       "to": "code:src/lib/validation/enums.js",
       "type": "tests",
@@ -13714,6 +14828,55 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/playwright-database-bootstrap.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/playwright-database-bootstrap.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/playwright-database-bootstrap.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/postgres-business-knowledge.test.js",
+      "to": "code:src/modules/knowledge/postgres-business-knowledge.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/postgres-business-knowledge.test.js",
+      "to": "req:FR-051",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/postgres-business-knowledge.test.js",
+      "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/postgres-business-knowledge.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/profile-permission-service.test.js",
@@ -14281,6 +15444,27 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/supabase-production-isolation.test.js",
+      "to": "req:FR-051",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/supabase-production-isolation.test.js",
+      "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/supabase-production-isolation.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/topbar-no-dropdown.test.js",

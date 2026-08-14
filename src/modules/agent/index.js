@@ -15,3 +15,12 @@ export { issueStepUp } from './step-up'
 export { handleAgentTurn } from './turn'
 // @req FR-029 — bind the agent to the real MSP + GenesisBlockDB backends.
 export { createAgentPorts } from './runtime'
+// @req FR-048, FR-049 — provider and grounded business-answer public surfaces.
+export { createModelProviderPort, PUBLIC_LINE_PROVIDERS } from './model-provider'
+export { answerBusinessQuestion } from './grounded-business-answer'
+export {
+  createPhase1BusinessAgentPortsFromEnv,
+  resolvePhase1RequestScope,
+} from './phase1-runtime'
+export { createOpenRouterAuthorization, exchangeOpenRouterCode } from './openrouter-oauth'
+export { createPostgresLineBindingResolver, hashBindingSecret } from './line-binding-resolver'

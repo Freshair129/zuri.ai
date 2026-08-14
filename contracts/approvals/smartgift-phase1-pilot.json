@@ -1,0 +1,12 @@
+{
+  "contractVersion": "1.0.0",
+  "sources": [
+    {
+      "source_sha256": "017e72b6748d5f3ad99d2c85da0d3df71cf0e7e3d66fe79e67591066f2788c76",
+      "approved_by": "Boss (บอส)",
+      "approved_at": "2026-08-14T03:31:18+07:00",
+      "as_of": "2026-08-11T20:02:26.542833+00:00",
+      "publish_price": false
+    }
+  ]
+}

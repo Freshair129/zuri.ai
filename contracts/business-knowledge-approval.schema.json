@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.local/contracts/business-knowledge-approval.schema.json",
+  "title": "Business Knowledge Source Approval",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "sources"],
+  "properties": {
+    "contractVersion": { "const": "1.0.0" },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_sha256", "approved_by", "approved_at", "as_of", "publish_price"],
+        "properties": {
+          "source_sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+          "approved_by": { "type": "string", "minLength": 1 },
+          "approved_at": { "type": "string", "format": "date-time" },
+          "as_of": { "type": "string", "format": "date-time" },
+          "publish_price": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

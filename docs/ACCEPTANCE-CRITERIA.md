@@ -151,6 +151,8 @@ warning findings, and unit/E2E/build gates pass.
 - [x] `/api/entry` returns only the authorized Business and minimum Tenant/Portfolio ancestry.
 - [x] Protected compatibility routes resolve trusted request identity and re-authorize resources.
 - [x] The explicit local demo cookie is HttpOnly/SameSite and cannot activate in production.
+- [x] Playwright creates and seeds an isolated `prisma/e2e.db`; it does not depend on developer `.env` or `dev.db` state.
+- [x] The clean-worktree browser suite completes explicitly: 34 passed, 4 intentionally skipped.
 
 Exit gate: unit/contract/integration/browser suites, production build, docs graph,
 preflight/check and diff check pass; provider selection remains a separate decision.
@@ -183,3 +185,17 @@ Exit gate: ADR-016, FR-045 and ZV2-CR-001 are approved; all checks above are
 checked; implementation/tests carry truthful `@req FR-045`, `@spec SDD-023,
 SEC-007` and `@tested` edges; full tests/build/docs gates pass; no mock or user file
 is deleted without a separately reviewed exact path/hash manifest.
+
+## FR-051 — Production Tenant/Business isolation hardening (beta)
+
+- [x] enabled LINE requests resolve Tenant and Business only from an active server-owned channel binding;
+- [x] caller-supplied Tenant/Business scope is rejected before agent execution;
+- [x] the production reader is limited to a scope-bound read role and fixed `zuri_core` SQL;
+- [x] Supabase secret/service-role keys are forbidden in the Phase 1 LINE runtime;
+- [x] local migration SQL uses private schema, forced RLS, composite ancestry and least-privilege grants;
+- [x] approved SmartGift rows map to reserved internal Tenant/Business UUIDs without changing source provenance;
+- [ ] remote project inventory and backup/advisor evidence are recorded;
+- [ ] migration plus positive/negative isolation probes pass on the target project;
+- [ ] 74-row reconciliation and one kill-switch-protected canary pass before traffic enablement.
+
+Repository-local exit gate may pass with the final three remote boxes open because the binding remains inactive and production LINE traffic remains disabled. The feature is not production-enabled until every remote box is checked.

@@ -1,17 +1,20 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '@/modules/project-manager/application/scope-service'
-import { POST } from '@/app/api/agent/line-webhook/route'
+import { POST, createLineWebhookPost } from '@/app/api/agent/line-webhook/route'
+
+// @req FR-050 — event-correlated reply payload, bearer boundary, and no local token consumption.
 
 // @req FR-028 — the LINE webhook route: a forwarded LINE message batch → agent turns,
 // tenant-scoped, non-message events skipped, per-event failures isolated.
+// @req FR-052 — production scope is resolved from the server-owned binding before turn work.
 
 let tenant, business
 
-function post(body) {
-  return POST(new Request('http://local/api/agent/line-webhook', {
+function post(body, handler = POST, headers = {}) {
+  return handler(new Request('http://local/api/agent/line-webhook', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...headers },
     body: JSON.stringify(body),
   }))
 }
@@ -35,6 +38,8 @@ describe('POST /api/agent/line-webhook (FR-028)', () => {
     const json = await res.json()
     expect(json.handled).toBe(1)
     expect(json.results[0].ok).toBe(true)
+    expect(json.results[0].eventId).toBe('MWH-1')
+    expect(json.results[0].skipReply).toBe(false)
     expect(json.results[0].principalType).toBe('CUSTOMER')
     // the inbound message was persisted through the ingest seam
     const msg = await prisma.message.findUnique({ where: { externalMessageId: 'MWH-1' } })
@@ -55,6 +60,24 @@ describe('POST /api/agent/line-webhook (FR-028)', () => {
   it('refuses a batch with no tenantId (no minting under an unresolved tenant)', async () => {
     const res = await post({ events: [messageEvent('Uwh-3', 'hi', 'MWH-3')] })
     expect(res.status).toBe(400)
+  })
+
+  it('returns 401 before turn work when the server-owned binding rejects the request', async () => {
+    const unauthorized = new Error('LINE_BINDING_UNAUTHORIZED')
+    unauthorized.status = 401
+    const handler = createLineWebhookPost({
+      runtimeFactory: () => ({
+        bindingResolver: { resolve: async () => { throw unauthorized } },
+      }),
+    })
+    const res = await post({
+      bindingId: '84ed2c90-ab44-46f3-9618-1f24df0744b9',
+      destination: 'U-smartgift',
+      events: [messageEvent('Uwh-auth', 'hi', 'MWH-AUTH')],
+    }, handler)
+    expect(res.status).toBe(401)
+    const persisted = await prisma.message.findUnique({ where: { externalMessageId: 'MWH-AUTH' } })
+    expect(persisted).toBeNull()
   })
 
   it('isolates a per-event failure without dropping the batch', async () => {
