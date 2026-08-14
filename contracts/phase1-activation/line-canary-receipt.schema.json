@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.local/contracts/phase1-activation/line-canary-receipt.schema.json",
+  "title": "FR-055 Redacted LINE Canary Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contractVersion", "eventId", "correlationId", "eventType", "receiptState",
+    "projectRef", "tenantId", "businessId", "bindingId", "bindingVersionBefore",
+    "bindingVersionAfter", "canaryPlanSha256", "goldenReportSha256",
+    "isolationReportSha256", "providerId", "modelId", "approvalRef", "occurredAt",
+    "actorFingerprint"
+  ],
+  "properties": {
+    "contractVersion": { "const": "1.0.0" },
+    "eventId": { "type": "string", "format": "uuid" },
+    "correlationId": { "type": "string", "format": "uuid" },
+    "eventType": { "type": "string", "enum": ["ACTIVATION", "ROLLBACK", "CANARY_TRANSPORT"] },
+    "receiptState": {
+      "type": "string",
+      "enum": ["GENERATED", "EVIDENCE_VERIFIED", "ACCEPTED_BY_LINE", "DISPLAYED_UNKNOWN", "READ_UNKNOWN"]
+    },
+    "projectRef": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "businessId": { "type": "string", "format": "uuid" },
+    "bindingId": { "type": "string", "format": "uuid" },
+    "bindingVersionBefore": { "type": "integer", "minimum": 1 },
+    "bindingVersionAfter": { "type": "integer", "minimum": 1 },
+    "canaryPlanSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "goldenReportSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "isolationReportSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "providerId": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "modelId": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "approvalRef": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "transportArtifactSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "lineAcceptanceClass": { "const": "HTTP_2XX" },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "actorFingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "eventType": { "enum": ["ACTIVATION", "ROLLBACK"] },
+            "receiptState": { "const": "EVIDENCE_VERIFIED" },
+            "transportArtifactSha256": false,
+            "lineAcceptanceClass": false
+          },
+          "required": ["eventType", "receiptState"]
+        },
+        {
+          "properties": {
+            "eventType": { "const": "CANARY_TRANSPORT" },
+            "receiptState": {
+              "enum": ["GENERATED", "ACCEPTED_BY_LINE", "DISPLAYED_UNKNOWN", "READ_UNKNOWN"]
+            }
+          },
+          "required": ["eventType", "receiptState"]
+        }
+      ]
+    },
+    {
+      "if": {
+        "properties": {
+          "receiptState": { "enum": ["ACCEPTED_BY_LINE", "DISPLAYED_UNKNOWN", "READ_UNKNOWN"] }
+        },
+        "required": ["receiptState"]
+      },
+      "then": {
+        "properties": {
+          "transportArtifactSha256": {},
+          "lineAcceptanceClass": {}
+        },
+        "required": ["transportArtifactSha256", "lineAcceptanceClass"]
+      }
+    },
+    {
+      "if": {
+        "properties": { "receiptState": { "const": "GENERATED" } },
+        "required": ["receiptState"]
+      },
+      "then": {
+        "properties": { "lineAcceptanceClass": false }
+      }
+    }
+  ]
+}

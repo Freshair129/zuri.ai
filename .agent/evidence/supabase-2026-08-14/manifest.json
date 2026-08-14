@@ -1,0 +1,57 @@
+{
+  "projectRef": "qcnmhyglarzcpudjorzc",
+  "observedAt": "2026-08-14T07:02:48+07:00",
+  "classification": "post-apply-scoped-logical-backup",
+  "physicalBackup": {
+    "walgEnabled": true,
+    "pitrEnabled": false,
+    "availableBackups": 0
+  },
+  "files": [
+    {
+      "name": "roles.sql",
+      "bytes": 870,
+      "sha256": "91789e0dee3e654bad0441fc3d5db5a13c46b39f3b347dff12002c2b1cdcaac4"
+    },
+    {
+      "name": "zuri-core-data.sql",
+      "bytes": 48920,
+      "sha256": "29cafa808e85d4faf287b218c8a29e449d4fb1152fbfec0e814a15284ae00806"
+    },
+    {
+      "name": "zuri-core-schema.sql",
+      "bytes": 11992,
+      "sha256": "d2051bafe9bfdf399eeb9e8805573354fb017cadc51bfed9bfc4f05ec23a2b3d"
+    },
+    {
+      "name": "runtime-isolation-report.json",
+      "bytes": 557,
+      "sha256": "b8e7fddf2f54935d1103bc7dd5370392f2d9274e0db01544414b860bcaf1052d"
+    }
+  ],
+  "remoteEvidence": {
+    "migrations": ["20260813192826", "20260813213654"],
+    "knowledgeRows": 74,
+    "productCodes": 74,
+    "exactScopeAndBatch": true,
+    "pricePublicationDisabled": true,
+    "exactImportAuditEvent": true,
+    "bindingStatus": "PENDING",
+    "bindingHasCredentialHashes": false,
+    "legacyPublicKnowledgeRemoved": true,
+    "forcedRlsAndExactPolicies": true,
+    "broadBaseTableGrantsAbsent": true,
+    "roleAttributesSafe": true,
+    "securityAdvisorWarnOrErrorCount": 0,
+    "securityAdvisorInfoCount": 2,
+    "performanceAdvisorWarnOrErrorCount": 0,
+    "liveRuntimeLoginProbe": "PASS_EXACT_SCOPE_74_ROWS",
+    "liveRuntimeLoginProbeObservedAt": "2026-08-14T11:42:24+07:00",
+    "liveRuntimeLoginProbeReport": ".agent/evidence/supabase-2026-08-14/runtime-isolation-report.json"
+  },
+  "notes": [
+    "Raw dumps are retained outside Git and contain only zuri_core plus cluster role definitions.",
+    "This snapshot was captured after the remote migrations/import and is not evidence of a pre-mutation backup.",
+    "Security advisor INFO items are deny-by-default tenant/business tables with forced RLS and no policies."
+  ]
+}

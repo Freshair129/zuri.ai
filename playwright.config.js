@@ -29,6 +29,7 @@ const executablePath = resolveChromium()
 
 module.exports = defineConfig({
   testDir: './tests/e2e',
+  globalSetup: './tests/e2e/global-setup.js',
   timeout: 60000,
   expect: { timeout: 10000 },
   // E2E runs against the dev server; first hits can pay Next.js on-demand
@@ -43,8 +44,12 @@ module.exports = defineConfig({
   webServer: {
     command: 'npm run dev -- -p 3100',
     url: 'http://localhost:3100/overview',
-    reuseExistingServer: true,
+    reuseExistingServer: false,
     timeout: 120000,
-    env: { ...process.env, ZURI_LOCAL_DEMO_AUTH: '1' },
+    env: {
+      ...process.env,
+      DATABASE_URL: 'file:./e2e.db',
+      ZURI_LOCAL_DEMO_AUTH: '1',
+    },
   },
 })

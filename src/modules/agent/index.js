@@ -18,5 +18,23 @@ export { createAgentPorts } from './runtime'
 // @req FR-048, FR-049 — provider and grounded business-answer public surfaces.
 export { createModelProviderPort, PUBLIC_LINE_PROVIDERS } from './model-provider'
 export { answerBusinessQuestion } from './grounded-business-answer'
-export { assertPhase1TransportAuthorization, createPhase1BusinessAgentPortsFromEnv } from './phase1-runtime'
+export {
+  createPhase1BusinessAgentPortsFromEnv,
+  resolvePhase1RequestScope,
+} from './phase1-runtime'
 export { createOpenRouterAuthorization, exchangeOpenRouterCode } from './openrouter-oauth'
+export { createPostgresLineBindingResolver, hashBindingSecret } from './line-binding-resolver'
+// @req FR-053, FR-054 — production-disabled activation-readiness public surface.
+// @spec SDD-027, SEC-011 — evaluation and dry-run planning do not grant activation authority.
+// @tested tests/unit/activation-readiness-integration.test.js
+export {
+  ACTIVATION_RECEIPT_STATES,
+  parseCanaryReadinessPlan,
+  parseGoldenQuestionCorpus,
+} from './activation-readiness-contract'
+export {
+  evaluateGoldenQuestions,
+  readRealProviderConfiguration,
+  validateGoldenQuestionCorpus,
+} from './golden-evaluation'
+export { CANARY_RECEIPT_STATES, createCanaryPreflightPlan } from './canary-preflight'

@@ -1,8 +1,8 @@
 ---
-version: "0.1.0b"
+version: "0.3.1b"
 created_at: "2026-08-14T03:52:31+07:00,ATHER"
-last_update: "2026-08-14T03:52:31+07:00,ATHER"
-status: "candidate"
+last_update: "2026-08-14T09:56:23+07:00,ATHER"
+status: "beta"
 superseded_by: null
 attributes:
   domain: "data-security"
@@ -12,12 +12,12 @@ attributes:
 
 # ADR-018 — Supabase production tenant isolation
 
-**Status:** Candidate — awaiting owner approval
+**Status:** Accepted; production database slice deployed, LINE activation gated
 
 | Field | Value |
 |---|---|
-| **Version** | 0.1.0b |
-| **Status** | Candidate — awaiting owner approval |
+| **Version** | 0.3.1b |
+| **Status** | Accepted; production database slice deployed, LINE activation gated |
 | **Project** | `qcnmhyglarzcpudjorzc` |
 
 ## Context and observed risk
@@ -94,8 +94,10 @@ Runtime role separation:
 
 - `zuri_migrator`: DDL/data migration only; stored only in deployment secrets;
 - `zuri_app_runtime`: hosted Zuri API role, `NOBYPASSRLS`, no DDL;
-- `zuri_line_smartgift_ro`: `NOBYPASSRLS`, SELECT-only, permanently bound to the SmartGift
-  Tenant/Business scope; and
+- `zuri_line_smartgift_ro`: `NOLOGIN`, `NOBYPASSRLS`, SELECT-only policy role permanently bound
+  to the SmartGift Tenant/Business scope;
+- `zuri_line_smartgift_login`: unprivileged `LOGIN`, `NOINHERIT`, no direct base-table grants;
+  each runtime query uses a short transaction and `SET LOCAL ROLE zuri_line_smartgift_ro`; and
 - `anon`, `authenticated`, and `service_role` receive no direct base-table grants for the Phase 1
   business-knowledge path.
 
@@ -139,8 +141,9 @@ PK/FK columns to native `uuid` is a separate all-table migration, not an opportu
   Person/Membership authority. Client-editable `user_metadata` is never authorization input.
 - `app_metadata` may cache non-authoritative routing hints, but persisted Membership remains the
   revocable authority because JWT claims can be stale.
-- LINE machine access uses the scope-bound `zuri_line_smartgift_ro` database identity. It cannot
-  choose another tenant by setting a session variable or request parameter.
+- LINE machine access connects as `zuri_line_smartgift_login` and changes locally to the
+  scope-bound `zuri_line_smartgift_ro` policy role for one transaction. Neither identity can choose
+  another tenant by setting a session variable or request parameter.
 - Migration/ops roles may bypass RLS only inside an audited deployment job and are never loaded by
   the public LINE runtime.
 
@@ -240,30 +243,48 @@ unchanged. Production rollback never drops the whole Supabase project or deletes
 | Staging data in production | Separate Supabase project; never a staging Tenant |
 | Migration rerun/race | Idempotent IDs/codes, transaction, advisory lock, reconciliation |
 
-## Acceptance and exit gates
+## Merge gates
 
-1. Remote inventory and backup evidence exist before mutation.
-2. Reserved IDs are inserted idempotently with exact ancestry.
-3. Every Phase 1 knowledge row has exact `tenant_id` and internal `business_id`.
-4. Cross-tenant positive and negative database tests pass under real runtime roles.
-5. No application runtime uses `postgres`, `service_role`, or a Supabase secret key.
-6. LINE scope comes only from an active server-owned binding.
-7. RLS, grants, FK constraints, indexes, advisors, migration list, and reconciliation pass.
-8. Production kill switch remains off until a real canary passes.
+1. The migration history is immutable and exact; corrective behavior is additive.
+2. Reserved IDs and all 74 approved rows have exact Tenant/Business ancestry and audit hashes.
+3. Static RLS, grants, FK constraints, indexes, advisors, migration list and reconciliation pass.
+4. Automated tests, build, documentation graph/preflight and secret scan pass.
+5. Runtime code rejects privileged credentials and caller-selected Tenant/Business scope.
+6. The binding remains credential-free and `PENDING`; production traffic remains disabled.
 
-## Approval gate
+These gates authorize merging production-disabled code. They do not authorize runtime activation.
 
-This ADR reserves identifiers and proposes the production boundary only. It does not claim the
-remote database was inspected or changed. After owner approval, implementation starts test-first
-with remote read-only inventory, then creates migrations and applies them only with an approved
-database migration credential supplied through the local secret environment.
+## Production activation gates
 
-Canonical requirement labels are intentionally not registered in the PRD yet. Registration happens
-with the first real code/test anchors after approval so the document graph does not claim false
-implementation coverage.
+1. Approve a physical backup/PITR policy; the retained logical snapshot is post-apply only.
+2. Configure one approved model-provider credential and pass the approved golden questions.
+3. Install approved destination/credential hashes and activate only the canary binding.
+4. Pass a kill-switch-protected signed LINE canary before enabling production traffic.
+
+## Implementation and production gate
+
+The owner approved this ADR on 2026-08-14. The migration, private Postgres reader, server-owned
+binding resolver, scope-rejecting webhook boundary and reconciled import builder are implemented
+test-first in the isolated worktree. The reserved binding remains `PENDING`.
+
+The authenticated CLI target was verified as healthy PostgreSQL 17 project
+`qcnmhyglarzcpudjorzc` in Seoul. Both migrations and the approved 74-row artifact are present.
+Remote verification confirms exact Tenant/Business/batch scope, exact import hash, prices disabled,
+no broad base-table grants, forced RLS/exact policies, safe role attributes, no warning/error advisor
+findings, and a credential-free `PENDING` binding. The evidence retained outside Git is a
+post-apply scoped logical backup with a SHA-256 manifest; it is not evidence of a pre-mutation
+backup. Physical backup/PITR is not enabled. The pinned-CA runtime credential is provisioned and
+its live positive/cross-scope/read-only probe passes. An approved backup policy, provider-backed
+golden evaluation, destination/credential hashes and a real LINE canary remain activation gates.
+Because the kill switch is off and the binding is `PENDING`, these activation
+gates do not block merging the production-disabled implementation.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | candidate | Proposed production Supabase schemas, stable IDs, composite tenancy, RLS roles, LINE binding and gated bootstrap | working-tree | ATHER |
+| 0.2.0b | 2026-08-14 | beta | Owner-approved local implementation; split login/policy roles, binding authority and import audit complete; remote cutover remains gated | working-tree | ATHER |
+| 0.2.1b | 2026-08-14 | beta | Production migrations and 74-row import verified; binding remains PENDING and LINE activation gated | working-tree | ATHER |
+| 0.3.0b | 2026-08-14 | beta | Separated merge gates from production activation gates and corrected backup chronology to post-apply | working-tree | ATHER |
+| 0.3.1b | 2026-08-14 | beta | Dedicated runtime login and live database-enforced isolation/read-only proof passed; LINE activation remains gated | working-tree | ATHER |

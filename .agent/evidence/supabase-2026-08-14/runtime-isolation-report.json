@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "observedAt": "2026-08-14T04:42:24.223Z",
+  "status": "PASS",
+  "target": {
+    "hostFingerprint": "sha256:2b718f83dd1a",
+    "roleFingerprint": "sha256:4a9bf8185b7a"
+  },
+  "assertions": {
+    "exactPositiveScope": {
+      "passed": true,
+      "visibleCount": 74,
+      "outOfScopeCount": 0
+    },
+    "crossTenantDenied": {
+      "passed": true,
+      "visibleCount": 0
+    },
+    "directGrantDenied": {
+      "passed": true
+    },
+    "mutationDeniedAndRolledBack": {
+      "passed": true,
+      "rolledBack": true
+    }
+  }
+}

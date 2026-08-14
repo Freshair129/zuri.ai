@@ -24,12 +24,12 @@ export function createOpenRouterAuthorization({ callbackUrl }) {
   return { authorizationUrl: url.toString(), codeVerifier, state }
 }
 
-export async function exchangeOpenRouterCode({ code, codeVerifier, callbackUrl, fetchFn = fetch }) {
+export async function exchangeOpenRouterCode({ code, codeVerifier, fetchFn = fetch }) {
   if (!code?.trim() || !codeVerifier?.trim()) throw new Error('OPENROUTER_OAUTH_CODE_AND_VERIFIER_REQUIRED')
   const response = await fetchFn('https://openrouter.ai/api/v1/auth/keys', {
     method: 'POST',
     headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code, code_verifier: codeVerifier, code_challenge_method: 'S256', callback_url: callbackUrl }),
+    body: JSON.stringify({ code, code_verifier: codeVerifier, code_challenge_method: 'S256' }),
   })
   if (!response.ok) throw new Error(`OPENROUTER_OAUTH_HTTP_${response.status}`)
   let payload

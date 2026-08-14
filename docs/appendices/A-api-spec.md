@@ -123,7 +123,7 @@ Files endpoints remain available through the compatibility boundary.
 | GET | `/api/import/template` | generate Excel template จาก Zod schema (FR-018) |
 | GET | `/api/docs` | OpenAPI 3 spec generated from the live Zod schemas (FR-019) |
 | GET | `/api/resolve?system=&value=` | external ID → internal id via ExternalRef; 404 unmapped, 410 dangling (FR-019) |
-| POST | `/api/agent/line-webhook` | `{tenantId, businessId?, events[]}` — zuri-cli forwards LINE events → `handleAgentTurn` per text message (Gate E); tenant-scoped, 400 without tenantId (FR-028) |
+| POST | `/api/agent/line-webhook` | Local-disabled compatibility: `{tenantId, businessId?, events[]}`. Enabled production contract: `{bindingId, destination, displayName?, events[]}` with strict rejection of caller `tenantId/businessId`; bearer + active binding resolve immutable scope before `handleAgentTurn` (FR-028/050/051) |
 | GET | `/api/projects/[id]/tree` | nested project → part-projects → part-tasks → workpackages for the Structure Plan (WBS) canvas |
 
 > Endpoint ทั้งหมดในไฟล์นี้ถูกตรวจโดย `scripts/doc-preflight.mjs` — ถ้ามี route ใหม่

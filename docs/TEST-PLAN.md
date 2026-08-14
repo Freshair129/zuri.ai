@@ -126,3 +126,21 @@ Coverage is implemented in `tests/unit/fr046-session-port.test.js`,
 grant behavior, absent/expired/revoked session denial, adapter failure, forged-input
 immunity, cross-tenant non-disclosure, one-fetch Business Routing and production
 demo-fallback denial. The full regression suite also covers the migrated protected APIs.
+
+Playwright owns `prisma/e2e.db` through `tests/e2e/global-setup.js`: every run removes only
+that exact ignored database and journal, applies the schema, runs the idempotent seed, and starts
+a non-reused server with the same explicit `DATABASE_URL`. The infrastructure contract is anchored
+by `tests/unit/playwright-database-bootstrap.test.js`; clean-worktree browser proof is 34 passed and
+4 intentionally skipped.
+
+## FR-051 production isolation hardening (repository-local beta)
+
+- [x] binding resolution is server-owned and rejects an unknown, inactive, or destination-mismatched binding;
+- [x] the LINE request body cannot select `tenantId` or `businessId` when the Phase 1 runtime is enabled;
+- [x] the knowledge reader uses fixed parameterized SQL in `zuri_core` with constructor-bound Tenant and Business ids;
+- [x] the runtime rejects Supabase secret/service-role configuration and non-scope-bound database roles;
+- [x] migration contract tests prove private schema, forced RLS, composite Tenant/Business ancestry, least-privilege grants, and no `public.business_knowledge`;
+- [x] import tests prove source Business codes map to reserved internal UUIDs;
+- [ ] read-only remote inventory, migration application, cross-tenant negative probes, reconciliation, advisors, and canary evidence are captured.
+
+Local exit gate: focused and full tests, build, doc graph/check/preflight, secret scan, and diff check pass. Remote exit gate remains intentionally open; production LINE traffic stays disabled.

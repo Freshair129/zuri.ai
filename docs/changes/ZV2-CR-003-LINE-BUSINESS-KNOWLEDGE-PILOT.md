@@ -2,9 +2,9 @@
 title: "ZV2-CR-003: LINE Business Knowledge Pilot"
 change_id: ZV2-CR-003
 status: beta
-version: "0.1.2b"
+version: "0.1.3b"
 created_at: "2026-08-14T02:18:06+07:00,ATHER"
-last_update: "2026-08-14T03:52:31+07:00,ATHER"
+last_update: "2026-08-14T06:59:37+07:00,ATHER"
 attributes:
   domain: line-ai
   doc_type: change-request
@@ -32,7 +32,7 @@ the answer, and returns reply text to the existing `zuri-cli` transport.
 | `D:\workspace\zuri-cli\src\line-poc\client.ts` | TEST ONLY | Existing Reply API client remains transport authority |
 | SmartGift `data\sot.duckdb` | READ ONLY | Export source; never mutate or copy wholesale |
 | Existing CRM/identity/MSP/GKS/Genesis modules | NO IMPACT | Their contracts are preserved and not Phase 1 dependencies |
-| Supabase target project | PROJECT IDENTIFIED, SECURITY GATED | Project `qcnmhyglarzcpudjorzc` is designated; ADR-018/ZV2-CR-004 isolation and migration credential gates remain |
+| Supabase target project | DATABASE SLICE DEPLOYED | Project `qcnmhyglarzcpudjorzc` contains the private tenant-isolated schema and approved 74-row import; LINE binding remains PENDING |
 
 ## Rollback
 
@@ -45,7 +45,8 @@ source data.
 The owner approved the bounded Phase 1 public dataset on 2026-08-14. The approval is recorded in
 `contracts/approvals/smartgift-phase1-pilot.json` and covers exactly one verified source hash. It
 does not approve prices, costs, margins, customer data, invoices, or additional catalog sources.
-The reconciled export contains 74 rows; Supabase deployment remains an external credential gate.
+The reconciled 74-row export is deployed with price publication disabled. This does not authorize
+LINE traffic; provider/runtime credentials, binding activation and canary remain external gates.
 
 ## CHANGELOG
 
@@ -54,3 +55,4 @@ The reconciled export contains 74 rows; Supabase deployment remains an external 
 | 0.1.0b | 2026-08-14 | beta | Owner-approved Phase 1 impact and rollback boundary | working-tree | ATHER |
 | 0.1.1b | 2026-08-14 | beta | Owner-approved one-source public dataset boundary; price publication remains disabled | working-tree | ATHER |
 | 0.1.2b | 2026-08-14 | beta | Supabase project identified; remote mutation remains blocked by production isolation and credential gates | working-tree | ATHER |
+| 0.1.3b | 2026-08-14 | beta | Tenant-isolated Supabase schema and approved 74-row import deployed; LINE activation remains gated | working-tree | ATHER |

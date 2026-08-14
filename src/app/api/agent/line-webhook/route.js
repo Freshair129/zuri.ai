@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { handle } from '../../_helpers'
-import { assertPhase1TransportAuthorization, createPhase1BusinessAgentPortsFromEnv, handleAgentTurn } from '@/modules/agent'
+import { createPhase1BusinessAgentPortsFromEnv, handleAgentTurn, resolvePhase1RequestScope } from '@/modules/agent'
 
 // @req FR-050 — return event-correlated verified reply text/skipReply state to the sole
 // LINE transport owner without receiving or consuming the LINE replyToken here.
@@ -8,9 +8,9 @@ import { assertPhase1TransportAuthorization, createPhase1BusinessAgentPortsFromE
 
 // @req FR-028 — the LINE webhook seam: the zuri-cli LINE bot forwards webhook events
 //   here; each text message becomes one end-to-end agent turn (FR-027) at Gate E.
-// @spec ADR-007 §P7 — LINE is a channel/shell; the turn runs in Zuri. Tenant-scoped:
-//   the body MUST carry a resolved tenantId (zuri-cli resolves OA→tenant), because the
-//   identity seam refuses to mint under an unresolved/DEFAULT tenant (IMPACT-SCAN §4).
+// @req FR-052 — production scope comes only from an active server-owned LINE binding;
+//   client-selected tenantId/businessId is rejected before persistence or model work.
+// @spec ADR-007 §P7, BR-012, SDD-026, SEC-010 — LINE is a channel/shell; the turn runs in Zuri.
 // @tested tests/integration/agent-webhook-route.test.js
 
 export const dynamic = 'force-dynamic'
@@ -25,7 +25,9 @@ const zLineEvent = z.object({
 })
 
 const zBody = z.object({
-  tenantId: z.string().min(1),
+  bindingId: z.string().uuid().optional(),
+  destination: z.string().min(1).optional(),
+  tenantId: z.string().min(1).optional(),
   businessId: z.string().optional(),
   displayName: z.string().optional(),
   events: z.array(zLineEvent).default([]),
@@ -37,12 +39,20 @@ const zBody = z.object({
  * the bot's webhook stays 200. A per-event failure is captured, not thrown, so one bad
  * event never drops the rest of the batch.
  */
-export async function POST(request) {
+export function createLineWebhookPost({
+  runtimeFactory = createPhase1BusinessAgentPortsFromEnv,
+  turnHandler = handleAgentTurn,
+} = {}) {
+  return async function lineWebhookPost(request) {
   return handle(async () => {
-    assertPhase1TransportAuthorization(request.headers)
     const body = zBody.parse(await request.json())
     const results = []
-    const phase1Ports = createPhase1BusinessAgentPortsFromEnv()
+    const phase1Ports = runtimeFactory()
+    const scope = await resolvePhase1RequestScope({
+      runtime: phase1Ports,
+      headers: request.headers,
+      body,
+    })
 
     for (const ev of body.events) {
       if (ev.type !== 'message' || ev.message?.type !== 'text') {
@@ -57,9 +67,9 @@ export async function POST(request) {
       }
       try {
         const eventId = ev.webhookEventId || ev.message.id
-        const turn = await handleAgentTurn({
-          tenantId: body.tenantId,
-          businessId: body.businessId,
+        const turn = await turnHandler({
+          tenantId: scope.tenantId,
+          businessId: scope.businessId,
           lineUserId,
           displayName: body.displayName,
           threadId,
@@ -80,4 +90,7 @@ export async function POST(request) {
 
     return { handled: results.filter((r) => r.ok).length, results }
   })
+  }
 }
+
+export const POST = createLineWebhookPost()

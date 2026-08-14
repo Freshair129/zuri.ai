@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
-import { assertPhase1TransportAuthorization, createPhase1BusinessAgentPortsFromEnv } from '@/modules/agent/phase1-runtime'
+import crypto from 'node:crypto'
+import {
+  createPhase1BusinessAgentPortsFromEnv,
+  executeAsLineReadRole,
+  resolvePhase1RequestScope,
+} from '@/modules/agent/phase1-runtime'
 import { createOpenRouterAuthorization, exchangeOpenRouterCode } from '@/modules/agent/openrouter-oauth'
 
 // @req FR-048 — Phase 1 provider selection and OpenRouter OAuth PKCE are configuration boundaries.
@@ -12,8 +17,8 @@ describe('Phase 1 business-agent runtime', () => {
     expect(() => createPhase1BusinessAgentPortsFromEnv({ ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true' })).toThrow(/configuration/i)
   })
 
-  it('builds Supabase and selected provider ports from server-only environment values', () => {
-    const ports = createPhase1BusinessAgentPortsFromEnv({
+  it('rejects a Supabase secret key because it bypasses RLS', () => {
+    expect(() => createPhase1BusinessAgentPortsFromEnv({
       ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true',
       SUPABASE_URL: 'https://example.supabase.co',
       SUPABASE_SECRET_KEY: 'server-only',
@@ -21,18 +26,105 @@ describe('Phase 1 business-agent runtime', () => {
       ZURI_MODEL_NAME: 'llama-test',
       ZURI_MODEL_CREDENTIAL: 'provider-secret',
       ZURI_LINE_TRANSPORT_TOKEN: 'transport-secret-long-enough',
-    }, { fetchFn: vi.fn() })
+    }, { fetchFn: vi.fn() })).toThrow(/secret.*forbidden|bypass/i)
+  })
+
+  it('builds scope-bound Postgres and selected provider ports from server-only values', () => {
+    const queryFn = vi.fn()
+    const ports = createPhase1BusinessAgentPortsFromEnv({
+      ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true',
+      ZURI_LINE_DB_URL: 'postgresql://zuri_line_smartgift_login:password@db.qcnmhyglarzcpudjorzc.supabase.co:5432/postgres',
+      ZURI_LINE_BINDING_HASH_PEPPER: 'p'.repeat(32),
+      ZURI_MODEL_PROVIDER: 'groq',
+      ZURI_MODEL_NAME: 'llama-test',
+      ZURI_MODEL_CREDENTIAL: 'provider-secret',
+    }, { fetchFn: vi.fn(), queryFn })
     expect(ports.businessKnowledge.query).toBeTypeOf('function')
+    expect(ports.bindingResolver.resolve).toBeTypeOf('function')
     expect(ports.model.provider).toBe('groq')
-    expect(JSON.stringify(ports)).not.toContain('server-only')
+    expect(JSON.stringify(ports)).not.toContain('password')
     expect(JSON.stringify(ports)).not.toContain('provider-secret')
   })
 
-  it('requires a server-to-server bearer token before Phase 1 work', () => {
-    const env = { ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true', ZURI_LINE_TRANSPORT_TOKEN: 'transport-secret-long-enough' }
-    expect(() => assertPhase1TransportAuthorization(new Headers(), env)).toThrow(/unauthorized/i)
-    expect(() => assertPhase1TransportAuthorization(new Headers({ authorization: 'Bearer wrong' }), env)).toThrow(/unauthorized/i)
-    expect(assertPhase1TransportAuthorization(new Headers({ authorization: 'Bearer transport-secret-long-enough' }), env)).toBe(true)
+  it('accepts only the approved project-qualified Supavisor login form', () => {
+    const common = {
+      ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true',
+      ZURI_LINE_BINDING_HASH_PEPPER: 'p'.repeat(32),
+      ZURI_MODEL_PROVIDER: 'groq',
+      ZURI_MODEL_NAME: 'llama-test',
+      ZURI_MODEL_CREDENTIAL: 'provider-secret',
+    }
+    const queryFn = vi.fn()
+
+    expect(() => createPhase1BusinessAgentPortsFromEnv({
+      ...common,
+      ZURI_LINE_DB_URL: 'postgresql://zuri_line_smartgift_login.qcnmhyglarzcpudjorzc:password@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres',
+    }, { queryFn })).not.toThrow()
+    expect(() => createPhase1BusinessAgentPortsFromEnv({
+      ...common,
+      ZURI_LINE_DB_URL: 'postgresql://zuri_line_smartgift_login.otherproject:password@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres',
+    }, { queryFn })).toThrow('PHASE1_DATABASE_ROLE_FORBIDDEN')
+  })
+
+  it('executes each database query under the NOLOGIN read role in a short transaction', async () => {
+    const client = {
+      query: vi.fn()
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({ rows: [{ ok: true }] })
+        .mockResolvedValueOnce(undefined),
+      release: vi.fn(),
+    }
+    const pool = { connect: vi.fn(async () => client) }
+
+    await expect(executeAsLineReadRole(pool, 'select $1::text', ['safe'])).resolves.toEqual({ rows: [{ ok: true }] })
+    expect(client.query.mock.calls).toEqual([
+      ['begin'],
+      ['set local role zuri_line_smartgift_ro'],
+      ['select $1::text', ['safe']],
+      ['commit'],
+    ])
+    expect(client.release).toHaveBeenCalledOnce()
+  })
+
+  it('rolls back and releases the database connection when a scoped query fails', async () => {
+    const queryError = new Error('query failed')
+    const client = {
+      query: vi.fn()
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(undefined)
+        .mockRejectedValueOnce(queryError)
+        .mockResolvedValueOnce(undefined),
+      release: vi.fn(),
+    }
+
+    await expect(executeAsLineReadRole({ connect: async () => client }, 'select broken', [])).rejects.toBe(queryError)
+    expect(client.query).toHaveBeenLastCalledWith('rollback')
+    expect(client.release).toHaveBeenCalledOnce()
+  })
+
+  it('rejects client-selected tenant or Business scope when production runtime is enabled', async () => {
+    const runtime = { bindingResolver: { resolve: vi.fn() } }
+    await expect(resolvePhase1RequestScope({
+      runtime,
+      headers: new Headers({ authorization: 'Bearer ' + 'x'.repeat(32) }),
+      body: { bindingId: crypto.randomUUID(), destination: 'Udest', tenantId: 'attacker-tenant' },
+    })).rejects.toMatchObject({ message: 'PHASE1_CLIENT_SCOPE_FORBIDDEN', status: 400 })
+    expect(runtime.bindingResolver.resolve).not.toHaveBeenCalled()
+  })
+
+  it('returns only scope resolved by the active LINE binding', async () => {
+    const resolved = {
+      id: crypto.randomUUID(), code: 'LINE-SMARTGIFT-OA',
+      tenantId: crypto.randomUUID(), businessId: crypto.randomUUID(),
+    }
+    const runtime = { bindingResolver: { resolve: vi.fn(async () => resolved) } }
+    const headers = new Headers({ authorization: 'Bearer ' + 'x'.repeat(32) })
+    const body = { bindingId: resolved.id, destination: 'Udest' }
+    await expect(resolvePhase1RequestScope({ runtime, headers, body })).resolves.toEqual(resolved)
+    expect(runtime.bindingResolver.resolve).toHaveBeenCalledWith({
+      bindingId: resolved.id, destination: 'Udest', authorization: 'Bearer ' + 'x'.repeat(32),
+    })
   })
 })
 
@@ -52,8 +144,13 @@ describe('OpenRouter OAuth PKCE (FR-048)', () => {
     const fetchFn = vi.fn(async () => new Response(JSON.stringify({ key: 'sk-or-user-key' }), { status: 200 }))
     const result = await exchangeOpenRouterCode({
       code: 'one-time-code', codeVerifier: 'v'.repeat(64),
-      callbackUrl: 'https://zuri.example/auth/openrouter/callback', fetchFn,
+      fetchFn,
     })
     expect(result).toEqual({ provider: 'openrouter', credential: 'sk-or-user-key' })
+    expect(JSON.parse(fetchFn.mock.calls[0][1].body)).toEqual({
+      code: 'one-time-code',
+      code_verifier: 'v'.repeat(64),
+      code_challenge_method: 'S256',
+    })
   })
 })

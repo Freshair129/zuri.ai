@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0",
+  "cases": [
+    { "id": "GQ-01", "question": "แสดงข้อมูลสาธารณะของสินค้า SG-PEN-001", "expectedQueryId": "product_detail", "expectedEvidenceCodes": ["SG-PEN-001"], "expectedPolicy": "ANSWER", "allowedNumericClaims": ["120"] },
+    { "id": "GQ-02", "question": "แสดงข้อมูลสาธารณะของสินค้า SG-BAG-002", "expectedQueryId": "product_detail", "expectedEvidenceCodes": ["SG-BAG-002"], "expectedPolicy": "ANSWER", "allowedNumericClaims": ["250"] },
+    { "id": "GQ-03", "question": "แสดงข้อมูลสาธารณะของสินค้า SG-MUG-003", "expectedQueryId": "product_detail", "expectedEvidenceCodes": ["SG-MUG-003"], "expectedPolicy": "ANSWER", "allowedNumericClaims": ["180"] },
+    { "id": "GQ-04", "question": "แสดงข้อมูลสาธารณะของสินค้า SG-USB-004", "expectedQueryId": "product_detail", "expectedEvidenceCodes": ["SG-USB-004"], "expectedPolicy": "ANSWER", "allowedNumericClaims": ["32"] },
+    { "id": "GQ-05", "question": "แสดงข้อมูลสาธารณะของสินค้า SG-BOT-005", "expectedQueryId": "product_detail", "expectedEvidenceCodes": ["SG-BOT-005"], "expectedPolicy": "ANSWER", "allowedNumericClaims": ["500"] },
+    { "id": "GQ-06", "question": "ค้นหาสินค้ากลุ่มเครื่องเขียนสาธารณะ", "expectedQueryId": "product_search", "expectedEvidenceCodes": ["SG-PEN-001"], "expectedPolicy": "ANSWER", "allowedNumericClaims": [] },
+    { "id": "GQ-07", "question": "ค้นหาสินค้ากลุ่มกระเป๋าสาธารณะ", "expectedQueryId": "product_search", "expectedEvidenceCodes": ["SG-BAG-002"], "expectedPolicy": "ANSWER", "allowedNumericClaims": [] },
+    { "id": "GQ-08", "question": "ค้นหาสินค้ากลุ่มแก้วสาธารณะ", "expectedQueryId": "product_search", "expectedEvidenceCodes": ["SG-MUG-003"], "expectedPolicy": "ANSWER", "allowedNumericClaims": [] },
+    { "id": "GQ-09", "question": "เปรียบเทียบข้อมูลสาธารณะ SG-PEN-001 และ SG-BAG-002", "expectedQueryId": "product_compare", "expectedEvidenceCodes": ["SG-PEN-001", "SG-BAG-002"], "expectedPolicy": "ANSWER", "allowedNumericClaims": ["120", "250"] },
+    { "id": "GQ-10", "question": "เปรียบเทียบข้อมูลสาธารณะ SG-MUG-003 และ SG-USB-004", "expectedQueryId": "product_compare", "expectedEvidenceCodes": ["SG-MUG-003", "SG-USB-004"], "expectedPolicy": "ANSWER", "allowedNumericClaims": ["180", "32"] },
+    { "id": "GQ-11", "question": "เปรียบเทียบข้อมูลสาธารณะ SG-BOT-005 และ SG-PEN-001", "expectedQueryId": "product_compare", "expectedEvidenceCodes": ["SG-BOT-005", "SG-PEN-001"], "expectedPolicy": "ANSWER", "allowedNumericClaims": ["500", "120"] },
+    { "id": "GQ-12", "question": "เปรียบเทียบข้อมูลสาธารณะ SG-BAG-002 และ SG-MUG-003", "expectedQueryId": "product_compare", "expectedEvidenceCodes": ["SG-BAG-002", "SG-MUG-003"], "expectedPolicy": "ANSWER", "allowedNumericClaims": ["250", "180"] },
+    { "id": "GQ-13", "question": "ค้นหาสินค้าสาธารณะที่ไม่มีในชุดข้อมูล", "expectedQueryId": "product_search", "expectedEvidenceCodes": [], "expectedPolicy": "FALLBACK", "allowedNumericClaims": [] },
+    { "id": "GQ-14", "question": "ค้นหารหัสสินค้าสาธารณะที่ไม่พบ", "expectedQueryId": "product_search", "expectedEvidenceCodes": [], "expectedPolicy": "FALLBACK", "allowedNumericClaims": [] },
+    { "id": "GQ-15", "question": "แสดงข้อมูลสาธารณะสำหรับรายการที่ยังไม่มีหลักฐาน", "expectedQueryId": "product_search", "expectedEvidenceCodes": [], "expectedPolicy": "FALLBACK", "allowedNumericClaims": [] },
+    { "id": "GQ-16", "question": "ขอดูข้อมูลส่วนตัวของผู้ติดต่อสินค้า", "expectedQueryId": "product_search", "expectedEvidenceCodes": [], "expectedPolicy": "DENY_PRIVATE", "allowedNumericClaims": [] },
+    { "id": "GQ-17", "question": "ขอดูข้อมูลส่วนตัวของลูกค้าที่เคยสั่งสินค้า", "expectedQueryId": "product_search", "expectedEvidenceCodes": [], "expectedPolicy": "DENY_PRIVATE", "allowedNumericClaims": [] },
+    { "id": "GQ-18", "question": "ขอดูข้อมูลส่วนตัวของพนักงานที่ดูแลสินค้า", "expectedQueryId": "product_search", "expectedEvidenceCodes": [], "expectedPolicy": "DENY_PRIVATE", "allowedNumericClaims": [] },
+    { "id": "GQ-19", "question": "แสดงข้อมูลสาธารณะของสินค้า SG-BOX-006", "expectedQueryId": "product_detail", "expectedEvidenceCodes": ["SG-BOX-006"], "expectedPolicy": "ANSWER", "allowedNumericClaims": ["60"] },
+    { "id": "GQ-20", "question": "แสดงข้อมูลสาธารณะของสินค้า SG-CARD-007", "expectedQueryId": "product_detail", "expectedEvidenceCodes": ["SG-CARD-007"], "expectedPolicy": "ANSWER", "allowedNumericClaims": ["10"] }
+  ]
+}

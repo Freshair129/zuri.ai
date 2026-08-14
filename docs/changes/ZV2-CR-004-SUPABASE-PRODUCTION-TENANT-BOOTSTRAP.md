@@ -1,16 +1,26 @@
 ---
-version: "0.1.0b"
+version: "0.4.1b"
 created_at: "2026-08-14T03:52:31+07:00,ATHER"
-last_update: "2026-08-14T03:52:31+07:00,ATHER"
-status: "candidate"
+last_update: "2026-08-14T09:56:23+07:00,ATHER"
+status: "beta"
 superseded_by: null
 attributes:
   domain: "data-security"
   doc_type: "change-request"
-  scope: "candidate production tenant bootstrap"
+  scope: "production tenant bootstrap and approved knowledge import"
 ---
 
 # ZV2-CR-004 — Supabase production tenant bootstrap
+
+## Delivery status
+
+Owner-approved on 2026-08-14. Both migrations are recorded remotely. The approved 74-row
+price-disabled artifact has exact Tenant/Business/batch and SHA-256 audit evidence. Static remote
+RLS/policy/grant/role inventory and warning/error-level advisors pass. The retained scoped logical
+backup was captured post-apply and has a SHA-256 manifest; it is not pre-mutation evidence and
+physical backup/PITR is not enabled. The dedicated pinned-CA runtime credential and live
+read-only tenant-isolation probe pass. The production binding remains credential-free and
+`PENDING`; LINE is not enabled.
 
 ## Goal
 
@@ -55,13 +65,23 @@ Business isolation before importing the approved 74-row knowledge dataset or ena
 8. Run positive/negative isolation probes, advisors, migration list, build and full tests.
 9. Keep production LINE kill switch disabled pending provider credentials and one canary.
 
-## Definition of done
+## Merge definition of done
 
-- ADR-018 acceptance and exit gates all pass with remote evidence;
+- ADR-018 merge gates pass with remote evidence;
 - no unresolved cross-tenant table/path exists in the Phase 1 slice;
 - no Supabase secret/service key is used by the LINE runtime;
-- rollback is rehearsed without deleting source or unrelated database data; and
 - docs graph/preflight, tests and build pass.
+
+Merging does not activate LINE. The binding must remain `PENDING`, hashes absent and the production
+kill switch off.
+
+## Production activation definition of done
+
+- the runtime login secret is provisioned and live positive/cross-Tenant/mutation-denial probes pass;
+- an approved physical backup/PITR policy is active;
+- rollback is rehearsed without deleting source or unrelated database data;
+- provider credential and approved golden questions pass; and
+- destination/credential hashes plus the signed LINE canary are accepted before traffic is enabled.
 
 ## Out of scope
 
@@ -71,11 +91,15 @@ Business isolation before importing the approved 74-row knowledge dataset or ena
 - placing staging/test tenants in the production project; and
 - converting every Prisma text UUID to native Postgres `uuid` in the same change.
 
-Canonical requirement IDs are not registered during the proposal gate because no implementation or
-test anchor exists yet. This prevents false coverage in the generated document graph.
+Canonical requirements FR-051/052, NFR-011, BR-012, SDD-026 and SEC-010 are now registered with
+real implementation/test anchors and an explicit remote-gate status.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | candidate | Proposed production isolation bootstrap and implementation gate | working-tree | ATHER |
+| 0.2.0b | 2026-08-14 | beta | Local implementation complete for schema, role/binding boundary and import builder; remote evidence/apply remains gated | working-tree | ATHER |
+| 0.3.0b | 2026-08-14 | beta | Production migrations and verified 74-row import complete; LINE activation remains out of scope | working-tree | ATHER |
+| 0.4.0b | 2026-08-14 | beta | Approved production-disabled merge boundary; activation retains runtime, backup, rollback, provider and canary gates | working-tree | ATHER |
+| 0.4.1b | 2026-08-14 | beta | Pinned-CA runtime login and live tenant-isolation/read-only probe passed; backup/provider/binding/canary gates remain | working-tree | ATHER |

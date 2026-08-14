@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.local/contracts/phase1-activation/zuri-cli-transport-artifact.schema.json",
+  "title": "FR-055 Redacted zuri-cli Transport Artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contractVersion",
+    "eventId",
+    "correlationId",
+    "projectRef",
+    "tenantId",
+    "businessId",
+    "bindingId",
+    "bindingVersion",
+    "canaryPlanSha256",
+    "goldenReportSha256",
+    "isolationReportSha256",
+    "transportSourceSha256",
+    "transportConfigSha256",
+    "providerId",
+    "modelId",
+    "approvalRef",
+    "occurredAt",
+    "actorFingerprint"
+  ],
+  "properties": {
+    "contractVersion": { "const": "1.0.0" },
+    "eventId": { "type": "string", "format": "uuid" },
+    "correlationId": { "type": "string", "format": "uuid" },
+    "projectRef": { "const": "qcnmhyglarzcpudjorzc" },
+    "tenantId": { "const": "77cdbe70-3111-4a04-922a-8059be99a8b0" },
+    "businessId": { "const": "834fa869-62f3-431c-a287-e9a95e91175b" },
+    "bindingId": { "const": "84ed2c90-ab44-46f3-9618-1f24df0744b9" },
+    "bindingVersion": { "type": "integer", "minimum": 1 },
+    "canaryPlanSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "goldenReportSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "isolationReportSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "transportSourceSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "transportConfigSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "providerId": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "modelId": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "approvalRef": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "actorFingerprint": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "httpObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statusCode", "occurredAt"],
+      "properties": {
+        "statusCode": { "type": "integer", "minimum": 100, "maximum": 599 },
+        "occurredAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
