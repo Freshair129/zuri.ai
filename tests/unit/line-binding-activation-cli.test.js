@@ -1,5 +1,14 @@
-import { describe, expect, it, vi } from 'vitest'
-import { main, parseArgs, validateOperatorDatabaseUrl } from '../../scripts/manage-line-binding.mjs'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
+
+let main
+let parseArgs
+let validateOperatorDatabaseUrl
+
+beforeAll(() => import('../../scripts/manage-line-binding.mjs').then((module) => {
+  main = module.main
+  parseArgs = module.parseArgs
+  validateOperatorDatabaseUrl = module.validateOperatorDatabaseUrl
+}))
 
 // @req FR-055 — expose activation only through a dry-run-default local operator CLI.
 // @spec NFR-013, BR-014, SDD-028, SEC-012 — no secrets in argv/output and no privileged DB role.
