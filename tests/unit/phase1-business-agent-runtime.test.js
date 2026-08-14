@@ -124,8 +124,13 @@ describe('OpenRouter OAuth PKCE (FR-048)', () => {
     const fetchFn = vi.fn(async () => new Response(JSON.stringify({ key: 'sk-or-user-key' }), { status: 200 }))
     const result = await exchangeOpenRouterCode({
       code: 'one-time-code', codeVerifier: 'v'.repeat(64),
-      callbackUrl: 'https://zuri.example/auth/openrouter/callback', fetchFn,
+      fetchFn,
     })
     expect(result).toEqual({ provider: 'openrouter', credential: 'sk-or-user-key' })
+    expect(JSON.parse(fetchFn.mock.calls[0][1].body)).toEqual({
+      code: 'one-time-code',
+      code_verifier: 'v'.repeat(64),
+      code_challenge_method: 'S256',
+    })
   })
 })
