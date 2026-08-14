@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.38.0 |
+| **Version** | 1.39.0 |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -61,6 +61,7 @@
 | 1.36.0 | 2026-08-14 | ATHER | Owner-approved production-disabled merge boundary for FR-051/052; runtime secret, live isolation, backup policy, provider evaluation and LINE canary remain activation gates |
 | 1.37.0 | 2026-08-14 | ATHER | Owner-approved FR-053/054 Activation Readiness Pack with golden evaluation, live-role probe and dry-run canary contracts; production traffic remains disabled |
 | 1.38.0 | 2026-08-14 | ATHER | FR-053/054 readiness tooling implemented and regression-tested; fake evaluation passes 20/20 while real provider, live login probe and signed LINE canary remain NOT_RUN |
+| 1.39.0 | 2026-08-14 | ATHER | Dedicated pinned-CA runtime login and live tenant-isolation/read-only proof passed; provider-backed evaluation and signed LINE canary remain gated |
 
 ## Referenced Standards
 
