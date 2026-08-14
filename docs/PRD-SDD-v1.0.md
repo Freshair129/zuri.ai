@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.34.0b |
+| **Version** | 1.35.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -57,6 +57,7 @@
 | 1.32.0 | 2026-08-14 | ATHER | Owner-approved Phase 1 LINE business agent: FR-047..050 + NFR-010 + BR-011 + SEC-009 + SDD-025; curated SmartGift knowledge, provider port, grounded answer and single-reply delivery |
 | 1.33.0 | 2026-08-14 | ATHER | FR-046 implemented: trusted request-session seam, minimized `/api/entry`, explicit local demo session, protected-route migration and cross-tenant/browser proof |
 | 1.34.0b | 2026-08-14 | ATHER | Owner-approved FR-051 + SDD-026: Zuri-branded full-viewport entry landing with one `/login` action, local/code-native visuals, Heritage tokens and preserved FR-044/046 boundaries |
+| 1.35.0b | 2026-08-14 | ATHER | Approved PlanEnvelope mode-specific vocabulary/metrics validation, single human creation path, edit-only execution surfaces, and explicit clean-vs-demo local database reset |
 
 ## Referenced Standards
 
@@ -111,12 +112,12 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-009 | Execution views 7 โหมดบนโมเดลกลาง (global + project-scoped) | ✅ |
 | FR-010 | Progress ต่อ workstream ตาม strategy + evidence + warnings + "Explain" UI | ✅ |
 | FR-011 | Project roll-up ถ่วงน้ำหนัก Σ(ws%×w)/Σw | ✅ |
-| FR-012 | PlanEnvelope import: validate → semantic check → dry run → transactional commit → audit | ✅ |
+| FR-012 | PlanEnvelope import: validate → seven-mode semantic contract check → dry run → transactional commit → audit | ✅ |
 | FR-013 | Snapshot backup: export + import แบบ preview-then-confirm | ✅ |
 | FR-014 | Audit log (immutable) + UI browser | ✅ |
 | FR-015 | Command palette (Ctrl+K), filters, search | ✅ |
 | FR-016 | Seed/demo dataset idempotent ครบ 7 โหมด | ✅ |
-| FR-017 | UI wizard intake ("เริ่มจากเป้าหมาย") → สร้าง envelope เข้า pipeline เดิม | ✅ |
+| FR-017 | UI wizard intake ("เริ่มจากเป้าหมาย") → สร้าง envelope เข้า pipeline เดิม; direct modal creation is edit-only | ✅ |
 | FR-018 | Excel template intake: generator จาก Zod schema + xlsx→envelope converter + error รายแถว | ✅ |
 | FR-019 | Enterprise API: ExternalRef mapping + upsert-by-external-id + OpenAPI docs | ✅ |
 | FR-020 | Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing) | ✅ |

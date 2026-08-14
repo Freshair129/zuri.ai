@@ -19,7 +19,7 @@ export default function Sidebar() {
     >
       <>
         {/* Header: domain context (icon + label + "menu") */}
-        <Link href={domain.basePath || domain.sub[0].path} className="flex h-14 shrink-0 items-center gap-3 border-b border-white/10 px-5 max-md:px-3" aria-label={`${domain.label} home`}>
+        <div className="flex h-14 shrink-0 items-center gap-3 border-b border-white/10 px-5 max-md:px-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/5 font-bold text-[var(--brand)] shadow-inner">
             <domain.icon className="h-5 w-5" aria-hidden />
           </span>
@@ -27,7 +27,7 @@ export default function Sidebar() {
             <span className="block whitespace-nowrap text-base font-bold tracking-tight text-white">{domain.label}</span>
             <span className="mt-0.5 block text-[10px] leading-none text-white/70">menu</span>
           </span>
-        </Link>
+        </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 [scrollbar-width:none]" aria-label={`${domain.label} sections`}>
           {domain.sub.map((item) => {

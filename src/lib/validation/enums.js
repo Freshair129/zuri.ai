@@ -117,6 +117,55 @@ export const ITEM_SUBTYPES = [
   'SETUP_ACTION', 'APPROVAL',
 ]
 
+// @req FR-012 — PlanEnvelope accepts only the vocabulary belonging to the
+// selected execution mode; the neutral database remains unchanged.
+// @spec BR-004, BR-009 — seven canonical modes share one intake pipeline.
+// @tested tests/unit/plan-schema.test.js
+export const EXECUTION_MODE_CONTRACTS = Object.freeze({
+  SOFTWARE_SPRINT: Object.freeze({
+    progressStrategy: 'TASK_WEIGHT',
+    containerSubtypes: Object.freeze(['SPRINT', 'EPIC', 'RELEASE']),
+    itemSubtypes: Object.freeze(['TASK', 'BUG']),
+    metricKeys: Object.freeze(['completedWeight', 'plannedWeight', 'defects']),
+  }),
+  DATA_MIGRATION: Object.freeze({
+    progressStrategy: 'RECORD_VALIDATION',
+    containerSubtypes: Object.freeze(['MIGRATION_STAGE', 'MIGRATION_BATCH']),
+    itemSubtypes: Object.freeze(['DATASET', 'VALIDATION', 'RECONCILIATION']),
+    metricKeys: Object.freeze(['recordsTotal', 'processed', 'success', 'failed', 'validated', 'reconciled']),
+  }),
+  B2B_SALES: Object.freeze({
+    progressStrategy: 'WEIGHTED_PIPELINE',
+    containerSubtypes: Object.freeze(['SALES_PIPELINE', 'SALES_STAGE']),
+    itemSubtypes: Object.freeze(['ACCOUNT', 'DEAL', 'ACTIVITY']),
+    metricKeys: Object.freeze(['target', 'wonRevenue', 'weightedValue']),
+  }),
+  B2C_CAMPAIGN: Object.freeze({
+    progressStrategy: 'KPI_ATTAINMENT',
+    containerSubtypes: Object.freeze(['CAMPAIGN', 'CAMPAIGN_WAVE', 'CHANNEL']),
+    itemSubtypes: Object.freeze(['CREATIVE', 'AUDIENCE', 'EXPERIMENT']),
+    metricKeys: Object.freeze(['spend', 'leads', 'cpa', 'cac', 'conversion', 'conversions', 'revenue', 'roas']),
+  }),
+  PRODUCT_LAUNCH: Object.freeze({
+    progressStrategy: 'MILESTONE_READINESS',
+    containerSubtypes: Object.freeze(['LAUNCH_PHASE']),
+    itemSubtypes: Object.freeze(['DELIVERABLE']),
+    metricKeys: Object.freeze(['readiness', 'blockedGates']),
+  }),
+  OPERATIONS: Object.freeze({
+    progressStrategy: 'SLA_SCORE',
+    containerSubtypes: Object.freeze(['OPS_PERIOD', 'OPS_PROCESS']),
+    itemSubtypes: Object.freeze(['CHECKLIST_ITEM', 'ISSUE', 'SLA']),
+    metricKeys: Object.freeze(['slaMet', 'slaTotal', 'throughput', 'backlog', 'incidents', 'completed']),
+  }),
+  BUSINESS_EXPANSION: Object.freeze({
+    progressStrategy: 'EXPANSION_READINESS',
+    containerSubtypes: Object.freeze(['EXPANSION_INITIATIVE', 'EXPANSION_SITE']),
+    itemSubtypes: Object.freeze(['SETUP_ACTION', 'APPROVAL']),
+    metricKeys: Object.freeze(['legal', 'location', 'budget', 'hiring', 'vendors', 'operationalReadiness', 'goLive']),
+  }),
+})
+
 export const MODE_LABELS = {
   SOFTWARE_SPRINT: 'Software Sprint',
   DATA_MIGRATION: 'Data Migration',

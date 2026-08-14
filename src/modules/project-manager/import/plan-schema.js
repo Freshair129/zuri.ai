@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { zExecutionMode, zProgressStrategy, zDependencyType } from '@/lib/validation/enums'
+import { zExecutionMode, zProgressStrategy, zDependencyType, EXECUTION_MODE_CONTRACTS } from '@/lib/validation/enums'
 
 // @req FR-012, FR-019 — PlanEnvelope validation (shape + semantics)
 // @spec BR-004, BR-007, SEC-002 — unknown modes rejected; plans are data, never executed
@@ -105,6 +105,7 @@ export const zPlanEnvelope = z
         description: z.string().optional(),
         type: z.string().optional(),
         status: z.string().optional(),
+        targetAt: z.union([z.string().datetime(), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).optional(),
         externalRefs,
       })
       .strict(),
@@ -176,9 +177,16 @@ export function validatePlanSemantics(plan) {
 
   claim(plan.project.code, 'project', plan.project)
   for (const ws of plan.workstreams) {
+    const modeContract = EXECUTION_MODE_CONTRACTS[ws.executionMode]
+    if (ws.progressStrategy !== modeContract.progressStrategy) {
+      errors.push(`Workstream "${ws.code}" mode ${ws.executionMode} requires progressStrategy ${modeContract.progressStrategy}`)
+    }
     claim(ws.code, 'workstream', ws)
     const containerCodes = new Set()
     for (const c of ws.containers || []) {
+      if (!modeContract.containerSubtypes.includes(c.subtype)) {
+        errors.push(`Workstream "${ws.code}" mode ${ws.executionMode} does not allow container subtype "${c.subtype}"; expected one of ${modeContract.containerSubtypes.join(', ')}`)
+      }
       claim(c.code, 'container', c)
       containerCodes.add(c.code)
     }
@@ -191,6 +199,13 @@ export function validatePlanSemantics(plan) {
       }
     }
     for (const i of ws.items || []) {
+      if (!modeContract.itemSubtypes.includes(i.subtype)) {
+        errors.push(`Workstream "${ws.code}" mode ${ws.executionMode} does not allow item subtype "${i.subtype}"; expected one of ${modeContract.itemSubtypes.join(', ')}`)
+      }
+      const unknownMetricKeys = Object.keys(i.metrics || {}).filter((key) => !modeContract.metricKeys.includes(key))
+      for (const key of unknownMetricKeys) {
+        errors.push(`Workstream "${ws.code}" mode ${ws.executionMode} does not allow metric key "${key}"`)
+      }
       claim(i.code, 'item', i)
       if (i.containerCode && !containerCodes.has(i.containerCode)) {
         errors.push(`Item "${i.code}" references unknown container "${i.containerCode}" in workstream "${ws.code}"`)

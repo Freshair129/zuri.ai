@@ -49,7 +49,7 @@ flowchart LR
 A[Owner approved 2026-08-13] --> B[N1 canonical domain registry]
   B --> C[N2 navigation and route tests]
   C --> D[N3 docs graph/preflight/build/e2e]
-  D --> E[Exit gate: Overview outside Development]
+ D --> E[Exit gate: Overview is first Development sub-domain]
   A --> F[N4 viewer-scoped API ADR + contract proposal]
   F --> G[Separate approval for auth/session implementation]
 ```
@@ -71,8 +71,9 @@ change API behavior until its ADR and requirement boundary are approved.
 | Keep `/overview` discoverable as BusinessShell root | `src/config/modules.js`, `DomainBar`, Business Overview links | 2 | Registry change |
 | Preserve `domainForPath('/overview')` root behavior | route decision/unit test | 1 | Registry change |
 
-**Acceptance:** Development sidebar has seven entries; `/overview` still renders the
-Business Overview and no Project route changes ownership or URL shape.
+**Acceptance:** Development sidebar starts with Overview and then exposes the seven
+project-management entries; `/overview` still renders the Business Overview and no
+Project route changes ownership or URL shape.
 
 ### N2 — Navigation proof
 
@@ -81,7 +82,7 @@ Business Overview and no Project route changes ownership or URL shape.
 | Task | Evidence | Points | Dependency |
 |---|---|---:|---|
 | Update domain-navigation unit expectations | `tests/unit/domain-navigation.test.js` | 1 | N1 |
-| Add explicit sidebar exclusion assertion for Overview | `tests/unit/sidebar-visible-subdomains.test.js` | 1 | N1 |
+| Add explicit static-heading and first-entry assertion for Overview | `tests/unit/sidebar-visible-subdomains.test.js` | 1 | N1 |
 | Verify command palette excludes Overview as a Development item | command-palette test/e2e | 1 | N1 |
 | Verify Business Overview cards and DomainBar still link to `/overview` | FR-041/FR-044 browser proof | 2 | N1 |
 | Verify ProjectResourceShell remains nested and unchanged | FR-040 browser proof | 1 | N1 |

@@ -94,7 +94,7 @@ Legend: ✅ built · ◐ partial/rebuild · ○ new · ◇ soon (lift from V1, A
 | Business Overview | `/overview` (business selected) | cross-domain home (KPIs + domain shortcuts) | ✅ |
 
 **Projects domain** (shipped module, FR-001…020)
-| Development root | `/overview` | BusinessShell root; not a Development sidebar item | ✅ |
+| Development root | `/overview` | BusinessShell root; first Development sidebar item | ✅ |
 | Workspaces | `/workspaces` (+`/[id]`) | หน่วยงาน/Space picker | ✅ |
 | Projects | `/projects` (+`/new`) | project picker | ✅ |
 | Project home | `/projects/{id}` | tabs: Project·Requirements·Team·Work·Risks·Resources·Files | ◐ |

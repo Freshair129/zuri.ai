@@ -46,11 +46,7 @@ export default function WorkItemModal({ open, onClose, workstream, containers = 
         probability: form.probability === '' ? null : Number(form.probability),
         metrics,
       }
-      if (item) {
-        await api(`/api/work/${item.id}`, { method: 'PATCH', body })
-      } else {
-        await api('/api/work', { method: 'POST', body: { ...body, workstreamId: workstream.id } })
-      }
+      await api(`/api/work/${item.id}`, { method: 'PATCH', body })
       onSaved?.()
       onClose()
     } catch (err) {
@@ -60,8 +56,10 @@ export default function WorkItemModal({ open, onClose, workstream, containers = 
     }
   }
 
+  if (!item) return null
+
   return (
-    <Modal open={open} onClose={onClose} title={item ? `Edit ${item.code}` : 'New work item'}>
+    <Modal open={open} onClose={onClose} title={`Edit ${item.code}`}>
       <form onSubmit={submit}>
         <Field label="Title">
           <input className="input" value={form.title} onChange={(e) => set('title', e.target.value)} required />

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 0.4.1 |
+| **Version** | 0.4.2 |
 | **Status** | Accepted |
 | **Author** | Claude |
 | **Date** | 2026-08-14 |
@@ -41,8 +41,9 @@ Tier 3  Sub-domain the active domain's sidebar; each domain defines its own root
   (per-business module registry). TVS shows *Operations → Courses*; a pure-retail business hides
   it — FR-020's adaptive shell one level deeper. Single business ⇒ Home skips straight to it.
 - **Domain root is explicit.** Development opens `/overview` (the BusinessShell root),
-  while the Development sidebar starts at Projects. Reserved domains keep their Dashboard
-  as the first sub-domain.
+  and its sidebar starts with the non-parent `Overview` sub-domain. Reserved domains keep
+  their `Dashboard` as the first sub-domain. A domain label in the sidebar is context text,
+  not a navigation target.
 - **URLs never carry scope (ADR-006).** Business/workspace are ambient (selection pages →
   cookie/context), not the path — so `/commerce/inventory`, never `/business/{id}/commerce/...`.
   Switching Business keeps you on the same domain+sub-domain where it exists.
@@ -57,8 +58,8 @@ Tier 3  Sub-domain the active domain's sidebar; each domain defines its own root
 ├──────────────────────────────────────────────────────────────┤
 │ 🏠  Workspace › Organization › Business › PRJ-x › Files          │  Breadcrumb — context plus opened resource
 ├───────────────┬──────────────────────────────────────────────┤
-│   Projects    │                                                │
-│   All Work    │              content                          │  Sidebar (Tier 3: Development only)
+│   Overview    │                                                │
+│   Projects    │              content                          │  Sidebar (Tier 3: Development only)
 └───────────────┴──────────────────────────────────────────────┘
 ```
 
@@ -87,7 +88,7 @@ shell scope. The active lens changes labels, never identity or isolation.
 | 1 | **`/` Home** | cards → pick / create **Company** | 🏠 หน้าแรก |
 | 2 | Home (company chosen) | cards → pick / create **Business** | 🏠 › ABC |
 | 3 | **`/overview` Business Overview** | domain bar → pick a **domain** | 🏠 › ABC › ภาพรวม |
-| 4 | **`/projects`… domain home** | sidebar → **sub-domain** | 🏠 › ABC › Projects |
+| 4 | **`/overview`… domain home** | sidebar → **sub-domain** | 🏠 › ABC › Overview |
 | 5 | **`/projects` (list)** | open a Project resource | 🏠 › Workspace › Organization › Business › Projects |
 | 6 | **`/projects/{id}`** | tabs → work view | 🏠 › Workspace › Organization › Business › PRJ-x |
 | 7 | **`/projects/{id}/files`** | — (leaf) | 🏠 › Workspace › Organization › Business › PRJ-x › Files |
@@ -166,16 +167,17 @@ Legend: **lift** = reuse V1 UI per ADR-003 · **rebuild** = V1 defect, rebuild i
 7. ทีมงาน / Team — employees · roles · schedule *(lift)*
 
 ### Development — project management  *(new — existing `projects` route key, FR-001…020)*
-1. Projects
-2. All Work
-3. Execution — 7 modes (sprint · migration · b2b-sales · b2c-campaign · product-launch · operations · expansion)
-4. Timeline
-5. Dependencies
-6. Milestones & Gates
-7. Repositories
+1. **Overview** — Business Overview at `/overview`
+2. Projects
+3. All Work
+4. Execution — 7 modes (sprint · migration · b2b-sales · b2c-campaign · product-launch · operations · expansion)
+5. Timeline
+6. Dependencies
+7. Milestones & Gates
+8. Repositories
 
-`/overview` is the BusinessShell root and is intentionally excluded from this
-Development sub-domain list.
+The Development label in the sidebar is static context. `/overview` is represented by
+the first sidebar sub-domain rather than by a clickable domain heading.
 
 ### HR / People — workforce directory *(new — route key `people`, FR-042)*
 1. **Dashboard** — Business workforce summary

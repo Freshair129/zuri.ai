@@ -29,6 +29,10 @@ slice proves demand while preserving the production authority order in ADR-007.
 - Supabase is the cloud relational read source for this phase. It does not replace
   GenesisBlockDB, GKS, or MSP.
 - The public projection excludes PII, cost, margin, invoice and arbitrary SQL by construction.
+- SmartGift `business_knowledge` records are a knowledge projection, not a PlanEnvelope or
+  Project/WorkItem fixture. A migration that needs operational tracking may use a
+  `DATA_MIGRATION` workstream, while the product records and their source lineage remain
+  in the separate knowledge boundary.
 
 ## Alternatives rejected
 

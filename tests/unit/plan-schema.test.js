@@ -21,6 +21,12 @@ describe('plan envelope schema', () => {
     expect(zPlanEnvelope.safeParse(validPlan).success).toBe(true)
   })
 
+  it('accepts the project target date used by the human intake wizard', () => {
+    const plan = structuredClone(validPlan)
+    plan.project.targetAt = '2026-12-20'
+    expect(zPlanEnvelope.safeParse(plan).success).toBe(true)
+  })
+
   it('rejects unknown execution modes', () => {
     const bad = structuredClone(validPlan)
     bad.workstreams[0].executionMode = 'KANBAN_FLOW'
@@ -48,6 +54,23 @@ describe('plan envelope schema', () => {
     const bad = structuredClone(validPlan)
     bad.workstreams[0].items[0].probability = 1.5
     expect(zPlanEnvelope.safeParse(bad).success).toBe(false)
+  })
+
+  it('rejects a container subtype from a different execution mode', () => {
+    const bad = structuredClone(validPlan)
+    bad.workstreams[0].executionMode = 'DATA_MIGRATION'
+    bad.workstreams[0].progressStrategy = 'RECORD_VALIDATION'
+    bad.workstreams[0].containers[0].subtype = 'SPRINT'
+    bad.workstreams[0].items[0].subtype = 'TASK'
+    const errors = validatePlanSemantics(zPlanEnvelope.parse(bad))
+    expect(errors.some((e) => e.includes('DATA_MIGRATION') && e.includes('SPRINT'))).toBe(true)
+  })
+
+  it('rejects mode-specific metric keys from a different execution mode', () => {
+    const bad = structuredClone(validPlan)
+    bad.workstreams[0].items[0].metrics = { recordsTotal: 100, processed: 90 }
+    const errors = validatePlanSemantics(zPlanEnvelope.parse(bad))
+    expect(errors.some((e) => e.includes('SOFTWARE_SPRINT') && e.includes('recordsTotal'))).toBe(true)
   })
 })
 

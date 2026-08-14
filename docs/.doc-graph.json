@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 687,
-    "total_edges": 1227,
+    "total_nodes": 688,
+    "total_edges": 1232,
     "dangling_edges": 0,
     "node_types": {
       "document": 79,
@@ -13,7 +13,7 @@
       "roadmap": 17,
       "v1_inherited": 234,
       "requirement": 107,
-      "test": 87,
+      "test": 88,
       "code_file": 139
     },
     "coverage": {
@@ -299,7 +299,7 @@
       "id": "code:src/app/(pm)/projects/[projectId]/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/page.jsx",
-      "hash": "d7050c08",
+      "hash": "54a9ffd4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -358,7 +358,7 @@
       "id": "code:src/app/(pm)/projects/new/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/new/page.jsx",
-      "hash": "f1b33c2a",
+      "hash": "c2d0b0c0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1162,7 +1162,7 @@
       "id": "code:src/components/layouts/Sidebar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Sidebar.jsx",
-      "hash": "23e8074e",
+      "hash": "7e5559b2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1222,7 +1222,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "fd381e30",
+      "hash": "789080f0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1419,12 +1419,16 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "f913b0c0",
+      "hash": "7e90287c",
       "status": "current",
       "annotations": {
+        "@req": [
+          "FR-012"
+        ],
         "@spec": [
           "SDD-002",
-          "BR-004"
+          "BR-004",
+          "BR-009"
         ],
         "@tested": [
           "tests/unit/plan-schema.test.js",
@@ -2506,7 +2510,7 @@
       "id": "code:src/modules/project-manager/import/plan-import-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
-      "hash": "100bbf09",
+      "hash": "5b9c5b7f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2534,7 +2538,7 @@
       "id": "code:src/modules/project-manager/import/plan-schema.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-schema.js",
-      "hash": "2247d737",
+      "hash": "dc140e87",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2729,7 +2733,7 @@
       "type": "document",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
       "title": "Acceptance Criteria",
-      "hash": "1ad3f82b",
+      "hash": "02a06206",
       "status": "current"
     },
     {
@@ -2795,7 +2799,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "447393df",
+      "hash": "acbb3f82",
       "status": "current"
     },
     {
@@ -2861,7 +2865,7 @@
       "type": "document",
       "path": "docs/EXECUTION-MODES.md",
       "title": "Seven Execution Modes",
-      "hash": "fb4dcb5c",
+      "hash": "227102ee",
       "status": "current"
     },
     {
@@ -2889,7 +2893,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "6db3b514",
+      "hash": "b2254a9d",
       "status": "current"
     },
     {
@@ -3070,7 +3074,7 @@
       "type": "document",
       "path": "docs/features/FR-047-line-business-knowledge-pilot.md",
       "title": "LINE business-knowledge pilot",
-      "hash": "0a301dee",
+      "hash": "0206e4fb",
       "status": "current"
     },
     {
@@ -3168,7 +3172,7 @@
       "type": "document",
       "path": "docs/HANDOFF-SHELL-V2-CODEX.md",
       "title": "HANDOFF — V2 business-centric shell (for Codex)",
-      "hash": "b742a9bd",
+      "hash": "9cf0f421",
       "status": "current"
     },
     {
@@ -3224,7 +3228,7 @@
       "title": "Zuri V2 — Interface Inventory and Shell Boundary",
       "version": "0.4.0",
       "doc_status": "FR-044 and FR-046 verified beta",
-      "hash": "90f8632c",
+      "hash": "cb726475",
       "status": "current"
     },
     {
@@ -3408,7 +3412,7 @@
       "path": "docs/roadmap/PLAN-FR-044-ENTRY-LANDING-LOGIN-BUSINESS-ROUTING.md",
       "title": "Implementation Plan — FR-044 Entry → Business Routing → BusinessShell",
       "doc_status": "Complete — owner-approved; exit gates verified",
-      "hash": "b27d66de",
+      "hash": "b9757283",
       "status": "current"
     },
     {
@@ -3436,7 +3440,7 @@
       "title": "Next Implementation Plan — Business Navigation Alignment and Viewer Contract",
       "version": "0.3.0",
       "doc_status": "N1/N2/N3 implemented; N4 candidate contract written, awaiting approval",
-      "hash": "325694ac",
+      "hash": "9585a165",
       "status": "current"
     },
     {
@@ -3444,9 +3448,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.34.0b",
+      "version": "1.35.0b",
       "doc_status": "Draft",
-      "hash": "af986cb8",
+      "hash": "38a882a3",
       "status": "current"
     },
     {
@@ -3482,7 +3486,7 @@
       "type": "document",
       "path": "docs/README-zuri-v2-lab.md",
       "title": "zuri-v2-lab — Project Manager",
-      "hash": "b4134910",
+      "hash": "79135ae8",
       "status": "current"
     },
     {
@@ -3516,9 +3520,9 @@
       "type": "document",
       "path": "docs/SITEMAP-V2-DOMAIN-NAV.md",
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
-      "version": "0.4.1",
+      "version": "0.4.2",
       "doc_status": "Accepted",
-      "hash": "df213b02",
+      "hash": "f49b81b7",
       "status": "current"
     },
     {
@@ -3809,7 +3813,7 @@
       "id": "req:FR-012",
       "type": "requirement",
       "family": "FR",
-      "label": "PlanEnvelope import: validate → semantic check → dry run → transactional commit → audit",
+      "label": "PlanEnvelope import: validate → seven-mode semantic contract check → dry run → transactional commit → audit",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -3854,7 +3858,7 @@
       "id": "req:FR-017",
       "type": "requirement",
       "family": "FR",
-      "label": "UI wizard intake (\"เริ่มจากเป้าหมาย\") → สร้าง envelope เข้า pipeline เดิม",
+      "label": "UI wizard intake (\"เริ่มจากเป้าหมาย\") → สร้าง envelope เข้า pipeline เดิม; direct modal creation is edit-only",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -4744,7 +4748,7 @@
       "id": "test:tests/e2e/fr044-entry-routing.spec.js",
       "type": "test",
       "path": "tests/e2e/fr044-entry-routing.spec.js",
-      "hash": "0856229e",
+      "hash": "31204ca0",
       "status": "current"
     },
     {
@@ -5031,7 +5035,7 @@
       "id": "test:tests/unit/domain-navigation.test.js",
       "type": "test",
       "path": "tests/unit/domain-navigation.test.js",
-      "hash": "c3a0fef0",
+      "hash": "57e0e96a",
       "status": "current"
     },
     {
@@ -5161,6 +5165,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/human-intake-surface.test.js",
+      "type": "test",
+      "path": "tests/unit/human-intake-surface.test.js",
+      "hash": "d21888cd",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/ids.test.js",
       "type": "test",
       "path": "tests/unit/ids.test.js",
@@ -5213,7 +5224,7 @@
       "id": "test:tests/unit/plan-schema.test.js",
       "type": "test",
       "path": "tests/unit/plan-schema.test.js",
-      "hash": "2bfad8c0",
+      "hash": "5012b65d",
       "status": "current"
     },
     {
@@ -5297,7 +5308,7 @@
       "id": "test:tests/unit/sidebar-visible-subdomains.test.js",
       "type": "test",
       "path": "tests/unit/sidebar-visible-subdomains.test.js",
-      "hash": "6273415e",
+      "hash": "c2d6ee20",
       "status": "current"
     },
     {
@@ -8530,6 +8541,20 @@
       "from": "code:src/lib/validation/enums.js",
       "to": "req:BR-004",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-012",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -12826,6 +12851,20 @@
     },
     {
       "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "req:FR-018",
       "type": "verifies",
       "status": "current",
@@ -14570,6 +14609,13 @@
     {
       "from": "test:tests/unit/plan-schema.test.js",
       "to": "req:BR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:BR-009",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

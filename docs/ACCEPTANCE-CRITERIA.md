@@ -130,9 +130,9 @@ journey proof, build, full tests, and docs graph/preflight/check all pass. ✅
 ## N1/N2 — Business Overview root and Development navigation
 
 - [x] `/overview` is represented exactly once as the BusinessShell root.
-- [x] Development sidebar contains only Projects, All Work, Execution, Timeline,
-  Dependencies, Milestones & Gates, and Repositories.
-- [x] DomainBar and the Development sidebar header link to `/overview` as the root.
+- [x] Development sidebar starts with Overview, followed by Projects, All Work,
+  Execution, Timeline, Dependencies, Milestones & Gates, and Repositories.
+- [x] DomainBar links to `/overview`; the Development sidebar header is static text.
 - [x] Command palette does not expose Overview as a Development route.
 - [x] Project, People, and Platform routes retain their existing ownership and URLs.
 

@@ -161,7 +161,7 @@ FR-044 now records the implemented interface boundary:
 - pre-shell route guard / redirect state;
 - Landing and Business Routing as no-final-chrome entry surfaces;
 - Business selection as a prerequisite rather than a shell control;
-- Business Overview as a root outside the Development sidebar;
+- Business Overview as the first Development sidebar entry;
 - route-state indicators for `AUTH_REQUIRED`, `BUSINESS_REQUIRED`, `READY`, `FORBIDDEN`,
   `NOT_FOUND`, `LOADING`, `ERROR`, `EMPTY`, and `OFFLINE`.
 
@@ -263,8 +263,8 @@ this shell boundary; it should not be undone.
 
 1. **Implemented:** `/` and `/login` are EntryShell routes, `/businesses` is
    BusinessRoutingShell, and none has final BusinessShell chrome.
-2. **Implemented:** `/overview` is Business Overview outside Development's sidebar;
-   the registry and navigation proof enforce the boundary.
+2. **Implemented:** `/overview` is Business Overview and the first Development sidebar
+   entry; the registry and navigation proof enforce the boundary.
 3. **Implemented:** no selected Business redirects to `/businesses`; no viewer redirects
    to `/login`; unauthorized domain returns `FORBIDDEN`/Business Overview.
 4. **Implemented beta:** `/api/scope` stays outside pre-shell routing; atomic,

@@ -30,11 +30,7 @@ export default function ProjectModal({ open, onClose, workspaces = [], project, 
         startAt: form.startAt || null,
         targetAt: form.targetAt || null,
       }
-      if (project) {
-        await api(`/api/projects/${project.id}`, { method: 'PATCH', body })
-      } else {
-        await api('/api/projects', { method: 'POST', body: { ...body, workspaceId: form.workspaceId } })
-      }
+      await api(`/api/projects/${project.id}`, { method: 'PATCH', body })
       onSaved?.()
       onClose()
     } catch (err) {
@@ -44,10 +40,11 @@ export default function ProjectModal({ open, onClose, workspaces = [], project, 
     }
   }
 
-  // No template picker: a project starts from an objective; workstreams
-  // carry execution modes and the UI activates views automatically.
+  // Human project creation is the objective wizard. This modal is edit-only.
+  if (!project) return null
+
   return (
-    <Modal open={open} onClose={onClose} title={project ? `Edit ${project.code}` : 'New project'}>
+    <Modal open={open} onClose={onClose} title={`Edit ${project.code}`}>
       <form onSubmit={submit}>
         <Field label="Objective / name" hint="Describe the outcome. Execution modes are chosen per workstream, not per project.">
           <input className="input" value={form.name} onChange={(e) => set('name', e.target.value)} required />
@@ -56,16 +53,6 @@ export default function ProjectModal({ open, onClose, workspaces = [], project, 
           <textarea className="input" rows={3} value={form.description} onChange={(e) => set('description', e.target.value)} />
         </Field>
         <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
-          {!project && (
-            <Field label={workspaceLabel}>
-              <select className="input" value={form.workspaceId} onChange={(e) => set('workspaceId', e.target.value)} required>
-                <option value="">Select {workspaceLabel.toLowerCase()}…</option>
-                {workspaces.map((w) => (
-                  <option key={w.id} value={w.id}>{w.code} · {w.name}</option>
-                ))}
-              </select>
-            </Field>
-          )}
           <Field label="Status">
             <select className="input" value={form.status} onChange={(e) => set('status', e.target.value)}>
               {PROJECT_STATUSES.map((s) => (
