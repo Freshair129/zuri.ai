@@ -1,6 +1,7 @@
 import pg from 'pg'
 import { pathToFileURL } from 'node:url'
 import { normalizeRuntimeDatabaseUrl, probeRuntimeLogin } from './probe-phase1-runtime-login.mjs'
+import { pinnedSupabaseTlsOptions } from './supabase-tls.mjs'
 
 const PROJECT_REF = 'qcnmhyglarzcpudjorzc'
 const LOGIN_ROLE = 'zuri_line_smartgift_login'
@@ -42,7 +43,7 @@ export async function provisionRuntimeLogin({
   const client = new Client({
     connectionString: adminUrl,
     connectionTimeoutMillis: 10000,
-    ssl: { rejectUnauthorized: true },
+    ssl: pinnedSupabaseTlsOptions(),
   })
   await client.connect()
   try {

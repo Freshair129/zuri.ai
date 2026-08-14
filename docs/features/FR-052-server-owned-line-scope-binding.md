@@ -2,9 +2,9 @@
 feature: FR-052
 module: project-manager
 source: v2-native
-version: "0.1.2b"
+version: "0.1.3b"
 created_at: "2026-08-14T04:53:45+07:00,ATHER"
-last_update: "2026-08-14T09:17:00+07:00,ATHER"
+last_update: "2026-08-14T09:39:48+07:00,ATHER"
 status: "beta"
 ---
 
@@ -39,6 +39,11 @@ base-table denial, forced-RLS scoped inventory and mutation denial. It writes th
 the live probe so an operator can recover the newly rotated secret if the probe itself fails; the
 binding remains `PENDING` and no LINE traffic is enabled by this step.
 
+Admin and runtime Postgres clients authenticate the Supabase Session Pooler with the pinned
+Supabase Root 2021 CA. The CA certificate fingerprint is validated before network access;
+caller-controlled TLS URL overrides, missing/modified CA assets and unverifiable certificate
+chains fail closed. Certificate verification and hostname validation are never disabled.
+
 ## Verification
 
 - `tests/unit/line-binding-resolver.test.js`
@@ -53,3 +58,4 @@ binding remains `PENDING` and no LINE traffic is enabled by this step.
 | 0.1.0b | 2026-08-14 | beta | Local binding authority and scoped runtime implemented; activation remains PENDING | working-tree | ATHER |
 | 0.1.1b | 2026-08-14 | beta | Binding reserved remotely and verified credential-free; activation remains PENDING | working-tree | ATHER |
 | 0.1.2b | 2026-08-14 | beta | Added connection-string runtime login rotation, OS credential storage and live fail-closed probe; activation remains PENDING | working-tree | ATHER |
+| 0.1.3b | 2026-08-14 | beta | Added pinned Supabase CA verification after the Session Pooler live TLS RCA; activation remains PENDING | working-tree | ATHER |

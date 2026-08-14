@@ -1,5 +1,6 @@
 import pg from 'pg'
 import { pathToFileURL } from 'node:url'
+import { pinnedSupabaseTlsOptions } from './supabase-tls.mjs'
 
 // @req FR-051, FR-052 - prove the production LINE login is scope-bound and read-only.
 // @spec SDD-026, SEC-010 - runtime queries must assume the forced-RLS NOLOGIN role.
@@ -39,7 +40,7 @@ export async function probeRuntimeLogin({ connectionString, Client = pg.Client }
   const client = new Client({
     connectionString: normalizeRuntimeDatabaseUrl(connectionString),
     connectionTimeoutMillis: 10000,
-    ssl: { rejectUnauthorized: true },
+    ssl: pinnedSupabaseTlsOptions(),
   })
   const result = {
     projectRef: EXPECTED.projectRef,

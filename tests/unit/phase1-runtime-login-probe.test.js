@@ -4,6 +4,10 @@ import {
   provisionRuntimeLogin,
   runtimeDatabaseUrlFromAdmin,
 } from '../../scripts/provision-phase1-runtime-login.mjs'
+import {
+  loadPinnedSupabaseCa,
+  pinnedSupabaseTlsOptions,
+} from '../../scripts/supabase-tls.mjs'
 
 // @req FR-051, FR-052 - production runtime login proof fails closed.
 // @spec SDD-026, SEC-010
@@ -14,8 +18,9 @@ const role = 'zuri_line_smartgift_login'
 const password = 'p'.repeat(48)
 const directUrl = `postgresql://${role}:secret@db.${ref}.supabase.co:5432/postgres`
 
-function clientWith(results) {
+function clientWith(results, onConstruct = () => {}) {
   return class FakeClient {
+    constructor(config) { onConstruct(config) }
     async connect() {}
     async end() {}
     async query() {
@@ -27,6 +32,20 @@ function clientWith(results) {
 }
 
 describe('Phase 1 runtime-login production probe', () => {
+  it('loads only the pinned Supabase CA and keeps verification enabled', () => {
+    const tls = pinnedSupabaseTlsOptions()
+    expect(tls.rejectUnauthorized).toBe(true)
+    expect(tls.ca).toContain('BEGIN CERTIFICATE')
+    expect(() => loadPinnedSupabaseCa({
+      readFile: () => { throw new Error('missing') },
+    })).toThrow('SUPABASE_CA_REQUIRED')
+    expect(() => loadPinnedSupabaseCa({ readFile: () => 'not a certificate' }))
+      .toThrow('SUPABASE_CA_INVALID')
+    expect(() => loadPinnedSupabaseCa({
+      readFile: () => tls.ca.replace('MIIDxD', 'MIIDxE'),
+    })).toThrow(/SUPABASE_CA_(INVALID|FINGERPRINT_MISMATCH)/)
+  })
+
   it('accepts dedicated direct/session-pooler roles only and strips connection TLS overrides', () => {
     expect(normalizeRuntimeDatabaseUrl(`${directUrl}?sslmode=no-verify`)).not.toContain('sslmode')
     expect(normalizeRuntimeDatabaseUrl(
@@ -47,7 +66,9 @@ describe('Phase 1 runtime-login production probe', () => {
 
   it('rotates only the fixed runtime role then proves the derived login', async () => {
     const queries = []
+    let adminConfig
     class AdminClient {
+      constructor(config) { adminConfig = config }
       async connect() {}
       async end() {}
       async query(sql) { queries.push(sql) }
@@ -63,6 +84,8 @@ describe('Phase 1 runtime-login production probe', () => {
     })
 
     expect(queries).toEqual([`alter role ${role} password '${password}'`])
+    expect(adminConfig.ssl).toMatchObject({ rejectUnauthorized: true })
+    expect(adminConfig.ssl.ca).toContain('BEGIN CERTIFICATE')
     expect(provisioned.runtimeUrl).toContain(`${role}:${password}@db.${ref}.supabase.co`)
     expect(probe).toHaveBeenCalledOnce()
     expect(probe).toHaveBeenCalledWith({ connectionString: provisioned.runtimeUrl })
@@ -70,12 +93,13 @@ describe('Phase 1 runtime-login production probe', () => {
 
   it('passes only when direct read and mutation are denied and exact scoped inventory is visible', async () => {
     const denied = Object.assign(new Error('permission denied'), { code: '42501' })
+    let runtimeConfig
     const Client = clientWith([
       { rows: [] }, { rows: [] }, denied, { rows: [] }, { rows: [] },
       { rows: [{ current_user: 'zuri_line_smartgift_ro', session_user: role }] },
       { rows: [{ row_count: 74, foreign_scope_rows: 0, all_rows_allowed: true }] },
       { rows: [] }, denied, { rows: [] }, { rows: [] },
-    ])
+    ], (config) => { runtimeConfig = config })
     await expect(probeRuntimeLogin({ connectionString: directUrl, Client })).resolves.toMatchObject({
       loginRoleDirectReadDenied: true,
       scopedRoleAssumed: true,
@@ -83,6 +107,8 @@ describe('Phase 1 runtime-login production probe', () => {
       foreignScopeRowsVisible: 0,
       mutationDenied: true,
     })
+    expect(runtimeConfig.ssl).toMatchObject({ rejectUnauthorized: true })
+    expect(runtimeConfig.ssl.ca).toContain('BEGIN CERTIFICATE')
   })
 
   it('fails closed when the visible inventory is not exact', async () => {

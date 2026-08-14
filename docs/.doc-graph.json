@@ -36,10 +36,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:D-traceability",
-      "doc:FEATURE-MAP"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -2915,7 +2912,7 @@
       "version": "2.0.0",
       "doc_status": "Auto-generated",
       "hash": "0a504f43",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -3009,7 +3006,7 @@
       "version": "1.0.0",
       "doc_status": "Auto-generated",
       "hash": "30370b00",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-019-enterprise-api",
@@ -3205,7 +3202,7 @@
       "type": "document",
       "path": "docs/features/FR-052-server-owned-line-scope-binding.md",
       "title": "FR-052 — Server-owned LINE scope binding",
-      "hash": "e4cd9430",
+      "hash": "f4513e10",
       "status": "current"
     },
     {
@@ -5529,7 +5526,7 @@
       "id": "test:tests/unit/phase1-runtime-login-probe.test.js",
       "type": "test",
       "path": "tests/unit/phase1-runtime-login-probe.test.js",
-      "hash": "1b13d21b",
+      "hash": "f5ad9c19",
       "status": "current"
     },
     {
