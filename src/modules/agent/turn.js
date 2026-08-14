@@ -60,7 +60,7 @@ export async function handleAgentTurn(input, { memory, knowledge, readTools, wri
     response = { kind: 'DUPLICATE', skipReply: true }
   } else if (businessId && businessKnowledge && model) {
     const answer = await answerBusinessQuestion(
-      { businessId, question: text },
+      { tenantId, businessId, question: text },
       { knowledge: businessKnowledge, model },
     )
     response = {

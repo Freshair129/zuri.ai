@@ -18,6 +18,9 @@ export { createAgentPorts } from './runtime'
 // @req FR-048, FR-049 — provider and grounded business-answer public surfaces.
 export { createModelProviderPort, PUBLIC_LINE_PROVIDERS } from './model-provider'
 export { answerBusinessQuestion } from './grounded-business-answer'
-export { assertPhase1TransportAuthorization, createPhase1BusinessAgentPortsFromEnv } from './phase1-runtime'
-export { createConfiguredLineBindingResolver } from './line-channel-binding'
+export {
+  createPhase1BusinessAgentPortsFromEnv,
+  resolvePhase1RequestScope,
+} from './phase1-runtime'
 export { createOpenRouterAuthorization, exchangeOpenRouterCode } from './openrouter-oauth'
+export { createPostgresLineBindingResolver, hashBindingSecret } from './line-binding-resolver'

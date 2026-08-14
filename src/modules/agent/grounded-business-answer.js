@@ -57,11 +57,11 @@ function deterministicFallback(evidence) {
   return facts.join(' — ')
 }
 
-export async function answerBusinessQuestion({ businessId, question }, { knowledge, model }) {
+export async function answerBusinessQuestion({ tenantId, businessId, question }, { knowledge, model }) {
   if (!businessId) throw new Error('BUSINESS_ID_REQUIRED')
   if (!question?.trim()) throw new Error('QUESTION_REQUIRED')
   const selected = selectRegisteredQuery(question)
-  const evidence = await knowledge.query({ businessId, ...selected })
+  const evidence = await knowledge.query({ tenantId, businessId, ...selected })
 
   if (!evidence.records?.length) {
     return {

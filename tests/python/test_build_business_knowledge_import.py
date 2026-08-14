@@ -13,6 +13,10 @@ SPEC.loader.exec_module(MODULE)
 
 
 class BusinessKnowledgeImportTests(unittest.TestCase):
+    TENANT_ID = "77cdbe70-3111-4a04-922a-8059be99a8b0"
+    BUSINESS_ID = "834fa869-62f3-431c-a287-e9a95e91175b"
+    BATCH_ID = "948076f9-6a0a-43f3-88f5-d7225345ac8a"
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
@@ -58,14 +62,19 @@ class BusinessKnowledgeImportTests(unittest.TestCase):
     def test_builds_transactional_direct_postgres_upsert(self):
         data_path, report_path = self._artifacts([self.record])
 
-        sql = MODULE.build_import_sql(data_path, report_path)
+        sql = MODULE.build_import_sql(
+            data_path, report_path, self.TENANT_ID, self.BUSINESS_ID, self.BATCH_ID
+        )
 
         self.assertIn("begin;", sql.lower())
         self.assertIn("jsonb_to_recordset", sql)
         self.assertIn("zuri_core.business_knowledge", sql)
-        self.assertIn("77cdbe70-3111-4a04-922a-8059be99a8b0", sql)
-        self.assertIn("834fa869-62f3-431c-a287-e9a95e91175b", sql)
-        self.assertIn("on conflict (tenant_id, business_id, product_code)", sql.lower())
+        self.assertIn("tenant_id, business_id, product_code", sql.lower())
+        self.assertIn("bootstrap_audit_event", sql)
+        self.assertIn(self.TENANT_ID, sql)
+        self.assertIn(self.BUSINESS_ID, sql)
+        self.assertIn(self.BATCH_ID, sql)
+        self.assertNotIn("public.business_knowledge", sql)
         self.assertIn("commit;", sql.lower())
         self.assertNotIn("ของขวัญ", sql)
 
@@ -74,14 +83,26 @@ class BusinessKnowledgeImportTests(unittest.TestCase):
         data_path.write_bytes(data_path.read_bytes() + b"\n")
 
         with self.assertRaisesRegex(ValueError, "SHA-256"):
-            MODULE.build_import_sql(data_path, report_path)
+            MODULE.build_import_sql(
+                data_path, report_path, self.TENANT_ID, self.BUSINESS_ID, self.BATCH_ID
+            )
 
     def test_rejects_duplicate_business_product_keys(self):
         duplicate = dict(self.record, knowledge_id="smartgift:catalog:def:SKU-1")
         data_path, report_path = self._artifacts([self.record, duplicate])
 
         with self.assertRaisesRegex(ValueError, "duplicate business/product"):
-            MODULE.build_import_sql(data_path, report_path)
+            MODULE.build_import_sql(
+                data_path, report_path, self.TENANT_ID, self.BUSINESS_ID, self.BATCH_ID
+            )
+
+    def test_rejects_non_uuid_target_scope(self):
+        data_path, report_path = self._artifacts([self.record])
+
+        with self.assertRaisesRegex(ValueError, "UUID"):
+            MODULE.build_import_sql(
+                data_path, report_path, "attacker-selected", self.BUSINESS_ID, self.BATCH_ID
+            )
 
 
 if __name__ == "__main__":

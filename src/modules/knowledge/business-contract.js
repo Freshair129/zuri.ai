@@ -59,6 +59,7 @@ const querySchemas = Object.freeze({
 })
 
 const zQuery = z.object({
+  tenantId: z.string().uuid().optional(),
   businessId: z.string().trim().min(1).max(120),
   queryId: z.string().trim().min(1),
   params: z.record(z.unknown()),
@@ -94,6 +95,7 @@ function packet(query, records) {
   return {
     queryId: query.queryId,
     queryVersion: '1.0.0',
+    tenantId: query.tenantId ?? null,
     businessId: query.businessId,
     sensitivity: 'PUBLIC',
     asOf,

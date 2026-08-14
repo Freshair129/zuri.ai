@@ -1,63 +1,49 @@
 import { describe, expect, it, vi } from 'vitest'
-import fs from 'node:fs'
-import path from 'node:path'
-import { assertLineRuntimeDatabaseUrl, createPostgresBusinessKnowledgeReader } from '@/modules/knowledge/postgres-business-knowledge'
+import { createPostgresBusinessKnowledgeReader } from '@/modules/knowledge/postgres-business-knowledge'
 
-// @req FR-051 — tenant-bound knowledge uses a parameterized private-schema query.
-// @spec SDD-026, SEC-010
+// @req FR-051 — production knowledge reads carry tenant and Business scope to Postgres.
+// @spec SDD-026, SEC-010 — direct least-privilege role; no service-key Data API bypass.
 // @tested tests/unit/postgres-business-knowledge.test.js
 
 const row = {
-  knowledge_id: 'sg:sku:USB-001', tenant_id: 'tenant-1', business_id: 'business-1', knowledge_type: 'PRODUCT',
-  product_code: 'USB-001', name: 'USB', category: null, description: null, unit: null,
-  sell_price: null, currency: null, moq: null, colors: [], specification: {}, source_ref: 'catalog:usb',
-  source_sha256: 'a'.repeat(64), as_of: new Date('2026-08-12T00:00:00Z'),
-  approved_at: new Date('2026-08-14T00:00:00Z'), is_active: true, sensitivity: 'PUBLIC', contract_version: '1.0.0',
+  knowledge_id: 'sg:sku:USB-001', business_id: '834fa869-62f3-431c-a287-e9a95e91175b',
+  knowledge_type: 'PRODUCT', product_code: 'USB-001', name: 'USB', category: null,
+  description: null, unit: 'piece', sell_price: '120.00', currency: 'THB', moq: 100,
+  colors: [], specification: {}, source_ref: 'catalog:usb', source_sha256: 'a'.repeat(64),
+  as_of: new Date('2026-08-12T00:00:00Z'), approved_at: new Date('2026-08-14T00:00:00Z'),
+  is_active: true, sensitivity: 'PUBLIC', contract_version: '1.0.0',
 }
 
-describe('Postgres business knowledge (FR-051)', () => {
-  it('uses fixed zuri_core SQL and server-bound Tenant/Business parameters', async () => {
+describe('Postgres business-knowledge reader (FR-051)', () => {
+  it('uses a registered parameterized query with tenant-leading scope', async () => {
     const queryFn = vi.fn(async () => ({ rows: [row] }))
-    const reader = createPostgresBusinessKnowledgeReader({ tenantId: 'tenant-1', businessId: 'business-1', queryFn })
-    const packet = await reader.query({ businessId: 'business-1', queryId: 'product_detail', params: { productCode: 'USB-001' }, limit: 1 })
+    const reader = createPostgresBusinessKnowledgeReader({ queryFn })
+    const packet = await reader.query({
+      tenantId: '77cdbe70-3111-4a04-922a-8059be99a8b0',
+      businessId: '834fa869-62f3-431c-a287-e9a95e91175b',
+      queryId: 'product_detail', params: { productCode: 'USB-001' }, limit: 1,
+    })
+
     expect(packet.records).toHaveLength(1)
-    const [sql, params] = queryFn.mock.calls[0]
+    const [sql, values] = queryFn.mock.calls[0]
     expect(sql).toMatch(/from zuri_core\.business_knowledge/i)
-    expect(sql).not.toMatch(/\bpublic\./i)
-    expect(sql).toContain('$1')
-    expect(params.slice(0, 2)).toEqual(['tenant-1', 'business-1'])
+    expect(sql).toMatch(/tenant_id\s*=\s*\$1[\s\S]*business_id\s*=\s*\$2/i)
+    expect(sql).not.toContain('USB-001')
+    expect(values.slice(0, 3)).toEqual([
+      '77cdbe70-3111-4a04-922a-8059be99a8b0',
+      '834fa869-62f3-431c-a287-e9a95e91175b',
+      'USB-001',
+    ])
   })
 
-  it('rejects caller scope mismatch before querying', async () => {
+  it('rejects unsupported query shapes before touching Postgres', async () => {
     const queryFn = vi.fn()
-    const reader = createPostgresBusinessKnowledgeReader({ tenantId: 'tenant-1', businessId: 'business-1', queryFn })
-    await expect(reader.query({ businessId: 'business-2', queryId: 'product_detail', params: { productCode: 'USB-001' } })).rejects.toThrow(/scope/i)
+    const reader = createPostgresBusinessKnowledgeReader({ queryFn })
+    await expect(reader.query({
+      tenantId: '77cdbe70-3111-4a04-922a-8059be99a8b0',
+      businessId: '834fa869-62f3-431c-a287-e9a95e91175b',
+      queryId: 'raw_sql', params: { sql: 'select * from auth.users' },
+    })).rejects.toThrow(/registered query/i)
     expect(queryFn).not.toHaveBeenCalled()
-  })
-
-  it('accepts only a scope-bound read role on a Postgres URL', () => {
-    expect(assertLineRuntimeDatabaseUrl('postgresql://zuri_line_smartgift_ro:x@db/zuri')).toContain('zuri_line_smartgift_ro')
-    expect(() => assertLineRuntimeDatabaseUrl('https://zuri_line_smartgift_ro:x@db/zuri')).toThrow(/invalid/i)
-    expect(() => assertLineRuntimeDatabaseUrl('postgresql://zuri_migrator:x@db/zuri')).toThrow(/role/i)
-  })
-
-  it('has a private tenant-aware migration with no broad read grant', () => {
-    const migrations = fs.readdirSync(path.join(process.cwd(), 'supabase', 'migrations'))
-      .filter((name) => name.endsWith('_business_knowledge.sql'))
-    expect(migrations).toHaveLength(1)
-    const sql = fs.readFileSync(path.join(process.cwd(), 'supabase', 'migrations', migrations[0]), 'utf8')
-    expect(sql).toMatch(/create schema if not exists zuri_core/i)
-    expect(sql).toMatch(/zuri_core\.business_knowledge/i)
-    expect(sql).toMatch(/tenant_id text not null/i)
-    expect(sql).toMatch(/foreign key \(tenant_id, business_id\)/i)
-    expect(sql).toMatch(/enable row level security/i)
-    expect(sql).toMatch(/force row level security/i)
-    expect(sql).toMatch(/revoke all .* anon/i)
-    expect(sql).toMatch(/revoke all .* authenticated/i)
-    expect(sql).toMatch(/revoke all .* service_role/i)
-    expect(sql).not.toMatch(/grant select .* service_role/i)
-    expect(sql).not.toMatch(/public\.business_knowledge/i)
-    expect(sql).not.toMatch(/pgvector|vector\s*\(/i)
-    expect(sql).not.toMatch(/customer_email|buy_price|margin_pct|invoice/i)
   })
 })

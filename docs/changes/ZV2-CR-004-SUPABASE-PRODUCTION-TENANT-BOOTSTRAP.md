@@ -1,16 +1,24 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-08-14T03:52:31+07:00,ATHER"
-last_update: "2026-08-14T05:10:00+07:00,ATHER"
+last_update: "2026-08-14T06:59:37+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
   domain: "data-security"
   doc_type: "change-request"
-  scope: "candidate production tenant bootstrap"
+  scope: "production tenant bootstrap and approved knowledge import"
 ---
 
 # ZV2-CR-004 — Supabase production tenant bootstrap
+
+## Delivery status
+
+Owner-approved on 2026-08-14. Both migrations are recorded remotely. The approved 74-row
+price-disabled artifact has exact Tenant/Business/batch and SHA-256 audit evidence. Static remote
+RLS/policy/grant/role inventory and warning/error-level advisors pass. The retained scoped logical
+backup predates `zuri_core` and has a SHA-256 manifest; physical backup/PITR is not enabled. The production
+binding remains credential-free and `PENDING`; live runtime-login isolation and LINE are not enabled.
 
 ## Goal
 
@@ -63,13 +71,6 @@ Business isolation before importing the approved 74-row knowledge dataset or ena
 - rollback is rehearsed without deleting source or unrelated database data; and
 - docs graph/preflight, tests and build pass.
 
-## Local implementation result
-
-Repository-local scope approved on 2026-08-14 now provides FR-051/SDD-026/SEC-010 anchors,
-private tenant-aware migration SQL, reserved inactive binding metadata, a scope-bound direct
-Postgres reader, strict binding-owned webhook scope, and internal-UUID import mapping. No remote
-inventory, migration, credential installation, data upload or LINE enablement was performed.
-
 ## Out of scope
 
 - enabling production LINE traffic;
@@ -78,12 +79,13 @@ inventory, migration, credential installation, data upload or LINE enablement wa
 - placing staging/test tenants in the production project; and
 - converting every Prisma text UUID to native Postgres `uuid` in the same change.
 
-Canonical requirement IDs are not registered during the proposal gate because no implementation or
-test anchor exists yet. This prevents false coverage in the generated document graph.
+Canonical requirements FR-051/052, NFR-011, BR-012, SDD-026 and SEC-010 are now registered with
+real implementation/test anchors and an explicit remote-gate status.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | candidate | Proposed production isolation bootstrap and implementation gate | working-tree | ATHER |
-| 0.2.0b | 2026-08-14 | beta | Owner approved repository-local hardening; remote mutation and production enablement remain gated | working-tree | ATHER |
+| 0.2.0b | 2026-08-14 | beta | Local implementation complete for schema, role/binding boundary and import builder; remote evidence/apply remains gated | working-tree | ATHER |
+| 0.3.0b | 2026-08-14 | beta | Production migrations and verified 74-row import complete; LINE activation remains out of scope | working-tree | ATHER |

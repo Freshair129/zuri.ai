@@ -15,4 +15,4 @@ export {
   parseBusinessKnowledgeQuery,
   createInMemoryBusinessKnowledgeReader,
 } from './business-contract'
-export { createPostgresBusinessKnowledgeReader, assertLineRuntimeDatabaseUrl } from './postgres-business-knowledge'
+export { createPostgresBusinessKnowledgeReader } from './postgres-business-knowledge'

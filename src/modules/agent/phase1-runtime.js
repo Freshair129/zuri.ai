@@ -1,43 +1,92 @@
-import { createPostgresBusinessKnowledgeReader, assertLineRuntimeDatabaseUrl } from '@/modules/knowledge'
+import { createPostgresBusinessKnowledgeReader } from '@/modules/knowledge'
 import { createModelProviderPort } from './model-provider'
-import { createConfiguredLineBindingResolver } from './line-channel-binding'
-import crypto from 'node:crypto'
+import { createPostgresLineBindingResolver } from './line-binding-resolver'
+import pg from 'pg'
 
-// @req FR-047, FR-048, FR-051 — compose Phase 1 ports only from server-side configuration.
-// @spec SDD-025, SDD-026, SEC-009, SEC-010 — disabled by default; partial or privileged configuration fails closed.
-// @tested tests/unit/phase1-business-agent-runtime.test.js, tests/unit/postgres-business-knowledge.test.js
+// @req FR-047, FR-048, FR-052 — compose Phase 1 ports only from server-owned scope and configuration.
+// @spec SDD-025, SDD-026, SEC-009, SEC-010 — disabled by default; partial configuration fails closed.
+// @tested tests/unit/phase1-business-agent-runtime.test.js
+
+function assertRuntimeDatabaseUrl(value) {
+  let url
+  try {
+    url = new URL(value)
+  } catch {
+    throw new Error('PHASE1_DATABASE_URL_INVALID')
+  }
+  if (!['postgres:', 'postgresql:'].includes(url.protocol) || url.username !== 'zuri_line_smartgift_login') {
+    throw new Error('PHASE1_DATABASE_ROLE_FORBIDDEN')
+  }
+  return value
+}
+
+let sharedPool = null
+let sharedPoolDatabaseUrl = null
+
+function runtimePool(databaseUrl, timeoutMs) {
+  if (sharedPool && sharedPoolDatabaseUrl !== databaseUrl) {
+    throw new Error('PHASE1_DATABASE_URL_CHANGED_RESTART_REQUIRED')
+  }
+  if (!sharedPool) {
+    sharedPool = new pg.Pool({
+      connectionString: databaseUrl,
+      max: 2,
+      connectionTimeoutMillis: timeoutMs,
+      idleTimeoutMillis: 10000,
+      ssl: { rejectUnauthorized: true },
+    })
+    sharedPoolDatabaseUrl = databaseUrl
+  }
+  return sharedPool
+}
+
+export async function executeAsLineReadRole(pool, sql, values) {
+  const client = await pool.connect()
+  let transactionStarted = false
+  try {
+    await client.query('begin')
+    transactionStarted = true
+    await client.query('set local role zuri_line_smartgift_ro')
+    const result = await client.query(sql, values)
+    await client.query('commit')
+    return result
+  } catch (error) {
+    if (transactionStarted) await client.query('rollback')
+    throw error
+  } finally {
+    client.release()
+  }
+}
 
 export function createPhase1BusinessAgentPortsFromEnv(env = process.env, { fetchFn, queryFn } = {}) {
   if (env.ZURI_LINE_BUSINESS_AGENT_ENABLED !== 'true') return null
 
   if (env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('PHASE1_SERVICE_ROLE_CONFIGURATION_FORBIDDEN')
+    throw new Error('PHASE1_SUPABASE_SECRET_FORBIDDEN: secret/service credentials bypass RLS')
   }
 
   const required = {
-    ZURI_LINE_DATABASE_URL: env.ZURI_LINE_DATABASE_URL,
-    ZURI_LINE_BINDING_ID: env.ZURI_LINE_BINDING_ID,
-    ZURI_LINE_BINDING_DESTINATION_SHA256: env.ZURI_LINE_BINDING_DESTINATION_SHA256,
-    ZURI_LINE_BINDING_TENANT_ID: env.ZURI_LINE_BINDING_TENANT_ID,
-    ZURI_LINE_BINDING_BUSINESS_ID: env.ZURI_LINE_BINDING_BUSINESS_ID,
-    ZURI_LINE_BINDING_STATUS: env.ZURI_LINE_BINDING_STATUS,
+    ZURI_LINE_DB_URL: env.ZURI_LINE_DB_URL,
+    ZURI_LINE_BINDING_HASH_PEPPER: env.ZURI_LINE_BINDING_HASH_PEPPER,
     ZURI_MODEL_PROVIDER: env.ZURI_MODEL_PROVIDER,
     ZURI_MODEL_NAME: env.ZURI_MODEL_NAME,
     ZURI_MODEL_CREDENTIAL: env.ZURI_MODEL_CREDENTIAL,
-    ZURI_LINE_TRANSPORT_TOKEN: env.ZURI_LINE_TRANSPORT_TOKEN,
   }
   const missing = Object.entries(required).filter(([, value]) => !value).map(([name]) => name)
   if (missing.length) throw new Error(`PHASE1_CONFIGURATION_MISSING: ${missing.join(', ')}`)
-  assertLineRuntimeDatabaseUrl(required.ZURI_LINE_DATABASE_URL)
+
+  const databaseUrl = assertRuntimeDatabaseUrl(required.ZURI_LINE_DB_URL)
+  const pool = queryFn ? null : runtimePool(
+    databaseUrl,
+    Number(env.ZURI_KNOWLEDGE_TIMEOUT_MS ?? 5000),
+  )
+  const execute = queryFn ?? ((sql, values) => executeAsLineReadRole(pool, sql, values))
 
   return {
-    binding: createConfiguredLineBindingResolver(env),
-    businessKnowledge: createPostgresBusinessKnowledgeReader({
-      connectionString: required.ZURI_LINE_DATABASE_URL,
-      tenantId: required.ZURI_LINE_BINDING_TENANT_ID,
-      businessId: required.ZURI_LINE_BINDING_BUSINESS_ID,
-      timeoutMs: Number(env.ZURI_KNOWLEDGE_TIMEOUT_MS ?? 5000),
-      queryFn,
+    businessKnowledge: createPostgresBusinessKnowledgeReader({ queryFn: execute }),
+    bindingResolver: createPostgresLineBindingResolver({
+      queryFn: execute,
+      pepper: required.ZURI_LINE_BINDING_HASH_PEPPER,
     }),
     model: createModelProviderPort({
       provider: required.ZURI_MODEL_PROVIDER,
@@ -46,24 +95,28 @@ export function createPhase1BusinessAgentPortsFromEnv(env = process.env, { fetch
       timeoutMs: Number(env.ZURI_MODEL_TIMEOUT_MS ?? 10000),
       fetchFn,
     }),
+    close: async () => {},
   }
 }
 
-export function assertPhase1TransportAuthorization(headers, env = process.env) {
-  if (env.ZURI_LINE_BUSINESS_AGENT_ENABLED !== 'true') return true
-  const expectedToken = env.ZURI_LINE_TRANSPORT_TOKEN
-  const authorization = headers.get('authorization') ?? ''
-  const suppliedToken = authorization.startsWith('Bearer ') ? authorization.slice(7) : ''
-  if (!expectedToken || expectedToken.length < 16 || suppliedToken.length !== expectedToken.length) {
-    const error = new Error('PHASE1_TRANSPORT_UNAUTHORIZED')
-    error.status = 401
-    throw error
+function badRequest(message) {
+  const error = new Error(message)
+  error.status = 400
+  return error
+}
+
+export async function resolvePhase1RequestScope({ runtime, headers, body }) {
+  if (!runtime) {
+    if (!body.tenantId) throw badRequest('TENANT_ID_REQUIRED')
+    return { tenantId: body.tenantId, businessId: body.businessId }
   }
-  const allowed = crypto.timingSafeEqual(Buffer.from(suppliedToken), Buffer.from(expectedToken))
-  if (!allowed) {
-    const error = new Error('PHASE1_TRANSPORT_UNAUTHORIZED')
-    error.status = 401
-    throw error
+  if (body.tenantId !== undefined || body.businessId !== undefined) {
+    throw badRequest('PHASE1_CLIENT_SCOPE_FORBIDDEN')
   }
-  return true
+  if (!body.bindingId || !body.destination) throw badRequest('PHASE1_BINDING_REQUIRED')
+  return runtime.bindingResolver.resolve({
+    bindingId: body.bindingId,
+    destination: body.destination,
+    authorization: headers.get('authorization') ?? '',
+  })
 }

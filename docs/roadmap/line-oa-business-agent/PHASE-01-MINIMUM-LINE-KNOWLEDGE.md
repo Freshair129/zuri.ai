@@ -2,9 +2,9 @@
 title: "Phase 1: Minimum LINE OA Business Knowledge Answer"
 doc_id: "PLAN-LINE-OA-PHASE-01"
 status: "beta"
-version: "0.3.1b"
+version: "0.4.0b"
 created_at: "2026-08-14T02:12:07+07:00,ATHER"
-last_update: "2026-08-14T03:52:31+07:00,ATHER"
+last_update: "2026-08-14T06:59:37+07:00,ATHER"
 owner: "Boss (บอส)"
 attributes:
   domain: "line-ai"
@@ -80,14 +80,15 @@ sequenceDiagram
 |---|---|---|
 | P1-W0 | Implemented | FR-047..050, NFR-010, BR-011, SDD-025 and SEC-009 registered; ADR-007 amended; doc graph/preflight pass |
 | P1-W1 | Implemented | Strict public projection and registered-query contract; PII/cost/margin/invoice fields rejected |
-| P1-W2 | Local isolation implemented; remote gate | Owner designated Supabase project `qcnmhyglarzcpudjorzc`. Reconciled export contains 74 price-disabled rows. FR-051 adds private-schema/composite-FK/RLS SQL and internal UUID mapping; no database credential is configured and SQL has not run remotely |
+| P1-W2 | Production database slice deployed | Project `qcnmhyglarzcpudjorzc` contains the private forced-RLS schema and 74 price-disabled rows with exact Tenant/Business/batch/hash evidence. Binding remains credential-free and PENDING; runtime login secret and LINE canary remain |
 | P1-W3 | Implemented, configuration pending | Five provider adapters, bounded fetch, OpenRouter OAuth PKCE helper and server-only environment boundary pass tests; no real credential has been installed |
 | P1-W4 | Implemented | Evidence packet, deterministic fallback, unsupported-number/code rejection and provider-failure fallback pass tests |
-| P1-W5 | Implemented locally | Internal bearer, server-owned binding/destination scope, event correlation, one reply owner and hashed dedupe across restart pass; real LINE canary is pending |
+| P1-W5 | Implemented locally | Internal bearer, event correlation, one reply owner and hashed dedupe across restart pass; real LINE canary is pending |
 | P1-W6 | Partially complete | Full automated suites/build/docs pass; 20 approved business golden questions and real canary remain blocked by approved product dataset and credentials |
 
-This status does not claim Supabase deployment, production traffic, provider configuration,
-LINE acceptance, delivery, display, read, or Phase 1 exit-gate completion.
+This status claims only the Supabase database migration and approved knowledge import. It does not
+claim production LINE traffic, provider configuration, LINE acceptance/delivery/display/read, or
+Phase 1 exit-gate completion.
 
 ### Approved pilot dataset
 
@@ -98,10 +99,9 @@ LINE acceptance, delivery, display, read, or Phase 1 exit-gate completion.
 - Excluded: PII, customer/contact/document/interaction tables, buy price, margin, and invoices.
 - Export SHA-256: `63a2d5426838a2fe6e11eb14c370377f28c494e62c6f160d228dc619cf862c5a`.
 
-The generated JSONL and SQL artifacts remain outside Git in the operator temporary directory.
-Upload requires `SUPABASE_DB_URL` in the process environment and an approved target project. The
-database migration must run before the generated import SQL. The connection URL must not be
-passed in a command that writes it to logs or shell history.
+The generated JSONL, SQL, reconciliation and rollback artifacts remain outside Git in the operator
+backup directory. The database migration and import have run against the approved project without
+placing a connection URL or credential in source, logs, or shell history.
 
 ## Work packages
 
@@ -249,3 +249,4 @@ rotation metadata. Provider changes are audited. Automatic fallback is disabled 
 | 0.2.0b | 2026-08-14 | beta | Core implementation verified; real data/provider/LINE canary gates remain open | working-tree | ATHER |
 | 0.3.0b | 2026-08-14 | beta | Owner approved one price-disabled source; 74-row export and direct-Postgres import artifact reconciled | working-tree | ATHER |
 | 0.3.1b | 2026-08-14 | beta | Production Supabase project identified; upload held behind ADR-018 tenant-isolation approval and credential gates | working-tree | ATHER |
+| 0.4.0b | 2026-08-14 | beta | Production tenant-isolated schema and approved 74-row import verified; provider/LINE canary gates remain | working-tree | ATHER |
