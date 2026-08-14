@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 720,
-    "total_edges": 1333,
+    "total_nodes": 721,
+    "total_edges": 1337,
     "dangling_edges": 0,
     "node_types": {
       "document": 87,
@@ -13,7 +13,7 @@
       "roadmap": 18,
       "v1_inherited": 234,
       "requirement": 117,
-      "test": 96,
+      "test": 97,
       "code_file": 144
     },
     "coverage": {
@@ -37,34 +37,8 @@
   },
   "drift": {
     "changed": [
-      "doc:fr053-w1-brief",
-      "doc:fr054-w2-brief",
-      "doc:fr054-w3-brief",
-      "spec:ADR-019-PHASE1-ACTIVATION-READINESS",
       "doc:D-traceability",
-      "doc:ZV2-CR-005-PHASE1-ACTIVATION-READINESS",
-      "doc:FEATURE-MAP",
-      "doc:FR-053-phase1-golden-question-evaluation",
-      "doc:FR-054-controlled-line-canary",
-      "doc:PRD-SDD-v1.0",
-      "doc:PHASE-01-MINIMUM-LINE-KNOWLEDGE",
-      "doc:PLAN-FR-053-054-PHASE1-ACTIVATION-READINESS",
-      "doc:ROADMAP-zuri-v2-lab",
-      "doc:LINE-PHASE1-CANARY",
-      "test:tests/unit/activation-readiness-contract.test.js",
-      "test:tests/unit/activation-readiness-integration.test.js",
-      "test:tests/unit/golden-evaluation.test.js",
-      "test:tests/unit/line-canary-preflight.test.js",
-      "test:tests/unit/phase1-business-agent-runtime.test.js",
-      "test:tests/unit/run-bat-database-bootstrap.test.js",
-      "test:tests/unit/runtime-isolation-probe.test.js",
-      "code:src/modules/agent/activation-readiness-contract.js",
-      "code:src/modules/agent/canary-preflight.js",
-      "code:src/modules/agent/golden-evaluation.js",
-      "code:src/modules/agent/index.js",
-      "code:src/modules/agent/openrouter-oauth.js",
-      "code:src/modules/knowledge/index.js",
-      "code:src/modules/knowledge/runtime-isolation-probe.js"
+      "doc:FEATURE-MAP"
     ],
     "added": [],
     "removed": []
@@ -1465,7 +1439,7 @@
       "type": "code_file",
       "path": "src/modules/agent/activation-readiness-contract.js",
       "hash": "506febb1",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-053",
@@ -1486,7 +1460,7 @@
       "type": "code_file",
       "path": "src/modules/agent/canary-preflight.js",
       "hash": "346725cc",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-054"
@@ -1521,7 +1495,7 @@
       "type": "code_file",
       "path": "src/modules/agent/golden-evaluation.js",
       "hash": "62444b5e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-053"
@@ -1559,7 +1533,7 @@
       "type": "code_file",
       "path": "src/modules/agent/index.js",
       "hash": "7d27ffcf",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-025",
@@ -1676,7 +1650,7 @@
       "type": "code_file",
       "path": "src/modules/agent/openrouter-oauth.js",
       "hash": "a7e15cdd",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-048"
@@ -2069,7 +2043,7 @@
       "type": "code_file",
       "path": "src/modules/knowledge/index.js",
       "hash": "ed4dd02a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-024",
@@ -2164,7 +2138,7 @@
       "type": "code_file",
       "path": "src/modules/knowledge/runtime-isolation-probe.js",
       "hash": "a3f5ef20",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-054"
@@ -2940,7 +2914,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "345d64ea",
+      "hash": "0a504f43",
       "status": "changed"
     },
     {
@@ -3034,7 +3008,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "44d5d95b",
+      "hash": "30370b00",
       "status": "changed"
     },
     {
@@ -3231,7 +3205,7 @@
       "type": "document",
       "path": "docs/features/FR-052-server-owned-line-scope-binding.md",
       "title": "FR-052 — Server-owned LINE scope binding",
-      "hash": "4379cf28",
+      "hash": "e4cd9430",
       "status": "current"
     },
     {
@@ -3240,7 +3214,7 @@
       "path": "docs/features/FR-053-phase1-golden-question-evaluation.md",
       "title": "FR-053 — Phase 1 golden question evaluation",
       "hash": "18713cb4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-054-controlled-line-canary",
@@ -3248,7 +3222,7 @@
       "path": "docs/features/FR-054-controlled-line-canary.md",
       "title": "FR-054 — Controlled LINE canary",
       "hash": "1837b600",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:fr045-w0-brief",
@@ -3328,7 +3302,7 @@
       "path": "docs/.rwang-tasks/fr053-w1-brief.md",
       "title": "FR-053 W1 task brief — golden evaluation",
       "hash": "10d22bb0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:fr054-w2-brief",
@@ -3336,7 +3310,7 @@
       "path": "docs/.rwang-tasks/fr054-w2-brief.md",
       "title": "FR-054 W2 task brief — runtime isolation probe",
       "hash": "2a022e53",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:fr054-w3-brief",
@@ -3344,7 +3318,7 @@
       "path": "docs/.rwang-tasks/fr054-w3-brief.md",
       "title": "FR-054 W3 task brief — canary preflight",
       "hash": "362741f3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -3426,7 +3400,7 @@
       "path": "docs/runbooks/LINE-PHASE1-CANARY.md",
       "title": "LINE Phase 1 canary runbook",
       "hash": "3f398b3d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:model-lifecycle",
@@ -3528,7 +3502,7 @@
       "path": "docs/roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md",
       "title": "Phase 1: Minimum LINE OA Business Knowledge Answer",
       "hash": "2e9d8943",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PHASE-02-CLOUD-RUNTIME-OPERATIONS",
@@ -3636,7 +3610,7 @@
       "path": "docs/roadmap/PLAN-FR-053-054-PHASE1-ACTIVATION-READINESS.md",
       "title": "Implementation plan — FR-053/054 Phase 1 activation readiness",
       "hash": "f7c9cd00",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
@@ -3656,7 +3630,7 @@
       "version": "1.38.0",
       "doc_status": "Draft",
       "hash": "48716de2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT-V2",
@@ -3708,7 +3682,7 @@
       "path": "docs/roadmap/ROADMAP-zuri-v2-lab.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
       "hash": "cdbc17da",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROUTES-SITEMAP",
@@ -3822,7 +3796,7 @@
       "path": "docs/changes/ZV2-CR-005-PHASE1-ACTIVATION-READINESS.md",
       "title": "ZV2-CR-005 — Phase 1 activation readiness",
       "hash": "212b4035",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "req:BR-001",
@@ -5031,7 +5005,7 @@
       "path": "docs/ADR-019-PHASE1-ACTIVATION-READINESS.md",
       "title": "ADR-019 — Phase 1 activation readiness",
       "hash": "f1064acc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -5269,14 +5243,14 @@
       "type": "test",
       "path": "tests/unit/activation-readiness-contract.test.js",
       "hash": "b1dc9837",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/activation-readiness-integration.test.js",
       "type": "test",
       "path": "tests/unit/activation-readiness-integration.test.js",
       "hash": "b9bb14ec",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/breadcrumb-switcher.test.js",
@@ -5465,7 +5439,7 @@
       "type": "test",
       "path": "tests/unit/golden-evaluation.test.js",
       "hash": "efe81eac",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/grounded-business-answer.test.js",
@@ -5500,7 +5474,7 @@
       "type": "test",
       "path": "tests/unit/line-canary-preflight.test.js",
       "hash": "1f9d2825",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/line-channel-binding.test.js",
@@ -5549,7 +5523,14 @@
       "type": "test",
       "path": "tests/unit/phase1-business-agent-runtime.test.js",
       "hash": "882de226",
-      "status": "changed"
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/phase1-runtime-login-probe.test.js",
+      "type": "test",
+      "path": "tests/unit/phase1-runtime-login-probe.test.js",
+      "hash": "1b13d21b",
+      "status": "current"
     },
     {
       "id": "test:tests/unit/plan-schema.test.js",
@@ -5640,14 +5621,14 @@
       "type": "test",
       "path": "tests/unit/run-bat-database-bootstrap.test.js",
       "hash": "e08dd0d0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/runtime-isolation-probe.test.js",
       "type": "test",
       "path": "tests/unit/runtime-isolation-probe.test.js",
       "hash": "e3c8b1da",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/scope-view-context.test.js",
@@ -15552,6 +15533,34 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
+      "to": "req:FR-051",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
+      "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/plan-schema.test.js",
