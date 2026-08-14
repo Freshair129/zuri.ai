@@ -1,7 +1,7 @@
 ---
-version: "0.3.0b"
+version: "0.3.1b"
 created_at: "2026-08-14T05:18:00+07:00,ATHER"
-last_update: "2026-08-14T09:56:23+07:00,ATHER"
+last_update: "2026-08-14T10:01:36+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -34,10 +34,10 @@ enabled.
 
 | Gate | Result |
 |---|---|
-| JavaScript tests | PASS — 79 files / 414 tests |
+| JavaScript tests | PASS — 91 files / 468 tests |
 | Python tests | PASS — 8 tests |
-| Production build | PASS — Next.js 24 static pages, no blocking warning |
-| Docs graph | PASS — 677 nodes, 1075 edges, 0 dangling before final evidence refresh |
+| Production build | PASS — Next.js generated 25 static pages, no blocking warning |
+| Docs graph | PASS — 721 nodes, 1337 edges, 0 dangling after final evidence refresh |
 | Docs preflight | PASS — 0 critical, 0 warning |
 | Supabase migration apply | PASS — PostgreSQL 17 local `db reset` applied both migrations |
 | Idempotency | PASS — production bootstrap migration reapplied successfully |
@@ -80,3 +80,4 @@ recorded database evidence.
 | 0.2.1b | 2026-08-14 | beta | Corrected backup chronology and separated static isolation proof from pending live-login probe | working-tree | ATHER |
 | 0.2.2b | 2026-08-14 | beta | Recorded production-disabled merge readiness separately from unresolved activation gates | working-tree | ATHER |
 | 0.3.0b | 2026-08-14 | beta | Dedicated runtime credential and pinned-CA live tenant-isolation/read-only probe passed | working-tree | ATHER |
+| 0.3.1b | 2026-08-14 | beta | Refreshed the full-suite and production-build evidence after rebasing onto current main | working-tree | ATHER |
