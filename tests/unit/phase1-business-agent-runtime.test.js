@@ -33,7 +33,7 @@ describe('Phase 1 business-agent runtime', () => {
     const queryFn = vi.fn()
     const ports = createPhase1BusinessAgentPortsFromEnv({
       ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true',
-      ZURI_LINE_DB_URL: 'postgresql://zuri_line_smartgift_login:password@db.example.supabase.co:5432/postgres',
+      ZURI_LINE_DB_URL: 'postgresql://zuri_line_smartgift_login:password@db.qcnmhyglarzcpudjorzc.supabase.co:5432/postgres',
       ZURI_LINE_BINDING_HASH_PEPPER: 'p'.repeat(32),
       ZURI_MODEL_PROVIDER: 'groq',
       ZURI_MODEL_NAME: 'llama-test',
@@ -44,6 +44,26 @@ describe('Phase 1 business-agent runtime', () => {
     expect(ports.model.provider).toBe('groq')
     expect(JSON.stringify(ports)).not.toContain('password')
     expect(JSON.stringify(ports)).not.toContain('provider-secret')
+  })
+
+  it('accepts only the approved project-qualified Supavisor login form', () => {
+    const common = {
+      ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true',
+      ZURI_LINE_BINDING_HASH_PEPPER: 'p'.repeat(32),
+      ZURI_MODEL_PROVIDER: 'groq',
+      ZURI_MODEL_NAME: 'llama-test',
+      ZURI_MODEL_CREDENTIAL: 'provider-secret',
+    }
+    const queryFn = vi.fn()
+
+    expect(() => createPhase1BusinessAgentPortsFromEnv({
+      ...common,
+      ZURI_LINE_DB_URL: 'postgresql://zuri_line_smartgift_login.qcnmhyglarzcpudjorzc:password@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres',
+    }, { queryFn })).not.toThrow()
+    expect(() => createPhase1BusinessAgentPortsFromEnv({
+      ...common,
+      ZURI_LINE_DB_URL: 'postgresql://zuri_line_smartgift_login.otherproject:password@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres',
+    }, { queryFn })).toThrow('PHASE1_DATABASE_ROLE_FORBIDDEN')
   })
 
   it('executes each database query under the NOLOGIN read role in a short transaction', async () => {

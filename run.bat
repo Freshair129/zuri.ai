@@ -7,6 +7,14 @@ REM ============================================================
 setlocal
 cd /d "%~dp0"
 
+REM @req FR-054 - inject the dedicated Supabase URL into this process tree only.
+REM @spec SDD-027, SEC-011 - credential remains in Windows Credential Manager.
+REM @tested tests/unit/run-bat-database-bootstrap.test.js
+if not defined ZURI_SUPABASE_RUNTIME_BOOTSTRAPPED (
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\run-with-supabase-runtime.ps1" -BatchPath "%~f0"
+  exit /b %ERRORLEVEL%
+)
+
 REM Prisma 5.22's Windows schema engine needs a supported Rust log mode
 REM under the repository's Node 24 toolchain (warn can terminate bootstrap).
 set "RUST_LOG=info"
@@ -20,6 +28,12 @@ if not defined DATABASE_URL set "DATABASE_URL=file:./dev.db"
 if not exist "node_modules" (
   echo [zuri] Installing dependencies ^(first run only^)...
   call npm install
+  if errorlevel 1 goto :fail
+)
+
+if defined ZURI_LINE_DB_URL (
+  echo [zuri] Verifying isolated Supabase runtime access...
+  call npm run phase1:isolation:verify
   if errorlevel 1 goto :fail
 )
 

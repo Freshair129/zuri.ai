@@ -27,6 +27,7 @@
     "phase1:evaluate": "node scripts/evaluate-phase1-golden.mjs",
     "phase1:isolation:verify": "node scripts/verify-line-runtime-isolation.mjs",
     "phase1:canary:plan": "node scripts/plan-line-canary.mjs",
+    "phase1:line-binding": "node scripts/manage-line-binding.mjs",
     "self:plan": "node scripts/self-plan.mjs"
   },
   "prisma": {
@@ -46,6 +47,8 @@
   },
   "devDependencies": {
     "@playwright/test": "1.49.1",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
     "autoprefixer": "10.4.20",
     "postcss": "8.4.49",
     "prisma": "5.22.0",

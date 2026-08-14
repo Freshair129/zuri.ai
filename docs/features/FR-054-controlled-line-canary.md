@@ -2,9 +2,9 @@
 feature: FR-054
 module: agent
 source: v2-native
-version: "0.2.0b"
+version: "0.3.2b"
 created_at: "2026-08-14T07:58:02+07:00,ATHER"
-last_update: "2026-08-14T08:20:18+07:00,ATHER"
+last_update: "2026-08-14T11:45:00+07:00,ATHER"
 status: "beta"
 ---
 
@@ -27,9 +27,14 @@ unsafe prerequisites before an operator can perform the later controlled activat
 ## Delivery state
 
 The dedicated-login probe, secret-redacted CLI, dry-run canary preflight, plan schema and operator
-runbook are implemented. Injected tests prove fail-closed behavior and rollback. No production
-database connection, binding mutation or LINE transport was used: live isolation and the signed
-single-destination canary remain `NOT_RUN`.
+runbook are implemented. The live probe now connects through the approved project-qualified
+Supavisor session pooler with the pinned CA and passes the exact 74-row isolation boundary. No
+binding mutation or LINE transport was used; the signed single-destination canary remains
+`NOT_RUN`.
+
+The approved RCA remediation also passes against PostgreSQL 17 in a dedicated loopback test
+database. That is supplementary local contract evidence; the live production report is recorded at
+`.agent/evidence/supabase-2026-08-14/runtime-isolation-report.json`.
 
 ## CHANGELOG
 
@@ -37,3 +42,6 @@ single-destination canary remain `NOT_RUN`.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | Owner-approved controlled-canary readiness contract | working-tree | ATHER |
 | 0.2.0b | 2026-08-14 | beta | Probe and dry-run canary tooling implemented; live isolation and LINE canary remain NOT_RUN | working-tree | ATHER |
+| 0.3.0b | 2026-08-14 | beta | Approved probe remediation passes unit plus PostgreSQL 17 role/RLS integration; live gate remains NOT_RUN | working-tree | ATHER |
+| 0.3.1b | 2026-08-14 | beta | Live dedicated-login isolation passes via project-qualified Supavisor with pinned CA; LINE remains NOT_RUN | working-tree | ATHER |
+| 0.3.2b | 2026-08-14 | beta | Redacted live isolation report added to the activation evidence manifest; binding and LINE remain gated | working-tree | ATHER |

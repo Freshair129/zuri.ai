@@ -3,6 +3,7 @@ import {
   parseRuntimeIsolationEnvironment,
   runRuntimeIsolationProbe,
 } from '../src/modules/knowledge/runtime-isolation-probe.js'
+import { readRuntimeDatabaseCa } from '../src/modules/knowledge/runtime-postgres-config.js'
 
 // @req FR-054 — operators can generate a live dedicated-login isolation report.
 // @spec SDD-027, SEC-011 — configuration is environment-only and output is secret-redacted.
@@ -15,7 +16,7 @@ try {
   const config = parseRuntimeIsolationEnvironment(process.env)
   client = new pg.Client({
     connectionString: config.databaseUrl,
-    ssl: { rejectUnauthorized: true },
+    ssl: readRuntimeDatabaseCa(process.env),
   })
   await client.connect()
   connected = true

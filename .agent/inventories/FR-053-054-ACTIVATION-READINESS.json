@@ -1,8 +1,9 @@
 {
-  "version": "0.1.0b",
-  "observedAt": "2026-08-14T07:58:02+07:00",
-  "baselineCommit": "f0bf077",
-  "requirements": ["FR-047", "FR-048", "FR-049", "FR-050", "FR-051", "FR-052"],
+  "version": "0.2.2b",
+  "observedAt": "2026-08-14T11:42:24+07:00",
+  "baselineCommit": "95e6983",
+  "requirements": ["FR-053", "FR-054"],
+  "prerequisites": ["FR-047", "FR-048", "FR-049", "FR-050", "FR-051", "FR-052"],
   "existing": {
     "knowledgePort": "src/modules/knowledge/business-contract.js",
     "postgresReader": "src/modules/knowledge/postgres-business-knowledge.js",
@@ -13,14 +14,22 @@
     "webhookRoute": "src/app/api/agent/line-webhook/route.js",
     "remoteIsolationSql": "supabase/tests/production_tenant_isolation.sql"
   },
-  "missing": [
-    "versioned golden question corpus",
-    "deterministic evaluation runner and report schema",
+  "implemented": [
+    "versioned golden question corpus and deterministic evaluator",
     "secret-redacted runtime isolation probe runner",
-    "dry-run canary plan contract",
-    "controlled canary operator runbook"
+    "PostgreSQL 17 text-type, least-privilege role and RLS integration regression",
+    "dry-run canary plan contract and operator runbook"
   ],
-  "productionInvariant": {
+  "pendingExternal": [
+    "owner-approved production corpus mapping",
+    "approved model provider credential and real evaluation",
+    "physical backup/PITR approval and rollback rehearsal",
+    "exact canary destination, binding hashes and signed LINE canary"
+  ],
+  "lastKnownProductionInvariant": {
+    "verificationState": "LIVE_RECHECKED",
+    "evidence": ".agent/evidence/supabase-2026-08-14/manifest.json",
+    "runtimeIsolationReport": ".agent/evidence/supabase-2026-08-14/runtime-isolation-report.json",
     "bindingStatus": "PENDING",
     "bindingHashesPresent": false,
     "trafficEnabled": false

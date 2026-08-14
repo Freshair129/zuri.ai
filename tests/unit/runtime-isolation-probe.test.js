@@ -28,7 +28,13 @@ const fakePassword = ['do', 'not', 'print'].join('-')
 const databaseUrl = connectionUrl({
   role: 'zuri_line_smartgift_login',
   password: fakePassword,
-  host: 'db.secret-project.supabase.co',
+  host: 'db.qcnmhyglarzcpudjorzc.supabase.co',
+})
+
+const poolerDatabaseUrl = connectionUrl({
+  role: 'zuri_line_smartgift_login.qcnmhyglarzcpudjorzc',
+  password: fakePassword,
+  host: 'aws-0-ap-northeast-2.pooler.supabase.com',
 })
 
 function fakeClient({ mutationDenied = true } = {}) {
@@ -84,6 +90,15 @@ describe('runtime database isolation probe (FR-054)', () => {
     expect(client.query.mock.calls.some(([sql]) => /commit/i.test(sql))).toBe(false)
   })
 
+  it('binds UUID-shaped scope values using the deployed PostgreSQL text contract', async () => {
+    const client = fakeClient()
+    await runRuntimeIsolationProbe({ client, databaseUrl, scope })
+
+    const sql = client.query.mock.calls.map(([statement]) => String(statement)).join('\n')
+    expect(sql).not.toContain('::uuid')
+    expect(sql.match(/\$[12]::text/g)).toHaveLength(5)
+  })
+
   it('fails closed and still rolls back when the mutation unexpectedly succeeds', async () => {
     const client = fakeClient({ mutationDenied: false })
     const report = await runRuntimeIsolationProbe({ client, databaseUrl, scope })
@@ -105,7 +120,7 @@ describe('runtime database isolation probe (FR-054)', () => {
     expect(report.target).toMatchObject({ hostFingerprint: expect.stringMatching(/^sha256:[a-f0-9]{12}$/), roleFingerprint: expect.stringMatching(/^sha256:[a-f0-9]{12}$/) })
     expect(serialized).not.toContain(databaseUrl)
     expect(serialized).not.toContain(fakePassword)
-    expect(serialized).not.toContain('db.secret-project.supabase.co')
+    expect(serialized).not.toContain('db.qcnmhyglarzcpudjorzc.supabase.co')
     expect(serialized).not.toContain('zuri_line_smartgift_login')
     expect(serialized).not.toContain('permission denied')
     expect(serialized.toLowerCase()).not.toContain('authorization')
@@ -143,5 +158,28 @@ describe('runtime database isolation probe (FR-054)', () => {
     expect(JSON.stringify(report)).not.toContain(fakePassword)
     await expect(runRuntimeIsolationProbeFromEnv({ client: fakeClient(), env: {} }))
       .rejects.toThrow('RUNTIME_ISOLATION_CONFIGURATION_MISSING')
+  })
+
+  it('accepts the approved Supavisor session-pooler username without weakening the role contract', async () => {
+    const report = await runRuntimeIsolationProbe({
+      client: fakeClient(),
+      databaseUrl: poolerDatabaseUrl,
+      scope,
+    })
+
+    expect(report.status).toBe('PASS')
+    expect(JSON.stringify(report)).not.toContain('qcnmhyglarzcpudjorzc')
+    expect(JSON.stringify(report)).not.toContain(fakePassword)
+  })
+
+  it('rejects a pooler username for another project', async () => {
+    const wrongProjectUrl = connectionUrl({
+      role: 'zuri_line_smartgift_login.otherprojectref',
+      password: fakePassword,
+      host: 'aws-0-ap-northeast-2.pooler.supabase.com',
+    })
+
+    await expect(runRuntimeIsolationProbe({ client: fakeClient(), databaseUrl: wrongProjectUrl, scope }))
+      .rejects.toThrow('RUNTIME_ISOLATION_DATABASE_ROLE_FORBIDDEN')
   })
 })

@@ -1,11 +1,15 @@
 import crypto from 'node:crypto'
 import { z } from 'zod'
+import {
+  parseDedicatedRuntimeDatabaseUrl,
+  PHASE1_LOGIN_ROLE,
+} from './runtime-postgres-config.js'
 
 // @req FR-054 — prove the dedicated LINE database login is isolated before activation.
 // @spec SDD-027, SEC-011 — assertions are read-only, redacted and always rolled back.
-// @tested tests/unit/runtime-isolation-probe.test.js
+// @tested tests/unit/runtime-isolation-probe.test.js, tests/integration/runtime-isolation-probe.postgres.test.js
 
-const DEDICATED_LOGIN_ROLE = 'zuri_line_smartgift_login'
+const DEDICATED_LOGIN_ROLE = PHASE1_LOGIN_ROLE
 const POLICY_READ_ROLE = 'zuri_line_smartgift_ro'
 
 const zScope = z.object({
@@ -22,16 +26,10 @@ function fingerprint(value) {
 }
 
 function parseTarget(databaseUrl) {
-  let url
-  try {
-    url = new URL(databaseUrl)
-  } catch {
-    throw new Error('RUNTIME_ISOLATION_DATABASE_URL_INVALID')
-  }
-  const role = decodeURIComponent(url.username)
-  if (!['postgres:', 'postgresql:'].includes(url.protocol) || role !== DEDICATED_LOGIN_ROLE) {
-    throw new Error('RUNTIME_ISOLATION_DATABASE_ROLE_FORBIDDEN')
-  }
+  const { url, role } = parseDedicatedRuntimeDatabaseUrl(databaseUrl, {
+    invalidError: 'RUNTIME_ISOLATION_DATABASE_URL_INVALID',
+    forbiddenError: 'RUNTIME_ISOLATION_DATABASE_ROLE_FORBIDDEN',
+  })
   return {
     hostFingerprint: fingerprint(url.hostname.toLowerCase()),
     roleFingerprint: fingerprint(role),
@@ -70,7 +68,16 @@ export async function runRuntimeIsolationProbe({ client, databaseUrl, scope, now
       select
         current_user as login_role,
         has_schema_privilege(current_user, 'zuri_core', 'USAGE') as has_direct_schema_usage,
-        has_table_privilege(current_user, 'zuri_core.business_knowledge', 'SELECT') as has_direct_table_select
+        has_table_privilege(
+          current_user,
+          (
+            select c.oid
+            from pg_class c
+            join pg_namespace n on n.oid = c.relnamespace
+            where n.nspname = 'zuri_core' and c.relname = 'business_knowledge'
+          ),
+          'SELECT'
+        ) as has_direct_table_select
     `)
     const direct = directGrantResult.rows?.[0] ?? {}
     assertions.directGrantDenied.passed = direct.login_role === DEDICATED_LOGIN_ROLE
@@ -83,7 +90,7 @@ export async function runRuntimeIsolationProbe({ client, databaseUrl, scope, now
       select
         count(*)::integer as visible_count,
         count(*) filter (
-          where tenant_id <> $1::uuid or business_id <> $2::uuid
+          where tenant_id <> $1::text or business_id <> $2::text
         )::integer as out_of_scope_count
       from zuri_core.business_knowledge
     `, [parsedScope.tenantId, parsedScope.businessId])
@@ -98,7 +105,7 @@ export async function runRuntimeIsolationProbe({ client, databaseUrl, scope, now
     const crossTenantResult = await client.query(`
       select count(*)::integer as cross_tenant_visible_count
       from zuri_core.business_knowledge
-      where tenant_id = $1::uuid
+      where tenant_id = $1::text
     `, [parsedScope.crossTenantId])
     const crossTenantVisibleCount = count(crossTenantResult.rows?.[0]?.cross_tenant_visible_count)
     assertions.crossTenantDenied = {
@@ -110,7 +117,7 @@ export async function runRuntimeIsolationProbe({ client, databaseUrl, scope, now
       await client.query(`
         update zuri_core.business_knowledge
         set name = name
-        where tenant_id = $1::uuid and business_id = $2::uuid and false
+        where tenant_id = $1::text and business_id = $2::text and false
       `, [parsedScope.tenantId, parsedScope.businessId])
       assertions.mutationDeniedAndRolledBack.reason = 'MUTATION_WAS_NOT_DENIED'
     } catch (error) {

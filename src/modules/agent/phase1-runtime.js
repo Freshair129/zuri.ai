@@ -1,6 +1,10 @@
 import { createPostgresBusinessKnowledgeReader } from '@/modules/knowledge'
 import { createModelProviderPort } from './model-provider'
 import { createPostgresLineBindingResolver } from './line-binding-resolver'
+import {
+  parseDedicatedRuntimeDatabaseUrl,
+  readRuntimeDatabaseCa,
+} from '../knowledge/runtime-postgres-config.js'
 import pg from 'pg'
 
 // @req FR-047, FR-048, FR-052 — compose Phase 1 ports only from server-owned scope and configuration.
@@ -8,22 +12,14 @@ import pg from 'pg'
 // @tested tests/unit/phase1-business-agent-runtime.test.js
 
 function assertRuntimeDatabaseUrl(value) {
-  let url
-  try {
-    url = new URL(value)
-  } catch {
-    throw new Error('PHASE1_DATABASE_URL_INVALID')
-  }
-  if (!['postgres:', 'postgresql:'].includes(url.protocol) || url.username !== 'zuri_line_smartgift_login') {
-    throw new Error('PHASE1_DATABASE_ROLE_FORBIDDEN')
-  }
+  parseDedicatedRuntimeDatabaseUrl(value)
   return value
 }
 
 let sharedPool = null
 let sharedPoolDatabaseUrl = null
 
-function runtimePool(databaseUrl, timeoutMs) {
+function runtimePool(databaseUrl, timeoutMs, ssl) {
   if (sharedPool && sharedPoolDatabaseUrl !== databaseUrl) {
     throw new Error('PHASE1_DATABASE_URL_CHANGED_RESTART_REQUIRED')
   }
@@ -33,7 +29,7 @@ function runtimePool(databaseUrl, timeoutMs) {
       max: 2,
       connectionTimeoutMillis: timeoutMs,
       idleTimeoutMillis: 10000,
-      ssl: { rejectUnauthorized: true },
+      ssl,
     })
     sharedPoolDatabaseUrl = databaseUrl
   }
@@ -79,6 +75,7 @@ export function createPhase1BusinessAgentPortsFromEnv(env = process.env, { fetch
   const pool = queryFn ? null : runtimePool(
     databaseUrl,
     Number(env.ZURI_KNOWLEDGE_TIMEOUT_MS ?? 5000),
+    readRuntimeDatabaseCa(env),
   )
   const execute = queryFn ?? ((sql, values) => executeAsLineReadRole(pool, sql, values))
 
