@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { readFile as nodeReadFile } from 'node:fs/promises'
 import pg from 'pg'
 import { createLineBindingActivationService } from '../src/modules/agent/line-binding-activation.js'

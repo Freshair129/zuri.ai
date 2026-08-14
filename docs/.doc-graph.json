@@ -3,26 +3,26 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 762,
-    "total_edges": 1423,
-    "dangling_edges": 0,
+    "total_nodes": 755,
+    "total_edges": 1285,
+    "dangling_edges": 150,
     "node_types": {
-      "document": 105,
-      "adr": 20,
+      "document": 107,
+      "adr": 21,
       "appendix": 5,
       "roadmap": 20,
       "v1_inherited": 234,
-      "requirement": 122,
-      "test": 107,
-      "code_file": 149
+      "requirement": 107,
+      "test": 110,
+      "code_file": 151
     },
     "coverage": {
-      "requirements": 122,
-      "fr_with_code": "100% (55/55)",
-      "fr_with_tests": "100% (55/55)",
-      "rules_anchored_in_code": "91% (49/54)",
-      "nfr_evidence_based": "13 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 149,
+      "requirements": 107,
+      "fr_with_code": "100% (51/51)",
+      "fr_with_tests": "100% (51/51)",
+      "rules_anchored_in_code": "89% (41/46)",
+      "nfr_evidence_based": "10 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 151,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -66,7 +66,7 @@
       "id": "code:src/app/(entry)/businesses/page.jsx",
       "type": "code_file",
       "path": "src/app/(entry)/businesses/page.jsx",
-      "hash": "ab68a81e",
+      "hash": "0642be4e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -299,7 +299,7 @@
       "id": "code:src/app/(pm)/projects/[projectId]/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/page.jsx",
-      "hash": "d7050c08",
+      "hash": "54a9ffd4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -358,7 +358,7 @@
       "id": "code:src/app/(pm)/projects/new/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/new/page.jsx",
-      "hash": "f1b33c2a",
+      "hash": "c2d0b0c0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -457,7 +457,7 @@
       "id": "code:src/app/api/business/files/route.js",
       "type": "code_file",
       "path": "src/app/api/business/files/route.js",
-      "hash": "bf6284dc",
+      "hash": "49527918",
       "status": "current",
       "annotations": {
         "@req": [
@@ -480,7 +480,7 @@
       "id": "code:src/app/api/business/strategy/route.js",
       "type": "code_file",
       "path": "src/app/api/business/strategy/route.js",
-      "hash": "f791b3a4",
+      "hash": "8f3bf90d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -521,7 +521,7 @@
       "id": "code:src/app/api/entry/route.js",
       "type": "code_file",
       "path": "src/app/api/entry/route.js",
-      "hash": "3a005c83",
+      "hash": "7c2d50c5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -541,7 +541,7 @@
       "id": "code:src/app/api/files/[id]/content/route.js",
       "type": "code_file",
       "path": "src/app/api/files/[id]/content/route.js",
-      "hash": "f8f01722",
+      "hash": "4202f3c2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -564,7 +564,7 @@
       "id": "code:src/app/api/files/[id]/relink/route.js",
       "type": "code_file",
       "path": "src/app/api/files/[id]/relink/route.js",
-      "hash": "3cfa8a44",
+      "hash": "01174ed8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -587,7 +587,7 @@
       "id": "code:src/app/api/files/[id]/reveal/route.js",
       "type": "code_file",
       "path": "src/app/api/files/[id]/reveal/route.js",
-      "hash": "4b577e6b",
+      "hash": "3528a702",
       "status": "current",
       "annotations": {
         "@req": [
@@ -610,7 +610,7 @@
       "id": "code:src/app/api/files/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/files/[id]/route.js",
-      "hash": "b65907c4",
+      "hash": "00342652",
       "status": "current",
       "annotations": {
         "@req": [
@@ -633,7 +633,7 @@
       "id": "code:src/app/api/files/cache/rebuild/route.js",
       "type": "code_file",
       "path": "src/app/api/files/cache/rebuild/route.js",
-      "hash": "372497ab",
+      "hash": "2b4b3318",
       "status": "current",
       "annotations": {
         "@req": [
@@ -655,7 +655,7 @@
       "id": "code:src/app/api/files/migrate/route.js",
       "type": "code_file",
       "path": "src/app/api/files/migrate/route.js",
-      "hash": "e345b411",
+      "hash": "bf957aca",
       "status": "current",
       "annotations": {
         "@req": [
@@ -677,7 +677,7 @@
       "id": "code:src/app/api/files/mounts/route.js",
       "type": "code_file",
       "path": "src/app/api/files/mounts/route.js",
-      "hash": "832c645b",
+      "hash": "5105400b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -699,7 +699,7 @@
       "id": "code:src/app/api/files/reconcile/route.js",
       "type": "code_file",
       "path": "src/app/api/files/reconcile/route.js",
-      "hash": "85aad8b4",
+      "hash": "81259635",
       "status": "current",
       "annotations": {
         "@req": [
@@ -721,7 +721,7 @@
       "id": "code:src/app/api/files/route.js",
       "type": "code_file",
       "path": "src/app/api/files/route.js",
-      "hash": "3de5c269",
+      "hash": "ea4c190f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -744,7 +744,7 @@
       "id": "code:src/app/api/people/route.js",
       "type": "code_file",
       "path": "src/app/api/people/route.js",
-      "hash": "d6a00a3a",
+      "hash": "f77a8db7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -766,7 +766,7 @@
       "id": "code:src/app/api/platform/users/route.js",
       "type": "code_file",
       "path": "src/app/api/platform/users/route.js",
-      "hash": "4ec2cbea",
+      "hash": "a5eee8ea",
       "status": "current",
       "annotations": {
         "@req": [
@@ -791,7 +791,7 @@
       "id": "code:src/app/api/profile/route.js",
       "type": "code_file",
       "path": "src/app/api/profile/route.js",
-      "hash": "4cef45a3",
+      "hash": "db087eb7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -911,7 +911,7 @@
       "id": "code:src/app/api/projects/[id]/tree/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/[id]/tree/route.js",
-      "hash": "12fff51f",
+      "hash": "aec38373",
       "status": "current",
       "annotations": {
         "@req": [
@@ -926,7 +926,7 @@
       "id": "code:src/app/api/session/demo/route.js",
       "type": "code_file",
       "path": "src/app/api/session/demo/route.js",
-      "hash": "cac2a72c",
+      "hash": "054686cd",
       "status": "current",
       "annotations": {
         "@req": [
@@ -946,7 +946,7 @@
       "id": "code:src/app/api/viewer/route.js",
       "type": "code_file",
       "path": "src/app/api/viewer/route.js",
-      "hash": "29c93f06",
+      "hash": "9aa04dac",
       "status": "current",
       "annotations": {
         "@req": [
@@ -967,7 +967,7 @@
       "id": "code:src/app/layout.jsx",
       "type": "code_file",
       "path": "src/app/layout.jsx",
-      "hash": "73e854d7",
+      "hash": "00e7e076",
       "status": "current",
       "annotations": {
         "@req": [
@@ -985,7 +985,7 @@
       "id": "code:src/app/login/page.jsx",
       "type": "code_file",
       "path": "src/app/login/page.jsx",
-      "hash": "7ec329d5",
+      "hash": "9bfd57b6",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1008,17 +1008,38 @@
       "id": "code:src/app/page.jsx",
       "type": "code_file",
       "path": "src/app/page.jsx",
-      "hash": "c3c78c5e",
+      "hash": "181e47f7",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-044"
+          "FR-044",
+          "FR-051"
         ],
         "@spec": [
-          "SDD-022"
+          "SDD-022",
+          "SDD-026"
         ],
         "@tested": [
-          "tests/unit/entry-surfaces.test.js"
+          "tests/unit/entry-surfaces.test.js",
+          "tests/unit/fr051-landing.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/landing/ZuriLanding.jsx",
+      "type": "code_file",
+      "path": "src/components/landing/ZuriLanding.jsx",
+      "hash": "2aa4f062",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-051"
+        ],
+        "@spec": [
+          "SDD-026"
+        ],
+        "@tested": [
+          "tests/unit/fr051-landing.test.js"
         ]
       }
     },
@@ -1124,17 +1145,20 @@
       "id": "code:src/components/layouts/EntryShell.jsx",
       "type": "code_file",
       "path": "src/components/layouts/EntryShell.jsx",
-      "hash": "674d999c",
+      "hash": "c3198da9",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-044"
+          "FR-044",
+          "FR-051"
         ],
         "@spec": [
-          "SDD-022"
+          "SDD-022",
+          "SDD-026"
         ],
         "@tested": [
-          "tests/unit/entry-surfaces.test.js"
+          "tests/unit/entry-surfaces.test.js",
+          "tests/unit/fr051-landing.test.js"
         ]
       }
     },
@@ -1142,7 +1166,7 @@
       "id": "code:src/components/layouts/Sidebar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Sidebar.jsx",
-      "hash": "23e8074e",
+      "hash": "7e5559b2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1202,7 +1226,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "fd381e30",
+      "hash": "789080f0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1262,7 +1286,7 @@
       "id": "code:src/context/ScopeContext.jsx",
       "type": "code_file",
       "path": "src/context/ScopeContext.jsx",
-      "hash": "b0bd29a2",
+      "hash": "31c812f8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1325,7 +1349,7 @@
       "id": "code:src/lib/db-boundary.js",
       "type": "code_file",
       "path": "src/lib/db-boundary.js",
-      "hash": "47adb7fe",
+      "hash": "5101bc86",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1360,7 +1384,7 @@
       "id": "code:src/lib/ids.js",
       "type": "code_file",
       "path": "src/lib/ids.js",
-      "hash": "d1c562f5",
+      "hash": "828461b6",
       "status": "current",
       "annotations": {
         "@spec": [
@@ -1399,12 +1423,16 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "f913b0c0",
+      "hash": "7e90287c",
       "status": "current",
       "annotations": {
+        "@req": [
+          "FR-012"
+        ],
         "@spec": [
           "SDD-002",
-          "BR-004"
+          "BR-004",
+          "BR-009"
         ],
         "@tested": [
           "tests/unit/plan-schema.test.js",
@@ -1416,7 +1444,7 @@
       "id": "code:src/modules/agent/action-gate.js",
       "type": "code_file",
       "path": "src/modules/agent/action-gate.js",
-      "hash": "33539e67",
+      "hash": "a4727da5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1476,7 +1504,7 @@
       "id": "code:src/modules/agent/context.js",
       "type": "code_file",
       "path": "src/modules/agent/context.js",
-      "hash": "b13d7f46",
+      "hash": "427690de",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1529,7 +1557,7 @@
       "id": "code:src/modules/agent/index.js",
       "type": "code_file",
       "path": "src/modules/agent/index.js",
-      "hash": "61c62ac9",
+      "hash": "7d27ffcf",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1557,7 +1585,7 @@
       "id": "code:src/modules/agent/line-activation-contract.js",
       "type": "code_file",
       "path": "src/modules/agent/line-activation-contract.js",
-      "hash": "87bd312c",
+      "hash": "f360fd74",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1577,7 +1605,7 @@
       "id": "code:src/modules/agent/line-binding-activation.js",
       "type": "code_file",
       "path": "src/modules/agent/line-binding-activation.js",
-      "hash": "55b19572",
+      "hash": "40af3c3c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1638,7 +1666,7 @@
       "id": "code:src/modules/agent/line-operator.js",
       "type": "code_file",
       "path": "src/modules/agent/line-operator.js",
-      "hash": "7937e4e3",
+      "hash": "9175882d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1660,7 +1688,7 @@
       "id": "code:src/modules/agent/memory-port.js",
       "type": "code_file",
       "path": "src/modules/agent/memory-port.js",
-      "hash": "33966682",
+      "hash": "daf1d93a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1675,7 +1703,7 @@
       "id": "code:src/modules/agent/model-provider.js",
       "type": "code_file",
       "path": "src/modules/agent/model-provider.js",
-      "hash": "64009f74",
+      "hash": "7b9f3ce5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1694,7 +1722,7 @@
       "id": "code:src/modules/agent/msp-memory-port.js",
       "type": "code_file",
       "path": "src/modules/agent/msp-memory-port.js",
-      "hash": "5f68d01d",
+      "hash": "d49ad6f9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1727,7 +1755,7 @@
       "id": "code:src/modules/agent/phase1-runtime.js",
       "type": "code_file",
       "path": "src/modules/agent/phase1-runtime.js",
-      "hash": "e6a9f0a3",
+      "hash": "26441394",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1750,7 +1778,7 @@
       "id": "code:src/modules/agent/runtime.js",
       "type": "code_file",
       "path": "src/modules/agent/runtime.js",
-      "hash": "d14451a9",
+      "hash": "6298f487",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1765,7 +1793,7 @@
       "id": "code:src/modules/agent/step-up.js",
       "type": "code_file",
       "path": "src/modules/agent/step-up.js",
-      "hash": "23c4dcde",
+      "hash": "7504b7a5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1780,7 +1808,7 @@
       "id": "code:src/modules/agent/tools.js",
       "type": "code_file",
       "path": "src/modules/agent/tools.js",
-      "hash": "254a0e45",
+      "hash": "5ddbe186",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1810,7 +1838,7 @@
       "id": "code:src/modules/agent/write-tools.js",
       "type": "code_file",
       "path": "src/modules/agent/write-tools.js",
-      "hash": "fe349a80",
+      "hash": "f505b544",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1825,7 +1853,7 @@
       "id": "code:src/modules/agent/zuri-cli-canary-receipt.js",
       "type": "code_file",
       "path": "src/modules/agent/zuri-cli-canary-receipt.js",
-      "hash": "f35308db",
+      "hash": "d4df99fd",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1865,7 +1893,7 @@
       "id": "code:src/modules/crm/line-ingest-service.js",
       "type": "code_file",
       "path": "src/modules/crm/line-ingest-service.js",
-      "hash": "11bf6920",
+      "hash": "e688bbee",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1884,7 +1912,7 @@
       "id": "code:src/modules/identity/classify-principal.js",
       "type": "code_file",
       "path": "src/modules/identity/classify-principal.js",
-      "hash": "498cbf12",
+      "hash": "bb78b5e9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1903,7 +1931,7 @@
       "id": "code:src/modules/identity/entry-read-model.js",
       "type": "code_file",
       "path": "src/modules/identity/entry-read-model.js",
-      "hash": "f20b9225",
+      "hash": "e7136485",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1923,7 +1951,7 @@
       "id": "code:src/modules/identity/erase-principal.js",
       "type": "code_file",
       "path": "src/modules/identity/erase-principal.js",
-      "hash": "9c4a7f83",
+      "hash": "2ad5cf6b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1941,7 +1969,7 @@
       "id": "code:src/modules/identity/gate.js",
       "type": "code_file",
       "path": "src/modules/identity/gate.js",
-      "hash": "c2d27505",
+      "hash": "16e56236",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1956,7 +1984,7 @@
       "id": "code:src/modules/identity/link-line-identity.js",
       "type": "code_file",
       "path": "src/modules/identity/link-line-identity.js",
-      "hash": "8f3561d6",
+      "hash": "38b1e276",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1995,7 +2023,7 @@
       "id": "code:src/modules/identity/request-viewer.js",
       "type": "code_file",
       "path": "src/modules/identity/request-viewer.js",
-      "hash": "4df7d7f5",
+      "hash": "f2250e71",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2014,7 +2042,7 @@
       "id": "code:src/modules/identity/resolve-line-identity.js",
       "type": "code_file",
       "path": "src/modules/identity/resolve-line-identity.js",
-      "hash": "fe73c030",
+      "hash": "4133ba8f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2054,7 +2082,7 @@
       "id": "code:src/modules/identity/session-port.js",
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
-      "hash": "64ecd0de",
+      "hash": "875b828f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2092,7 +2120,7 @@
       "id": "code:src/modules/knowledge/genesisblockdb-sink.js",
       "type": "code_file",
       "path": "src/modules/knowledge/genesisblockdb-sink.js",
-      "hash": "8a2cb37c",
+      "hash": "e9f30af8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2107,7 +2135,7 @@
       "id": "code:src/modules/knowledge/graph-query.js",
       "type": "code_file",
       "path": "src/modules/knowledge/graph-query.js",
-      "hash": "9c8ce1bc",
+      "hash": "ce8b924b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2145,7 +2173,7 @@
       "id": "code:src/modules/knowledge/live-facts.js",
       "type": "code_file",
       "path": "src/modules/knowledge/live-facts.js",
-      "hash": "b37be8f3",
+      "hash": "40ddcb72",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2179,7 +2207,7 @@
       "id": "code:src/modules/knowledge/project-graph.js",
       "type": "code_file",
       "path": "src/modules/knowledge/project-graph.js",
-      "hash": "d4016636",
+      "hash": "9da965c8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2198,7 +2226,7 @@
       "id": "code:src/modules/knowledge/query.js",
       "type": "code_file",
       "path": "src/modules/knowledge/query.js",
-      "hash": "0417d55f",
+      "hash": "164bba8e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2217,7 +2245,7 @@
       "id": "code:src/modules/knowledge/runtime-isolation-probe.js",
       "type": "code_file",
       "path": "src/modules/knowledge/runtime-isolation-probe.js",
-      "hash": "fd198505",
+      "hash": "1843b8d9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2237,7 +2265,7 @@
       "id": "code:src/modules/knowledge/runtime-postgres-config.js",
       "type": "code_file",
       "path": "src/modules/knowledge/runtime-postgres-config.js",
-      "hash": "73aa1ea5",
+      "hash": "b213cf16",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2259,7 +2287,7 @@
       "id": "code:src/modules/knowledge/sink.js",
       "type": "code_file",
       "path": "src/modules/knowledge/sink.js",
-      "hash": "9de4c205",
+      "hash": "a83523ff",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2267,6 +2295,25 @@
         ],
         "@tested": [
           "tests/integration/knowledge-project.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/supabase-business-knowledge.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/supabase-business-knowledge.js",
+      "hash": "0dcb5f09",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-047"
+        ],
+        "@spec": [
+          "SDD-025",
+          "SEC-009"
+        ],
+        "@tested": [
+          "tests/unit/supabase-business-knowledge.test.js"
         ]
       }
     },
@@ -2330,7 +2377,7 @@
       "id": "code:src/modules/project-manager/application/audit.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/audit.js",
-      "hash": "88d7406c",
+      "hash": "aa5f0f31",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2469,7 +2516,7 @@
       "id": "code:src/modules/project-manager/application/milestone-gate-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/milestone-gate-service.js",
-      "hash": "4042aea7",
+      "hash": "df5ef079",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2583,7 +2630,7 @@
       "id": "code:src/modules/project-manager/application/repository-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/repository-service.js",
-      "hash": "11d73758",
+      "hash": "9b6e5e71",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2621,7 +2668,7 @@
       "id": "code:src/modules/project-manager/application/work-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/work-service.js",
-      "hash": "a28efaf1",
+      "hash": "d8466e69",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2728,7 +2775,7 @@
       "id": "code:src/modules/project-manager/import/plan-import-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
-      "hash": "100bbf09",
+      "hash": "5b9c5b7f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2756,7 +2803,7 @@
       "id": "code:src/modules/project-manager/import/plan-schema.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-schema.js",
-      "hash": "2247d737",
+      "hash": "dc140e87",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2777,7 +2824,7 @@
       "id": "code:src/modules/project-manager/import/xlsx-convert.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/xlsx-convert.js",
-      "hash": "93465ee1",
+      "hash": "704b537d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2792,7 +2839,7 @@
       "id": "code:src/modules/project-manager/import/xlsx-template.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/xlsx-template.js",
-      "hash": "06af4b23",
+      "hash": "81764d29",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2845,7 +2892,7 @@
       "id": "code:src/modules/project-manager/progress/rollup.js",
       "type": "code_file",
       "path": "src/modules/project-manager/progress/rollup.js",
-      "hash": "8b8076c1",
+      "hash": "c8dc0cc9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2861,7 +2908,7 @@
       "id": "code:src/modules/project-manager/progress/strategies.js",
       "type": "code_file",
       "path": "src/modules/project-manager/progress/strategies.js",
-      "hash": "ba5291ed",
+      "hash": "437a522a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2899,7 +2946,7 @@
       "id": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/views/execution/mode-bodies.jsx",
-      "hash": "f150a3a9",
+      "hash": "107edb5b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2933,7 +2980,7 @@
       "type": "document",
       "path": "docs/.rwang-progress.md",
       "title": "RWANG Subagent Progress Ledger — TASK-V2-PARITY",
-      "hash": "91961254",
+      "hash": "3eb58f30",
       "status": "current"
     },
     {
@@ -2951,7 +2998,7 @@
       "type": "document",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
       "title": "Acceptance Criteria",
-      "hash": "3a67872f",
+      "hash": "493f6263",
       "status": "current"
     },
     {
@@ -2959,7 +3006,7 @@
       "type": "document",
       "path": "docs/AGENTS-zuri-v2-lab.md",
       "title": "AGENTS.md — zuri-v2-lab",
-      "hash": "7e1e34c4",
+      "hash": "36f5edff",
       "status": "current"
     },
     {
@@ -2967,7 +3014,17 @@
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "2489bb82",
+      "hash": "23925327",
+      "status": "current"
+    },
+    {
+      "id": "doc:ARCHITECTURE-DIAGRAMS",
+      "type": "document",
+      "path": "docs/ARCHITECTURE-DIAGRAMS.md",
+      "title": "Architecture Diagrams — Zuri V2",
+      "version": "1.1.0",
+      "doc_status": "Draft",
+      "hash": "2f4f786e",
       "status": "current"
     },
     {
@@ -2977,7 +3034,7 @@
       "title": "Architecture Notes — zuri-v2-lab",
       "version": "1.0.1",
       "doc_status": "Approved",
-      "hash": "3db6197d",
+      "hash": "123c71ca",
       "status": "current"
     },
     {
@@ -2997,7 +3054,7 @@
       "title": "Contract Tests — freezing V1's endpoint behaviour before reimplementing it",
       "version": "0.1.0",
       "doc_status": "Skeleton — to be filled by `TASK-V2-CONTRACTS`",
-      "hash": "66977d25",
+      "hash": "09ca7851",
       "status": "current"
     },
     {
@@ -3007,7 +3064,7 @@
       "title": "Cutover Runbook — one tenant at a time",
       "version": "0.1.0",
       "doc_status": "Skeleton — to be completed by `TASK-V2-CUTOVER-RULES` before any cutover",
-      "hash": "a293e070",
+      "hash": "693bc884",
       "status": "current"
     },
     {
@@ -3017,7 +3074,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "e5275347",
+      "hash": "ceaa9b82",
       "status": "current"
     },
     {
@@ -3037,7 +3094,7 @@
       "title": "Decision Brief — GATE-AB: โมดูลใน Zuri v1 (A) หรือฐานของ Zuri v2 (B)",
       "version": "1.2.0",
       "doc_status": "Superseded — ADR-003 (2026-08-12): V2 แทน V1 ด้วยการ reuse",
-      "hash": "3fe96bb0",
+      "hash": "bb6a204b",
       "status": "superseded"
     },
     {
@@ -3047,7 +3104,7 @@
       "title": "Demo Runbook — SmartGift Executive Demo",
       "version": "1.0.0",
       "doc_status": "Active — four owner decisions made 2026-08-12 (§6); topology in §5a",
-      "hash": "5a83f95a",
+      "hash": "3363635b",
       "status": "current"
     },
     {
@@ -3075,7 +3132,7 @@
       "title": "AI Ethics & Data Governance (PDPA)",
       "version": "1.0.0",
       "doc_status": "Draft — blocking for `TASK-V2-LINE-INTENT`",
-      "hash": "4c89677c",
+      "hash": "6c23a732",
       "status": "current"
     },
     {
@@ -3083,7 +3140,7 @@
       "type": "document",
       "path": "docs/EXECUTION-MODES.md",
       "title": "Seven Execution Modes",
-      "hash": "e38cc0d6",
+      "hash": "227102ee",
       "status": "current"
     },
     {
@@ -3091,7 +3148,7 @@
       "type": "document",
       "path": "docs/prompts/EXTRACT-MSP.codex.md",
       "title": "Codex task — Extract MSP from GoVibe into a standalone repo `Freshair129/msp`",
-      "hash": "b6e79051",
+      "hash": "4c11d9b8",
       "status": "current"
     },
     {
@@ -3111,7 +3168,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "d313f784",
+      "hash": "f4379532",
       "status": "current"
     },
     {
@@ -3266,7 +3323,7 @@
       "path": "docs/features/FR-044-entry-landing-login-business-routing.md",
       "title": "FR-044 — Minimal entry and Business Routing before BusinessShell",
       "doc_status": "Implemented — owner-approved; exit gates verified",
-      "hash": "53927ba1",
+      "hash": "3c040296",
       "status": "current"
     },
     {
@@ -3274,7 +3331,7 @@
       "type": "document",
       "path": "docs/features/FR-045-managed-local-file-workspace.md",
       "title": "FR-045 — Managed local file workspace",
-      "hash": "af99b155",
+      "hash": "96f9d56b",
       "status": "current"
     },
     {
@@ -3284,7 +3341,7 @@
       "title": "FR-046 — Production viewer session and entry contract",
       "version": "0.2.0b",
       "doc_status": "Implemented — beta",
-      "hash": "765161a1",
+      "hash": "b9ec9ff3",
       "status": "current"
     },
     {
@@ -3300,7 +3357,15 @@
       "type": "document",
       "path": "docs/features/FR-051-production-supabase-tenant-isolation.md",
       "title": "FR-051 — Production Supabase tenant isolation",
-      "hash": "6e63b4f5",
+      "hash": "121f2f33",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-051-zuri-branded-entry-landing",
+      "type": "document",
+      "path": "docs/features/FR-051-zuri-branded-entry-landing.md",
+      "title": "FR-051 — Zuri Branded Entry Landing Experience",
+      "hash": "dc8a2556",
       "status": "current"
     },
     {
@@ -3324,7 +3389,7 @@
       "type": "document",
       "path": "docs/features/FR-054-controlled-line-canary.md",
       "title": "FR-054 — Controlled LINE canary",
-      "hash": "369bc2d1",
+      "hash": "8664ef14",
       "status": "current"
     },
     {
@@ -3332,7 +3397,7 @@
       "type": "document",
       "path": "docs/features/FR-055-controlled-line-activation-receipt.md",
       "title": "FR-055 — Controlled LINE activation and receipt",
-      "hash": "5851e858",
+      "hash": "a7db27d3",
       "status": "current"
     },
     {
@@ -3436,7 +3501,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr055-w1a-contracts-brief.md",
       "title": "FR-055 W1A brief — activation and receipt contracts",
-      "hash": "53944656",
+      "hash": "005991e9",
       "status": "current"
     },
     {
@@ -3444,7 +3509,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr055-w1a-contracts-report.md",
       "title": "FR-055 W1A report — activation and receipt contracts",
-      "hash": "2c2799ca",
+      "hash": "ff433bc2",
       "status": "current"
     },
     {
@@ -3452,7 +3517,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr055-w1b-migration-brief.md",
       "title": "FR-055 W1B brief — operator role and activation event migration",
-      "hash": "04e8af5a",
+      "hash": "8e269cc8",
       "status": "current"
     },
     {
@@ -3460,7 +3525,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr055-w1b-migration-report.md",
       "title": "FR-055 W1B report — operator role and activation event migration",
-      "hash": "7957e214",
+      "hash": "04266770",
       "status": "current"
     },
     {
@@ -3468,7 +3533,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr055-w2-activation-cli-brief.md",
       "title": "FR-055 W2 brief — activation and rollback operator CLI",
-      "hash": "c53c59d4",
+      "hash": "a05d0a49",
       "status": "current"
     },
     {
@@ -3476,7 +3541,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr055-w2-activation-cli-report.md",
       "title": "FR-055 W2 report — activation and rollback operator CLI",
-      "hash": "dc9f933b",
+      "hash": "328b2578",
       "status": "current"
     },
     {
@@ -3484,7 +3549,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr055-w3-zuri-cli-receipt-brief.md",
       "title": "FR-055 W3 brief — redacted zuri-cli transport adapter",
-      "hash": "807b728d",
+      "hash": "a310390a",
       "status": "current"
     },
     {
@@ -3492,7 +3557,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr055-w3-zuri-cli-receipt-report.md",
       "title": "FR-055 W3 report — redacted zuri-cli transport adapter",
-      "hash": "260ea3f6",
+      "hash": "a8a25d85",
       "status": "current"
     },
     {
@@ -3500,7 +3565,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr055-w4-integration-brief.md",
       "title": "FR-055 W4 brief — composed PostgreSQL and public-surface verification",
-      "hash": "15220fec",
+      "hash": "c06bb62c",
       "status": "current"
     },
     {
@@ -3508,7 +3573,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr055-w4-integration-report.md",
       "title": "FR-055 W4 report — composed PostgreSQL and operator surface",
-      "hash": "c4a2a7fb",
+      "hash": "fba1ce5c",
       "status": "current"
     },
     {
@@ -3526,7 +3591,7 @@
       "type": "document",
       "path": "docs/HANDOFF-SHELL-V2-CODEX.md",
       "title": "HANDOFF — V2 business-centric shell (for Codex)",
-      "hash": "f43c5491",
+      "hash": "9cf0f421",
       "status": "current"
     },
     {
@@ -3536,7 +3601,7 @@
       "title": "Impact Scan — Identity (ExternalIdentity / Principal), P2.5",
       "version": "1.0.0",
       "doc_status": "Complete — this is the gate before P3 Identity touches the Zuri slice",
-      "hash": "74a00565",
+      "hash": "8f3f3b5b",
       "status": "current"
     },
     {
@@ -3544,7 +3609,7 @@
       "type": "document",
       "path": "docs/IMPLEMENTATION-PLAN.md",
       "title": "Implementation Plan",
-      "hash": "44c17866",
+      "hash": "20221080",
       "status": "current"
     },
     {
@@ -3554,7 +3619,7 @@
       "title": "Implementation Plan — PHASE-V2-REPLACE",
       "version": "1.1.0b",
       "doc_status": "Need review — execution snapshot predates FR-031..046; capacity and first cutover still need owner sign-off",
-      "hash": "92637f11",
+      "hash": "af8a9e9e",
       "status": "current"
     },
     {
@@ -3562,7 +3627,7 @@
       "type": "document",
       "path": "docs/INTEGRATION-MAP-ZURI.md",
       "title": "Future Integration Map — Current Zuri → Zuri v2",
-      "hash": "35d53b66",
+      "hash": "d7219230",
       "status": "current"
     },
     {
@@ -3572,7 +3637,7 @@
       "title": "AI Intent Pipeline — LINE as the fifth intake surface",
       "version": "1.0.0",
       "doc_status": "Draft — not implemented (`TASK-V2-LINE-INTENT`)",
-      "hash": "46400429",
+      "hash": "15e7b203",
       "status": "current"
     },
     {
@@ -3582,7 +3647,7 @@
       "title": "Zuri V2 — Interface Inventory and Shell Boundary",
       "version": "0.4.0",
       "doc_status": "FR-044 and FR-046 verified beta",
-      "hash": "901c4e23",
+      "hash": "052632c5",
       "status": "current"
     },
     {
@@ -3600,7 +3665,7 @@
       "title": "Model Lifecycle",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "e522cf4e",
+      "hash": "9c35127c",
       "status": "current"
     },
     {
@@ -3610,7 +3675,7 @@
       "title": "Parallel Execution Plan — Agent Types & Gate Model",
       "version": "1.0.0",
       "doc_status": "Active",
-      "hash": "50693b7d",
+      "hash": "4cb7f88e",
       "status": "current"
     },
     {
@@ -3618,7 +3683,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/parity-audit.md",
       "title": "Parity Scan — Cross-Area Audit",
-      "hash": "e25272a7",
+      "hash": "c35e8699",
       "status": "current"
     },
     {
@@ -3626,7 +3691,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/parity-commerce.md",
       "title": "P1 Commerce — Parity Inventory (Zuri V1 → V2)",
-      "hash": "264fc80e",
+      "hash": "50172614",
       "status": "current"
     },
     {
@@ -3634,7 +3699,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/parity-customer.md",
       "title": "Parity Inventory — CUSTOMER (P2)",
-      "hash": "c570fb63",
+      "hash": "c7b93821",
       "status": "current"
     },
     {
@@ -3642,7 +3707,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/parity-gaps.md",
       "title": "P9 — Coverage Gaps (the seventh scan)",
-      "hash": "37841c41",
+      "hash": "689f9bc3",
       "status": "current"
     },
     {
@@ -3650,7 +3715,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/parity-growth.md",
       "title": "Parity Inventory — GROWTH (P3)",
-      "hash": "c39968fa",
+      "hash": "cfcb0b3b",
       "status": "current"
     },
     {
@@ -3660,7 +3725,7 @@
       "title": "Parity Inventory — what must exist in V2 before a tenant can cut over",
       "version": "1.0.0",
       "doc_status": "Complete (first pass) — verdicts are recommendations; the owner confirms",
-      "hash": "09fcf084",
+      "hash": "210bdf2b",
       "status": "current"
     },
     {
@@ -3668,7 +3733,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/parity-operations.md",
       "title": "Parity Inventory — Operations (P4)",
-      "hash": "7445e64a",
+      "hash": "5eeb0b77",
       "status": "current"
     },
     {
@@ -3684,7 +3749,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/parity-workers.md",
       "title": "Parity Inventory — Workers & Background Execution (P6)",
-      "hash": "a83b6a28",
+      "hash": "c9492c51",
       "status": "current"
     },
     {
@@ -3700,7 +3765,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-02-CLOUD-RUNTIME-OPERATIONS.md",
       "title": "Phase 2: Cloud Runtime and Operations",
-      "hash": "4426f5ad",
+      "hash": "f73615b5",
       "status": "current"
     },
     {
@@ -3708,7 +3773,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-03-IDENTITY-PERMISSION.md",
       "title": "Phase 3: Identity and Permission",
-      "hash": "5279ef19",
+      "hash": "6b83401d",
       "status": "current"
     },
     {
@@ -3716,7 +3781,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-04-MSP-EPISODIC-MEMORY.md",
       "title": "Phase 4: MSP Episodic Memory",
-      "hash": "67741011",
+      "hash": "5a3bb6b9",
       "status": "current"
     },
     {
@@ -3724,7 +3789,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-05-GKS-GENESIS-SEMANTIC-MEMORY.md",
       "title": "Phase 5: GKS and GenesisBlockDB Semantic Memory",
-      "hash": "ecd5dc36",
+      "hash": "750a2289",
       "status": "current"
     },
     {
@@ -3732,7 +3797,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-06-GROUP-ASSISTANT-ACTIONS.md",
       "title": "Phase 6: LINE Group Assistant and Governed Actions",
-      "hash": "8df3d2a0",
+      "hash": "5233783c",
       "status": "current"
     },
     {
@@ -3740,7 +3805,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-07-OMICHAT-UNIFIED-INBOX.md",
       "title": "Phase 7: OmiChat Unified Inbox",
-      "hash": "deefe0de",
+      "hash": "a320a862",
       "status": "current"
     },
     {
@@ -3748,7 +3813,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/phase1-a1-golden-brief.md",
       "title": "A1 brief — Golden corpus production mapping",
-      "hash": "0c88b3b2",
+      "hash": "6bbfd003",
       "status": "current"
     },
     {
@@ -3756,7 +3821,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/phase1-a1-golden-report.md",
       "title": "A1 audit report — Golden corpus production mapping",
-      "hash": "1138a5b4",
+      "hash": "40778083",
       "status": "current"
     },
     {
@@ -3764,7 +3829,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/phase1-a2-isolation-brief.md",
       "title": "A2 brief — Supabase isolation and backup/PITR inventory",
-      "hash": "b3c13243",
+      "hash": "7ab88b72",
       "status": "current"
     },
     {
@@ -3772,7 +3837,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/phase1-a2-isolation-report.md",
       "title": "A2 report — live runtime isolation prerequisite audit",
-      "hash": "45f05463",
+      "hash": "e3bac5f1",
       "status": "current"
     },
     {
@@ -3780,7 +3845,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/phase1-a3-canary-brief.md",
       "title": "A3 brief — Canary prerequisite and receipt audit",
-      "hash": "df0c2ad8",
+      "hash": "116c025f",
       "status": "current"
     },
     {
@@ -3788,7 +3853,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/phase1-a3-canary-report.md",
       "title": "Phase 1 A3 report — canary prerequisites and receipts",
-      "hash": "1d23ef5a",
+      "hash": "147de121",
       "status": "current"
     },
     {
@@ -3822,7 +3887,7 @@
       "path": "docs/roadmap/PLAN-FR-044-ENTRY-LANDING-LOGIN-BUSINESS-ROUTING.md",
       "title": "Implementation Plan — FR-044 Entry → Business Routing → BusinessShell",
       "doc_status": "Complete — owner-approved; exit gates verified",
-      "hash": "b27d66de",
+      "hash": "b9757283",
       "status": "current"
     },
     {
@@ -3830,7 +3895,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-FR-045-MANAGED-LOCAL-FILE-WORKSPACE.md",
       "title": "Implementation Plan — FR-045 Managed Local File Workspace",
-      "hash": "23386ebb",
+      "hash": "1d5f810a",
       "status": "current"
     },
     {
@@ -3840,7 +3905,7 @@
       "title": "Implementation Plan — FR-046 Production Viewer Entry Contract",
       "version": "0.2.0b",
       "doc_status": "Complete — beta verification",
-      "hash": "789c0add",
+      "hash": "94017689",
       "status": "current"
     },
     {
@@ -3848,7 +3913,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-FR-053-054-PHASE1-ACTIVATION-READINESS.md",
       "title": "Implementation plan — FR-053/054 Phase 1 activation readiness",
-      "hash": "0b1890b9",
+      "hash": "e6b9be7e",
       "status": "current"
     },
     {
@@ -3856,7 +3921,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-FR-055-CONTROLLED-LINE-ACTIVATION.md",
       "title": "Implementation plan — FR-055 controlled LINE activation",
-      "hash": "e124ae02",
+      "hash": "6934f159",
       "status": "current"
     },
     {
@@ -3866,7 +3931,7 @@
       "title": "Next Implementation Plan — Business Navigation Alignment and Viewer Contract",
       "version": "0.3.0",
       "doc_status": "N1/N2/N3 implemented; N4 candidate contract written, awaiting approval",
-      "hash": "1968e1fd",
+      "hash": "9585a165",
       "status": "current"
     },
     {
@@ -3874,7 +3939,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-PHASE1-EXTERNAL-ACTIVATION.md",
       "title": "Implementation plan — Phase 1 external activation",
-      "hash": "c2a21a25",
+      "hash": "bde8f6e4",
       "status": "current"
     },
     {
@@ -3882,9 +3947,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.41.0",
+      "version": "1.35.0b",
       "doc_status": "Draft",
-      "hash": "17804940",
+      "hash": "7a7a8a00",
       "status": "current"
     },
     {
@@ -3904,7 +3969,7 @@
       "title": "Prompt Engineering Guidelines",
       "version": "1.0.0",
       "doc_status": "Draft",
-      "hash": "b8a8e65f",
+      "hash": "fae6e398",
       "status": "current"
     },
     {
@@ -3912,7 +3977,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/README.md",
       "title": "Implementation Plan: LINE OA Business Agent",
-      "hash": "399c65ba",
+      "hash": "0f62525a",
       "status": "current"
     },
     {
@@ -3920,7 +3985,7 @@
       "type": "document",
       "path": "docs/README-zuri-v2-lab.md",
       "title": "zuri-v2-lab — Project Manager",
-      "hash": "3e65f5fb",
+      "hash": "79135ae8",
       "status": "current"
     },
     {
@@ -3928,7 +3993,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "c0709cab",
+      "hash": "144bfa6c",
       "status": "current"
     },
     {
@@ -3954,9 +4019,9 @@
       "type": "document",
       "path": "docs/SITEMAP-V2-DOMAIN-NAV.md",
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
-      "version": "0.4.1",
+      "version": "0.4.2",
       "doc_status": "Accepted",
-      "hash": "3d4b0756",
+      "hash": "6fcb7825",
       "status": "current"
     },
     {
@@ -3984,7 +4049,7 @@
       "title": "Zuri Integration Assessment",
       "version": "1.1.0",
       "doc_status": "Decided — A→B (ADR-002, 2026-08-12)",
-      "hash": "d89dd722",
+      "hash": "8f430275",
       "status": "current"
     },
     {
@@ -3992,7 +4057,7 @@
       "type": "document",
       "path": "docs/ZURI-V2-HANDOFF.md",
       "title": "Zuri v2 Handoff Checklist",
-      "hash": "756f1bdc",
+      "hash": "8adbcd06",
       "status": "current"
     },
     {
@@ -4000,7 +4065,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-001-MANAGED-LOCAL-FILES-AND-CACHE.md",
       "title": "ZV2-CR-001 — Managed local files and cache",
-      "hash": "cd93a061",
+      "hash": "287e993d",
       "status": "current"
     },
     {
@@ -4016,7 +4081,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-001-W9-RETENTION-DECISION.md",
       "title": "ZV2-CR-001 W9 — External mock retention decision",
-      "hash": "508d9ea4",
+      "hash": "f27b1bf1",
       "status": "current"
     },
     {
@@ -4026,7 +4091,7 @@
       "title": "ZV2-CR-002 — Production viewer and entry boundary",
       "version": "0.2.0b",
       "doc_status": "Implemented — beta",
-      "hash": "c400e092",
+      "hash": "4180077f",
       "status": "current"
     },
     {
@@ -4050,7 +4115,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-005-PHASE1-ACTIVATION-READINESS.md",
       "title": "ZV2-CR-005 — Phase 1 activation readiness",
-      "hash": "abf697cd",
+      "hash": "e02196e5",
       "status": "current"
     },
     {
@@ -4058,7 +4123,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-006-PHASE1-EXTERNAL-ACTIVATION.md",
       "title": "ZV2-CR-006 — Phase 1 external activation",
-      "hash": "9f62c12b",
+      "hash": "bbb19659",
       "status": "current"
     },
     {
@@ -4156,33 +4221,6 @@
       "type": "requirement",
       "family": "BR",
       "label": "A LINE event has exactly one reply owner. When stack answering is enabled, `zuri-cli` owns signature verification and Reply API transport while `zuri-ai` owns knowledge/provider/answer policy; the legacy local answer path must not also consume the same `replyToken`.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:BR-012",
-      "type": "requirement",
-      "family": "BR",
-      "label": "Tenant and Business scope are server authority. In production a caller may present only binding identity, destination and binding-scoped credential; inbound `tenantId`/`businessId` never authorize access. A missing, mismatched, inactive, expired or database-unavailable binding fails closed before model or persistence work.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:BR-013",
-      "type": "requirement",
-      "family": "BR",
-      "label": "Readiness is not activation. Golden evaluation, database probes and canary planning may run while the binding remains `PENDING`; only a separately approved operator action may install hashes or enable one canary. `ACCEPTED_BY_LINE` never proves display or read.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:BR-014",
-      "type": "requirement",
-      "family": "BR",
-      "label": "An activation correlation owns at most one binding mutation and one LINE canary. Replays return the existing redacted result or fail closed; they never create a second send.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -4290,7 +4328,7 @@
       "id": "req:FR-012",
       "type": "requirement",
       "family": "FR",
-      "label": "PlanEnvelope import: validate → semantic check → dry run → transactional commit → audit",
+      "label": "PlanEnvelope import: validate → seven-mode semantic contract check → dry run → transactional commit → audit",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -4335,7 +4373,7 @@
       "id": "req:FR-017",
       "type": "requirement",
       "family": "FR",
-      "label": "UI wizard intake (\"เริ่มจากเป้าหมาย\") → สร้าง envelope เข้า pipeline เดิม",
+      "label": "UI wizard intake (\"เริ่มจากเป้าหมาย\") → สร้าง envelope เข้า pipeline เดิม; direct modal creation is edit-only",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -4598,7 +4636,7 @@
       "family": "FR",
       "label": "Production viewer entry contract: Business Routing consumes one atomic, server-filtered `/api/entry` response derived from a trusted request session and `resolveViewer()`. Hidden Businesses and unrelated ancestry are never returned; missing sessions fail closed; client-supplied identity/role/platform claims are never authorization input.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
+      "declared": "done",
       "status": "current"
     },
     {
@@ -4641,43 +4679,7 @@
       "id": "req:FR-051",
       "type": "requirement",
       "family": "FR",
-      "label": "Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:FR-052",
-      "type": "requirement",
-      "family": "FR",
-      "label": "Server-owned LINE scope binding: the webhook rejects client-selected Tenant/Business IDs and resolves scope only from an active, destination-bound, hash-verified LINE binding. Runtime connects through an unprivileged login and executes each read with `SET LOCAL ROLE zuri_line_smartgift_ro`.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:FR-053",
-      "type": "requirement",
-      "family": "FR",
-      "label": "Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:FR-054",
-      "type": "requirement",
-      "family": "FR",
-      "label": "Controlled LINE canary readiness: produce a secret-safe runtime-role isolation report and dry-run canary plan that validates exact project/Tenant/Business/binding/provider/evaluation prerequisites. Readiness code never activates a binding or calls LINE; receipt states distinguish accepted from display/read unknown.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:FR-055",
-      "type": "requirement",
-      "family": "FR",
-      "label": "Controlled LINE activation and receipt: a dry-run-default operator command may install HMAC hashes and activate exactly one expiring binding only through a versioned compare-and-swap transaction and dedicated least-privilege role. Routing-first rollback and append-only redacted receipt events preserve truthful `ACCEPTED_BY_LINE` versus display/read unknown semantics.",
+      "label": "Zuri-branded entry landing: `/` presents a full-viewport, responsive Zuri Heritage composition with one route-bearing action to `/login`, code-native/local visuals, reduced-motion support, and no third-party fashion or commerce semantics. FR-044/046 routing and identity boundaries remain unchanged.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -4768,33 +4770,6 @@
       "type": "requirement",
       "family": "NFR",
       "label": "LINE business answers fail closed within a bounded request deadline: network calls use explicit timeouts/cancellation, duplicate delivery is idempotent, provider failure cannot expose secrets or raw data, and offline/local evaluation remains possible through an injected adapter.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:NFR-011",
-      "type": "requirement",
-      "family": "NFR",
-      "label": "Production tenancy changes are migration-first, idempotent and reversible: advisory/lock timeouts bound deployment, reserved code/UUID collisions abort, schema history and backups are inspected before apply, and no runtime secret or service-role key is stored in source, migration SQL, logs or browser code.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:NFR-012",
-      "type": "requirement",
-      "family": "NFR",
-      "label": "Activation evidence is deterministic, versioned and redacted: credentials come only from process environment/approved secret stores; reports contain hashes and assertion results rather than raw authorization material, database URLs, reply tokens or PII.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:NFR-013",
-      "type": "requirement",
-      "family": "NFR",
-      "label": "Binding activation and rollback are atomic, idempotent and bounded: exact row/version/evidence hashes are locked and compared, one correlation ID produces at most one state change, activation expires, and rollback disables routing before any secondary remediation.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -5028,25 +5003,7 @@
       "id": "req:SDD-026",
       "type": "requirement",
       "family": "SDD",
-      "label": "Supabase production authority uses a private `zuri_core` schema with stable internal UUIDs, composite Tenant/Business foreign keys and forced RLS. A `NOLOGIN` scope role owns the policies; a separate unprivileged login has no direct grants and every query uses a short transaction plus `SET LOCAL ROLE`. Curated DuckDB data is imported through a reconciled, hash-bound transaction and does not make GenesisBlockDB a Supabase replacement.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:SDD-027",
-      "type": "requirement",
-      "family": "SDD",
-      "label": "Phase 1 activation uses three independent evidence ports: a deterministic GoldenEvaluation runner over injected knowledge/provider ports, a transaction-scoped RuntimeIsolationProbe, and a mutation-free CanaryPreflight. W4 combines their redacted artifacts; no readiness component owns secret persistence, binding mutation or LINE transport.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:SDD-028",
-      "type": "requirement",
-      "family": "SDD",
-      "label": "FR-055 adds a separate operator port: strict schemas feed a dry-run-default CLI, a dedicated database role performs one versioned CAS mutation plus append-only event, and a `zuri-cli` adapter imports only redacted hash-pinned transport evidence. Readiness, mutation and transport remain separate owners.",
+      "label": "EntryShell exposes a landing-only full-viewport variant while keeping Login compact. The landing presentation owns its inert operational signal field, applies pointer motion only on fine-pointer non-reduced-motion devices, and keeps exactly one `/login` link. Metadata and raster assets are Zuri-owned and local.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -5133,38 +5090,11 @@
       "status": "current"
     },
     {
-      "id": "req:SEC-010",
-      "type": "requirement",
-      "family": "SEC",
-      "label": "Production LINE reads require both database-enforced scope and verified server binding: private-schema base grants are revoked from `public`, `anon`, `authenticated` and `service_role`; the runtime rejects privileged credentials and client-selected scope; credential/destination hashes are compared in constant time; inactive or expired bindings return no data.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:SEC-011",
-      "type": "requirement",
-      "family": "SEC",
-      "label": "Activation tooling fails closed and never persists or echoes credentials, full connection URLs, authorization headers, reply tokens or raw customer data. Database mutation assertions always roll back; canary readiness defaults to dry-run and has no binding-update or LINE-send capability.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
-      "id": "req:SEC-012",
-      "type": "requirement",
-      "family": "SEC",
-      "label": "Activation secrets are environment/secret-store only; a dedicated operator role can update only the exact binding and append events. Runtime/Data API/service roles cannot activate. Receipt ingestion rejects raw destination, authorization, reply token, message content and PII.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current"
-    },
-    {
       "id": "spec:ADR-001-STANDALONE-ZURI-V2",
       "type": "adr",
       "path": "docs/ADR-001-STANDALONE-ZURI-V2.md",
       "title": "ADR-001 — Build Standalone Before Integrating with Zuri",
-      "hash": "5fbc9966",
+      "hash": "330e131c",
       "status": "current"
     },
     {
@@ -5172,7 +5102,7 @@
       "type": "adr",
       "path": "docs/ADR-002-INTEGRATION-DIRECTION.md",
       "title": "ADR-002 — Ship Project Manager as a Zuri v1 Module, Promote to v2 on Trigger",
-      "hash": "df23f5d1",
+      "hash": "aa9f28a4",
       "status": "current"
     },
     {
@@ -5196,7 +5126,7 @@
       "type": "adr",
       "path": "docs/ADR-005-V1-DOCUMENTATION-CORPUS.md",
       "title": "ADR-005 — Import V1's Documentation as a Read-Only Corpus, With Two Id Namespaces",
-      "hash": "fe464318",
+      "hash": "d1ac3db4",
       "status": "current"
     },
     {
@@ -5204,7 +5134,7 @@
       "type": "adr",
       "path": "docs/ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER.md",
       "title": "ADR-006 — Lift V1's Shell, Components and Sitemap; Wrap Them in V2's Scope",
-      "hash": "49de71b5",
+      "hash": "ec22acc7",
       "status": "current"
     },
     {
@@ -5212,7 +5142,7 @@
       "type": "adr",
       "path": "docs/ADR-007-LINE-AI-STACK-SEQUENCING.md",
       "title": "ADR-007 — LINE/AI Stack: Dependency Sequencing and Production Gates",
-      "hash": "b623b391",
+      "hash": "81f99b36",
       "status": "current"
     },
     {
@@ -5228,7 +5158,7 @@
       "type": "adr",
       "path": "docs/ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md",
       "title": "ADR-009 — Self-governance: doc-graph lineage, the IR boundary, and dogfooding the PM",
-      "hash": "44092fc3",
+      "hash": "edf7b5bf",
       "status": "current"
     },
     {
@@ -5277,7 +5207,7 @@
       "path": "docs/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md",
       "title": "ADR-015 — Minimal entry, demo login, and Business Routing before BusinessShell",
       "doc_status": "Accepted — implementation complete",
-      "hash": "425e02d8",
+      "hash": "d092ce33",
       "status": "current"
     },
     {
@@ -5294,7 +5224,7 @@
       "path": "docs/ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL.md",
       "title": "ADR-017 — Production viewer session and viewer-scoped entry read model",
       "version": "0.2.0b",
-      "hash": "a47d2add",
+      "hash": "8131668a",
       "status": "current"
     },
     {
@@ -5305,6 +5235,14 @@
       "version": "0.3.1b",
       "doc_status": "Accepted; production database slice deployed, LINE activation gated",
       "hash": "3618385d",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-018-ZURI-BRANDED-ENTRY-LANDING",
+      "type": "adr",
+      "path": "docs/ADR-018-ZURI-BRANDED-ENTRY-LANDING.md",
+      "title": "ADR-018 — Zuri Branded Entry Landing",
+      "hash": "98c0b966",
       "status": "current"
     },
     {
@@ -5320,49 +5258,49 @@
       "type": "adr",
       "path": "docs/ADR-020-CONTROLLED-LINE-BINDING-ACTIVATION-AND-RECEIPT.md",
       "title": "ADR-020 — Controlled LINE binding activation and receipt",
-      "hash": "a6e99993",
+      "hash": "1d4fd35a",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
-      "hash": "e2dcec78",
+      "hash": "55b62535",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/fr041-business-first.spec.js",
       "type": "test",
       "path": "tests/e2e/fr041-business-first.spec.js",
-      "hash": "1cc10da6",
+      "hash": "38462518",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/fr044-entry-routing.spec.js",
       "type": "test",
       "path": "tests/e2e/fr044-entry-routing.spec.js",
-      "hash": "f9e116c0",
+      "hash": "31204ca0",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/fr045-files.spec.js",
       "type": "test",
       "path": "tests/e2e/fr045-files.spec.js",
-      "hash": "690ecc32",
+      "hash": "7c35c99c",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/fr046-entry-contract.spec.js",
       "type": "test",
       "path": "tests/e2e/fr046-entry-contract.spec.js",
-      "hash": "0e6d10de",
+      "hash": "819b8209",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
-      "hash": "4a167eda",
+      "hash": "0ac765a5",
       "status": "current"
     },
     {
@@ -5376,42 +5314,42 @@
       "id": "test:tests/integration/agent-action-gate.test.js",
       "type": "test",
       "path": "tests/integration/agent-action-gate.test.js",
-      "hash": "136094c9",
+      "hash": "e5682fc7",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-context.test.js",
       "type": "test",
       "path": "tests/integration/agent-context.test.js",
-      "hash": "20579a4b",
+      "hash": "cba6a0a2",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-msp-port.test.js",
       "type": "test",
       "path": "tests/integration/agent-msp-port.test.js",
-      "hash": "7ae82445",
+      "hash": "5e335371",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-runtime.test.js",
       "type": "test",
       "path": "tests/integration/agent-runtime.test.js",
-      "hash": "6e9d8b06",
+      "hash": "184d2ce0",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-tools.test.js",
       "type": "test",
       "path": "tests/integration/agent-tools.test.js",
-      "hash": "bdc1ecf0",
+      "hash": "d4c6e494",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-turn.test.js",
       "type": "test",
       "path": "tests/integration/agent-turn.test.js",
-      "hash": "faf2539d",
+      "hash": "4c804f19",
       "status": "current"
     },
     {
@@ -5425,21 +5363,21 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
-      "hash": "bcde9fd9",
+      "hash": "5bb93442",
       "status": "current"
     },
     {
       "id": "test:tests/integration/controlled-line-activation.postgres.test.js",
       "type": "test",
       "path": "tests/integration/controlled-line-activation.postgres.test.js",
-      "hash": "3c78b4b8",
+      "hash": "c573fcf2",
       "status": "current"
     },
     {
       "id": "test:tests/integration/external-ref-import.test.js",
       "type": "test",
       "path": "tests/integration/external-ref-import.test.js",
-      "hash": "9d93c286",
+      "hash": "8e2f4a11",
       "status": "current"
     },
     {
@@ -5453,84 +5391,84 @@
       "id": "test:tests/integration/fr046-entry-contract.test.js",
       "type": "test",
       "path": "tests/integration/fr046-entry-contract.test.js",
-      "hash": "8fe0074e",
+      "hash": "edd85cca",
       "status": "current"
     },
     {
       "id": "test:tests/integration/identity-classify.test.js",
       "type": "test",
       "path": "tests/integration/identity-classify.test.js",
-      "hash": "05c436a5",
+      "hash": "7c78b3d0",
       "status": "current"
     },
     {
       "id": "test:tests/integration/identity-erase.test.js",
       "type": "test",
       "path": "tests/integration/identity-erase.test.js",
-      "hash": "434b4063",
+      "hash": "31421c6e",
       "status": "current"
     },
     {
       "id": "test:tests/integration/identity-gate.test.js",
       "type": "test",
       "path": "tests/integration/identity-gate.test.js",
-      "hash": "ce2b9763",
+      "hash": "b2d57b96",
       "status": "current"
     },
     {
       "id": "test:tests/integration/identity-link.test.js",
       "type": "test",
       "path": "tests/integration/identity-link.test.js",
-      "hash": "2c9e289f",
+      "hash": "feef8680",
       "status": "current"
     },
     {
       "id": "test:tests/integration/identity-resolve.test.js",
       "type": "test",
       "path": "tests/integration/identity-resolve.test.js",
-      "hash": "c7da9959",
+      "hash": "64b6340d",
       "status": "current"
     },
     {
       "id": "test:tests/integration/knowledge-genesis-sink.test.js",
       "type": "test",
       "path": "tests/integration/knowledge-genesis-sink.test.js",
-      "hash": "8a12c867",
+      "hash": "d4ff00a8",
       "status": "current"
     },
     {
       "id": "test:tests/integration/knowledge-project.test.js",
       "type": "test",
       "path": "tests/integration/knowledge-project.test.js",
-      "hash": "7216b6cc",
+      "hash": "7e9761b1",
       "status": "current"
     },
     {
       "id": "test:tests/integration/knowledge-query.test.js",
       "type": "test",
       "path": "tests/integration/knowledge-query.test.js",
-      "hash": "b4251d53",
+      "hash": "bf0dac7e",
       "status": "current"
     },
     {
       "id": "test:tests/integration/line-binding-activation.postgres.test.js",
       "type": "test",
       "path": "tests/integration/line-binding-activation.postgres.test.js",
-      "hash": "57ce7ed6",
+      "hash": "1fcb74da",
       "status": "current"
     },
     {
       "id": "test:tests/integration/line-ingest.test.js",
       "type": "test",
       "path": "tests/integration/line-ingest.test.js",
-      "hash": "c80a4315",
+      "hash": "9067f426",
       "status": "current"
     },
     {
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "65f39c9d",
+      "hash": "f7ec1641",
       "status": "current"
     },
     {
@@ -5551,28 +5489,28 @@
       "id": "test:tests/integration/project-core.test.js",
       "type": "test",
       "path": "tests/integration/project-core.test.js",
-      "hash": "9a0f7781",
+      "hash": "1cbc02ca",
       "status": "current"
     },
     {
       "id": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
       "type": "test",
       "path": "tests/integration/runtime-isolation-probe.postgres.test.js",
-      "hash": "72d14f68",
+      "hash": "15bc1518",
       "status": "current"
     },
     {
       "id": "test:tests/integration/scope-and-isolation.test.js",
       "type": "test",
       "path": "tests/integration/scope-and-isolation.test.js",
-      "hash": "1dc3f584",
+      "hash": "6c3a58e5",
       "status": "current"
     },
     {
       "id": "test:tests/integration/xlsx-intake.test.js",
       "type": "test",
       "path": "tests/integration/xlsx-intake.test.js",
-      "hash": "3dae7f6b",
+      "hash": "61987283",
       "status": "current"
     },
     {
@@ -5586,7 +5524,7 @@
       "id": "test:tests/unit/activation-readiness-integration.test.js",
       "type": "test",
       "path": "tests/unit/activation-readiness-integration.test.js",
-      "hash": "57742db5",
+      "hash": "08c13e41",
       "status": "current"
     },
     {
@@ -5600,14 +5538,14 @@
       "id": "test:tests/unit/business-knowledge-contract.test.js",
       "type": "test",
       "path": "tests/unit/business-knowledge-contract.test.js",
-      "hash": "bc773000",
+      "hash": "25a410c2",
       "status": "current"
     },
     {
       "id": "test:tests/unit/business-routing-page.test.js",
       "type": "test",
       "path": "tests/unit/business-routing-page.test.js",
-      "hash": "88839810",
+      "hash": "56b3a4d5",
       "status": "current"
     },
     {
@@ -5628,7 +5566,7 @@
       "id": "test:tests/unit/business-strategy-route.test.js",
       "type": "test",
       "path": "tests/unit/business-strategy-route.test.js",
-      "hash": "4c59248f",
+      "hash": "b2225c2b",
       "status": "current"
     },
     {
@@ -5642,14 +5580,14 @@
       "id": "test:tests/unit/controlled-line-activation-migration.test.js",
       "type": "test",
       "path": "tests/unit/controlled-line-activation-migration.test.js",
-      "hash": "9f653d5e",
+      "hash": "47437139",
       "status": "current"
     },
     {
       "id": "test:tests/unit/db-boundary.test.js",
       "type": "test",
       "path": "tests/unit/db-boundary.test.js",
-      "hash": "4ce64a0b",
+      "hash": "0cf8429a",
       "status": "current"
     },
     {
@@ -5670,7 +5608,7 @@
       "id": "test:tests/unit/domain-navigation.test.js",
       "type": "test",
       "path": "tests/unit/domain-navigation.test.js",
-      "hash": "c3a0fef0",
+      "hash": "57e0e96a",
       "status": "current"
     },
     {
@@ -5684,7 +5622,7 @@
       "id": "test:tests/unit/entry-surfaces.test.js",
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
-      "hash": "369d9080",
+      "hash": "a8f17db2",
       "status": "current"
     },
     {
@@ -5761,28 +5699,35 @@
       "id": "test:tests/unit/fr046-api-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr046-api-ui-contract.test.js",
-      "hash": "3185c4f9",
+      "hash": "c6a238f1",
       "status": "current"
     },
     {
       "id": "test:tests/unit/fr046-entry-read-model.test.js",
       "type": "test",
       "path": "tests/unit/fr046-entry-read-model.test.js",
-      "hash": "aeab4bed",
+      "hash": "4e7fe113",
       "status": "current"
     },
     {
       "id": "test:tests/unit/fr046-session-port.test.js",
       "type": "test",
       "path": "tests/unit/fr046-session-port.test.js",
-      "hash": "6b5f934f",
+      "hash": "cb284ee8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr051-landing.test.js",
+      "type": "test",
+      "path": "tests/unit/fr051-landing.test.js",
+      "hash": "e70f3bb0",
       "status": "current"
     },
     {
       "id": "test:tests/unit/fr055-postgres-target-guard.test.js",
       "type": "test",
       "path": "tests/unit/fr055-postgres-target-guard.test.js",
-      "hash": "381218a6",
+      "hash": "988d9904",
       "status": "current"
     },
     {
@@ -5796,7 +5741,7 @@
       "id": "test:tests/unit/grounded-business-answer.test.js",
       "type": "test",
       "path": "tests/unit/grounded-business-answer.test.js",
-      "hash": "ee152b62",
+      "hash": "7eb80320",
       "status": "current"
     },
     {
@@ -5807,31 +5752,38 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/human-intake-surface.test.js",
+      "type": "test",
+      "path": "tests/unit/human-intake-surface.test.js",
+      "hash": "d21888cd",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/ids.test.js",
       "type": "test",
       "path": "tests/unit/ids.test.js",
-      "hash": "28016e12",
+      "hash": "54bcbecc",
       "status": "current"
     },
     {
       "id": "test:tests/unit/line-activation-contract.test.js",
       "type": "test",
       "path": "tests/unit/line-activation-contract.test.js",
-      "hash": "fce66170",
+      "hash": "141c07c2",
       "status": "current"
     },
     {
       "id": "test:tests/unit/line-binding-activation-cli.test.js",
       "type": "test",
       "path": "tests/unit/line-binding-activation-cli.test.js",
-      "hash": "4217882c",
+      "hash": "8df6ad77",
       "status": "current"
     },
     {
       "id": "test:tests/unit/line-binding-activation.test.js",
       "type": "test",
       "path": "tests/unit/line-binding-activation.test.js",
-      "hash": "38e63b1a",
+      "hash": "606a10f5",
       "status": "current"
     },
     {
@@ -5859,7 +5811,7 @@
       "id": "test:tests/unit/model-provider-port.test.js",
       "type": "test",
       "path": "tests/unit/model-provider-port.test.js",
-      "hash": "e3a469b1",
+      "hash": "5ca2b9d5",
       "status": "current"
     },
     {
@@ -5880,7 +5832,7 @@
       "id": "test:tests/unit/people-route.test.js",
       "type": "test",
       "path": "tests/unit/people-route.test.js",
-      "hash": "730e8d11",
+      "hash": "6ef3974c",
       "status": "current"
     },
     {
@@ -5908,7 +5860,7 @@
       "id": "test:tests/unit/plan-schema.test.js",
       "type": "test",
       "path": "tests/unit/plan-schema.test.js",
-      "hash": "d3ff0836",
+      "hash": "5012b65d",
       "status": "current"
     },
     {
@@ -5985,28 +5937,28 @@
       "id": "test:tests/unit/rollup.test.js",
       "type": "test",
       "path": "tests/unit/rollup.test.js",
-      "hash": "9dd91a50",
+      "hash": "57641a11",
       "status": "current"
     },
     {
       "id": "test:tests/unit/run-bat-database-bootstrap.test.js",
       "type": "test",
       "path": "tests/unit/run-bat-database-bootstrap.test.js",
-      "hash": "9f553cc1",
+      "hash": "f78fe32b",
       "status": "current"
     },
     {
       "id": "test:tests/unit/runtime-isolation-probe.test.js",
       "type": "test",
       "path": "tests/unit/runtime-isolation-probe.test.js",
-      "hash": "34795ed1",
+      "hash": "8fba8570",
       "status": "current"
     },
     {
       "id": "test:tests/unit/runtime-postgres-config.test.js",
       "type": "test",
       "path": "tests/unit/runtime-postgres-config.test.js",
-      "hash": "eaad3529",
+      "hash": "427ec42d",
       "status": "current"
     },
     {
@@ -6027,14 +5979,21 @@
       "id": "test:tests/unit/sidebar-visible-subdomains.test.js",
       "type": "test",
       "path": "tests/unit/sidebar-visible-subdomains.test.js",
-      "hash": "6273415e",
+      "hash": "c2d6ee20",
       "status": "current"
     },
     {
       "id": "test:tests/unit/strategies.test.js",
       "type": "test",
       "path": "tests/unit/strategies.test.js",
-      "hash": "889a7e52",
+      "hash": "d55aa65b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/supabase-business-knowledge.test.js",
+      "type": "test",
+      "path": "tests/unit/supabase-business-knowledge.test.js",
+      "hash": "a6eee7bd",
       "status": "current"
     },
     {
@@ -6069,7 +6028,7 @@
       "id": "test:tests/unit/zuri-cli-canary-receipt.test.js",
       "type": "test",
       "path": "tests/unit/zuri-cli-canary-receipt.test.js",
-      "hash": "b341717a",
+      "hash": "9e48c632",
       "status": "current"
     },
     {
@@ -7872,13 +7831,6 @@
     },
     {
       "from": "code:src/app/api/agent/line-webhook/route.js",
-      "to": "req:BR-012",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/agent/line-webhook/route.js",
       "to": "req:FR-028",
       "type": "implements",
       "status": "current",
@@ -7893,21 +7845,7 @@
     },
     {
       "from": "code:src/app/api/agent/line-webhook/route.js",
-      "to": "req:FR-052",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/agent/line-webhook/route.js",
       "to": "req:SDD-026",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/agent/line-webhook/route.js",
-      "to": "req:SEC-010",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -8824,7 +8762,35 @@
     },
     {
       "from": "code:src/app/page.jsx",
+      "to": "req:FR-051",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/page.jsx",
       "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/page.jsx",
+      "to": "req:SDD-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/landing/ZuriLanding.jsx",
+      "to": "req:FR-051",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/landing/ZuriLanding.jsx",
+      "to": "req:SDD-026",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -8943,7 +8909,21 @@
     },
     {
       "from": "code:src/components/layouts/EntryShell.jsx",
+      "to": "req:FR-051",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/EntryShell.jsx",
       "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/EntryShell.jsx",
+      "to": "req:SDD-026",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -9258,6 +9238,20 @@
     },
     {
       "from": "code:src/lib/validation/enums.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-012",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
       "to": "req:SDD-002",
       "type": "follows",
       "status": "current",
@@ -9285,93 +9279,9 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/modules/agent/activation-readiness-contract.js",
-      "to": "req:BR-013",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/activation-readiness-contract.js",
-      "to": "req:FR-053",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/activation-readiness-contract.js",
-      "to": "req:FR-054",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/activation-readiness-contract.js",
-      "to": "req:SDD-027",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/activation-readiness-contract.js",
-      "to": "req:SEC-011",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/canary-preflight.js",
-      "to": "req:BR-013",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/canary-preflight.js",
-      "to": "req:FR-054",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/canary-preflight.js",
-      "to": "req:SDD-027",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/canary-preflight.js",
-      "to": "req:SEC-011",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/modules/agent/context.js",
       "to": "req:FR-025",
       "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/golden-evaluation.js",
-      "to": "req:FR-053",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/golden-evaluation.js",
-      "to": "req:SDD-027",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/golden-evaluation.js",
-      "to": "req:SEC-011",
-      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -9439,120 +9349,8 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/modules/agent/index.js",
-      "to": "req:FR-053",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/index.js",
-      "to": "req:FR-054",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/index.js",
-      "to": "req:SDD-027",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/index.js",
-      "to": "req:SEC-011",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-activation-contract.js",
-      "to": "req:BR-014",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-activation-contract.js",
-      "to": "req:FR-055",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-activation-contract.js",
-      "to": "req:SDD-028",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-activation-contract.js",
-      "to": "req:SEC-012",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-binding-activation.js",
-      "to": "req:BR-014",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-binding-activation.js",
-      "to": "req:FR-055",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-binding-activation.js",
-      "to": "req:NFR-013",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-binding-activation.js",
-      "to": "req:SDD-028",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-binding-activation.js",
-      "to": "req:SEC-012",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-binding-resolver.js",
-      "to": "req:FR-052",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/modules/agent/line-binding-resolver.js",
       "to": "req:SDD-026",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-binding-resolver.js",
-      "to": "req:SEC-010",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-channel-binding.js",
-      "to": "req:BR-012",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -9567,48 +9365,6 @@
     {
       "from": "code:src/modules/agent/line-channel-binding.js",
       "to": "req:SDD-026",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-channel-binding.js",
-      "to": "req:SEC-010",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-operator.js",
-      "to": "req:BR-014",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-operator.js",
-      "to": "req:FR-055",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-operator.js",
-      "to": "req:NFR-013",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-operator.js",
-      "to": "req:SDD-028",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-operator.js",
-      "to": "req:SEC-012",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -9678,13 +9434,6 @@
     },
     {
       "from": "code:src/modules/agent/phase1-runtime.js",
-      "to": "req:FR-052",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/phase1-runtime.js",
       "to": "req:SDD-025",
       "type": "follows",
       "status": "current",
@@ -9700,13 +9449,6 @@
     {
       "from": "code:src/modules/agent/phase1-runtime.js",
       "to": "req:SEC-009",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/phase1-runtime.js",
-      "to": "req:SEC-010",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -9743,34 +9485,6 @@
       "from": "code:src/modules/agent/write-tools.js",
       "to": "req:FR-026",
       "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/zuri-cli-canary-receipt.js",
-      "to": "req:BR-014",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/zuri-cli-canary-receipt.js",
-      "to": "req:FR-055",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/zuri-cli-canary-receipt.js",
-      "to": "req:SDD-028",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/zuri-cli-canary-receipt.js",
-      "to": "req:SEC-012",
-      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -10076,27 +9790,6 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/modules/knowledge/index.js",
-      "to": "req:FR-054",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/index.js",
-      "to": "req:SDD-027",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/index.js",
-      "to": "req:SEC-011",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/modules/knowledge/live-facts.js",
       "to": "req:FR-024",
       "type": "implements",
@@ -10118,13 +9811,6 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/modules/knowledge/postgres-business-knowledge.js",
-      "to": "req:SEC-010",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/modules/knowledge/project-graph.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -10163,41 +9849,6 @@
       "from": "code:src/modules/knowledge/query.js",
       "to": "req:SEC-001",
       "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/runtime-isolation-probe.js",
-      "to": "req:FR-054",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/runtime-isolation-probe.js",
-      "to": "req:SDD-027",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/runtime-isolation-probe.js",
-      "to": "req:SEC-011",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
-      "to": "req:FR-052",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
-      "to": "req:FR-054",
-      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -10209,30 +9860,30 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
-      "to": "req:SDD-027",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
-      "to": "req:SEC-010",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
-      "to": "req:SEC-011",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/modules/knowledge/sink.js",
       "to": "req:FR-024",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/supabase-business-knowledge.js",
+      "to": "req:FR-047",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/supabase-business-knowledge.js",
+      "to": "req:SDD-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/supabase-business-knowledge.js",
+      "to": "req:SEC-009",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -11105,27 +10756,6 @@
       "source": "prd-registry"
     },
     {
-      "from": "req:BR-012",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:BR-013",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:BR-014",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
       "from": "req:FR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -11483,34 +11113,6 @@
       "source": "prd-registry"
     },
     {
-      "from": "req:FR-052",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:FR-053",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:FR-054",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:FR-055",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -11575,27 +11177,6 @@
     },
     {
       "from": "req:NFR-010",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:NFR-011",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:NFR-012",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:NFR-013",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -11784,20 +11365,6 @@
       "source": "prd-registry"
     },
     {
-      "from": "req:SDD-027",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:SDD-028",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -11855,27 +11422,6 @@
     },
     {
       "from": "req:SEC-009",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:SEC-010",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:SEC-011",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:SEC-012",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -12940,35 +12486,7 @@
     },
     {
       "from": "test:tests/integration/agent-action-gate.test.js",
-      "to": "req:FR-053",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-action-gate.test.js",
-      "to": "req:FR-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-action-gate.test.js",
       "to": "req:SDD-009",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-action-gate.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-action-gate.test.js",
-      "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -13032,34 +12550,6 @@
     {
       "from": "test:tests/integration/agent-context.test.js",
       "to": "req:FR-049",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-context.test.js",
-      "to": "req:FR-053",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-context.test.js",
-      "to": "req:FR-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-context.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-context.test.js",
-      "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -13157,13 +12647,6 @@
     },
     {
       "from": "test:tests/integration/agent-webhook-route.test.js",
-      "to": "req:BR-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-webhook-route.test.js",
       "to": "req:FR-028",
       "type": "verifies",
       "status": "current",
@@ -13185,21 +12668,7 @@
     },
     {
       "from": "test:tests/integration/agent-webhook-route.test.js",
-      "to": "req:FR-052",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/agent-webhook-route.test.js",
       "to": "req:SDD-026",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-webhook-route.test.js",
-      "to": "req:SEC-010",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -13259,34 +12728,6 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/controlled-line-activation.postgres.test.js",
-      "to": "req:FR-055",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/controlled-line-activation.postgres.test.js",
-      "to": "req:NFR-013",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/controlled-line-activation.postgres.test.js",
-      "to": "req:SDD-028",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/controlled-line-activation.postgres.test.js",
-      "to": "req:SEC-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/external-ref-import.test.js",
@@ -13619,28 +13060,7 @@
     },
     {
       "from": "test:tests/integration/knowledge-project.test.js",
-      "to": "req:FR-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/knowledge-project.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/knowledge-project.test.js",
       "to": "req:SEC-001",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/knowledge-project.test.js",
-      "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -13675,28 +13095,7 @@
     },
     {
       "from": "test:tests/integration/knowledge-query.test.js",
-      "to": "req:FR-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/knowledge-query.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/knowledge-query.test.js",
       "to": "req:SEC-001",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/knowledge-query.test.js",
-      "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -13707,41 +13106,6 @@
       "type": "tests",
       "status": "current",
       "source": "annotation"
-    },
-    {
-      "from": "test:tests/integration/line-binding-activation.postgres.test.js",
-      "to": "req:BR-014",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/line-binding-activation.postgres.test.js",
-      "to": "req:FR-055",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/line-binding-activation.postgres.test.js",
-      "to": "req:NFR-013",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/line-binding-activation.postgres.test.js",
-      "to": "req:SDD-028",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/line-binding-activation.postgres.test.js",
-      "to": "req:SEC-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/line-ingest.test.js",
@@ -14199,27 +13563,6 @@
       "source": "annotation"
     },
     {
-      "from": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
-      "to": "req:FR-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
-      "to": "req:SEC-011",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
       "from": "test:tests/integration/scope-and-isolation.test.js",
       "to": "code:src/modules/project-manager/application/scope-service.js",
       "type": "tests",
@@ -14284,6 +13627,20 @@
     },
     {
       "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "req:FR-018",
       "type": "verifies",
       "status": "current",
@@ -14302,41 +13659,6 @@
       "type": "tests",
       "status": "current",
       "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-contract.test.js",
-      "to": "req:BR-013",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-contract.test.js",
-      "to": "req:FR-053",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-contract.test.js",
-      "to": "req:FR-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-contract.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-contract.test.js",
-      "to": "req:SEC-011",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/activation-readiness-integration.test.js",
@@ -14358,13 +13680,6 @@
       "type": "tests",
       "status": "current",
       "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-integration.test.js",
-      "to": "req:BR-014",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/activation-readiness-integration.test.js",
@@ -14414,62 +13729,6 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-integration.test.js",
-      "to": "req:FR-053",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-integration.test.js",
-      "to": "req:FR-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-integration.test.js",
-      "to": "req:FR-055",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-integration.test.js",
-      "to": "req:NFR-013",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-integration.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-integration.test.js",
-      "to": "req:SDD-028",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-integration.test.js",
-      "to": "req:SEC-011",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/activation-readiness-integration.test.js",
-      "to": "req:SEC-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/breadcrumb-switcher.test.js",
@@ -14766,34 +14025,6 @@
       "source": "test-reference"
     },
     {
-      "from": "test:tests/unit/controlled-line-activation-migration.test.js",
-      "to": "req:FR-055",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/controlled-line-activation-migration.test.js",
-      "to": "req:NFR-013",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/controlled-line-activation-migration.test.js",
-      "to": "req:SDD-028",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/controlled-line-activation-migration.test.js",
-      "to": "req:SEC-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
       "from": "test:tests/unit/db-boundary.test.js",
       "to": "code:src/lib/db-boundary.js",
       "type": "tests",
@@ -14984,6 +14215,13 @@
     },
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "req:FR-051",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
@@ -14992,6 +14230,13 @@
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
       "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "req:SDD-026",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -15879,36 +15124,50 @@
       "source": "test-reference"
     },
     {
-      "from": "test:tests/unit/fr055-postgres-target-guard.test.js",
-      "to": "req:BR-014",
+      "from": "test:tests/unit/fr051-landing.test.js",
+      "to": "code:src/app/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr051-landing.test.js",
+      "to": "code:src/components/landing/ZuriLanding.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr051-landing.test.js",
+      "to": "code:src/components/layouts/EntryShell.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr051-landing.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr051-landing.test.js",
+      "to": "req:FR-051",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
     },
     {
-      "from": "test:tests/unit/fr055-postgres-target-guard.test.js",
-      "to": "req:FR-055",
+      "from": "test:tests/unit/fr051-landing.test.js",
+      "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
-      "source": "test-reference"
+      "source": "transitive"
     },
     {
-      "from": "test:tests/unit/fr055-postgres-target-guard.test.js",
-      "to": "req:NFR-013",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/fr055-postgres-target-guard.test.js",
-      "to": "req:SDD-028",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/fr055-postgres-target-guard.test.js",
-      "to": "req:SEC-012",
+      "from": "test:tests/unit/fr051-landing.test.js",
+      "to": "req:SDD-026",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -15919,27 +15178,6 @@
       "type": "tests",
       "status": "current",
       "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/golden-evaluation.test.js",
-      "to": "req:FR-053",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/golden-evaluation.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/golden-evaluation.test.js",
-      "to": "req:SEC-011",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/grounded-business-answer.test.js",
@@ -16019,109 +15257,11 @@
       "source": "annotation"
     },
     {
-      "from": "test:tests/unit/line-activation-contract.test.js",
-      "to": "req:BR-014",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-activation-contract.test.js",
-      "to": "req:FR-055",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-activation-contract.test.js",
-      "to": "req:SDD-028",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-activation-contract.test.js",
-      "to": "req:SEC-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-binding-activation-cli.test.js",
-      "to": "req:BR-014",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-binding-activation-cli.test.js",
-      "to": "req:FR-055",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-binding-activation-cli.test.js",
-      "to": "req:NFR-013",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-binding-activation-cli.test.js",
-      "to": "req:SDD-028",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-binding-activation-cli.test.js",
-      "to": "req:SEC-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
       "from": "test:tests/unit/line-binding-activation.test.js",
       "to": "code:src/modules/agent/line-binding-activation.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/line-binding-activation.test.js",
-      "to": "req:BR-014",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-binding-activation.test.js",
-      "to": "req:FR-055",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-binding-activation.test.js",
-      "to": "req:NFR-013",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-binding-activation.test.js",
-      "to": "req:SDD-028",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-binding-activation.test.js",
-      "to": "req:SEC-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/line-binding-resolver.test.js",
@@ -16132,21 +15272,7 @@
     },
     {
       "from": "test:tests/unit/line-binding-resolver.test.js",
-      "to": "req:FR-052",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-binding-resolver.test.js",
       "to": "req:SDD-026",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-binding-resolver.test.js",
-      "to": "req:SEC-010",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -16159,46 +15285,11 @@
       "source": "annotation"
     },
     {
-      "from": "test:tests/unit/line-canary-preflight.test.js",
-      "to": "req:BR-013",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-canary-preflight.test.js",
-      "to": "req:FR-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-canary-preflight.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-canary-preflight.test.js",
-      "to": "req:SEC-011",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
       "from": "test:tests/unit/line-channel-binding.test.js",
       "to": "code:src/modules/agent/line-channel-binding.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/line-channel-binding.test.js",
-      "to": "req:BR-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/line-channel-binding.test.js",
@@ -16210,13 +15301,6 @@
     {
       "from": "test:tests/unit/line-channel-binding.test.js",
       "to": "req:SDD-026",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-channel-binding.test.js",
-      "to": "req:SEC-010",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -16405,13 +15489,6 @@
     },
     {
       "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
-      "to": "req:FR-052",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
       "to": "req:SDD-025",
       "type": "verifies",
       "status": "current",
@@ -16432,13 +15509,6 @@
       "source": "test-reference"
     },
     {
-      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
-      "to": "req:SEC-010",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
       "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
       "to": "req:FR-051",
       "type": "verifies",
@@ -16447,21 +15517,7 @@
     },
     {
       "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
-      "to": "req:FR-052",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
       "to": "req:SDD-026",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
-      "to": "req:SEC-010",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -16490,6 +15546,13 @@
     {
       "from": "test:tests/unit/plan-schema.test.js",
       "to": "req:BR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:BR-009",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -16560,13 +15623,6 @@
     {
       "from": "test:tests/unit/postgres-business-knowledge.test.js",
       "to": "req:SDD-026",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/postgres-business-knowledge.test.js",
-      "to": "req:SEC-010",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -16985,27 +16041,6 @@
       "source": "transitive"
     },
     {
-      "from": "test:tests/unit/runtime-isolation-probe.test.js",
-      "to": "req:FR-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/runtime-isolation-probe.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/runtime-isolation-probe.test.js",
-      "to": "req:SEC-011",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
       "from": "test:tests/unit/runtime-postgres-config.test.js",
       "to": "code:src/modules/knowledge/runtime-postgres-config.js",
       "type": "tests",
@@ -17014,42 +16049,7 @@
     },
     {
       "from": "test:tests/unit/runtime-postgres-config.test.js",
-      "to": "req:FR-052",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/runtime-postgres-config.test.js",
-      "to": "req:FR-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/runtime-postgres-config.test.js",
       "to": "req:SDD-026",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/runtime-postgres-config.test.js",
-      "to": "req:SDD-027",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/runtime-postgres-config.test.js",
-      "to": "req:SEC-010",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/runtime-postgres-config.test.js",
-      "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -17251,6 +16251,34 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/supabase-business-knowledge.test.js",
+      "to": "code:src/modules/knowledge/supabase-business-knowledge.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/supabase-business-knowledge.test.js",
+      "to": "req:FR-047",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/supabase-business-knowledge.test.js",
+      "to": "req:SDD-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/supabase-business-knowledge.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/supabase-production-isolation.test.js",
       "to": "req:FR-051",
       "type": "verifies",
@@ -17260,13 +16288,6 @@
     {
       "from": "test:tests/unit/supabase-production-isolation.test.js",
       "to": "req:SDD-026",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/supabase-production-isolation.test.js",
-      "to": "req:SEC-010",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -17410,35 +16431,1208 @@
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    }
+  ],
+  "dangling_edges": [
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-052"
     },
     {
-      "from": "test:tests/unit/zuri-cli-canary-receipt.test.js",
+      "from": "test:tests/integration/controlled-line-activation.postgres.test.js",
+      "to": "req:FR-055",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "test:tests/integration/controlled-line-activation.postgres.test.js",
+      "to": "req:NFR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:NFR-013"
+    },
+    {
+      "from": "test:tests/integration/controlled-line-activation.postgres.test.js",
+      "to": "req:SDD-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-028"
+    },
+    {
+      "from": "test:tests/integration/controlled-line-activation.postgres.test.js",
+      "to": "req:SEC-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "test:tests/integration/line-binding-activation.postgres.test.js",
+      "to": "req:FR-055",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "test:tests/integration/line-binding-activation.postgres.test.js",
+      "to": "req:NFR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:NFR-013"
+    },
+    {
+      "from": "test:tests/integration/line-binding-activation.postgres.test.js",
       "to": "req:BR-014",
       "type": "verifies",
       "status": "current",
-      "source": "test-reference"
+      "source": "test-reference",
+      "reason": "unknown node req:BR-014"
+    },
+    {
+      "from": "test:tests/integration/line-binding-activation.postgres.test.js",
+      "to": "req:SDD-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-028"
+    },
+    {
+      "from": "test:tests/integration/line-binding-activation.postgres.test.js",
+      "to": "req:SEC-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-contract.test.js",
+      "to": "req:FR-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-053"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-contract.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-contract.test.js",
+      "to": "req:BR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:BR-013"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-contract.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-contract.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-053"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-055",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:NFR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:NFR-013"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:BR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:BR-014"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:SDD-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-028"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:SEC-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "test:tests/unit/controlled-line-activation-migration.test.js",
+      "to": "req:FR-055",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "test:tests/unit/controlled-line-activation-migration.test.js",
+      "to": "req:NFR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:NFR-013"
+    },
+    {
+      "from": "test:tests/unit/controlled-line-activation-migration.test.js",
+      "to": "req:SDD-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-028"
+    },
+    {
+      "from": "test:tests/unit/controlled-line-activation-migration.test.js",
+      "to": "req:SEC-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "test:tests/unit/fr055-postgres-target-guard.test.js",
+      "to": "req:FR-055",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "test:tests/unit/fr055-postgres-target-guard.test.js",
+      "to": "req:NFR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:NFR-013"
+    },
+    {
+      "from": "test:tests/unit/fr055-postgres-target-guard.test.js",
+      "to": "req:BR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:BR-014"
+    },
+    {
+      "from": "test:tests/unit/fr055-postgres-target-guard.test.js",
+      "to": "req:SDD-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-028"
+    },
+    {
+      "from": "test:tests/unit/fr055-postgres-target-guard.test.js",
+      "to": "req:SEC-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "test:tests/unit/golden-evaluation.test.js",
+      "to": "req:FR-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-053"
+    },
+    {
+      "from": "test:tests/unit/golden-evaluation.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "test:tests/unit/golden-evaluation.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "test:tests/unit/line-activation-contract.test.js",
+      "to": "req:FR-055",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "test:tests/unit/line-activation-contract.test.js",
+      "to": "req:BR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:BR-014"
+    },
+    {
+      "from": "test:tests/unit/line-activation-contract.test.js",
+      "to": "req:SDD-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-028"
+    },
+    {
+      "from": "test:tests/unit/line-activation-contract.test.js",
+      "to": "req:SEC-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "test:tests/unit/line-binding-activation-cli.test.js",
+      "to": "req:FR-055",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "test:tests/unit/line-binding-activation-cli.test.js",
+      "to": "req:NFR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:NFR-013"
+    },
+    {
+      "from": "test:tests/unit/line-binding-activation-cli.test.js",
+      "to": "req:BR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:BR-014"
+    },
+    {
+      "from": "test:tests/unit/line-binding-activation-cli.test.js",
+      "to": "req:SDD-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-028"
+    },
+    {
+      "from": "test:tests/unit/line-binding-activation-cli.test.js",
+      "to": "req:SEC-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "test:tests/unit/line-binding-activation.test.js",
+      "to": "req:FR-055",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "test:tests/unit/line-binding-activation.test.js",
+      "to": "req:NFR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:NFR-013"
+    },
+    {
+      "from": "test:tests/unit/line-binding-activation.test.js",
+      "to": "req:BR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:BR-014"
+    },
+    {
+      "from": "test:tests/unit/line-binding-activation.test.js",
+      "to": "req:SDD-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-028"
+    },
+    {
+      "from": "test:tests/unit/line-binding-activation.test.js",
+      "to": "req:SEC-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "test:tests/unit/line-binding-resolver.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-052"
+    },
+    {
+      "from": "test:tests/unit/line-binding-resolver.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "test:tests/unit/line-canary-preflight.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "test:tests/unit/line-canary-preflight.test.js",
+      "to": "req:BR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:BR-013"
+    },
+    {
+      "from": "test:tests/unit/line-canary-preflight.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "test:tests/unit/line-canary-preflight.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "test:tests/unit/line-channel-binding.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:BR-012"
+    },
+    {
+      "from": "test:tests/unit/line-channel-binding.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-052"
+    },
+    {
+      "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "test:tests/unit/postgres-business-knowledge.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "test:tests/unit/runtime-isolation-probe.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "test:tests/unit/runtime-isolation-probe.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "test:tests/unit/runtime-isolation-probe.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "test:tests/unit/runtime-postgres-config.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-052"
+    },
+    {
+      "from": "test:tests/unit/runtime-postgres-config.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "test:tests/unit/runtime-postgres-config.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "test:tests/unit/runtime-postgres-config.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "test:tests/unit/runtime-postgres-config.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "test:tests/unit/supabase-production-isolation.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-010"
     },
     {
       "from": "test:tests/unit/zuri-cli-canary-receipt.test.js",
       "to": "req:FR-055",
       "type": "verifies",
       "status": "current",
-      "source": "test-reference"
+      "source": "test-reference",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "test:tests/unit/zuri-cli-canary-receipt.test.js",
+      "to": "req:BR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference",
+      "reason": "unknown node req:BR-014"
     },
     {
       "from": "test:tests/unit/zuri-cli-canary-receipt.test.js",
       "to": "req:SDD-028",
       "type": "verifies",
       "status": "current",
-      "source": "test-reference"
+      "source": "test-reference",
+      "reason": "unknown node req:SDD-028"
     },
     {
       "from": "test:tests/unit/zuri-cli-canary-receipt.test.js",
       "to": "req:SEC-012",
       "type": "verifies",
       "status": "current",
-      "source": "test-reference"
+      "source": "test-reference",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:FR-052",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-052"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:BR-012"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "code:src/modules/agent/activation-readiness-contract.js",
+      "to": "req:FR-053",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-053"
+    },
+    {
+      "from": "code:src/modules/agent/activation-readiness-contract.js",
+      "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "code:src/modules/agent/activation-readiness-contract.js",
+      "to": "req:BR-013",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:BR-013"
+    },
+    {
+      "from": "code:src/modules/agent/activation-readiness-contract.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "code:src/modules/agent/activation-readiness-contract.js",
+      "to": "req:SEC-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "code:src/modules/agent/canary-preflight.js",
+      "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "code:src/modules/agent/canary-preflight.js",
+      "to": "req:BR-013",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:BR-013"
+    },
+    {
+      "from": "code:src/modules/agent/canary-preflight.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "code:src/modules/agent/canary-preflight.js",
+      "to": "req:SEC-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "code:src/modules/agent/golden-evaluation.js",
+      "to": "req:FR-053",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-053"
+    },
+    {
+      "from": "code:src/modules/agent/golden-evaluation.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "code:src/modules/agent/golden-evaluation.js",
+      "to": "req:SEC-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:FR-053",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-053"
+    },
+    {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:SEC-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "code:src/modules/agent/line-activation-contract.js",
+      "to": "req:FR-055",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "code:src/modules/agent/line-activation-contract.js",
+      "to": "req:BR-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:BR-014"
+    },
+    {
+      "from": "code:src/modules/agent/line-activation-contract.js",
+      "to": "req:SDD-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SDD-028"
+    },
+    {
+      "from": "code:src/modules/agent/line-activation-contract.js",
+      "to": "req:SEC-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-activation.js",
+      "to": "req:FR-055",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-activation.js",
+      "to": "req:NFR-013",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:NFR-013"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-activation.js",
+      "to": "req:BR-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:BR-014"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-activation.js",
+      "to": "req:SDD-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SDD-028"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-activation.js",
+      "to": "req:SEC-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-resolver.js",
+      "to": "req:FR-052",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-052"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-resolver.js",
+      "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "code:src/modules/agent/line-channel-binding.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:BR-012"
+    },
+    {
+      "from": "code:src/modules/agent/line-channel-binding.js",
+      "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "code:src/modules/agent/line-operator.js",
+      "to": "req:FR-055",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "code:src/modules/agent/line-operator.js",
+      "to": "req:NFR-013",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:NFR-013"
+    },
+    {
+      "from": "code:src/modules/agent/line-operator.js",
+      "to": "req:BR-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:BR-014"
+    },
+    {
+      "from": "code:src/modules/agent/line-operator.js",
+      "to": "req:SDD-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SDD-028"
+    },
+    {
+      "from": "code:src/modules/agent/line-operator.js",
+      "to": "req:SEC-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:FR-052",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-052"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "code:src/modules/agent/zuri-cli-canary-receipt.js",
+      "to": "req:FR-055",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-055"
+    },
+    {
+      "from": "code:src/modules/agent/zuri-cli-canary-receipt.js",
+      "to": "req:BR-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:BR-014"
+    },
+    {
+      "from": "code:src/modules/agent/zuri-cli-canary-receipt.js",
+      "to": "req:SDD-028",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SDD-028"
+    },
+    {
+      "from": "code:src/modules/agent/zuri-cli-canary-receipt.js",
+      "to": "req:SEC-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-012"
+    },
+    {
+      "from": "code:src/modules/knowledge/index.js",
+      "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "code:src/modules/knowledge/index.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "code:src/modules/knowledge/index.js",
+      "to": "req:SEC-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "code:src/modules/knowledge/postgres-business-knowledge.js",
+      "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-isolation-probe.js",
+      "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-isolation-probe.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-isolation-probe.js",
+      "to": "req:SEC-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
+      "to": "req:FR-052",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-052"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
+      "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
+      "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
+      "to": "req:SEC-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:BR-012"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:FR-053"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:FR-053"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:FR-052"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:SEC-010"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:SEC-011"
+    },
+    {
+      "from": "test:tests/integration/knowledge-query.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:FR-054"
+    },
+    {
+      "from": "test:tests/integration/knowledge-query.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:SDD-027"
+    },
+    {
+      "from": "test:tests/integration/knowledge-query.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive",
+      "reason": "unknown node req:SEC-011"
     }
-  ],
-  "dangling_edges": []
+  ]
 }

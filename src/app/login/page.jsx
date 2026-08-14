@@ -24,23 +24,11 @@ export default function LoginPage() {
           LOCAL ENTRY
         </p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight">Sign in to Zuri</h1>
-        <p className="mt-2 text-sm leading-6 text-muted">Use the preview form below. This demo does not connect to an authentication provider.</p>
+        <p className="mt-2 text-sm leading-6 text-muted">This local demo skips credentials and continues to Business Routing.</p>
       </div>
 
-      <div className="mt-5 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-subtle)] p-3 text-xs leading-5" style={{ color: 'var(--text-secondary)' }}>
-        Values entered here stay in the browser and are never submitted or saved.
-      </div>
-
-      <form action="/api/session/demo" method="post" autoComplete="off" className="mt-6 space-y-4">
-        <label className="block">
-          <span className="mb-1 block text-xs font-semibold">Email</span>
-          <input type="email" autoComplete="off" inputMode="email" className="input min-h-11" placeholder="you@example.com" aria-label="Email" />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-xs font-semibold">Password</span>
-          <input type="password" autoComplete="off" className="input min-h-11" placeholder="••••••••" aria-label="Password" />
-        </label>
-        <button type="submit" className="btn btn-primary mt-2 inline-flex min-h-11 w-full justify-center">
+      <form action="/api/session/demo" method="post" className="mt-6">
+        <button type="submit" className="btn btn-primary inline-flex min-h-11 w-full justify-center">
           Continue with demo login
         </button>
       </form>

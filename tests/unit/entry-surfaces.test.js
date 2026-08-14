@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest'
 const root = process.cwd()
 const entryShellPath = resolve(root, 'src/components/layouts/EntryShell.jsx')
 const landingPath = resolve(root, 'src/app/page.jsx')
+const landingViewPath = resolve(root, 'src/components/landing/ZuriLanding.jsx')
 const loginPath = resolve(root, 'src/app/login/page.jsx')
 
 describe('FR-044 entry surfaces', () => {
@@ -22,13 +23,15 @@ describe('FR-044 entry surfaces', () => {
 
   it('keeps Landing minimal and sends its single CTA to Login', () => {
     const landing = readFileSync(landingPath, 'utf8')
-    expect(landing).toContain('<EntryShell>')
-    expect(landing).toContain('href="/login"')
-    expect((landing.match(/href="\//g) || []).length).toBe(1)
-    expect(landing).not.toContain('/api/viewer')
-    expect(landing).not.toContain('useScope')
-    expect(landing).not.toContain('DomainBar')
-    expect(landing).not.toContain('Sidebar')
+    const landingView = readFileSync(landingViewPath, 'utf8')
+    const landingSource = `${landing}\n${landingView}`
+    expect(landing).toContain('<EntryShell')
+    expect(landingSource).toContain('href="/login"')
+    expect((landingSource.match(/href="\//g) || []).length).toBe(1)
+    expect(landingSource).not.toContain('/api/viewer')
+    expect(landingSource).not.toContain('useScope')
+    expect(landingSource).not.toContain('DomainBar')
+    expect(landingSource).not.toContain('Sidebar')
   })
 
   it('keeps Login credential-free and creates its explicit local demo session through the server route', () => {
