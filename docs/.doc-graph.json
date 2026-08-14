@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 719,
-    "total_edges": 1330,
+    "total_nodes": 720,
+    "total_edges": 1333,
     "dangling_edges": 0,
     "node_types": {
       "document": 87,
@@ -13,7 +13,7 @@
       "roadmap": 18,
       "v1_inherited": 234,
       "requirement": 117,
-      "test": 95,
+      "test": 96,
       "code_file": 144
     },
     "coverage": {
@@ -2911,7 +2911,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "9f5bf05f",
+      "hash": "137aebe8",
       "status": "current"
     },
     {
@@ -3005,7 +3005,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "c9f8ed4f",
+      "hash": "9b82b57e",
       "status": "current"
     },
     {
@@ -5604,6 +5604,13 @@
       "type": "test",
       "path": "tests/unit/rollup.test.js",
       "hash": "9dd91a50",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/run-bat-database-bootstrap.test.js",
+      "type": "test",
+      "path": "tests/unit/run-bat-database-bootstrap.test.js",
+      "hash": "1282c77f",
       "status": "current"
     },
     {
@@ -15989,6 +15996,27 @@
     {
       "from": "test:tests/unit/rollup.test.js",
       "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/run-bat-database-bootstrap.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/run-bat-database-bootstrap.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/run-bat-database-bootstrap.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
