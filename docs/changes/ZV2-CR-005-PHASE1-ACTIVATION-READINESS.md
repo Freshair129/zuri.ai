@@ -1,7 +1,7 @@
 ---
-version: "0.2.2b"
+version: "0.2.3b"
 created_at: "2026-08-14T07:58:02+07:00,ATHER"
-last_update: "2026-08-14T11:40:00+07:00,ATHER"
+last_update: "2026-08-14T11:45:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -137,8 +137,10 @@ docs and phase status.
 W0-W4 and the approved runtime-connection repair are implemented. The live dedicated-login probe
 connects through the exact project-qualified Supavisor session pooler with the pinned Supabase CA
 and passes: 74 exact-scope rows, zero out-of-scope rows, zero cross-Tenant rows, no direct grants,
-and denied mutation with rollback. Full Vitest passes 97 files / 562 tests and the production build
-passes. Real-provider evaluation and the signed LINE canary remain `NOT_RUN`; the binding remains
+and denied mutation with rollback. The redacted report is stored at
+`.agent/evidence/supabase-2026-08-14/runtime-isolation-report.json`. Full Vitest passes 97 files /
+562 tests, Playwright passes 34 with 4 documented skips, and the production build passes.
+Real-provider evaluation and the signed LINE canary remain `NOT_RUN`; the binding remains
 `PENDING`, hash-free and traffic-disabled.
 
 ## CHANGELOG
@@ -149,3 +151,4 @@ passes. Real-provider evaluation and the signed LINE canary remain `NOT_RUN`; th
 | 0.2.0b | 2026-08-14 | beta | W0-W4 implemented and regression-tested; external activation gates remain NOT_RUN | working-tree | ATHER |
 | 0.2.1b | 2026-08-14 | beta | Owner-approved repair for the dedicated Supavisor URL, CA trust and Windows Credential Manager startup bridge | working-tree | ATHER |
 | 0.2.2b | 2026-08-14 | beta | Runtime repair implemented; secret-redacted live probe passes exact 74-row isolation boundary | working-tree | ATHER |
+| 0.2.3b | 2026-08-14 | beta | Redacted live report persisted and launcher/browser/e2e flow verified; LINE remains disabled | working-tree | ATHER |

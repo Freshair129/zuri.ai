@@ -2,9 +2,9 @@
 feature: FR-054
 module: agent
 source: v2-native
-version: "0.3.1b"
+version: "0.3.2b"
 created_at: "2026-08-14T07:58:02+07:00,ATHER"
-last_update: "2026-08-14T11:40:00+07:00,ATHER"
+last_update: "2026-08-14T11:45:00+07:00,ATHER"
 status: "beta"
 ---
 
@@ -32,10 +32,9 @@ Supavisor session pooler with the pinned CA and passes the exact 74-row isolatio
 binding mutation or LINE transport was used; the signed single-destination canary remains
 `NOT_RUN`.
 
-The approved RCA remediation now also passes against PostgreSQL 17 in a dedicated loopback test
-database. It proves the deployed `text` identifier type, zero direct login grants, policy-role RLS,
-cross-Tenant denial and rollback-only mutation. This is local contract evidence, not a live
-production isolation report.
+The approved RCA remediation also passes against PostgreSQL 17 in a dedicated loopback test
+database. That is supplementary local contract evidence; the live production report is recorded at
+`.agent/evidence/supabase-2026-08-14/runtime-isolation-report.json`.
 
 ## CHANGELOG
 
@@ -45,3 +44,4 @@ production isolation report.
 | 0.2.0b | 2026-08-14 | beta | Probe and dry-run canary tooling implemented; live isolation and LINE canary remain NOT_RUN | working-tree | ATHER |
 | 0.3.0b | 2026-08-14 | beta | Approved probe remediation passes unit plus PostgreSQL 17 role/RLS integration; live gate remains NOT_RUN | working-tree | ATHER |
 | 0.3.1b | 2026-08-14 | beta | Live dedicated-login isolation passes via project-qualified Supavisor with pinned CA; LINE remains NOT_RUN | working-tree | ATHER |
+| 0.3.2b | 2026-08-14 | beta | Redacted live isolation report added to the activation evidence manifest; binding and LINE remain gated | working-tree | ATHER |

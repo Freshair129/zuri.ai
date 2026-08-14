@@ -1,7 +1,7 @@
 {
-  "version": "0.2.1b",
-  "observedAt": "2026-08-14T08:54:00+07:00",
-  "baselineCommit": "be1c834",
+  "version": "0.2.2b",
+  "observedAt": "2026-08-14T11:42:24+07:00",
+  "baselineCommit": "95e6983",
   "requirements": ["FR-053", "FR-054"],
   "prerequisites": ["FR-047", "FR-048", "FR-049", "FR-050", "FR-051", "FR-052"],
   "existing": {
@@ -23,13 +23,13 @@
   "pendingExternal": [
     "owner-approved production corpus mapping",
     "approved model provider credential and real evaluation",
-    "dedicated runtime login password and live isolation report",
     "physical backup/PITR approval and rollback rehearsal",
     "exact canary destination, binding hashes and signed LINE canary"
   ],
   "lastKnownProductionInvariant": {
-    "verificationState": "HISTORICAL_NOT_LIVE_RECHECKED",
+    "verificationState": "LIVE_RECHECKED",
     "evidence": ".agent/evidence/supabase-2026-08-14/manifest.json",
+    "runtimeIsolationReport": ".agent/evidence/supabase-2026-08-14/runtime-isolation-report.json",
     "bindingStatus": "PENDING",
     "bindingHashesPresent": false,
     "trafficEnabled": false

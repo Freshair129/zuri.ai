@@ -22,6 +22,11 @@
       "name": "zuri-core-schema.sql",
       "bytes": 11992,
       "sha256": "d2051bafe9bfdf399eeb9e8805573354fb017cadc51bfed9bfc4f05ec23a2b3d"
+    },
+    {
+      "name": "runtime-isolation-report.json",
+      "bytes": 557,
+      "sha256": "b8e7fddf2f54935d1103bc7dd5370392f2d9274e0db01544414b860bcaf1052d"
     }
   ],
   "remoteEvidence": {
@@ -40,7 +45,9 @@
     "securityAdvisorWarnOrErrorCount": 0,
     "securityAdvisorInfoCount": 2,
     "performanceAdvisorWarnOrErrorCount": 0,
-    "liveRuntimeLoginProbe": "PENDING_PASSWORD_PROVISION"
+    "liveRuntimeLoginProbe": "PASS_EXACT_SCOPE_74_ROWS",
+    "liveRuntimeLoginProbeObservedAt": "2026-08-14T11:42:24+07:00",
+    "liveRuntimeLoginProbeReport": ".agent/evidence/supabase-2026-08-14/runtime-isolation-report.json"
   },
   "notes": [
     "Raw dumps are retained outside Git and contain only zuri_core plus cluster role definitions.",

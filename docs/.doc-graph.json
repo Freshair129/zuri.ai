@@ -3300,7 +3300,7 @@
       "type": "document",
       "path": "docs/features/FR-051-production-supabase-tenant-isolation.md",
       "title": "FR-051 — Production Supabase tenant isolation",
-      "hash": "f9910167",
+      "hash": "6e63b4f5",
       "status": "current"
     },
     {
@@ -3308,7 +3308,7 @@
       "type": "document",
       "path": "docs/features/FR-052-server-owned-line-scope-binding.md",
       "title": "FR-052 — Server-owned LINE scope binding",
-      "hash": "4379cf28",
+      "hash": "71f4185c",
       "status": "current"
     },
     {
@@ -3324,7 +3324,7 @@
       "type": "document",
       "path": "docs/features/FR-054-controlled-line-canary.md",
       "title": "FR-054 — Controlled LINE canary",
-      "hash": "338fc470",
+      "hash": "369bc2d1",
       "status": "current"
     },
     {
@@ -3692,7 +3692,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md",
       "title": "Phase 1: Minimum LINE OA Business Knowledge Answer",
-      "hash": "2e9d8943",
+      "hash": "532042a2",
       "status": "current"
     },
     {
@@ -3848,7 +3848,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-FR-053-054-PHASE1-ACTIVATION-READINESS.md",
       "title": "Implementation plan — FR-053/054 Phase 1 activation readiness",
-      "hash": "f7c9cd00",
+      "hash": "0b1890b9",
       "status": "current"
     },
     {
@@ -3874,7 +3874,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-PHASE1-EXTERNAL-ACTIVATION.md",
       "title": "Implementation plan — Phase 1 external activation",
-      "hash": "1b77665b",
+      "hash": "c2a21a25",
       "status": "current"
     },
     {
@@ -3882,9 +3882,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.40.0",
+      "version": "1.41.0",
       "doc_status": "Draft",
-      "hash": "d1874032",
+      "hash": "b6ca7ce0",
       "status": "current"
     },
     {
@@ -4050,7 +4050,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-005-PHASE1-ACTIVATION-READINESS.md",
       "title": "ZV2-CR-005 — Phase 1 activation readiness",
-      "hash": "9d24127e",
+      "hash": "abf697cd",
       "status": "current"
     },
     {
@@ -4058,7 +4058,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-006-PHASE1-EXTERNAL-ACTIVATION.md",
       "title": "ZV2-CR-006 — Phase 1 external activation",
-      "hash": "7d8351f2",
+      "hash": "9f62c12b",
       "status": "current"
     },
     {

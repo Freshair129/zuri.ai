@@ -1,7 +1,7 @@
 ---
-version: "0.3.1b"
+version: "0.3.2b"
 created_at: "2026-08-14T08:54:00+07:00,ATHER"
-last_update: "2026-08-14T11:40:00+07:00,ATHER"
+last_update: "2026-08-14T11:45:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -69,7 +69,7 @@ in `NOT_RUN`, `FAIL`, `STALE` or `UNKNOWN`.
 | Lane | Reviewed result | Activation effect |
 |---|---|---|
 | A1 Golden mapping | PASS_WITH_WARN; mapping gate BLOCKED | 14/14 `ANSWER` cases use placeholder codes absent from the approved 74-row artifact; seven numeric allowlists lack approved evidence. |
-| A2 isolation | PASS | Dedicated credential is loaded process-locally from Windows Credential Manager; the live Supavisor probe passes 74 exact-scope rows, zero foreign scope, denied direct grants and denied mutation with rollback. |
+| A2 isolation | PASS | Dedicated credential is loaded process-locally from Windows Credential Manager; the live Supavisor probe report is persisted and passes 74 exact-scope rows, zero foreign scope, denied direct grants and denied mutation with rollback. |
 | A3 canary | PASS_WITH_WARNINGS; A6/A7 BLOCKED | No controlled hash installer, fresh recovery/rehearsal evidence or post-LINE receipt artifact exists. |
 | A4 cross-review | PASS_WITH_WARNINGS | Focused local contracts pass 28/28 including PostgreSQL 17; they do not replace real provider, production database or LINE evidence. |
 
@@ -93,3 +93,4 @@ blocked by A1/A2/recovery/destination/provider/operator gates.
 | 0.2.0b | 2026-08-14 | beta | Approved isolation probe remediation passes dedicated-loopback PostgreSQL 17; remote gates unchanged | working-tree | ATHER |
 | 0.3.0b | 2026-08-14 | beta | FR-055 W0-W4 local operator boundary implemented and verified; W5 external gate unchanged | working-tree | ATHER |
 | 0.3.1b | 2026-08-14 | beta | A2 live dedicated-login isolation passes through the approved project pooler; LINE and binding remain disabled | working-tree | ATHER |
+| 0.3.2b | 2026-08-14 | beta | Persisted the redacted live isolation report and verified launcher/browser/e2e flow; provider and LINE remain gated | working-tree | ATHER |

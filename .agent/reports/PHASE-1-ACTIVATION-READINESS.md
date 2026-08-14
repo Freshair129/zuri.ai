@@ -1,7 +1,7 @@
 ---
-version: "0.1.1b"
+version: "0.1.2b"
 created_at: "2026-08-14T08:20:18+07:00,ATHER"
-last_update: "2026-08-14T11:40:00+07:00,ATHER"
+last_update: "2026-08-14T11:45:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -40,15 +40,15 @@ destination or credential hashes, and traffic remains disabled.
 
 | Gate | Result |
 |---|---|
-| Focused readiness tests | PASS — 5 files / 32 tests |
-| Full JavaScript tests | PASS — 89 files / 461 tests |
+| Focused readiness tests | PASS — 4 files / 22 tests for the runtime connection contract |
+| Full JavaScript tests | PASS — 97 files / 562 tests |
 | Python tests | PASS — 8 tests |
-| Playwright | PASS — 34 passed / 4 documented skips |
+| Playwright | PASS — 34 passed / 4 documented skips (38 collected) |
 | Production build | PASS — Next.js 25 static pages |
-| Docs graph | PASS — 719 nodes / 1330 edges / 0 dangling; FR code and tests 54/54 |
+| Docs graph | PASS — 761 nodes / 1419 edges / 0 dangling; FR code and tests 55/55 |
 | Docs preflight | PASS — 0 critical / 0 warning |
 | Docs freshness | PASS — `docs:check` up to date after fixed-point regeneration |
-| Scoped secret scan | PASS — 36 changed files; no credential/private-key pattern found |
+| Scoped secret scan | PASS — no credential/private-key pattern found; redacted report only |
 | Diff check | PASS |
 | Fake golden evaluation | PASS — 20/20, 0 unsupported numeric claims |
 | Real provider | NOT_RUN |
@@ -81,7 +81,7 @@ destination or credential hashes, and traffic remains disabled.
 | PRD/SDD | `1.37.0`, implementation planned | `1.38.0`, tooling implemented; external runs NOT_RUN |
 | ADR-019 | `0.1.0b`, approved boundary | `0.2.0b`, W0-W4 evidence recorded |
 | ZV2-CR-005 | `0.1.0b`, approved work | `0.2.0b`, local merge gates complete |
-| Phase 1 plan | `0.5.0b`, W7 planned | `0.6.0b`, W7 implemented; Phase 1 acceptance open |
+| Phase 1 plan | `0.6.0b`, W7 implemented | `0.6.1b`, live isolation recorded; Phase 1 acceptance open |
 | Production binding | `PENDING`, no hashes, traffic off | unchanged |
 
 ## CHANGELOG
@@ -90,3 +90,4 @@ destination or credential hashes, and traffic remains disabled.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | W0-W4 merge-ready; all real activation evidence remains NOT_RUN | working-tree | ATHER |
 | 0.1.1b | 2026-08-14 | beta | Dedicated runtime connection repaired and live 74-row isolation probe passed; LINE gates remain open | working-tree | ATHER |
+| 0.1.2b | 2026-08-14 | beta | Redacted live report persisted and launcher/browser/e2e flow verified; provider and LINE gates remain open | working-tree | ATHER |

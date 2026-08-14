@@ -2,9 +2,9 @@
 feature: FR-052
 module: project-manager
 source: v2-native
-version: "0.1.1b"
+version: "0.1.2b"
 created_at: "2026-08-14T04:53:45+07:00,ATHER"
-last_update: "2026-08-14T06:59:37+07:00,ATHER"
+last_update: "2026-08-14T11:45:00+07:00,ATHER"
 status: "beta"
 ---
 
@@ -29,8 +29,9 @@ mismatch or unavailable database fails before message persistence or model work.
 
 The request boundary, binding resolver and role-scoped query wrapper are implemented. Production
 now contains the reserved binding, verified as `PENDING` with null destination/credential hashes.
-Activation still requires a dedicated runtime login secret, destination/credential hashes and a
-negative/positive LINE canary.
+The dedicated runtime login is live-verified through the project-qualified Supavisor session
+pooler with zero cross-Tenant visibility and rollback-only mutation checks. Activation still
+requires destination/credential hashes and a negative/positive LINE canary.
 
 ## Verification
 
@@ -44,3 +45,4 @@ negative/positive LINE canary.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | Local binding authority and scoped runtime implemented; activation remains PENDING | working-tree | ATHER |
 | 0.1.1b | 2026-08-14 | beta | Binding reserved remotely and verified credential-free; activation remains PENDING | working-tree | ATHER |
+| 0.1.2b | 2026-08-14 | beta | Live dedicated-login isolation verified; binding remains PENDING until destination and canary gates pass | working-tree | ATHER |

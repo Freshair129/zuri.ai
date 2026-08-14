@@ -1,7 +1,7 @@
 ---
-version: "0.2.2b"
+version: "0.2.3b"
 created_at: "2026-08-14T05:18:00+07:00,ATHER"
-last_update: "2026-08-14T07:35:29+07:00,ATHER"
+last_update: "2026-08-14T11:45:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -41,17 +41,17 @@ enabled.
 | Docs preflight | PASS — 0 critical, 0 warning |
 | Supabase migration apply | PASS — PostgreSQL 17 local `db reset` applied both migrations |
 | Idempotency | PASS — production bootstrap migration reapplied successfully |
-| Live isolation probe | PASS — login direct grants denied; exact scope = 1; cross-tenant = 0; read-only = true; transaction rolled back |
+| Live isolation probe | PASS — dedicated Supavisor login; exact scope = 74; out-of-scope = 0; cross-tenant = 0; direct grants denied; mutation denied and rolled back |
 | Production target | PASS — linked project `qcnmhyglarzcpudjorzc`, PostgreSQL 17, Seoul, healthy |
 | Logical backup | PARTIAL — post-apply scoped logical dump plus SHA-256 manifest captured; it is not pre-mutation evidence and physical backup/PITR is not enabled |
 | Remote migrations | PASS — both local migrations recorded remotely |
 | Remote import | PASS — 74 rows / 74 product codes, exact Tenant/Business/batch, prices disabled, audit SHA-256 exact |
-| Remote isolation | PARTIAL — forced RLS, exact policies, safe role attributes and grants pass static remote inventory; live login-role probe awaits password provisioning |
+| Remote isolation | PASS — forced RLS, exact policies, safe role attributes/grants and secret-redacted live login-role probe pass; physical backup/PITR remains separate |
 | Supabase advisors | PASS — no security or performance findings at warning/error level |
 
 ## Remaining activation gates
 
-1. provision the dedicated runtime login password in a secret manager and run the live positive/cross-scope/read-only probe;
+1. refresh the secret-redacted live isolation report immediately before activation if the evidence is stale;
 2. enable an approved physical backup/PITR plan before broader production rollout; the current logical snapshot is post-apply;
 3. install one approved model-provider credential/OAuth session;
 4. configure destination/credential hashes and activate the binding only for the canary;
@@ -80,3 +80,4 @@ recorded database evidence.
 | 0.2.0b | 2026-08-14 | beta | Production migrations and verified 74-row price-disabled import complete; LINE activation gates remain open | working-tree | ATHER |
 | 0.2.1b | 2026-08-14 | beta | Corrected backup chronology and separated static isolation proof from pending live-login probe | working-tree | ATHER |
 | 0.2.2b | 2026-08-14 | beta | Recorded production-disabled merge readiness separately from unresolved activation gates | working-tree | ATHER |
+| 0.2.3b | 2026-08-14 | beta | Secret-redacted live dedicated-login isolation report passes exact 74-row boundary; LINE gates remain open | working-tree | ATHER |

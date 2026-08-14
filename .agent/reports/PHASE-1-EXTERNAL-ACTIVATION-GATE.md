@@ -1,7 +1,7 @@
 ---
-version: "0.3.1b"
+version: "0.3.2b"
 created_at: "2026-08-14T09:10:00+07:00,ATHER"
-last_update: "2026-08-14T11:40:00+07:00,ATHER"
+last_update: "2026-08-14T11:45:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -15,7 +15,7 @@ attributes:
 ## Outcome
 
 W0 and the three parallel W1 audits are complete and independently reviewed. The preparation
-packet passes, but production activation is **BLOCKED**. A5-A8 remain `NOT_RUN` or `BLOCKED`.
+packet passes, but production activation is **BLOCKED**. A5 is partial; A6-A8 remain `NOT_RUN` or `BLOCKED`.
 
 One secret-redacted live production isolation probe ran with the dedicated runtime credential from
 Windows Credential Manager. No binding change, provider request or LINE call occurred. The last
@@ -45,8 +45,8 @@ approved A1/A2 evidence. A6 is the hard join of A2-A5; A7 and A8 are strictly se
    code/name/category-only dataset.
 2. **REMEDIATED LOCALLY:** the runtime isolation probe previously compared production `text`
    columns with `uuid` parameters and resolved a protected table name without schema permission.
-   The approved RCA fix now passes a dedicated-loopback PostgreSQL 17 role/RLS regression. This
-   does not satisfy the live production gate.
+   The approved RCA fix passes a dedicated-loopback PostgreSQL 17 role/RLS regression and is
+   complemented by the live production report below.
 3. **REMEDIATED LIVE:** the dedicated unprivileged credential is read process-locally from Windows
    Credential Manager. The 2026-08-14 probe sees 74 exact-scope rows, zero foreign/cross-Tenant
    rows, no direct grants and no permitted mutation; the transaction is rolled back.
@@ -64,7 +64,7 @@ approved A1/A2 evidence. A6 is the hard join of A2-A5; A7 and A8 are strictly se
 | Check | Result |
 |---|---|
 | Independent review A1 | PASS_WITH_WARN; gate BLOCKED |
-| Independent review A2 | WARN; gate BLOCKED/NOT_RUN |
+| Independent review A2 | PASS; backup/PITR sub-gate remains open |
 | Independent review A3 | PASS_WITH_WARNINGS; A6/A7 BLOCKED |
 | Focused local tests | PASS — 4 files / 28 tests, including PostgreSQL 17 integration |
 | FR-055 W1-W4 local implementation | PASS — strict contracts, operator migration/CLI, redacted adapter and composed PostgreSQL 17 proof |
@@ -79,7 +79,7 @@ provider state, not inferred from local code.
 
 The owner approved the RCA and gate packet. The bounded implementation state is:
 
-1. probe SQL and PostgreSQL-backed regression — **complete locally**;
+1. probe SQL, PostgreSQL-backed regression and secret-redacted live isolation — **complete**;
 2. owner-approved 20-case production corpus mapping — **BLOCKED on owner content choices**;
 3. secret-safe binding installer and redacted receipt contract — **ADR-020/FR-055 W0-W4 complete locally; production apply and live receipt NOT_RUN**; and
 4. LINE remote execution — **disabled** until recovery, destination and provider gates pass.
@@ -92,3 +92,4 @@ The owner approved the RCA and gate packet. The bounded implementation state is:
 | 0.2.0b | 2026-08-14 | beta | Owner-approved probe remediation passes PostgreSQL 17 locally; external activation remains blocked | working-tree | ATHER |
 | 0.3.0b | 2026-08-14 | beta | FR-055 W0-W4 complete locally with composed PostgreSQL 17 proof; external activation remains blocked | working-tree | ATHER |
 | 0.3.1b | 2026-08-14 | beta | Dedicated production login and live 74-row isolation proof pass; provider, binding and LINE gates remain blocked | working-tree | ATHER |
+| 0.3.2b | 2026-08-14 | beta | Persisted the redacted live report and verified launcher/browser/e2e entry flow; activation gates remain blocked | working-tree | ATHER |
