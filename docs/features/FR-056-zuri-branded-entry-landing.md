@@ -7,12 +7,12 @@ superseded_by: null
 attributes:
   domain: "shell-entry"
   scope: "Zuri V2"
-feature: FR-051
+feature: FR-056
 module: shell-entry
 source: v2-native
 ---
 
-# FR-051 — Zuri Branded Entry Landing Experience
+# FR-056 — Zuri Branded Entry Landing Experience
 
 ## Requirement
 

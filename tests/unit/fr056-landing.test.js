@@ -1,6 +1,6 @@
-// @req FR-051 — the landing is Zuri-only, local-asset-backed, and keeps one Login action.
-// @spec ADR-018, SDD-026 — entry identity and responsive motion are static-testable contracts.
-// @tested tests/unit/fr051-landing.test.js
+// @req FR-056 — the landing is Zuri-only, local-asset-backed, and keeps one Login action.
+// @spec ADR-021, SDD-029 — entry identity and responsive motion are static-testable contracts.
+// @tested tests/unit/fr056-landing.test.js
 
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -15,7 +15,7 @@ const paths = {
   social: resolve(root, 'public/og.png'),
 }
 
-describe('FR-051 Zuri branded entry landing', () => {
+describe('FR-056 Zuri branded entry landing', () => {
   it('renders only Zuri product language with one route-bearing action', () => {
     const page = readFileSync(paths.page, 'utf8')
     const landing = readFileSync(paths.landing, 'utf8')

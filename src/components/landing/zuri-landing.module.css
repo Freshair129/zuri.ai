@@ -1,6 +1,6 @@
-/* @req FR-051 — responsive Zuri entry composition and accessible motion fallback. */
-/* @spec ADR-018, SDD-026 — pure-white Heritage surface with inert operational signal reveal. */
-/* @tested tests/unit/fr051-landing.test.js */
+/* @req FR-056 — responsive Zuri entry composition and accessible motion fallback. */
+/* @spec ADR-021, SDD-029 — pure-white Heritage surface with inert operational signal reveal. */
+/* @tested tests/unit/fr056-landing.test.js */
 
 .landing {
   --landing-pad-x: clamp(1.25rem, 4.5vw, 5rem);

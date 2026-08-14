@@ -42,7 +42,14 @@ export async function resolveLineIdentity(input) {
     if (existing.revokedAt) {
       throw new Error('This LINE identity was revoked; re-linking is required before it can resolve again')
     }
-    return { personId: existing.personId, externalIdentityId: existing.id, created: false }
+    return {
+      personId: existing.personId,
+      externalIdentityId: existing.id,
+      created: false,
+      verifiedAt: existing.verifiedAt,
+      linkedAt: existing.linkedAt,
+      identityVerified: Boolean(existing.verifiedAt && existing.linkedAt),
+    }
   }
 
   // First contact: create Person + ExternalIdentity atomically. The @@unique on
@@ -54,23 +61,41 @@ export async function resolveLineIdentity(input) {
     const result = await prisma.$transaction(async (tx) => {
       const person = await tx.person.create({ data: { code, displayName: displayName || 'LINE user' } })
       const identity = await tx.externalIdentity.create({
-        data: { tenantId, personId: person.id, provider: PROVIDER, providerSubject: lineUserId, verifiedAt: now, linkedAt: now },
+        // First contact discovers a channel subject; it does not prove ownership.
+        // Account linking or an approved admin flow sets verifiedAt/linkedAt later.
+        data: { tenantId, personId: person.id, provider: PROVIDER, providerSubject: lineUserId },
       })
       await recordAudit(tx, {
         entityType: 'EXTERNAL_IDENTITY',
         entityId: identity.id,
         action: 'LINKED',
         actorType: 'LINE',
-        payload: { tenantId, provider: PROVIDER, personId: person.id },
+        payload: { tenantId, provider: PROVIDER, personId: person.id, verificationStatus: 'PENDING' },
       })
       return { person, identity }
     })
-    return { personId: result.person.id, externalIdentityId: result.identity.id, created: true }
+      return {
+        personId: result.person.id,
+        externalIdentityId: result.identity.id,
+        created: true,
+        verifiedAt: null,
+        linkedAt: null,
+        identityVerified: false,
+      }
   } catch (err) {
     // Lost a first-contact race: the mapping now exists — return the winner's.
     if (err?.code === 'P2002') {
       const row = await prisma.externalIdentity.findUnique({ where: whereKey(tenantId, lineUserId) })
-      if (row && !row.revokedAt) return { personId: row.personId, externalIdentityId: row.id, created: false }
+      if (row && !row.revokedAt) {
+        return {
+          personId: row.personId,
+          externalIdentityId: row.id,
+          created: false,
+          verifiedAt: row.verifiedAt,
+          linkedAt: row.linkedAt,
+          identityVerified: Boolean(row.verifiedAt && row.linkedAt),
+        }
+      }
     }
     throw err
   }

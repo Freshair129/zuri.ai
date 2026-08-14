@@ -7,11 +7,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.35.0b |
+| **Version** | 1.43.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-14 |
+| **Last Updated** | 2026-08-15 |
 | **Approved By** | — |
 
 ## Version History
@@ -54,10 +54,20 @@
 | 1.30.0 | 2026-08-14 | ATHER | FR-045 W4-W9 implemented: managed file APIs/UI, reconcile/cache, local reveal, portable backup/remount, all AC and retained-reference W9 decision |
 | 1.31.0 | 2026-08-14 | ATHER | Proposed FR-046 + SDD-024 + SEC-008: trusted request viewer and minimal viewer-scoped `/api/entry`; truth-synced merged FR-043/045 evidence |
 
+| 1.31.1 | 2026-08-14 | ATHER | FR-046 implemented: trusted request-session seam, minimized `/api/entry`, explicit local demo session, protected-route migration and cross-tenant/browser proof |
 | 1.32.0 | 2026-08-14 | ATHER | Owner-approved Phase 1 LINE business agent: FR-047..050 + NFR-010 + BR-011 + SEC-009 + SDD-025; curated SmartGift knowledge, provider port, grounded answer and single-reply delivery |
-| 1.33.0 | 2026-08-14 | ATHER | FR-046 implemented: trusted request-session seam, minimized `/api/entry`, explicit local demo session, protected-route migration and cross-tenant/browser proof |
-| 1.34.0b | 2026-08-14 | ATHER | Owner-approved FR-051 + SDD-026: Zuri-branded full-viewport entry landing with one `/login` action, local/code-native visuals, Heritage tokens and preserved FR-044/046 boundaries |
-| 1.35.0b | 2026-08-14 | ATHER | Approved PlanEnvelope mode-specific vocabulary/metrics validation, single human creation path, edit-only execution surfaces, and explicit clean-vs-demo local database reset |
+| 1.33.0 | 2026-08-14 | ATHER | Owner-approved ADR-018 / ZV2-CR-004 local implementation: FR-051..052 + NFR-011 + BR-012 + SEC-010 + SDD-026; production remains gated on remote inventory, backup and credentials |
+| 1.34.0 | 2026-08-14 | ATHER | Production Supabase migrations and approved 74-row SmartGift import verified; LINE binding remains credential-free and PENDING |
+| 1.35.0 | 2026-08-14 | ATHER | Integrated FR-046 entry authority with FR-051/052 production Supabase isolation without changing requirement identities or applied migration history |
+| 1.36.0 | 2026-08-14 | ATHER | Owner-approved production-disabled merge boundary for FR-051/052; runtime secret, live isolation, backup policy, provider evaluation and LINE canary remain activation gates |
+| 1.37.0 | 2026-08-14 | ATHER | Owner-approved FR-053/054 Activation Readiness Pack with golden evaluation, live-role isolation probe and dry-run canary contracts; production traffic remains disabled |
+| 1.38.0 | 2026-08-14 | ATHER | FR-053/054 readiness tooling implemented and regression-tested; fake evaluation passes 20/20 while real provider, live login probe and signed LINE canary remain NOT_RUN |
+| 1.38.1 | 2026-08-14 | ATHER | Activation truth-sync: FR-047..050 implementation is active, but production acceptance remains blocked by A1/A2/A3 evidence gates |
+| 1.39.0 | 2026-08-14 | ATHER | Owner-approved FR-054 probe remediation: deployed text identifiers, OID privilege inspection and PostgreSQL 17 role/RLS regression; live production gate remains NOT_RUN |
+| 1.40.0 | 2026-08-14 | ATHER | Owner-approved FR-055 controlled activation and receipt boundary: routing-first rollback, truthful receipt semantics and dedicated operator role (ADR-020) |
+| 1.41.0 | 2026-08-14 | ATHER | Secret-redacted live dedicated-login isolation passes the exact 74-row Supabase scope; provider, binding and LINE canary gates remain open |
+| 1.42.0b | 2026-08-14 | ATHER | Reconciled later branch facts: Zuri Landing is retained as FR-056/SDD-029/ADR-021, and the PlanEnvelope seven-mode/edit-only intake updates remain documented |
+| 1.43.0b | 2026-08-15 | ATHER | PR #12 semantic conflict repair: MSP authorization is FR-057/NFR-014/BR-015/SDD-030/SEC-013/ADR-022 while Phase 1 production IDs retain their meanings |
 
 ## Referenced Standards
 
@@ -152,7 +162,13 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-048 | Provider selection contract: `ModelProviderPort` normalizes OpenRouter OAuth credential references and API-key adapters for OpenAI, Anthropic, Gemini and Groq. Public LINE cannot select consumer-plan CLI credentials, and automatic fallback is disabled. | Phase 1 active - owner-approved 2026-08-14 |
 | FR-049 | Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient. | Phase 1 active - owner-approved 2026-08-14 |
 | FR-050 | Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics. | Phase 1 active - owner-approved 2026-08-14 |
-| FR-051 | Zuri-branded entry landing: `/` presents a full-viewport, responsive Zuri Heritage composition with one route-bearing action to `/login`, code-native/local visuals, reduced-motion support, and no third-party fashion or commerce semantics. FR-044/046 routing and identity boundaries remain unchanged. | Owner-approved beta 2026-08-14 |
+| FR-051 | Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event. | Production migration and verified 74-row price-disabled import complete |
+| FR-052 | Server-owned LINE scope binding: the webhook rejects client-selected Tenant/Business IDs and resolves scope only from an active, destination-bound, hash-verified LINE binding. Runtime connects through an unprivileged login and executes each read with `SET LOCAL ROLE zuri_line_smartgift_ro`. | Binding reserved remotely as PENDING; live role isolation passes, activation destination/canary gates remain |
+| FR-053 | Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers. | Implemented (beta): deterministic fake evaluation PASS 20/20; owner-approved real corpus mapping and real-provider execution remain external NOT_RUN gates |
+| FR-054 | Controlled LINE canary readiness: produce a secret-safe runtime-role isolation report and dry-run canary plan that validates exact project/Tenant/Business/binding/provider/evaluation prerequisites. Readiness code never activates a binding or calls LINE; receipt states distinguish accepted from display/read unknown. | Implemented (beta): secret-redacted live probe passes exact 74-row scope; approved provider evaluation and signed LINE canary remain external NOT_RUN gates |
+| FR-055 | Controlled LINE activation and receipt: a dry-run-default operator command may install HMAC hashes and activate exactly one expiring binding only through a versioned compare-and-swap transaction and dedicated least-privilege role. Routing-first rollback and append-only redacted receipt events preserve truthful `ACCEPTED_BY_LINE` versus display/read unknown semantics. | Owner-approved for local implementation; production mutation remains gated |
+| FR-056 | Zuri-branded entry landing: `/` presents a full-viewport, responsive Zuri Heritage composition with one route-bearing action to `/login`, code-native/local visuals, reduced-motion support, and no third-party fashion or commerce semantics. FR-044/046 routing and identity boundaries remain unchanged. | Owner-approved beta 2026-08-14 |
+| FR-057 | Authorized agent context: every LINE turn resolves ExternalIdentity, Person, Membership, thread/session assurance and server-owned agent/workspace/project scope before MSP retrieval; the model, prompt, client payload and stale session cannot widen the explicit authorized vault set. | Owner-approved beta; Issue #11 implementation in progress |
 
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
 > superseded for the operational shell. Home may show Organization/Portfolio ancestry
@@ -174,6 +190,10 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | NFR-009 | Local file operations are crash-recoverable and portable: authoritative metadata survives restart/remount, cache is fully rebuildable, absolute device paths never become identity, and canonical results are available when cache is stale or absent. | FR-045 unit/integration/remount/cache parity gates |
 
 | NFR-010 | LINE business answers fail closed within a bounded request deadline: network calls use explicit timeouts/cancellation, duplicate delivery is idempotent, provider failure cannot expose secrets or raw data, and offline/local evaluation remains possible through an injected adapter. | FR-047..050 contract, timeout and redelivery tests |
+| NFR-011 | Production tenancy changes are migration-first, idempotent and reversible: advisory/lock timeouts bound deployment, reserved code/UUID collisions abort, schema history and backups are inspected before apply, and no runtime secret or service-role key is stored in source, migration SQL, logs or browser code. | Production migration/import/isolation evidence captured; activation gates pending |
+| NFR-012 | Activation evidence is deterministic, versioned and redacted: credentials come only from process environment/approved secret stores; reports contain hashes and assertion results rather than raw authorization material, database URLs, reply tokens or PII. | FR-053/054 contract and secret-scan gates |
+| NFR-013 | Binding activation and rollback are atomic, idempotent and bounded: exact row/version/evidence hashes are locked and compared, one correlation ID produces at most one state change, activation expires, and rollback disables routing before any secondary remediation. | FR-055 / ADR-020 |
+| NFR-014 | Authorization decisions are recomputed per turn and remain bounded, auditable and fail-closed across restart, horizontal instances, identity revocation and Membership revocation. | FR-057 / ADR-022 contract and security tests |
 
 ## 1.5 Business rules
 
@@ -191,6 +211,10 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | BR-010 | SQLite is the sole transactional authority for file identity and relations. Filesystem content and `.zuri/cache` are projections/storage, never a second writable relationship database; Business aggregation must query IDs/links and never duplicate a file merely to show it in another view. |
 
 | BR-011 | A LINE event has exactly one reply owner. When stack answering is enabled, `zuri-cli` owns signature verification and Reply API transport while `zuri-ai` owns knowledge/provider/answer policy; the legacy local answer path must not also consume the same `replyToken`. |
+| BR-012 | Tenant and Business scope are server authority. In production a caller may present only binding identity, destination and binding-scoped credential; inbound `tenantId`/`businessId` never authorize access. A missing, mismatched, inactive, expired or database-unavailable binding fails closed before model or persistence work. |
+| BR-013 | Readiness is not activation. Golden evaluation, database probes and canary planning may run while the binding remains `PENDING`; only a separately approved operator action may install hashes or enable one canary. `ACCEPTED_BY_LINE` never proves display or read. |
+| BR-014 | An activation correlation owns at most one binding mutation and one LINE canary. Replays return the existing redacted result or fail closed; they never create a second send. |
+| BR-015 | LINE transport authentication proves event origin only. Principal, tenant, business, thread audience, capability, sensitivity and vault access come from server-owned identity and policy; thread membership may attenuate access but never elevate it. |
 
 ## 1.6 Acceptance criteria
 
@@ -246,7 +270,11 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SDD-024 | A provider-neutral `SessionPort` resolves trusted request identity before `resolveViewer()`. `GET /api/entry` queries outward only from viewer-visible Business IDs and returns minimal Business plus Portfolio/Tenant ancestry in one response. `/businesses` stops consuming broad `/api/scope`; `/api/viewer` remains compatibility-only and uses the same trusted seam. | Implemented beta; FR-046, ADR-017, SEC-008, ZV2-CR-002 |
 
 | SDD-025 | The Phase 1 LINE pilot is a ports-and-adapters vertical slice. `BusinessKnowledgeReadPort` owns registered bounded reads, `ModelProviderPort` owns normalized generation, and the grounded-answer service verifies evidence before returning reply text. `zuri-cli` remains the only LINE signature/reply transport. Supabase is operational relational storage; GenesisBlockDB/MSP/GKS are not Phase 1 dependencies. | FR-047..050; ADR-007 amendment; ZV2-CR-003 |
-| SDD-026 | EntryShell exposes a landing-only full-viewport variant while keeping Login compact. The landing presentation owns its inert operational signal field, applies pointer motion only on fine-pointer non-reduced-motion devices, and keeps exactly one `/login` link. Metadata and raster assets are Zuri-owned and local. | FR-051; ADR-018, ADR-010, ADR-015 |
+| SDD-026 | Supabase production authority uses a private `zuri_core` schema with stable internal UUIDs, composite Tenant/Business foreign keys and forced RLS. A `NOLOGIN` scope role owns the policies; a separate unprivileged login has no direct grants and every query uses a short transaction plus `SET LOCAL ROLE`. Curated DuckDB data is imported through a reconciled, hash-bound transaction and does not make GenesisBlockDB a Supabase replacement. | FR-051..052; ADR-018; ZV2-CR-004 |
+| SDD-027 | Phase 1 activation uses three independent evidence ports: a deterministic GoldenEvaluation runner over injected knowledge/provider ports, a transaction-scoped RuntimeIsolationProbe, and a mutation-free CanaryPreflight. W4 combines their redacted artifacts; no readiness component owns secret persistence, binding mutation or LINE transport. | FR-053..054; ADR-019; ZV2-CR-005 |
+| SDD-028 | FR-055 adds a separate operator port: strict schemas feed a dry-run-default CLI, a dedicated database role performs one versioned CAS mutation plus append-only event, and a `zuri-cli` adapter imports only redacted hash-pinned transport evidence. Readiness, mutation and transport remain separate owners. | FR-055; ADR-020 / ZV2-CR-006 |
+| SDD-029 | EntryShell exposes a landing-only full-viewport variant while keeping Login compact. The landing presentation owns its inert operational signal field, applies pointer motion only on fine-pointer non-reduced-motion devices, and keeps exactly one `/login` link. Metadata and raster assets are Zuri-owned and local. | FR-056; ADR-021, ADR-010, ADR-015 |
+| SDD-030 | Agent turns construct an immutable AuthContext and resolve an explicit authorized vault set before MSP retrieval. Private memory ownership is Tenant × Principal × Agent × Workspace; thread/session/instance/event are provenance and lifecycle. Legacy principal-only keys remain explicit compatibility mode only. | FR-057; ADR-022; BR-015; SEC-013 |
 
 ## 2.3 Security requirements
 
@@ -262,6 +290,10 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SEC-008 | Pre-shell identity and authorization fail closed: principal, role, platform grant, visible Business IDs and domains come only from a trusted server session plus persisted authority. Missing/invalid sessions return 401 before scope queries; adapter failure returns 503; production can never activate the seeded-owner demo fallback. | Implemented beta; ADR-017 / FR-046 security gate |
 
 | SEC-009 | Public LINE knowledge access is server-only and deny-by-default: server-owned tenant/business binding, no public service-role key, explicit Supabase grants plus RLS for exposed tables, allow-listed fields/queries, prompt-data treated as untrusted, and secrets/PII/cost/margin/invoice data excluded from prompts, logs and responses. | Phase 1 security gate; FR-047..050 / ZV2-CR-003 |
+| SEC-010 | Production LINE reads require both database-enforced scope and verified server binding: private-schema base grants are revoked from `public`, `anon`, `authenticated` and `service_role`; the runtime rejects privileged credentials and client-selected scope; credential/destination hashes are compared in constant time; inactive or expired bindings return no data. | Remote policy/grant proof complete; live runtime-login and LINE canary pending / ADR-018 |
+| SEC-011 | Activation tooling fails closed and never persists or echoes credentials, full connection URLs, authorization headers, reply tokens or raw customer data. Database mutation assertions always roll back; canary readiness defaults to dry-run and has no binding-update or LINE-send capability. | FR-053/054 security gate; ADR-019 |
+| SEC-012 | Activation secrets are environment/secret-store only; a dedicated operator role can update only the exact binding and append events. Runtime/Data API/service roles cannot activate. Receipt ingestion rejects raw destination, authorization, reply token, message content and PII. | FR-055 security gate; ADR-020 |
+| SEC-013 | Private MSP retrieval is deny-by-default and policy-before-retrieval: no client/model/prompt/thread label can select a vault; identity or Membership revocation denies the next turn; Supabase/RLS remains defense in depth and user-editable metadata is not authorization input. | FR-057 / ADR-022 security gate |
 
 ## 2.4 API / DB / Testing / Deployment
 

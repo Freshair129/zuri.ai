@@ -1,6 +1,6 @@
-// @req FR-044, FR-051 — Landing and Login share a pre-shell surface with no operational chrome.
-// @spec ADR-015, ADR-018, SDD-022, SDD-026 — EntryShell separates full landing and compact Login presentation.
-// @tested tests/unit/entry-surfaces.test.js, tests/unit/fr051-landing.test.js
+// @req FR-044, FR-056 — Landing and Login share a pre-shell surface with no operational chrome.
+// @spec ADR-015, ADR-021, SDD-022, SDD-029 — EntryShell separates full landing and compact Login presentation.
+// @tested tests/unit/entry-surfaces.test.js, tests/unit/fr056-landing.test.js
 
 export default function EntryShell({ children, variant = 'compact' }) {
   if (variant === 'landing') {

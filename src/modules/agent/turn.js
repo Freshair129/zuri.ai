@@ -27,20 +27,33 @@ const GRACEFUL = /^(AGENT_ACTION_DENIED|STEP_UP_REQUIRED)/
  * @param {object} [ports.writeRegistry]                       defaults to defaultWriteTools()
  * @returns {Promise<{ inbound, identity, knowledge, action, response }>}
  */
-export async function handleAgentTurn(input, { memory, knowledge, readTools, writeRegistry, businessKnowledge, model } = {}) {
-  const { tenantId, businessId, lineUserId, displayName, text, threadId, externalMessageId, action } =
+export async function handleAgentTurn(
+  input,
+  { memory, knowledge, readTools, writeRegistry, businessKnowledge, model, serverScope } = {},
+) {
+  const {
+    tenantId, businessId, lineUserId, displayName, text, threadId, externalMessageId, action,
+    sessionId, instanceId, eventId, capability, sensitivity, consent,
+  } =
     zHandleAgentTurnInput.parse(input)
 
   // 1. Ingest the inbound message (persists + resolves identity through the one seam).
   const inbound = await ingestLineMessage({ tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId })
 
   // 2. Assemble the read-only context (identity + memory + knowledge + read tools).
-  const context = await assembleAgentContext({ tenantId, lineUserId, displayName, memory, knowledge, tools: readTools })
+  const context = await assembleAgentContext({
+    tenantId, businessId, lineUserId, displayName, threadId, sessionId, instanceId, eventId,
+    capability, sensitivity, consent, serverScope,
+    memory, knowledge, tools: readTools,
+  })
 
   // 3. Optional Gate F action; a denial / step-up requirement is a graceful outcome.
   let actionResult = null
   let response
-  if (action) {
+  if (action && !context.policy.privateMemoryAllowed) {
+    actionResult = null
+    response = { kind: 'ACTION_DENIED', action: action.name, reason: `POLICY_DENIED:${context.policy.reason}` }
+  } else if (action) {
     try {
       actionResult = await executeAgentAction(
         { tenantId, lineUserId, actionName: action.name, target: action.target, payload: action.payload, stepUpToken: action.stepUpToken },
@@ -89,5 +102,7 @@ export async function handleAgentTurn(input, { memory, knowledge, readTools, wri
     knowledge: context.knowledge,
     action: actionResult,
     response,
+    policy: context.policy,
+    authorizedVaults: context.authorizedVaults,
   }
 }

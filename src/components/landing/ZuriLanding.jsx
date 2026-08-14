@@ -1,8 +1,8 @@
 'use client'
 
-// @req FR-051 — the root entry communicates Zuri's product identity with one path to Login.
-// @spec ADR-018, SDD-026 — code-native signal motion stays inert and preserves the entry boundary.
-// @tested tests/unit/fr051-landing.test.js
+// @req FR-056 — the root entry communicates Zuri's product identity with one path to Login.
+// @spec ADR-021, SDD-029 — code-native signal motion stays inert and preserves the entry boundary.
+// @tested tests/unit/fr056-landing.test.js
 
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'

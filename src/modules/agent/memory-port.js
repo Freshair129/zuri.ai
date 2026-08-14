@@ -1,4 +1,4 @@
-// @req FR-025 — the principal-keyed memory contract the agent binds to: memory is
+// @req FR-025, FR-057 — the principal-keyed memory contract and authorized context seam: memory is
 //   keyed by the classified principal, NOT by the raw LINE channel handle.
 // @spec ADR-007 §P6 / Gate E — the demo's `vault: line:Uxxxx` is the forbidden
 //   anti-pattern; production key is `tenant:{tenantId}/principal:{type}:{principalId}`.
@@ -49,6 +49,18 @@ export function createInMemoryMemory() {
       entries.push(entry)
       store.set(key, entries)
       return { key, entries }
+    },
+    async recallAuthorized(authorization) {
+      if (authorization?.authContext?.policy?.decision !== 'ALLOW' || authorization.authorizedVaults?.length !== 1) {
+        throw new Error('In-memory memory port: private retrieval requires one authorized vault')
+      }
+      return this.recall(authorization.authorizedVaults[0].scopeKey)
+    },
+    async rememberAuthorized(authorization, entry) {
+      if (authorization?.authContext?.policy?.decision !== 'ALLOW' || authorization.authorizedVaults?.length !== 1) {
+        throw new Error('In-memory memory port: private write requires one authorized vault')
+      }
+      return this.remember(authorization.authorizedVaults[0].scopeKey, entry)
     },
   }
 }

@@ -134,6 +134,12 @@ export const zHandleAgentTurnInput = z.object({
   text: z.string(),
   threadId: z.string().min(1),
   externalMessageId: z.string().optional(),
+  sessionId: z.string().min(1).optional(),
+  instanceId: z.string().min(1).optional(),
+  eventId: z.string().min(1).optional(),
+  capability: z.string().min(1).optional(),
+  sensitivity: z.string().min(1).optional(),
+  consent: z.string().min(1).optional(),
   action: z
     .object({
       name: z.string().min(1),

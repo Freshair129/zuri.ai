@@ -1,5 +1,5 @@
 -- @req FR-051, FR-052
--- @spec SEC-014, SDD-015
+-- @spec SEC-010, SDD-026
 -- @tested supabase/tests/business_knowledge_import_verification.sql
 
 select

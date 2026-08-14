@@ -19,10 +19,13 @@ import { createMspMemoryPort } from './msp-memory-port'
  * @param {Object} [backends]
  * @param {Function} [backends.mspTransport]   injected MSP tool-caller (name,input)=>result
  * @param {Function} [backends.graphTraverse]  injected graph read ({tenantId,principalId})=>relations[]
+ * @param {Function} [backends.mspVaultResolver] maps structured authorized scope to MSP vault_id
  * @returns {{ memory: import('./memory-port').MemoryPort, knowledge: Function }}
  */
-export function createAgentPorts({ mspTransport, graphTraverse } = {}) {
-  const memory = mspTransport ? createMspMemoryPort({ transport: mspTransport }) : createInMemoryMemory()
+export function createAgentPorts({ mspTransport, mspVaultResolver, graphTraverse } = {}) {
+  const memory = mspTransport
+    ? createMspMemoryPort({ transport: mspTransport, vaultResolver: mspVaultResolver })
+    : createInMemoryMemory()
   const knowledge = graphTraverse ? createGraphKnowledgeReader({ traverse: graphTraverse }) : queryKnowledge
   return { memory, knowledge }
 }

@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeAll } from 'vitest'
+import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '@/modules/project-manager/application/scope-service'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
+import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 import { assembleAgentContext, memoryKey, createInMemoryMemory } from '@/modules/agent'
 
 // @req FR-025 — the agent read-only context contract (ADR-007 P6, Gate E): identity +
@@ -68,6 +70,10 @@ describe('assembleAgentContext (FR-025)', () => {
 
   it('uses an injected memory port and recalls previously remembered entries by principal key', async () => {
     const memory = createInMemoryMemory()
+    const person = await prisma.person.create({ data: { code: 'PSN-AG-MEM', displayName: 'Memory user' } })
+    await prisma.membership.create({ data: { personId: person.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER' } })
+    const link = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
+    await redeemLinkToken({ tenantId: tenant.id, token: link.token, lineUserId: 'Uag-2' })
     // First pass resolves the principal and gives us the key.
     const first = await assembleAgentContext({ tenantId: tenant.id, lineUserId: 'Uag-2', memory })
     expect(first.memory.entries).toEqual([])

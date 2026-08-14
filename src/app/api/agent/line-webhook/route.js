@@ -75,7 +75,14 @@ export function createLineWebhookPost({
           threadId,
           text: ev.message.text ?? '',
           externalMessageId: ev.message.id,
-        }, phase1Ports ?? undefined)
+        }, {
+          ...(phase1Ports ?? {}),
+          serverScope: {
+            transportVerified: Boolean(phase1Ports),
+            bindingId: scope.id ?? null,
+            businessId: scope.businessId ?? null,
+          },
+        })
         results.push({
           ok: true,
           eventId,
