@@ -41,7 +41,9 @@ test.describe('FR-044 entry to BusinessShell', () => {
     await expect(page).toHaveURL(/\/overview$/)
     await expect(page.getByRole('navigation', { name: 'Domains' })).toBeVisible()
     await expect(page.getByRole('heading', { name: /Business 01.*Overview/ })).toBeVisible()
-    await expect(page.locator('aside').getByRole('link', { name: 'Overview' })).toHaveCount(0)
+    await expect(page.locator('aside').getByRole('link', { name: 'Overview' })).toHaveCount(1)
+    await expect(page.locator('aside').getByText('Development', { exact: true })).toHaveCount(1)
+    await expect(page.locator('aside').getByRole('link', { name: 'Development' })).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Development' }).first()).toHaveAttribute('href', '/overview')
 
     await expect(page.getByRole('link', { name: 'Change Business' })).toHaveCount(0)

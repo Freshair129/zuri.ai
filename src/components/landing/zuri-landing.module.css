@@ -1,0 +1,498 @@
+/* @req FR-051 — responsive Zuri entry composition and accessible motion fallback. */
+/* @spec ADR-018, SDD-026 — pure-white Heritage surface with inert operational signal reveal. */
+/* @tested tests/unit/fr051-landing.test.js */
+
+.landing {
+  --landing-pad-x: clamp(1.25rem, 4.5vw, 5rem);
+  --landing-pad-y: clamp(1rem, 2.8vh, 2.5rem);
+  --headline-size: clamp(2.45rem, 5.9vw, 6.8rem);
+  --micro-size: clamp(0.58rem, 0.35vw + 0.48rem, 0.76rem);
+  --body-size: clamp(0.84rem, 0.35vw + 0.7rem, 1.05rem);
+  --signal-x: 76vw;
+  --signal-y: 42vh;
+  --drift-x: 0px;
+  --drift-y: 0px;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: 'IBM Plex Sans Thai', 'Manrope', 'Segoe UI', Tahoma, sans-serif;
+}
+
+.landing::selection,
+.landing *::selection {
+  color: var(--text-inverse);
+  background: var(--text-primary);
+}
+
+.header,
+.hero,
+.footer {
+  position: relative;
+  z-index: 2;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: var(--landing-pad-y) var(--landing-pad-x);
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: flex-start;
+  color: var(--text-primary);
+  font-family: 'Manrope', 'IBM Plex Sans Thai', sans-serif;
+  font-size: clamp(1.45rem, 1.3vw + 1rem, 2.2rem);
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  line-height: 1;
+}
+
+.brandSignal {
+  width: 0.34rem;
+  height: 0.34rem;
+  margin: 0.08rem 0 0 0.15rem;
+  background: var(--action-primary);
+}
+
+.headerMeta {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 1.6vw, 1.6rem);
+  color: var(--text-secondary);
+  font-size: var(--micro-size);
+  font-weight: 700;
+  letter-spacing: 0.19em;
+}
+
+.metaDivider {
+  width: clamp(1.25rem, 3vw, 3rem);
+  height: 1px;
+  background: var(--border-strong);
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.42fr) minmax(16rem, 0.58fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 6rem);
+  padding: clamp(2rem, 5vh, 5.5rem) var(--landing-pad-x);
+}
+
+.heroCopy {
+  position: relative;
+  width: min(100%, 72rem);
+}
+
+.kicker {
+  margin: 0 0 clamp(1rem, 2vh, 1.8rem);
+  color: var(--action-primary-active);
+  font-size: var(--micro-size);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.headline {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  color: var(--text-primary);
+  font-family: 'Manrope', 'IBM Plex Sans Thai', sans-serif;
+  font-size: var(--headline-size);
+  font-weight: 700;
+  letter-spacing: -0.055em;
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.headline strong {
+  color: var(--action-primary);
+  font: inherit;
+}
+
+.lastLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.2em;
+}
+
+.dataMark {
+  width: clamp(2.7rem, 5.2vw, 6rem);
+  height: clamp(1.25rem, 2.2vw, 2.7rem);
+  margin-left: clamp(0.5rem, 1.1vw, 1.2rem);
+  background-image: radial-gradient(circle, var(--text-primary) 0 1.5px, transparent 1.7px);
+  background-position: 0 0;
+  background-size: clamp(0.45rem, 0.7vw, 0.75rem) clamp(0.45rem, 0.7vw, 0.75rem);
+  opacity: 0.72;
+}
+
+.support {
+  max-width: 34rem;
+  margin: clamp(1.2rem, 2.4vh, 2.2rem) 0 0;
+  color: var(--text-secondary);
+  font-size: var(--body-size);
+  line-height: 1.75;
+}
+
+.corner,
+.frameCornerTop,
+.frameCornerBottom {
+  position: absolute;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-color: var(--text-primary);
+  pointer-events: none;
+}
+
+.cornerTop {
+  top: -1.4rem;
+  left: -1.4rem;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.cornerBottom {
+  bottom: 4.1rem;
+  left: -1.4rem;
+  border-bottom: 1px solid;
+  border-left: 1px solid;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  margin-top: clamp(1.5rem, 3.4vh, 3rem);
+  padding: clamp(0.72rem, 1vh, 0.95rem) clamp(1.25rem, 2vw, 2rem);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--text-primary);
+  font-size: var(--micro-size);
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  text-decoration: none;
+  transition: color var(--motion-default) var(--motion-ease), background var(--motion-default) var(--motion-ease), border-color var(--motion-default) var(--motion-ease);
+}
+
+.cta svg {
+  transition: transform var(--motion-default) var(--motion-ease);
+}
+
+.cta:hover {
+  border-color: var(--action-primary);
+  background: var(--action-primary);
+  color: var(--text-inverse);
+}
+
+.cta:hover svg {
+  transform: translate(2px, -2px);
+}
+
+.principles {
+  position: relative;
+  align-self: end;
+  justify-self: end;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: clamp(0.85rem, 1.4vw, 1.5rem);
+  min-width: clamp(15.5rem, 21vw, 22rem);
+  padding: clamp(1rem, 1.5vw, 1.5rem);
+  color: var(--text-primary);
+}
+
+.principles p {
+  margin: 0;
+  font-size: var(--micro-size);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  line-height: 1.8;
+}
+
+.frameCornerTop {
+  top: 0;
+  left: 0;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.frameCornerBottom {
+  right: 0;
+  bottom: 0;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: var(--landing-pad-y) var(--landing-pad-x);
+  color: var(--text-secondary);
+  font-size: var(--micro-size);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.scopeFlow {
+  color: var(--text-primary);
+}
+
+.signalStage {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.baseGrid,
+.activeGrid {
+  position: absolute;
+  inset: -2rem;
+  transform: translate(var(--drift-x), var(--drift-y));
+  background-image:
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+  background-size: clamp(2.3rem, 3.1vw, 4rem) clamp(2.3rem, 3.1vw, 4rem);
+  mask-image: linear-gradient(90deg, transparent 0%, transparent 42%, rgba(0, 0, 0, 0.22) 60%, black 100%);
+  opacity: 0.5;
+}
+
+.activeGrid {
+  background-image:
+    linear-gradient(rgba(232, 130, 12, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 130, 12, 0.2) 1px, transparent 1px);
+  mask-image: none;
+  opacity: 0.75;
+}
+
+.topology,
+.activeTopology {
+  position: absolute;
+  inset: 12% 2% 9% 48%;
+  color: var(--text-tertiary);
+  opacity: 0.55;
+}
+
+.activeTopology {
+  color: var(--action-primary);
+  opacity: 1;
+}
+
+.signalReveal {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: radial-gradient(circle clamp(10rem, 16vw, 26rem) at var(--signal-x) var(--signal-y), black 0%, black 42%, rgba(0, 0, 0, 0.72) 60%, rgba(0, 0, 0, 0.18) 84%, transparent 100%);
+  mask-image: radial-gradient(circle clamp(10rem, 16vw, 26rem) at var(--signal-x) var(--signal-y), black 0%, black 42%, rgba(0, 0, 0, 0.72) 60%, rgba(0, 0, 0, 0.18) 84%, transparent 100%);
+}
+
+.route {
+  position: absolute;
+  border-color: currentColor;
+  border-style: solid;
+  border-width: 0;
+}
+
+.routeOne {
+  top: 14%;
+  right: 3%;
+  width: 82%;
+  height: 24%;
+  border-top-width: 1px;
+  border-left-width: 1px;
+  border-radius: 2rem 0 0;
+}
+
+.routeTwo {
+  top: 37%;
+  left: 12%;
+  width: 68%;
+  height: 26%;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+  border-radius: 0 0 2rem;
+}
+
+.routeThree {
+  right: 8%;
+  bottom: 12%;
+  width: 72%;
+  height: 24%;
+  border-top-width: 1px;
+  border-right-width: 1px;
+  border-radius: 0 2rem 0 0;
+}
+
+.routeFour {
+  top: 22%;
+  left: 43%;
+  width: 1px;
+  height: 62%;
+  border-left-width: 1px;
+}
+
+.node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: inherit;
+}
+
+.nodeDot {
+  display: block;
+  width: 0.58rem;
+  height: 0.58rem;
+  border: 1px solid currentColor;
+  background: var(--bg-surface);
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.78);
+}
+
+.activeTopology .nodeDot {
+  background: var(--action-primary);
+}
+
+.nodeLabel {
+  color: currentColor;
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.node1 { top: 13%; left: 17%; }
+.node2 { top: 36%; right: 18%; }
+.node3 { top: 58%; left: 10%; }
+.node4 { right: 3%; bottom: 10%; }
+.node5 { left: 43%; bottom: 3%; }
+
+.scanLabel {
+  position: absolute;
+  top: 18%;
+  right: var(--landing-pad-x);
+  color: var(--text-tertiary);
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  writing-mode: vertical-rl;
+}
+
+.landing[data-signal='static'] .signalReveal {
+  -webkit-mask-image: linear-gradient(90deg, transparent 4%, rgba(0, 0, 0, 0.35) 48%, black 100%);
+  mask-image: linear-gradient(90deg, transparent 4%, rgba(0, 0, 0, 0.35) 48%, black 100%);
+}
+
+@media (max-width: 900px) {
+  .landing {
+    min-height: 100svh;
+    overflow-y: auto;
+  }
+
+  .headerMeta span:first-child,
+  .metaDivider,
+  .scopeFlow {
+    display: none;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    align-content: center;
+    gap: 3rem;
+    padding-block: clamp(2.5rem, 8vh, 5rem);
+  }
+
+  .headline {
+    font-size: clamp(2.6rem, 12vw, 5.2rem);
+    line-height: 0.96;
+  }
+
+  .principles {
+    justify-self: start;
+    align-self: auto;
+    min-width: min(100%, 20rem);
+  }
+
+  .baseGrid,
+  .activeGrid {
+    mask-image: linear-gradient(180deg, transparent 0%, transparent 43%, black 100%);
+    opacity: 0.42;
+  }
+
+  .topology,
+  .activeTopology {
+    inset: 56% -12% 2% 18%;
+  }
+
+  .signalReveal {
+    -webkit-mask-image: linear-gradient(180deg, transparent 37%, rgba(0, 0, 0, 0.38) 60%, black 100%);
+    mask-image: linear-gradient(180deg, transparent 37%, rgba(0, 0, 0, 0.38) 60%, black 100%);
+  }
+
+  .scanLabel {
+    display: none;
+  }
+
+  .footer {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 560px) {
+  .wordmark {
+    letter-spacing: 0.2em;
+  }
+
+  .headerMeta {
+    letter-spacing: 0.12em;
+  }
+
+  .headline {
+    letter-spacing: -0.06em;
+  }
+
+  .lastLine {
+    display: block;
+  }
+
+  .dataMark {
+    display: inline-block;
+    margin-left: 0.55rem;
+  }
+
+  .footer span:last-child {
+    display: none;
+  }
+
+  .footer {
+    justify-content: flex-start;
+  }
+
+  .nodeLabel {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .baseGrid,
+  .activeGrid,
+  .cta svg {
+    transform: none !important;
+  }
+
+  .signalReveal {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.38) 50%, black 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.38) 50%, black 100%);
+  }
+}

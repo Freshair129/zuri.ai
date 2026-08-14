@@ -1,8 +1,8 @@
 'use client'
 
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useState } from 'react'
 import Link from 'next/link'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Plus, Archive } from 'lucide-react'
 import { PageHeader, DataTable, StatusPill, EmptyState, ErrorState } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
@@ -20,14 +20,9 @@ export default function ProjectsPage() {
 function ProjectsPageInner() {
   const scope = useScope()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [q, setQ] = useState('')
-
-  useEffect(() => {
-    if (searchParams.get('new') === '1') setModalOpen(true)
-  }, [searchParams])
 
   const params = new URLSearchParams()
   // Single-business installs are scoped implicitly — the shell resolves it (FR-020).
@@ -44,7 +39,6 @@ function ProjectsPageInner() {
   const closeModal = () => {
     setModalOpen(false)
     setEditing(null)
-    if (searchParams.get('new')) router.replace('/projects')
   }
 
   return (

@@ -10,6 +10,7 @@
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
+    "db:clean": "prisma db push --force-reset",
     "db:reset": "prisma db push --force-reset && node prisma/seed.js",
     "db:pg:schema": "node scripts/gen-postgres-schema.mjs",
     "db:pg:sql": "npm run db:pg:schema && prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.postgres.prisma --script > prisma/postgres/0001_init.sql",

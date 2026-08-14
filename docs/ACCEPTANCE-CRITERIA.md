@@ -130,9 +130,9 @@ journey proof, build, full tests, and docs graph/preflight/check all pass. ✅
 ## N1/N2 — Business Overview root and Development navigation
 
 - [x] `/overview` is represented exactly once as the BusinessShell root.
-- [x] Development sidebar contains only Projects, All Work, Execution, Timeline,
-  Dependencies, Milestones & Gates, and Repositories.
-- [x] DomainBar and the Development sidebar header link to `/overview` as the root.
+- [x] Development sidebar starts with Overview, followed by Projects, All Work,
+  Execution, Timeline, Dependencies, Milestones & Gates, and Repositories.
+- [x] DomainBar links to `/overview`; the Development sidebar header is static text.
 - [x] Command palette does not expose Overview as a Development route.
 - [x] Project, People, and Platform routes retain their existing ownership and URLs.
 
@@ -151,8 +151,6 @@ warning findings, and unit/E2E/build gates pass.
 - [x] `/api/entry` returns only the authorized Business and minimum Tenant/Portfolio ancestry.
 - [x] Protected compatibility routes resolve trusted request identity and re-authorize resources.
 - [x] The explicit local demo cookie is HttpOnly/SameSite and cannot activate in production.
-- [x] Playwright creates and seeds an isolated `prisma/e2e.db`; it does not depend on developer `.env` or `dev.db` state.
-- [x] The clean-worktree browser suite completes explicitly: 34 passed, 4 intentionally skipped.
 
 Exit gate: unit/contract/integration/browser suites, production build, docs graph,
 preflight/check and diff check pass; provider selection remains a separate decision.
@@ -185,47 +183,3 @@ Exit gate: ADR-016, FR-045 and ZV2-CR-001 are approved; all checks above are
 checked; implementation/tests carry truthful `@req FR-045`, `@spec SDD-023,
 SEC-007` and `@tested` edges; full tests/build/docs gates pass; no mock or user file
 is deleted without a separately reviewed exact path/hash manifest.
-
-## FR-051 — Production Tenant/Business isolation hardening (beta)
-
-- [x] enabled LINE requests resolve Tenant and Business only from an active server-owned channel binding;
-- [x] caller-supplied Tenant/Business scope is rejected before agent execution;
-- [x] the production reader is limited to a scope-bound read role and fixed `zuri_core` SQL;
-- [x] Supabase secret/service-role keys are forbidden in the Phase 1 LINE runtime;
-- [x] local migration SQL uses private schema, forced RLS, composite ancestry and least-privilege grants;
-- [x] approved SmartGift rows map to reserved internal Tenant/Business UUIDs without changing source provenance;
-- [x] remote project inventory and advisor evidence are recorded;
-- [ ] physical backup/PITR policy and rollback rehearsal are approved;
-- [ ] migration plus positive/negative isolation probes pass on the target project;
-- [ ] 74-row reconciliation and one kill-switch-protected canary pass before traffic enablement.
-
-Repository-local exit gate may pass with the final three remote boxes open because the binding remains inactive and production LINE traffic remains disabled. The feature is not production-enabled until every remote box is checked.
-
-## FR-053 / FR-054 — Phase 1 activation evidence (beta)
-
-- [x] deterministic Golden evaluator, runtime isolation probe and mutation-free canary preflight exist;
-- [x] focused local contract suites pass with fake/injected ports plus dedicated-loopback PostgreSQL 17;
-- [ ] all Golden `ANSWER` cases map to the approved production artifact and owner-approved questions;
-- [ ] a real approved provider passes 20/20 with zero unsupported numeric claims;
-- [ ] the corrected probe passes through the dedicated unprivileged production login;
-- [ ] one exact destination, provider/model, binding hashes and fresh evidence hashes are approved;
-- [ ] a controlled binding installer and redacted post-LINE receipt artifact are reviewed;
-- [ ] one signed canary records `ACCEPTED_BY_LINE` separately from display/read unknown.
-
-Until every unchecked item passes, binding activation and production LINE traffic remain blocked.
-
-## FR-055 — Controlled LINE activation and receipt (local beta)
-
-- [x] activation and rollback inputs are strict, versioned, exact-scope and secret-free;
-- [x] the command defaults to dry-run and requires both contract APPLY plus `--apply`;
-- [x] destination, bearer, pepper and operator database URL are environment-only;
-- [x] a dedicated login/role plus forced RLS and column grants restrict the exact binding;
-- [x] DB-wall-clock CAS atomically activates one row and appends one event;
-- [x] duplicate correlation, stale window, wrong scope/version/status and insert failure perform zero durable mutation;
-- [x] rollback disables routing first and preserves hashes/imported data;
-- [x] the strict `zuri-cli` adapter hash-pins exact bytes and never infers display/read;
-- [x] composed PostgreSQL 17 tests pass through the real operator login/role/RLS path;
-- [ ] one owner-approved production migration/activation/signed canary records a live truthful receipt.
-
-Repository-local exit passes with the final external box open. Production mutation, provider traffic
-and LINE remain blocked by the A1/A2/recovery/destination/provider/operator gates.

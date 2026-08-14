@@ -20,9 +20,10 @@ describe('sidebar sub-domain visibility', () => {
     expect(sidebar).toContain('max-md:opacity-0')
   })
 
-  it('keeps Business Overview out of the Development sidebar while preserving its root link', () => {
+  it('keeps the domain heading static and exposes Overview as the first Development entry', () => {
     const development = DOMAINS.find((domain) => domain.key === 'projects')
-    expect(development.sub.map((item) => item.path)).not.toContain('/overview')
-    expect(sidebar).toContain('domain.basePath || domain.sub[0].path')
+    expect(development.sub[0]).toMatchObject({ label: 'Overview', path: '/overview' })
+    expect(sidebar).not.toContain('<Link href={domain.basePath || domain.sub[0].path}')
+    expect(sidebar).toContain('<div className="flex h-14 shrink-0 items-center')
   })
 })

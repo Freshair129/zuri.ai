@@ -6,8 +6,23 @@ import { ScopeProvider } from '@/context/ScopeContext'
 // @tested tests/unit/entry-routing-boundary.test.js
 
 export const metadata = {
-  title: 'Zuri v2 — Project Manager',
-  description: 'Offline-first portfolio project manager (Zuri v2 lab)',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3100'),
+  title: 'Zuri — See the whole business. Move with clarity.',
+  description: 'Zuri is a local-first, AI-ready business operating system built for clear, human-controlled execution.',
+  icons: {
+    icon: [{ url: '/zuri-signal.svg', type: 'image/svg+xml' }],
+  },
+  openGraph: {
+    title: 'Zuri — See the whole business. Move with clarity.',
+    description: 'One clear operating system for business, work, teams, and decisions.',
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'Zuri operational signal map' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Zuri — See the whole business. Move with clarity.',
+    description: 'One clear operating system for business, work, teams, and decisions.',
+    images: ['/og.png'],
+  },
 }
 
 export default function RootLayout({ children }) {

@@ -65,6 +65,12 @@
         "status": {
           "type": "string"
         },
+        "targetAt": {
+          "anyOf": [
+            { "type": "string", "format": "date-time" },
+            { "type": "string", "format": "date" }
+          ]
+        },
         "externalRefs": {
           "type": "array",
           "items": {
@@ -147,7 +153,79 @@
               "$ref": "#/$defs/externalRef"
             }
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "executionMode": { "const": "SOFTWARE_SPRINT" } } },
+            "then": {
+              "properties": {
+                "progressStrategy": { "const": "TASK_WEIGHT" },
+                "containers": { "items": { "properties": { "subtype": { "enum": ["SPRINT", "EPIC", "RELEASE"] } } } },
+                "items": { "items": { "properties": { "subtype": { "enum": ["TASK", "BUG"] }, "metrics": { "type": "object", "properties": { "completedWeight": {}, "plannedWeight": {}, "defects": {} }, "additionalProperties": false } } } }
+              }
+            }
+          },
+          {
+            "if": { "properties": { "executionMode": { "const": "DATA_MIGRATION" } } },
+            "then": {
+              "properties": {
+                "progressStrategy": { "const": "RECORD_VALIDATION" },
+                "containers": { "items": { "properties": { "subtype": { "enum": ["MIGRATION_STAGE", "MIGRATION_BATCH"] } } } },
+                "items": { "items": { "properties": { "subtype": { "enum": ["DATASET", "VALIDATION", "RECONCILIATION"] }, "metrics": { "type": "object", "properties": { "recordsTotal": {}, "processed": {}, "success": {}, "failed": {}, "validated": {}, "reconciled": {} }, "additionalProperties": false } } } }
+              }
+            }
+          },
+          {
+            "if": { "properties": { "executionMode": { "const": "B2B_SALES" } } },
+            "then": {
+              "properties": {
+                "progressStrategy": { "const": "WEIGHTED_PIPELINE" },
+                "containers": { "items": { "properties": { "subtype": { "enum": ["SALES_PIPELINE", "SALES_STAGE"] } } } },
+                "items": { "items": { "properties": { "subtype": { "enum": ["ACCOUNT", "DEAL", "ACTIVITY"] }, "metrics": { "type": "object", "properties": { "target": {}, "wonRevenue": {}, "weightedValue": {} }, "additionalProperties": false } } } }
+              }
+            }
+          },
+          {
+            "if": { "properties": { "executionMode": { "const": "B2C_CAMPAIGN" } } },
+            "then": {
+              "properties": {
+                "progressStrategy": { "const": "KPI_ATTAINMENT" },
+                "containers": { "items": { "properties": { "subtype": { "enum": ["CAMPAIGN", "CAMPAIGN_WAVE", "CHANNEL"] } } } },
+                "items": { "items": { "properties": { "subtype": { "enum": ["CREATIVE", "AUDIENCE", "EXPERIMENT"] }, "metrics": { "type": "object", "properties": { "spend": {}, "leads": {}, "cpa": {}, "cac": {}, "conversion": {}, "conversions": {}, "revenue": {}, "roas": {} }, "additionalProperties": false } } } }
+              }
+            }
+          },
+          {
+            "if": { "properties": { "executionMode": { "const": "PRODUCT_LAUNCH" } } },
+            "then": {
+              "properties": {
+                "progressStrategy": { "const": "MILESTONE_READINESS" },
+                "containers": { "items": { "properties": { "subtype": { "enum": ["LAUNCH_PHASE"] } } } },
+                "items": { "items": { "properties": { "subtype": { "enum": ["DELIVERABLE"] }, "metrics": { "type": "object", "properties": { "readiness": {}, "blockedGates": {} }, "additionalProperties": false } } } }
+              }
+            }
+          },
+          {
+            "if": { "properties": { "executionMode": { "const": "OPERATIONS" } } },
+            "then": {
+              "properties": {
+                "progressStrategy": { "const": "SLA_SCORE" },
+                "containers": { "items": { "properties": { "subtype": { "enum": ["OPS_PERIOD", "OPS_PROCESS"] } } } },
+                "items": { "items": { "properties": { "subtype": { "enum": ["CHECKLIST_ITEM", "ISSUE", "SLA"] }, "metrics": { "type": "object", "properties": { "slaMet": {}, "slaTotal": {}, "throughput": {}, "backlog": {}, "incidents": {}, "completed": {} }, "additionalProperties": false } } } }
+              }
+            }
+          },
+          {
+            "if": { "properties": { "executionMode": { "const": "BUSINESS_EXPANSION" } } },
+            "then": {
+              "properties": {
+                "progressStrategy": { "const": "EXPANSION_READINESS" },
+                "containers": { "items": { "properties": { "subtype": { "enum": ["EXPANSION_INITIATIVE", "EXPANSION_SITE"] } } } },
+                "items": { "items": { "properties": { "subtype": { "enum": ["SETUP_ACTION", "APPROVAL"] }, "metrics": { "type": "object", "properties": { "legal": {}, "location": {}, "budget": {}, "hiring": {}, "vendors": {}, "operationalReadiness": {}, "goLive": {} }, "additionalProperties": false } } } }
+              }
+            }
+          }
+        ]
       }
     },
     "repositories": {

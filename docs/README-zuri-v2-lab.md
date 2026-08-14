@@ -9,11 +9,13 @@ production-shaped module of the future Zuri v2. Built standalone per
 ```bash
 npm install          # also runs prisma generate
 npm run db:push      # create prisma/dev.db (SQLite)
+npm run db:clean     # reset local SQLite to an empty, non-demo state
 npm run db:seed      # idempotent demo dataset (4 tenants, 7-mode demo project)
 npm run dev          # http://localhost:3000 — fully offline after install
 ```
 
-Reset everything: `npm run db:reset`.
+Reset everything with the demo fixture: `npm run db:reset`. Use `npm run db:clean`
+when Overview must show only real imported data and empty states.
 
 ## What's inside
 
@@ -28,7 +30,10 @@ Reset everything: `npm run db:reset`.
 - **Universal views** — Overview, All Work (filters/search), Timeline, Dependencies
   (cycle-safe), Milestones & Gates, plus a Ctrl+K command palette.
 - **Agent plan import** — paste a PlanEnvelope JSON (`contracts/plan-envelope.schema.json`):
-  Zod validation → semantic checks → dry-run preview → transactional commit → audit.
+  Zod validation → seven-mode semantic checks → dry-run preview → transactional commit → audit.
+  Human creation is edit/review-oriented after intake; direct workstream/item add controls are not
+  part of the execution views. SmartGift business knowledge is a separate public projection and
+  is never represented as Project work items.
 - **Backup** — full snapshot export/import with preview + confirmation.
 - **Audit log** — immutable event stream.
 

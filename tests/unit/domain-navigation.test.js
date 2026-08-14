@@ -6,11 +6,12 @@ import { DOMAINS, domainForPath } from '@/config/domains'
 import { modules } from '@/config/modules'
 
 describe('Business domain navigation', () => {
-  it('keeps Business Overview as the Development root, outside its sidebar', () => {
+  it('exposes Business Overview as the first Development sidebar entry', () => {
     const development = DOMAINS.find((domain) => domain.key === 'projects')
     expect(development.label).toBe('Development')
     expect(development.basePath).toBe('/overview')
     expect(development.sub.map((item) => item.label)).toEqual([
+      'Overview',
       'Projects',
       'All Work',
       'Execution',
@@ -20,13 +21,17 @@ describe('Business domain navigation', () => {
       'Files',
       'Repositories',
     ])
-    expect(development.sub.map((item) => item.path)).not.toContain('/overview')
+    expect(development.sub[0].path).toBe('/overview')
     expect(domainForPath('/overview').key).toBe('projects')
   })
 
   it('uses ERP-friendly display labels without changing RBAC route keys', () => {
     expect(DOMAINS.find((domain) => domain.key === 'customer').label).toBe('CRM')
     expect(DOMAINS.find((domain) => domain.key === 'growth').label).toBe('Marketing')
+  })
+
+  it('keeps Dashboard as the first sub-domain for non-Development domains', () => {
+    expect(DOMAINS.filter((domain) => domain.key !== 'projects').every((domain) => domain.sub[0].label === 'Dashboard')).toBe(true)
   })
 
   it('registers HR / People as a peer domain, not a Development sub-domain', () => {

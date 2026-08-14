@@ -215,6 +215,7 @@ export async function commitPlan(rawPlan, { workspaceId } = {}) {
         description: plan.project.description ?? undefined,
         type: plan.project.type ?? undefined,
         status: plan.project.status ?? undefined,
+        targetAt: plan.project.targetAt ? new Date(plan.project.targetAt) : undefined,
         version: { increment: 1 },
       },
       {
@@ -225,6 +226,7 @@ export async function commitPlan(rawPlan, { workspaceId } = {}) {
         description: plan.project.description ?? null,
         type: plan.project.type || 'GENERAL',
         status: plan.project.status || 'PLANNED',
+        targetAt: plan.project.targetAt ? new Date(plan.project.targetAt) : null,
       }
     )
 

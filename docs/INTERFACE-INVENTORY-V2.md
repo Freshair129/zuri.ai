@@ -6,7 +6,7 @@
 | **Status** | FR-044 and FR-046 verified beta |
 | **Date** | 2026-08-14 |
 | **Scope** | Entry, Business shell, domains, sub-domains, Project resources, content, indicators, and API contracts |
-| **Authority** | ADR-008, ADR-011, ADR-015, ADR-017; SITEMAP-V2-DOMAIN-NAV, HANDOFF-SHELL-V2-CODEX |
+| **Authority** | ADR-008, ADR-011, ADR-015; ADR-017 candidate; SITEMAP-V2-DOMAIN-NAV, HANDOFF-SHELL-V2-CODEX |
 
 ## Executive finding
 
@@ -161,7 +161,7 @@ FR-044 now records the implemented interface boundary:
 - pre-shell route guard / redirect state;
 - Landing and Business Routing as no-final-chrome entry surfaces;
 - Business selection as a prerequisite rather than a shell control;
-- Business Overview as a root outside the Development sidebar;
+- Business Overview as the first Development sidebar entry;
 - route-state indicators for `AUTH_REQUIRED`, `BUSINESS_REQUIRED`, `READY`, `FORBIDDEN`,
   `NOT_FOUND`, `LOADING`, `ERROR`, `EMPTY`, and `OFFLINE`.
 
@@ -248,7 +248,7 @@ the currently declared requirements are linked.
 flowchart LR
   W0[Approve shell boundary] --> W1[Define EntryShell + BusinessShell + ResourceShell]
   W1 --> W2[Define route-state indicator contract]
-  W2 --> W3[Define viewer/session/entry API contract: ADR-017]
+  W2 --> W3[Define viewer/session/entry API contract: ADR-017 candidate]
   W3 --> W4[Reconcile ADR-011, SITEMAP, HANDOFF, ROUTES-SITEMAP, Appendix A]
   W4 --> W5[Add fresh FR/SDD + acceptance/exit gates]
   W5 --> W6[Implement route groups and guard]
@@ -263,8 +263,8 @@ this shell boundary; it should not be undone.
 
 1. **Implemented:** `/` and `/login` are EntryShell routes, `/businesses` is
    BusinessRoutingShell, and none has final BusinessShell chrome.
-2. **Implemented:** `/overview` is Business Overview outside Development's sidebar;
-   the registry and navigation proof enforce the boundary.
+2. **Implemented:** `/overview` is Business Overview and the first Development sidebar
+   entry; the registry and navigation proof enforce the boundary.
 3. **Implemented:** no selected Business redirects to `/businesses`; no viewer redirects
    to `/login`; unauthorized domain returns `FORBIDDEN`/Business Overview.
 4. **Implemented beta:** `/api/scope` stays outside pre-shell routing; atomic,

@@ -6,7 +6,7 @@ source: v2-native
 
 # FR-044 — Minimal entry and Business Routing before BusinessShell
 
-**Version**: 0.5.0
+**Version**: 0.6.0
 
 | Field | Value |
 |---|---|
@@ -31,7 +31,7 @@ shell. The first slice contains only routing proof surfaces:
 | ID | Acceptance criterion |
 |---|---|
 | AC-044.1 | `/` renders a minimal landing surface with one CTA to `/login`; it has no DomainBar, Development sidebar, Project tabs, or Business picker. |
-| AC-044.2 | `/login` renders a minimal demo-login surface with one CTA; the CTA performs no credential/authentication work and routes to `/businesses`. |
+| AC-044.2 | `/login` renders a compact mock-login surface with email and password-shaped controls plus one demo CTA; controls are presentation-only without form names, and the CTA performs no credential/authentication work before routing to `/businesses`. |
 | AC-044.3 | `/businesses` resolves the viewer and displays only Businesses allowed by `visibleBusinessIds`; Portfolio/Organization are ancestry labels, not selectable operational shells. |
 | AC-044.4 | Selecting a Business persists the existing scope selection and routes to `/overview`; the final BusinessShell mounts only after the selection is authorized. |
 | AC-044.5 | `/overview` and Business-bound domain routes redirect to `/businesses` when no Business is selected; unauthorized Business/domain access cannot render Business content. |
@@ -48,8 +48,8 @@ shell. The first slice contains only routing proof surfaces:
       `FORBIDDEN`, and `NOT_FOUND` decisions.
 - [x] Browser proof visits `/` → `/login` → `/businesses` → `/overview` and verifies
       that BusinessShell chrome is absent before selection and present after selection.
-- [x] Demo login is clearly labeled as local/non-auth and has no credential/session
-      implementation.
+- [x] Demo login is clearly labeled as local/non-auth; credential-shaped controls are
+      presentation-only and no entered value is submitted, persisted, validated, or logged.
 - [x] Existing tokens are reused; no design-system diff beyond route composition.
 - [x] `npm test`, `npm run build`, `npm run docs:graph`, `npm run docs:preflight`, and
       `npm run docs:check` pass.

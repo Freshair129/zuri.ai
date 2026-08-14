@@ -15,8 +15,9 @@ import {
 // @tested tests/unit/domain-navigation.test.js
 // V2 domain registry (SITEMAP-V2-DOMAIN-NAV.md). Tier 2 = domains (the bar under the
 // topbar); Tier 3 = each domain's sub-domains (the left sidebar). The FIRST sub-domain
-// of every domain is always its Dashboard. Domains marked `soon` are reserved slots —
-// they lift from V1 per module at cutover (ADR-003), hidden/disabled until then.
+// of every operational domain is its Dashboard or Overview entry. Domains marked
+// `soon` are reserved slots — they lift from V1 per module at cutover (ADR-003),
+// hidden/disabled until then.
 export const DOMAINS = [
   {
     key: 'commerce', label: 'Commerce', icon: ShoppingCart, soon: true,
@@ -50,9 +51,10 @@ export const DOMAINS = [
   {
     // Existing route/RBAC key remains `projects`; only its Business-bound
     // display label changes so the resource list stays Projects. `/overview`
-    // is the BusinessShell root, not a Development sub-domain.
+    // is the BusinessShell root and the first Development sub-domain.
     key: 'projects', label: 'Development', icon: BriefcaseBusiness, basePath: '/overview',
     sub: [
+      { label: 'Overview', path: '/overview', icon: LayoutDashboard },
       { label: 'Projects', path: '/projects', icon: BriefcaseBusiness },
       { label: 'All Work', path: '/work', icon: ListChecks },
       { label: 'Execution', path: '/execution', icon: Rocket },

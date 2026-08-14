@@ -53,7 +53,7 @@ Approve ADR-015, FR-044, SDD-022, this plan, and the inventory decisions:
 - `/login` is a demo stub;
 - `/businesses` is Business Routing;
 - `/overview` mounts BusinessShell only after Business selection;
-- Overview is outside Development's sub-domain list;
+- Overview is the first Development sub-domain;
 - existing tokens remain unchanged.
 
 ### W1 — Root/layout boundary

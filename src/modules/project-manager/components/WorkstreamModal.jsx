@@ -35,11 +35,7 @@ export default function WorkstreamModal({ open, onClose, projectId, workstream, 
         progressWeight: Number(form.progressWeight) || 1,
         status: form.status,
       }
-      if (workstream) {
-        await api(`/api/workstreams/${workstream.id}`, { method: 'PATCH', body })
-      } else {
-        await api('/api/workstreams', { method: 'POST', body: { ...body, projectId } })
-      }
+      await api(`/api/workstreams/${workstream.id}`, { method: 'PATCH', body })
       onSaved?.()
       onClose()
     } catch (err) {
@@ -49,8 +45,10 @@ export default function WorkstreamModal({ open, onClose, projectId, workstream, 
     }
   }
 
+  if (!workstream) return null
+
   return (
-    <Modal open={open} onClose={onClose} title={workstream ? `Edit ${workstream.code}` : 'New workstream'}>
+    <Modal open={open} onClose={onClose} title={`Edit ${workstream.code}`}>
       <form onSubmit={submit}>
         <Field label="Name">
           <input className="input" value={form.name} onChange={(e) => set('name', e.target.value)} required />

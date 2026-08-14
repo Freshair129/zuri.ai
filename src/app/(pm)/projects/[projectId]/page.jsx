@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { Plus, Archive } from 'lucide-react'
+import { Archive } from 'lucide-react'
 import { PageHeader, Card, SectionTitle, StatusPill, EmptyState, ErrorState } from '@/components/ui'
 import { MODE_LABELS, SLUG_BY_MODE } from '@/lib/validation/enums'
 import { useFetch, api, LoadingCard } from '@/modules/project-manager/components/useApi'
@@ -72,12 +72,9 @@ export default function ProjectDetailPage() {
 
       <div className="mb-3 flex items-center justify-between">
         <SectionTitle caption="Each workstream has its own execution mode and progress strategy">Workstreams</SectionTitle>
-        <button type="button" className="btn btn-primary flex items-center gap-1" onClick={() => setWsModal(true)}>
-          <Plus size={12} aria-hidden /> New workstream
-        </button>
       </div>
       {(p.workstreams || []).length === 0 ? (
-        <EmptyState title="No workstreams" hint="Decompose the objective into workstreams — each picks one of the seven execution modes." />
+        <EmptyState title="No workstreams" hint="Import an agent PlanEnvelope to decompose this objective into the seven execution modes." />
       ) : (
         <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
           {(progress.data?.workstreams || p.workstreams).map((ws) => (

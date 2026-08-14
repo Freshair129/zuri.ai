@@ -4,14 +4,12 @@
 // scoped to a project), shows strategy-based progress with explanation, and
 // renders the mode-specific body over the neutral core model.
 
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
 import { PageHeader, Card, StatusPill, EmptyState, ErrorState } from '@/components/ui'
 import { MODE_LABELS } from '@/lib/validation/enums'
 import { useFetch, LoadingCard } from '../../components/useApi'
 import ProgressExplain from '../../components/ProgressExplain'
-import WorkItemModal from '../../components/WorkItemModal'
 import { MODE_BODIES } from './mode-bodies'
 
 const MODE_VOCAB = {
@@ -22,16 +20,6 @@ const MODE_VOCAB = {
   PRODUCT_LAUNCH: 'Phase → Milestone → Deliverable → Gate',
   OPERATIONS: 'Period → Process → Run → Checklist/Issue/SLA',
   BUSINESS_EXPANSION: 'Initiative → Site → Milestone → Approval → Go-live',
-}
-
-const MODE_DEFAULT_ITEM = {
-  SOFTWARE_SPRINT: 'TASK',
-  DATA_MIGRATION: 'DATASET',
-  B2B_SALES: 'DEAL',
-  B2C_CAMPAIGN: 'CREATIVE',
-  PRODUCT_LAUNCH: 'DELIVERABLE',
-  OPERATIONS: 'CHECKLIST_ITEM',
-  BUSINESS_EXPANSION: 'SETUP_ACTION',
 }
 
 function hydrate(ws) {
@@ -47,7 +35,6 @@ function hydrate(ws) {
 }
 
 function WorkstreamPanel({ workstream, reload }) {
-  const [addOpen, setAddOpen] = useState(false)
   const ws = useMemo(() => hydrate(workstream), [workstream])
   const progress = useFetch(`/api/progress/workstream/${ws.id}`, [ws.updatedAt, ws.items.length])
   const Body = MODE_BODIES[ws.executionMode]
@@ -68,9 +55,6 @@ function WorkstreamPanel({ workstream, reload }) {
         </div>
         <div className="flex items-center gap-2">
           <StatusPill status={ws.status} />
-          <button type="button" className="btn flex items-center gap-1" onClick={() => setAddOpen(true)}>
-            <Plus size={12} aria-hidden /> Add item
-          </button>
         </div>
       </div>
       <div className="mb-4">
@@ -83,16 +67,6 @@ function WorkstreamPanel({ workstream, reload }) {
         )}
       </div>
       {Body ? <Body workstream={ws} reload={reloadAll} progress={progress.data} /> : null}
-      {addOpen && (
-        <WorkItemModal
-          open={addOpen}
-          onClose={() => setAddOpen(false)}
-          workstream={ws}
-          containers={ws.containers}
-          defaultSubtype={MODE_DEFAULT_ITEM[ws.executionMode]}
-          onSaved={reloadAll}
-        />
-      )}
     </Card>
   )
 }
@@ -113,7 +87,7 @@ export default function ExecutionModeView({ mode, projectId }) {
       {!loading && !error && (!data || data.length === 0) && (
         <EmptyState
           title={`No ${MODE_LABELS[mode]} workstreams yet`}
-          hint="Create a workstream with this execution mode inside a project, or import an agent plan."
+          hint="Import an agent PlanEnvelope with this execution mode."
           action={
             <Link className="btn btn-primary" href="/projects">
               Go to projects

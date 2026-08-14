@@ -105,6 +105,7 @@ export default function ProjectWizardPage() {
         description: description || undefined,
         type: 'GENERAL',
         status: 'PLANNED',
+        targetAt: targetAt || undefined,
       },
       workstreams: streams
         .filter((st) => st.name.trim())
