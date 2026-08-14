@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.36.0 |
+| **Version** | 1.38.0 |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -59,6 +59,8 @@
 | 1.34.0 | 2026-08-14 | ATHER | Production Supabase migrations and approved 74-row SmartGift import verified; LINE binding remains credential-free and PENDING |
 | 1.35.0 | 2026-08-14 | ATHER | Integrated FR-046 entry authority with FR-051/052 production Supabase isolation without changing requirement identities or applied migration history |
 | 1.36.0 | 2026-08-14 | ATHER | Owner-approved production-disabled merge boundary for FR-051/052; runtime secret, live isolation, backup policy, provider evaluation and LINE canary remain activation gates |
+| 1.37.0 | 2026-08-14 | ATHER | Owner-approved FR-053/054 Activation Readiness Pack with golden evaluation, live-role probe and dry-run canary contracts; production traffic remains disabled |
+| 1.38.0 | 2026-08-14 | ATHER | FR-053/054 readiness tooling implemented and regression-tested; fake evaluation passes 20/20 while real provider, live login probe and signed LINE canary remain NOT_RUN |
 
 ## Referenced Standards
 
@@ -155,6 +157,8 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-050 | Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics. | Phase 1 active - owner-approved 2026-08-14 |
 | FR-051 | Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event. | Production migration and verified 74-row price-disabled import complete |
 | FR-052 | Server-owned LINE scope binding: the webhook rejects client-selected Tenant/Business IDs and resolves scope only from an active, destination-bound, hash-verified LINE binding. Runtime connects through an unprivileged login and executes each read with `SET LOCAL ROLE zuri_line_smartgift_ro`. | Binding reserved remotely as PENDING; activation credential/canary gates remain |
+| FR-053 | Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers. | Implemented (beta): deterministic fake evaluation PASS 20/20; owner-approved real corpus mapping and real-provider execution remain external NOT_RUN gates |
+| FR-054 | Controlled LINE canary readiness: produce a secret-safe runtime-role isolation report and dry-run canary plan that validates exact project/Tenant/Business/binding/provider/evaluation prerequisites. Readiness code never activates a binding or calls LINE; receipt states distinguish accepted from display/read unknown. | Implemented (beta): probe and dry-run preflight pass injected tests; live dedicated-login probe and signed LINE canary remain external NOT_RUN gates |
 
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
 > superseded for the operational shell. Home may show Organization/Portfolio ancestry
@@ -177,6 +181,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 
 | NFR-010 | LINE business answers fail closed within a bounded request deadline: network calls use explicit timeouts/cancellation, duplicate delivery is idempotent, provider failure cannot expose secrets or raw data, and offline/local evaluation remains possible through an injected adapter. | FR-047..050 contract, timeout and redelivery tests |
 | NFR-011 | Production tenancy changes are migration-first, idempotent and reversible: advisory/lock timeouts bound deployment, reserved code/UUID collisions abort, schema history and backups are inspected before apply, and no runtime secret or service-role key is stored in source, migration SQL, logs or browser code. | Production migration/import/isolation evidence captured; activation gates pending |
+| NFR-012 | Activation evidence is deterministic, versioned and redacted: credentials come only from process environment/approved secret stores; reports contain hashes and assertion results rather than raw authorization material, database URLs, reply tokens or PII. | FR-053/054 contract and secret-scan gates |
 
 ## 1.5 Business rules
 
@@ -195,6 +200,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 
 | BR-011 | A LINE event has exactly one reply owner. When stack answering is enabled, `zuri-cli` owns signature verification and Reply API transport while `zuri-ai` owns knowledge/provider/answer policy; the legacy local answer path must not also consume the same `replyToken`. |
 | BR-012 | Tenant and Business scope are server authority. In production a caller may present only binding identity, destination and binding-scoped credential; inbound `tenantId`/`businessId` never authorize access. A missing, mismatched, inactive, expired or database-unavailable binding fails closed before model or persistence work. |
+| BR-013 | Readiness is not activation. Golden evaluation, database probes and canary planning may run while the binding remains `PENDING`; only a separately approved operator action may install hashes or enable one canary. `ACCEPTED_BY_LINE` never proves display or read. |
 
 ## 1.6 Acceptance criteria
 
@@ -251,6 +257,7 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SDD-024 | A provider-neutral `SessionPort` resolves trusted request identity before `resolveViewer()`. `GET /api/entry` queries outward only from viewer-visible Business IDs and returns minimal Business plus Portfolio/Tenant ancestry in one response. `/businesses` stops consuming broad `/api/scope`; `/api/viewer` remains compatibility-only and uses the same trusted seam. | Implemented beta; FR-046, ADR-017, SEC-008, ZV2-CR-002 |
 | SDD-025 | The Phase 1 LINE pilot is a ports-and-adapters vertical slice. `BusinessKnowledgeReadPort` owns registered bounded reads, `ModelProviderPort` owns normalized generation, and the grounded-answer service verifies evidence before returning reply text. `zuri-cli` remains the only LINE signature/reply transport. Supabase is operational relational storage; GenesisBlockDB/MSP/GKS are not Phase 1 dependencies. | FR-047..050; ADR-007 amendment; ZV2-CR-003 |
 | SDD-026 | Supabase production authority uses a private `zuri_core` schema with stable internal UUIDs, composite Tenant/Business foreign keys and forced RLS. A `NOLOGIN` scope role owns the policies; a separate unprivileged login has no direct grants and every query uses a short transaction plus `SET LOCAL ROLE`. Curated DuckDB data is imported through a reconciled, hash-bound transaction and does not make GenesisBlockDB a Supabase replacement. | FR-051..052; ADR-018; ZV2-CR-004 |
+| SDD-027 | Phase 1 activation uses three independent evidence ports: a deterministic GoldenEvaluation runner over injected knowledge/provider ports, a transaction-scoped RuntimeIsolationProbe, and a mutation-free CanaryPreflight. W4 combines their redacted artifacts; no readiness component owns secret persistence, binding mutation or LINE transport. | FR-053..054; ADR-019; ZV2-CR-005 |
 
 ## 2.3 Security requirements
 
@@ -267,6 +274,7 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SEC-008 | Pre-shell identity and authorization fail closed: principal, role, platform grant, visible Business IDs and domains come only from a trusted server session plus persisted authority. Missing/invalid sessions return 401 before scope queries; adapter failure returns 503; production can never activate the seeded-owner demo fallback. | Implemented beta; ADR-017 / FR-046 security gate |
 | SEC-009 | Public LINE knowledge access is server-only and deny-by-default: server-owned tenant/business binding, no public service-role key, explicit Supabase grants plus RLS for exposed tables, allow-listed fields/queries, prompt-data treated as untrusted, and secrets/PII/cost/margin/invoice data excluded from prompts, logs and responses. | Phase 1 security gate; FR-047..050 / ZV2-CR-003 |
 | SEC-010 | Production LINE reads require both database-enforced scope and verified server binding: private-schema base grants are revoked from `public`, `anon`, `authenticated` and `service_role`; the runtime rejects privileged credentials and client-selected scope; credential/destination hashes are compared in constant time; inactive or expired bindings return no data. | Remote policy/grant proof complete; live runtime-login and LINE canary pending / ADR-018 |
+| SEC-011 | Activation tooling fails closed and never persists or echoes credentials, full connection URLs, authorization headers, reply tokens or raw customer data. Database mutation assertions always roll back; canary readiness defaults to dry-run and has no binding-update or LINE-send capability. | FR-053/054 security gate; ADR-019 |
 
 ## 2.4 API / DB / Testing / Deployment
 

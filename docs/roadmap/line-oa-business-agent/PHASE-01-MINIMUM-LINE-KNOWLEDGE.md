@@ -2,9 +2,9 @@
 title: "Phase 1: Minimum LINE OA Business Knowledge Answer"
 doc_id: "PLAN-LINE-OA-PHASE-01"
 status: "beta"
-version: "0.4.0b"
+version: "0.6.0b"
 created_at: "2026-08-14T02:12:07+07:00,ATHER"
-last_update: "2026-08-14T06:59:37+07:00,ATHER"
+last_update: "2026-08-14T08:20:18+07:00,ATHER"
 owner: "Boss (บอส)"
 attributes:
   domain: "line-ai"
@@ -85,6 +85,7 @@ sequenceDiagram
 | P1-W4 | Implemented | Evidence packet, deterministic fallback, unsupported-number/code rejection and provider-failure fallback pass tests |
 | P1-W5 | Implemented locally | Internal bearer, event correlation, one reply owner and hashed dedupe across restart pass; real LINE canary is pending |
 | P1-W6 | Partially complete | Full automated suites/build/docs pass; 20 approved business golden questions and real canary remain blocked by approved product dataset and credentials |
+| P1-W7 | Implemented, external execution pending | FR-053/054 evaluator, runtime-role probe and mutation-free canary preflight pass local gates; real provider, live login probe and signed LINE canary remain NOT_RUN |
 
 This status claims only the Supabase database migration and approved knowledge import. It does not
 claim production LINE traffic, provider configuration, LINE acceptance/delivery/display/read, or
@@ -250,3 +251,5 @@ rotation metadata. Provider changes are audited. Automatic fallback is disabled 
 | 0.3.0b | 2026-08-14 | beta | Owner approved one price-disabled source; 74-row export and direct-Postgres import artifact reconciled | working-tree | ATHER |
 | 0.3.1b | 2026-08-14 | beta | Production Supabase project identified; upload held behind ADR-018 tenant-isolation approval and credential gates | working-tree | ATHER |
 | 0.4.0b | 2026-08-14 | beta | Production tenant-isolated schema and approved 74-row import verified; provider/LINE canary gates remain | working-tree | ATHER |
+| 0.5.0b | 2026-08-14 | beta | Owner approved production-disabled activation readiness tooling; external credentials and real canary remain gated | working-tree | ATHER |
+| 0.6.0b | 2026-08-14 | beta | Activation-readiness tooling passes local gates; Phase 1 acceptance remains blocked on external NOT_RUN evidence | working-tree | ATHER |

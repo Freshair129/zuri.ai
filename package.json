@@ -24,6 +24,9 @@
     "docs:check": "node scripts/doc-graph.mjs --check",
     "docs:preflight": "node scripts/doc-preflight.mjs",
     "docs:import-v1": "node scripts/import-v1-docs.mjs",
+    "phase1:evaluate": "node scripts/evaluate-phase1-golden.mjs",
+    "phase1:isolation:verify": "node scripts/verify-line-runtime-isolation.mjs",
+    "phase1:canary:plan": "node scripts/plan-line-canary.mjs",
     "self:plan": "node scripts/self-plan.mjs"
   },
   "prisma": {

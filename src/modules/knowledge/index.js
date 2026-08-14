@@ -16,3 +16,11 @@ export {
   createInMemoryBusinessKnowledgeReader,
 } from './business-contract'
 export { createPostgresBusinessKnowledgeReader } from './postgres-business-knowledge'
+// @req FR-054 — dedicated-login runtime isolation verification surface.
+// @spec SDD-027, SEC-011 — secret-redacted probe always rolls back.
+// @tested tests/unit/activation-readiness-integration.test.js, tests/unit/runtime-isolation-probe.test.js
+export {
+  parseRuntimeIsolationEnvironment,
+  runRuntimeIsolationProbe,
+  runRuntimeIsolationProbeFromEnv,
+} from './runtime-isolation-probe'

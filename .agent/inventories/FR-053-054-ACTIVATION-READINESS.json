@@ -1,0 +1,28 @@
+{
+  "version": "0.1.0b",
+  "observedAt": "2026-08-14T07:58:02+07:00",
+  "baselineCommit": "f0bf077",
+  "requirements": ["FR-047", "FR-048", "FR-049", "FR-050", "FR-051", "FR-052"],
+  "existing": {
+    "knowledgePort": "src/modules/knowledge/business-contract.js",
+    "postgresReader": "src/modules/knowledge/postgres-business-knowledge.js",
+    "modelProvider": "src/modules/agent/model-provider.js",
+    "answerVerifier": "src/modules/agent/grounded-business-answer.js",
+    "bindingResolver": "src/modules/agent/line-binding-resolver.js",
+    "runtimeComposition": "src/modules/agent/phase1-runtime.js",
+    "webhookRoute": "src/app/api/agent/line-webhook/route.js",
+    "remoteIsolationSql": "supabase/tests/production_tenant_isolation.sql"
+  },
+  "missing": [
+    "versioned golden question corpus",
+    "deterministic evaluation runner and report schema",
+    "secret-redacted runtime isolation probe runner",
+    "dry-run canary plan contract",
+    "controlled canary operator runbook"
+  ],
+  "productionInvariant": {
+    "bindingStatus": "PENDING",
+    "bindingHashesPresent": false,
+    "trafficEnabled": false
+  }
+}
