@@ -84,6 +84,15 @@ describe('runtime database isolation probe (FR-054)', () => {
     expect(client.query.mock.calls.some(([sql]) => /commit/i.test(sql))).toBe(false)
   })
 
+  it('binds UUID-shaped scope values using the deployed PostgreSQL text contract', async () => {
+    const client = fakeClient()
+    await runRuntimeIsolationProbe({ client, databaseUrl, scope })
+
+    const sql = client.query.mock.calls.map(([statement]) => String(statement)).join('\n')
+    expect(sql).not.toContain('::uuid')
+    expect(sql.match(/\$[12]::text/g)).toHaveLength(5)
+  })
+
   it('fails closed and still rolls back when the mutation unexpectedly succeeds', async () => {
     const client = fakeClient({ mutationDenied: false })
     const report = await runRuntimeIsolationProbe({ client, databaseUrl, scope })

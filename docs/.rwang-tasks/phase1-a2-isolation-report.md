@@ -164,6 +164,18 @@ success, or a redacted fingerprint alone is not live isolation acceptance.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | candidate | Read-only A2 audit; live probe blocked by SQL type mismatch, current profile access, credential and recovery gates | working-tree | Tesla |
 
+## Integrator remediation follow-up
+
+Owner approval of the gate packet/RCA opened the bounded local fix. The probe now uses the deployed
+`text` parameter contract and the OID overload of `has_table_privilege`, preserving the login's
+zero direct schema/table grants. A dedicated-loopback PostgreSQL 17 test passes the real role, RLS,
+positive scope, cross-Tenant denial and rollback-only mutation path. The integration target is
+hard-gated to database `zuri_fr054_test` on loopback.
+
+This closes A2-RC-01 locally. It does not change the report's external verdict: the production
+login credential, fresh target visibility, physical recovery approval and live report remain
+`BLOCKED` / `NOT_RUN`.
+
 ## Independent review
 
 **Overall review: `WARN`.** The report's main safety conclusion and `BLOCKED` / `NOT_RUN` state are

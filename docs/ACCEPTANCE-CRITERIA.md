@@ -204,7 +204,7 @@ Repository-local exit gate may pass with the final three remote boxes open becau
 ## FR-053 / FR-054 — Phase 1 activation evidence (beta)
 
 - [x] deterministic Golden evaluator, runtime isolation probe and mutation-free canary preflight exist;
-- [x] focused local contract suites pass with fake/injected ports;
+- [x] focused local contract suites pass with fake/injected ports plus dedicated-loopback PostgreSQL 17;
 - [ ] all Golden `ANSWER` cases map to the approved production artifact and owner-approved questions;
 - [ ] a real approved provider passes 20/20 with zero unsupported numeric claims;
 - [ ] the corrected probe passes through the dedicated unprivileged production login;
@@ -213,3 +213,19 @@ Repository-local exit gate may pass with the final three remote boxes open becau
 - [ ] one signed canary records `ACCEPTED_BY_LINE` separately from display/read unknown.
 
 Until every unchecked item passes, binding activation and production LINE traffic remain blocked.
+
+## FR-055 — Controlled LINE activation and receipt (local beta)
+
+- [x] activation and rollback inputs are strict, versioned, exact-scope and secret-free;
+- [x] the command defaults to dry-run and requires both contract APPLY plus `--apply`;
+- [x] destination, bearer, pepper and operator database URL are environment-only;
+- [x] a dedicated login/role plus forced RLS and column grants restrict the exact binding;
+- [x] DB-wall-clock CAS atomically activates one row and appends one event;
+- [x] duplicate correlation, stale window, wrong scope/version/status and insert failure perform zero durable mutation;
+- [x] rollback disables routing first and preserves hashes/imported data;
+- [x] the strict `zuri-cli` adapter hash-pins exact bytes and never infers display/read;
+- [x] composed PostgreSQL 17 tests pass through the real operator login/role/RLS path;
+- [ ] one owner-approved production migration/activation/signed canary records a live truthful receipt.
+
+Repository-local exit passes with the final external box open. Production mutation, provider traffic
+and LINE remain blocked by the A1/A2/recovery/destination/provider/operator gates.

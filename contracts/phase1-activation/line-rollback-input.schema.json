@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.local/contracts/phase1-activation/line-rollback-input.schema.json",
+  "title": "FR-055 Controlled LINE Rollback Input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "correlationId", "scope", "expectation", "evidence", "approval"],
+  "properties": {
+    "contractVersion": { "const": "1.0.0" },
+    "mode": { "type": "string", "enum": ["DRY_RUN", "APPLY"], "default": "DRY_RUN" },
+    "correlationId": { "type": "string", "format": "uuid" },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["projectRef", "tenantId", "businessId", "bindingId"],
+      "properties": {
+        "projectRef": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "tenantId": { "type": "string", "format": "uuid" },
+        "businessId": { "type": "string", "format": "uuid" },
+        "bindingId": { "type": "string", "format": "uuid" }
+      }
+    },
+    "expectation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bindingVersion", "bindingStatus", "destinationHashPresent", "credentialHashPresent", "bindingCode", "channelProvider", "providerId", "modelId"],
+      "properties": {
+        "bindingVersion": { "type": "integer", "minimum": 1 },
+        "bindingStatus": { "const": "ACTIVE" },
+        "destinationHashPresent": { "const": true },
+        "credentialHashPresent": { "const": true },
+        "bindingCode": { "const": "LINE-SMARTGIFT-OA" },
+        "channelProvider": { "const": "LINE" },
+        "providerId": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "modelId": { "type": "string", "minLength": 1, "maxLength": 200 }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canaryPlanSha256", "goldenReportSha256", "isolationReportSha256"],
+      "properties": {
+        "canaryPlanSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "goldenReportSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "isolationReportSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approvalRef", "notBefore", "expiresAt"],
+      "properties": {
+        "approvalRef": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "notBefore": { "type": "string", "format": "date-time" },
+        "expiresAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

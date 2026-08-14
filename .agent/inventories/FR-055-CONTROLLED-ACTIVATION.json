@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0b",
+  "observedAt": "2026-08-14T10:50:00+07:00",
+  "baselineCommit": "e0d7059",
+  "requirements": ["FR-055", "NFR-013", "BR-014", "SDD-028", "SEC-012"],
+  "decision": "docs/ADR-020-CONTROLLED-LINE-BINDING-ACTIVATION-AND-RECEIPT.md",
+  "implemented": [
+    "strict activation, rollback and truthful receipt contracts",
+    "dedicated least-privilege operator role and append-only event migration",
+    "dry-run-default activation and routing-first rollback CLI",
+    "exact-scope redacted zuri-cli transport artifact adapter",
+    "dedicated operator module outside the generic agent surface",
+    "composed disposable PostgreSQL 17 activation, denial, atomicity and rollback proof",
+    "explicit destructive opt-in and per-run cluster marker before role DDL",
+    "baseline-aware role/schema cleanup after deterministic mid-migration failure"
+  ],
+  "localVerification": {
+    "contractsAndCompatibility": "PASS",
+    "postgres17Composed": "PASS",
+    "productionMutation": "NOT_RUN",
+    "lineTransport": "NOT_RUN"
+  },
+  "pendingExternal": [
+    "owner-approved production corpus mapping and real provider evaluation",
+    "fresh dedicated production runtime isolation report",
+    "physical backup/PITR approval and rollback rehearsal",
+    "exact destination and operator mutation window",
+    "production migration apply and binding activation",
+    "one signed zuri-cli canary and truthful live receipt"
+  ],
+  "safetyInvariant": {
+    "productionBindingState": "HISTORICAL_NOT_LIVE_RECHECKED",
+    "productionTraffic": "DISABLED_OR_UNVERIFIED",
+    "remoteActionsThisSlice": 0
+  }
+}

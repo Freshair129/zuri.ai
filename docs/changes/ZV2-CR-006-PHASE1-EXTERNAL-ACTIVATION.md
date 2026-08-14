@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.3.0b"
 created_at: "2026-08-14T08:54:00+07:00,ATHER"
-last_update: "2026-08-14T08:54:00+07:00,ATHER"
+last_update: "2026-08-14T09:18:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -69,15 +69,25 @@ in `NOT_RUN`, `FAIL`, `STALE` or `UNKNOWN`.
 | Lane | Reviewed result | Activation effect |
 |---|---|---|
 | A1 Golden mapping | PASS_WITH_WARN; mapping gate BLOCKED | 14/14 `ANSWER` cases use placeholder codes absent from the approved 74-row artifact; seven numeric allowlists lack approved evidence. |
-| A2 isolation | WARN; live gate BLOCKED/NOT_RUN | Probe casts UUID-shaped identifiers to PostgreSQL `uuid` although deployed scope columns are `text`; dedicated credential and recovery approval remain absent. |
+| A2 isolation | local contract PASS; live gate BLOCKED/NOT_RUN | Approved fix uses deployed `text` parameters and OID privilege inspection; PostgreSQL 17 role/RLS regression passes, while dedicated credential and recovery approval remain absent. |
 | A3 canary | PASS_WITH_WARNINGS; A6/A7 BLOCKED | No controlled hash installer, fresh recovery/rehearsal evidence or post-LINE receipt artifact exists. |
-| A4 cross-review | PASS_WITH_WARNINGS | Focused local contracts pass 26/26; they do not replace real provider, PostgreSQL or LINE evidence. |
+| A4 cross-review | PASS_WITH_WARNINGS | Focused local contracts pass 28/28 including PostgreSQL 17; they do not replace real provider, production database or LINE evidence. |
 
 The production-disabled boundary is preserved. No credential was read, no remote SQL was run, no
 binding was changed and no LINE request was made.
+
+## FR-055 local implementation result
+
+ADR-020 and FR-055 are implemented through W4 locally. Strict activation/rollback/receipt schemas,
+a dedicated operator role and event migration, a dry-run-default CLI, redacted `zuri-cli` adapter
+and composed PostgreSQL 17 proof pass. Mutation capability remains outside the generic agent surface.
+No production migration, binding mutation, provider request or LINE call occurred. W5 remains
+blocked by A1/A2/recovery/destination/provider/operator gates.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | Owner-authorized DIG and parallel read-only activation preparation | working-tree | ATHER |
+| 0.2.0b | 2026-08-14 | beta | Approved isolation probe remediation passes dedicated-loopback PostgreSQL 17; remote gates unchanged | working-tree | ATHER |
+| 0.3.0b | 2026-08-14 | beta | FR-055 W0-W4 local operator boundary implemented and verified; W5 external gate unchanged | working-tree | ATHER |

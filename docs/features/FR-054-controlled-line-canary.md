@@ -2,9 +2,9 @@
 feature: FR-054
 module: agent
 source: v2-native
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-08-14T07:58:02+07:00,ATHER"
-last_update: "2026-08-14T08:20:18+07:00,ATHER"
+last_update: "2026-08-14T09:18:00+07:00,ATHER"
 status: "beta"
 ---
 
@@ -31,9 +31,15 @@ runbook are implemented. Injected tests prove fail-closed behavior and rollback.
 database connection, binding mutation or LINE transport was used: live isolation and the signed
 single-destination canary remain `NOT_RUN`.
 
+The approved RCA remediation now also passes against PostgreSQL 17 in a dedicated loopback test
+database. It proves the deployed `text` identifier type, zero direct login grants, policy-role RLS,
+cross-Tenant denial and rollback-only mutation. This is local contract evidence, not a live
+production isolation report.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | Owner-approved controlled-canary readiness contract | working-tree | ATHER |
 | 0.2.0b | 2026-08-14 | beta | Probe and dry-run canary tooling implemented; live isolation and LINE canary remain NOT_RUN | working-tree | ATHER |
+| 0.3.0b | 2026-08-14 | beta | Approved probe remediation passes unit plus PostgreSQL 17 role/RLS integration; live gate remains NOT_RUN | working-tree | ATHER |

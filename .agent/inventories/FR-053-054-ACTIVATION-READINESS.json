@@ -17,6 +17,7 @@
   "implemented": [
     "versioned golden question corpus and deterministic evaluator",
     "secret-redacted runtime isolation probe runner",
+    "PostgreSQL 17 text-type, least-privilege role and RLS integration regression",
     "dry-run canary plan contract and operator runbook"
   ],
   "pendingExternal": [

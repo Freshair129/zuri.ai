@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.3.0b"
 created_at: "2026-08-14T09:10:00+07:00,ATHER"
-last_update: "2026-08-14T09:10:00+07:00,ATHER"
+last_update: "2026-08-14T09:18:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -30,7 +30,7 @@ approved A1/A2 evidence. A6 is the hard join of A2-A5; A7 and A8 are strictly se
 |---|---:|---|---|
 | A0 DIG/authority | S | PASS | 720 nodes / 1333 edges / 0 dangling at freeze |
 | A1 production corpus mapping | M | BLOCKED | audit PASS_WITH_WARN; no positive case maps to approved rows |
-| A2 live isolation prerequisites | M | BLOCKED | review confirms SQL type defect and absent live prerequisites |
+| A2 live isolation prerequisites | M | BLOCKED | local SQL/role contract remediated; external live prerequisites absent |
 | A3 canary/receipt/recovery prerequisites | M | BLOCKED | review confirms missing controlled paths/evidence |
 | A4 cross-lane integration | S | PASS_WITH_WARNINGS | findings agree; historical/live states separated |
 | A5 real evaluation/live isolation | L | NOT_RUN | predecessors blocked |
@@ -38,22 +38,23 @@ approved A1/A2 evidence. A6 is the hard join of A2-A5; A7 and A8 are strictly se
 | A7 signed canary | M | NOT_RUN | A6 not satisfied |
 | A8 Phase 1 acceptance | S | BLOCKED | no truthful live receipt |
 
-## Confirmed blockers
+## Confirmed blockers and remediation
 
 1. The Golden corpus is a placeholder: all 14 positive cases reference seven `SG-*` codes absent
    from the approved 74-row artifact. All seven numeric allowlists lack support in the approved
    code/name/category-only dataset.
-2. The runtime isolation probe compares production `text` columns with `uuid` parameters. The RCA
-   is `.brain/rca/2026-08-14-runtime-isolation-probe-id-cast.md`; live execution is prohibited until
-   reviewed remediation and a PostgreSQL-backed contract test exist.
+2. **REMEDIATED LOCALLY:** the runtime isolation probe previously compared production `text`
+   columns with `uuid` parameters and resolved a protected table name without schema permission.
+   The approved RCA fix now passes a dedicated-loopback PostgreSQL 17 role/RLS regression. This
+   does not satisfy the live production gate.
 3. A dedicated unprivileged runtime credential and fresh live isolation report are unavailable in
    this execution context.
 4. Historical evidence says PITR is disabled and provider physical backups are unavailable. This
    is not fresh approval and no rollback rehearsal artifact exists.
-5. No reviewed secret-safe path exists to install binding destination/credential hashes and enable
-   exactly one canary.
-6. No redacted post-LINE receipt artifact exists; current schema ends at dry-run
-   `EVIDENCE_VERIFIED`.
+5. **REMEDIATED LOCALLY:** FR-055 now provides a dedicated-role, HMAC-only, DB-time CAS installer
+   and routing-first rollback path. It has not been applied or executed in production.
+6. **REMEDIATED LOCALLY:** a strict redacted `zuri-cli` artifact/receipt adapter exists. No live
+   post-LINE artifact exists, so transport acceptance remains `NOT_RUN`.
 7. Exact destination, approved provider/model and pinned external `zuri-cli` canary evidence remain
    operator inputs and may not be inferred.
 
@@ -64,24 +65,27 @@ approved A1/A2 evidence. A6 is the hard join of A2-A5; A7 and A8 are strictly se
 | Independent review A1 | PASS_WITH_WARN; gate BLOCKED |
 | Independent review A2 | WARN; gate BLOCKED/NOT_RUN |
 | Independent review A3 | PASS_WITH_WARNINGS; A6/A7 BLOCKED |
-| Focused local tests | PASS — 3 files / 26 tests |
+| Focused local tests | PASS — 4 files / 28 tests, including PostgreSQL 17 integration |
+| FR-055 W1-W4 local implementation | PASS — strict contracts, operator migration/CLI, redacted adapter and composed PostgreSQL 17 proof |
 | Production provider/database/LINE | NOT_RUN |
 
 Supabase's current guidance still supports the chosen boundary: use a dedicated service role/login,
 least privilege and RLS; physical backups/PITR and restoration readiness must be verified as real
 provider state, not inferred from local code.
 
-## Required approval before code remediation
+## Approved remediation boundary
 
-Approve the RCA and this gate packet to open the next bounded change:
+The owner approved the RCA and gate packet. The bounded implementation state is:
 
-1. correct the probe SQL to the deployed `text` contract and add a PostgreSQL-backed regression;
-2. define the owner-approved 20-case production corpus mapping;
-3. specify a secret-safe binding installer and redacted live receipt contract; and
-4. keep remote execution disabled until recovery, credential, destination and provider gates pass.
+1. probe SQL and PostgreSQL-backed regression — **complete locally**;
+2. owner-approved 20-case production corpus mapping — **BLOCKED on owner content choices**;
+3. secret-safe binding installer and redacted receipt contract — **ADR-020/FR-055 W0-W4 complete locally; production apply and live receipt NOT_RUN**; and
+4. remote execution — **disabled** until recovery, credential, destination and provider gates pass.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | W0-W1 read-only audit and cross-review complete; external activation blocked | working-tree | ATHER |
+| 0.2.0b | 2026-08-14 | beta | Owner-approved probe remediation passes PostgreSQL 17 locally; external activation remains blocked | working-tree | ATHER |
+| 0.3.0b | 2026-08-14 | beta | FR-055 W0-W4 complete locally with composed PostgreSQL 17 proof; external activation remains blocked | working-tree | ATHER |
