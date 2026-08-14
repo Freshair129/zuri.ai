@@ -2,9 +2,9 @@
 feature: FR-053
 module: agent
 source: v2-native
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-08-14T07:58:02+07:00,ATHER"
-last_update: "2026-08-14T07:58:02+07:00,ATHER"
+last_update: "2026-08-14T08:20:18+07:00,ATHER"
 status: "beta"
 ---
 
@@ -25,8 +25,16 @@ redacted evaluation artifact, not permission to activate LINE.
 - no PII, cost, margin, invoice or secret material;
 - real-provider execution remains an external activation step.
 
+## Delivery state
+
+The versioned 20-case placeholder corpus, deterministic evaluator, redacted report and tracked CLI
+are implemented. Injected fake ports pass 20/20 with zero unsupported numeric claims. The corpus is
+not yet an owner-approved mapping to the production 74-row artifact, and no approved provider
+credential has been exercised; real-provider evaluation remains `NOT_RUN`.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | Owner-approved evaluation contract | working-tree | ATHER |
+| 0.2.0b | 2026-08-14 | beta | Evaluator and placeholder corpus implemented; fake 20/20 passes, real provider remains NOT_RUN | working-tree | ATHER |

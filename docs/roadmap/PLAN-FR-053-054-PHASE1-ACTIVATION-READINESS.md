@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-08-14T07:58:02+07:00,ATHER"
-last_update: "2026-08-14T07:58:02+07:00,ATHER"
+last_update: "2026-08-14T08:20:18+07:00,ATHER"
 status: "beta"
 attributes:
   domain: "line-ai"
@@ -67,8 +67,15 @@ canary execution are not scheduled because they require owner/provider inputs.
 Merge-ready and production-ready remain different states. M2 can merge with `NOT_RUN` real-provider
 and LINE evidence; M3 cannot pass without external credentials and operator approval.
 
+## Execution result
+
+M0-M2 are complete: contracts, W1-W3 implementations, W4 public exports/scripts and all local
+release gates pass. M3 remains open because real-provider evaluation, live dedicated-login
+isolation and the signed LINE canary are `NOT_RUN` and require separate operator authority.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | Owner-approved W0-W4 plan, critical path and external gate | working-tree | ATHER |
+| 0.2.0b | 2026-08-14 | beta | M0-M2 complete and merge-ready; M3 external activation gate remains open | working-tree | ATHER |

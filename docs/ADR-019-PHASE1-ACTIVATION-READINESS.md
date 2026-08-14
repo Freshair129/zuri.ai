@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-08-14T07:58:02+07:00,ATHER"
-last_update: "2026-08-14T07:58:02+07:00,ATHER"
+last_update: "2026-08-14T08:20:18+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -58,8 +58,16 @@ traffic.
 - Real credentials and production mutation remain operator inputs outside Git.
 - A failed probe or canary leaves the binding `PENDING` and the kill switch off.
 
+## Implementation evidence
+
+W0-W4 are implemented and pass the repository regression gates recorded in
+`.agent/reports/PHASE-1-ACTIVATION-READINESS.md`. This advances merge readiness only. Real-provider
+evaluation, the live dedicated-login probe, backup/rollback acceptance and the signed LINE canary
+remain external gates with status `NOT_RUN`.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | Owner-approved production-disabled activation readiness boundary | working-tree | ATHER |
+| 0.2.0b | 2026-08-14 | beta | W0-W4 merge evidence recorded without changing external activation authority | working-tree | ATHER |

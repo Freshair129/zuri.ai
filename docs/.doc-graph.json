@@ -3,18 +3,18 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 711,
-    "total_edges": 1271,
+    "total_nodes": 719,
+    "total_edges": 1330,
     "dangling_edges": 0,
     "node_types": {
-      "document": 86,
+      "document": 87,
       "adr": 19,
       "appendix": 5,
       "roadmap": 18,
       "v1_inherited": 234,
       "requirement": 117,
-      "test": 91,
-      "code_file": 141
+      "test": 95,
+      "code_file": 144
     },
     "coverage": {
       "requirements": 117,
@@ -22,7 +22,7 @@
       "fr_with_tests": "100% (54/54)",
       "rules_anchored_in_code": "90% (46/51)",
       "nfr_evidence_based": "12 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 141,
+      "annotated_code_files": 144,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -1453,6 +1453,26 @@
       }
     },
     {
+      "id": "code:src/modules/agent/canary-preflight.js",
+      "type": "code_file",
+      "path": "src/modules/agent/canary-preflight.js",
+      "hash": "31e4d13a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-054"
+        ],
+        "@spec": [
+          "BR-013",
+          "SDD-027",
+          "SEC-011"
+        ],
+        "@tested": [
+          "tests/unit/line-canary-preflight.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/agent/context.js",
       "type": "code_file",
       "path": "src/modules/agent/context.js",
@@ -1464,6 +1484,25 @@
         ],
         "@tested": [
           "tests/integration/agent-context.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/golden-evaluation.js",
+      "type": "code_file",
+      "path": "src/modules/agent/golden-evaluation.js",
+      "hash": "63036bba",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-053"
+        ],
+        "@spec": [
+          "SDD-027",
+          "SEC-011"
+        ],
+        "@tested": [
+          "tests/unit/golden-evaluation.test.js"
         ]
       }
     },
@@ -1490,7 +1529,7 @@
       "id": "code:src/modules/agent/index.js",
       "type": "code_file",
       "path": "src/modules/agent/index.js",
-      "hash": "5e235bac",
+      "hash": "a31b2169",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1499,11 +1538,18 @@
           "FR-027",
           "FR-029",
           "FR-048",
-          "FR-049"
+          "FR-049",
+          "FR-053",
+          "FR-054"
+        ],
+        "@spec": [
+          "SDD-027",
+          "SEC-011"
         ],
         "@tested": [
           "tests/integration/agent-context.test.js",
-          "tests/integration/agent-action-gate.test.js"
+          "tests/integration/agent-action-gate.test.js",
+          "tests/unit/activation-readiness-integration.test.js"
         ]
       }
     },
@@ -1993,15 +2039,22 @@
       "id": "code:src/modules/knowledge/index.js",
       "type": "code_file",
       "path": "src/modules/knowledge/index.js",
-      "hash": "05adcf6f",
+      "hash": "e78cc1d4",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-024"
+          "FR-024",
+          "FR-054"
+        ],
+        "@spec": [
+          "SDD-027",
+          "SEC-011"
         ],
         "@tested": [
           "tests/integration/knowledge-project.test.js",
-          "tests/integration/knowledge-query.test.js"
+          "tests/integration/knowledge-query.test.js",
+          "tests/unit/activation-readiness-integration.test.js",
+          "tests/unit/runtime-isolation-probe.test.js"
         ]
       }
     },
@@ -2074,6 +2127,25 @@
         ],
         "@tested": [
           "tests/integration/knowledge-query.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/runtime-isolation-probe.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/runtime-isolation-probe.js",
+      "hash": "5c814f28",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-054"
+        ],
+        "@spec": [
+          "SDD-027",
+          "SEC-011"
+        ],
+        "@tested": [
+          "tests/unit/runtime-isolation-probe.test.js"
         ]
       }
     },
@@ -2839,7 +2911,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "0a5752bc",
+      "hash": "9f5bf05f",
       "status": "current"
     },
     {
@@ -2933,7 +3005,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "537ea667",
+      "hash": "c9f8ed4f",
       "status": "current"
     },
     {
@@ -3138,7 +3210,7 @@
       "type": "document",
       "path": "docs/features/FR-053-phase1-golden-question-evaluation.md",
       "title": "FR-053 — Phase 1 golden question evaluation",
-      "hash": "ab864f0d",
+      "hash": "4bb0e092",
       "status": "current"
     },
     {
@@ -3146,7 +3218,7 @@
       "type": "document",
       "path": "docs/features/FR-054-controlled-line-canary.md",
       "title": "FR-054 — Controlled LINE canary",
-      "hash": "71fb592f",
+      "hash": "1bffb2af",
       "status": "current"
     },
     {
@@ -3320,6 +3392,14 @@
       "status": "current"
     },
     {
+      "id": "doc:LINE-PHASE1-CANARY",
+      "type": "document",
+      "path": "docs/runbooks/LINE-PHASE1-CANARY.md",
+      "title": "LINE Phase 1 canary runbook",
+      "hash": "7ac88bec",
+      "status": "current"
+    },
+    {
       "id": "doc:model-lifecycle",
       "type": "document",
       "path": "docs/ai-system/model-lifecycle.md",
@@ -3418,7 +3498,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md",
       "title": "Phase 1: Minimum LINE OA Business Knowledge Answer",
-      "hash": "d9bdd867",
+      "hash": "9d3a16b9",
       "status": "current"
     },
     {
@@ -3526,7 +3606,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-FR-053-054-PHASE1-ACTIVATION-READINESS.md",
       "title": "Implementation plan — FR-053/054 Phase 1 activation readiness",
-      "hash": "dc821172",
+      "hash": "3c2162cd",
       "status": "current"
     },
     {
@@ -3544,9 +3624,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.37.0",
+      "version": "1.38.0",
       "doc_status": "Draft",
-      "hash": "b82f9f9a",
+      "hash": "2de52dd9",
       "status": "current"
     },
     {
@@ -3598,7 +3678,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-zuri-v2-lab.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
-      "hash": "ecbc5331",
+      "hash": "75c2f865",
       "status": "current"
     },
     {
@@ -3712,7 +3792,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-005-PHASE1-ACTIVATION-READINESS.md",
       "title": "ZV2-CR-005 — Phase 1 activation readiness",
-      "hash": "86f7f1ec",
+      "hash": "a84681ee",
       "status": "current"
     },
     {
@@ -4921,7 +5001,7 @@
       "type": "adr",
       "path": "docs/ADR-019-PHASE1-ACTIVATION-READINESS.md",
       "title": "ADR-019 — Phase 1 activation readiness",
-      "hash": "0a0628b5",
+      "hash": "4bcb73fa",
       "status": "current"
     },
     {
@@ -5163,6 +5243,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/activation-readiness-integration.test.js",
+      "type": "test",
+      "path": "tests/unit/activation-readiness-integration.test.js",
+      "hash": "07487d75",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/breadcrumb-switcher.test.js",
       "type": "test",
       "path": "tests/unit/breadcrumb-switcher.test.js",
@@ -5345,6 +5432,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/golden-evaluation.test.js",
+      "type": "test",
+      "path": "tests/unit/golden-evaluation.test.js",
+      "hash": "3b5de7e3",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/grounded-business-answer.test.js",
       "type": "test",
       "path": "tests/unit/grounded-business-answer.test.js",
@@ -5370,6 +5464,13 @@
       "type": "test",
       "path": "tests/unit/line-binding-resolver.test.js",
       "hash": "cb832f90",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-canary-preflight.test.js",
+      "type": "test",
+      "path": "tests/unit/line-canary-preflight.test.js",
+      "hash": "28c7d41e",
       "status": "current"
     },
     {
@@ -5503,6 +5604,13 @@
       "type": "test",
       "path": "tests/unit/rollup.test.js",
       "hash": "9dd91a50",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/runtime-isolation-probe.test.js",
+      "type": "test",
+      "path": "tests/unit/runtime-isolation-probe.test.js",
+      "hash": "5f49d1db",
       "status": "current"
     },
     {
@@ -8809,9 +8917,58 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/canary-preflight.js",
+      "to": "req:BR-013",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/canary-preflight.js",
+      "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/canary-preflight.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/canary-preflight.js",
+      "to": "req:SEC-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/context.js",
       "to": "req:FR-025",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/golden-evaluation.js",
+      "to": "req:FR-053",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/golden-evaluation.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/golden-evaluation.js",
+      "to": "req:SEC-011",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -8875,6 +9032,34 @@
       "from": "code:src/modules/agent/index.js",
       "to": "req:FR-049",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:FR-053",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:SEC-011",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -9362,6 +9547,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/index.js",
+      "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/index.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/index.js",
+      "to": "req:SEC-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/live-facts.js",
       "to": "req:FR-024",
       "type": "implements",
@@ -9427,6 +9633,27 @@
     {
       "from": "code:src/modules/knowledge/query.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-isolation-probe.js",
+      "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-isolation-probe.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-isolation-probe.js",
+      "to": "req:SEC-011",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -12107,7 +12334,35 @@
     },
     {
       "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
       "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -12171,6 +12426,34 @@
     {
       "from": "test:tests/integration/agent-context.test.js",
       "to": "req:FR-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -12702,7 +12985,28 @@
     },
     {
       "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
       "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/knowledge-project.test.js",
+      "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -12737,7 +13041,28 @@
     },
     {
       "from": "test:tests/integration/knowledge-query.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/knowledge-query.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/knowledge-query.test.js",
       "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/knowledge-query.test.js",
+      "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -13304,6 +13629,97 @@
     },
     {
       "from": "test:tests/unit/activation-readiness-contract.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "code:src/modules/agent/index.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "code:src/modules/knowledge/index.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-029",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
       "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
@@ -14689,6 +15105,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/golden-evaluation.test.js",
+      "to": "code:src/modules/agent/golden-evaluation.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/golden-evaluation.test.js",
+      "to": "req:FR-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/golden-evaluation.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/golden-evaluation.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/grounded-business-answer.test.js",
       "to": "code:src/modules/agent/grounded-business-answer.js",
       "type": "tests",
@@ -14782,6 +15226,41 @@
     {
       "from": "test:tests/unit/line-binding-resolver.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-canary-preflight.test.js",
+      "to": "code:src/modules/agent/canary-preflight.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-canary-preflight.test.js",
+      "to": "req:BR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-canary-preflight.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-canary-preflight.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-canary-preflight.test.js",
+      "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -15510,6 +15989,48 @@
     {
       "from": "test:tests/unit/rollup.test.js",
       "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/runtime-isolation-probe.test.js",
+      "to": "code:src/modules/knowledge/index.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/runtime-isolation-probe.test.js",
+      "to": "code:src/modules/knowledge/runtime-isolation-probe.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/runtime-isolation-probe.test.js",
+      "to": "req:FR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/runtime-isolation-probe.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/runtime-isolation-probe.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/runtime-isolation-probe.test.js",
+      "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

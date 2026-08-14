@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-08-14T07:58:02+07:00,ATHER"
-last_update: "2026-08-14T07:58:02+07:00,ATHER"
+last_update: "2026-08-14T08:20:18+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -127,8 +127,17 @@ docs and phase status.
 - Phase 2 hosting, outbox, observability or general traffic;
 - new UI or design tokens.
 
+## Implementation result
+
+W0-W4 are implemented. Focused readiness tests pass 32/32, full Vitest passes 89 files / 461 tests,
+Python passes 8/8, Playwright passes 34 with 4 documented skips, and the production build passes.
+The deterministic fake evaluator passes 20/20 with zero unsupported numeric claims. Real-provider
+evaluation, live database isolation and the signed LINE canary are intentionally `NOT_RUN`; the
+binding remains `PENDING`, hash-free and traffic-disabled.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | Owner-approved W0-W4 readiness envelope and external activation boundary | working-tree | ATHER |
+| 0.2.0b | 2026-08-14 | beta | W0-W4 implemented and regression-tested; external activation gates remain NOT_RUN | working-tree | ATHER |
