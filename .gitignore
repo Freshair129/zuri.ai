@@ -1,9 +1,13 @@
 node_modules/
 .next/
+.next-stale-*/
 *.db
 *.db-journal
 test-results/
 playwright-report/
+.playwright-cli/
+output/playwright/*.log
+output/playwright/*.pid
 .env
 *.local
 __pycache__/

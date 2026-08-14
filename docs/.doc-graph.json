@@ -3,11 +3,11 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 688,
+    "total_nodes": 689,
     "total_edges": 1232,
     "dangling_edges": 0,
     "node_types": {
-      "document": 79,
+      "document": 80,
       "adr": 19,
       "appendix": 5,
       "roadmap": 17,
@@ -36,7 +36,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "doc:ARCHITECTURE-DIAGRAMS"
+    ],
     "added": [],
     "removed": []
   },
@@ -2749,8 +2751,18 @@
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "2489bb82",
+      "hash": "23925327",
       "status": "current"
+    },
+    {
+      "id": "doc:ARCHITECTURE-DIAGRAMS",
+      "type": "document",
+      "path": "docs/ARCHITECTURE-DIAGRAMS.md",
+      "title": "Architecture Diagrams — Zuri V2",
+      "version": "1.1.0",
+      "doc_status": "Draft",
+      "hash": "2f4f786e",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE-NOTES",
