@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Zuri">
+  <rect width="64" height="64" rx="10" fill="#FFFFFF"/>
+  <path d="M14 15h35L23 49h27" fill="none" stroke="#1F2937" stroke-width="8" stroke-linecap="square" stroke-linejoin="miter"/>
+  <rect x="48" y="9" width="7" height="7" fill="#E8820C"/>
+</svg>

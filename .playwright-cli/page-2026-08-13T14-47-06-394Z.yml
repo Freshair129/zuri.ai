@@ -1,0 +1,9 @@
+- generic [active] [ref=e1]:
+  - main [ref=e3]:
+    - region "Zuri entry" [ref=e4]:
+      - paragraph [ref=e5]: Zuri v2
+      - heading "Welcome to Zuri" [level=1] [ref=e6]
+      - paragraph [ref=e7]: Enter the workspace to choose a Business and continue.
+      - link "Sign in" [ref=e8] [cursor=pointer]:
+        - /url: /login
+  - alert [ref=e9]

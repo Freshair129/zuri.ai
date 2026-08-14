@@ -45,5 +45,6 @@ module.exports = defineConfig({
     url: 'http://localhost:3100/overview',
     reuseExistingServer: true,
     timeout: 120000,
+    env: { ...process.env, ZURI_LOCAL_DEMO_AUTH: '1' },
   },
 })

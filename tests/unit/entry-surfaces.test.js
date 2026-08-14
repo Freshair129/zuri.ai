@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest'
 const root = process.cwd()
 const entryShellPath = resolve(root, 'src/components/layouts/EntryShell.jsx')
 const landingPath = resolve(root, 'src/app/page.jsx')
+const landingExperiencePath = resolve(root, 'src/components/landing/ZuriLanding.jsx')
 const loginPath = resolve(root, 'src/app/login/page.jsx')
 
 describe('FR-044 entry surfaces', () => {
@@ -22,25 +23,30 @@ describe('FR-044 entry surfaces', () => {
 
   it('keeps Landing minimal and sends its single CTA to Login', () => {
     const landing = readFileSync(landingPath, 'utf8')
-    expect(landing).toContain('<EntryShell>')
-    expect(landing).toContain('href="/login"')
-    expect((landing.match(/href="\//g) || []).length).toBe(1)
+    const landingExperience = readFileSync(landingExperiencePath, 'utf8')
+    expect(landing).toContain('<EntryShell variant="landing">')
+    expect(landingExperience).toContain('href="/login"')
+    expect(((landing + landingExperience).match(/href="\//g) || []).length).toBe(1)
     expect(landing).not.toContain('/api/viewer')
     expect(landing).not.toContain('useScope')
     expect(landing).not.toContain('DomainBar')
     expect(landing).not.toContain('Sidebar')
   })
 
-  it('keeps Login credential-free and sends its single demo CTA to Business Routing', () => {
+  it('keeps Login credential-free and creates its explicit local demo session through the server route', () => {
     expect(existsSync(loginPath)).toBe(true)
     const login = readFileSync(loginPath, 'utf8')
     expect(login).toContain('<EntryShell>')
-    expect(login).toContain('href="/businesses"')
-    expect((login.match(/href="\//g) || []).length).toBe(1)
+    expect(login).toContain('action="/api/session/demo"')
+    expect(login).toContain('method="post"')
+    expect(login).toContain('type="email"')
+    expect(login).toContain('type="password"')
+    expect(login).not.toMatch(/name\s*=\s*["'](?:email|password)["']/)
+    expect(login).toContain('never submitted or saved')
+    expect((login.match(/href="\//g) || []).length).toBe(0)
     expect(login).toContain('demo')
     const executableLogin = login.replace(/\/\/.*$/gm, '')
     expect(executableLogin).not.toContain('/api/viewer')
-    expect(executableLogin).not.toContain('password')
     expect(executableLogin).not.toContain('token')
   })
 })

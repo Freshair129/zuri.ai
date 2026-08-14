@@ -1,0 +1,83 @@
+- generic [ref=f1e2]:
+  - banner [ref=f1e3]:
+    - generic "Zuri" [ref=f1e4]
+    - generic "Current workspace, organization, and business" [ref=f1e9]:
+      - generic [ref=f1e11]:
+        - generic [ref=f1e12]: Workspace
+        - generic [ref=f1e13]: Select workspace
+      - generic [ref=f1e14]:
+        - generic [ref=f1e15]: ›
+        - generic [ref=f1e16]:
+          - generic [ref=f1e17]: Organization
+          - generic [ref=f1e18]: Select organization
+      - generic [ref=f1e19]:
+        - generic [ref=f1e20]: ›
+        - generic [ref=f1e21]:
+          - generic [ref=f1e22]: Business
+          - generic [ref=f1e23]: Select business
+    - generic [ref=f1e24]:
+      - button "Open command palette (Ctrl+K)" [ref=f1e25] [cursor=pointer]:
+        - generic [ref=f1e28]: Ctrl K
+      - button "New Project" [ref=f1e29] [cursor=pointer]
+      - generic [ref=f1e31]:
+        - group "Scope view" [ref=f1e32]:
+          - button "ERP" [pressed] [ref=f1e33] [cursor=pointer]
+          - button "PM" [ref=f1e38] [cursor=pointer]
+        - generic [ref=f1e44]:
+          - generic [ref=f1e45]: TH
+          - generic [ref=f1e46]: "|"
+          - generic [ref=f1e47]: EN
+        - button "Notifications" [ref=f1e48] [cursor=pointer]
+        - link "My profile" [ref=f1e52] [cursor=pointer]:
+          - /url: /profile
+          - text: LO
+  - navigation "Domains" [ref=f1e53]
+  - generic [ref=f1e54]:
+    - complementary [ref=f1e55]:
+      - link "Development home" [ref=f1e56] [cursor=pointer]:
+        - /url: /overview
+        - generic [ref=f1e62]:
+          - generic [ref=f1e63]: Development
+          - generic [ref=f1e64]: menu
+      - navigation "Development sections" [ref=f1e65]:
+        - link "Overview" [ref=f1e66] [cursor=pointer]:
+          - /url: /overview
+        - link "Projects" [ref=f1e73] [cursor=pointer]:
+          - /url: /projects
+        - link "All Work" [ref=f1e79] [cursor=pointer]:
+          - /url: /work
+        - link "Execution" [ref=f1e84] [cursor=pointer]:
+          - /url: /execution
+        - link "Timeline" [ref=f1e91] [cursor=pointer]:
+          - /url: /timeline
+        - link "Dependencies" [ref=f1e95] [cursor=pointer]:
+          - /url: /dependencies
+        - link "Milestones & Gates" [ref=f1e102] [cursor=pointer]:
+          - /url: /milestones
+        - link "Repositories" [ref=f1e106] [cursor=pointer]:
+          - /url: /repositories
+    - generic [ref=f1e112]:
+      - navigation "Breadcrumb" [ref=f1e114]:
+        - link "Home" [ref=f1e115] [cursor=pointer]:
+          - /url: /
+        - link "รวมงบทุกบริษัท" [ref=f1e122] [cursor=pointer]:
+          - /url: /
+      - main [ref=f1e123]:
+        - generic [ref=f1e124]:
+          - navigation "Project sections" [ref=f1e125]:
+            - link "Project" [ref=f1e126] [cursor=pointer]:
+              - /url: /projects/76b7b8fe-c707-4e01-bd34-9c8b0b5f5646
+            - generic "Coming soon" [ref=f1e130]: Requirements
+            - link "Team" [ref=f1e133] [cursor=pointer]:
+              - /url: /projects/76b7b8fe-c707-4e01-bd34-9c8b0b5f5646/team
+            - link "Work" [ref=f1e139] [cursor=pointer]:
+              - /url: /projects/76b7b8fe-c707-4e01-bd34-9c8b0b5f5646/structure
+            - generic "Coming soon" [ref=f1e143]: Risks
+            - generic "Coming soon" [ref=f1e146]: Resources
+            - link "Files" [ref=f1e150] [cursor=pointer]:
+              - /url: /projects/76b7b8fe-c707-4e01-bd34-9c8b0b5f5646/files
+          - status [ref=f1e153]: Loading…
+      - contentinfo [ref=f1e154]:
+        - generic [ref=f1e155]: ● local
+        - generic [ref=f1e156]: SQLite · offline-first
+        - generic [ref=f1e157]: zuri-v2

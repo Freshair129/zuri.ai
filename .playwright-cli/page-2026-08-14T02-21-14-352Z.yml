@@ -1,0 +1,39 @@
+- generic [active] [ref=f1e1]:
+  - main [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - generic:
+        - generic:
+          - generic: PORTFOLIO
+          - generic: TENANT
+          - generic: BUSINESS
+          - generic: WORKSPACE
+          - generic: PROJECT
+        - generic:
+          - generic:
+            - generic: PORTFOLIO
+            - generic: TENANT
+            - generic: BUSINESS
+            - generic: WORKSPACE
+            - generic: PROJECT
+      - generic [ref=f1e5]:
+        - generic "Zuri" [ref=f1e6]: ZURI
+        - generic "Zuri product characteristics" [ref=f1e8]: LOCAL / AI
+      - main [ref=f1e10]:
+        - region [ref=f1e11]:
+          - paragraph [ref=f1e12]: AI-NATIVE BUSINESS OPERATING SYSTEM
+          - heading "SEE THE WHOLE BUSINESS. MOVE WITH CLARITY." [level=1] [ref=f1e13]:
+            - generic [ref=f1e14]: SEE THE
+            - generic [ref=f1e15]: WHOLE BUSINESS.
+            - generic [ref=f1e16]:
+              - text: MOVE WITH
+              - strong [ref=f1e17]: CLARITY.
+          - paragraph [ref=f1e19]: รวมธุรกิจ งาน ทีม และหลักฐานการตัดสินใจไว้ในพื้นที่เดียว
+          - link "Sign in" [ref=f1e20] [cursor=pointer]:
+            - /url: /login
+            - generic [ref=f1e21]: เข้าสู่ Zuri
+        - complementary "Zuri operating principles" [ref=f1e25]:
+          - paragraph [ref=f1e31]: LOCAL-FIRST.AI-READY.HUMAN-CONTROLLED.
+      - generic [ref=f1e32]:
+        - generic [ref=f1e33]: ZURI / 2026
+        - generic [ref=f1e34]: BUSINESS, IN CLEAR MOTION.
+  - alert [ref=f1e35]

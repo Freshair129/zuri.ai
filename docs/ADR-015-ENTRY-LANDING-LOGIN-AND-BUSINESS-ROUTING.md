@@ -73,6 +73,11 @@ production session, password check, token issuance, or authorization grant. Exis
 `GET /api/viewer` remains the RBAC seam; the local development fallback remains the
 only identity behavior in this slice.
 
+The Login surface may show credential-shaped fields as presentation-only mock UI.
+Those controls must not have form field names, must not be required for the demo
+transition, and must never be transmitted, persisted, validated, or logged. The
+only submitted action is the existing local demo transition to `/businesses`.
+
 ### D4 — Business Routing data contract
 
 The routing page consumes the existing interfaces:

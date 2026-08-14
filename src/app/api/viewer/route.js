@@ -2,10 +2,10 @@
 // @spec SDD-011, docs/features/FR-031-viewer-gate.md — the route exposes a resolved viewer, not raw memberships.
 // @tested tests/unit/viewer-gate.test.js
 import { handle } from '../_helpers'
-import { resolveViewer } from '@/modules/identity/resolve-viewer'
+import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
-  return handle(() => resolveViewer())
+export async function GET(request) {
+  return handle(() => resolveRequestViewer(request))
 }

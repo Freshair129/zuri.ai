@@ -1,19 +1,21 @@
 'use client'
 
+// @req FR-046 — Business Routing consumes one viewer-scoped entry read model.
+// @spec ADR-017, SDD-024, SEC-008
+// @tested tests/unit/fr046-api-ui-contract.test.js, tests/e2e/fr046-entry-contract.spec.js
 // @req FR-044 — Business selection is a routing boundary before the BusinessShell.
 // @spec ADR-015, SDD-022 — viewer grants decide visibility; Portfolio/Tenant are ancestry labels only.
 // @tested tests/unit/business-routing-page.test.js, tests/unit/business-routing.test.js
-import { useMemo } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, Building2 } from 'lucide-react'
 import { Card, EmptyState, ErrorState, PageHeader } from '@/components/ui'
 import BusinessRoutingShell from '@/components/layouts/BusinessRoutingShell'
 import { useScope } from '@/context/ScopeContext'
 import { LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
-import { buildBusinessRouting } from '@/lib/business-routing'
 
-function BusinessChoice({ item, onSelect }) {
-  const { business, tenant, portfolio } = item
+function BusinessChoice({ business, onSelect }) {
+  const { tenant, portfolio } = business
   return (
     <Card className="group p-0">
       <button
@@ -41,29 +43,21 @@ function BusinessChoice({ item, onSelect }) {
 export default function BusinessesPage() {
   const router = useRouter()
   const scope = useScope()
-  const viewer = useFetch('/api/viewer')
-  const inventory = useFetch('/api/scope')
-  const availableBusinesses = useMemo(() => buildBusinessRouting({
-    viewer: viewer.data,
-    portfolios: inventory.data?.portfolios,
-    tenants: inventory.data?.tenants,
-    businesses: inventory.data?.businesses,
-  }), [viewer.data, inventory.data])
+  const entry = useFetch('/api/entry')
+  const availableBusinesses = entry.data?.businesses || []
 
-  if (viewer.loading || inventory.loading) return <LoadingCard />
+  useEffect(() => {
+    if (entry.error === 'AUTH_REQUIRED') router.replace('/login')
+  }, [entry.error, router])
 
-  const reload = () => {
-    viewer.reload()
-    inventory.reload()
-  }
+  if (entry.loading || entry.error === 'AUTH_REQUIRED') return <LoadingCard />
 
-  if (viewer.error || inventory.error) {
-    return <ErrorState title="Unable to load Business Routing" detail={viewer.error || inventory.error} retry={reload} />
+  if (entry.error) {
+    return <ErrorState title="Unable to load Business Routing" detail={entry.error} retry={entry.reload} />
   }
 
   const enterBusiness = (business) => {
-    const tenant = inventory.data?.tenants?.find((item) => item.id === business.tenantId)
-    scope.select({ portfolioId: tenant?.portfolioId || null, businessId: business.id })
+    scope.select({ portfolioId: business.portfolio?.id || null, businessId: business.id })
     router.push('/overview')
   }
 
@@ -82,7 +76,7 @@ export default function BusinessesPage() {
       ) : (
         <div className="grid max-w-3xl gap-3 sm:grid-cols-2">
           {availableBusinesses.map((item) => (
-            <BusinessChoice key={item.business.id} item={item} onSelect={enterBusiness} />
+            <BusinessChoice key={item.id} business={item} onSelect={enterBusiness} />
           ))}
         </div>
       )}

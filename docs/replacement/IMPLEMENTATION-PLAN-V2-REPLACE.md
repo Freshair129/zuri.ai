@@ -2,8 +2,8 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
-| **Status** | Draft — awaiting owner sign-off on §4 (capacity) and §6 (first cutover) |
+| **Version** | 1.1.0b |
+| **Status** | Need review — execution snapshot predates FR-031..046; capacity and first cutover still need owner sign-off |
 | **Generated** | 2026-08-12 by RWANG implementation-plan |
 | **Source docs** | [ADR-003](../ADR-003-V2-REPLACES-V1-BY-REUSE.md) · [ADR-004](../ADR-004-DOCUMENTATION-ARCHITECTURE.md) · [ADR-005](../ADR-005-V1-DOCUMENTATION-CORPUS.md) · [PRODUCT-V2](../PRODUCT-V2.md) · `zuri-v2-lab/docs/PRD-SDD-v1.0.md` · `ROADMAP-zuri-v2-lab.md` |
 | **Preflight** | PASS — 0 critical, 0 warnings (`zuri-v2-lab/docs/.preflight-report.json`) |
@@ -16,6 +16,12 @@
 > agent (Gate F). W3/W4/W6/W7 below are the same work; ADR-007 fixes their order and
 > inserts MSP extraction ahead of them. Memory must be keyed by **principal, not
 > channel** — do not connect MSP to Zuri before Identity.
+
+> **Truth-sync note (2026-08-14):** FR-021..030 are already assigned and implemented
+> in the PRD; they must not be reused for the future meanings originally proposed in
+> this plan. FR-031..046 are also implemented, including the request-session/viewer
+> entry boundary. Counts, capacity and cycle placement below remain a historical
+> estimate and must be refreshed before replacement execution.
 
 ## 1. Scope
 
@@ -232,19 +238,18 @@ flip all three side-effect owners together or it is not implemented correctly.
 | Req | Title | Cycle | Status |
 |---|---|---|---|
 | FR-001…FR-020 | Project Manager module | done | ✅ shipped |
-| **FR-021** *(proposed)* | Identity across businesses: `Person` + `Membership` | C2 | to declare |
-| **FR-022** *(proposed)* | LINE as identity provider | C3 | to declare |
-| **FR-023** *(proposed)* | LINE/AI intent intake — the fifth surface | C6–C8 | to declare |
-| **FR-024** *(proposed)* | Per-tenant cutover switch (single-writer) | C8 | to declare |
-| **FR-025** *(proposed)* | Cross-business views | C4 | to declare |
+| FR-021..030 | Identity, LINE/CRM, knowledge, agent gates/runtime and persistence foundations | delivered baseline | ✅ implemented; see PRD registry |
+| FR-031..045 | Viewer/shell, Business/Project resources and managed local files | delivered baseline | ✅ implemented; see PRD registry |
+| FR-046 | Trusted request viewer and atomic viewer-scoped entry read model | delivered baseline | ✅ implemented beta; ADR-017 |
+| FR-047+ | Cutover switch, future cross-business and remaining replacement requirements | unplanned | allocate only when declared; never recycle FR-021..046 |
 | SEC-005 | PDPA consent per business | C6 | raised to P0 |
 | SEC-006 | Enterprise API token auth per tenant | C4 | required before external exposure |
 | SEC-004 | "No customer PII" | C6 | **must be rewritten** — false once LINE lands |
 | NFR-006 | Postgres move without semantic change | C4 | tooling exists, unexercised |
 
 New ids continue the sequence (§18: never renumber, never recycle). **They must be
-declared in the registry before any code cites them** — a `@req FR-021` with no
-registry row is a preflight CRITICAL, by design.
+declared in the registry before any code cites them**. FR-021..046 are already burnt;
+the next unallocated functional requirement is FR-047.
 
 ## 10. Validation of this plan
 

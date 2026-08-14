@@ -1,85 +1,87 @@
 # Acceptance Criteria
 
-MVP is complete only when all boxes pass.
+MVP is complete only when all boxes pass. The baseline rows below were truth-synced
+from `.agent/reports/FINAL.md` and the later 71-file/375-test, 33-pass Playwright,
+production-build and documentation gates merged in PR #1 (`fb5906a`).
 
 ## Runtime
 
-- [ ] `npm install` succeeds
-- [ ] `npm run dev` boots locally
-- [ ] `npm run build` passes
-- [ ] application works with network disconnected after dependencies are installed
-- [ ] no cloud service is required at runtime
+- [x] `npm install` succeeds
+- [x] `npm run dev` boots locally
+- [x] `npm run build` passes
+- [x] application works with network disconnected after dependencies are installed
+- [x] no cloud service is required at runtime
 
 ## Persistence
 
-- [ ] SQLite file is created locally
-- [ ] CRUD persists across app restart
-- [ ] seed command is idempotent or safely resettable
-- [ ] export snapshot works
-- [ ] import snapshot has preview and confirmation
+- [x] SQLite file is created locally
+- [x] CRUD persists across app restart
+- [x] seed command is idempotent or safely resettable
+- [x] export snapshot works
+- [x] import snapshot has preview and confirmation
 
 ## Scope
 
-- [ ] Portfolio selector works
-- [ ] Business selector works
-- [ ] Workspace selector works
-- [ ] Project selector works
-- [ ] Tenant ID is never used as Branch ID
-- [ ] Business records carry Tenant ownership
-- [ ] Workspace belongs to explicit scope
+- [x] Portfolio/Organization ancestry routing works before BusinessShell
+- [x] Business selection works on `/businesses`
+- [x] Workspace/Space resource navigation works inside Development
+- [x] Project resource navigation works inside Development
+- [x] Tenant ID is never used as Branch ID
+- [x] Business records carry Tenant ownership
+- [x] Workspace belongs to explicit scope
 
 ## Project
 
-- [ ] create/edit/archive Project
-- [ ] create/edit/archive Workstream
-- [ ] Workstream has executionMode
-- [ ] Workstream has progressStrategy
-- [ ] project may mix execution modes
-- [ ] repository links are many-to-many
-- [ ] dependencies can block work
-- [ ] milestones and gates persist
+- [x] create/edit/archive Project
+- [x] create/edit/archive Workstream
+- [x] Workstream has executionMode
+- [x] Workstream has progressStrategy
+- [x] project may mix execution modes
+- [x] repository links are many-to-many
+- [x] dependencies can block work
+- [x] milestones and gates persist
 
 ## Seven modes
 
-- [ ] Software Sprint view works
-- [ ] Data Migration view works
-- [ ] B2B Sales Pipeline works
-- [ ] B2C Campaign view works
-- [ ] Product Launch view works
-- [ ] Operations view works
-- [ ] Business Expansion view works
+- [x] Software Sprint view works
+- [x] Data Migration view works
+- [x] B2B Sales Pipeline works
+- [x] B2C Campaign view works
+- [x] Product Launch view works
+- [x] Operations view works
+- [x] Business Expansion view works
 
 ## Progress
 
-- [ ] software progress calculates deterministically
-- [ ] migration progress derives from validation evidence
-- [ ] B2B weighted pipeline calculates correctly
-- [ ] B2C KPI score calculates correctly
-- [ ] launch readiness calculates correctly
-- [ ] operations score calculates correctly
-- [ ] expansion readiness calculates correctly
-- [ ] project weighted roll-up is tested
-- [ ] UI can explain where a displayed percentage came from
+- [x] software progress calculates deterministically
+- [x] migration progress derives from validation evidence
+- [x] B2B weighted pipeline calculates correctly
+- [x] B2C KPI score calculates correctly
+- [x] launch readiness calculates correctly
+- [x] operations score calculates correctly
+- [x] expansion readiness calculates correctly
+- [x] project weighted roll-up is tested
+- [x] UI can explain where a displayed percentage came from
 
 ## Agent import
 
-- [ ] JSON Schema/Zod validation
-- [ ] rejects unknown execution modes
-- [ ] rejects malformed IDs/references
-- [ ] dry-run displays inserts/updates/conflicts
-- [ ] import is transactional
-- [ ] audit event recorded
+- [x] JSON Schema/Zod validation
+- [x] rejects unknown execution modes
+- [x] rejects malformed IDs/references
+- [x] dry-run displays inserts/updates/conflicts
+- [x] import is transactional
+- [x] audit event recorded
 
 ## UI
 
-- [ ] Zuri Heritage tokens used
-- [ ] no purple/cyber theme
-- [ ] sidebar/topbar responsive
+- [x] Zuri Heritage tokens used
+- [x] no purple/cyber theme
+- [x] sidebar/topbar responsive
 - [x] Business context is visible in the read-only Workspace > Organization > Business bar; Business selection occurs before BusinessShell and no shell dropdown is required.
-- [ ] universal views do not use software-only vocabulary
-- [ ] mode-specific vocabulary shown only inside correct view
-- [ ] empty states are usable
-- [ ] command palette works
+- [x] universal views do not use software-only vocabulary
+- [x] mode-specific vocabulary shown only inside correct view
+- [x] empty states are usable
+- [x] command palette works
 
 ## FR-040 — Project Work views (implemented; G5 passed)
 
@@ -97,8 +99,8 @@ MVP is complete only when all boxes pass.
 - [x] `/overview` is always Business-scoped; no portfolio/group business-card grid is rendered.
 - [x] A missing Business selection renders a Business-required Home action.
 - [x] Selected Business project KPIs/list exclude other Business workspaces and do not silently attribute portfolio-shared projects.
-- [ ] Project owner/Space invariant: Business projects persist direct `businessId` matching their Business Space; explicit portfolio/tenant shared projects remain null-owner and are not attributed to a Business.
-- [ ] Project detail context shows Business as owner and schema Workspace as secondary `Space` metadata.
+- [x] Project owner/Space invariant: Business projects persist direct `businessId` matching their Business Space; explicit portfolio/tenant shared projects remain null-owner and are not attributed to a Business.
+- [x] Project detail context shows Business as owner and schema Workspace as secondary `Space` metadata.
 - [x] Business Strategy renders Roadmap plus exactly two or three ordered goal horizons.
 - [x] `HR / People` is a peer top-level domain with a Business-scoped People Directory.
 - [x] People Directory is isolated by viewer-visible Business IDs; Project Team remains Project-local.
@@ -137,14 +139,30 @@ journey proof, build, full tests, and docs graph/preflight/check all pass. ✅
 Exit gate: generated graph has zero dangling edges, docs preflight has zero critical or
 warning findings, and unit/E2E/build gates pass.
 
+## FR-046 — Production viewer session and entry contract (implemented beta)
+
+- [x] OWNER/MEMBER Business visibility is derived from persisted Membership scope.
+- [x] DEV requires a trusted server-held platform grant; Membership cannot promote DEV.
+- [x] Empty grants return `200` with no Businesses or unrelated ancestry.
+- [x] Missing, expired or revoked session returns `401 AUTH_REQUIRED` before a scope query.
+- [x] Forged client identity, role and platform headers cannot affect authorization.
+- [x] Session-adapter failure returns non-disclosing `503 SESSION_UNAVAILABLE`.
+- [x] `/businesses` requests only `/api/entry`; entry surfaces do not prefetch broad `/api/scope`.
+- [x] `/api/entry` returns only the authorized Business and minimum Tenant/Portfolio ancestry.
+- [x] Protected compatibility routes resolve trusted request identity and re-authorize resources.
+- [x] The explicit local demo cookie is HttpOnly/SameSite and cannot activate in production.
+
+Exit gate: unit/contract/integration/browser suites, production build, docs graph,
+preflight/check and diff check pass; provider selection remains a separate decision.
+
 ## Tests
 
-- [ ] unit tests for progress engine
-- [ ] integration test for project creation
-- [ ] integration test for plan import
-- [ ] tenant/business isolation test
-- [ ] Playwright smoke test for all 7 views
-- [ ] backup export/import test
+- [x] unit tests for progress engine
+- [x] integration test for project creation
+- [x] integration test for plan import
+- [x] tenant/business isolation test
+- [x] Playwright smoke test for all 7 views
+- [x] backup export/import test
 
 ## FR-045 — Managed local file workspace (implemented; beta)
 

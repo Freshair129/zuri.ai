@@ -36,4 +36,4 @@ requires a new explicit owner approval and a fresh hash comparison.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 0.1.0b | 2026-08-14 | beta | Retain all external mock files as reference; no mutation | pending | ATHER |
+| 0.1.0b | 2026-08-14 | beta | Retain all external mock files as reference; no mutation | fb5906a | ATHER |

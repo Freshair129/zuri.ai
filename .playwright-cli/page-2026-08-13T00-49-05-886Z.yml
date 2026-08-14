@@ -1,0 +1,82 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic "Zuri" [ref=e4]
+      - generic "Current workspace, organization, and business" [ref=e9]:
+        - generic [ref=e11]:
+          - generic [ref=e12]: Workspace
+          - generic [ref=e13]: Select workspace
+        - generic [ref=e14]:
+          - generic [ref=e15]: ›
+          - generic [ref=e16]:
+            - generic [ref=e17]: Organization
+            - generic [ref=e18]: Select organization
+        - generic [ref=e19]:
+          - generic [ref=e20]: ›
+          - generic [ref=e21]:
+            - generic [ref=e22]: Business
+            - generic [ref=e23]: Select business
+      - generic [ref=e24]:
+        - button "Open command palette (Ctrl+K)" [ref=e25] [cursor=pointer]:
+          - generic [ref=e28]: Ctrl K
+        - button "New Project" [ref=e29] [cursor=pointer]
+        - generic [ref=e31]:
+          - group "Scope view" [ref=e32]:
+            - button "ERP" [pressed] [ref=e33] [cursor=pointer]
+            - button "PM" [ref=e38] [cursor=pointer]
+          - generic [ref=e44]:
+            - generic [ref=e45]: TH
+            - generic [ref=e46]: "|"
+            - generic [ref=e47]: EN
+          - button "Notifications" [ref=e48] [cursor=pointer]
+          - link "My profile" [ref=e52] [cursor=pointer]:
+            - /url: /profile
+            - text: LO
+    - navigation "Domains" [ref=e53]
+    - generic [ref=e54]:
+      - complementary [ref=e55]:
+        - link "Development home" [ref=e56] [cursor=pointer]:
+          - /url: /overview
+          - generic:
+            - generic: Development
+            - generic: menu
+        - navigation "Development sections" [ref=e62]:
+          - link "Overview" [ref=e63] [cursor=pointer]:
+            - /url: /overview
+          - link "Projects" [ref=e69] [cursor=pointer]:
+            - /url: /projects
+          - link "All Work" [ref=e75] [cursor=pointer]:
+            - /url: /work
+          - link "Execution" [ref=e79] [cursor=pointer]:
+            - /url: /execution
+          - link "Timeline" [ref=e85] [cursor=pointer]:
+            - /url: /timeline
+          - link "Dependencies" [ref=e88] [cursor=pointer]:
+            - /url: /dependencies
+          - link "Milestones" [ref=e94] [cursor=pointer]:
+            - /url: /milestones
+          - link "Repos" [ref=e97] [cursor=pointer]:
+            - /url: /repositories
+      - generic [ref=e102]:
+        - navigation "Breadcrumb" [ref=e104]:
+          - link "Home" [ref=e105] [cursor=pointer]:
+            - /url: /
+          - link "รวมงบทุกบริษัท" [ref=e112] [cursor=pointer]:
+            - /url: /
+        - main [ref=e113]:
+          - generic [ref=e114]:
+            - generic [ref=e115]:
+              - generic [ref=e116]:
+                - paragraph [ref=e117]: Projects
+                - heading "Projects" [level=1] [ref=e118]
+                - paragraph [ref=e119]: Outcome-oriented projects. Each project may mix execution modes across its workstreams.
+              - link "New project" [ref=e121] [cursor=pointer]:
+                - /url: /projects/new
+            - textbox "Search projects" [ref=e124]:
+              - /placeholder: Search projects…
+            - status [ref=e125]: Loading…
+        - contentinfo [ref=e126]:
+          - generic [ref=e127]: ● local
+          - generic [ref=e128]: SQLite · offline-first
+          - generic [ref=e129]: zuri-v2
+  - alert [ref=e130]
