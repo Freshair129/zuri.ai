@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.35.0 |
+| **Version** | 1.36.0 |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -58,6 +58,7 @@
 | 1.33.0 | 2026-08-14 | ATHER | Owner-approved ADR-018 / ZV2-CR-004 local implementation: FR-051..052 + NFR-011 + BR-012 + SEC-010 + SDD-026; production remains gated on remote inventory, backup and credentials |
 | 1.34.0 | 2026-08-14 | ATHER | Production Supabase migrations and approved 74-row SmartGift import verified; LINE binding remains credential-free and PENDING |
 | 1.35.0 | 2026-08-14 | ATHER | Integrated FR-046 entry authority with FR-051/052 production Supabase isolation without changing requirement identities or applied migration history |
+| 1.36.0 | 2026-08-14 | ATHER | Owner-approved production-disabled merge boundary for FR-051/052; runtime secret, live isolation, backup policy, provider evaluation and LINE canary remain activation gates |
 
 ## Referenced Standards
 

@@ -1,7 +1,7 @@
 ---
-version: "0.2.1b"
+version: "0.2.2b"
 created_at: "2026-08-14T05:18:00+07:00,ATHER"
-last_update: "2026-08-14T07:06:37+07:00,ATHER"
+last_update: "2026-08-14T07:35:29+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -43,7 +43,7 @@ enabled.
 | Idempotency | PASS — production bootstrap migration reapplied successfully |
 | Live isolation probe | PASS — login direct grants denied; exact scope = 1; cross-tenant = 0; read-only = true; transaction rolled back |
 | Production target | PASS — linked project `qcnmhyglarzcpudjorzc`, PostgreSQL 17, Seoul, healthy |
-| Logical backup | PASS — pre-apply roles/schema/public-data dump plus SHA-256 manifest captured; the dump contains no `zuri_core`; physical backup/PITR is not enabled |
+| Logical backup | PARTIAL — post-apply scoped logical dump plus SHA-256 manifest captured; it is not pre-mutation evidence and physical backup/PITR is not enabled |
 | Remote migrations | PASS — both local migrations recorded remotely |
 | Remote import | PASS — 74 rows / 74 product codes, exact Tenant/Business/batch, prices disabled, audit SHA-256 exact |
 | Remote isolation | PARTIAL — forced RLS, exact policies, safe role attributes and grants pass static remote inventory; live login-role probe awaits password provisioning |
@@ -52,7 +52,7 @@ enabled.
 ## Remaining activation gates
 
 1. provision the dedicated runtime login password in a secret manager and run the live positive/cross-scope/read-only probe;
-2. enable a physical backup/PITR plan before broader production rollout; the current logical snapshot is pre-apply;
+2. enable an approved physical backup/PITR plan before broader production rollout; the current logical snapshot is post-apply;
 3. install one approved model-provider credential/OAuth session;
 4. configure destination/credential hashes and activate the binding only for the canary;
 5. pass negative and positive LINE canaries plus the approved business golden questions; and
@@ -79,3 +79,4 @@ recorded database evidence.
 | 0.1.0b | 2026-08-14 | beta | Local implementation and live PostgreSQL isolation proof complete; production access gate open | working-tree | ATHER |
 | 0.2.0b | 2026-08-14 | beta | Production migrations and verified 74-row price-disabled import complete; LINE activation gates remain open | working-tree | ATHER |
 | 0.2.1b | 2026-08-14 | beta | Corrected backup chronology and separated static isolation proof from pending live-login probe | working-tree | ATHER |
+| 0.2.2b | 2026-08-14 | beta | Recorded production-disabled merge readiness separately from unresolved activation gates | working-tree | ATHER |

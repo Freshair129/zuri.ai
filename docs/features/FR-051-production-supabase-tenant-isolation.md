@@ -2,9 +2,9 @@
 feature: FR-051
 module: project-manager
 source: v2-native
-version: "0.2.0b"
+version: "0.2.1b"
 created_at: "2026-08-14T04:53:45+07:00,ATHER"
-last_update: "2026-08-14T06:59:37+07:00,ATHER"
+last_update: "2026-08-14T07:35:29+07:00,ATHER"
 status: "beta"
 ---
 
@@ -29,8 +29,9 @@ relational store; GenesisBlockDB is not replaced or made an implicit Supabase ex
 
 The migration is applied to production project `qcnmhyglarzcpudjorzc`. The approved artifact has 74
 rows and 74 distinct product codes under the reserved Tenant, Business and bootstrap batch. Remote
-proof confirms forced RLS/grants, cross-scope denial, exact audit SHA-256, null price/currency, and
-no warning/error advisor findings. A logical pre-apply backup exists; project PITR is not enabled.
+proof confirms forced RLS/grants, exact audit SHA-256, null price/currency, and no warning/error
+advisor findings. The retained logical backup was captured post-apply and project PITR is not
+enabled. Live runtime-login cross-scope denial remains a production activation gate.
 
 ## Verification
 
@@ -45,3 +46,4 @@ no warning/error advisor findings. A logical pre-apply backup exists; project PI
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | Local migration, scoped reader and reconciled import implemented; remote cutover gated | working-tree | ATHER |
 | 0.2.0b | 2026-08-14 | beta | Production migration, isolation and 74-row import evidence complete | working-tree | ATHER |
+| 0.2.1b | 2026-08-14 | beta | Corrected backup and live-probe evidence; production-disabled merge is separate from activation | working-tree | ATHER |

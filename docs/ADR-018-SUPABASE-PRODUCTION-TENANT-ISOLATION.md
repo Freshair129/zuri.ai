@@ -1,7 +1,7 @@
 ---
-version: "0.2.1b"
+version: "0.3.0b"
 created_at: "2026-08-14T03:52:31+07:00,ATHER"
-last_update: "2026-08-14T06:59:37+07:00,ATHER"
+last_update: "2026-08-14T07:35:29+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -16,7 +16,7 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 0.2.0b |
+| **Version** | 0.3.0b |
 | **Status** | Accepted; production database slice deployed, LINE activation gated |
 | **Project** | `qcnmhyglarzcpudjorzc` |
 
@@ -243,16 +243,25 @@ unchanged. Production rollback never drops the whole Supabase project or deletes
 | Staging data in production | Separate Supabase project; never a staging Tenant |
 | Migration rerun/race | Idempotent IDs/codes, transaction, advisory lock, reconciliation |
 
-## Acceptance and exit gates
+## Merge gates
 
-1. Remote inventory and backup evidence exist before mutation.
-2. Reserved IDs are inserted idempotently with exact ancestry.
-3. Every Phase 1 knowledge row has exact `tenant_id` and internal `business_id`.
-4. Cross-tenant positive and negative database tests pass under real runtime roles.
-5. No application runtime uses `postgres`, `service_role`, or a Supabase secret key.
-6. LINE scope comes only from an active server-owned binding.
-7. RLS, grants, FK constraints, indexes, advisors, migration list, and reconciliation pass.
-8. Production kill switch remains off until a real canary passes.
+1. The migration history is immutable and exact; corrective behavior is additive.
+2. Reserved IDs and all 74 approved rows have exact Tenant/Business ancestry and audit hashes.
+3. Static RLS, grants, FK constraints, indexes, advisors, migration list and reconciliation pass.
+4. Automated tests, build, documentation graph/preflight and secret scan pass.
+5. Runtime code rejects privileged credentials and caller-selected Tenant/Business scope.
+6. The binding remains credential-free and `PENDING`; production traffic remains disabled.
+
+These gates authorize merging production-disabled code. They do not authorize runtime activation.
+
+## Production activation gates
+
+1. Provision the dedicated unprivileged runtime login password in an approved secret manager.
+2. Pass live positive, cross-Tenant negative and mutation-denial probes using that login.
+3. Approve a physical backup/PITR policy; the retained logical snapshot is post-apply only.
+4. Configure one approved model-provider credential and pass the approved golden questions.
+5. Install approved destination/credential hashes and activate only the canary binding.
+6. Pass a kill-switch-protected signed LINE canary before enabling production traffic.
 
 ## Implementation and production gate
 
@@ -265,9 +274,11 @@ The authenticated CLI target was verified as healthy PostgreSQL 17 project
 Remote verification confirms exact Tenant/Business/batch scope, exact import hash, prices disabled,
 no broad base-table grants, forced RLS/exact policies, safe role attributes, no warning/error advisor
 findings, and a credential-free `PENDING` binding. The evidence retained outside Git is a
-pre-apply roles/schema/public-data backup with a SHA-256 manifest and no `zuri_core`; physical
-backup/PITR is not enabled. Runtime login password provisioning, a live positive/cross-scope/read-only probe, and a
-real LINE canary remain activation gates.
+post-apply scoped logical backup with a SHA-256 manifest; it is not evidence of a pre-mutation
+backup. Physical backup/PITR is not enabled. Runtime login password provisioning, a live
+positive/cross-scope/read-only probe, an approved backup policy and a real LINE canary remain
+activation gates. Because the kill switch is off and the binding is `PENDING`, these activation
+gates do not block merging the production-disabled implementation.
 
 ## CHANGELOG
 
@@ -276,3 +287,4 @@ real LINE canary remain activation gates.
 | 0.1.0b | 2026-08-14 | candidate | Proposed production Supabase schemas, stable IDs, composite tenancy, RLS roles, LINE binding and gated bootstrap | working-tree | ATHER |
 | 0.2.0b | 2026-08-14 | beta | Owner-approved local implementation; split login/policy roles, binding authority and import audit complete; remote cutover remains gated | working-tree | ATHER |
 | 0.2.1b | 2026-08-14 | beta | Production migrations and 74-row import verified; binding remains PENDING and LINE activation gated | working-tree | ATHER |
+| 0.3.0b | 2026-08-14 | beta | Separated merge gates from production activation gates and corrected backup chronology to post-apply | working-tree | ATHER |

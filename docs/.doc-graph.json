@@ -3101,7 +3101,7 @@
       "type": "document",
       "path": "docs/features/FR-051-production-supabase-tenant-isolation.md",
       "title": "FR-051 — Production Supabase tenant isolation",
-      "hash": "91a01eaf",
+      "hash": "a4e724d9",
       "status": "current"
     },
     {
@@ -3475,9 +3475,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.35.0",
+      "version": "1.36.0",
       "doc_status": "Draft",
-      "hash": "2060a44b",
+      "hash": "2f2ba19b",
       "status": "current"
     },
     {
@@ -3635,7 +3635,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md",
       "title": "ZV2-CR-004 — Supabase production tenant bootstrap",
-      "hash": "fd3db1f7",
+      "hash": "cd823618",
       "status": "current"
     },
     {
@@ -4780,9 +4780,9 @@
       "type": "adr",
       "path": "docs/ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION.md",
       "title": "ADR-018 — Supabase production tenant isolation",
-      "version": "0.2.0b",
+      "version": "0.3.0b",
       "doc_status": "Accepted; production database slice deployed, LINE activation gated",
-      "hash": "637a7b9d",
+      "hash": "5417b5da",
       "status": "current"
     },
     {
