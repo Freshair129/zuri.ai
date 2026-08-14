@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 759,
-    "total_edges": 1406,
+    "total_nodes": 761,
+    "total_edges": 1419,
     "dangling_edges": 0,
     "node_types": {
       "document": 105,
@@ -13,8 +13,8 @@
       "roadmap": 20,
       "v1_inherited": 234,
       "requirement": 122,
-      "test": 105,
-      "code_file": 148
+      "test": 106,
+      "code_file": 149
     },
     "coverage": {
       "requirements": 122,
@@ -22,7 +22,7 @@
       "fr_with_tests": "100% (55/55)",
       "rules_anchored_in_code": "91% (49/54)",
       "nfr_evidence_based": "13 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 148,
+      "annotated_code_files": 149,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -1727,7 +1727,7 @@
       "id": "code:src/modules/agent/phase1-runtime.js",
       "type": "code_file",
       "path": "src/modules/agent/phase1-runtime.js",
-      "hash": "aa452132",
+      "hash": "e6a9f0a3",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2217,7 +2217,7 @@
       "id": "code:src/modules/knowledge/runtime-isolation-probe.js",
       "type": "code_file",
       "path": "src/modules/knowledge/runtime-isolation-probe.js",
-      "hash": "3a80a1c7",
+      "hash": "fd198505",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2230,6 +2230,28 @@
         "@tested": [
           "tests/unit/runtime-isolation-probe.test.js",
           "tests/integration/runtime-isolation-probe.postgres.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/runtime-postgres-config.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/runtime-postgres-config.js",
+      "hash": "73aa1ea5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-052",
+          "FR-054"
+        ],
+        "@spec": [
+          "SDD-026",
+          "SDD-027",
+          "SEC-010",
+          "SEC-011"
+        ],
+        "@tested": [
+          "tests/unit/runtime-postgres-config.test.js"
         ]
       }
     },
@@ -2995,7 +3017,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "b1447f46",
+      "hash": "9bce634f",
       "status": "current"
     },
     {
@@ -3089,7 +3111,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "69a6b7ea",
+      "hash": "58fe477e",
       "status": "current"
     },
     {
@@ -3302,7 +3324,7 @@
       "type": "document",
       "path": "docs/features/FR-054-controlled-line-canary.md",
       "title": "FR-054 — Controlled LINE canary",
-      "hash": "7a04537f",
+      "hash": "338fc470",
       "status": "current"
     },
     {
@@ -4028,7 +4050,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-005-PHASE1-ACTIVATION-READINESS.md",
       "title": "ZV2-CR-005 — Phase 1 activation readiness",
-      "hash": "212b4035",
+      "hash": "9d24127e",
       "status": "current"
     },
     {
@@ -4036,7 +4058,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-006-PHASE1-EXTERNAL-ACTIVATION.md",
       "title": "ZV2-CR-006 — Phase 1 external activation",
-      "hash": "006f9807",
+      "hash": "7d8351f2",
       "status": "current"
     },
     {
@@ -5872,7 +5894,7 @@
       "id": "test:tests/unit/phase1-business-agent-runtime.test.js",
       "type": "test",
       "path": "tests/unit/phase1-business-agent-runtime.test.js",
-      "hash": "21974141",
+      "hash": "c95d8b76",
       "status": "current"
     },
     {
@@ -5963,14 +5985,21 @@
       "id": "test:tests/unit/run-bat-database-bootstrap.test.js",
       "type": "test",
       "path": "tests/unit/run-bat-database-bootstrap.test.js",
-      "hash": "e08dd0d0",
+      "hash": "9f553cc1",
       "status": "current"
     },
     {
       "id": "test:tests/unit/runtime-isolation-probe.test.js",
       "type": "test",
       "path": "tests/unit/runtime-isolation-probe.test.js",
-      "hash": "bbc35bed",
+      "hash": "34795ed1",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/runtime-postgres-config.test.js",
+      "type": "test",
+      "path": "tests/unit/runtime-postgres-config.test.js",
+      "hash": "eaad3529",
       "status": "current"
     },
     {
@@ -10146,6 +10175,48 @@
     },
     {
       "from": "code:src/modules/knowledge/runtime-isolation-probe.js",
+      "to": "req:SEC-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
+      "to": "req:FR-052",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
+      "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
+      "to": "req:SDD-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
+      "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/runtime-postgres-config.js",
       "to": "req:SEC-011",
       "type": "follows",
       "status": "current",
@@ -16894,6 +16965,55 @@
     },
     {
       "from": "test:tests/unit/runtime-isolation-probe.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/runtime-postgres-config.test.js",
+      "to": "code:src/modules/knowledge/runtime-postgres-config.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/runtime-postgres-config.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/runtime-postgres-config.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/runtime-postgres-config.test.js",
+      "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/runtime-postgres-config.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/runtime-postgres-config.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/runtime-postgres-config.test.js",
       "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",

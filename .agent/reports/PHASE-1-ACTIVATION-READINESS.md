@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-08-14T08:20:18+07:00,ATHER"
-last_update: "2026-08-14T08:20:18+07:00,ATHER"
+last_update: "2026-08-14T11:40:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -18,9 +18,9 @@ ADR-019 / ZV2-CR-005 W0-W4 are implemented and merge-ready. The tracked tools ev
 versioned corpus with injected ports, verify a dedicated database login through a rollback-only
 probe, and create a mutation-free LINE canary plan. They cannot activate a binding or send LINE.
 
-This is not Phase 1 acceptance. The real provider, live dedicated-login database probe and signed
-LINE canary were not run. The production binding remains `PENDING`, has no destination or
-credential hashes, and traffic remains disabled.
+This is not Phase 1 acceptance. The live dedicated-login database probe now passes, while the real
+provider and signed LINE canary were not run. The production binding remains `PENDING`, has no
+destination or credential hashes, and traffic remains disabled.
 
 ## State ledger
 
@@ -31,7 +31,7 @@ credential hashes, and traffic remains disabled.
 | Approved production corpus mapping | NOT_RUN | Owner approval and mapping to the 74-row production artifact remain external |
 | Real-provider evaluation | NOT_RUN | No approved provider credential used |
 | Runtime isolation probe | IMPLEMENTED | Injected client proves positive/cross-scope/direct-grant/mutation assertions and rollback |
-| Live dedicated-login isolation | NOT_RUN | No remote database connection used in this change |
+| Live dedicated-login isolation | PASS | 74 exact-scope rows; zero foreign/cross-Tenant rows; direct grants and mutation denied; rollback confirmed |
 | Canary preflight/runbook | IMPLEMENTED | Exact prerequisites, stale/hash mismatch refusal and dry-run-only capabilities tested |
 | Signed LINE canary | NOT_RUN | No binding mutation, routing enablement or LINE request occurred |
 | Phase 1 acceptance | BLOCKED | Requires all external activation gates and owner acceptance |
@@ -52,14 +52,14 @@ credential hashes, and traffic remains disabled.
 | Diff check | PASS |
 | Fake golden evaluation | PASS — 20/20, 0 unsupported numeric claims |
 | Real provider | NOT_RUN |
-| Live database probe | NOT_RUN |
+| Live database probe | PASS — project-qualified Supavisor session pooler with pinned Supabase CA |
 | Signed LINE canary | NOT_RUN |
 
 ## Remaining external gates
 
 1. approve the final SmartGift golden questions and exact mapping to production evidence codes;
 2. provision the approved provider/model credential and run the redacted real-provider report;
-3. provision the dedicated runtime login password and run the live isolation report;
+3. refresh the live isolation report immediately before activation if the current evidence is stale;
 4. approve physical backup/PITR policy and rollback rehearsal;
 5. approve the exact single canary destination, install hashes through the controlled operator path
    and execute one signed canary; and
@@ -89,3 +89,4 @@ credential hashes, and traffic remains disabled.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | W0-W4 merge-ready; all real activation evidence remains NOT_RUN | working-tree | ATHER |
+| 0.1.1b | 2026-08-14 | beta | Dedicated runtime connection repaired and live 74-row isolation probe passed; LINE gates remain open | working-tree | ATHER |

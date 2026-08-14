@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.2.2b"
 created_at: "2026-08-14T07:58:02+07:00,ATHER"
-last_update: "2026-08-14T08:20:18+07:00,ATHER"
+last_update: "2026-08-14T11:40:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -30,7 +30,7 @@ without enabling production LINE traffic.
 | Knowledge query | `BusinessKnowledgeReadPort`, private `zuri_core`, FR-051 | No versioned golden corpus/evaluator |
 | Provider | `ModelProviderPort`, five adapters, FR-048 | No approved real credential or scored evaluation artifact |
 | Answer verification | `grounded-business-answer.js`, FR-049 | No 20-question business acceptance runner |
-| Runtime isolation | `production_tenant_isolation.sql`, FR-051/052 | Static remote proof exists; live dedicated-login probe pending |
+| Runtime isolation | `production_tenant_isolation.sql`, FR-051/052 | Live dedicated-login probe passes through the approved Supavisor session pooler |
 | Binding | server-owned resolver, remote row `PENDING`, FR-052 | No deterministic activation preflight/plan |
 | LINE receipt | single reply owner, FR-050 | No real signed canary; display/read cannot be proven |
 
@@ -54,6 +54,10 @@ Machine-readable inventory: `.agent/inventories/FR-053-054-ACTIVATION-READINESS.
 ### W2 — Runtime database isolation probe
 
 - dedicated-login URL accepted from environment only;
+- accept the exact direct or Supavisor session-pooler username/host form for the approved project;
+- verify TLS with the pinned public Supabase Root 2021 CA;
+- allow the Windows launcher to inject the existing Credential Manager URL into its child process
+  without writing or printing the secret;
 - positive scope, cross-Tenant denial, direct-grant denial and rolled-back mutation assertions;
 - redacted result artifact, deterministic fake-client tests and no remote execution in code review.
 
@@ -103,6 +107,7 @@ docs and phase status.
 | AC-054-04 | Receipt states preserve `ACCEPTED_BY_LINE` separately from display/read unknown. |
 | AC-054-05 | Failure guidance disables routing first and never deletes migrated knowledge or source data. |
 | AC-054-06 | No implementation in this CR activates a binding or sends LINE traffic. |
+| AC-054-07 | Runtime accepts only the approved project's exact direct or pooler target; Windows startup injects the installed project-qualified pooler URL, supplies the pinned Supabase CA, and keeps it process-local and redacted. |
 
 ## Merge exit gates
 
@@ -115,7 +120,7 @@ docs and phase status.
 
 - approved secret manager and dedicated runtime password;
 - approved provider/model/credential and owner-approved golden question content;
-- live database isolation report;
+- live database isolation report (completed on 2026-08-14; refresh before activation if stale);
 - approved physical backup/PITR policy and rollback rehearsal;
 - destination/credential hashes and one signed canary under explicit operator approval.
 
@@ -129,11 +134,12 @@ docs and phase status.
 
 ## Implementation result
 
-W0-W4 are implemented. Focused readiness tests pass 32/32, full Vitest passes 89 files / 461 tests,
-Python passes 8/8, Playwright passes 34 with 4 documented skips, and the production build passes.
-The deterministic fake evaluator passes 20/20 with zero unsupported numeric claims. Real-provider
-evaluation, live database isolation and the signed LINE canary are intentionally `NOT_RUN`; the
-binding remains `PENDING`, hash-free and traffic-disabled.
+W0-W4 and the approved runtime-connection repair are implemented. The live dedicated-login probe
+connects through the exact project-qualified Supavisor session pooler with the pinned Supabase CA
+and passes: 74 exact-scope rows, zero out-of-scope rows, zero cross-Tenant rows, no direct grants,
+and denied mutation with rollback. Full Vitest passes 97 files / 562 tests and the production build
+passes. Real-provider evaluation and the signed LINE canary remain `NOT_RUN`; the binding remains
+`PENDING`, hash-free and traffic-disabled.
 
 ## CHANGELOG
 
@@ -141,3 +147,5 @@ binding remains `PENDING`, hash-free and traffic-disabled.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | Owner-approved W0-W4 readiness envelope and external activation boundary | working-tree | ATHER |
 | 0.2.0b | 2026-08-14 | beta | W0-W4 implemented and regression-tested; external activation gates remain NOT_RUN | working-tree | ATHER |
+| 0.2.1b | 2026-08-14 | beta | Owner-approved repair for the dedicated Supavisor URL, CA trust and Windows Credential Manager startup bridge | working-tree | ATHER |
+| 0.2.2b | 2026-08-14 | beta | Runtime repair implemented; secret-redacted live probe passes exact 74-row isolation boundary | working-tree | ATHER |

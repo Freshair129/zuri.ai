@@ -1,11 +1,15 @@
 import crypto from 'node:crypto'
 import { z } from 'zod'
+import {
+  parseDedicatedRuntimeDatabaseUrl,
+  PHASE1_LOGIN_ROLE,
+} from './runtime-postgres-config.js'
 
 // @req FR-054 — prove the dedicated LINE database login is isolated before activation.
 // @spec SDD-027, SEC-011 — assertions are read-only, redacted and always rolled back.
 // @tested tests/unit/runtime-isolation-probe.test.js, tests/integration/runtime-isolation-probe.postgres.test.js
 
-const DEDICATED_LOGIN_ROLE = 'zuri_line_smartgift_login'
+const DEDICATED_LOGIN_ROLE = PHASE1_LOGIN_ROLE
 const POLICY_READ_ROLE = 'zuri_line_smartgift_ro'
 
 const zScope = z.object({
@@ -22,16 +26,10 @@ function fingerprint(value) {
 }
 
 function parseTarget(databaseUrl) {
-  let url
-  try {
-    url = new URL(databaseUrl)
-  } catch {
-    throw new Error('RUNTIME_ISOLATION_DATABASE_URL_INVALID')
-  }
-  const role = decodeURIComponent(url.username)
-  if (!['postgres:', 'postgresql:'].includes(url.protocol) || role !== DEDICATED_LOGIN_ROLE) {
-    throw new Error('RUNTIME_ISOLATION_DATABASE_ROLE_FORBIDDEN')
-  }
+  const { url, role } = parseDedicatedRuntimeDatabaseUrl(databaseUrl, {
+    invalidError: 'RUNTIME_ISOLATION_DATABASE_URL_INVALID',
+    forbiddenError: 'RUNTIME_ISOLATION_DATABASE_ROLE_FORBIDDEN',
+  })
   return {
     hostFingerprint: fingerprint(url.hostname.toLowerCase()),
     roleFingerprint: fingerprint(role),

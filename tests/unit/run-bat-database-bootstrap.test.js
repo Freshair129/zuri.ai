@@ -17,4 +17,14 @@ describe('run.bat database bootstrap', () => {
     expect(script.indexOf(fallback)).toBeLessThan(script.indexOf('call npm run db:push'))
     expect(script).not.toContain('set "DATABASE_URL=file:./dev.db"\nset "DATABASE_URL=')
   })
+
+  it('bootstraps the process-local Supabase credential before startup and verifies isolation', () => {
+    const script = readRunBat()
+
+    expect(script).toContain('scripts\\run-with-supabase-runtime.ps1')
+    expect(script).toContain('ZURI_SUPABASE_RUNTIME_BOOTSTRAPPED')
+    expect(script).toContain('call npm run phase1:isolation:verify')
+    expect(script.indexOf('call npm run phase1:isolation:verify')).toBeLessThan(script.indexOf('call npm run dev'))
+    expect(script).not.toMatch(/echo[^\r\n]*ZURI_LINE_DB_URL/i)
+  })
 })
