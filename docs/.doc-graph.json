@@ -3202,7 +3202,7 @@
       "type": "document",
       "path": "docs/features/FR-052-server-owned-line-scope-binding.md",
       "title": "FR-052 — Server-owned LINE scope binding",
-      "hash": "f4513e10",
+      "hash": "462548da",
       "status": "current"
     },
     {
@@ -3498,7 +3498,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md",
       "title": "Phase 1: Minimum LINE OA Business Knowledge Answer",
-      "hash": "2e9d8943",
+      "hash": "b64455ed",
       "status": "current"
     },
     {
@@ -3624,9 +3624,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.38.0",
+      "version": "1.39.0",
       "doc_status": "Draft",
-      "hash": "48716de2",
+      "hash": "601052fa",
       "status": "current"
     },
     {
@@ -3784,7 +3784,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md",
       "title": "ZV2-CR-004 — Supabase production tenant bootstrap",
-      "hash": "0ef4a4ca",
+      "hash": "b2de38f6",
       "status": "current"
     },
     {
@@ -4991,9 +4991,9 @@
       "type": "adr",
       "path": "docs/ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION.md",
       "title": "ADR-018 — Supabase production tenant isolation",
-      "version": "0.3.0b",
+      "version": "0.3.1b",
       "doc_status": "Accepted; production database slice deployed, LINE activation gated",
-      "hash": "0e55047a",
+      "hash": "bf6f11b2",
       "status": "current"
     },
     {

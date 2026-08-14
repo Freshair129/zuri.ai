@@ -1,7 +1,7 @@
 ---
-version: "0.4.0b"
+version: "0.4.1b"
 created_at: "2026-08-14T03:52:31+07:00,ATHER"
-last_update: "2026-08-14T07:35:29+07:00,ATHER"
+last_update: "2026-08-14T09:56:23+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -18,8 +18,9 @@ Owner-approved on 2026-08-14. Both migrations are recorded remotely. The approve
 price-disabled artifact has exact Tenant/Business/batch and SHA-256 audit evidence. Static remote
 RLS/policy/grant/role inventory and warning/error-level advisors pass. The retained scoped logical
 backup was captured post-apply and has a SHA-256 manifest; it is not pre-mutation evidence and
-physical backup/PITR is not enabled. The production
-binding remains credential-free and `PENDING`; live runtime-login isolation and LINE are not enabled.
+physical backup/PITR is not enabled. The dedicated pinned-CA runtime credential and live
+read-only tenant-isolation probe pass. The production binding remains credential-free and
+`PENDING`; LINE is not enabled.
 
 ## Goal
 
@@ -101,3 +102,4 @@ real implementation/test anchors and an explicit remote-gate status.
 | 0.2.0b | 2026-08-14 | beta | Local implementation complete for schema, role/binding boundary and import builder; remote evidence/apply remains gated | working-tree | ATHER |
 | 0.3.0b | 2026-08-14 | beta | Production migrations and verified 74-row import complete; LINE activation remains out of scope | working-tree | ATHER |
 | 0.4.0b | 2026-08-14 | beta | Approved production-disabled merge boundary; activation retains runtime, backup, rollback, provider and canary gates | working-tree | ATHER |
+| 0.4.1b | 2026-08-14 | beta | Pinned-CA runtime login and live tenant-isolation/read-only probe passed; backup/provider/binding/canary gates remain | working-tree | ATHER |
