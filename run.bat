@@ -12,6 +12,10 @@ REM under the repository's Node 24 toolchain (warn can terminate bootstrap).
 set "RUST_LOG=info"
 REM Explicit local-only demo session capability (ADR-017 / FR-046).
 set "ZURI_LOCAL_DEMO_AUTH=1"
+REM @req FR-046 - clean-checkout local demo startup owns a SQLite datasource.
+REM @spec ADR-017, SDD-024, SEC-008 - caller-provided database authority remains authoritative.
+REM @tested tests/unit/run-bat-database-bootstrap.test.js
+if not defined DATABASE_URL set "DATABASE_URL=file:./dev.db"
 
 if not exist "node_modules" (
   echo [zuri] Installing dependencies ^(first run only^)...
