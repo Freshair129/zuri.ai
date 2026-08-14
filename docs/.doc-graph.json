@@ -3,26 +3,26 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 695,
-    "total_edges": 1254,
+    "total_nodes": 711,
+    "total_edges": 1271,
     "dangling_edges": 0,
     "node_types": {
-      "document": 80,
-      "adr": 18,
+      "document": 86,
+      "adr": 19,
       "appendix": 5,
-      "roadmap": 17,
+      "roadmap": 18,
       "v1_inherited": 234,
-      "requirement": 111,
-      "test": 90,
-      "code_file": 140
+      "requirement": 117,
+      "test": 91,
+      "code_file": 141
     },
     "coverage": {
-      "requirements": 111,
-      "fr_with_code": "100% (52/52)",
-      "fr_with_tests": "100% (52/52)",
-      "rules_anchored_in_code": "90% (43/48)",
-      "nfr_evidence_based": "11 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 140,
+      "requirements": 117,
+      "fr_with_code": "100% (54/54)",
+      "fr_with_tests": "100% (54/54)",
+      "rules_anchored_in_code": "90% (46/51)",
+      "nfr_evidence_based": "12 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 141,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -1432,6 +1432,27 @@
       }
     },
     {
+      "id": "code:src/modules/agent/activation-readiness-contract.js",
+      "type": "code_file",
+      "path": "src/modules/agent/activation-readiness-contract.js",
+      "hash": "2c8d19b7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-053",
+          "FR-054"
+        ],
+        "@spec": [
+          "BR-013",
+          "SDD-027",
+          "SEC-011"
+        ],
+        "@tested": [
+          "tests/unit/activation-readiness-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/agent/context.js",
       "type": "code_file",
       "path": "src/modules/agent/context.js",
@@ -1509,7 +1530,7 @@
       "id": "code:src/modules/agent/line-channel-binding.js",
       "type": "code_file",
       "path": "src/modules/agent/line-channel-binding.js",
-      "hash": "a98aa9ce",
+      "hash": "54ed7dba",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1972,7 +1993,7 @@
       "id": "code:src/modules/knowledge/index.js",
       "type": "code_file",
       "path": "src/modules/knowledge/index.js",
-      "hash": "f833cec8",
+      "hash": "05adcf6f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2744,7 +2765,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.4.0",
       "doc_status": "Draft",
-      "hash": "0955b266",
+      "hash": "683dd6fb",
       "status": "current"
     },
     {
@@ -2752,7 +2773,7 @@
       "type": "document",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
       "title": "Acceptance Criteria",
-      "hash": "23ba4e82",
+      "hash": "9fef4521",
       "status": "current"
     },
     {
@@ -2818,7 +2839,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "ee44aea7",
+      "hash": "0a5752bc",
       "status": "current"
     },
     {
@@ -2912,7 +2933,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "ef191924",
+      "hash": "537ea667",
       "status": "current"
     },
     {
@@ -3101,7 +3122,7 @@
       "type": "document",
       "path": "docs/features/FR-051-production-supabase-tenant-isolation.md",
       "title": "FR-051 — Production Supabase tenant isolation",
-      "hash": "a4e724d9",
+      "hash": "f9910167",
       "status": "current"
     },
     {
@@ -3110,6 +3131,22 @@
       "path": "docs/features/FR-052-server-owned-line-scope-binding.md",
       "title": "FR-052 — Server-owned LINE scope binding",
       "hash": "4379cf28",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-053-phase1-golden-question-evaluation",
+      "type": "document",
+      "path": "docs/features/FR-053-phase1-golden-question-evaluation.md",
+      "title": "FR-053 — Phase 1 golden question evaluation",
+      "hash": "ab864f0d",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-054-controlled-line-canary",
+      "type": "document",
+      "path": "docs/features/FR-054-controlled-line-canary.md",
+      "title": "FR-054 — Controlled LINE canary",
+      "hash": "71fb592f",
       "status": "current"
     },
     {
@@ -3182,6 +3219,30 @@
       "path": "docs/.rwang-tasks/fr045-w4-w9-report.md",
       "title": "FR-045 W4-W9 Final Report",
       "hash": "b318a0bb",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr053-w1-brief",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr053-w1-brief.md",
+      "title": "FR-053 W1 task brief — golden evaluation",
+      "hash": "84b936e3",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr054-w2-brief",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr054-w2-brief.md",
+      "title": "FR-054 W2 task brief — runtime isolation probe",
+      "hash": "1446cd30",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr054-w3-brief",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr054-w3-brief.md",
+      "title": "FR-054 W3 task brief — canary preflight",
+      "hash": "30e082de",
       "status": "current"
     },
     {
@@ -3357,7 +3418,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md",
       "title": "Phase 1: Minimum LINE OA Business Knowledge Answer",
-      "hash": "727d2ce0",
+      "hash": "d9bdd867",
       "status": "current"
     },
     {
@@ -3461,6 +3522,14 @@
       "status": "current"
     },
     {
+      "id": "doc:PLAN-FR-053-054-PHASE1-ACTIVATION-READINESS",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-FR-053-054-PHASE1-ACTIVATION-READINESS.md",
+      "title": "Implementation plan — FR-053/054 Phase 1 activation readiness",
+      "hash": "dc821172",
+      "status": "current"
+    },
+    {
       "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT.md",
@@ -3475,9 +3544,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.36.0",
+      "version": "1.37.0",
       "doc_status": "Draft",
-      "hash": "2f2ba19b",
+      "hash": "b82f9f9a",
       "status": "current"
     },
     {
@@ -3529,7 +3598,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-zuri-v2-lab.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
-      "hash": "c055ac8a",
+      "hash": "ecbc5331",
       "status": "current"
     },
     {
@@ -3557,7 +3626,7 @@
       "type": "document",
       "path": "docs/TEST-PLAN.md",
       "title": "Test Plan",
-      "hash": "9112c2d2",
+      "hash": "6b158e61",
       "status": "current"
     },
     {
@@ -3635,7 +3704,15 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md",
       "title": "ZV2-CR-004 — Supabase production tenant bootstrap",
-      "hash": "cd823618",
+      "hash": "0ef4a4ca",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-005-PHASE1-ACTIVATION-READINESS",
+      "type": "document",
+      "path": "docs/changes/ZV2-CR-005-PHASE1-ACTIVATION-READINESS.md",
+      "title": "ZV2-CR-005 — Phase 1 activation readiness",
+      "hash": "86f7f1ec",
       "status": "current"
     },
     {
@@ -3742,6 +3819,15 @@
       "type": "requirement",
       "family": "BR",
       "label": "Tenant and Business scope are server authority. In production a caller may present only binding identity, destination and binding-scoped credential; inbound `tenantId`/`businessId` never authorize access. A missing, mismatched, inactive, expired or database-unavailable binding fails closed before model or persistence work.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-013",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Readiness is not activation. Golden evaluation, database probes and canary planning may run while the binding remains `PENDING`; only a separately approved operator action may install hashes or enable one canary. `ACCEPTED_BY_LINE` never proves display or read.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -4215,6 +4301,24 @@
       "status": "current"
     },
     {
+      "id": "req:FR-053",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-054",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Controlled LINE canary readiness: produce a secret-safe runtime-role isolation report and dry-run canary plan that validates exact project/Tenant/Business/binding/provider/evaluation prerequisites. Readiness code never activates a binding or calls LINE; receipt states distinguish accepted from display/read unknown.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -4309,6 +4413,15 @@
       "type": "requirement",
       "family": "NFR",
       "label": "Production tenancy changes are migration-first, idempotent and reversible: advisory/lock timeouts bound deployment, reserved code/UUID collisions abort, schema history and backups are inspected before apply, and no runtime secret or service-role key is stored in source, migration SQL, logs or browser code.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-012",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Activation evidence is deterministic, versioned and redacted: credentials come only from process environment/approved secret stores; reports contain hashes and assertion results rather than raw authorization material, database URLs, reply tokens or PII.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -4548,6 +4661,15 @@
       "status": "current"
     },
     {
+      "id": "req:SDD-027",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Phase 1 activation uses three independent evidence ports: a deterministic GoldenEvaluation runner over injected knowledge/provider ports, a transaction-scoped RuntimeIsolationProbe, and a mutation-free CanaryPreflight. W4 combines their redacted artifacts; no readiness component owns secret persistence, binding mutation or LINE transport.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -4633,6 +4755,15 @@
       "type": "requirement",
       "family": "SEC",
       "label": "Production LINE reads require both database-enforced scope and verified server binding: private-schema base grants are revoked from `public`, `anon`, `authenticated` and `service_role`; the runtime rejects privileged credentials and client-selected scope; credential/destination hashes are compared in constant time; inactive or expired bindings return no data.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-011",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Activation tooling fails closed and never persists or echoes credentials, full connection URLs, authorization headers, reply tokens or raw customer data. Database mutation assertions always roll back; canary readiness defaults to dry-run and has no binding-update or LINE-send capability.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -4782,7 +4913,15 @@
       "title": "ADR-018 — Supabase production tenant isolation",
       "version": "0.3.0b",
       "doc_status": "Accepted; production database slice deployed, LINE activation gated",
-      "hash": "5417b5da",
+      "hash": "0e55047a",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-019-PHASE1-ACTIVATION-READINESS",
+      "type": "adr",
+      "path": "docs/ADR-019-PHASE1-ACTIVATION-READINESS.md",
+      "title": "ADR-019 — Phase 1 activation readiness",
+      "hash": "0a0628b5",
       "status": "current"
     },
     {
@@ -5017,6 +5156,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/activation-readiness-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/activation-readiness-contract.test.js",
+      "hash": "d2d7d7cf",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/breadcrumb-switcher.test.js",
       "type": "test",
       "path": "tests/unit/breadcrumb-switcher.test.js",
@@ -5230,7 +5376,7 @@
       "id": "test:tests/unit/line-channel-binding.test.js",
       "type": "test",
       "path": "tests/unit/line-channel-binding.test.js",
-      "hash": "e81dca9c",
+      "hash": "1098eae5",
       "status": "current"
     },
     {
@@ -5286,7 +5432,7 @@
       "id": "test:tests/unit/playwright-database-bootstrap.test.js",
       "type": "test",
       "path": "tests/unit/playwright-database-bootstrap.test.js",
-      "hash": "5a9dfc60",
+      "hash": "85710eca",
       "status": "current"
     },
     {
@@ -8628,6 +8774,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/activation-readiness-contract.js",
+      "to": "req:BR-013",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/activation-readiness-contract.js",
+      "to": "req:FR-053",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/activation-readiness-contract.js",
+      "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/activation-readiness-contract.js",
+      "to": "req:SDD-027",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/activation-readiness-contract.js",
+      "to": "req:SEC-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/context.js",
       "to": "req:FR-025",
       "type": "implements",
@@ -10133,6 +10314,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:BR-013",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:FR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -10497,6 +10685,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-053",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-054",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -10568,6 +10770,13 @@
     },
     {
       "from": "req:NFR-011",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-012",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -10756,6 +10965,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-027",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -10820,6 +11036,13 @@
     },
     {
       "from": "req:SEC-010",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-011",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -13043,6 +13266,48 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-contract.test.js",
+      "to": "code:src/modules/agent/activation-readiness-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-contract.test.js",
+      "to": "req:BR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-contract.test.js",
+      "to": "req:FR-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-contract.test.js",
+      "to": "req:FR-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-contract.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-contract.test.js",
+      "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/breadcrumb-switcher.test.js",
