@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 761,
-    "total_edges": 1419,
+    "total_nodes": 762,
+    "total_edges": 1423,
     "dangling_edges": 0,
     "node_types": {
       "document": 105,
@@ -13,7 +13,7 @@
       "roadmap": 20,
       "v1_inherited": 234,
       "requirement": 122,
-      "test": 106,
+      "test": 107,
       "code_file": 149
     },
     "coverage": {
@@ -1709,7 +1709,7 @@
       "id": "code:src/modules/agent/openrouter-oauth.js",
       "type": "code_file",
       "path": "src/modules/agent/openrouter-oauth.js",
-      "hash": "48c7fb21",
+      "hash": "a7e15cdd",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3017,7 +3017,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "9bce634f",
+      "hash": "e5275347",
       "status": "current"
     },
     {
@@ -3111,7 +3111,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "58fe477e",
+      "hash": "d313f784",
       "status": "current"
     },
     {
@@ -3308,7 +3308,7 @@
       "type": "document",
       "path": "docs/features/FR-052-server-owned-line-scope-binding.md",
       "title": "FR-052 — Server-owned LINE scope binding",
-      "hash": "71f4185c",
+      "hash": "462548da",
       "status": "current"
     },
     {
@@ -3692,7 +3692,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md",
       "title": "Phase 1: Minimum LINE OA Business Knowledge Answer",
-      "hash": "532042a2",
+      "hash": "df4cd5e2",
       "status": "current"
     },
     {
@@ -3884,7 +3884,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.41.0",
       "doc_status": "Draft",
-      "hash": "b6ca7ce0",
+      "hash": "17804940",
       "status": "current"
     },
     {
@@ -4042,7 +4042,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md",
       "title": "ZV2-CR-004 — Supabase production tenant bootstrap",
-      "hash": "0ef4a4ca",
+      "hash": "17dee327",
       "status": "current"
     },
     {
@@ -5302,9 +5302,9 @@
       "type": "adr",
       "path": "docs/ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION.md",
       "title": "ADR-018 — Supabase production tenant isolation",
-      "version": "0.3.0b",
+      "version": "0.3.1b",
       "doc_status": "Accepted; production database slice deployed, LINE activation gated",
-      "hash": "0e55047a",
+      "hash": "3618385d",
       "status": "current"
     },
     {
@@ -5894,7 +5894,14 @@
       "id": "test:tests/unit/phase1-business-agent-runtime.test.js",
       "type": "test",
       "path": "tests/unit/phase1-business-agent-runtime.test.js",
-      "hash": "c95d8b76",
+      "hash": "947d872e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/phase1-runtime-login-probe.test.js",
+      "type": "test",
+      "path": "tests/unit/phase1-runtime-login-probe.test.js",
+      "hash": "f5ad9c19",
       "status": "current"
     },
     {
@@ -16430,6 +16437,34 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
+      "to": "req:FR-051",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
+      "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/phase1-runtime-login-probe.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/plan-schema.test.js",

@@ -2,9 +2,9 @@
 feature: FR-052
 module: project-manager
 source: v2-native
-version: "0.1.2b"
+version: "0.1.4b"
 created_at: "2026-08-14T04:53:45+07:00,ATHER"
-last_update: "2026-08-14T11:45:00+07:00,ATHER"
+last_update: "2026-08-14T09:44:17+07:00,ATHER"
 status: "beta"
 ---
 
@@ -29,14 +29,29 @@ mismatch or unavailable database fails before message persistence or model work.
 
 The request boundary, binding resolver and role-scoped query wrapper are implemented. Production
 now contains the reserved binding, verified as `PENDING` with null destination/credential hashes.
-The dedicated runtime login is live-verified through the project-qualified Supavisor session
-pooler with zero cross-Tenant visibility and rollback-only mutation checks. Activation still
-requires destination/credential hashes and a negative/positive LINE canary.
+The dedicated runtime login is provisioned in Windows Credential Manager. A second live probe read
+the stored credential without printing it and proved direct base-table denial, successful
+`SET LOCAL ROLE`, exactly 74 approved rows, zero foreign-scope rows and mutation denial. Activation
+still requires an approved model-provider credential, destination/credential hashes and the
+negative/positive LINE canary.
+
+Runtime login provisioning accepts the exact project Postgres owner connection string directly;
+it does not depend on a persistent Supabase CLI login. The one-time operator wrapper generates and
+rotates a dedicated login secret, stores its runtime URL in Windows Credential Manager, then proves
+base-table denial, forced-RLS scoped inventory and mutation denial. It writes the credential before
+the live probe so an operator can recover the newly rotated secret if the probe itself fails; the
+binding remains `PENDING` and no LINE traffic is enabled by this step.
+
+Admin and runtime Postgres clients authenticate the Supabase Session Pooler with the pinned
+Supabase Root 2021 CA. The CA certificate fingerprint is validated before network access;
+caller-controlled TLS URL overrides, missing/modified CA assets and unverifiable certificate
+chains fail closed. Certificate verification and hostname validation are never disabled.
 
 ## Verification
 
 - `tests/unit/line-binding-resolver.test.js`
 - `tests/unit/phase1-business-agent-runtime.test.js`
+- `tests/unit/phase1-runtime-login-probe.test.js`
 - `tests/integration/agent-webhook-route.test.js`
 
 ## CHANGELOG
@@ -45,4 +60,6 @@ requires destination/credential hashes and a negative/positive LINE canary.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | beta | Local binding authority and scoped runtime implemented; activation remains PENDING | working-tree | ATHER |
 | 0.1.1b | 2026-08-14 | beta | Binding reserved remotely and verified credential-free; activation remains PENDING | working-tree | ATHER |
-| 0.1.2b | 2026-08-14 | beta | Live dedicated-login isolation verified; binding remains PENDING until destination and canary gates pass | working-tree | ATHER |
+| 0.1.2b | 2026-08-14 | beta | Added connection-string runtime login rotation, OS credential storage and live fail-closed probe; activation remains PENDING | working-tree | ATHER |
+| 0.1.3b | 2026-08-14 | beta | Added pinned Supabase CA verification after the Session Pooler live TLS RCA; activation remains PENDING | working-tree | ATHER |
+| 0.1.4b | 2026-08-14 | beta | Dedicated runtime credential and live read-only tenant-isolation probe passed; provider/binding/LINE gates remain | working-tree | ATHER |

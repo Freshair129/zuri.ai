@@ -1,7 +1,7 @@
 ---
-version: "0.3.0b"
+version: "0.3.1b"
 created_at: "2026-08-14T03:52:31+07:00,ATHER"
-last_update: "2026-08-14T07:35:29+07:00,ATHER"
+last_update: "2026-08-14T09:56:23+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -16,7 +16,7 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 0.3.0b |
+| **Version** | 0.3.1b |
 | **Status** | Accepted; production database slice deployed, LINE activation gated |
 | **Project** | `qcnmhyglarzcpudjorzc` |
 
@@ -256,12 +256,10 @@ These gates authorize merging production-disabled code. They do not authorize ru
 
 ## Production activation gates
 
-1. Provision the dedicated unprivileged runtime login password in an approved secret manager.
-2. Pass live positive, cross-Tenant negative and mutation-denial probes using that login.
-3. Approve a physical backup/PITR policy; the retained logical snapshot is post-apply only.
-4. Configure one approved model-provider credential and pass the approved golden questions.
-5. Install approved destination/credential hashes and activate only the canary binding.
-6. Pass a kill-switch-protected signed LINE canary before enabling production traffic.
+1. Approve a physical backup/PITR policy; the retained logical snapshot is post-apply only.
+2. Configure one approved model-provider credential and pass the approved golden questions.
+3. Install approved destination/credential hashes and activate only the canary binding.
+4. Pass a kill-switch-protected signed LINE canary before enabling production traffic.
 
 ## Implementation and production gate
 
@@ -275,9 +273,10 @@ Remote verification confirms exact Tenant/Business/batch scope, exact import has
 no broad base-table grants, forced RLS/exact policies, safe role attributes, no warning/error advisor
 findings, and a credential-free `PENDING` binding. The evidence retained outside Git is a
 post-apply scoped logical backup with a SHA-256 manifest; it is not evidence of a pre-mutation
-backup. Physical backup/PITR is not enabled. Runtime login password provisioning, a live
-positive/cross-scope/read-only probe, an approved backup policy and a real LINE canary remain
-activation gates. Because the kill switch is off and the binding is `PENDING`, these activation
+backup. Physical backup/PITR is not enabled. The pinned-CA runtime credential is provisioned and
+its live positive/cross-scope/read-only probe passes. An approved backup policy, provider-backed
+golden evaluation, destination/credential hashes and a real LINE canary remain activation gates.
+Because the kill switch is off and the binding is `PENDING`, these activation
 gates do not block merging the production-disabled implementation.
 
 ## CHANGELOG
@@ -288,3 +287,4 @@ gates do not block merging the production-disabled implementation.
 | 0.2.0b | 2026-08-14 | beta | Owner-approved local implementation; split login/policy roles, binding authority and import audit complete; remote cutover remains gated | working-tree | ATHER |
 | 0.2.1b | 2026-08-14 | beta | Production migrations and 74-row import verified; binding remains PENDING and LINE activation gated | working-tree | ATHER |
 | 0.3.0b | 2026-08-14 | beta | Separated merge gates from production activation gates and corrected backup chronology to post-apply | working-tree | ATHER |
+| 0.3.1b | 2026-08-14 | beta | Dedicated runtime login and live database-enforced isolation/read-only proof passed; LINE activation remains gated | working-tree | ATHER |
