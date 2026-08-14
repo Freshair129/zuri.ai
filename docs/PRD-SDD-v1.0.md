@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.38.0 |
+| **Version** | 1.38.1 |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -61,6 +61,7 @@
 | 1.36.0 | 2026-08-14 | ATHER | Owner-approved production-disabled merge boundary for FR-051/052; runtime secret, live isolation, backup policy, provider evaluation and LINE canary remain activation gates |
 | 1.37.0 | 2026-08-14 | ATHER | Owner-approved FR-053/054 Activation Readiness Pack with golden evaluation, live-role probe and dry-run canary contracts; production traffic remains disabled |
 | 1.38.0 | 2026-08-14 | ATHER | FR-053/054 readiness tooling implemented and regression-tested; fake evaluation passes 20/20 while real provider, live login probe and signed LINE canary remain NOT_RUN |
+| 1.38.1 | 2026-08-14 | ATHER | Activation truth-sync: FR-047..050 implementation is active, but production acceptance remains blocked by A1/A2/A3 evidence gates |
 
 ## Referenced Standards
 
@@ -151,10 +152,10 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-045 | Managed local file workspace: SQLite is authoritative for FileAsset identity, Business/Project ownership, links, version, status and audit; the filesystem stores real content plus disposable cache. Business File Manager aggregates Business-owned and child Project assets without copying content. Existing FR-037 ProjectFile rows/routes migrate through a compatibility boundary; local OS reveal is capability-gated and hosted mode denies it. | ✅ implemented (beta); W0-W9 and AC-045-01..12 complete |
 
 | FR-046 | Production viewer entry contract: Business Routing consumes one atomic, server-filtered `/api/entry` response derived from a trusted request session and `resolveViewer()`. Hidden Businesses and unrelated ancestry are never returned; missing sessions fail closed; client-supplied identity/role/platform claims are never authorization input. | Implemented beta; provider selection remains separately gated |
-| FR-047 | Curated business-knowledge read contract: the SmartGift pilot exposes only an allow-listed, versioned public product projection through `BusinessKnowledgeReadPort`; DuckDB and Supabase are adapters. PII, cost, margin, invoice, unrestricted SQL and local paths are excluded. | Phase 1 active - owner-approved 2026-08-14 |
-| FR-048 | Provider selection contract: `ModelProviderPort` normalizes OpenRouter OAuth credential references and API-key adapters for OpenAI, Anthropic, Gemini and Groq. Public LINE cannot select consumer-plan CLI credentials, and automatic fallback is disabled. | Phase 1 active - owner-approved 2026-08-14 |
-| FR-049 | Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient. | Phase 1 active - owner-approved 2026-08-14 |
-| FR-050 | Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics. | Phase 1 active - owner-approved 2026-08-14 |
+| FR-047 | Curated business-knowledge read contract: the SmartGift pilot exposes only an allow-listed, versioned public product projection through `BusinessKnowledgeReadPort`; DuckDB and Supabase are adapters. PII, cost, margin, invoice, unrestricted SQL and local paths are excluded. | Implementation active; production activation acceptance BLOCKED |
+| FR-048 | Provider selection contract: `ModelProviderPort` normalizes OpenRouter OAuth credential references and API-key adapters for OpenAI, Anthropic, Gemini and Groq. Public LINE cannot select consumer-plan CLI credentials, and automatic fallback is disabled. | Implementation active; real-provider evaluation NOT_RUN |
+| FR-049 | Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient. | Implementation active; approved production corpus mapping BLOCKED |
+| FR-050 | Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics. | Implementation active; signed LINE canary and Phase 1 acceptance NOT_RUN |
 | FR-051 | Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event. | Production migration and verified 74-row price-disabled import complete |
 | FR-052 | Server-owned LINE scope binding: the webhook rejects client-selected Tenant/Business IDs and resolves scope only from an active, destination-bound, hash-verified LINE binding. Runtime connects through an unprivileged login and executes each read with `SET LOCAL ROLE zuri_line_smartgift_ro`. | Binding reserved remotely as PENDING; activation credential/canary gates remain |
 | FR-053 | Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers. | Implemented (beta): deterministic fake evaluation PASS 20/20; owner-approved real corpus mapping and real-provider execution remain external NOT_RUN gates |

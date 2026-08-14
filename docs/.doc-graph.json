@@ -3,14 +3,14 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 720,
+    "total_nodes": 728,
     "total_edges": 1333,
     "dangling_edges": 0,
     "node_types": {
-      "document": 87,
+      "document": 94,
       "adr": 19,
       "appendix": 5,
-      "roadmap": 18,
+      "roadmap": 19,
       "v1_inherited": 234,
       "requirement": 117,
       "test": 96,
@@ -1435,7 +1435,7 @@
       "id": "code:src/modules/agent/activation-readiness-contract.js",
       "type": "code_file",
       "path": "src/modules/agent/activation-readiness-contract.js",
-      "hash": "2c8d19b7",
+      "hash": "506febb1",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1456,7 +1456,7 @@
       "id": "code:src/modules/agent/canary-preflight.js",
       "type": "code_file",
       "path": "src/modules/agent/canary-preflight.js",
-      "hash": "31e4d13a",
+      "hash": "346725cc",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1491,7 +1491,7 @@
       "id": "code:src/modules/agent/golden-evaluation.js",
       "type": "code_file",
       "path": "src/modules/agent/golden-evaluation.js",
-      "hash": "63036bba",
+      "hash": "62444b5e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1529,7 +1529,7 @@
       "id": "code:src/modules/agent/index.js",
       "type": "code_file",
       "path": "src/modules/agent/index.js",
-      "hash": "a31b2169",
+      "hash": "7d27ffcf",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2039,7 +2039,7 @@
       "id": "code:src/modules/knowledge/index.js",
       "type": "code_file",
       "path": "src/modules/knowledge/index.js",
-      "hash": "e78cc1d4",
+      "hash": "ed4dd02a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2134,7 +2134,7 @@
       "id": "code:src/modules/knowledge/runtime-isolation-probe.js",
       "type": "code_file",
       "path": "src/modules/knowledge/runtime-isolation-probe.js",
-      "hash": "5c814f28",
+      "hash": "a3f5ef20",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2827,7 +2827,7 @@
       "type": "document",
       "path": "docs/.rwang-progress.md",
       "title": "RWANG Subagent Progress Ledger — TASK-V2-PARITY",
-      "hash": "268bfe53",
+      "hash": "a1251abc",
       "status": "current"
     },
     {
@@ -2845,7 +2845,7 @@
       "type": "document",
       "path": "docs/ACCEPTANCE-CRITERIA.md",
       "title": "Acceptance Criteria",
-      "hash": "9fef4521",
+      "hash": "0399b4bf",
       "status": "current"
     },
     {
@@ -3210,7 +3210,7 @@
       "type": "document",
       "path": "docs/features/FR-053-phase1-golden-question-evaluation.md",
       "title": "FR-053 — Phase 1 golden question evaluation",
-      "hash": "4bb0e092",
+      "hash": "18713cb4",
       "status": "current"
     },
     {
@@ -3218,7 +3218,7 @@
       "type": "document",
       "path": "docs/features/FR-054-controlled-line-canary.md",
       "title": "FR-054 — Controlled LINE canary",
-      "hash": "1bffb2af",
+      "hash": "1837b600",
       "status": "current"
     },
     {
@@ -3298,7 +3298,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr053-w1-brief.md",
       "title": "FR-053 W1 task brief — golden evaluation",
-      "hash": "84b936e3",
+      "hash": "10d22bb0",
       "status": "current"
     },
     {
@@ -3306,7 +3306,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr054-w2-brief.md",
       "title": "FR-054 W2 task brief — runtime isolation probe",
-      "hash": "1446cd30",
+      "hash": "2a022e53",
       "status": "current"
     },
     {
@@ -3314,7 +3314,7 @@
       "type": "document",
       "path": "docs/.rwang-tasks/fr054-w3-brief.md",
       "title": "FR-054 W3 task brief — canary preflight",
-      "hash": "30e082de",
+      "hash": "362741f3",
       "status": "current"
     },
     {
@@ -3396,7 +3396,7 @@
       "type": "document",
       "path": "docs/runbooks/LINE-PHASE1-CANARY.md",
       "title": "LINE Phase 1 canary runbook",
-      "hash": "7ac88bec",
+      "hash": "3f398b3d",
       "status": "current"
     },
     {
@@ -3498,7 +3498,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md",
       "title": "Phase 1: Minimum LINE OA Business Knowledge Answer",
-      "hash": "9d3a16b9",
+      "hash": "2e9d8943",
       "status": "current"
     },
     {
@@ -3547,6 +3547,54 @@
       "path": "docs/roadmap/line-oa-business-agent/PHASE-07-OMICHAT-UNIFIED-INBOX.md",
       "title": "Phase 7: OmiChat Unified Inbox",
       "hash": "deefe0de",
+      "status": "current"
+    },
+    {
+      "id": "doc:phase1-a1-golden-brief",
+      "type": "document",
+      "path": "docs/.rwang-tasks/phase1-a1-golden-brief.md",
+      "title": "A1 brief — Golden corpus production mapping",
+      "hash": "0c88b3b2",
+      "status": "current"
+    },
+    {
+      "id": "doc:phase1-a1-golden-report",
+      "type": "document",
+      "path": "docs/.rwang-tasks/phase1-a1-golden-report.md",
+      "title": "A1 audit report — Golden corpus production mapping",
+      "hash": "1138a5b4",
+      "status": "current"
+    },
+    {
+      "id": "doc:phase1-a2-isolation-brief",
+      "type": "document",
+      "path": "docs/.rwang-tasks/phase1-a2-isolation-brief.md",
+      "title": "A2 brief — Supabase isolation and backup/PITR inventory",
+      "hash": "b3c13243",
+      "status": "current"
+    },
+    {
+      "id": "doc:phase1-a2-isolation-report",
+      "type": "document",
+      "path": "docs/.rwang-tasks/phase1-a2-isolation-report.md",
+      "title": "A2 report — live runtime isolation prerequisite audit",
+      "hash": "3c202633",
+      "status": "current"
+    },
+    {
+      "id": "doc:phase1-a3-canary-brief",
+      "type": "document",
+      "path": "docs/.rwang-tasks/phase1-a3-canary-brief.md",
+      "title": "A3 brief — Canary prerequisite and receipt audit",
+      "hash": "df0c2ad8",
+      "status": "current"
+    },
+    {
+      "id": "doc:phase1-a3-canary-report",
+      "type": "document",
+      "path": "docs/.rwang-tasks/phase1-a3-canary-report.md",
+      "title": "Phase 1 A3 report — canary prerequisites and receipts",
+      "hash": "beb78aaa",
       "status": "current"
     },
     {
@@ -3606,7 +3654,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-FR-053-054-PHASE1-ACTIVATION-READINESS.md",
       "title": "Implementation plan — FR-053/054 Phase 1 activation readiness",
-      "hash": "3c2162cd",
+      "hash": "f7c9cd00",
       "status": "current"
     },
     {
@@ -3620,13 +3668,21 @@
       "status": "current"
     },
     {
+      "id": "doc:PLAN-PHASE1-EXTERNAL-ACTIVATION",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-PHASE1-EXTERNAL-ACTIVATION.md",
+      "title": "Implementation plan — Phase 1 external activation",
+      "hash": "1b77665b",
+      "status": "current"
+    },
+    {
       "id": "doc:PRD-SDD-v1.0",
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.38.0",
+      "version": "1.38.1",
       "doc_status": "Draft",
-      "hash": "2de52dd9",
+      "hash": "95082415",
       "status": "current"
     },
     {
@@ -3678,7 +3734,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-zuri-v2-lab.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
-      "hash": "75c2f865",
+      "hash": "cdbc17da",
       "status": "current"
     },
     {
@@ -3792,7 +3848,15 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-005-PHASE1-ACTIVATION-READINESS.md",
       "title": "ZV2-CR-005 — Phase 1 activation readiness",
-      "hash": "a84681ee",
+      "hash": "212b4035",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-006-PHASE1-EXTERNAL-ACTIVATION",
+      "type": "document",
+      "path": "docs/changes/ZV2-CR-006-PHASE1-EXTERNAL-ACTIVATION.md",
+      "title": "ZV2-CR-006 — Phase 1 external activation",
+      "hash": "1d881b01",
       "status": "current"
     },
     {
@@ -5001,7 +5065,7 @@
       "type": "adr",
       "path": "docs/ADR-019-PHASE1-ACTIVATION-READINESS.md",
       "title": "ADR-019 — Phase 1 activation readiness",
-      "hash": "4bcb73fa",
+      "hash": "f1064acc",
       "status": "current"
     },
     {
@@ -5239,14 +5303,14 @@
       "id": "test:tests/unit/activation-readiness-contract.test.js",
       "type": "test",
       "path": "tests/unit/activation-readiness-contract.test.js",
-      "hash": "d2d7d7cf",
+      "hash": "b1dc9837",
       "status": "current"
     },
     {
       "id": "test:tests/unit/activation-readiness-integration.test.js",
       "type": "test",
       "path": "tests/unit/activation-readiness-integration.test.js",
-      "hash": "07487d75",
+      "hash": "b9bb14ec",
       "status": "current"
     },
     {
@@ -5435,7 +5499,7 @@
       "id": "test:tests/unit/golden-evaluation.test.js",
       "type": "test",
       "path": "tests/unit/golden-evaluation.test.js",
-      "hash": "3b5de7e3",
+      "hash": "efe81eac",
       "status": "current"
     },
     {
@@ -5470,7 +5534,7 @@
       "id": "test:tests/unit/line-canary-preflight.test.js",
       "type": "test",
       "path": "tests/unit/line-canary-preflight.test.js",
-      "hash": "28c7d41e",
+      "hash": "1f9d2825",
       "status": "current"
     },
     {
@@ -5610,14 +5674,14 @@
       "id": "test:tests/unit/run-bat-database-bootstrap.test.js",
       "type": "test",
       "path": "tests/unit/run-bat-database-bootstrap.test.js",
-      "hash": "1282c77f",
+      "hash": "e08dd0d0",
       "status": "current"
     },
     {
       "id": "test:tests/unit/runtime-isolation-probe.test.js",
       "type": "test",
       "path": "tests/unit/runtime-isolation-probe.test.js",
-      "hash": "5f49d1db",
+      "hash": "e3c8b1da",
       "status": "current"
     },
     {

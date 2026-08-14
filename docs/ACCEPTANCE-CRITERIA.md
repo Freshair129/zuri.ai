@@ -194,8 +194,22 @@ is deleted without a separately reviewed exact path/hash manifest.
 - [x] Supabase secret/service-role keys are forbidden in the Phase 1 LINE runtime;
 - [x] local migration SQL uses private schema, forced RLS, composite ancestry and least-privilege grants;
 - [x] approved SmartGift rows map to reserved internal Tenant/Business UUIDs without changing source provenance;
-- [ ] remote project inventory and backup/advisor evidence are recorded;
+- [x] remote project inventory and advisor evidence are recorded;
+- [ ] physical backup/PITR policy and rollback rehearsal are approved;
 - [ ] migration plus positive/negative isolation probes pass on the target project;
 - [ ] 74-row reconciliation and one kill-switch-protected canary pass before traffic enablement.
 
 Repository-local exit gate may pass with the final three remote boxes open because the binding remains inactive and production LINE traffic remains disabled. The feature is not production-enabled until every remote box is checked.
+
+## FR-053 / FR-054 — Phase 1 activation evidence (beta)
+
+- [x] deterministic Golden evaluator, runtime isolation probe and mutation-free canary preflight exist;
+- [x] focused local contract suites pass with fake/injected ports;
+- [ ] all Golden `ANSWER` cases map to the approved production artifact and owner-approved questions;
+- [ ] a real approved provider passes 20/20 with zero unsupported numeric claims;
+- [ ] the corrected probe passes through the dedicated unprivileged production login;
+- [ ] one exact destination, provider/model, binding hashes and fresh evidence hashes are approved;
+- [ ] a controlled binding installer and redacted post-LINE receipt artifact are reviewed;
+- [ ] one signed canary records `ACCEPTED_BY_LINE` separately from display/read unknown.
+
+Until every unchecked item passes, binding activation and production LINE traffic remain blocked.

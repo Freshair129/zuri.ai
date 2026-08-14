@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 129,
+    "docs": 137,
     "v1_inherited": 234,
     "routes": 55,
     "test_files": 96
@@ -10,7 +10,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 34,
+    "info": 38,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -251,6 +251,50 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
+      "details": "phase1-a1-golden-brief.md",
+      "files": [
+        "docs/.rwang-tasks/phase1-a1-golden-brief.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I23",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "phase1-a1-golden-report.md",
+      "files": [
+        "docs/.rwang-tasks/phase1-a1-golden-report.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I24",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "phase1-a2-isolation-brief.md",
+      "files": [
+        "docs/.rwang-tasks/phase1-a2-isolation-brief.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I25",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "phase1-a3-canary-brief.md",
+      "files": [
+        "docs/.rwang-tasks/phase1-a3-canary-brief.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I26",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
       "details": "ACCEPTANCE-CRITERIA.md",
       "files": [
         "docs/ACCEPTANCE-CRITERIA.md"
@@ -258,7 +302,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I23",
+      "id": "I27",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -269,7 +313,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I24",
+      "id": "I28",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -280,7 +324,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I25",
+      "id": "I29",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -291,7 +335,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I26",
+      "id": "I30",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -302,7 +346,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I27",
+      "id": "I31",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -313,7 +357,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I28",
+      "id": "I32",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -324,7 +368,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I29",
+      "id": "I33",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -335,7 +379,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I30",
+      "id": "I34",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -346,7 +390,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I31",
+      "id": "I35",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -357,7 +401,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I32",
+      "id": "I36",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -368,7 +412,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I33",
+      "id": "I37",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -379,7 +423,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I34",
+      "id": "I38",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
