@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import { createPortfolio, createTenant, createBusiness } from '@/modules/project-manager/application/scope-service'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
+import prisma from '@/lib/db'
+import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 import { assembleAgentContext, createAgentPorts, handleAgentTurn } from '@/modules/agent'
 
 // @req FR-029 — the agent runs on the REAL backends when configured: MSP memory +
@@ -48,8 +50,17 @@ describe('createAgentPorts — agent bound to MSP + GenesisBlockDB (FR-029)', ()
       return { ok: true }
     }
     const ports = createAgentPorts({ mspTransport: transport })
-    await ingestLineMessage({ tenantId: tenant.id, businessId: business.id, lineUserId: 'Urt-3', threadId: 'T-rt-3', text: 'hi' })
-    const ctx = await assembleAgentContext({ tenantId: tenant.id, lineUserId: 'Urt-3', memory: ports.memory })
+    const person = await prisma.person.create({ data: { code: 'PSN-RT-MSP', displayName: 'MSP user' } })
+    await prisma.membership.create({ data: { personId: person.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER' } })
+    const link = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
+    await redeemLinkToken({ tenantId: tenant.id, token: link.token, lineUserId: 'Urt-3' })
+    const ctx = await assembleAgentContext({
+      tenantId: tenant.id,
+      businessId: business.id,
+      lineUserId: 'Urt-3',
+      memory: ports.memory,
+      serverScope: { transportVerified: true, businessId: business.id },
+    })
     // memory recall went to MSP, scoped to the principal vault (never a channel handle)
     const listCall = wire.find((c) => c.name === 'msp_memory_list')
     expect(listCall).toBeTruthy()

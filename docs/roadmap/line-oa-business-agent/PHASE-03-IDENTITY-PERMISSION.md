@@ -44,6 +44,15 @@ knowledge that principal may receive before retrieval or model generation.
 - GKS semantic promotion;
 - write actions.
 
+## Issue #11 amendment
+
+Phase 3 owns the Zuri-side `AuthContext` and policy decision consumed by MSP. It must
+return server-derived tenant/business membership, thread audience, capability,
+sensitivity, consent/retention and policy-version evidence before any private memory
+lookup. `lineUserId`, chat-supplied email/role, thread labels, prompt text and model
+output are never authorization input. A pending or revoked LINE identity receives no
+private vault context. See `ADR-022` and `FR-057`.
+
 ## Effective permission
 
 ```text
@@ -83,3 +92,4 @@ sessions/identities, and preserve audit evidence.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | candidate | Identity-link and disclosure-authorization phase | working-tree | ATHER |
+| 0.2.0b | 2026-08-15 | beta | Issue #11 amendment: per-turn AuthContext and policy-before-retrieval boundary | working-tree | ATHER |

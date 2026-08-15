@@ -1,14 +1,12 @@
-import { resolveLinePrincipal } from '@/modules/identity/gate'
 import { queryKnowledge } from '@/modules/knowledge'
 import { memoryKey, createInMemoryMemory } from './memory-port'
 import { defaultReadOnlyTools } from './tools'
+import { resolveAgentAuthorization } from './auth-context'
 
-// @req FR-025 — assemble the settled agent context the runtime binds to LAST:
-//   Identity Context + Memory (principal-keyed) + GKS Knowledge + read-only Zuri Tools.
-// @spec ADR-007 §P6 / Gate E — Agent Read-only Ready: search / read / recommend /
-//   answer only. This assembler performs NO writes to Zuri; memory is keyed by the
-//   classified principal (never the lineUserId), and capabilities are pinned read-only.
-// @tested tests/integration/agent-context.test.js
+// @req FR-025, FR-057 — assemble settled identity, policy-filtered memory and knowledge.
+// @spec ADR-007 §P6 / ADR-022 / Gate E — authorization and vault selection happen before
+//   retrieval; the model receives no raw scope authority.
+// @tested tests/integration/agent-context.test.js, tests/integration/agent-multi-principal.test.js
 
 /**
  * Assemble the read-only context an agent binds to at Gate E, for one LINE subject in
@@ -23,6 +21,8 @@ import { defaultReadOnlyTools } from './tools'
  * @param {string} input.tenantId
  * @param {string} input.lineUserId
  * @param {string} [input.displayName]
+ * @param {string} [input.threadId]
+ * @param {object} [input.serverScope] server-owned agent/workspace/project context
  * @param {import('./memory-port').MemoryPort} [input.memory]  defaults to in-memory port
  * @param {import('./tools').ToolRegistry} [input.tools]       defaults to read-only tools
  * @returns {Promise<{
@@ -33,30 +33,75 @@ import { defaultReadOnlyTools } from './tools'
  *   capabilities: { readOnly: true, gate: 'E' },
  * }>}
  */
-export async function assembleAgentContext({ tenantId, lineUserId, displayName, memory, tools, knowledge: knowledgeReader }) {
-  const principal = await resolveLinePrincipal({ tenantId, lineUserId, displayName })
+export async function assembleAgentContext({
+  tenantId,
+  businessId,
+  lineUserId,
+  displayName,
+  threadId,
+  sessionId,
+  instanceId,
+  eventId,
+  capability,
+  sensitivity,
+  consent,
+  serverScope,
+  memory,
+  tools,
+  knowledge: knowledgeReader,
+}) {
+  const authorization = await resolveAgentAuthorization({
+    tenantId,
+    businessId,
+    lineUserId,
+    displayName,
+    threadId,
+    sessionId,
+    instanceId,
+    eventId,
+    capability,
+    sensitivity,
+    consent,
+    serverScope,
+  })
+  const { principal, authContext, policy, authorizedVaults } = authorization
 
   const identity = {
     principalId: principal.personId,
     principalType: principal.principalType,
     roles: principal.roles,
     customerId: principal.customerId,
+    verified: principal.identityVerified,
   }
 
   const key = memoryKey(tenantId, principal.principalType, principal.personId)
-  const mem = await (memory ?? createInMemoryMemory()).recall(key)
+  const scopedKey = authorizedVaults[0]?.scopeKey ?? key
+  const memoryPort = memory ?? createInMemoryMemory()
+  const mem = policy.privateMemoryAllowed
+    ? typeof memoryPort.recallAuthorized === 'function'
+      ? await memoryPort.recallAuthorized(authorization)
+      : await memoryPort.recall(scopedKey)
+    : { key: scopedKey, entries: [] }
 
   // Knowledge reader is injectable: the Prisma-relation default, or a GenesisBlockDB-backed
   // reader (createGraphKnowledgeReader) when the graph is wired — same {found,relations} shape.
-  const knowledge = await (knowledgeReader ?? queryKnowledge)({ tenantId, principalId: principal.personId })
+  const knowledge = await (knowledgeReader ?? queryKnowledge)({
+    tenantId,
+    businessId: authContext.scope.businessId,
+    principalId: principal.personId,
+    authContext,
+  })
 
   const toolList = (tools ?? defaultReadOnlyTools()).list()
 
   return {
     identity,
-    memory: { key, ...mem },
+    memory: { key: mem.key ?? scopedKey, legacyKey: key, entries: mem.entries },
     knowledge,
     tools: toolList,
     capabilities: { readOnly: true, gate: 'E' },
+    authContext,
+    policy,
+    authorizedVaults,
   }
 }

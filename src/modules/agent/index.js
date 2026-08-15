@@ -6,6 +6,8 @@
 
 export { assembleAgentContext } from './context'
 export { memoryKey, createInMemoryMemory } from './memory-port'
+export { scopedMemoryKey } from './scoped-memory'
+export { resolveAgentAuthorization, vaultScope } from './auth-context'
 export { createMspMemoryPort } from './msp-memory-port'
 export { createToolRegistry, defaultReadOnlyTools } from './tools'
 export { authorizeAgentAction, executeAgentAction } from './action-gate'

@@ -1,5 +1,6 @@
-// @req FR-025 — MSP-backed memory port (principal-keyed), the real adapter behind the P6 memory seam.
-// @spec ADR-007 §P6 — memory keyed by principal, not channel; vault = the principal key.
+// @req FR-025, FR-057 — MSP-backed memory port with explicit authorized vault scopes.
+// @spec ADR-007 §P6 / ADR-022 — legacy principal keys remain compatibility-only;
+//   structured authorization is required before private retrieval.
 // @tested tests/integration/agent-msp-port.test.js
 
 /**
@@ -112,16 +113,15 @@ function entryFromEntity(node) {
  *
  * @param {Object} deps
  * @param {Function|{call?:Function,request?:Function}} deps.transport  injected MSP tool-caller.
- * @param {(key: string) => string} [deps.vaultResolver]  maps the principal key -> MSP vault_id.
- *   Defaults to identity: the principal key IS the vault. Whatever it returns is
- *   still run through the fail-closed principal-scope guard.
+ * @param {(scope: object|string) => string} [deps.vaultResolver] maps a structured
+ *   authorized scope to the canonical MSP vault_id. String input is legacy mode.
  * @param {string} [deps.vaultType]  MSP vault_type for writes (default 'workspace_private').
  * @param {string} [deps.category]   MSP category for writes (default 'agent-memory').
  * @returns {MemoryPort}
  */
 export function createMspMemoryPort({
   transport,
-  vaultResolver = (key) => key,
+  vaultResolver = (scope) => (typeof scope === 'string' ? scope : scope.scopeKey),
   vaultType = DEFAULT_VAULT_TYPE,
   category = DEFAULT_CATEGORY,
 } = {}) {
@@ -135,10 +135,73 @@ export function createMspMemoryPort({
     return vault
   }
 
+  function assertAuthorizedContext(authorization) {
+    if (!authorization?.authContext || authorization.authContext.policy?.decision !== 'ALLOW') {
+      throw new Error('MSP memory port: private retrieval requires an ALLOW policy decision')
+    }
+    const scopes = authorization.authorizedVaults
+    if (!Array.isArray(scopes) || scopes.length === 0) {
+      throw new Error('MSP memory port: authorized vault set is empty')
+    }
+    for (const scope of scopes) {
+      if (
+        scope?.scope !== 'private' ||
+        scope.tenantId !== authorization.authContext.scope.tenantId ||
+        scope.principalId !== authorization.authContext.actor.principalId ||
+        scope.agentId !== authorization.authContext.request.agentId ||
+        !scope.workspaceId
+      ) {
+        throw new Error('MSP memory port: authorized vault scope does not match AuthContext')
+      }
+    }
+  }
+
+  function vaultForScope(scope) {
+    const vault = vaultResolver(scope)
+    if (typeof vault !== 'string' || !vault.includes('tenant:') || !vault.includes('principal:')) {
+      throw new Error('MSP memory port: resolver returned a non-scoped vault')
+    }
+    if (vault.toLowerCase().includes('line:') || BARE_CHANNEL_HANDLE.test(vault)) {
+      throw new Error('MSP memory port: refusing a channel-scoped authorized vault')
+    }
+    return vault
+  }
+
+  async function listVault(vault) {
+    const result = await callTool('msp_memory_list', { vault_id: vault })
+    return entitiesFrom(result).map(entryFromEntity)
+  }
+
+  async function recallAuthorized(authorization) {
+    assertAuthorizedContext(authorization)
+    const entries = []
+    for (const scope of authorization.authorizedVaults) {
+      entries.push(...(await listVault(vaultForScope(scope))))
+    }
+    return { key: authorization.authorizedVaults.map((scope) => scope.scopeKey).join('|'), entries }
+  }
+
+  async function rememberAuthorized(authorization, entry) {
+    assertAuthorizedContext(authorization)
+    if (authorization.authorizedVaults.length !== 1) {
+      throw new Error('MSP memory port: remember requires exactly one authorized private vault')
+    }
+    const scope = authorization.authorizedVaults[0]
+    const vault = vaultForScope(scope)
+    const body_json = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : { value: entry }
+    const entityKey = (entry && (entry.key ?? entry.id)) ?? `${category}:${Date.now()}:${counter++}`
+    await callTool('msp_memory_upsert', {
+      vault: { vault_id: vault, vault_type: vaultType },
+      category,
+      key: String(entityKey),
+      body_json,
+    })
+    return recallAuthorized(authorization)
+  }
+
   async function recall(key) {
     const vault = vaultFor(key)
-    const result = await callTool('msp_memory_list', { vault_id: vault })
-    const entries = entitiesFrom(result).map(entryFromEntity)
+    const entries = await listVault(vault)
     return { key, entries }
   }
 
@@ -173,5 +236,5 @@ export function createMspMemoryPort({
     return recall(key)
   }
 
-  return { recall, remember }
+  return { recall, remember, recallAuthorized, rememberAuthorized }
 }

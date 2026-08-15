@@ -48,6 +48,16 @@ transcript, summary, and episodic-memory records without promoting raw conversat
 - proactive group replies or write actions;
 - OmiChat UI.
 
+## Issue #11 amendment
+
+MSP retrieval consumes the structured AuthContext and explicit authorized vault set
+from Phase 3. A group thread is a shared lifecycle container with many participants;
+it is never the owner of a private vault. Private ownership is scoped by tenant,
+principal, agent and workspace, with project scope only when the approved MSP contract
+requires it. Session and instance identifiers are provenance only. The existing
+principal-only adapter is compatibility mode and cannot silently merge tenants,
+principals or agents. See `ADR-022` and `FR-057`.
+
 ## Acceptance criteria
 
 - events cannot cross tenant/business/thread authorization boundaries;
@@ -75,3 +85,4 @@ candidate generation, and retain auditable tombstones according to policy.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | candidate | MSP episodic-memory ownership and gates | working-tree | ATHER |
+| 0.2.0b | 2026-08-15 | beta | Issue #11 amendment: explicit authorized vault set and group participant isolation | working-tree | ATHER |

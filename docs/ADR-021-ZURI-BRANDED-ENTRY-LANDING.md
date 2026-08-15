@@ -9,14 +9,14 @@ attributes:
   scope: "Zuri V2"
 ---
 
-# ADR-018 — Zuri Branded Entry Landing
+# ADR-021 — Zuri Branded Entry Landing
 
 **Status:** Beta — owner-approved for implementation on 2026-08-14.
 
 ## Context
 
 ADR-015 established the pre-shell route boundary and deliberately deferred visual
-design for `/`. The approved FR-051 slice now needs a product-specific first
+design for `/`. The approved FR-056 slice now needs a product-specific first
 impression without weakening that boundary or importing the fashion, commerce,
 fonts, imagery, copy, or brand references from the supplied visual prompt.
 
@@ -45,7 +45,7 @@ recorded in PRODUCT-V2.
 
 - ADR-015 remains authoritative for routing, authorization, and shell isolation.
 - ADR-010 remains authoritative for tokens, typography, controls, and accessibility.
-- FR-051 owns only the landing experience; Login and Business Routing retain their
+- FR-056 owns only the landing experience; Login and Business Routing retain their
   current behavior and compact entry surfaces.
 - No video payload is required: the responsive signal field provides motion while
   remaining lightweight and honoring reduced-motion preferences.

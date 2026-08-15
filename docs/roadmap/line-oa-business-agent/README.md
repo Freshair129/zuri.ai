@@ -96,6 +96,15 @@ readiness. The candidate labels were registered as canonical requirement IDs aft
 Their supporting boundaries are `NFR-010`, `BR-011`, `SDD-025`, and `SEC-009` in
 `docs/PRD-SDD-v1.0.md`. Requirement IDs are never renumbered or reused.
 
+Issue #11 adds the approved multi-principal authorization boundary:
+
+- `FR-057` (`AUTHORIZED-AGENT-CONTEXT`): per-turn AuthContext, policy-before-retrieval,
+  and explicit MSP authorized vault set;
+- `NFR-014`, `BR-015`, `SDD-030`, and `SEC-013` define revocation, scope, design, and
+  fail-closed security behavior;
+- `ADR-022` is the binding cross-layer decision; implementation is limited to the Zuri
+  authorization seam and adapter contract until the GoVibe/MSP contract is consumed.
+
 ## 7. Program-wide definition of done
 
 A phase is done only when:
