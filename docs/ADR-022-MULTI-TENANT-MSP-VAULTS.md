@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-08-15T00:00:00+07:00,ATHER"
-last_update: "2026-08-15T00:00:00+07:00,ATHER"
+last_update: "2026-08-15T10:00:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -37,20 +37,26 @@ grant itself a vault or widen a scope.
 3. The policy engine evaluates membership, tenant/business scope, thread audience,
    session assurance, capability, sensitivity, consent, retention, and policy
    version before any MSP retrieval.
-4. MSP receives a structured context plus an explicit authorized vault set. The
-   canonical vault identifier and registry remain MSP/GoVibe authority; Zuri does
-   not invent or accept arbitrary vault IDs from a request or model.
-5. Private memory ownership is `Tenant × Principal × Agent × Workspace` (with an
+4. On every private-memory turn, Zuri calls the GoVibe/MSP `msp_vault_resolve`
+   API-010 contract with the server-derived AuthContext and current authorization
+   facts. MSP returns the canonical authorized vault set and permissions. Zuri
+   does not invent or accept arbitrary vault IDs from a request or model.
+5. Zuri's private-memory adapter uses only the returned
+   `workspacePrivateVaultId` for API-009 episodic reads/writes. The returned
+   Global/Shared IDs remain part of the resolved set for dedicated readers and
+   governed knowledge paths; they are never silently folded into private memory.
+6. Private memory ownership is `Tenant × Principal × Agent × Workspace` (with an
    optional project dimension only when the approved MSP contract requires it).
    Thread, session, instance, and event are provenance/lifecycle dimensions, not
    private-memory owners.
-6. Group threads retain participant identity. Private context is never merged across
+7. Group threads retain participant identity. Private context is never merged across
    participants. A shared thread vault is allowed only when the policy engine grants
    it for the requested capability and sensitivity.
-7. Authorization is recalculated on every turn. Cached sessions may carry an
+8. Authorization is recalculated on every turn. Cached sessions may carry an
    assurance/version receipt, but a stale session or model context cannot survive a
    membership or identity revocation.
-8. Existing principal-only memory keys remain a compatibility adapter only. Migration
+9. Existing principal-only memory keys remain an explicitly enabled compatibility
+   adapter only. Migration
    must be explicit, tenant-bound, agent-bound, auditable, and must fail closed when
    the MSP contract is unavailable. No silent cross-tenant or cross-agent merge is
    allowed.
@@ -69,6 +75,26 @@ verified transport event
   -> disclosure gate
   -> response
 ```
+
+The API-010 request uses the canonical snake_case wire shape:
+
+```text
+{
+  actor,
+  access_context: {
+    tenant_id, business_id?, principal_id, agent_id,
+    instance_id?, project_id, workspace_id, thread_id?, session_id?, policy_version?
+  },
+  authorization: {
+    membership_active, allowed, allow_global_private?,
+    allow_tenant_global_private?, allow_shared?, read, write_private, write_shared
+  }
+}
+```
+
+An omitted resolver response, denied permission, missing required scope, or MSP
+transport failure fails closed before any API-009 retrieval or write. Legacy
+`scopeKey` resolution is available only through an explicit compatibility mode.
 
 The `AuthContext` contains server-derived `transport`, `actor`, `scope`,
 `conversation`, `request`, and `policy` fields. Raw `lineUserId`, inbound scope
@@ -95,10 +121,11 @@ application policy decision and MSP vault authorization still run before retriev
 
 Disable private MSP recall and writes, retain bounded current-turn context, preserve
 policy/audit receipts and tombstones, and keep the existing transport and Phase 1
-public-knowledge path production-disabled until the compatibility adapter is reviewed.
+public-knowledge path production-disabled. The compatibility adapter may be used
+only when explicitly enabled for a bounded migration or local test.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 0.1.0b | 2026-08-15 | beta | Owner-approved Issue #11 vault and authorization boundary | working-tree | ATHER |
+| 0.2.0b | 2026-08-15 | beta | Approved API-010 canonical vault resolution and explicit compatibility boundary | working-tree | ATHER |

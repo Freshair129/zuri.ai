@@ -134,6 +134,19 @@ export async function resolveAgentAuthorization({
   const knownPrincipal = principal.principalType !== 'UNKNOWN' && (staffScope || customerScope)
   const transportVerified = serverScope.transportVerified === true
   const privateMemoryAllowed = transportVerified && identityVerified && resolvedScope.authorized && knownPrincipal
+  const configuredMspAuthorization = serverScope.mspAuthorization && typeof serverScope.mspAuthorization === 'object'
+    ? serverScope.mspAuthorization
+    : {}
+  const mspAuthorization = Object.freeze({
+    membershipActive: privateMemoryAllowed,
+    allowed: privateMemoryAllowed,
+    allowGlobalPrivate: privateMemoryAllowed && configuredMspAuthorization.allowGlobalPrivate === true,
+    allowTenantGlobalPrivate: privateMemoryAllowed && configuredMspAuthorization.allowTenantGlobalPrivate === true,
+    allowShared: privateMemoryAllowed && configuredMspAuthorization.allowShared === true,
+    read: privateMemoryAllowed && configuredMspAuthorization.read !== false,
+    writePrivate: privateMemoryAllowed && configuredMspAuthorization.writePrivate === true,
+    writeShared: privateMemoryAllowed && configuredMspAuthorization.writeShared === true,
+  })
 
   const agentId = clean(serverScope.agentId) ?? DEFAULT_AGENT_ID
   const workspaceId = resolvedScope.workspaceId
@@ -198,6 +211,7 @@ export async function resolveAgentAuthorization({
       decision: privateMemoryAllowed ? 'ALLOW' : 'DENY',
       reason,
       privateMemoryAllowed,
+      mspAuthorization,
     }),
   })
 

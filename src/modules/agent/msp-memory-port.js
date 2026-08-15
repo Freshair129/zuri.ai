@@ -1,7 +1,9 @@
 // @req FR-025, FR-057 — MSP-backed memory port with explicit authorized vault scopes.
-// @spec ADR-007 §P6 / ADR-022 — legacy principal keys remain compatibility-only;
-//   structured authorization is required before private retrieval.
-// @tested tests/integration/agent-msp-port.test.js
+// @spec ADR-007 §P6 / ADR-022 — API-010 is canonical; legacy principal keys remain
+//   available only through explicit compatibility mode.
+// @tested tests/integration/agent-msp-port.test.js, tests/integration/msp-vault-memory-port.test.js
+
+import { validateVaultSet } from './msp-vault-resolver'
 
 /**
  * @typedef {import('./memory-port.js').MemoryPort} MemoryPort
@@ -21,20 +23,20 @@
 //   D:\msp\packages\msp-contracts\schemas\API-009.tools.json  and the verified
 //   caller D:\workspace\zuri-command-agent\src\memory\msp-stdio-caller.ts):
 //
-//   remember(key, entry)  ->  msp_memory_upsert
+//   rememberAuthorized(auth, entry) -> msp_memory_upsert
 //       { vault: { vault_id, vault_type }, category, key, body_json, ... }
-//   recall(key)           ->  msp_memory_list
+//   recallAuthorized(auth) ->  msp_memory_list
 //       { vault_id }  ->  { entities: [ { body_json, ... } ] }
 //
 // (`msp_memory_search` is the query-driven read; `recall` wants EVERYTHING the
 //  principal knows, so it lists the principal's vault rather than searching it.)
 //
-// The single ADR-007 §P6 invariant: the MSP `vault_id` is derived from the
-// PRINCIPAL key (`…/principal:{type}:{id}`), never a channel handle. The demo's
-// `vault: line:Uxxxx` is the forbidden anti-pattern — this adapter refuses it.
+// In canonical mode API-010 returns the opaque `vault_id`; this adapter never
+// derives or accepts that ID from the channel, client, model, or scopeKey.
+// The principal-key guard below applies only to explicit legacy compatibility mode.
 
 const DEFAULT_CATEGORY = 'agent-memory'
-const DEFAULT_VAULT_TYPE = 'workspace_private' // per-principal private scope; the vault_id carries identity, not the type.
+const DEFAULT_VAULT_TYPE = 'workspace_private'
 
 // A bare LINE user handle: 'U' + hex (LINE ids are U + 32 hex). Used only to
 // reject channel-scoped keys — a legitimate principal key starts with `tenant:`.
@@ -62,8 +64,8 @@ function resolveCaller(transport) {
 }
 
 /**
- * Fail-closed guard: the resolved MSP vault MUST name a principal and MUST NOT
- * name a channel. This is the ADR-007 §P6 enforcement point — a channel-scoped
+ * Fail-closed guard for explicit legacy compatibility mode: the resolved MSP
+ * vault MUST name a principal and MUST NOT name a channel. A channel-scoped
  * vault would read/write another principal's memory, so we refuse before any
  * MSP round-trip happens.
  *
@@ -113,30 +115,53 @@ function entryFromEntity(node) {
  *
  * @param {Object} deps
  * @param {Function|{call?:Function,request?:Function}} deps.transport  injected MSP tool-caller.
- * @param {(scope: object|string) => string} [deps.vaultResolver] maps a structured
- *   authorized scope to the canonical MSP vault_id. String input is legacy mode.
+ * @param {{resolve: Function}|Function} [deps.vaultSetResolver] canonical API-010
+ *   resolver returning the opaque authorized vault set.
+ * @param {(scope: object|string) => string} [deps.vaultResolver] legacy scopeKey
+ *   resolver; allowed only with `compatibilityMode: true`.
+ * @param {boolean} [deps.compatibilityMode] explicitly enable legacy API-009 mode.
  * @param {string} [deps.vaultType]  MSP vault_type for writes (default 'workspace_private').
  * @param {string} [deps.category]   MSP category for writes (default 'agent-memory').
  * @returns {MemoryPort}
  */
 export function createMspMemoryPort({
   transport,
-  vaultResolver = (scope) => (typeof scope === 'string' ? scope : scope.scopeKey),
+  vaultResolver,
+  vaultSetResolver,
+  compatibilityMode = false,
   vaultType = DEFAULT_VAULT_TYPE,
   category = DEFAULT_CATEGORY,
 } = {}) {
   const callTool = resolveCaller(transport)
+  const legacyResolver = vaultResolver ?? ((scope) => (typeof scope === 'string' ? scope : scope.scopeKey))
+  if (!vaultSetResolver && !compatibilityMode) {
+    throw new Error('createMspMemoryPort: API-010 vaultSetResolver required; enable compatibilityMode explicitly for legacy scopeKey access')
+  }
+  if (vaultSetResolver && typeof vaultSetResolver !== 'function' && typeof vaultSetResolver.resolve !== 'function') {
+    throw new Error('createMspMemoryPort: vaultSetResolver must expose resolve()')
+  }
   let counter = 0
+
+  function assertCompatibilityMode() {
+    if (!compatibilityMode) {
+      throw new Error('MSP memory port: legacy scopeKey access requires compatibilityMode')
+    }
+  }
 
   /** Derive + guard the MSP vault_id for a port key. Throws (fail-closed) on channel scope. */
   function vaultFor(key) {
-    const vault = vaultResolver(key)
+    assertCompatibilityMode()
+    const vault = legacyResolver(key)
     assertPrincipalScopedVault(vault, key)
     return vault
   }
 
   function assertAuthorizedContext(authorization) {
-    if (!authorization?.authContext || authorization.authContext.policy?.decision !== 'ALLOW') {
+    if (
+      !authorization?.authContext ||
+      authorization.authContext.policy?.decision !== 'ALLOW' ||
+      authorization.authContext.policy?.privateMemoryAllowed !== true
+    ) {
       throw new Error('MSP memory port: private retrieval requires an ALLOW policy decision')
     }
     const scopes = authorization.authorizedVaults
@@ -149,7 +174,9 @@ export function createMspMemoryPort({
         scope.tenantId !== authorization.authContext.scope.tenantId ||
         scope.principalId !== authorization.authContext.actor.principalId ||
         scope.agentId !== authorization.authContext.request.agentId ||
-        !scope.workspaceId
+        !scope.workspaceId ||
+        scope.workspaceId !== authorization.authContext.scope.workspaceId ||
+        scope.projectId !== authorization.authContext.scope.projectId
       ) {
         throw new Error('MSP memory port: authorized vault scope does not match AuthContext')
       }
@@ -157,7 +184,7 @@ export function createMspMemoryPort({
   }
 
   function vaultForScope(scope) {
-    const vault = vaultResolver(scope)
+    const vault = legacyResolver(scope)
     if (typeof vault !== 'string' || !vault.includes('tenant:') || !vault.includes('principal:')) {
       throw new Error('MSP memory port: resolver returned a non-scoped vault')
     }
@@ -172,7 +199,28 @@ export function createMspMemoryPort({
     return entitiesFrom(result).map(entryFromEntity)
   }
 
+  async function resolveCanonical(authorization, operation) {
+    assertAuthorizedContext(authorization)
+    if (!vaultSetResolver) throw new Error('MSP memory port: API-010 vault resolver is not configured')
+    const result = typeof vaultSetResolver === 'function'
+      ? await vaultSetResolver(authorization, { operation })
+      : await vaultSetResolver.resolve(authorization, { operation })
+    const vaultSet = validateVaultSet(result)
+    if (operation === 'read' && vaultSet.permissions.read !== true) {
+      throw new Error('MSP memory port: API-010 denied read permission')
+    }
+    if (operation === 'write' && vaultSet.permissions.writePrivate !== true) {
+      throw new Error('MSP memory port: API-010 denied private write permission')
+    }
+    return vaultSet
+  }
+
   async function recallAuthorized(authorization) {
+    if (vaultSetResolver) {
+      const vaultSet = await resolveCanonical(authorization, 'read')
+      const entries = await listVault(vaultSet.workspacePrivateVaultId)
+      return { key: vaultSet.workspacePrivateVaultId, entries, vaultSet }
+    }
     assertAuthorizedContext(authorization)
     const entries = []
     for (const scope of authorization.authorizedVaults) {
@@ -182,6 +230,18 @@ export function createMspMemoryPort({
   }
 
   async function rememberAuthorized(authorization, entry) {
+    if (vaultSetResolver) {
+      const vaultSet = await resolveCanonical(authorization, 'write')
+      const body_json = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : { value: entry }
+      const entityKey = (entry && (entry.key ?? entry.id)) ?? `${category}:${Date.now()}:${counter++}`
+      await callTool('msp_memory_upsert', {
+        vault: { vault_id: vaultSet.workspacePrivateVaultId, vault_type: vaultType },
+        category,
+        key: String(entityKey),
+        body_json,
+      })
+      return recallAuthorized(authorization)
+    }
     assertAuthorizedContext(authorization)
     if (authorization.authorizedVaults.length !== 1) {
       throw new Error('MSP memory port: remember requires exactly one authorized private vault')
@@ -200,12 +260,14 @@ export function createMspMemoryPort({
   }
 
   async function recall(key) {
+    assertCompatibilityMode()
     const vault = vaultFor(key)
     const entries = await listVault(vault)
     return { key, entries }
   }
 
   async function remember(key, entry) {
+    assertCompatibilityMode()
     const vault = vaultFor(key)
 
     // body_json must be an object (API-009 schema); wrap non-objects.

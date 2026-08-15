@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { createMspMemoryPort } from '@/modules/agent/msp-memory-port'
 
-// @req FR-025 — MSP-backed memory port (principal-keyed), the real adapter behind the P6 seam.
-// @spec ADR-007 §P6 — memory keyed by principal, not channel; vault = the principal key. The
-//   demo's `vault: line:Uxxxx` is the forbidden anti-pattern; the adapter fails closed on it.
+// @req FR-025 — MSP-backed memory port, with legacy principal-keyed access bounded to migration/tests.
+// @spec ADR-007 §P6 / ADR-022 — canonical callers use API-010; the legacy principal key is never a
+//   channel handle and is accepted only with explicit compatibility mode.
 //
 // No DB, no server, no stdio: a mock transport records every MSP tool call and returns canned
 // API-009 responses. Test-data prefix: PF-MSP.
@@ -27,13 +27,45 @@ function mockTransport(responses = {}) {
 }
 
 describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
+  it('requires an explicit compatibility mode when no API-010 resolver is configured', () => {
+    expect(() => createMspMemoryPort({ transport: async () => ({}) })).toThrow(/API-010|compatibility/i)
+  })
+
+  it('requires privateMemoryAllowed even when a caller supplies an ALLOW decision', async () => {
+    const calls = []
+    const port = createMspMemoryPort({
+      transport: async (...args) => { calls.push(args); return { entities: [] } },
+      compatibilityMode: true,
+    })
+    const authorization = {
+      authContext: {
+        actor: { principalId: 'person-1' },
+        scope: { tenantId: 'tenant-1', workspaceId: 'workspace-1', projectId: null },
+        request: { agentId: 'agent-1' },
+        policy: { decision: 'ALLOW', privateMemoryAllowed: false },
+      },
+      authorizedVaults: [{
+        scope: 'private',
+        tenantId: 'tenant-1',
+        principalId: 'person-1',
+        agentId: 'agent-1',
+        workspaceId: 'workspace-1',
+        projectId: null,
+        scopeKey: PRINCIPAL_KEY,
+      }],
+    }
+
+    await expect(port.recallAuthorized(authorization)).rejects.toThrow(/ALLOW/)
+    expect(calls).toHaveLength(0)
+  })
+
   describe('remember — writes via msp_memory_upsert scoped to the principal vault', () => {
     it('issues an upsert with vault_id === the principal key and body_json === the entry', async () => {
       const transport = mockTransport({
         msp_memory_upsert: { entity: {}, created: true, changed: true },
         msp_memory_list: { entities: [] },
       })
-      const port = createMspMemoryPort({ transport })
+      const port = createMspMemoryPort({ transport, compatibilityMode: true })
 
       const entry = { key: 'PF-MSP-fact-1', text: 'ลูกค้าชอบสีแดง', role: 'note' }
       await port.remember(PRINCIPAL_KEY, entry)
@@ -54,7 +86,7 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
         msp_memory_upsert: {},
         msp_memory_list: { entities: [] },
       })
-      const port = createMspMemoryPort({ transport })
+      const port = createMspMemoryPort({ transport, compatibilityMode: true })
 
       await port.remember(PRINCIPAL_KEY, {
         key: 'PF-MSP-fact-2',
@@ -76,7 +108,7 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
         msp_memory_upsert: {},
         msp_memory_list: { entities: [{ entity_id: 'e1', body_json: stored }] },
       })
-      const port = createMspMemoryPort({ transport })
+      const port = createMspMemoryPort({ transport, compatibilityMode: true })
 
       const recall = await port.remember(PRINCIPAL_KEY, stored)
       expect(recall.key).toBe(PRINCIPAL_KEY)
@@ -98,7 +130,7 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
           ],
         },
       })
-      const port = createMspMemoryPort({ transport })
+      const port = createMspMemoryPort({ transport, compatibilityMode: true })
 
       const recall = await port.recall(PRINCIPAL_KEY)
 
@@ -110,7 +142,7 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
 
     it('returns an empty entry list for an unknown key (read-only-safe)', async () => {
       const transport = mockTransport({ msp_memory_list: { entities: [] } })
-      const port = createMspMemoryPort({ transport })
+      const port = createMspMemoryPort({ transport, compatibilityMode: true })
 
       const recall = await port.recall(PRINCIPAL_KEY)
       expect(recall).toEqual({ key: PRINCIPAL_KEY, entries: [] })
@@ -120,6 +152,7 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
       const transport = mockTransport({ msp_memory_list: { entities: [] } })
       const port = createMspMemoryPort({
         transport,
+        compatibilityMode: true,
         // resolver still produces a principal-scoped vault.
         vaultResolver: (key) => `${key}#v2`,
       })
@@ -133,7 +166,7 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
   describe('fail-closed — refuses channel-scoped keys before any MSP round-trip', () => {
     it('rejects a key that embeds a channel handle (…/line:Uxxxx)', async () => {
       const transport = mockTransport({})
-      const port = createMspMemoryPort({ transport })
+      const port = createMspMemoryPort({ transport, compatibilityMode: true })
 
       await expect(
         port.recall('tenant:PF-MSP-T1/line:U0123456789abcdef0123456789abcdef'),
@@ -144,7 +177,7 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
 
     it('rejects a bare LINE user handle used as a key', async () => {
       const transport = mockTransport({})
-      const port = createMspMemoryPort({ transport })
+      const port = createMspMemoryPort({ transport, compatibilityMode: true })
 
       await expect(
         port.remember('U0123456789abcdef0123456789abcdef', { text: 'x' }),
@@ -154,7 +187,7 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
 
     it('rejects a key that names no principal at all', async () => {
       const transport = mockTransport({})
-      const port = createMspMemoryPort({ transport })
+      const port = createMspMemoryPort({ transport, compatibilityMode: true })
 
       await expect(port.recall('tenant:PF-MSP-T1/thread:PF-MSP-thread-1')).rejects.toThrow(
         /principal:/,
@@ -166,6 +199,7 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
       const transport = mockTransport({})
       const port = createMspMemoryPort({
         transport,
+        compatibilityMode: true,
         vaultResolver: () => 'line:U0123456789abcdef0123456789abcdef',
       })
 
@@ -183,7 +217,7 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
           return { entities: [] }
         },
       }
-      const port = createMspMemoryPort({ transport: client })
+      const port = createMspMemoryPort({ transport: client, compatibilityMode: true })
 
       await port.recall(PRINCIPAL_KEY)
       expect(calls[0].name).toBe('msp_memory_list')
@@ -191,7 +225,7 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
     })
 
     it('throws if no usable transport is injected', () => {
-      expect(() => createMspMemoryPort({ transport: {} })).toThrow(/transport/)
+      expect(() => createMspMemoryPort({ transport: {}, compatibilityMode: true })).toThrow(/transport/)
     })
   })
 })

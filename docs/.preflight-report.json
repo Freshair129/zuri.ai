@@ -2,10 +2,10 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 158,
+    "docs": 159,
     "v1_inherited": 234,
     "routes": 55,
-    "test_files": 111
+    "test_files": 113
   },
   "summary": {
     "critical": 0,
@@ -508,7 +508,7 @@
       "files": [
         "docs/roadmap/ROADMAP-zuri-v2-lab.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 111 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 113 files"
     }
   ]
 }

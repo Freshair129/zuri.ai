@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import { createPortfolio, createTenant, createBusiness } from '@/modules/project-manager/application/scope-service'
+import { createPortfolio, createTenant, createBusiness, createWorkspace } from '@/modules/project-manager/application/scope-service'
+import { createProject } from '@/modules/project-manager/application/project-service'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import prisma from '@/lib/db'
 import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
@@ -8,13 +9,15 @@ import { assembleAgentContext, createAgentPorts, handleAgentTurn } from '@/modul
 // @req FR-029 — the agent runs on the REAL backends when configured: MSP memory +
 // GenesisBlockDB knowledge, wired through createAgentPorts, with graceful fallback.
 
-let tenant, business
+let tenant, business, workspace, project
 
 describe('createAgentPorts — agent bound to MSP + GenesisBlockDB (FR-029)', () => {
   beforeAll(async () => {
     const pf = await createPortfolio({ name: 'Runtime Group', code: 'PF-RT' })
     tenant = await createTenant({ portfolioId: pf.id, name: 'Runtime Tenant', code: 'TNT-RT' })
     business = await createBusiness({ tenantId: tenant.id, name: 'Runtime Business', code: 'BUS-RT' })
+    workspace = await createWorkspace({ scopeType: 'BUSINESS', businessId: business.id, name: 'Runtime Workspace', code: 'WS-RT' })
+    project = await createProject({ workspaceId: workspace.id, businessId: business.id, name: 'Runtime Project', code: 'PRJ-RT' })
   })
 
   it('with no backends, ports fall back to in-memory + Prisma (agent still works)', async () => {
@@ -46,6 +49,14 @@ describe('createAgentPorts — agent bound to MSP + GenesisBlockDB (FR-029)', ()
     // Minimal mock MSP transport: (toolName, input) => structuredContent
     const transport = async (name, input) => {
       wire.push({ name, input })
+      if (name === 'msp_vault_resolve') {
+        return {
+          workspacePrivateVaultId: 'vault-runtime-workspace',
+          globalPrivateVaultIds: [],
+          sharedVaultIds: [],
+          permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'FR-057.v2' },
+        }
+      }
       if (name === 'msp_memory_list') return { entities: [{ body_json: { note: 'seen before' } }] }
       return { ok: true }
     }
@@ -59,13 +70,13 @@ describe('createAgentPorts — agent bound to MSP + GenesisBlockDB (FR-029)', ()
       businessId: business.id,
       lineUserId: 'Urt-3',
       memory: ports.memory,
-      serverScope: { transportVerified: true, businessId: business.id },
+      serverScope: { transportVerified: true, businessId: business.id, workspaceId: workspace.id, projectId: project.id },
     })
     // memory recall went to MSP, scoped to the principal vault (never a channel handle)
     const listCall = wire.find((c) => c.name === 'msp_memory_list')
     expect(listCall).toBeTruthy()
     expect(JSON.stringify(listCall.input)).not.toContain('line:')
-    expect(ctx.memory.key).toContain('principal:')
+    expect(ctx.memory.key).toBe('vault-runtime-workspace')
   })
 
   it('handleAgentTurn accepts the composed ports end to end', async () => {
