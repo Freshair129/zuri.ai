@@ -75,12 +75,17 @@ describe('assembleAgentContext (FR-025)', () => {
     const link = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
     await redeemLinkToken({ tenantId: tenant.id, token: link.token, lineUserId: 'Uag-2' })
     // First pass resolves the principal and gives us the key.
-    const first = await assembleAgentContext({ tenantId: tenant.id, lineUserId: 'Uag-2', memory })
+    const trustedScope = { transportVerified: true, businessId: business.id }
+    const first = await assembleAgentContext({
+      tenantId: tenant.id, businessId: business.id, lineUserId: 'Uag-2', memory, serverScope: trustedScope,
+    })
     expect(first.memory.entries).toEqual([])
 
     await memory.remember(first.memory.key, { note: 'prefers Thai' })
 
-    const second = await assembleAgentContext({ tenantId: tenant.id, lineUserId: 'Uag-2', memory })
+    const second = await assembleAgentContext({
+      tenantId: tenant.id, businessId: business.id, lineUserId: 'Uag-2', memory, serverScope: trustedScope,
+    })
     expect(second.memory.key).toBe(first.memory.key)
     expect(second.memory.entries).toEqual([{ note: 'prefers Thai' }])
   })

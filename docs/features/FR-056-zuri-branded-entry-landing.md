@@ -35,14 +35,14 @@ FR-044 route and authorization boundary.
 
 | ID | Acceptance criterion |
 |---|---|
-| AC-051.1 | `/` renders Zuri-only brand and product copy with no third-party, fashion, retail, or commerce reference. |
-| AC-051.2 | The page has exactly one route-bearing action and it targets `/login`. |
-| AC-051.3 | EntryShell remains outside DomainBar, Sidebar, Business picker, and all BusinessShell data resolution. |
-| AC-051.4 | The composition reuses ADR-010 tokens, font stack, Lucide, focus treatment, and reduced-motion contract without introducing new design primitives. |
-| AC-051.5 | Fine-pointer desktop receives an eased, non-interactive signal reveal; mobile, coarse-pointer, and reduced-motion contexts receive a static operational topology. |
-| AC-051.6 | Runtime visual assets are local or code-native; no external image or font URL is required. |
-| AC-051.7 | The page remains usable at mobile and desktop sizes, with its CTA keyboard reachable and visually identifiable. |
-| AC-051.8 | FR-044 and FR-046 routing, session, and viewer contracts remain unchanged. |
+| AC-056.1 | `/` renders Zuri-only brand and product copy with no third-party, fashion, retail, or commerce reference. |
+| AC-056.2 | The page has exactly one route-bearing action and it targets `/login`. |
+| AC-056.3 | EntryShell remains outside DomainBar, Sidebar, Business picker, and all BusinessShell data resolution. |
+| AC-056.4 | The composition reuses ADR-010 tokens, font stack, Lucide, focus treatment, and reduced-motion contract without introducing new design primitives. |
+| AC-056.5 | Fine-pointer desktop receives an eased, non-interactive signal reveal; mobile, coarse-pointer, and reduced-motion contexts receive a static operational topology. |
+| AC-056.6 | Runtime visual assets are local or code-native; no external image or font URL is required. |
+| AC-056.7 | The page remains usable at mobile and desktop sizes, with its CTA keyboard reachable and visually identifiable. |
+| AC-056.8 | FR-044 and FR-046 routing, session, and viewer contracts remain unchanged. |
 
 ## Implementation boundary
 

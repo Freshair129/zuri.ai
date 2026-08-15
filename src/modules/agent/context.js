@@ -87,7 +87,7 @@ export async function assembleAgentContext({
   // reader (createGraphKnowledgeReader) when the graph is wired — same {found,relations} shape.
   const knowledge = await (knowledgeReader ?? queryKnowledge)({
     tenantId,
-    businessId,
+    businessId: authContext.scope.businessId,
     principalId: principal.personId,
     authContext,
   })

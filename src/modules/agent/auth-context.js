@@ -15,8 +15,58 @@ function clean(value) {
 }
 
 function membershipAllowsBusiness(membership, businessId) {
-  if (!businessId) return true
+  if (!businessId) return membership.businessId === null
   return membership.businessId === null || membership.businessId === businessId
+}
+
+async function resolvePersistedScope({ tenantId, businessId, serverScope }) {
+  const inputBusinessId = clean(businessId)
+  const resolvedBusinessId = clean(serverScope.businessId)
+  let workspaceId = clean(serverScope.workspaceId)
+  const projectId = clean(serverScope.projectId)
+
+  if (inputBusinessId && inputBusinessId !== resolvedBusinessId) {
+    return { authorized: false, reason: 'BUSINESS_SCOPE_MISMATCH', businessId: resolvedBusinessId, workspaceId, projectId }
+  }
+
+  if (resolvedBusinessId) {
+    const business = await prisma.business.findUnique({ where: { id: resolvedBusinessId } })
+    if (!business || business.tenantId !== tenantId || business.status !== 'ACTIVE') {
+      return { authorized: false, reason: 'BUSINESS_SCOPE_DENIED', businessId: resolvedBusinessId, workspaceId, projectId }
+    }
+  }
+
+  let workspace = null
+  let project = null
+  if (projectId) {
+    project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: { workspace: true },
+    })
+    if (!project || project.deletedAt || project.status === 'ARCHIVED' || (workspaceId && project.workspaceId !== workspaceId)) {
+      return { authorized: false, reason: 'PROJECT_SCOPE_DENIED', businessId: resolvedBusinessId, workspaceId, projectId }
+    }
+    workspace = project.workspace
+    workspaceId = project.workspaceId
+  } else if (workspaceId) {
+    workspace = await prisma.workspace.findUnique({ where: { id: workspaceId } })
+  }
+
+  if (workspace) {
+    const workspaceMatches = workspace.status === 'ACTIVE' && workspace.tenantId === tenantId &&
+      (resolvedBusinessId ? workspace.businessId === resolvedBusinessId : workspace.businessId === null)
+    if (!workspaceMatches) {
+      return { authorized: false, reason: 'WORKSPACE_SCOPE_DENIED', businessId: resolvedBusinessId, workspaceId, projectId }
+    }
+  } else if (workspaceId) {
+    return { authorized: false, reason: 'WORKSPACE_SCOPE_DENIED', businessId: resolvedBusinessId, workspaceId, projectId }
+  }
+
+  if (project && project.businessId !== resolvedBusinessId) {
+    return { authorized: false, reason: 'PROJECT_SCOPE_DENIED', businessId: resolvedBusinessId, workspaceId, projectId }
+  }
+
+  return { authorized: true, reason: null, businessId: resolvedBusinessId, workspaceId, projectId }
 }
 
 function vaultScope({ tenantId, principalId, agentId, workspaceId, projectId }) {
@@ -60,6 +110,7 @@ export async function resolveAgentAuthorization({
   serverScope = {},
 } = {}) {
   const principal = await resolveLinePrincipal({ tenantId, lineUserId, displayName })
+  const resolvedScope = await resolvePersistedScope({ tenantId, businessId, serverScope })
   const memberships = await prisma.membership.findMany({
     where: { tenantId, personId: principal.personId },
     select: { id: true, businessId: true, role: true },
@@ -72,22 +123,22 @@ export async function resolveAgentAuthorization({
       })
     : null
 
-  const staffScope = memberships.some((membership) => membershipAllowsBusiness(membership, businessId))
+  const staffScope = memberships.some((membership) => membershipAllowsBusiness(membership, resolvedScope.businessId))
   const customerScope = Boolean(
     customer &&
       customer.tenantId === tenantId &&
       !customer.deletedAt &&
-      (!businessId || customer.businessId === null || customer.businessId === businessId),
+      (resolvedScope.businessId ? customer.businessId === null || customer.businessId === resolvedScope.businessId : customer.businessId === null),
   )
   const identityVerified = Boolean(principal.verifiedAt && principal.linkedAt)
   const knownPrincipal = principal.principalType !== 'UNKNOWN' && (staffScope || customerScope)
-  const transportVerified = serverScope.transportVerified !== false
-  const privateMemoryAllowed = transportVerified && identityVerified && knownPrincipal
+  const transportVerified = serverScope.transportVerified === true
+  const privateMemoryAllowed = transportVerified && identityVerified && resolvedScope.authorized && knownPrincipal
 
   const agentId = clean(serverScope.agentId) ?? DEFAULT_AGENT_ID
-  const workspaceId = clean(serverScope.workspaceId)
-  const projectId = clean(serverScope.projectId)
-  const resolvedBusinessId = clean(serverScope.businessId) ?? businessId
+  const workspaceId = resolvedScope.workspaceId
+  const projectId = resolvedScope.projectId
+  const resolvedBusinessId = resolvedScope.businessId
   const policyVersion = clean(serverScope.policyVersion) ?? DEFAULT_POLICY_VERSION
   const allowedVaults = privateMemoryAllowed
     ? [vaultScope({
@@ -104,10 +155,12 @@ export async function resolveAgentAuthorization({
     : !transportVerified
       ? 'TRANSPORT_UNVERIFIED'
       : !identityVerified
-      ? 'IDENTITY_PENDING'
-      : !knownPrincipal
-        ? 'MEMBERSHIP_SCOPE_DENIED'
-        : 'PRIVATE_MEMORY_DENIED'
+        ? 'IDENTITY_PENDING'
+        : !resolvedScope.authorized
+          ? resolvedScope.reason
+          : !knownPrincipal
+            ? 'MEMBERSHIP_SCOPE_DENIED'
+            : 'PRIVATE_MEMORY_DENIED'
 
   const authContext = Object.freeze({
     transport: Object.freeze({

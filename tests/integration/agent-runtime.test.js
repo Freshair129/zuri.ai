@@ -54,7 +54,13 @@ describe('createAgentPorts — agent bound to MSP + GenesisBlockDB (FR-029)', ()
     await prisma.membership.create({ data: { personId: person.id, tenantId: tenant.id, businessId: business.id, role: 'MEMBER' } })
     const link = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
     await redeemLinkToken({ tenantId: tenant.id, token: link.token, lineUserId: 'Urt-3' })
-    const ctx = await assembleAgentContext({ tenantId: tenant.id, businessId: business.id, lineUserId: 'Urt-3', memory: ports.memory })
+    const ctx = await assembleAgentContext({
+      tenantId: tenant.id,
+      businessId: business.id,
+      lineUserId: 'Urt-3',
+      memory: ports.memory,
+      serverScope: { transportVerified: true, businessId: business.id },
+    })
     // memory recall went to MSP, scoped to the principal vault (never a channel handle)
     const listCall = wire.find((c) => c.name === 'msp_memory_list')
     expect(listCall).toBeTruthy()

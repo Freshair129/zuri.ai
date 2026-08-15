@@ -2,16 +2,16 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 153,
+    "docs": 158,
     "v1_inherited": 234,
     "routes": 55,
-    "test_files": 110
+    "test_files": 111
   },
   "summary": {
-    "critical": 1,
-    "warning": 1,
-    "info": 43,
-    "overall": "CRITICAL"
+    "critical": 0,
+    "warning": 0,
+    "info": 45,
+    "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -350,6 +350,28 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
+      "details": "pr12-semantic-conflict-brief.md",
+      "files": [
+        "docs/.rwang-tasks/pr12-semantic-conflict-brief.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I32",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "pr12-semantic-conflict-report.md",
+      "files": [
+        "docs/.rwang-tasks/pr12-semantic-conflict-report.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I33",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
       "details": "ACCEPTANCE-CRITERIA.md",
       "files": [
         "docs/ACCEPTANCE-CRITERIA.md"
@@ -357,7 +379,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I32",
+      "id": "I34",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -368,7 +390,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I33",
+      "id": "I35",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -379,7 +401,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I34",
+      "id": "I36",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -390,7 +412,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I35",
+      "id": "I37",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -401,7 +423,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I36",
+      "id": "I38",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -412,7 +434,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I37",
+      "id": "I39",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -423,7 +445,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I38",
+      "id": "I40",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -434,7 +456,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I39",
+      "id": "I41",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -445,7 +467,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I40",
+      "id": "I42",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -456,7 +478,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I41",
+      "id": "I43",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -467,7 +489,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I42",
+      "id": "I44",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -478,24 +500,6 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "W43",
-      "severity": "warning",
-      "check": "doc-code-symlink",
-      "title": "Annotations pointing at unknown nodes",
-      "details": "150 dangling edge(s)",
-      "files": [],
-      "action": "Fix the @req/@tested target"
-    },
-    {
-      "id": "C44",
-      "severity": "critical",
-      "check": "requirement-coverage",
-      "title": "Requirement ids referenced in code but not declared",
-      "details": "FR-052, BR-012, SEC-010, FR-053, FR-054, BR-013, SDD-027, SEC-011, FR-055, BR-014, SDD-028, SEC-012, NFR-013",
-      "files": [],
-      "action": "Declare them in the PRD registry"
-    },
-    {
       "id": "I45",
       "severity": "info",
       "check": "staleness",
@@ -504,7 +508,7 @@
       "files": [
         "docs/roadmap/ROADMAP-zuri-v2-lab.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 110 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 111 files"
     }
   ]
 }

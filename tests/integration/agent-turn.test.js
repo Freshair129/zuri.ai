@@ -99,9 +99,9 @@ describe('handleAgentTurn (FR-027)', () => {
     // a customer conversation to close
     const cust = await handleAgentTurn({ tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-2', threadId: 'T-trn-2', text: 'hi' })
     const r = await handleAgentTurn({
-      tenantId: tenant.id, lineUserId: 'Utrn-staff1', threadId: 'T-staff-1', text: 'close it',
+      tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-staff1', threadId: 'T-staff-1', text: 'close it',
       action: { name: 'close_conversation', target: { conversationId: cust.inbound.conversationId } },
-    })
+    }, { serverScope: { transportVerified: true, businessId: business.id } })
     expect(r.response.kind).toBe('ACTION_DONE')
     const convo = await prisma.conversation.findUnique({ where: { id: cust.inbound.conversationId } })
     expect(convo.status).toBe('CLOSED')
@@ -121,9 +121,9 @@ describe('handleAgentTurn (FR-027)', () => {
     await staffSubject('PSN-trn-staff2', 'Utrn-staff2', 'OWNER')
     const cust = await handleAgentTurn({ tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-4', threadId: 'T-trn-4', text: 'hi' })
     const r = await handleAgentTurn({
-      tenantId: tenant.id, lineUserId: 'Utrn-staff2', threadId: 'T-staff-2', text: 'deactivate',
+      tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-staff2', threadId: 'T-staff-2', text: 'deactivate',
       action: { name: 'deactivate_customer', target: { customerId: cust.inbound.customerId } },
-    })
+    }, { serverScope: { transportVerified: true, businessId: business.id } })
     expect(r.response.kind).toBe('STEP_UP_REQUIRED')
     const c = await prisma.customer.findUnique({ where: { id: cust.inbound.customerId } })
     expect(c.deletedAt).toBeNull()
@@ -134,9 +134,9 @@ describe('handleAgentTurn (FR-027)', () => {
     const cust = await handleAgentTurn({ tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-5', threadId: 'T-trn-5', text: 'hi' })
     const { token } = await issueStepUp({ tenantId: tenant.id, personId: staff.id })
     const r = await handleAgentTurn({
-      tenantId: tenant.id, lineUserId: 'Utrn-staff3', threadId: 'T-staff-3', text: 'deactivate',
+      tenantId: tenant.id, businessId: business.id, lineUserId: 'Utrn-staff3', threadId: 'T-staff-3', text: 'deactivate',
       action: { name: 'deactivate_customer', target: { customerId: cust.inbound.customerId }, stepUpToken: token },
-    })
+    }, { serverScope: { transportVerified: true, businessId: business.id } })
     expect(r.response.kind).toBe('ACTION_DONE')
     const c = await prisma.customer.findUnique({ where: { id: cust.inbound.customerId } })
     expect(c.deletedAt).not.toBeNull()
