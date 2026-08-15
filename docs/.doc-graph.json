@@ -36,10 +36,10 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [
-      "doc:ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION"
+    "changed": [
+      "test:tests/integration/agent-webhook-route.test.js"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -5682,8 +5682,8 @@
       "id": "test:tests/integration/agent-webhook-route.test.js",
       "type": "test",
       "path": "tests/integration/agent-webhook-route.test.js",
-      "hash": "1daed9db",
-      "status": "current"
+      "hash": "682a940a",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/backup.test.js",
