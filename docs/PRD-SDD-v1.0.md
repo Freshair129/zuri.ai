@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.43.0b |
+| **Version** | 1.44.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -68,6 +68,7 @@
 | 1.41.0 | 2026-08-14 | ATHER | Secret-redacted live dedicated-login isolation passes the exact 74-row Supabase scope; provider, binding and LINE canary gates remain open |
 | 1.42.0b | 2026-08-14 | ATHER | Reconciled later branch facts: Zuri Landing is retained as FR-056/SDD-029/ADR-021, and the PlanEnvelope seven-mode/edit-only intake updates remain documented |
 | 1.43.0b | 2026-08-15 | ATHER | PR #12 semantic conflict repair: MSP authorization is FR-057/NFR-014/BR-015/SDD-030/SEC-013/ADR-022 while Phase 1 production IDs retain their meanings |
+| 1.44.0b | 2026-08-15 | ATHER | Approved FR-057 API-010 canonical GoVibe/MSP vault resolution; legacy API-009 scopeKey access is explicit compatibility mode only |
 
 ## Referenced Standards
 
@@ -168,7 +169,7 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-054 | Controlled LINE canary readiness: produce a secret-safe runtime-role isolation report and dry-run canary plan that validates exact project/Tenant/Business/binding/provider/evaluation prerequisites. Readiness code never activates a binding or calls LINE; receipt states distinguish accepted from display/read unknown. | Implemented (beta): secret-redacted live probe passes exact 74-row scope; approved provider evaluation and signed LINE canary remain external NOT_RUN gates |
 | FR-055 | Controlled LINE activation and receipt: a dry-run-default operator command may install HMAC hashes and activate exactly one expiring binding only through a versioned compare-and-swap transaction and dedicated least-privilege role. Routing-first rollback and append-only redacted receipt events preserve truthful `ACCEPTED_BY_LINE` versus display/read unknown semantics. | Owner-approved for local implementation; production mutation remains gated |
 | FR-056 | Zuri-branded entry landing: `/` presents a full-viewport, responsive Zuri Heritage composition with one route-bearing action to `/login`, code-native/local visuals, reduced-motion support, and no third-party fashion or commerce semantics. FR-044/046 routing and identity boundaries remain unchanged. | Owner-approved beta 2026-08-14 |
-| FR-057 | Authorized agent context: every LINE turn resolves ExternalIdentity, Person, Membership, thread/session assurance and server-owned agent/workspace/project scope before MSP retrieval; the model, prompt, client payload and stale session cannot widen the explicit authorized vault set. | Owner-approved beta; Issue #11 implementation in progress |
+| FR-057 | Authorized agent context: every LINE turn resolves ExternalIdentity, Person, Membership, thread/session assurance and server-owned agent/workspace/project scope, then calls GoVibe/MSP API-010 `msp_vault_resolve` before API-009 retrieval; the model, prompt, client payload and stale session cannot widen the canonical authorized vault set. | Owner-approved beta; API-010 integration in progress |
 
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
 > superseded for the operational shell. Home may show Organization/Portfolio ancestry

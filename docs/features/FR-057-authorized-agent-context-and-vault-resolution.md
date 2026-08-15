@@ -2,9 +2,9 @@
 feature: FR-057
 module: agent
 source: v2-native
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-08-15T00:00:00+07:00,ATHER"
-last_update: "2026-08-15T00:00:00+07:00,ATHER"
+last_update: "2026-08-15T10:00:00+07:00,ATHER"
 status: "beta"
 ---
 
@@ -33,10 +33,18 @@ one customer or allowing prompt injection to select another vault.
 - A group thread keeps each participant's private context separate.
 - `agentId`, `workspaceId`, and `projectId` are server-owned context, not user/model
   supplied authority.
+- Every canonical MSP turn calls GoVibe API-010 `msp_vault_resolve` with the
+  server-derived AuthContext and current authorization facts before API-009 memory
+  retrieval or write.
+- API-010's `workspacePrivateVaultId`, Global Private IDs, Shared IDs, and
+  permissions are consumed as opaque MSP authority; Zuri never derives replacement
+  vault IDs from `scopeKey` in canonical mode.
 - Revoked identity or membership denies the next turn even when a prior session exists.
 - Unauthorized vault IDs, raw channel handles, and arbitrary scope claims fail closed.
 - Legacy principal-only MSP keys may be read only through an explicit compatibility
   adapter with an audit receipt; they are never silently merged.
+- API-010 denial, malformed resolution, missing required project/workspace scope, or
+  transport failure denies private retrieval/writes before any API-009 call.
 
 ## Acceptance criteria
 
@@ -49,10 +57,15 @@ one customer or allowing prompt injection to select another vault.
 6. Restart or horizontal instance changes do not make `instanceId` the memory owner.
 7. Context passed to the model is policy-filtered and carries a policy decision receipt,
    not raw authorization secrets.
+8. The canonical adapter calls API-010 and uses only its returned Workspace Private
+   vault ID for private API-009 memory operations.
+9. API-010 Global/Shared IDs and permissions are retained as a resolved set and are
+   never widened from client/model/thread input.
 
 ## Out of scope
 
-- MSP canonical vault schema changes before the GoVibe/MSP contract is consumed;
+- Changes to GoVibe/MSP canonical schemas or migrations; those remain owned by
+  GoVibe/MSP and are consumed through API-010.
 - GKS semantic promotion;
 - proactive group replies or write actions;
 - production LINE activation.
@@ -66,4 +79,4 @@ one customer or allowing prompt injection to select another vault.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 0.1.0b | 2026-08-15 | beta | Owner-approved Issue #11 feature boundary | working-tree | ATHER |
+| 0.2.0b | 2026-08-15 | beta | Approved canonical API-010 MSP resolver integration boundary | working-tree | ATHER |

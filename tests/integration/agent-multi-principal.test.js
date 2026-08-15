@@ -127,6 +127,14 @@ describe('FR-057 multi-principal agent context', () => {
         calls.push({ name, input })
         return { entities: [] }
       },
+      vaultSetResolver: {
+        resolve: async () => ({
+          workspacePrivateVaultId: 'unused',
+          globalPrivateVaultIds: [],
+          sharedVaultIds: [],
+          permissions: { read: true, writePrivate: true, writeShared: false, policyVersion: 'FR-057.v2' },
+        }),
+      },
     })
     const aliceContext = await assembleAgentContext({
       tenantId: tenant.id, businessId: business.id, lineUserId: 'UFR057-alice', threadId: 'group-FR057',
@@ -137,6 +145,34 @@ describe('FR-057 multi-principal agent context', () => {
       authorizedVaults: [{ ...aliceContext.authorizedVaults[0], principalId: bob.id }],
     }
     await expect(port.recallAuthorized(bobContext)).rejects.toThrow(/does not match AuthContext/)
+    expect(calls).toEqual([])
+  })
+
+  it('rejects an authorized scope from another workspace before an MSP round-trip', async () => {
+    const calls = []
+    const port = createMspMemoryPort({
+      transport: async (name, input) => {
+        calls.push({ name, input })
+        return { entities: [] }
+      },
+      vaultSetResolver: {
+        resolve: async () => ({
+          workspacePrivateVaultId: 'unused',
+          globalPrivateVaultIds: [],
+          sharedVaultIds: [],
+          permissions: { read: true, writePrivate: true, writeShared: false, policyVersion: 'FR-057.v2' },
+        }),
+      },
+    })
+    const aliceContext = await assembleAgentContext({
+      tenantId: tenant.id, businessId: business.id, lineUserId: 'UFR057-alice', threadId: 'group-FR057',
+      serverScope: { transportVerified: true, businessId: business.id, agentId: 'sales-agent', workspaceId: salesWorkspace.id },
+    })
+    const forgedWorkspaceContext = {
+      ...aliceContext,
+      authorizedVaults: [{ ...aliceContext.authorizedVaults[0], workspaceId: supportWorkspace.id }],
+    }
+    await expect(port.recallAuthorized(forgedWorkspaceContext)).rejects.toThrow(/does not match AuthContext/)
     expect(calls).toEqual([])
   })
 

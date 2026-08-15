@@ -3,18 +3,18 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 785,
-    "total_edges": 1476,
+    "total_nodes": 789,
+    "total_edges": 1490,
     "dangling_edges": 0,
     "node_types": {
-      "document": 110,
+      "document": 111,
       "adr": 22,
       "appendix": 5,
       "roadmap": 21,
       "v1_inherited": 234,
       "requirement": 129,
-      "test": 111,
-      "code_file": 153
+      "test": 113,
+      "code_file": 154
     },
     "coverage": {
       "requirements": 129,
@@ -22,7 +22,7 @@
       "fr_with_tests": "100% (57/57)",
       "rules_anchored_in_code": "91% (53/58)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 153,
+      "annotated_code_files": 154,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -1484,7 +1484,7 @@
       "id": "code:src/modules/agent/auth-context.js",
       "type": "code_file",
       "path": "src/modules/agent/auth-context.js",
-      "hash": "03d89b26",
+      "hash": "b4c72aa8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1579,7 +1579,7 @@
       "id": "code:src/modules/agent/index.js",
       "type": "code_file",
       "path": "src/modules/agent/index.js",
-      "hash": "4451bc55",
+      "hash": "c795958e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1745,7 +1745,7 @@
       "id": "code:src/modules/agent/msp-memory-port.js",
       "type": "code_file",
       "path": "src/modules/agent/msp-memory-port.js",
-      "hash": "e0eadd42",
+      "hash": "c9bc5390",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1753,7 +1753,28 @@
           "FR-057"
         ],
         "@tested": [
-          "tests/integration/agent-msp-port.test.js"
+          "tests/integration/agent-msp-port.test.js",
+          "tests/integration/msp-vault-memory-port.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/agent/msp-vault-resolver.js",
+      "type": "code_file",
+      "path": "src/modules/agent/msp-vault-resolver.js",
+      "hash": "9e1316c0",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-057"
+        ],
+        "@spec": [
+          "SDD-030",
+          "SEC-013"
+        ],
+        "@tested": [
+          "tests/unit/msp-vault-resolver.test.js",
+          "tests/integration/msp-vault-memory-port.test.js"
         ]
       }
     },
@@ -1802,7 +1823,7 @@
       "id": "code:src/modules/agent/runtime.js",
       "type": "code_file",
       "path": "src/modules/agent/runtime.js",
-      "hash": "3ba04094",
+      "hash": "6a0c9cfe",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3022,7 +3043,7 @@
       "type": "document",
       "path": "docs/.rwang-progress.md",
       "title": "RWANG Subagent Progress Ledger — TASK-V2-PARITY",
-      "hash": "c6fcfe58",
+      "hash": "4c30efd0",
       "status": "current"
     },
     {
@@ -3116,7 +3137,7 @@
       "title": "Appendix D — Traceability Matrix",
       "version": "2.0.0",
       "doc_status": "Auto-generated",
-      "hash": "d71c38d9",
+      "hash": "ddc1cf9d",
       "status": "current"
     },
     {
@@ -3210,7 +3231,7 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "1492c367",
+      "hash": "b177cf5e",
       "status": "current"
     },
     {
@@ -3447,7 +3468,7 @@
       "type": "document",
       "path": "docs/features/FR-057-authorized-agent-context-and-vault-resolution.md",
       "title": "FR-057 — Authorized agent context and vault resolution",
-      "hash": "8401e64c",
+      "hash": "f7805b31",
       "status": "current"
     },
     {
@@ -3624,6 +3645,14 @@
       "path": "docs/.rwang-tasks/fr055-w4-integration-report.md",
       "title": "FR-055 W4 report — composed PostgreSQL and operator surface",
       "hash": "fba1ce5c",
+      "status": "current"
+    },
+    {
+      "id": "doc:fr057-api010-report",
+      "type": "document",
+      "path": "docs/.rwang-tasks/fr057-api010-report.md",
+      "title": "FR-057 API-010 canonical resolver — phase report",
+      "hash": "c38edbed",
       "status": "current"
     },
     {
@@ -3979,7 +4008,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-FR-057-AUTHORIZED-AGENT-CONTEXT.md",
       "title": "Implementation plan — FR-057 authorized agent context",
-      "hash": "efc89ad7",
+      "hash": "5f9c97c4",
       "status": "current"
     },
     {
@@ -4021,9 +4050,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.43.0b",
+      "version": "1.44.0b",
       "doc_status": "Draft",
-      "hash": "8cba120f",
+      "hash": "0ff727b9",
       "status": "current"
     },
     {
@@ -4843,7 +4872,7 @@
       "id": "req:FR-057",
       "type": "requirement",
       "family": "FR",
-      "label": "Authorized agent context: every LINE turn resolves ExternalIdentity, Person, Membership, thread/session assurance and server-owned agent/workspace/project scope before MSP retrieval; the model, prompt, client payload and stale session cannot widen the explicit authorized vault set.",
+      "label": "Authorized agent context: every LINE turn resolves ExternalIdentity, Person, Membership, thread/session assurance and server-owned agent/workspace/project scope, then calls GoVibe/MSP API-010 `msp_vault_resolve` before API-009 retrieval; the model, prompt, client payload and stale session cannot widen the canonical authorized vault set.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -5538,7 +5567,7 @@
       "type": "adr",
       "path": "docs/ADR-022-MULTI-TENANT-MSP-VAULTS.md",
       "title": "ADR-022 — Multi-tenant principal-scoped MSP vaults",
-      "hash": "384b8318",
+      "hash": "5f32a216",
       "status": "current"
     },
     {
@@ -5608,21 +5637,21 @@
       "id": "test:tests/integration/agent-msp-port.test.js",
       "type": "test",
       "path": "tests/integration/agent-msp-port.test.js",
-      "hash": "7ae82445",
+      "hash": "aa2fbae7",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-multi-principal.test.js",
       "type": "test",
       "path": "tests/integration/agent-multi-principal.test.js",
-      "hash": "a3f56d66",
+      "hash": "dbdbb750",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-runtime.test.js",
       "type": "test",
       "path": "tests/integration/agent-runtime.test.js",
-      "hash": "8a7af95a",
+      "hash": "82634443",
       "status": "current"
     },
     {
@@ -5749,6 +5778,13 @@
       "type": "test",
       "path": "tests/integration/line-ingest.test.js",
       "hash": "c80a4315",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/msp-vault-memory-port.test.js",
+      "type": "test",
+      "path": "tests/integration/msp-vault-memory-port.test.js",
+      "hash": "bf19b94f",
       "status": "current"
     },
     {
@@ -6099,6 +6135,13 @@
       "type": "test",
       "path": "tests/unit/model-provider-port.test.js",
       "hash": "e3a469b1",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/msp-vault-resolver.test.js",
+      "type": "test",
+      "path": "tests/unit/msp-vault-resolver.test.js",
+      "hash": "9947b46e",
       "status": "current"
     },
     {
@@ -10000,6 +10043,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/msp-vault-resolver.js",
+      "to": "req:FR-057",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/msp-vault-resolver.js",
+      "to": "req:SDD-030",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/msp-vault-resolver.js",
+      "to": "req:SEC-013",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/openrouter-oauth.js",
       "to": "req:FR-048",
       "type": "implements",
@@ -13612,6 +13676,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/agent-runtime.test.js",
+      "to": "req:FR-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/agent-tools.test.js",
       "to": "code:src/modules/agent/tools.js",
       "type": "tests",
@@ -14282,6 +14353,48 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/msp-vault-memory-port.test.js",
+      "to": "code:src/modules/agent/msp-memory-port.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/msp-vault-memory-port.test.js",
+      "to": "code:src/modules/agent/msp-vault-resolver.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/msp-vault-memory-port.test.js",
+      "to": "req:FR-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/msp-vault-memory-port.test.js",
+      "to": "req:FR-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/msp-vault-memory-port.test.js",
+      "to": "req:SDD-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/msp-vault-memory-port.test.js",
+      "to": "req:SEC-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
@@ -16827,6 +16940,34 @@
     {
       "from": "test:tests/unit/model-provider-port.test.js",
       "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/msp-vault-resolver.test.js",
+      "to": "code:src/modules/agent/msp-vault-resolver.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/msp-vault-resolver.test.js",
+      "to": "req:FR-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/msp-vault-resolver.test.js",
+      "to": "req:SDD-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/msp-vault-resolver.test.js",
+      "to": "req:SEC-013",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
