@@ -65,8 +65,46 @@ actually lifted.**
   commit so drift is visible, and re-syncing is one command. Re-sync before each
   module's cutover, not continuously.
 
+## Revision 2 — the mirror stops being tracked (2026-08-16)
+
+**Status:** Accepted · amends D1 and D9; D2–D8 stand unchanged.
+
+The original decision weighed 238 files against the cost of rewriting them and
+called the price "cheap". Measured four days later, the price was not the disk
+space — it was attention:
+
+| | |
+|---|---|
+| Share of `docs/` that was the mirror | **236 of 402 files — 59%** |
+| V2 documents citing a specific inherited file | **0** |
+| Graph edges pointing into a `v1_inherited` node | **0** |
+
+D5 kept the two id namespaces apart, and D9 kept the corpus out of the checks.
+Neither stopped it from being the majority of what anyone reads when they open
+`docs/`, in a vocabulary where *tenant* means one shop. The owner's report was that
+the naming collision between V1 and V2 was the single most confusing thing in the
+repository — and the mechanism that made a V1 file reachable at all was never used.
+
+**D10 — the corpus is no longer tracked.** `npm run docs:import-v1` still
+materializes it into `docs/v1-inherited/`, and `.gitignore` keeps it out of the
+repository. It is fetched when someone is actually doing parity work and is absent
+otherwise.
+
+**D11 — the doc tooling ignores the directory entirely.** Previously the graph
+indexed it as type `v1_inherited` (D9) so a V2 document could cite an inherited
+file and have the reference validated. With the directory now present on some
+machines and not others, indexing it would make the committed graph describe
+whichever machines had run the import. `scripts/doc-graph.mjs` and
+`scripts/doc-preflight.mjs` exclude it; the graph drops from 795 nodes to 561.
+
+What this does **not** change: D6 still governs the V1 ↔ V2 mapping at lift time,
+and it is filled from the imported corpus the same way. The corpus did not become
+less useful — it stopped being resident.
+
 ## Review
 
 Revisit when the first module is lifted. If the delta-note pattern (D7) turns out to
 need more context than the inherited file provides, the answer is a fuller V2 note
-for that feature — not editing the mirror.
+for that feature — not editing the mirror. If parity work turns out to need the
+corpus resident rather than on demand (D10), that is the signal to reconsider — a
+separate repository the parity docs depend on, not a re-merge into this tree.

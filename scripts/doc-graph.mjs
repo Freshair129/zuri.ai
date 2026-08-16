@@ -18,6 +18,8 @@ const SPEC_PACK = path.join(ROOT, 'docs')
 const GRAPH_PATH = path.join(ROOT, 'docs', '.doc-graph.json')
 const MATRIX_PATH = path.join(ROOT, 'docs', 'appendices', 'D-traceability.md')
 const FEATURE_MAP_PATH = path.join(ROOT, 'docs', 'FEATURE-MAP.md')
+// Untracked and gitignored — an on-demand local artifact, never part of the graph.
+const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
 
 const SKIP_DIRS = new Set(['node_modules', '.next', '.git', 'test-results', 'playwright-report', 'migrations'])
 
@@ -130,9 +132,11 @@ function build() {
     }
   }
 
-  // Documents: one docs/ tree (post-flatten) — appendices, roadmap, ADRs, spec, module docs.
-  // v1-inherited is handled separately below (evidence, not authority).
-  const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
+  // Documents: one docs/ tree — appendices, roadmap, ADRs, spec, module docs.
+  // ADR-005 rev 2: the V1 corpus is no longer tracked here. `npm run docs:import-v1`
+  // materializes it into docs/v1-inherited/ on demand and .gitignore keeps it out,
+  // so it must be excluded from the scan — otherwise the graph would describe
+  // whichever machines happen to have run the import.
   const docFiles = walk(path.join(ROOT, 'docs'), ['.md']).filter((f) => !f.startsWith(V1_DIR))
   for (const file of docFiles) {
     const base = path.basename(file)
@@ -141,17 +145,6 @@ function build() {
     const isAdr = base.startsWith('ADR-')
     const type = isAppendix ? 'appendix' : isRoadmap ? 'roadmap' : isAdr ? 'adr' : 'document'
     nodes.push(docNode(file, type, isAdr ? 'spec' : 'doc'))
-  }
-  // ADR-005 — V1's imported corpus. Indexed so a V2 document can cite an inherited
-  // file and have the reference validated, but kept out of coverage and drift: it
-  // is evidence of what V1 says, not a V2 artefact anyone maintains.
-  for (const file of walk(V1_DIR, ['.md'])) {
-    nodes.push({
-      id: `v1:${path.relative(V1_DIR, file).split(path.sep).join('/')}`,
-      type: 'v1_inherited',
-      path: rel(file),
-      status: 'read-only',
-    })
   }
 
   // Requirements from the PRD registry.

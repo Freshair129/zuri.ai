@@ -3,7 +3,6 @@
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
     "docs": 162,
-    "v1_inherited": 234,
     "routes": 55,
     "test_files": 116
   },
