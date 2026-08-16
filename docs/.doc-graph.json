@@ -39,7 +39,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "doc:PRD-SDD-v1.0"
+    ],
     "added": [],
     "removed": []
   },
@@ -3839,8 +3841,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.45.0b",
       "doc_status": "Draft",
-      "hash": "e72ad002",
-      "status": "current"
+      "hash": "41511c13",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -5276,7 +5278,7 @@
       "id": "req:SDD-023",
       "type": "requirement",
       "family": "SDD",
-      "label": "`FileAsset` + validated `FileLink` form the portable file metadata graph; `LocalWorkspaceMount` maps one device-local absolute root to stable relative paths. Managed ingest is staged and audited, missing files require explicit reconcile/relink, cache entries carry source revision and are disposable, and the legacy ProjectFile API remains behind a migration adapter until ZV2-CR-001 parity/rollback gates pass.",
+      "label": "`FileAsset` + validated `FileLink` form the portable file metadata graph; `LocalWorkspaceMount` maps one device-local absolute root to stable relative paths. Managed ingest is staged and audited, missing files require explicit reconcile/relink, cache entries carry source revision and are disposable, and the legacy ProjectFile API remains behind a migration adapter until ZV2-CR-001 parity/rollback gates pass. **Containment is Windows-path-based**: `local-files/` resolves through `path.win32` so it can reason about drive letters, UNC roots and junction/reparse escape (SEC-007), which makes the managed local workspace a Windows-only capability — the rest of the product is portable.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
