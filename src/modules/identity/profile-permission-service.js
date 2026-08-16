@@ -81,14 +81,53 @@ export async function getMyProfile({ db = prisma, resolve = resolveViewer } = {}
   return { ...viewer, identities, session: { type: 'LOCAL_DEMO', active: true } }
 }
 
+// @req FR-062 — the list is scoped by the SAME field the write authorizes on,
+// so a row it shows as editable cannot 404 on save.
+// @spec SDD-035, BR-001, SEC-001 — a nullable `businessId` is never included by
+// a bare OR; it is scoped by the caller's owned tenants.
+// @tested tests/unit/fr062-permissions-read-scope.test.js
 export async function listUserPermissions({ db = prisma, resolve = resolveViewer } = {}) {
   const viewer = await ownerViewer(() => resolve({ db }))
-  const memberships = await db.membership.findMany({
-    where: { OR: [{ businessId: { in: viewer.visibleBusinessIds } }, { businessId: null }] },
-    orderBy: { createdAt: 'asc' },
-    include: { person: { select: { id: true, code: true, displayName: true, email: true } }, business: { select: { id: true, code: true, name: true } } },
+  // Same fail-closed handling as assertMembershipBusinessOwned: a missing or
+  // malformed grant set returns nothing rather than falling through to a
+  // wider query.
+  const ownedBusinessIds = Array.isArray(viewer?.ownedBusinessIds) ? viewer.ownedBusinessIds.filter(Boolean) : []
+  if (ownedBusinessIds.length === 0) return []
+
+  // A tenant-wide Membership (`businessId: null`) belongs to a scope above
+  // Business, so including it requires naming that scope. The previous
+  // `{ businessId: null }` said "and also the tenant-wide ones" but scoped them
+  // by nothing, returning every such row in every tenant.
+  const ownedBusinesses = await db.business.findMany({
+    where: { id: { in: ownedBusinessIds } },
+    select: { tenantId: true },
   })
-  return memberships.map((membership) => ({ ...membership, domainKeys: parseDomainKeys(membership.domainKeysJson) }))
+  const ownedTenantIds = [...new Set(ownedBusinesses.map((business) => business.tenantId).filter(Boolean))]
+
+  const memberships = await db.membership.findMany({
+    where: {
+      OR: [
+        { businessId: { in: ownedBusinessIds } },
+        { businessId: null, tenantId: { in: ownedTenantIds } },
+      ],
+    },
+    orderBy: { createdAt: 'asc' },
+    include: {
+      // No `email`: the surface renders displayName and code, and personal data
+      // with no consumer is a leak waiting for a second bug to matter.
+      person: { select: { id: true, code: true, displayName: true } },
+      business: { select: { id: true, code: true, name: true } },
+    },
+  })
+  return memberships.map((membership) => ({
+    ...membership,
+    domainKeys: parseDomainKeys(membership.domainKeysJson),
+    // The server states authority; the client must not infer it. Tenant-wide
+    // rows are shown read-only rather than dropped, because a hidden grant is
+    // worse than an unmanageable one on the page an OWNER visits to find out
+    // who has access.
+    manageable: ownedBusinessIds.includes(membership.businessId),
+  }))
 }
 
 export async function updateUserPermissions(input, { db = prisma, resolve = resolveViewer } = {}) {

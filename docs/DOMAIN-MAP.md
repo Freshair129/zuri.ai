@@ -39,7 +39,7 @@ Charter: [docs/domains/identity/CHARTER.md](domains/identity/CHARTER.md)
 | Modules | `src/modules/identity` |
 | Models owned | ExternalIdentity, IdentityLinkToken, ExternalRef |
 | Routes owned | 3 (1 api · 2 pages) |
-| FRs implemented in lane | FR-021, FR-022, FR-031, FR-038, FR-046, FR-061, SDD-034 |
+| FRs implemented in lane | FR-021, FR-022, FR-031, FR-038, FR-046, FR-061, FR-062, SDD-034 |
 
 ## knowledge
 

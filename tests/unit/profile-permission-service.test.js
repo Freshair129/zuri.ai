@@ -1,21 +1,20 @@
 import { describe, expect, it, vi } from 'vitest'
 import { listUserPermissions, updateUserPermissions } from '@/modules/identity/profile-permission-service'
+import { makeViewer, ownsElsewhere } from '../factories/viewer'
 
-// `owner` reflects what resolveViewer() actually produces for a principal who
-// is OWNER of business-a: ownedBusinessIds is always present (T3e) and, for a
-// genuine single-Business OWNER, equals visibleBusinessIds. Backfilled here —
-// without it every write would now fail closed on a fixture resolveViewer()
-// could never itself return, which is not a real refusal (see T3e report).
-const owner = async () => ({
-  role: 'OWNER',
-  principal: { id: 'owner-a' },
+// Repaid from docs/.viewer-fixture-baseline.json on 2026-08-17: these viewers
+// now come from the factory, so they carry every field resolveViewer emits and
+// obey its invariants. The hand-built versions are what let three authorization
+// holes ship green (.brain/rca/2026-08-16-global-role-is-not-per-business-authority.md).
+const owner = async () => makeViewer({
+  principal: { id: 'owner-a', code: 'PER-OWNER-A', displayName: 'Owner A' },
   visibleBusinessIds: ['business-a'],
   ownedBusinessIds: ['business-a'],
 })
 
 describe('profile and permission service', () => {
   it('refuses the owner-only user list to a MEMBER', async () => {
-    await expect(listUserPermissions({ db: {}, resolve: async () => ({ role: 'MEMBER' }) })).rejects.toMatchObject({ status: 403 })
+    await expect(listUserPermissions({ db: {}, resolve: async () => makeViewer() })).rejects.toMatchObject({ status: 403 })
   })
 
   it('writes Membership role and domain allow-list with an audit event', async () => {
@@ -39,11 +38,12 @@ describe('profile and permission service', () => {
   // attacker self-promote to OWNER of Business B (proven live against the
   // database). This must now be refused.
   it('refuses FR-038 self-promotion when the target Membership Business is visible but not owned', async () => {
-    const attacker = async () => ({
-      role: 'OWNER', // global label: OWNER of Business A, elsewhere
-      principal: { id: 'attacker' },
-      visibleBusinessIds: ['business-a', 'business-b'], // B visible via MEMBER Membership
-      ownedBusinessIds: ['business-a'], // B is NOT owned
+    // The factory's name for this shape: global label OWNER, B visible via a
+    // MEMBER Membership, B not owned.
+    const attacker = async () => ownsElsewhere({
+      owns: 'business-a',
+      sees: 'business-b',
+      principal: { id: 'attacker', code: 'PER-ATTACKER', displayName: 'Attacker' },
     })
     const db = {
       membership: {

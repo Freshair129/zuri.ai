@@ -10,7 +10,7 @@ source: v2-native
 | Field | Value |
 |---|---|
 | **Version** | 1.0.0 |
-| **Status** | Declared |
+| **Status** | Implemented |
 | **Date** | 2026-08-17 |
 | **Relates to** | FR-038 (the surface), FR-059 (`ownedBusinessIds`), SDD-035, BR-001, SEC-001, SEC-003 |
 | **Incident** | [.brain/rca/2026-08-17-read-scope-outran-the-write-scope.md](../../../../.brain/rca/2026-08-17-read-scope-outran-the-write-scope.md) |
