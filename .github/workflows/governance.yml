@@ -46,16 +46,22 @@ jobs:
       - name: Governance chain
         run: npm run govern
 
-      # The generated views are committed artifacts. If `govern` rewrote any of
-      # them the branch is shipping a stale graph, which docs:check alone cannot
-      # always prove — this makes the drift visible as a failure, not a silent
-      # working-tree change on a runner nobody looks at.
-      - name: Generated docs are committed and current
+      # The generated human views are deterministic, so if `govern` rewrote one
+      # the branch is shipping a stale view and docs:check cannot see it —
+      # `--check` compares a canonical projection of the graph, not the views.
+      #
+      # `.doc-graph.json` is deliberately NOT listed. It carries `generated_at`,
+      # a `drift` block and per-node `status` — bookkeeping *about the previous
+      # run*, which changes on every regeneration by design. `docs:check` strips
+      # exactly those fields before comparing, and demanding byte-stability here
+      # instead reintroduced the two-pass convergence bug fixed in #15/#22. The
+      # first CI run caught that; keep the narrower list.
+      - name: Generated views are committed and current
         shell: bash
         run: |
-          if ! git diff --quiet; then
-            echo "::error::Generated documentation is out of date. Run 'npm run govern' and commit the result."
-            git --no-pager diff --stat
+          if ! git diff --quiet -- docs/FEATURE-MAP.md docs/DOMAIN-MAP.md docs/TRACE.md docs/appendices/D-traceability.md; then
+            echo "::error::A generated view is out of date. Run 'npm run govern' and commit the result."
+            git --no-pager diff --stat -- docs/FEATURE-MAP.md docs/DOMAIN-MAP.md docs/TRACE.md docs/appendices/D-traceability.md
             exit 1
           fi
 
