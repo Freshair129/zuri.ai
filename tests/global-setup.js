@@ -1,8 +1,19 @@
 import { execSync } from 'child_process'
-import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'fs'
+import {
+  closeSync,
+  existsSync,
+  mkdirSync,
+  openSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'fs'
 import path from 'path'
 import { createRequire } from 'module'
-import { randomBytes } from 'crypto'
+import { createHash, randomBytes } from 'crypto'
+import { normalizeNewlines } from '../scripts/canonical-text.mjs'
 
 const ROOT = path.resolve(__dirname, '..')
 
@@ -26,6 +37,113 @@ const ABANDONED_AFTER_MS = 6 * 60 * 60 * 1000
 // missing, fail here with one clear message instead of letting a dozen suites
 // each report "The table main.Portfolio does not exist".
 const FOUNDATION_TABLES = ['Portfolio', 'Tenant', 'Business']
+
+// Databases are per-run, but the generated Prisma client is one directory shared
+// by every run. Two runs generating into it at once lose a rename race —
+// `EPERM … query_engine-windows.dll.node.tmp…` — which `prisma db push` reports
+// on stdout while still exiting 0, so the loser would continue against whichever
+// client happened to survive. Generation is therefore gated on the schema's
+// fingerprint and serialised by a lock, and a lost race fails rather than
+// printing a line of noise.
+const SCHEMA_PATH = path.join(ROOT, 'prisma', 'schema.prisma')
+const CLIENT_DIR = path.join(ROOT, 'node_modules', '.prisma', 'client')
+// Inside the client directory on purpose: deleting the client must invalidate the
+// fingerprint, or a run would skip generation and import a client that is gone.
+const FINGERPRINT_PATH = path.join(CLIENT_DIR, '.zuri-schema-fingerprint')
+const GENERATE_LOCK_PATH = path.join(ROOT, 'node_modules', '.prisma', '.zuri-generate.lock')
+const LOCK_WAIT_MS = 120_000
+const LOCK_STALE_MS = 120_000
+const LOCK_POLL_MS = 250
+
+/**
+ * Identity of the schema the client must match. Newlines are normalised first:
+ * `core.autocrlf` makes the same blob arrive as LF or CRLF depending on the
+ * checkout, and a fingerprint that moves with the checkout would force a
+ * regeneration on every machine. Same rule as the doc graph — see
+ * .brain/rca/2026-08-16-doc-graph-line-ending-hash-drift.md.
+ */
+export function schemaFingerprint(schemaPath = SCHEMA_PATH, { read = readFileSync } = {}) {
+  return createHash('sha256').update(normalizeNewlines(read(schemaPath, 'utf8'))).digest('hex').slice(0, 16)
+}
+
+/** The fingerprint recorded beside the generated client, or null if there is none. */
+export function recordedFingerprint(stampPath = FINGERPRINT_PATH, { read = readFileSync } = {}) {
+  try {
+    return read(stampPath, 'utf8').trim() || null
+  } catch {
+    return null
+  }
+}
+
+export function recordFingerprint(value, stampPath = FINGERPRINT_PATH, { write = writeFileSync } = {}) {
+  write(stampPath, `${value}\n`)
+}
+
+/**
+ * Run `work` with exclusive hold of the generation lock.
+ *
+ * `openSync(..., 'wx')` is the atomic create-if-absent primitive, so exactly one
+ * run wins. A loser waits: generation is quick, and the moment the winner
+ * finishes the fingerprint it recorded is the one this run needed, so `work`
+ * re-checks and usually does nothing. A run killed mid-generation leaves the lock
+ * behind, so a lock older than LOCK_STALE_MS is taken over rather than trusted.
+ * Waiting past LOCK_WAIT_MS throws — using an unknown client silently is the one
+ * outcome this whole mechanism exists to prevent.
+ */
+export function withGenerateLock(work, options = {}) {
+  const {
+    lockPath = GENERATE_LOCK_PATH,
+    acquire = (p) => closeSync(openSync(p, 'wx')),
+    release = (p) => rmSync(p, { force: true }),
+    heldForMs = (p) => Date.now() - statSync(p).mtimeMs,
+    waitMs = LOCK_WAIT_MS,
+    staleMs = LOCK_STALE_MS,
+    pollMs = LOCK_POLL_MS,
+    sleep = sleepSync,
+    now = Date.now,
+  } = options
+
+  const deadline = now() + waitMs
+  for (;;) {
+    try {
+      acquire(lockPath)
+      break
+    } catch (err) {
+      if (err?.code !== 'EEXIST') throw err
+      let held
+      try {
+        held = heldForMs(lockPath)
+      } catch {
+        continue // released between the failed acquire and the stat — retry at once
+      }
+      if (held > staleMs) {
+        // Its owner is gone; nothing is generating, so reclaim it.
+        release(lockPath)
+        continue
+      }
+      if (now() >= deadline) {
+        throw new Error(
+          `Timed out after ${Math.round(waitMs / 1000)}s waiting for another test run to finish regenerating the ` +
+            'Prisma client. This run will not continue against a client built from a different schema — ' +
+            `rerun once that one finishes, or delete ${path.relative(ROOT, lockPath).split(path.sep).join('/')} if no run is active.`,
+        )
+      }
+      sleep(pollMs)
+    }
+  }
+
+  try {
+    return work()
+  } finally {
+    release(lockPath)
+  }
+}
+
+// A synchronous wait that does not spin a core. globalSetup is sync (execSync
+// throughout), so a promise-based sleep is not available here.
+function sleepSync(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms)
+}
 
 /**
  * The absolute path and the Prisma URL of this run's database. The URL stays
@@ -145,22 +263,39 @@ export default function globalSetup({ provide }) {
   const prismaRustLog = /(?:trace|debug|info)/.test(inheritedRustLog)
     ? process.env.RUST_LOG
     : 'info'
-  // No --skip-generate: `db push` regenerates the client, which is the only thing
-  // that keeps it in step with prisma/schema.prisma. postinstall covers installs
-  // only, so skipping here meant a schema-changing pull left a stale client and
-  // the suite failed with "Unknown argument …" errors that name no cause.
-  execSync('npx prisma db push', {
-    cwd: ROOT,
-    // Prisma 5.22's Windows schema engine can terminate during silent startup
-    // under the repository's Node 24 toolchain. Keep a deterministic log mode
-    // for the child process while allowing CI/debug callers to override it.
-    env: {
-      ...process.env,
-      DATABASE_URL: url,
-      RUST_LOG: prismaRustLog,
-    },
-    stdio: 'inherit',
-  })
+  const push = (generate) =>
+    execSync(`npx prisma db push${generate ? '' : ' --skip-generate'}`, {
+      cwd: ROOT,
+      // Prisma 5.22's Windows schema engine can terminate during silent startup
+      // under the repository's Node 24 toolchain. Keep a deterministic log mode
+      // for the child process while allowing CI/debug callers to override it.
+      env: {
+        ...process.env,
+        DATABASE_URL: url,
+        RUST_LOG: prismaRustLog,
+      },
+      stdio: 'inherit',
+    })
+
+  // Generation is what keeps the client in step with prisma/schema.prisma —
+  // postinstall covers installs only, so a schema arriving by pull would
+  // otherwise leave a stale client and "Unknown argument …" errors that name no
+  // cause. It is gated, not skipped: regenerate only when the schema moved, and
+  // never while another run is doing the same.
+  const wanted = schemaFingerprint()
+  let generated = false
+  if (recordedFingerprint() !== wanted) {
+    generated = withGenerateLock(() => {
+      // The run we queued behind may have generated exactly what we needed.
+      if (recordedFingerprint() === wanted) return false
+      push(true)
+      recordFingerprint(wanted)
+      return true
+    })
+  }
+  // Either the client was already current or someone else refreshed it; this
+  // run still needs the schema in its own database.
+  if (!generated) push(false)
 
   assertSchemaApplied(file)
   provide('testDatabaseUrl', url)

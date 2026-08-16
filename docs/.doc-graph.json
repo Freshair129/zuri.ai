@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 794,
+    "total_nodes": 795,
     "total_edges": 1491,
     "dangling_edges": 0,
     "node_types": {
@@ -13,7 +13,7 @@
       "roadmap": 21,
       "v1_inherited": 234,
       "requirement": 129,
-      "test": 115,
+      "test": 116,
       "code_file": 154
     },
     "coverage": {
@@ -36,10 +36,10 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/unit/test-database-reset.test.js"
+    "changed": [],
+    "added": [
+      "test:tests/unit/prisma-generate-gate.test.js"
     ],
-    "added": [],
     "removed": []
   },
   "nodes": [
@@ -6241,6 +6241,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/prisma-generate-gate.test.js",
+      "type": "test",
+      "path": "tests/unit/prisma-generate-gate.test.js",
+      "hash": "009bbbef",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/profile-permission-service.test.js",
       "type": "test",
       "path": "tests/unit/profile-permission-service.test.js",
@@ -6371,7 +6378,7 @@
       "type": "test",
       "path": "tests/unit/test-database-reset.test.js",
       "hash": "7140c1f8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/topbar-no-dropdown.test.js",
