@@ -30,15 +30,25 @@ import { PATCH as patchGoalRoute } from '@/app/api/business/goals/[id]/route'
 import { POST as postGoalProjectRoute } from '@/app/api/business/goals/[id]/projects/route'
 import { DELETE as deleteGoalProjectRoute } from '@/app/api/business/goals/[id]/projects/[projectId]/route'
 import { LOCAL_DEMO_COOKIE } from '@/modules/identity/session-port'
+import { makeViewer, ownsElsewhere } from '../factories/viewer'
 
+// Repaid from docs/.viewer-fixture-baseline.json on 2026-08-17: every viewer
+// in this suite now comes from tests/factories/viewer.js, so it carries every
+// field resolveViewer emits and obeys its invariants. The hand-built versions
+// (role 'OWNER' with no ownedBusinessIds at all) are what let the FR-059/T3b-1
+// hole ship green — see
+// .brain/rca/2026-08-16-global-role-is-not-per-business-authority.md.
+//
 // visibleBusinessIds/ownedBusinessIds are populated once businessA/B/control
 // exist (see beforeAll below) — BLOCKER 1 (visibleBusinessIds) and T3b-1
 // FIX 1 (ownedBusinessIds) both made these load-bearing fields: without
 // ownedBusinessIds in particular, every write this OWNER makes to any of the
 // fixture Businesses would now be refused by assertBusinessOwned, since this
 // fixture models an OWNER who genuinely owns every Business it visibly uses.
-const OWNER = { role: 'OWNER', principal: { id: 'fr059-owner' }, visibleBusinessIds: [], ownedBusinessIds: [] }
-const MEMBER = { role: 'MEMBER', principal: { id: 'fr059-member' } }
+let OWNER
+// No ownedBusinessIds passed, so makeViewer infers role 'MEMBER' — the same
+// inference resolveViewer itself does (OWNER only when something is owned).
+const MEMBER = makeViewer({ principal: { id: 'fr059-member' } })
 
 const twoHorizons = [
   { key: 'SHORT', label: 'Short term', position: 1 },
@@ -102,8 +112,11 @@ describe('FR-059 Business Strategy mutation', () => {
     businessA = await createBusiness({ tenantId: tenantA.id, name: `FR059 A ${suffix}`, code: `BUS-F59A-${suffix}` })
     businessB = await createBusiness({ tenantId: tenantB.id, name: `FR059 B ${suffix}`, code: `BUS-F59B-${suffix}` })
     controlBusiness = await createBusiness({ tenantId: tenantA.id, name: `FR059 Control ${suffix}`, code: `BUS-F59C-${suffix}` })
-    OWNER.visibleBusinessIds = [businessA.id, businessB.id, controlBusiness.id]
-    OWNER.ownedBusinessIds = [businessA.id, businessB.id, controlBusiness.id]
+    OWNER = makeViewer({
+      principal: { id: 'fr059-owner' },
+      visibleBusinessIds: [businessA.id, businessB.id, controlBusiness.id],
+      ownedBusinessIds: [businessA.id, businessB.id, controlBusiness.id],
+    })
 
     const wsA = await createWorkspace({ name: `FR059 A ${suffix}`, scopeType: 'BUSINESS', businessId: businessA.id, code: `WS-F59A-${suffix}` })
     const wsB = await createWorkspace({ name: `FR059 B ${suffix}`, scopeType: 'BUSINESS', businessId: businessB.id, code: `WS-F59B-${suffix}` })
@@ -345,10 +358,17 @@ describe('FR-059 Business Strategy mutation', () => {
   describe('Business visibility isolation (BLOCKER 1 — RED/GREEN probe)', () => {
     let businessBRoadmap
     let businessBGoal
-    const ownerScopedToA = { role: 'OWNER', principal: { id: 'fr059-owner-scoped-a' }, visibleBusinessIds: [] }
+    let ownerScopedToA
 
     beforeAll(async () => {
-      ownerScopedToA.visibleBusinessIds = [businessA.id]
+      // OWNER of Business A only — no relationship to Business B at all, so B
+      // never appears in visibleBusinessIds either. Passing ownedBusinessIds
+      // equal to visibleBusinessIds infers role 'OWNER' without a literal.
+      ownerScopedToA = makeViewer({
+        principal: { id: 'fr059-owner-scoped-a' },
+        visibleBusinessIds: [businessA.id],
+        ownedBusinessIds: [businessA.id],
+      })
       businessBRoadmap = await createRoadmap({ businessId: businessB.id, title: 'B-only roadmap', horizons: twoHorizons }, { viewer: OWNER })
       businessBGoal = await createGoal(
         { businessId: businessB.id, roadmapId: businessBRoadmap.id, horizonId: businessBRoadmap.horizons[0].id, title: 'B-only goal' },
@@ -414,17 +434,16 @@ describe('FR-059 Business Strategy mutation', () => {
     // actually produces for "OWNER of A, MEMBER of B" (resolve-viewer.js
     // ownedBusinessIds is the per-Business OWNER-membership set, disjoint
     // from a plain MEMBER Membership even though role is still the global
-    // 'OWNER' label and visibleBusinessIds legitimately includes B).
-    const ownerOfAMemberOfB = {
-      role: 'OWNER',
-      principal: { id: 'fr059-owner-of-a-member-of-b' },
-      visibleBusinessIds: [],
-      ownedBusinessIds: [],
-    }
+    // 'OWNER' label and visibleBusinessIds legitimately includes B) — this is
+    // exactly the shape ownsElsewhere() in tests/factories/viewer.js names.
+    let ownerOfAMemberOfB
 
     beforeAll(async () => {
-      ownerOfAMemberOfB.visibleBusinessIds = [businessA.id, businessB.id]
-      ownerOfAMemberOfB.ownedBusinessIds = [businessA.id]
+      ownerOfAMemberOfB = ownsElsewhere({
+        owns: businessA.id,
+        sees: businessB.id,
+        principal: { id: 'fr059-owner-of-a-member-of-b' },
+      })
       ownedRoadmap = await createRoadmap({ businessId: businessB.id, title: 'B-owned-elsewhere roadmap', horizons: twoHorizons }, { viewer: OWNER })
       ownedGoal = await createGoal(
         { businessId: businessB.id, roadmapId: ownedRoadmap.id, horizonId: ownedRoadmap.horizons[0].id, title: 'B-owned-elsewhere goal' },

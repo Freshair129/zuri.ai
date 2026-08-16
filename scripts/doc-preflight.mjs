@@ -447,6 +447,15 @@ const VIEWER_EXEMPT = new Set([
 {
   const roleLiteral = /\brole:\s*['"](OWNER|MEMBER|DEV)['"]/
   const viewerField = /visibleBusinessIds|ownedBusinessIds|domainsByBusinessId|visibleDomains|isPlatform/
+  // A `role:` that sits in a **Membership row** is DB data, not a viewer. These
+  // fields exist only on Membership; no viewer has ever carried one. Suppressing
+  // them is what lets a test keep its own database fixtures next to its viewer
+  // assertions — the first version of this check made an agent relocate a
+  // Membership mock into a separate file purely to escape the proximity window,
+  // and a guard that makes people move code to avoid it is teaching the wrong
+  // lesson twice over: the workaround gets documented, and the real signal gets
+  // weaker everywhere else.
+  const membershipRow = /personId|domainKeysJson|employeeRef|branchId|tenantId/
   const offenders = []
   for (const file of walk(path.join(ROOT, 'tests'), '.js')) {
     const relative = rel(file)
@@ -463,7 +472,9 @@ const VIEWER_EXEMPT = new Set([
     // Proximity, not parsing: a `role:` within ten lines of a resolver-only
     // field is a viewer literal in every real occurrence in this repository.
     const hit = lines.some((line, i) =>
-      roleLiteral.test(line) && viewerField.test(lines.slice(Math.max(0, i - 10), i + 11).join('\n')))
+      roleLiteral.test(line)
+      && !membershipRow.test(line)
+      && viewerField.test(lines.slice(Math.max(0, i - 10), i + 11).join('\n')))
     if (hit) offenders.push(relative)
   }
   offenders.sort()
