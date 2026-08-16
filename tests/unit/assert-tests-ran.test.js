@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { executedFromVitest, executedFromPlaywright } from '../../scripts/assert-tests-ran.mjs'
+import { executedFromVitest, executedFromPlaywright, flakyFromPlaywright } from '../../scripts/assert-tests-ran.mjs'
 
 // @spec .brain/rca/2026-08-17-governance-did-not-govern.md — a green exit code
 // must mean the work ran and passed, never that the work did not run.
@@ -51,5 +51,39 @@ describe('executedFromPlaywright', () => {
   it('returns null when there is no report shape at all', () => {
     expect(executedFromPlaywright(null)).toBeNull()
     expect(executedFromPlaywright({})).toBeNull()
+  })
+})
+
+describe('flakyFromPlaywright', () => {
+  // The status values here are taken from a real report produced by planting a
+  // test that fails on its first attempt and passes on retry: Playwright marks
+  // the test `flaky`, its results are ["failed","passed"], and it exits 0.
+  const flakyTest = { status: 'flaky', results: [{ status: 'failed' }, { status: 'passed' }] }
+  const goodTest = { status: 'expected', results: [{ status: 'passed' }] }
+
+  it('finds a test that passed only on retry', () => {
+    const report = { suites: [{ title: 'file.spec.js', specs: [{ title: 'does a thing', tests: [flakyTest] }], suites: [] }] }
+    expect(flakyFromPlaywright(report)).toEqual(['file.spec.js › does a thing'])
+  })
+
+  it('reports nothing for a clean run', () => {
+    const report = { suites: [{ title: 'f', specs: [{ title: 't', tests: [goodTest] }], suites: [] }] }
+    expect(flakyFromPlaywright(report)).toEqual([])
+  })
+
+  it('descends into nested suites and builds a readable trail', () => {
+    const report = {
+      suites: [{
+        title: 'file.spec.js',
+        specs: [],
+        suites: [{ title: 'a describe', specs: [{ title: 'inner', tests: [flakyTest] }], suites: [] }],
+      }],
+    }
+    expect(flakyFromPlaywright(report)).toEqual(['file.spec.js › a describe › inner'])
+  })
+
+  it('returns null for an unusable report, so the caller can tell it apart from "none"', () => {
+    expect(flakyFromPlaywright(null)).toBeNull()
+    expect(flakyFromPlaywright({})).toBeNull()
   })
 })
