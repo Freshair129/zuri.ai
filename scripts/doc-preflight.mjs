@@ -384,6 +384,47 @@ for (const f of allDocs) {
   }
 }
 
+// ---- Check 7: routes with no requirement anchor (ratchet) ----------------
+// The other checks only fire on code that *opts in* by annotating: an `@req`
+// naming an undeclared id is a CRITICAL, but a file naming nothing at all is
+// invisible. A whole page could be added with no FR, no note and no test while
+// every governance command reported green (.brain/rca/2026-08-17-governance-
+// did-not-govern.md). This closes that gap without demanding a retrofit of the
+// 47 routes that predate it: the baseline is the debt we accept, and it may
+// only shrink. Anything not in it is new, and new orphans are a CRITICAL.
+//
+// Depends on a fresh graph — run docs:graph before this, and docs:check after,
+// or a stale graph will hide a route this is meant to catch.
+const BASELINE = path.join(SPEC_PACK, '.route-anchor-baseline.json')
+if (existsSync(GRAPH)) {
+  const g = JSON.parse(read(GRAPH))
+  const codeByPath = new Map(g.nodes.filter((n) => n.type === 'code_file').map((n) => [n.path, n]))
+  const implementers = new Set(g.edges.filter((e) => e.type === 'implements').map((e) => e.from))
+  const anchored = (routeNode) => {
+    const code = codeByPath.get(routeNode.path)
+    return Boolean(code && implementers.has(code.id))
+  }
+  const orphans = g.nodes.filter((n) => n.type === 'route' && !anchored(n)).map((n) => n.path).sort()
+  const baseline = existsSync(BASELINE) ? JSON.parse(read(BASELINE)).routes || [] : []
+  const known = new Set(baseline)
+
+  const introduced = orphans.filter((p) => !known.has(p))
+  if (introduced.length) {
+    add('critical', 'route-anchor', `${introduced.length} route(s) implement no declared requirement`, introduced.join(', '), introduced,
+      'Declare the FR in docs/PRD-SDD-v1.0.md and add `@req FR-xxx` to the route — never widen .route-anchor-baseline.json to silence this')
+  }
+  const repaid = baseline.filter((p) => !orphans.includes(p))
+  if (repaid.length) {
+    add('info', 'route-anchor', `${repaid.length} baseline route(s) are now anchored`, repaid.join(', '), [rel(BASELINE)],
+      'Remove them from .route-anchor-baseline.json so the ratchet keeps its ground')
+  }
+  const remaining = orphans.length - introduced.length
+  if (remaining) {
+    add('info', 'route-anchor', `${remaining} route(s) carry no requirement anchor (accepted debt)`, `baseline: ${rel(BASELINE)}`, [rel(BASELINE)],
+      'Annotate them as their FRs get declared; the baseline may only shrink')
+  }
+}
+
 // ---- Output --------------------------------------------------------------
 const counts = findings.reduce((a, f) => ({ ...a, [f.severity]: (a[f.severity] || 0) + 1 }), {})
 const report = {

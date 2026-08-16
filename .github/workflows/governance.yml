@@ -1,0 +1,73 @@
+name: governance
+
+# Why this exists: until 2026-08-17 nothing ran the governance commands
+# automatically — no CI, no git hooks, no lifecycle hooks. `docs:preflight` and
+# `docs:check` were manual, so the "preflight CRITICAL" that CLAUDE.md describes
+# as a hard gate only fired when someone chose to run it. Every merge was gated
+# by an author's discipline rather than by the repository.
+# See .brain/rca/2026-08-17-governance-did-not-govern.md
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # `postinstall` runs `prisma generate`, so the client is built here.
+      - run: npm ci
+
+      - name: Unit and integration tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+      # docs:graph rebuilds from the filesystem, docs:check fails when the
+      # committed graph disagrees with it, docs:preflight (--strict) fails on
+      # any CRITICAL. The order matters: two preflight checks read the graph,
+      # so a branch that declares a new id must regenerate before preflighting.
+      - name: Governance chain
+        run: npm run govern
+
+      # The generated views are committed artifacts. If `govern` rewrote any of
+      # them the branch is shipping a stale graph, which docs:check alone cannot
+      # always prove — this makes the drift visible as a failure, not a silent
+      # working-tree change on a runner nobody looks at.
+      - name: Generated docs are committed and current
+        run: |
+          if ! git diff --quiet; then
+            echo "::error::Generated documentation is out of date. Run 'npm run govern' and commit the result."
+            git --no-pager diff --stat
+            exit 1
+          fi
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      # Kept as its own job so an e2e failure is attributable, and because the
+      # full suite is the only thing that catches cross-spec interference — a
+      # subset passing proves nothing (.brain/rca/2026-08-16-e2e-subset-green-
+      # and-shared-state.md).
+      - name: Full end-to-end suite
+        run: npm run test:e2e

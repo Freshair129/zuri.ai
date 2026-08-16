@@ -39,10 +39,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/e2e/fr058-file-views.spec.js",
-      "test:tests/e2e/fr059-strategy-edit.spec.js"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -6502,14 +6499,14 @@
       "type": "test",
       "path": "tests/e2e/fr058-file-views.spec.js",
       "hash": "26b1f606",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr059-strategy-edit.spec.js",
       "type": "test",
       "path": "tests/e2e/fr059-strategy-edit.spec.js",
       "hash": "a7680353",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
