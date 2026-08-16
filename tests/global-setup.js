@@ -1,7 +1,8 @@
 import { execSync } from 'child_process'
-import { existsSync, rmSync } from 'fs'
+import { existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'fs'
 import path from 'path'
 import { createRequire } from 'module'
+import { randomBytes } from 'crypto'
 
 const ROOT = path.resolve(__dirname, '..')
 
@@ -10,13 +11,38 @@ const ROOT = path.resolve(__dirname, '..')
 // resolve a bare "sqlite". Resolving it at call time keeps it out of Vite's
 // static analysis.
 const nodeRequire = createRequire(path.join(ROOT, 'package.json'))
-const TEST_DB = path.resolve(ROOT, 'prisma', 'test.db')
+
+// One database per run, not one shared file. The name carries the pid plus a
+// clock and random component so two runs — two terminals, two agents, a focused
+// file alongside a full suite — can never land on the same path.
+export const TEST_DB_DIR = path.resolve(ROOT, 'prisma', '.test-dbs')
+
+// A run that is SIGKILLed never reaches teardown and leaves its database behind.
+// Anything older than this cannot belong to a live run, so the next run sweeps it.
+const ABANDONED_AFTER_MS = 6 * 60 * 60 * 1000
 
 // Tables the whole suite builds on: every integration test starts by creating a
 // Portfolio → Tenant → Business chain. If `db push` reports success but these are
 // missing, fail here with one clear message instead of letting a dozen suites
 // each report "The table main.Portfolio does not exist".
 const FOUNDATION_TABLES = ['Portfolio', 'Tenant', 'Business']
+
+/**
+ * The absolute path and the Prisma URL of this run's database. The URL stays
+ * relative to prisma/ because that is the directory Prisma resolves a `file:`
+ * datasource against — both for `db push` and for the generated client.
+ */
+export function testDatabaseTarget(name = runDatabaseName()) {
+  return {
+    name,
+    file: path.join(TEST_DB_DIR, name),
+    url: `file:./${path.basename(TEST_DB_DIR)}/${name}`,
+  }
+}
+
+function runDatabaseName() {
+  return `run-${process.pid}-${Date.now().toString(36)}-${randomBytes(3).toString('hex')}.db`
+}
 
 /**
  * Every on-disk file that belongs to a SQLite database. The rollback journal
@@ -28,25 +54,62 @@ export function testDatabaseFiles(dbPath) {
 }
 
 /**
- * Delete the test database and its sidecars. Windows locks an open SQLite file,
- * so a second concurrent vitest run lands here with EPERM — report that as the
- * shared-database collision it is rather than a bare fs stack trace.
+ * Delete a test database and its sidecars, returning what was removed. Windows
+ * locks an open SQLite file: a database still held by a live run reports EPERM,
+ * and since no run ever shares another's file, that means "not mine" — skip it
+ * and leave it to its owner. Any other failure is real and propagates.
  */
 export function removeTestDatabase(dbPath, { exists = existsSync, remove = rmSync } = {}) {
+  const removed = []
   for (const file of testDatabaseFiles(dbPath)) {
     if (!exists(file)) continue
     try {
       remove(file)
+      removed.push(file)
     } catch (err) {
-      if (err?.code === 'EPERM' || err?.code === 'EBUSY') {
-        throw new Error(
-          `Cannot reset ${path.relative(ROOT, file).split(path.sep).join('/')} — another test run is holding it open. ` +
-            'Wait for that run to finish: prisma/test.db is a single shared file and two suites cannot use it at once.',
-        )
-      }
+      if (err?.code === 'EPERM' || err?.code === 'EBUSY') continue
       throw err
     }
   }
+  return removed
+}
+
+/**
+ * Remove databases left behind by runs that never reached teardown, so the
+ * directory cannot grow without bound. Age is the only safe signal — a live run
+ * of any length is far younger than the cutoff, and one that is not still gets
+ * skipped by the lock check in removeTestDatabase.
+ */
+export function sweepAbandonedDatabases(dir = TEST_DB_DIR, options = {}) {
+  const {
+    now = Date.now(),
+    maxAgeMs = ABANDONED_AFTER_MS,
+    list = readdirSync,
+    modifiedAt = (file) => statSync(file).mtimeMs,
+    ...removal
+  } = options
+
+  let entries
+  try {
+    entries = list(dir)
+  } catch {
+    return []
+  }
+
+  const swept = []
+  for (const entry of entries) {
+    if (!entry.endsWith('.db')) continue
+    const file = path.join(dir, entry)
+    let age
+    try {
+      age = now - modifiedAt(file)
+    } catch {
+      continue
+    }
+    if (age < maxAgeMs) continue
+    swept.push(...removeTestDatabase(file, removal))
+  }
+  return swept
 }
 
 /** Prove the schema actually landed before any test file runs a query. */
@@ -65,14 +128,18 @@ export function assertSchemaApplied(dbPath, tables = FOUNDATION_TABLES) {
   if (missing.length) {
     throw new Error(
       `prisma db push reported success but ${missing.join(', ')} ${missing.length === 1 ? 'is' : 'are'} missing from ` +
-        'prisma/test.db. The schema did not apply — rerun, and if it persists check the Prisma schema engine.',
+        `${dbPath}. The schema did not apply — rerun, and if it persists check the Prisma schema engine.`,
     )
   }
 }
 
-// Create a fresh isolated SQLite test database before the test run.
-export default function globalSetup() {
-  removeTestDatabase(TEST_DB)
+// Create a fresh isolated SQLite database for this run, and hand its URL to the
+// worker processes through vitest's provide/inject channel — see tests/setup.js.
+export default function globalSetup({ provide }) {
+  mkdirSync(TEST_DB_DIR, { recursive: true })
+  sweepAbandonedDatabases()
+
+  const { file, url } = testDatabaseTarget()
 
   const inheritedRustLog = String(process.env.RUST_LOG || '').toLowerCase()
   const prismaRustLog = /(?:trace|debug|info)/.test(inheritedRustLog)
@@ -89,11 +156,16 @@ export default function globalSetup() {
     // for the child process while allowing CI/debug callers to override it.
     env: {
       ...process.env,
-      DATABASE_URL: 'file:./test.db',
+      DATABASE_URL: url,
       RUST_LOG: prismaRustLog,
     },
     stdio: 'inherit',
   })
 
-  assertSchemaApplied(TEST_DB)
+  assertSchemaApplied(file)
+  provide('testDatabaseUrl', url)
+
+  // vitest runs the returned teardown after the run whether it passed or failed,
+  // so the run's database does not outlive it.
+  return () => removeTestDatabase(file)
 }
