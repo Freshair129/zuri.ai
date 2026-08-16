@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 791,
-    "total_edges": 1490,
+    "total_nodes": 792,
+    "total_edges": 1491,
     "dangling_edges": 0,
     "node_types": {
       "document": 112,
-      "adr": 22,
+      "adr": 23,
       "appendix": 5,
       "roadmap": 21,
       "v1_inherited": 234,
@@ -36,10 +36,10 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/integration/agent-webhook-route.test.js"
+    "changed": [],
+    "added": [
+      "spec:ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY"
     ],
-    "added": [],
     "removed": []
   },
   "nodes": [
@@ -5581,6 +5581,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY",
+      "type": "adr",
+      "path": "docs/ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY.md",
+      "title": "ADR-023 — Agent vault: private epistemic memory, and why it is not the doc-graph",
+      "hash": "60a7d4d6",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -5683,7 +5691,7 @@
       "type": "test",
       "path": "tests/integration/agent-webhook-route.test.js",
       "hash": "682a940a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/backup.test.js",
@@ -12855,6 +12863,13 @@
     {
       "from": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
       "to": "req:SEC-007",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY",
+      "to": "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
       "type": "relates",
       "status": "current",
       "source": "control-block"
