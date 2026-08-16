@@ -6,12 +6,15 @@ import { DOMAINS, domainForPath } from '@/config/domains'
 import { modules } from '@/config/modules'
 
 describe('Business domain navigation', () => {
-  it('exposes Business Overview as the first Development sidebar entry', () => {
+  // @req FR-060 — Development no longer roots at `/overview`. That page is
+  // cross-domain (strategy, per-domain health, attention queue) and moved to the
+  // Business Home slot; Development roots at its own resource list instead.
+  it('roots Development at Projects, not at the cross-domain Overview', () => {
     const development = DOMAINS.find((domain) => domain.key === 'projects')
     expect(development.label).toBe('Development')
-    expect(development.basePath).toBe('/overview')
+    expect(development.basePath).toBe('/projects')
+    expect(development.sub.map((item) => item.label)).not.toContain('Overview')
     expect(development.sub.map((item) => item.label)).toEqual([
-      'Overview',
       'Projects',
       'All Work',
       'Execution',
@@ -21,8 +24,10 @@ describe('Business domain navigation', () => {
       'Files',
       'Repositories',
     ])
-    expect(development.sub[0].path).toBe('/overview')
-    expect(domainForPath('/overview').key).toBe('projects')
+    expect(development.sub[0].path).toBe('/projects')
+    // `/overview` is now owned by the Business Home slot, not by Development.
+    expect(domainForPath('/overview').key).toBe('business-home')
+    expect(domainForPath('/projects').key).toBe('projects')
   })
 
   it('uses ERP-friendly display labels without changing RBAC route keys', () => {
@@ -43,7 +48,7 @@ describe('Business domain navigation', () => {
 
   it('keeps Space out of the Development command palette registry', () => {
     expect(modules.projectManager.label).toBe('Development')
-    expect(modules.projectManager.basePath).toBe('/overview')
+    expect(modules.projectManager.basePath).toBe('/projects')
     expect(modules.projectManager.nav.map((item) => item.label)).toEqual([
       'Projects',
       'All Work',

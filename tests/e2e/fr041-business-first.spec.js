@@ -14,7 +14,7 @@ async function chooseBusiness(page, name = 'Business 01') {
 test.describe('FR-041/042 Business-first shell', () => {
   test('Business Overview shows strategy and Business-owned Projects, not Group cards', async ({ page }) => {
     await chooseBusiness(page)
-    await expect(page.getByRole('heading', { name: 'Business 01 — Overview' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Business 01 — Command Center' })).toBeVisible()
     await expect(page.getByTestId('business-strategy')).toBeVisible()
     await expect(page.getByTestId('strategy-horizon-short')).toBeVisible()
     await expect(page.getByTestId('strategy-horizon-medium')).toBeVisible()
@@ -34,7 +34,9 @@ test.describe('FR-041/042 Business-first shell', () => {
     await expect(page.getByText(/Project Team is a separate Project-local view/)).toBeVisible()
     const developmentLink = page.getByRole('link', { name: 'Development' }).first()
     await expect(developmentLink).toBeVisible()
-    await expect(developmentLink).toHaveAttribute('href', '/overview')
+    // FR-060 — Development roots at its own resource list; `/overview` became
+    // the Business Home Dashboard.
+    await expect(developmentLink).toHaveAttribute('href', '/projects')
   })
 
   test('strategy and people API contracts stay Business-scoped', async ({ request }) => {

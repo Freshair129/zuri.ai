@@ -29,7 +29,7 @@ sub-features, with an explicit root contract per domain** — and binds it to V2
 
 ```
 Tier 1  Context    Portfolio → Tenant → Business  (Workspace → Organization → Business in UI; shell stops here)
-Tier 2  Domain     Commerce · CRM · Marketing · Operations · HR / People · Development · Platform
+Tier 2  Domain     Business Home · Commerce · CRM · Marketing · Operations · HR / People · Development · Platform
                    (a NEW bar under the topbar; the set is BOUND to the Business)
 Tier 3  Sub-domain the active domain's sidebar; each domain defines its own root contract
 ```
@@ -40,10 +40,15 @@ Tier 3  Sub-domain the active domain's sidebar; each domain defines its own root
 - **Business binds the domain bar.** A Business exposes only the domains it has enabled
   (per-business module registry). TVS shows *Operations → Courses*; a pure-retail business hides
   it — FR-020's adaptive shell one level deeper. Single business ⇒ Home skips straight to it.
-- **Domain root is explicit.** Development opens `/overview` (the BusinessShell root),
-  and its sidebar starts with the non-parent `Overview` sub-domain. Reserved domains keep
-  their `Dashboard` as the first sub-domain. A domain label in the sidebar is context text,
-  not a navigation target.
+- **Domain root is explicit.** Each domain opens its own first sub-domain. Reserved
+  domains keep their `Dashboard` as the first sub-domain. A domain label in the sidebar
+  is context text, not a navigation target.
+- **Amended by FR-060 (2026-08-17).** `/overview` is no longer Development's root. It
+  became the **Business Home** Dashboard — a shell-level, cross-domain slot placed first
+  in the bar — because it already rendered Business strategy and per-domain health while
+  nominally belonging to Development. Development now roots at `/projects`. Business Home
+  is `alwaysVisible`: it is the Business's landing surface, so it is not gated on
+  `Membership.domainKeysJson` the way a capability domain is.
 - **URLs never carry scope (ADR-006).** Business/workspace are ambient (selection pages →
   cookie/context), not the path — so `/commerce/inventory`, never `/business/{id}/commerce/...`.
   Switching Business keeps you on the same domain+sub-domain where it exists.
@@ -54,7 +59,7 @@ Tier 3  Sub-domain the active domain's sidebar; each domain defines its own root
 ┌──────────────────────────────────────────────────────────────┐
 │ Zuri   Workspace › Organization › Business    ERP · PM   ⌘K   ◐   👤 │  Base Context Bar — exactly 3 levels
 ├──────────────────────────────────────────────────────────────┤     (no Space or Project selector)
-│  Commerce   CRM   Marketing   Operations   HR / People   Development · Platform │  Domain bar (Tier 2, per-business)
+│ Business Home  Commerce  CRM  Marketing  Operations  HR / People  Development · Platform │  Domain bar (Tier 2, per-business)
 ├──────────────────────────────────────────────────────────────┤
 │ 🏠  Workspace › Organization › Business › PRJ-x › Files          │  Breadcrumb — context plus opened resource
 ├───────────────┬──────────────────────────────────────────────┤
@@ -166,15 +171,20 @@ Legend: **lift** = reuse V1 UI per ADR-003 · **rebuild** = V1 defect, rebuild i
 6. ใบรับรอง / Certificates — BASIC_30H · PRO_111H · MASTER_201H *(lift)*
 7. ทีมงาน / Team — employees · roles · schedule *(lift)*
 
-### Development — project management  *(new — existing `projects` route key, FR-001…020)*
-1. **Overview** — Business Overview at `/overview`
-2. Projects
-3. All Work
-4. Execution — 7 modes (sprint · migration · b2b-sales · b2c-campaign · product-launch · operations · expansion)
-5. Timeline
-6. Dependencies
-7. Milestones & Gates
-8. Repositories
+### Business Home — cross-domain aggregation  *(FR-060, route key `business-home`)*
+1. **Dashboard** — `/overview`: briefing, KPI tiles, per-domain health, attention queue
+
+Reserved domains render as reserved here, never as zero — a slot with no module has
+no number to report, and a zero would read as "measured and bad".
+
+### Development — project management  *(existing `projects` route key, FR-001…020)*
+1. Projects
+2. All Work
+3. Execution — 7 modes (sprint · migration · b2b-sales · b2c-campaign · product-launch · operations · expansion)
+4. Timeline
+5. Dependencies
+6. Milestones & Gates
+7. Repositories
 
 The Development label in the sidebar is static context. `/overview` is represented by
 the first sidebar sub-domain rather than by a clickable domain heading.

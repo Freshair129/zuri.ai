@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 669,
-    "total_edges": 1768,
+    "total_nodes": 673,
+    "total_edges": 1821,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,16 +16,16 @@
       "route": 96,
       "model": 33,
       "requirement": 135,
-      "test": 124,
-      "code_file": 163
+      "test": 127,
+      "code_file": 164
     },
     "coverage": {
       "requirements": 135,
       "fr_with_code": "100% (59/59)",
       "fr_with_tests": "100% (59/59)",
-      "rules_anchored_in_code": "90% (55/61)",
+      "rules_anchored_in_code": "92% (56/61)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 163,
+      "annotated_code_files": 164,
       "fr_planned": [
         "FR-060"
       ],
@@ -35,7 +35,6 @@
         "SDD-001",
         "SDD-008",
         "SDD-013",
-        "SDD-033",
         "SEC-004",
         "SEC-005"
       ]
@@ -43,9 +42,17 @@
   },
   "drift": {
     "changed": [
-      "doc:FR-060-business-home"
+      "test:tests/e2e/fr041-business-first.spec.js",
+      "test:tests/e2e/fr044-entry-routing.spec.js",
+      "test:tests/e2e/fr045-files.spec.js",
+      "test:tests/e2e/fr058-file-views.spec.js",
+      "test:tests/e2e/smoke.spec.js",
+      "test:tests/unit/fr060-business-home-read-model.test.js",
+      "code:src/modules/business/application/business-home-read-model.js"
     ],
-    "added": [],
+    "added": [
+      "test:tests/e2e/fr060-business-home.spec.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -157,15 +164,18 @@
       "id": "code:src/app/(pm)/overview/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/overview/page.jsx",
-      "hash": "d064d723",
+      "hash": "c92075cf",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-035",
           "FR-041",
-          "FR-059"
+          "FR-060",
+          "FR-059",
+          "FR-042"
         ],
         "@spec": [
+          "SDD-033",
           "SDD-014",
           "SDD-020",
           "SDD-032",
@@ -175,7 +185,9 @@
           "tests/unit/overview-split.test.js",
           "tests/e2e/fr041-business-first.spec.js",
           "tests/unit/fr059-strategy-edit-ui.test.js",
-          "tests/e2e/fr059-strategy-edit.spec.js"
+          "tests/e2e/fr059-strategy-edit.spec.js",
+          "tests/unit/fr060-business-home-read-model.test.js",
+          "tests/unit/fr060-business-home-visibility.test.js"
         ]
       }
     },
@@ -1268,7 +1280,7 @@
       "id": "code:src/components/layouts/DomainBar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/DomainBar.jsx",
-      "hash": "cb7b5f0a",
+      "hash": "1a8c72f7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1371,13 +1383,14 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "9f9efe8e",
+      "hash": "e41f05fc",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
           "FR-045",
-          "FR-039"
+          "FR-039",
+          "FR-060"
         ],
         "@spec": [
           "SDD-018"
@@ -1393,12 +1406,13 @@
       "id": "code:src/config/modules.js",
       "type": "code_file",
       "path": "src/config/modules.js",
-      "hash": "95974a45",
+      "hash": "e628ff12",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-039",
-          "FR-045"
+          "FR-045",
+          "FR-060"
         ],
         "@spec": [
           "SDD-018"
@@ -1476,11 +1490,12 @@
       "id": "code:src/lib/business-shell-guard.js",
       "type": "code_file",
       "path": "src/lib/business-shell-guard.js",
-      "hash": "7a17e315",
+      "hash": "dd2ae617",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-044"
+          "FR-044",
+          "FR-060"
         ],
         "@spec": [
           "SDD-022"
@@ -2075,6 +2090,25 @@
         ],
         "@tested": [
           "tests/unit/zuri-cli-canary-receipt.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/business/application/business-home-read-model.js",
+      "type": "code_file",
+      "path": "src/modules/business/application/business-home-read-model.js",
+      "hash": "851d4d73",
+      "status": "changed",
+      "annotations": {
+        "@req": [
+          "FR-060"
+        ],
+        "@spec": [
+          "SDD-033",
+          "BR-004"
+        ],
+        "@tested": [
+          "tests/unit/fr060-business-home-read-model.test.js"
         ]
       }
     },
@@ -3647,7 +3681,7 @@
       "version": "1.0.0",
       "doc_status": "Proposed — Decision 1 needs owner sign-off before code",
       "hash": "6dad082d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -3918,7 +3952,7 @@
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
       "version": "0.4.2",
       "doc_status": "Accepted",
-      "hash": "dbf274f5",
+      "hash": "bfa842a7",
       "status": "current"
     },
     {
@@ -6510,22 +6544,22 @@
       "id": "test:tests/e2e/fr041-business-first.spec.js",
       "type": "test",
       "path": "tests/e2e/fr041-business-first.spec.js",
-      "hash": "e40586dd",
-      "status": "current"
+      "hash": "89554963",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr044-entry-routing.spec.js",
       "type": "test",
       "path": "tests/e2e/fr044-entry-routing.spec.js",
-      "hash": "a9c30947",
-      "status": "current"
+      "hash": "575da088",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr045-files.spec.js",
       "type": "test",
       "path": "tests/e2e/fr045-files.spec.js",
-      "hash": "769a9a03",
-      "status": "current"
+      "hash": "e9721d81",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr046-entry-contract.spec.js",
@@ -6538,8 +6572,8 @@
       "id": "test:tests/e2e/fr058-file-views.spec.js",
       "type": "test",
       "path": "tests/e2e/fr058-file-views.spec.js",
-      "hash": "26b1f606",
-      "status": "current"
+      "hash": "65dc161b",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr059-strategy-edit.spec.js",
@@ -6549,11 +6583,18 @@
       "status": "current"
     },
     {
+      "id": "test:tests/e2e/fr060-business-home.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr060-business-home.spec.js",
+      "hash": "d528904e",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/smoke.spec.js",
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
-      "hash": "7c1adcfa",
-      "status": "current"
+      "hash": "0e1746e5",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/adaptive-shell.test.js",
@@ -6895,7 +6936,7 @@
       "id": "test:tests/unit/domain-navigation.test.js",
       "type": "test",
       "path": "tests/unit/domain-navigation.test.js",
-      "hash": "d420f860",
+      "hash": "e26f08d0",
       "status": "current"
     },
     {
@@ -7046,6 +7087,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "type": "test",
+      "path": "tests/unit/fr060-business-home-read-model.test.js",
+      "hash": "4f6f2953",
+      "status": "changed"
+    },
+    {
+      "id": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "type": "test",
+      "path": "tests/unit/fr060-business-home-visibility.test.js",
+      "hash": "94ba13e5",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/golden-evaluation.test.js",
       "type": "test",
       "path": "tests/unit/golden-evaluation.test.js",
@@ -7140,7 +7195,7 @@
       "id": "test:tests/unit/overview-split.test.js",
       "type": "test",
       "path": "tests/unit/overview-split.test.js",
-      "hash": "e418cfaf",
+      "hash": "551c727e",
       "status": "current"
     },
     {
@@ -7308,7 +7363,7 @@
       "id": "test:tests/unit/sidebar-visible-subdomains.test.js",
       "type": "test",
       "path": "tests/unit/sidebar-visible-subdomains.test.js",
-      "hash": "5057bfb9",
+      "hash": "6c07388d",
       "status": "current"
     },
     {
@@ -7518,7 +7573,21 @@
     },
     {
       "from": "code:src/app/(pm)/overview/page.jsx",
+      "to": "req:FR-042",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/overview/page.jsx",
       "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/overview/page.jsx",
+      "to": "req:FR-060",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -7540,6 +7609,13 @@
     {
       "from": "code:src/app/(pm)/overview/page.jsx",
       "to": "req:SDD-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/overview/page.jsx",
+      "to": "req:SDD-033",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -9254,6 +9330,13 @@
     },
     {
       "from": "code:src/config/domains.js",
+      "to": "req:FR-060",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -9269,6 +9352,13 @@
     {
       "from": "code:src/config/modules.js",
       "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/modules.js",
+      "to": "req:FR-060",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -9367,6 +9457,13 @@
     {
       "from": "code:src/lib/business-shell-guard.js",
       "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/business-shell-guard.js",
+      "to": "req:FR-060",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -10081,6 +10178,27 @@
     {
       "from": "code:src/modules/agent/zuri-cli-canary-receipt.js",
       "to": "req:SEC-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/business/application/business-home-read-model.js",
+      "to": "req:BR-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/business/application/business-home-read-model.js",
+      "to": "req:FR-060",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/business/application/business-home-read-model.js",
+      "to": "req:SDD-033",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -13979,6 +14097,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -14020,6 +14145,13 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/e2e/fr044-entry-routing.spec.js",
       "to": "code:src/components/layouts/BusinessRoutingShell.jsx",
       "type": "tests",
@@ -14035,6 +14167,13 @@
     },
     {
       "from": "test:tests/e2e/fr044-entry-routing.spec.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr044-entry-routing.spec.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
@@ -14043,6 +14182,13 @@
     {
       "from": "test:tests/e2e/fr045-files.spec.js",
       "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr045-files.spec.js",
+      "to": "req:FR-060",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -14182,6 +14328,13 @@
     },
     {
       "from": "test:tests/e2e/fr058-file-views.spec.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr058-file-views.spec.js",
       "to": "req:NFR-004",
       "type": "verifies",
       "status": "current",
@@ -14238,10 +14391,24 @@
     },
     {
       "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
       "to": "req:FR-059",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
@@ -14267,6 +14434,27 @@
     {
       "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
       "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr060-business-home.spec.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr060-business-home.spec.js",
+      "to": "req:SDD-033",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -16555,6 +16743,13 @@
     },
     {
       "from": "test:tests/unit/business-shell-guard.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-shell-guard.test.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
@@ -16800,6 +16995,13 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -17042,6 +17244,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
@@ -18046,10 +18255,24 @@
     },
     {
       "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
       "to": "req:FR-059",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
@@ -18078,6 +18301,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr059-strategy-validation.test.js",
@@ -18127,6 +18357,174 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "code:src/app/(pm)/overview/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "code:src/modules/business/application/business-home-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "req:FR-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "req:SDD-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "code:src/app/(pm)/overview/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "req:FR-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "req:SDD-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/golden-evaluation.test.js",
@@ -18522,10 +18920,24 @@
     },
     {
       "from": "test:tests/unit/overview-split.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/overview-split.test.js",
       "to": "req:FR-059",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/overview-split.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/overview-split.test.js",
@@ -18544,6 +18956,13 @@
     {
       "from": "test:tests/unit/overview-split.test.js",
       "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/overview-split.test.js",
+      "to": "req:SDD-033",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -19482,6 +19901,13 @@
     {
       "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
       "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sidebar-visible-subdomains.test.js",
+      "to": "req:FR-060",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

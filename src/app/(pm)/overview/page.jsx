@@ -1,6 +1,11 @@
 'use client'
 
-// @req FR-035, FR-041 - Overview is the selected Business's operational home.
+// @req FR-035, FR-041, FR-060 - this page is the Business Home Dashboard: the
+// shell-level cross-domain surface for the selected Business. FR-060 promoted it
+// into the Business Home Tier-2 slot rather than adding a second Business-scoped
+// page beside it; Development now roots at /projects.
+// @spec SDD-033 - a non-owning projection. Figures are computed by the pure
+// read model and recomputed on every render; nothing is persisted here.
 // @req FR-059 - OWNER-scoped Business Strategy editing (roadmap/horizons, goals,
 // Project link/unlink) lives on this same StrategyCard; MEMBER/DEV viewers see
 // the FR-041 read-only card with no edit affordance at all.
@@ -12,6 +17,7 @@
 // mutation.
 // @tested tests/unit/overview-split.test.js, tests/e2e/fr041-business-first.spec.js
 // @tested tests/unit/fr059-strategy-edit-ui.test.js, tests/e2e/fr059-strategy-edit.spec.js
+// @tested tests/unit/fr060-business-home-read-model.test.js, tests/unit/fr060-business-home-visibility.test.js
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -22,6 +28,81 @@ import { useScope } from '@/context/ScopeContext'
 import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
 import { RoadmapModal, GoalModal, LinkProjectModal } from '@/modules/project-manager/components/StrategyEditModals'
 import { DOMAINS } from '@/config/domains'
+import { buildBusinessHomeReadModel, DOMAIN_STATE } from '@/modules/business/application/business-home-read-model'
+
+// @req FR-060 — the cross-domain half of Business Home: briefing, per-domain
+// health and the attention queue. Every figure comes from the pure projection in
+// `business/application/business-home-read-model`; this file renders, it does
+// not compute (SDD-033).
+
+const SEVERITY_PILL = { HIGH: 'pill-blocked', MED: 'pill-active', INFO: 'pill-planned' }
+
+function BriefingCard({ briefing }) {
+  return (
+    <Card className="mb-4">
+      <SectionTitle caption="Composed from the same signals shown below — not a generated summary">Zuri briefing</SectionTitle>
+      <p className="text-xs leading-relaxed">{briefing.line}</p>
+    </Card>
+  )
+}
+
+function DomainHealthCard({ health }) {
+  return (
+    <Card className="mb-4">
+      <SectionTitle caption={health.score === null ? 'No domain reports a health signal yet' : `Composite covers ${health.coverageLabel}`}>
+        Business health
+      </SectionTitle>
+      <div className="mb-3 flex items-baseline gap-2">
+        <span className="text-2xl font-bold">{health.score === null ? '—' : health.score}</span>
+        <span className="text-[10px] text-muted">HEALTH / 100 · {health.coverageLabel}</span>
+      </div>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {health.domains.map((domain) => {
+          const reserved = domain.state === DOMAIN_STATE.RESERVED
+          return (
+            <div
+              key={domain.key}
+              className={`rounded-xl border p-3 ${reserved ? 'border-dashed border-[var(--border)] opacity-60' : 'border-[var(--border)]'}`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-bold">{domain.label}</span>
+                {/* A reserved domain shows no number at all. A zero here would
+                    read as "measured and bad" rather than "not built" (FR-060). */}
+                <span className="text-xs font-bold">{domain.score === null ? '—' : domain.score}</span>
+              </div>
+              <p className="mt-1 text-[10px] text-muted">{domain.signal}</p>
+            </div>
+          )
+        })}
+      </div>
+    </Card>
+  )
+}
+
+function AttentionCard({ attention }) {
+  return (
+    <Card className="mb-4">
+      <SectionTitle caption="Cross-domain exceptions from real rows, ordered by impact">Attention queue</SectionTitle>
+      {attention.length === 0 ? (
+        <EmptyState title="Nothing needs attention" hint="No overdue gate, milestone or goal in this Business." />
+      ) : (
+        <ul className="space-y-2">
+          {attention.map((item) => (
+            <li key={item.id}>
+              <Link href={item.href} className="flex items-start gap-3 rounded-xl border border-[var(--border)] p-3 hover:bg-[var(--brand-surface)]">
+                <span className={`pill ${SEVERITY_PILL[item.severity]} shrink-0`}>{item.severity}</span>
+                <span className="min-w-0">
+                  <span className="block truncate text-xs font-bold">{item.title}</span>
+                  <span className="block text-[10px] text-muted">{item.detail}</span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  )
+}
 
 function ProjectProgressRow({ project }) {
   const { data } = useFetch(`/api/progress/project/${project.id}`)
@@ -230,6 +311,12 @@ function BusinessOverview({ scope }) {
   // still never renders an edit control.
   const viewer = useFetch('/api/viewer')
   const isOwner = Boolean(viewer.data?.ownedBusinessIds?.includes(businessId))
+  // @req FR-060 — composed from the owning domains' read models (FR-042 people,
+  // FR-040 projects, FR-041 strategy), never by querying their tables (SDD-033).
+  const people = useFetch(
+    businessId ? `/api/people?businessId=${encodeURIComponent(businessId)}` : null,
+    [businessId],
+  )
 
   if (!businessId) {
     return (
@@ -246,23 +333,33 @@ function BusinessOverview({ scope }) {
   const milestonesDone = (projects || []).reduce((s, p) => s + (p.milestones || []).filter((m) => m.status === 'DONE').length, 0)
   const milestonesTotal = (projects || []).reduce((s, p) => s + (p.milestones || []).length, 0)
 
+  const home = buildBusinessHomeReadModel({
+    projects: projects || [],
+    strategy: strategy.data,
+    domains: DOMAINS,
+    peopleCount: Array.isArray(people.data) ? people.data.length : people.data?.people?.length,
+  })
+
   return (
     <div>
       <PageHeader
-        eyebrow="Business Overview"
-        title={`${scope.shell.activeBusiness.name} — Overview`}
-        subtitle="Business execution, strategy, and domain health. Projects are resources inside this Business, not shell parents."
+        eyebrow="Business Home"
+        title={`${scope.shell.activeBusiness.name} — Command Center`}
+        subtitle="Cross-domain health, outcomes and next actions. Drill into a domain only when you need operational detail."
       />
       {loading && <LoadingCard />}
       {error && <ErrorState detail={error} retry={reload} />}
       {!loading && !error && (
         <>
+          <BriefingCard briefing={home.briefing} />
           <div className="mb-4 grid grid-cols-4 gap-3 max-md:grid-cols-2">
             <Kpi label="Active projects" value={(projects || []).filter((p) => p.status === 'ACTIVE').length} meta={`${(projects || []).length} total in this Business`} />
             <Kpi label="Workstreams" value={workstreamCount} meta="across execution modes" />
             <Kpi label="Open required gates" value={openGates} tone={openGates > 0 ? 'warn' : 'good'} meta="guarding progress" />
             <Kpi label="Milestones done" value={`${milestonesDone}/${milestonesTotal}`} meta="in this Business" />
           </div>
+          <DomainHealthCard health={home.health} />
+          <AttentionCard attention={home.attention} />
           <StrategyCard
             strategy={strategy.data}
             loading={strategy.loading}
@@ -275,7 +372,9 @@ function BusinessOverview({ scope }) {
           <Card className="mb-4">
             <SectionTitle caption="Open a domain without changing the selected Business">Business domains</SectionTitle>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {DOMAINS.filter((domain) => !domain.soon).map((domain) => {
+              {/* Business Home is this page — linking to itself would be a
+                  no-op tile, so the slot is excluded from its own shortcut list. */}
+              {DOMAINS.filter((domain) => !domain.soon && domain.key !== 'business-home').map((domain) => {
                 const Icon = domain.icon
                 return (
                   <Link key={domain.key} href={domain.sub[0].path} className="flex items-center gap-3 rounded-xl border border-[var(--border)] p-3 transition hover:bg-[var(--brand-surface)]">

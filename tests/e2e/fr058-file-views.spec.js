@@ -46,6 +46,9 @@ test.describe('FR-058 File Manager view switcher', () => {
     const diagramUrl = `https://example.test/fr058/${diagramName}`
 
     await chooseBusiness(page)
+    // FR-060 — landing is Business Home; Files is a Development sub-domain.
+    await page.getByRole('link', { name: 'Development' }).first().click()
+    await expect(page).toHaveURL(/\/projects$/)
     await page.getByRole('link', { name: 'Files', exact: true }).click()
     await expect(page).toHaveURL(/\/files$/)
 

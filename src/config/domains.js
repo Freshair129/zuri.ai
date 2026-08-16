@@ -1,4 +1,5 @@
 import {
+  Home,
   LayoutDashboard, BriefcaseBusiness, ListChecks, GanttChartSquare,
   Network, Flag, GitBranch, Rocket, ScrollText, DatabaseBackup, Settings,
   ShoppingCart, Users, Megaphone, UtensilsCrossed, ServerCog, Target,
@@ -19,6 +20,20 @@ import {
 // `soon` are reserved slots — they lift from V1 per module at cutover (ADR-003),
 // hidden/disabled until then.
 export const DOMAINS = [
+  {
+    // @req FR-060 — Business Home is the shell-level cross-domain slot, first in
+    // the bar. Its Dashboard is `/overview`, which already was the Business
+    // strategy + domain-health surface; FR-060 promoted it here rather than
+    // adding a second Business-scoped page beside it (feature note, Decision 1).
+    // Development consequently no longer roots at `/overview` — see below.
+    // `alwaysVisible` because Business Home is the Business's landing surface,
+    // not a capability you grant. A MEMBER whose Membership lists only
+    // `projects` must still be able to land somewhere after choosing a
+    // Business; gating this slot on domainKeysJson would hand them a Business
+    // they can enter and no page to enter it at.
+    key: 'business-home', label: 'Business Home', icon: Home, basePath: '/overview', alwaysVisible: true,
+    sub: [{ label: 'Dashboard', path: '/overview', icon: LayoutDashboard }],
+  },
   {
     key: 'commerce', label: 'Commerce', icon: ShoppingCart, soon: true,
     sub: [{ label: 'Dashboard', path: '/commerce', icon: LayoutDashboard }],
@@ -50,11 +65,14 @@ export const DOMAINS = [
   },
   {
     // Existing route/RBAC key remains `projects`; only its Business-bound
-    // display label changes so the resource list stays Projects. `/overview`
-    // is the BusinessShell root and the first Development sub-domain.
-    key: 'projects', label: 'Development', icon: BriefcaseBusiness, basePath: '/overview',
+    // display label changes so the resource list stays Projects.
+    // @req FR-060 — Development's root moved off `/overview` to `/projects`.
+    // `/overview` is cross-domain (strategy, per-domain health, attention
+    // queue) and now belongs to Business Home; leaving Development rooted there
+    // would have kept one page answering to two domains, which is how the two
+    // surfaces would have drifted apart.
+    key: 'projects', label: 'Development', icon: BriefcaseBusiness, basePath: '/projects',
     sub: [
-      { label: 'Overview', path: '/overview', icon: LayoutDashboard },
       { label: 'Projects', path: '/projects', icon: BriefcaseBusiness },
       { label: 'All Work', path: '/work', icon: ListChecks },
       { label: 'Execution', path: '/execution', icon: Rocket },
@@ -76,6 +94,21 @@ export const DOMAINS = [
     ],
   },
 ]
+
+/**
+ * Whether a viewer may see a domain.
+ *
+ * @req FR-060 — one predicate for both the domain bar and the route guard, so
+ * an `alwaysVisible` slot cannot be honoured by one and denied by the other.
+ * A viewer with no `visibleDomains` array at all is an old fixture, treated as
+ * unrestricted exactly as `business-shell-guard` already did.
+ */
+export function isDomainVisible(domainKey, visibleDomainKeys) {
+  const domain = DOMAINS.find((d) => d.key === domainKey)
+  if (domain?.alwaysVisible) return true
+  if (!Array.isArray(visibleDomainKeys)) return true
+  return visibleDomainKeys.includes(domainKey)
+}
 
 // The domain that owns a route — longest matching sub-domain path wins, so /projects
 // resolves to Projects even though Platform also has routes. Defaults to Projects.

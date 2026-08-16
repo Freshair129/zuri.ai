@@ -21,9 +21,10 @@ export const modules = {
     key: 'projectManager',
     label: 'Development',
     icon: BriefcaseBusiness,
-    // The Business Overview is the shell root; it is not a Development
-    // command-palette or sidebar entry.
-    basePath: '/overview',
+    // @req FR-060 — Development bases at its own resource list. `/overview`
+    // became the Business Home Dashboard, a cross-domain surface, so it is
+    // neither this module's base nor one of its nav entries.
+    basePath: '/projects',
     nav: [
       { label: 'Projects', path: '/projects', icon: BriefcaseBusiness },
       { label: 'All Work', path: '/work', icon: ListChecks },
