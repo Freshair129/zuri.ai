@@ -14,7 +14,14 @@ on:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
+    # hardcodes `path.win32` in three files, deliberately — mounted-root
+    # containment has to reason about drive letters, UNC paths and
+    # junction/reparse points (SEC-007). On Linux those helpers turn `/tmp/x`
+    # into `\tmp\x` and FR-045's integration tests fail with ENOENT. The first
+    # CI run found this; the constraint was real and undocumented, not a
+    # regression. See .brain/rca/2026-08-17-ci-found-an-undocumented-platform-constraint.md
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -44,6 +51,7 @@ jobs:
       # always prove — this makes the drift visible as a failure, not a silent
       # working-tree change on a runner nobody looks at.
       - name: Generated docs are committed and current
+        shell: bash
         run: |
           if ! git diff --quiet; then
             echo "::error::Generated documentation is out of date. Run 'npm run govern' and commit the result."
@@ -52,7 +60,14 @@ jobs:
           fi
 
   e2e:
-    runs-on: ubuntu-latest
+    # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
+    # hardcodes `path.win32` in three files, deliberately — mounted-root
+    # containment has to reason about drive letters, UNC paths and
+    # junction/reparse points (SEC-007). On Linux those helpers turn `/tmp/x`
+    # into `\tmp\x` and FR-045's integration tests fail with ENOENT. The first
+    # CI run found this; the constraint was real and undocumented, not a
+    # regression. See .brain/rca/2026-08-17-ci-found-an-undocumented-platform-constraint.md
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
