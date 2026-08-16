@@ -81,7 +81,10 @@ docs/domains/<d>/CHARTER.md     the lane definition: what the domain owns, bound
 docs/domains/<d>/features/      feature notes owned by that domain (frontmatter: feature + domain)
 docs/PRODUCT.md                 Layer 0 — what zuri-ai is (surfaces, scope chain, rules)
 docs/PRD-SDD-v1.0.md            the FR/NFR/BR/SEC/SDD registry — ids are global and never move
+docs/FEATURES.md                FEAT registry — a feature (FEAT-xxx) bundles one or more FRs
 docs/FEATURE-MAP.md             GENERATED — the feature-driven user view over the spine; never hand-edit
+docs/DOMAIN-MAP.md              GENERATED — one section per domain: lane, ownership, contents
+docs/TRACE.md                   GENERATED — the chain per FR: surface → code → rules → tests
 docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md  target architecture (Draft — taxonomy adopted, runtime not yet)
 docs/decisions/ADR-*.md         decisions (ADR-024 = direction, ADR-025 = this structure)
 docs/appendices/                A api - B db - D traceability (generated) - E risks - F glossary

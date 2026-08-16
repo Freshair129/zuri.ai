@@ -1,9 +1,9 @@
-# AGENTS.md — Zuri.Ai v2 Project Manager
+# AGENTS.md — zuri-ai
 
 ## Mission
 
-Implement an offline-first Project Manager that can later become a first-class Zuri
-module or the first module of Zuri v2.
+Build zuri-ai: an AI-native business operating system. The Project Manager was
+its first module; the domain spine (ADR-025) is how the rest grow.
 
 The system must model business execution, not just software delivery.
 
@@ -317,31 +317,32 @@ does invalidate everything downstream.
 That is why the order is:
 
 ```text
-1. doc-architect        restructure so the docs describe V2 as the product that
-                        replaces V1 (Project Manager becomes one module inside it,
-                        with room for the V1 domains being lifted in)
-2. docs:graph + docs:preflight
-                        seconds; catches the links and appendices the restructure
-                        moved out from under
+1. doc-architect        restructure so the docs describe the product truthfully
+                        (the domain spine, ADR-025, is the current shape)
+2. docs:preflight + docs:graph + docs:check
+                        seconds; catches broken links, stale views, lane violations
 3. implementation-plan  written once, against the corrected structure
 4. subagent-driven      execute the plan
 ```
 
 Planning before restructuring produces a plan shaped by the old scope, which then
-has to be rewritten — the restructure pending right now is a scope change (PM lab
-→ V2 product), not a cosmetic one.
+has to be rewritten.
 
 **The id contract — requirement ids are keys, not labels.**
 
-`FR-xxx`, `NFR-xxx`, `BR-xxx`, `SEC-xxx`, `SDD-xxx` must keep their meaning for the
-life of the project. Documents may be moved, renamed, split or merged; ids may not
+`FR-xxx`, `NFR-xxx`, `BR-xxx`, `SEC-xxx`, `SDD-xxx`, `FEAT-xxx` and `ADR-xxx` /
+`ZV2-CR-xxx` must keep their meaning for the life of the project. FR is a
+*functional requirement* (a precise system behavior); FEAT is a *feature* (a
+product capability bundling one or more FRs, registry: `docs/FEATURES.md`) —
+different families, same contract (ADR-025 rev 2). Documents may be moved, renamed, split or merged; ids may not
 be renumbered, reused for a different statement, or recycled after a requirement is
 dropped (mark it superseded and leave the number burnt). Plans, annotations, tests,
 the traceability matrix and the doc graph all key off these ids — renumbering
 silently detaches every one of them.
 
-Same principle as ADR-003 §D4 applies one level up: **change the label, never the
-key** — UUIDs for data, requirement ids for documents.
+The same principle applies one level up: **change the label, never the key** —
+UUIDs for data, requirement and feature ids for documents. The duplicate-id
+guard in preflight enforces uniqueness across every family, including FEAT rows.
 
 ### 19. Documentation architecture (what lives where)
 
@@ -353,7 +354,10 @@ Spine    docs/domains/<d>/  one folder per domain (ADR-025) — CHARTER.md = the
 Layer 0  docs/PRODUCT.md            what zuri-ai is: surfaces, scope chain, non-negotiables
 Layer 1-2  docs/PRD-SDD-v1.0.md   the FR/NFR/BR/SEC/SDD registry — ids are global, never per-domain
 Arch     docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md  target architecture (Draft; taxonomy adopted by ADR-025)
+Registry docs/FEATURES.md           FEAT registry — a feature bundles one or more FRs (ADR-025 rev 2)
 Index    docs/FEATURE-MAP.md        GENERATED — the feature-driven user view; never hand-edit
+Index    docs/DOMAIN-MAP.md         GENERATED — one section per domain: lane, ownership, contents
+Index    docs/TRACE.md              GENERATED — the full chain per FR: surface → code → rules → tests
 Appendix docs/appendices/  A api - B db - C model cards - D traceability (generated) - E risks - F glossary
 ```
 
@@ -371,7 +375,8 @@ Write a feature note **only when there is rationale**: alternatives considered,
 constraints, why this shape. A feature with no interesting decisions needs no file —
 it already appears in `FEATURE-MAP.md` with its code, tests and task.
 
-**`FEATURE-MAP.md` is derived**, from the PRD registry + `@req` annotations + test
+**`FEATURE-MAP.md`, `DOMAIN-MAP.md` and `TRACE.md` are derived** (generators in
+`scripts/doc-views.mjs` + `scripts/doc-graph.mjs`), from the PRD registry + `@req` annotations + test
 edges + feature frontmatter + roadmap rows. Its `source` column is also the cutover
 dashboard for ADR-003. Editing it by hand creates a third copy of facts that already
 live in two places — exactly the drift the generators exist to prevent.
