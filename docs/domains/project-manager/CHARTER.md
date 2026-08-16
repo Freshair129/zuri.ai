@@ -1,6 +1,9 @@
 ---
 domain: project-manager
-module: src/modules/project-manager
+modules:
+  - project-manager
+  - business
+  - people
 owns_models:
   - Portfolio
   - Tenant
@@ -57,6 +60,17 @@ trail. This is the back-office console's core.
   and scope resolution; crm and agent build their test and runtime scopes
   through it, never by inserting scope rows directly.
 - The import pipeline's envelope contract (`contracts/`).
+
+## Satellite modules in this lane
+
+Two small `src/modules/` folders are read-slices of this domain, not domains of
+their own — both write **nothing**:
+
+- `business` — the Business Strategy read model (FR-041/FR-043): serializes
+  BusinessRoadmap/Goals/Projects, all owned here.
+- `people` — the People Directory (FR-042): a Business-scoped view joining this
+  domain's `Membership` with crm's `Person` (read-only cross-domain read, the
+  pattern the architecture spec's §5.3 explicitly allows).
 
 ## Known shared-write exceptions (debt, visible on purpose)
 

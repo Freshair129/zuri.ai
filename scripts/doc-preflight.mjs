@@ -158,6 +158,65 @@ if (!existsSync(GRAPH)) {
     }
   }
 
+  // Generated-view blindness guard. A generated index is only trustworthy if it
+  // actually saw its inputs: when the FEATURE-MAP generator's discovery broke, the
+  // map regenerated "successfully" with every note link blank, and nothing
+  // noticed — generated guarantees consistency with the generator, not with the
+  // world. Assert the map cites every feature note that exists on disk.
+  {
+    const mapPath = path.join(SPEC_PACK, 'FEATURE-MAP.md')
+    if (existsSync(mapPath)) {
+      const map = read(mapPath)
+      const blind = []
+      for (const f of allDocs) {
+        if (!f.includes(`${path.sep}features${path.sep}`)) continue
+        const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read(f))?.[1] || ''
+        if (!/^feature:\s*\S+/m.test(fm)) continue
+        const relPath = rel(f).replace(/^docs\//, '')
+        if (!map.includes(relPath)) blind.push(rel(f))
+      }
+      if (blind.length) {
+        add('critical', 'generated-view', `FEATURE-MAP is blind to ${blind.length} feature note(s) that exist on disk`, blind.join(' · '), blind,
+          'The generator\'s discovery is broken or the map is stale — fix scripts/doc-graph.mjs and rerun docs:graph')
+      }
+    }
+  }
+
+  // Module ↔ charter guard. src/modules/ is enumerated from the filesystem — the
+  // stale hand-written module list in CLAUDE.md is exactly how two modules ended
+  // up in no domain's lane. Every module must be claimed by exactly one charter
+  // (charter frontmatter: `modules:`; a charter with no list claims the module
+  // matching its folder name).
+  {
+    const MODULES_DIR = path.join(ROOT, 'src', 'modules')
+    const DOMAINS_DIR = path.join(SPEC_PACK, 'domains')
+    if (existsSync(MODULES_DIR) && existsSync(DOMAINS_DIR)) {
+      const moduleClaims = new Map() // module → [domains]
+      for (const entry of readdirSync(DOMAINS_DIR)) {
+        const charter = path.join(DOMAINS_DIR, entry, 'CHARTER.md')
+        if (!existsSync(charter)) continue
+        const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read(charter))?.[1] || ''
+        const listed = (/modules:\s*\n((?:\s+-\s+\S+\n?)*)/.exec(fm)?.[1]?.match(/-\s+(\S+)/g) || []).map((x) => x.replace(/-\s+/, ''))
+        const claimed = listed.length ? listed : [entry]
+        for (const m of claimed) {
+          if (!moduleClaims.has(m)) moduleClaims.set(m, [])
+          moduleClaims.get(m).push(entry)
+        }
+      }
+      for (const m of readdirSync(MODULES_DIR)) {
+        if (!statSync(path.join(MODULES_DIR, m)).isDirectory()) continue
+        const owners = moduleClaims.get(m) || []
+        if (owners.length === 0) {
+          add('critical', 'domain-spine', `src/modules/${m} is in no domain's lane`, 'code with no charter is exactly how work gets lost — a module exists, so a domain owns it', [],
+            `Add "${m}" to the owning charter's modules: list (or create the domain)`)
+        } else if (owners.length > 1) {
+          add('critical', 'domain-spine', `src/modules/${m} is claimed by ${owners.length} charters: ${owners.join(', ')}`, 'one module, one lane', [],
+            'Remove it from all but the owning charter')
+        }
+      }
+    }
+  }
+
   // Domain spine (ADR-025) — docs/domains/<d>/ is an agent's lane definition, so
   // the lane must actually be defined and claims on it must be unambiguous.
   {

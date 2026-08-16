@@ -43,11 +43,11 @@ still cite that path as a record.)
 ```
 docs/                     spec pack + ADRs + module docs (PRD-SDD, appendices, roadmap) — one tree
 src/app/(pm)/             UI routes      src/app/api/   route handlers
-src/modules/project-manager/
-  application/            services (the only place that writes)
-  progress/               pure calculators + roll-up (no I/O, no clock)
-  import/                 the one intake pipeline every surface ends at
-src/modules/{crm,identity,agent,knowledge}   LINE/AI stack (ADR-007: ingest · P3 gate · agent · GKS)
+src/modules/<domain>/     one folder per domain — DO NOT trust any prose list of these:
+                          enumerate `ls src/modules/` and read docs/domains/<d>/CHARTER.md.
+                          preflight fails if a module exists with no charter claiming it.
+  (project-manager keeps: application/ = the only place that writes ·
+   progress/ = pure calculators, no I/O · import/ = the one intake pipeline)
 src/lib/                  db, ids, validation/enums.js (enum source of truth), shell-mode.js, db-boundary.js
 prisma/schema.prisma      SQLite dev/test; schema.postgres.prisma + postgres/ for Supabase (FR-030)
 tests/{unit,integration,e2e}

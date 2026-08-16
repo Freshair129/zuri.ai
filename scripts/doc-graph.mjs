@@ -342,12 +342,20 @@ function featureMap(nodes, edges) {
   const moduleOf = (p) =>
     /modules\/([^/]+)\//.exec(p)?.[1] || (p.startsWith('prisma/') ? 'seed' : 'shell')
 
-  // Feature docs declare which feature they explain via frontmatter.
+  // Feature docs declare which feature they explain via frontmatter. They live
+  // under their owning domain (ADR-025); the legacy flat folder is still scanned
+  // so a note is never silently dropped mid-migration.
   const featureDocs = new Map()
-  for (const f of walk(path.join(ROOT, 'docs', 'features'), ['.md'])) {
+  const featureNoteFiles = [
+    ...walk(path.join(ROOT, 'docs', 'domains'), ['.md']).filter((f) => f.includes(`${path.sep}features${path.sep}`)),
+    ...walk(path.join(ROOT, 'docs', 'features'), ['.md']),
+  ]
+  for (const f of featureNoteFiles) {
     const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read(f))?.[1] || ''
     const id = /^feature:\s*(\S+)/m.exec(fm)?.[1]
-    if (id) featureDocs.set(id, { path: rel(f), source: /^source:\s*(\S+)/m.exec(fm)?.[1] || 'v2-native' })
+    if (!id) continue
+    const domain = /^domain:\s*(\S+)/m.exec(fm)?.[1] || rel(f).split('/')[2] || '—'
+    featureDocs.set(id, { path: rel(f), source: /^source:\s*(\S+)/m.exec(fm)?.[1] || 'v2-native', domain })
   }
 
   // Roadmap rows that name a requirement id own that feature's delivery.

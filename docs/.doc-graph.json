@@ -39,7 +39,8 @@
       "doc:CHARTER",
       "doc:CHARTER",
       "doc:CHARTER",
-      "doc:CHARTER"
+      "doc:CHARTER",
+      "doc:FEATURE-MAP"
     ],
     "added": [],
     "removed": []
@@ -3135,7 +3136,7 @@
       "type": "document",
       "path": "docs/domains/project-manager/CHARTER.md",
       "title": "Domain charter — project-manager",
-      "hash": "c1cfda0a",
+      "hash": "b431e4c4",
       "status": "current"
     },
     {
@@ -3219,8 +3220,8 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "240f014b",
-      "status": "current"
+      "hash": "b1ade34e",
+      "status": "changed"
     },
     {
       "id": "doc:FR-019-enterprise-api",
