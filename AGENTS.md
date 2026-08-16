@@ -349,12 +349,12 @@ Set by [ADR-004](docs/decisions/ADR-004-DOCUMENTATION-ARCHITECTURE.md). Four lay
 one of them is written by hand at feature level:
 
 ```text
+Spine    docs/domains/<d>/  one folder per domain (ADR-025) — CHARTER.md = the lane; features/ = its notes
 Layer 0  docs/PRODUCT.md            what zuri-ai is: surfaces, scope chain, non-negotiables
-Layer 1-2  docs/PRD-SDD-v1.0.md   the Project Manager MODULE (FR/NFR/BR/SEC/SDD registry)
-Layer 3  docs/ai-system/               intent pipeline · prompts · PDPA/ethics · model lifecycle
-Feature  docs/features/    one note per feature that has rationale worth recording
-Index    docs/FEATURE-MAP.md        GENERATED — never hand-edit
-Appendix docs/appendices/  A api · B db · C model cards · D traceability (generated) · E risks · F glossary
+Layer 1-2  docs/PRD-SDD-v1.0.md   the FR/NFR/BR/SEC/SDD registry — ids are global, never per-domain
+Arch     docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md  target architecture (Draft; taxonomy adopted by ADR-025)
+Index    docs/FEATURE-MAP.md        GENERATED — the feature-driven user view; never hand-edit
+Appendix docs/appendices/  A api - B db - C model cards - D traceability (generated) - E risks - F glossary
 ```
 
 **Feature notes** carry frontmatter so the generator can link them by id, not path:

@@ -3,7 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-08-12
 **Decided by:** Owen (owner)
-**Relates to:** [ADR-003](ADR-003-V2-REPLACES-V1-BY-REUSE.md) (V2 replaces V1), [ADR-005](ADR-005-V1-DOCUMENTATION-CORPUS.md), `ai-system/intent-pipeline.md`, `replacement/IMPLEMENTATION-PLAN-V2-REPLACE.md`, `replacement/DEMO-RUNBOOK-SMARTGIFT.md`
+**Relates to:** [ADR-003](ADR-003-V2-REPLACES-V1-BY-REUSE.md) (V2 replaces V1), [ADR-005](ADR-005-V1-DOCUMENTATION-CORPUS.md), `../domains/agent/intent-pipeline.md`, `replacement/IMPLEMENTATION-PLAN-V2-REPLACE.md`, `replacement/DEMO-RUNBOOK-SMARTGIFT.md`
 
 ## Context
 
@@ -119,7 +119,7 @@ They share a foundation built **once**; everything after diverges.
   hardened foundation. Its shortcuts are recorded as demo-only and must not harden.
 
 Consequence for the roadmap: two Mission Control tabs already exist
-(`ROADMAP-zuri-v2-lab` = Track 1's home, `ROADMAP-business01-smartgift-delivery` =
+(`ROADMAP` = Track 1's home, `ROADMAP-business01-smartgift-delivery` =
 Track 2's home); the shared foundation (P2/P3/P4) appears in both as a common
 dependency, owned once.
 

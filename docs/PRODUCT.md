@@ -103,10 +103,10 @@ The SmartGift executive demo is a **spike ahead of Track 2**, on demo-only short
 | Feature index + cutover state | `docs/FEATURE-MAP.md` (generated) |
 | Project Manager module | `docs/PRD-SDD-v1.0.md` + `docs/features/` |
 | Shell · scope lens · entry flow | `docs/decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md` + `docs/decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md` + `docs/SITEMAP-DOMAIN-NAV.md` |
-| AI + LINE surface | `docs/ai-system/` |
+| AI + LINE surface | `docs/domains/agent/` |
 | Replacing V1 | `docs/replacement/` |
 | Decisions | `docs/decisions/ADR-00*.md` |
-| Delivery state | `docs/roadmap/ROADMAP-zuri-v2-lab.md` |
+| Delivery state | `docs/roadmap/ROADMAP.md` |
 
 ## 5. Delivery state (2026-08-12)
 

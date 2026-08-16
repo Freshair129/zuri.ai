@@ -374,7 +374,7 @@ function featureMap(nodes, edges) {
       const modules = [...new Set(code.map(moduleOf))].join(', ') || '—'
       const status = code.length === 0 ? '🔜 planned' : r.declared === 'planned' ? '🟠 built, not declared' : '✅ live'
       const head = code.length > 2 ? `\`${code[0]}\` +${code.length - 1}` : code.map((c) => `\`${c}\``).join(', ') || '—'
-      return `| ${fid} | ${r.label} | ${modules} | ${doc?.source || 'v2-native'} | ${status} | ${head} | ${tests} | ${doc ? `[doc](${doc.path.replace('docs/', '')})` : '—'} | ${tasks.get(fid) || '—'} |`
+      return `| ${fid} | ${r.label} | ${doc?.domain || '—'} | ${modules} | ${doc?.source || 'v2-native'} | ${status} | ${head} | ${tests} | ${doc ? `[doc](${doc.path.replace('docs/', '')})` : '—'} | ${tasks.get(fid) || '—'} |`
     })
 
   return `# Feature Map
@@ -385,15 +385,13 @@ function featureMap(nodes, edges) {
 | **Status** | Auto-generated |
 | **Generator** | \`scripts/doc-graph.mjs\` (RWANG doc-graph) |
 
-> One index for every feature: what it is, which module owns it, whether it is
-> V2-native or lifted from V1, and where its code, tests, design note and delivery
-> task live. Regenerate with \`npm run docs:graph\` — never hand-edit.
->
-> **Source** is the cutover dashboard: \`v2-native\` (built here), \`lifted-from-v1\`
-> (V1 UI reused per ADR-003), \`pending\` (not moved yet).
+> One index for every feature: what it is, which domain owns it, and where its
+> code, tests, design note and delivery task live. This is the feature-driven
+> user view over the domain spine (ADR-025). Regenerate with \`npm run docs:graph\`
+> — never hand-edit.
 
-| ID | Feature | Module | Source | Status | Code | Tests | Design note | Task |
-|---|---|---|---|---|---|---|---|---|
+| ID | Feature | Domain | Module | Source | Status | Code | Tests | Design note | Task |
+|---|---|---|---|---|---|---|---|---|---|
 ${rows.join('\n')}
 
 Design notes live in \`docs/features/\` and declare their feature in frontmatter

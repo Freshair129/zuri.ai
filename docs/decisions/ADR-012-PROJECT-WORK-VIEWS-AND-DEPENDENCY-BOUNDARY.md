@@ -80,7 +80,7 @@ means of understanding a blocker.
 
 ## Verification
 
-- AC-040-01 through AC-040-08 in `features/FR-040-project-work-views.md` pass.
+- AC-040-01 through AC-040-08 in `../domains/project-manager/features/FR-040-project-work-views.md` pass.
 - Unit tests prove deterministic graph projection and exclusion of cross-project edges.
 - Integration tests prove the API is Project-contained and retains FR-007 cycle protections.
 - Playwright covers both visual routes at desktop and narrow viewport sizes.

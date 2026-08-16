@@ -158,6 +158,58 @@ if (!existsSync(GRAPH)) {
     }
   }
 
+  // Domain spine (ADR-025) — docs/domains/<d>/ is an agent's lane definition, so
+  // the lane must actually be defined and claims on it must be unambiguous.
+  {
+    const DOMAINS_DIR = path.join(SPEC_PACK, 'domains')
+    if (existsSync(DOMAINS_DIR)) {
+      const schemaModels = new Set(
+        (read(path.join(ROOT, 'prisma', 'schema.prisma')).match(/^model\s+(\w+)/gm) || []).map((m) => m.split(/\s+/)[1]),
+      )
+      const modelClaims = new Map() // model → [domains]
+      for (const entry of readdirSync(DOMAINS_DIR)) {
+        const dir = path.join(DOMAINS_DIR, entry)
+        if (!statSync(dir).isDirectory()) continue
+        const charter = path.join(dir, 'CHARTER.md')
+        if (!existsSync(charter)) {
+          add('critical', 'domain-spine', `Domain without a charter: ${entry}`, 'every domains/<d>/ needs CHARTER.md — it is the lane definition agents work from', [rel(dir)], 'Write the charter before putting documents in the domain')
+          continue
+        }
+        const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read(charter))?.[1] || ''
+        const declared = /^domain:\s*(\S+)/m.exec(fm)?.[1]
+        if (declared !== entry) {
+          add('warning', 'domain-spine', `Charter domain mismatch: frontmatter says "${declared}", folder is "${entry}"`, path.basename(charter), [rel(charter)], 'Make the frontmatter match the folder')
+        }
+        const inModels = /owns_models:\s*\n((?:\s+-\s+\S+\n?)*)/.exec(fm)?.[1] || ''
+        for (const m of inModels.match(/-\s+(\S+)/g)?.map((x) => x.replace(/-\s+/, '')) || []) {
+          if (!modelClaims.has(m)) modelClaims.set(m, [])
+          modelClaims.get(m).push(entry)
+          if (!schemaModels.has(m)) {
+            add('warning', 'domain-spine', `Charter claims a model that is not in the schema: ${m}`, `domains/${entry}`, [rel(charter)], 'Stale charter — sync owns_models with prisma/schema.prisma')
+          }
+        }
+        // Feature notes must declare the domain they sit in.
+        for (const note of walk(path.join(dir, 'features'), '.md')) {
+          const nfm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read(note))?.[1] || ''
+          const nd = /^domain:\s*(\S+)/m.exec(nfm)?.[1]
+          if (nd !== entry) {
+            add('critical', 'domain-spine', `Feature note in domains/${entry} declares domain "${nd || '(none)'}"`, path.basename(note), [rel(note)], 'A feature has one home — set domain: to the folder it lives in, or move it')
+          }
+        }
+      }
+      // The architecture invariant, applied to documentation: one owner per model.
+      for (const [m, ds] of modelClaims) {
+        if (ds.length > 1) {
+          add('critical', 'domain-spine', `Model ${m} is claimed by ${ds.length} domains: ${ds.join(', ')}`, 'every operational table has exactly one owning domain (architecture invariant #1)', [], 'Pick the owner; the other domain reaches it through a contract')
+        }
+      }
+      const unowned = [...schemaModels].filter((m) => !modelClaims.has(m))
+      if (unowned.length) {
+        add('info', 'domain-spine', `Models not yet claimed by any charter: ${unowned.length}`, unowned.join(', '), [], 'Coverage debt — claim them as charters mature')
+      }
+    }
+  }
+
   // Lineage integrity — a doc marked superseded must carry a successor edge, so
   // "what replaced it" is answerable from the graph (RWANG lineage guard).
   for (const n of (g.nodes || []).filter((n) => n.status === 'superseded' || /supersed/i.test(n.doc_status || ''))) {
