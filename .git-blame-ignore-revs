@@ -1,0 +1,20 @@
+# Revisions to skip when running `git blame`.
+#
+# Enable it once per clone:
+#
+#     git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# List only commits that are mechanical across many files — a line-ending sweep,
+# a formatter rollout, a mass rename — where the commit's author is never the
+# answer to "who wrote this line". One full 40-character SHA per line, with a
+# comment above it saying what it did. Never list a commit that changed
+# behaviour: blame would then hide the change that matters.
+#
+# ---------------------------------------------------------------------------
+# Introducing .gitattributes (PR: codex/gitattributes-normalize) added no entry
+# here on purpose. The repository's text blobs were already LF — all 878 of them
+# — so `git add --renormalize .` staged nothing and there was no mechanical
+# commit to ignore. The sweep changed only how files materialize in a working
+# tree (870 files CRLF -> LF on disk), which git blame never sees. This file
+# exists so the convention and the config line are in place before the first
+# sweep that does rewrite blobs.
