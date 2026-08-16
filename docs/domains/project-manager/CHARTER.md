@@ -33,8 +33,11 @@ owns_models:
   - AuditEvent
 owns_routes:
   - src/app/(pm)/**
-  - src/app/api/** (except /api/agent/**)
+  - src/app/api/**
 ---
+
+<!-- owns_routes are longest-prefix globs: src/app/api/agent/** in the agent
+     charter is more specific, so agent routes resolve there, not here. -->
 
 # Domain charter — project-manager
 

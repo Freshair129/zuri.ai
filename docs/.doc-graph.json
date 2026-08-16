@@ -3,16 +3,20 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 512,
-    "total_edges": 1492,
+    "total_nodes": 636,
+    "total_edges": 1619,
     "dangling_edges": 0,
     "node_types": {
-      "appendix": 5,
-      "document": 62,
+      "appendix": 4,
+      "document": 57,
       "adr": 25,
+      "domain": 5,
       "roadmap": 21,
+      "feature": 1,
+      "route": 90,
+      "model": 33,
       "requirement": 129,
-      "test": 116,
+      "test": 117,
       "code_file": 154
     },
     "coverage": {
@@ -35,13 +39,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:CHARTER",
-      "doc:CHARTER",
-      "doc:CHARTER",
-      "doc:CHARTER",
-      "doc:FEATURE-MAP"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -3100,56 +3098,6 @@
       "status": "current"
     },
     {
-      "id": "doc:CHARTER",
-      "type": "document",
-      "path": "docs/domains/agent/CHARTER.md",
-      "title": "Domain charter — agent",
-      "hash": "6d18ff36",
-      "status": "changed"
-    },
-    {
-      "id": "doc:CHARTER",
-      "type": "document",
-      "path": "docs/domains/crm/CHARTER.md",
-      "title": "Domain charter — crm",
-      "hash": "5f2d499f",
-      "status": "changed"
-    },
-    {
-      "id": "doc:CHARTER",
-      "type": "document",
-      "path": "docs/domains/identity/CHARTER.md",
-      "title": "Domain charter — identity",
-      "hash": "5367ec4e",
-      "status": "changed"
-    },
-    {
-      "id": "doc:CHARTER",
-      "type": "document",
-      "path": "docs/domains/knowledge/CHARTER.md",
-      "title": "Domain charter — knowledge",
-      "hash": "65d305aa",
-      "status": "changed"
-    },
-    {
-      "id": "doc:CHARTER",
-      "type": "document",
-      "path": "docs/domains/project-manager/CHARTER.md",
-      "title": "Domain charter — project-manager",
-      "hash": "b431e4c4",
-      "status": "current"
-    },
-    {
-      "id": "doc:D-traceability",
-      "type": "appendix",
-      "path": "docs/appendices/D-traceability.md",
-      "title": "Appendix D — Traceability Matrix",
-      "version": "2.0.0",
-      "doc_status": "Auto-generated",
-      "hash": "ddc1cf9d",
-      "status": "current"
-    },
-    {
       "id": "doc:DB-MIGRATION-NOTES",
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
@@ -3214,14 +3162,14 @@
       "status": "current"
     },
     {
-      "id": "doc:FEATURE-MAP",
+      "id": "doc:FEATURES",
       "type": "document",
-      "path": "docs/FEATURE-MAP.md",
-      "title": "Feature Map",
+      "path": "docs/FEATURES.md",
+      "title": "Features (FEAT registry)",
       "version": "1.0.0",
-      "doc_status": "Auto-generated",
-      "hash": "b1ade34e",
-      "status": "changed"
+      "doc_status": "Active — hand-maintained source of truth",
+      "hash": "6594a05e",
+      "status": "current"
     },
     {
       "id": "doc:FR-019-enterprise-api",
@@ -3822,6 +3770,290 @@
       "path": "docs/changes/ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY.md",
       "title": "ZV2-CR-008 — Agent vault for private epistemic memory",
       "hash": "05ed0ab2",
+      "status": "current"
+    },
+    {
+      "id": "domain:agent",
+      "type": "domain",
+      "path": "docs/domains/agent/CHARTER.md",
+      "title": "Domain — agent",
+      "owns_models": [],
+      "owns_routes": [
+        "src/app/api/agent/**"
+      ],
+      "modules": [
+        "agent"
+      ],
+      "hash": "6d18ff36",
+      "status": "current"
+    },
+    {
+      "id": "domain:crm",
+      "type": "domain",
+      "path": "docs/domains/crm/CHARTER.md",
+      "title": "Domain — crm",
+      "owns_models": [
+        "Person",
+        "Customer",
+        "Conversation",
+        "Message"
+      ],
+      "owns_routes": [],
+      "modules": [
+        "crm"
+      ],
+      "hash": "5f2d499f",
+      "status": "current"
+    },
+    {
+      "id": "domain:identity",
+      "type": "domain",
+      "path": "docs/domains/identity/CHARTER.md",
+      "title": "Domain — identity",
+      "owns_models": [
+        "ExternalIdentity",
+        "IdentityLinkToken",
+        "ExternalRef"
+      ],
+      "owns_routes": [
+        "src/app/(entry)/**",
+        "src/app/login/**",
+        "src/app/api/entry/**"
+      ],
+      "modules": [
+        "identity"
+      ],
+      "hash": "9ffb14f1",
+      "status": "current"
+    },
+    {
+      "id": "domain:knowledge",
+      "type": "domain",
+      "path": "docs/domains/knowledge/CHARTER.md",
+      "title": "Domain — knowledge",
+      "owns_models": [],
+      "owns_routes": [],
+      "modules": [
+        "knowledge"
+      ],
+      "hash": "65d305aa",
+      "status": "current"
+    },
+    {
+      "id": "domain:project-manager",
+      "type": "domain",
+      "path": "docs/domains/project-manager/CHARTER.md",
+      "title": "Domain — project-manager",
+      "owns_models": [
+        "Portfolio",
+        "Tenant",
+        "LegalEntity",
+        "LegalEntityIdentifier",
+        "Business",
+        "Branch",
+        "Workspace",
+        "Project",
+        "BusinessRoadmap",
+        "BusinessRoadmapHorizon",
+        "BusinessGoal",
+        "ProjectGoal",
+        "Workstream",
+        "WorkContainer",
+        "WorkItem",
+        "Milestone",
+        "Gate",
+        "Dependency",
+        "Repository",
+        "ProjectRepository",
+        "ProjectFile",
+        "LocalWorkspaceMount",
+        "FileAsset",
+        "FileLink",
+        "Membership",
+        "AuditEvent"
+      ],
+      "owns_routes": [
+        "src/app/(pm)/**",
+        "src/app/api/**"
+      ],
+      "modules": [
+        "project-manager",
+        "business",
+        "people"
+      ],
+      "hash": "3b78aaed",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-001",
+      "type": "feature",
+      "label": "File Manager — Business/Project files with managed local workspace",
+      "declared": "live",
+      "status": "current"
+    },
+    {
+      "id": "model:AuditEvent",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Branch",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Business",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:BusinessGoal",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:BusinessRoadmap",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:BusinessRoadmapHorizon",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Conversation",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Customer",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Dependency",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ExternalIdentity",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ExternalRef",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:FileAsset",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:FileLink",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Gate",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:IdentityLinkToken",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:LegalEntity",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:LegalEntityIdentifier",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:LocalWorkspaceMount",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Membership",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Message",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Milestone",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Person",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Portfolio",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Project",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ProjectFile",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ProjectGoal",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ProjectRepository",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Repository",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Tenant",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:WorkContainer",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:WorkItem",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Workspace",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Workstream",
+      "type": "model",
       "status": "current"
     },
     {
@@ -4986,6 +5218,726 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/agent/line-webhook",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/agent/line-webhook",
+      "path": "src/app/api/agent/line-webhook/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/audit",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/audit",
+      "path": "src/app/api/audit/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/backup/export",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/backup/export",
+      "path": "src/app/api/backup/export/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/backup/import",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/backup/import",
+      "path": "src/app/api/backup/import/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/business/files",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/business/files",
+      "path": "src/app/api/business/files/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/business/strategy",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/business/strategy",
+      "path": "src/app/api/business/strategy/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/containers",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/containers",
+      "path": "src/app/api/containers/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/containers/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/containers/[id]",
+      "path": "src/app/api/containers/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/dependencies",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/dependencies",
+      "path": "src/app/api/dependencies/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/dependencies/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/dependencies/[id]",
+      "path": "src/app/api/dependencies/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/docs",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/docs",
+      "path": "src/app/api/docs/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/entry",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/entry",
+      "path": "src/app/api/entry/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/files",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/files",
+      "path": "src/app/api/files/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/files/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/files/[id]",
+      "path": "src/app/api/files/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/files/[id]/content",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/files/[id]/content",
+      "path": "src/app/api/files/[id]/content/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/files/[id]/relink",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/files/[id]/relink",
+      "path": "src/app/api/files/[id]/relink/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/files/[id]/reveal",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/files/[id]/reveal",
+      "path": "src/app/api/files/[id]/reveal/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/files/cache/rebuild",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/files/cache/rebuild",
+      "path": "src/app/api/files/cache/rebuild/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/files/migrate",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/files/migrate",
+      "path": "src/app/api/files/migrate/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/files/mounts",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/files/mounts",
+      "path": "src/app/api/files/mounts/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/files/reconcile",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/files/reconcile",
+      "path": "src/app/api/files/reconcile/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/gates",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/gates",
+      "path": "src/app/api/gates/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/gates/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/gates/[id]",
+      "path": "src/app/api/gates/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/import/commit",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/import/commit",
+      "path": "src/app/api/import/commit/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/import/dry-run",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/import/dry-run",
+      "path": "src/app/api/import/dry-run/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/import/template",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/import/template",
+      "path": "src/app/api/import/template/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/import/xlsx",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/import/xlsx",
+      "path": "src/app/api/import/xlsx/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/milestones",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/milestones",
+      "path": "src/app/api/milestones/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/milestones/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/milestones/[id]",
+      "path": "src/app/api/milestones/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/people",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/people",
+      "path": "src/app/api/people/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/users",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/users",
+      "path": "src/app/api/platform/users/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/profile",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/profile",
+      "path": "src/app/api/profile/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/progress/portfolio",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/progress/portfolio",
+      "path": "src/app/api/progress/portfolio/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/progress/project/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/progress/project/[id]",
+      "path": "src/app/api/progress/project/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/progress/workstream/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/progress/workstream/[id]",
+      "path": "src/app/api/progress/workstream/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/projects",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/projects",
+      "path": "src/app/api/projects/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/projects/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/projects/[id]",
+      "path": "src/app/api/projects/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/projects/[id]/dependencies",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/projects/[id]/dependencies",
+      "path": "src/app/api/projects/[id]/dependencies/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/projects/[id]/files",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/projects/[id]/files",
+      "path": "src/app/api/projects/[id]/files/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/projects/[id]/files/[fileId]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/projects/[id]/files/[fileId]",
+      "path": "src/app/api/projects/[id]/files/[fileId]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/projects/[id]/team",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/projects/[id]/team",
+      "path": "src/app/api/projects/[id]/team/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/projects/[id]/tree",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/projects/[id]/tree",
+      "path": "src/app/api/projects/[id]/tree/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/repositories",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/repositories",
+      "path": "src/app/api/repositories/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/repositories/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/repositories/[id]",
+      "path": "src/app/api/repositories/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/repositories/link",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/repositories/link",
+      "path": "src/app/api/repositories/link/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/repositories/link/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/repositories/link/[id]",
+      "path": "src/app/api/repositories/link/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/resolve",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/resolve",
+      "path": "src/app/api/resolve/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/scope",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/scope",
+      "path": "src/app/api/scope/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/session/demo",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/session/demo",
+      "path": "src/app/api/session/demo/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/viewer",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/viewer",
+      "path": "src/app/api/viewer/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/work",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/work",
+      "path": "src/app/api/work/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/work/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/work/[id]",
+      "path": "src/app/api/work/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/workspaces/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/workspaces/[id]",
+      "path": "src/app/api/workspaces/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/workstreams",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/workstreams",
+      "path": "src/app/api/workstreams/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/workstreams/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/workstreams/[id]",
+      "path": "src/app/api/workstreams/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/",
+      "type": "route",
+      "kind": "page",
+      "route": "/",
+      "path": "src/app/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/audit",
+      "type": "route",
+      "kind": "page",
+      "route": "/audit",
+      "path": "src/app/(pm)/audit/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/backup",
+      "type": "route",
+      "kind": "page",
+      "route": "/backup",
+      "path": "src/app/(pm)/backup/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/businesses",
+      "type": "route",
+      "kind": "page",
+      "route": "/businesses",
+      "path": "src/app/(entry)/businesses/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/dependencies",
+      "type": "route",
+      "kind": "page",
+      "route": "/dependencies",
+      "path": "src/app/(pm)/dependencies/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/execution",
+      "type": "route",
+      "kind": "page",
+      "route": "/execution",
+      "path": "src/app/(pm)/execution/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/execution/[mode]",
+      "type": "route",
+      "kind": "page",
+      "route": "/execution/[mode]",
+      "path": "src/app/(pm)/execution/[mode]/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/files",
+      "type": "route",
+      "kind": "page",
+      "route": "/files",
+      "path": "src/app/(pm)/files/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/login",
+      "type": "route",
+      "kind": "page",
+      "route": "/login",
+      "path": "src/app/login/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/milestones",
+      "type": "route",
+      "kind": "page",
+      "route": "/milestones",
+      "path": "src/app/(pm)/milestones/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/overview",
+      "type": "route",
+      "kind": "page",
+      "route": "/overview",
+      "path": "src/app/(pm)/overview/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/people",
+      "type": "route",
+      "kind": "page",
+      "route": "/people",
+      "path": "src/app/(pm)/people/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/people/directory",
+      "type": "route",
+      "kind": "page",
+      "route": "/people/directory",
+      "path": "src/app/(pm)/people/directory/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/platform/users",
+      "type": "route",
+      "kind": "page",
+      "route": "/platform/users",
+      "path": "src/app/(pm)/platform/users/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/profile",
+      "type": "route",
+      "kind": "page",
+      "route": "/profile",
+      "path": "src/app/(pm)/profile/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects",
+      "path": "src/app/(pm)/projects/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]",
+      "path": "src/app/(pm)/projects/[projectId]/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]/all-work",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/all-work",
+      "path": "src/app/(pm)/projects/[projectId]/all-work/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]/board",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/board",
+      "path": "src/app/(pm)/projects/[projectId]/board/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]/dependencies",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/dependencies",
+      "path": "src/app/(pm)/projects/[projectId]/dependencies/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]/execution/[mode]",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/execution/[mode]",
+      "path": "src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]/files",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/files",
+      "path": "src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]/import",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/import",
+      "path": "src/app/(pm)/projects/[projectId]/import/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]/milestones",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/milestones",
+      "path": "src/app/(pm)/projects/[projectId]/milestones/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]/repositories",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/repositories",
+      "path": "src/app/(pm)/projects/[projectId]/repositories/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]/structure",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/structure",
+      "path": "src/app/(pm)/projects/[projectId]/structure/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]/team",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/team",
+      "path": "src/app/(pm)/projects/[projectId]/team/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]/timeline",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/timeline",
+      "path": "src/app/(pm)/projects/[projectId]/timeline/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/new",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/new",
+      "path": "src/app/(pm)/projects/new/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/repositories",
+      "type": "route",
+      "kind": "page",
+      "route": "/repositories",
+      "path": "src/app/(pm)/repositories/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/settings",
+      "type": "route",
+      "kind": "page",
+      "route": "/settings",
+      "path": "src/app/(pm)/settings/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/timeline",
+      "type": "route",
+      "kind": "page",
+      "route": "/timeline",
+      "path": "src/app/(pm)/timeline/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/work",
+      "type": "route",
+      "kind": "page",
+      "route": "/work",
+      "path": "src/app/(pm)/work/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/workspaces",
+      "type": "route",
+      "kind": "page",
+      "route": "/workspaces",
+      "path": "src/app/(pm)/workspaces/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/workspaces/[workspaceId]",
+      "type": "route",
+      "kind": "page",
+      "route": "/workspaces/[workspaceId]",
+      "path": "src/app/(pm)/workspaces/[workspaceId]/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "spec:ADR-001-STANDALONE-ZURI-V2",
       "type": "adr",
       "path": "docs/decisions/ADR-001-STANDALONE-ZURI-V2.md",
@@ -5186,7 +6138,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md",
       "title": "ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow",
-      "hash": "18a1b6e0",
+      "hash": "55c88bad",
       "status": "current"
     },
     {
@@ -5551,6 +6503,13 @@
       "type": "test",
       "path": "tests/unit/doc-graph-canonical-text.test.js",
       "hash": "20a34b65",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/doc-views.test.js",
+      "type": "test",
+      "path": "tests/unit/doc-views.test.js",
+      "hash": "f92faa3e",
       "status": "current"
     },
     {
@@ -9679,6 +10638,251 @@
       "source": "annotation"
     },
     {
+      "from": "feat:FEAT-001",
+      "to": "req:FR-037",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-001",
+      "to": "req:FR-045",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "model:AuditEvent",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Branch",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Business",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:BusinessGoal",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:BusinessRoadmap",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:BusinessRoadmapHorizon",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Conversation",
+      "to": "domain:crm",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Customer",
+      "to": "domain:crm",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Dependency",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ExternalIdentity",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ExternalRef",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:FileAsset",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:FileLink",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Gate",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:IdentityLinkToken",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:LegalEntity",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:LegalEntityIdentifier",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:LocalWorkspaceMount",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Membership",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Message",
+      "to": "domain:crm",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Milestone",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Person",
+      "to": "domain:crm",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Portfolio",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Project",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ProjectFile",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ProjectGoal",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ProjectRepository",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Repository",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Tenant",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:WorkContainer",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:WorkItem",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Workspace",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Workstream",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "req:BR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -10580,6 +11784,629 @@
       "type": "specifies",
       "status": "current",
       "source": "prd-registry"
+    },
+    {
+      "from": "route:api:/api/agent/line-webhook",
+      "to": "domain:agent",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/audit",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/backup/export",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/backup/import",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/business/files",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/business/strategy",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/containers/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/containers",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/dependencies/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/dependencies",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/docs",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/entry",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/files/[id]/content",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/files/[id]/relink",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/files/[id]/reveal",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/files/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/files/cache/rebuild",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/files/migrate",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/files/mounts",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/files/reconcile",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/files",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/gates/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/gates",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/import/commit",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/import/dry-run",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/import/template",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/import/xlsx",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/milestones/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/milestones",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/people",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/users",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/profile",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/progress/portfolio",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/progress/project/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/progress/workstream/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/projects/[id]/dependencies",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/projects/[id]/files/[fileId]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/projects/[id]/files",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/projects/[id]/team",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/projects/[id]/tree",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/projects/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/projects",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/repositories/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/repositories/link/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/repositories/link",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/repositories",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/resolve",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/scope",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/session/demo",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/viewer",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/work/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/work",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/workspaces/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/workstreams/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/workstreams",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/audit",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/backup",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/businesses",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/dependencies",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/execution/[mode]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/execution",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/files",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/login",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/milestones",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/overview",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/people/directory",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/people",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/platform/users",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/profile",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/all-work",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/board",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/dependencies",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/execution/[mode]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/files",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/import",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/milestones",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/repositories",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/structure",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/team",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/timeline",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/new",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/repositories",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/settings",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/timeline",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/work",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/workspaces/[workspaceId]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/workspaces",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
     },
     {
       "from": "spec:ADR-002-INTEGRATION-DIRECTION",
@@ -13727,6 +15554,27 @@
     {
       "from": "test:tests/unit/design-system.test.js",
       "to": "req:SDD-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/doc-views.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/doc-views.test.js",
+      "to": "req:FR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/doc-views.test.js",
+      "to": "req:FR-028",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

@@ -1,6 +1,10 @@
 ---
 domain: identity
 module: src/modules/identity
+owns_routes:
+  - src/app/(entry)/**
+  - src/app/login/**
+  - src/app/api/entry/**
 owns_models:
   - ExternalIdentity
   - IdentityLinkToken
