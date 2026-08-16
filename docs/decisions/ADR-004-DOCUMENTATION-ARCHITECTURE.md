@@ -28,7 +28,7 @@ no fixed location, no link from the feature to its note, and no single place to 
 
 | # | Decision | Rationale |
 |---|---|---|
-| D1 | `docs/PRODUCT-V2.md` is Layer 0 — what V2 is, its two surfaces, the scope hierarchy, the non-negotiables | The question "what is Zuri V2" had to be answered by reading an ADR |
+| D1 | `docs/PRODUCT.md` is Layer 0 — what V2 is, its two surfaces, the scope hierarchy, the non-negotiables | The question "what is Zuri V2" had to be answered by reading an ADR |
 | D2 | Module PRD/SDD stays one layer down (`zuri-v2-lab/docs/PRD-SDD-v1.0.md`), rescoped as the **Project Manager module** of V2 | Keeps FR-001…FR-020 exactly where they are |
 | D3 | Feature notes live in `zuri-v2-lab/docs/features/` and declare their feature in frontmatter (`feature: FR-020`) | The note is linked by **id**, so moving or renaming it never breaks the link (§18) |
 | D4 | A note exists only when there is **rationale** to record — alternatives, constraints, why this shape | Not every feature needs a document; an empty template is worse than no file |

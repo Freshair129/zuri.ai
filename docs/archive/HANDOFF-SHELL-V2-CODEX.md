@@ -4,7 +4,7 @@
 **Version:** 1.3.0
 **Date:** 2026-08-14
 **Author:** Owen + Claude (design/docs session)
-**Relates to:** [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md), [ADR-009](ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md), [SITEMAP-V2](SITEMAP-V2-DOMAIN-NAV.md), FR-002, FR-020
+**Relates to:** [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md), [ADR-009](ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md), [SITEMAP-V2](SITEMAP-DOMAIN-NAV.md), FR-002, FR-020
 
 > This handoff is the implementation record for the approved shell boundary. FR-044
 > entry routing and the N1/N2 Business Overview navigation correction are implemented;

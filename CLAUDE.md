@@ -1,12 +1,12 @@
 # CLAUDE.md — working guide for this repository
 
-Read this first, then `00-START-HERE.md` and `AGENTS.md` for the full spec pack.
+Read this first, then `AGENTS.md` for the full rules.
 This file is the short version: where things are, what to run, what never to touch.
 
 ## What this repo is (as of 2026-08-16)
 
 This repo is **zuri-ai** — a standalone, AI-native business operating system.
-It is **not** a version of any other product ([ADR-024](docs/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)).
+It is **not** a version of any other product ([ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)).
 
 - **Scope chain**: Portfolio → Tenant (isolation) → Business → Workspace → Project.
 - **LINE is the primary surface** (AI-native intake); the web app is the back-office
@@ -76,9 +76,9 @@ GoVibe Mission Control read.
 ### Where documentation lives (ADR-004)
 
 ```text
-docs/PRODUCT-V2.md              Layer 0 — what zuri-ai is (surfaces, scope chain, rules); historical filename
+docs/PRODUCT.md                 Layer 0 — what zuri-ai is (surfaces, scope chain, rules)
 docs/ai-system/                 LINE + AI: intent pipeline, prompts, PDPA, model lifecycle
-docs/ADR-*.md                   decisions (ADR-024 = current direction, ADR-004 = this structure)
+docs/decisions/ADR-*.md         decisions (ADR-024 = current direction, ADR-004 = this structure)
 docs/PRD-SDD-v1.0.md            the Project Manager MODULE — the FR/NFR/BR/SEC/SDD registry
 docs/FEATURE-MAP.md             GENERATED index of every feature — never hand-edit
 docs/features/FR-0xx-*.md       one note per feature that has rationale worth recording

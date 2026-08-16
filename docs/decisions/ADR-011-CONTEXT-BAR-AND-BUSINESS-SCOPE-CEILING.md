@@ -3,7 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-08-13
 **Decided by:** Owen (owner)
-**Amends:** [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) §D3–D6 and [SITEMAP-V2](SITEMAP-V2-DOMAIN-NAV.md) §1–§2
+**Amends:** [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) §D3–D6 and [SITEMAP-V2](../SITEMAP-DOMAIN-NAV.md) §1–§2
 **Relates to:** FR-001, FR-020, FR-033, FR-034, FR-039, FR-041, FR-042; BR-001; ADR-003, ADR-013
 
 ## Context

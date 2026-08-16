@@ -15,7 +15,7 @@ feature is `docs/FEATURE-MAP.md` (generated).
 
 ## 1. What V2 is
 
-**V2 replaces V1** ([ADR-003](ADR-003-V2-REPLACES-V1-BY-REUSE.md)) — not a second
+**V2 replaces V1** ([ADR-003](decisions/ADR-003-V2-REPLACES-V1-BY-REUSE.md)) — not a second
 product running alongside it. V1 retires, tenant by tenant.
 
 ```text
@@ -60,8 +60,8 @@ and shows only the levels that offer a real choice (FR-020).
 
 This chain is the **schema truth**. How it is *presented* — Business-centric root, the
 dual **ERP ⇄ PM** lens over the same entities, and the `Landing → Login stub → Business
-Routing → Business Overview` entry flow — is defined by draft [ADR-015](ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md),
-which amends the earlier [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) journey for this slice.
+Routing → Business Overview` entry flow — is defined by draft [ADR-015](decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md),
+which amends the earlier [ADR-008](decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) journey for this slice.
 Project and Campaign are two **domains** (Projects · Growth), never the app root.
 
 ## 3. Non-negotiables
@@ -83,7 +83,7 @@ ownership, links, status, audit and versions. A user-visible Business workspace 
 hold real Business/Project working files, while `.zuri/cache` contains only derived
 artifacts that can be deleted and rebuilt. Business File Manager is an aggregate
 view over SQLite links, not a second copy of every Project file. See accepted
-[ADR-016](ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE.md).
+[ADR-016](decisions/ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE.md).
 
 ## 4. Where the pieces are
 
@@ -92,8 +92,8 @@ view over SQLite links, not a second copy of every Project file. See accepted
 V2 work runs as **two parallel tracks** that share a foundation built once:
 
 - **Shared** — Zuri Backend Slice (Tenant · Customer · Conversation · LINE · Permission) → Identity → Zuri persistence.
-- **Track 1** — V1→V2 per-tenant cutover of the culinary-school tenant ([ADR-003](ADR-003-V2-REPLACES-V1-BY-REUSE.md), `replacement/IMPLEMENTATION-PLAN-V2-REPLACE.md`).
-- **Track 2** — SmartGift LINE/AI copilot: extract MSP → Knowledge → Agent → E2E ([ADR-007](ADR-007-LINE-AI-STACK-SEQUENCING.md)), behind gates A–F, read-only agent before writing agent.
+- **Track 1** — V1→V2 per-tenant cutover of the culinary-school tenant ([ADR-003](decisions/ADR-003-V2-REPLACES-V1-BY-REUSE.md), `replacement/IMPLEMENTATION-PLAN-V2-REPLACE.md`).
+- **Track 2** — SmartGift LINE/AI copilot: extract MSP → Knowledge → Agent → E2E ([ADR-007](decisions/ADR-007-LINE-AI-STACK-SEQUENCING.md)), behind gates A–F, read-only agent before writing agent.
 
 The SmartGift executive demo is a **spike ahead of Track 2**, on demo-only shortcuts
 (`replacement/DEMO-RUNBOOK-SMARTGIFT.md`).
@@ -102,10 +102,10 @@ The SmartGift executive demo is a **spike ahead of Track 2**, on demo-only short
 |---|---|
 | Feature index + cutover state | `docs/FEATURE-MAP.md` (generated) |
 | Project Manager module | `docs/PRD-SDD-v1.0.md` + `docs/features/` |
-| Shell · scope lens · entry flow | `docs/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md` + `docs/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md` + `docs/SITEMAP-V2-DOMAIN-NAV.md` |
+| Shell · scope lens · entry flow | `docs/decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md` + `docs/decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md` + `docs/SITEMAP-DOMAIN-NAV.md` |
 | AI + LINE surface | `docs/ai-system/` |
 | Replacing V1 | `docs/replacement/` |
-| Decisions | `docs/ADR-00*.md` |
+| Decisions | `docs/decisions/ADR-00*.md` |
 | Delivery state | `docs/roadmap/ROADMAP-zuri-v2-lab.md` |
 
 ## 5. Delivery state (2026-08-12)

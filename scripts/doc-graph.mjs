@@ -138,7 +138,11 @@ function build() {
   // materializes it into docs/v1-inherited/ on demand and .gitignore keeps it out,
   // so it must be excluded from the scan — otherwise the graph would describe
   // whichever machines happen to have run the import.
-  const docFiles = walk(path.join(ROOT, 'docs'), ['.md']).filter((f) => !f.startsWith(V1_DIR))
+  // docs/archive/ is a cold store: completed handoffs, finished plans, retired
+  // bootstraps. Frozen records keep the links they had when they were alive, so
+  // they are neither indexed nor link-checked — the graph describes the living tree.
+  const ARCHIVE_DIR = path.join(SPEC_PACK, 'archive')
+  const docFiles = walk(path.join(ROOT, 'docs'), ['.md']).filter((f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR))
   for (const file of docFiles) {
     const base = path.basename(file)
     const isAppendix = file.includes(`${path.sep}appendices${path.sep}`)

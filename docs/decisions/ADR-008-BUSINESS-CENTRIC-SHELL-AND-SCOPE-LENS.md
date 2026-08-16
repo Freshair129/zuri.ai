@@ -3,7 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-08-13
 **Decided by:** Owen (owner)
-**Supersedes (in part):** [PRODUCT-V2](PRODUCT-V2.md) §2 (single fixed scope chain), [SITEMAP-V2](SITEMAP-V2-DOMAIN-NAV.md) §1–§2 (Tier-1 wording); closes SITEMAP-V2 §7 open decisions
+**Supersedes (in part):** [PRODUCT-V2](../PRODUCT.md) §2 (single fixed scope chain), [SITEMAP-V2](../SITEMAP-DOMAIN-NAV.md) §1–§2 (Tier-1 wording); closes SITEMAP-V2 §7 open decisions
 **Relates to:** [ADR-003](ADR-003-V2-REPLACES-V1-BY-REUSE.md) (V2 replaces V1 by reuse), [ADR-006](ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER.md) (shell lift · URLs carry no scope), [ADR-007](ADR-007-LINE-AI-STACK-SEQUENCING.md) (LINE/AI stack), FR-002 + FR-020 (adaptive shell)
 
 This ADR is the **single source of truth** for how V2's shell is organised: what the user

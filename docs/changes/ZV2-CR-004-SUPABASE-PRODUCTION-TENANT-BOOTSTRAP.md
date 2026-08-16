@@ -37,7 +37,7 @@ Business isolation before importing the approved 74-row knowledge dataset or ena
 
 | Target | Classification | Required change/proof after approval |
 |---|---|---|
-| `docs/PRODUCT-V2.md` | REVIEW | Existing hierarchy remains authoritative; no label/key reinterpretation |
+| `docs/PRODUCT.md` | REVIEW | Existing hierarchy remains authoritative; no label/key reinterpretation |
 | `docs/PRD-SDD-v1.0.md` | MUST UPDATE AFTER APPROVAL | Register the next canonical FR/NFR/BR/SDD/SEC IDs together with real code/test anchors |
 | `prisma/schema.postgres.prisma` and generator | MUST UPDATE | Production schema/search path plus tenant ancestry constraints; preserve SQLite compatibility |
 | `prisma/postgres/0001_init.sql` | REVIEW | Never deploy unhardened core tables into exposed `public`; applied history determines correction path |

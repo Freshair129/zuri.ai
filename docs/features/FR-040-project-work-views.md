@@ -49,7 +49,7 @@ neutral work and dependency models, not new navigation domains or persistence en
 - The graph complements the accessible dependency list; it cannot be the only representation.
 - Node colours supplement text/status; they do not encode meaning alone.
 
-See [ADR-012](../ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY.md) for the
+See [ADR-012](../decisions/ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY.md) for the
 navigation and data-boundary decision, and
 [PLAN-FR-040](../roadmap/PLAN-FR-040-PROJECT-WORK-VIEWS.md) for the implementation DAG.
 

@@ -3,7 +3,7 @@
 **Status:** Accepted
 **Date:** 2026-08-13
 **Decided by:** Owen (owner)
-**Amends:** [ADR-011](ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md) D3-D4 and [SITEMAP-V2](SITEMAP-V2-DOMAIN-NAV.md) sections 2b, 3, 4, and 5
+**Amends:** [ADR-011](ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md) D3-D4 and [SITEMAP-V2](../SITEMAP-DOMAIN-NAV.md) sections 2b, 3, 4, and 5
 **Relates to:** FR-035, FR-039, FR-041, FR-042, SDD-014, SDD-020, BR-001
 
 ## Context

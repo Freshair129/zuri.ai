@@ -12,7 +12,7 @@ Adopts V1's information architecture — **top-level = domain, sidebar = the dom
 sub-features, with an explicit root contract per domain** — and binds it to V2's new
 **Business** layer, adding a **second bar under the current topbar** for the domains.
 
-> **Scope presentation & entry flow moved to [ADR-011](ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md).**
+> **Scope presentation & entry flow moved to [ADR-011](decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md).**
 > This document is the authoritative **domain → sub-domain map** (§3) and business-binding
 > rules (§4). How Tier-1 scope is *labelled and anchored* (the dual ERP⇄PM lens) and what the
 > user lands on (`login → RBAC → Home → Business Overview`) are defined there; §1–§2 below show
@@ -255,7 +255,7 @@ Work views:   Structure Plan | Board | Schedule | Dependency Map
   its parity items (PARITY-INVENTORY) are met. Until a domain is lifted, its tab is hidden
   (business-binding), so the shell degrades cleanly to just Development + Platform today.
 
-## 7. Decisions (resolved — [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) §D6)
+## 7. Decisions (resolved — [ADR-008](decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) §D6)
 
 1. **Domain order & labels** — ✅ Business Overview root; Commerce · CRM · Marketing · Operations · HR / People · Development · Platform.
 2. **Development — peer domain or folded into Platform?** — ✅ a **peer domain** (cross-cutting

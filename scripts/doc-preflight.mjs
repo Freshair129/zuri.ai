@@ -40,7 +40,10 @@ function walk(dir, ext, out = []) {
 // Tombstone guard (ADR-024): the legacy-project mirror once lived at
 // docs/v1-inherited/ and may still exist on old checkouts. Never scan it.
 const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
-const labDocs = walk(path.join(ROOT, 'docs'), '.md').filter((f) => !f.startsWith(V1_DIR))
+// docs/archive/ is a cold store — frozen records keep their original links and
+// are exempt from every live-tree check, like the legacy mirror before it.
+const ARCHIVE_DIR = path.join(SPEC_PACK, 'archive')
+const labDocs = walk(path.join(ROOT, 'docs'), '.md').filter((f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR))
 const specDocs = []
 const allDocs = labDocs
 
@@ -58,7 +61,7 @@ for (const f of allDocs) {
     (k) => !new RegExp(`\\*\\*${k}\\*\\*`).test(body) && !new RegExp(`^${k.toLowerCase()}:`, 'm').test(frontmatter)
   )
   if (missing.length) {
-    // The spec pack (ADRs, PRODUCT-V2, replacement/, parity, prompts) predates RWANG doc
+    // The spec pack (ADRs, PRODUCT, prompts) predates RWANG doc
     // control — authority, not managed, so a missing block there is info. The actively
     // managed module docs (appendices, features, PRD, FEATURE-MAP) still warn.
     const managed =
@@ -120,6 +123,39 @@ if (!existsSync(GRAPH)) {
     const gaps = []
     for (let i = sorted[0]; i < sorted[sorted.length - 1]; i++) if (!sorted.includes(i)) gaps.push(`${fam}-${String(i).padStart(3, '0')}`)
     if (gaps.length) add('info', 'requirement-coverage', `Gaps in ${fam} numbering`, gaps.join(', '), [], 'Intentional gaps are fine — confirm nothing was lost')
+  }
+
+  // Duplicate-id guard. Ids are hand-picked, so two concurrent sessions can both
+  // take "the next number" — that is exactly how two ADR-020s were filed on
+  // 2026-08-15/16 and someone had to renumber one after the fact. An id claimed
+  // by two documents is a CRITICAL: it breaks the key contract (AGENTS.md §18)
+  // that every plan, annotation and test relies on.
+  {
+    const claims = new Map() // id → [files]
+    const claim = (id, file) => {
+      if (!claims.has(id)) claims.set(id, [])
+      claims.get(id).push(rel(file))
+    }
+    for (const f of allDocs) {
+      const base = path.basename(f)
+      const adr = /^ADR-(\d{3})/.exec(base)
+      if (adr) claim(`ADR-${adr[1]}`, f)
+      // Stage artifacts of a CR (ZV2-CR-001-W0-INVENTORY.md) belong to it and
+      // are not competing claims on the id.
+      const cr = /^ZV2-CR-(\d{3})-(?!W\d+-)/.exec(base)
+      if (cr) claim(`ZV2-CR-${cr[1]}`, f)
+      // A feature note claims its FR; plans and briefs citing the id do not.
+      if (f.includes(`${path.sep}features${path.sep}`)) {
+        const fr = /^(FR-\d{3})/.exec(base)
+        if (fr) claim(fr[1], f)
+      }
+    }
+    for (const [id, holders] of claims) {
+      if (holders.length > 1) {
+        add('critical', 'id-uniqueness', `${id} is claimed by ${holders.length} documents`, holders.join(' · '), holders,
+          'Ids are immutable keys — the later claimant takes the next free number (AGENTS.md §18)')
+      }
+    }
   }
 
   // Lineage integrity — a doc marked superseded must carry a successor edge, so

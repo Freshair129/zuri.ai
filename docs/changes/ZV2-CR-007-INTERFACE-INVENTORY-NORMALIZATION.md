@@ -18,11 +18,11 @@ This CR follows ADR-004 D10: cross-cutting documentation changes that require an
 
 Related authority and reference documents:
 
-- `docs/ADR-004-DOCUMENTATION-ARCHITECTURE.md`
-- `docs/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md`
-- `docs/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md`
-- `docs/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md`
-- `docs/SITEMAP-V2-DOMAIN-NAV.md`
+- `docs/decisions/ADR-004-DOCUMENTATION-ARCHITECTURE.md`
+- `docs/decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md`
+- `docs/decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md`
+- `docs/decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md`
+- `docs/SITEMAP-DOMAIN-NAV.md`
 - `docs/ROUTES-SITEMAP.md`
 - `docs/UI-DESIGN-SYSTEM.md`
 - `docs/FEATURE-MAP.md`
@@ -30,7 +30,7 @@ Related authority and reference documents:
 
 ## Change summary
 
-Normalize `docs/INTERFACE-INVENTORY-V2.md` so it has one primary responsibility:
+Normalize `docs/INTERFACE-INVENTORY.md` so it has one primary responsibility:
 
 > **Canonical registry of user-visible interfaces and their implementation status.**
 
@@ -46,7 +46,7 @@ This CR does not redesign the UI, navigation, shell, routes, or Design System. I
 
 ## Problem statement
 
-`INTERFACE-INVENTORY-V2.md` currently identifies itself as both **Interface Inventory and Shell Boundary** and declares a scope covering entry, shell, domains, sub-domains, Project resources, content, indicators, and API contracts.
+`INTERFACE-INVENTORY.md` currently identifies itself as both **Interface Inventory and Shell Boundary** and declares a scope covering entry, shell, domains, sub-domains, Project resources, content, indicators, and API contracts.
 
 It also contains sections for:
 
@@ -96,7 +96,7 @@ Sections 8 and 9 include a proposed change DAG, implementation sequencing and ow
 
 Approve the following document responsibility contract.
 
-### 1. `INTERFACE-INVENTORY-V2.md` owns the interface registry
+### 1. `INTERFACE-INVENTORY.md` owns the interface registry
 
 It SHALL answer:
 
@@ -118,7 +118,7 @@ Route hierarchy, nested layouts, route families and shell placement remain autho
 
 The Interface Inventory references routes but does not independently maintain a second route tree.
 
-### 3. `SITEMAP-V2-DOMAIN-NAV.md` owns domain/sub-domain information architecture
+### 3. `SITEMAP-DOMAIN-NAV.md` owns domain/sub-domain information architecture
 
 The Interface Inventory records the domain/sub-domain assignment of each interface but does not redefine the navigation model or future reserved domain surface.
 
@@ -192,7 +192,7 @@ W7  Run docs graph/preflight/check and verify no authority conflict remains
 | Canonical interface hierarchy | KEEP / REDUCE | Interface Inventory references route/shell authority |
 | Logical shells | KEEP as bounded shell registry | Interface Inventory + ADR references |
 | Page/view/content inventory | KEEP / NORMALIZE | Interface Inventory |
-| Domain/sub-domain inventory | REFERENCE | `SITEMAP-V2-DOMAIN-NAV.md` |
+| Domain/sub-domain inventory | REFERENCE | `SITEMAP-DOMAIN-NAV.md` |
 | Feature inventory | RETIRE duplicate summary | `FEATURE-MAP.md` / PRD-SDD |
 | Indicator/state inventory | KEEP per-interface; remove global architecture duplication | Interface Inventory + Design System/SDD refs |
 | API/interface inventory | RETIRE endpoint catalog | `appendices/A-api-spec.md` |
@@ -204,7 +204,7 @@ W7  Run docs graph/preflight/check and verify no authority conflict remains
 
 | ID | Criterion |
 |---|---|
-| AC-007-01 | `INTERFACE-INVENTORY-V2.md` has one declared primary responsibility: canonical user-interface registry. |
+| AC-007-01 | `INTERFACE-INVENTORY.md` has one declared primary responsibility: canonical user-interface registry. |
 | AC-007-02 | Every currently implemented routable UI surface is represented once in the registry or explicitly covered by a documented grouping rule. |
 | AC-007-03 | Page/interface totals are internally consistent and reproducible from current repository evidence. |
 | AC-007-04 | `/overview` is classified consistently with the accepted route/shell and domain-navigation authorities. |
@@ -230,7 +230,7 @@ CR-007 does not:
 
 ## Exit gate
 
-CR-007 is complete only when a reader can open `INTERFACE-INVENTORY-V2.md` and answer **“what interfaces exist and what is their current status?”** without also having to interpret a historical implementation plan, duplicated API catalog, duplicated feature coverage report, or competing navigation authority.
+CR-007 is complete only when a reader can open `INTERFACE-INVENTORY.md` and answer **“what interfaces exist and what is their current status?”** without also having to interpret a historical implementation plan, duplicated API catalog, duplicated feature coverage report, or competing navigation authority.
 
 ## CHANGELOG
 
