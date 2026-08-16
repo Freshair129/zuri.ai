@@ -277,6 +277,17 @@ npm run docs:check      # fails when the committed graph is stale
 npm run docs:preflight  # doc health → docs/.preflight-report.json; --strict, fails on CRITICAL
 ```
 
+`npm run verify` is the definition of done in one command (test → build → govern →
+e2e). Both test commands are wrapped by `scripts/assert-tests-ran.mjs`, which fails a
+run that executed **zero** tests — `vitest run -t "NO_MATCH"` exits 0 with everything
+skipped, and an exit code of 0 must never mean the work did not run.
+
+Viewers in tests come from `tests/factories/viewer.js` (`makeViewer`,
+`ownsElsewhere`, `makeDevViewer`), never hand-built. The factory enforces the
+resolver's invariants, so the fixture shape that hid three authorization holes cannot
+be constructed; a new hand-built one is a preflight CRITICAL against a shrink-only
+baseline.
+
 Until 2026-08-17 none of this was enforced: there was no CI, no git hook, and
 `docs:preflight` omitted `--strict`, so it printed `CRITICAL` and exited 0. The
 rule was a habit, not a gate. `.github/workflows/governance.yml` now runs the

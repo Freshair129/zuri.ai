@@ -425,6 +425,60 @@ if (existsSync(GRAPH)) {
   }
 }
 
+// ---- Check 8: hand-built viewer fixtures (ratchet) -----------------------
+// Three authorization holes shipped with a green suite because every test built
+// its viewer by hand, in shapes `resolveViewer` cannot produce — typically
+// `{ role: 'OWNER', visibleBusinessIds: [...] }` with no `ownedBusinessIds`.
+// The guard ran, the test passed, and the hole was invisible from inside the
+// suite (.brain/rca/2026-08-16-global-role-is-not-per-business-authority.md).
+//
+// `tests/factories/viewer.js` is now the sanctioned constructor, and it enforces
+// the resolver's invariants so the impossible viewer cannot be built. This check
+// keeps new hand-built ones out. Files that legitimately construct *Membership*
+// rows rather than viewers — chiefly the resolver's own test — are exempt.
+const VIEWER_BASELINE = path.join(SPEC_PACK, '.viewer-fixture-baseline.json')
+const VIEWER_EXEMPT = new Set([
+  // Owns the contract: it feeds real Membership rows to the real resolver, so
+  // its `role:` literals are inputs, not viewers.
+  'tests/unit/viewer-gate.test.js',
+  'tests/factories/viewer.js',
+  'tests/unit/viewer-factory-contract.test.js',
+])
+{
+  const roleLiteral = /\brole:\s*['"](OWNER|MEMBER|DEV)['"]/
+  const viewerField = /visibleBusinessIds|ownedBusinessIds|visibleDomains|isPlatform/
+  const offenders = []
+  for (const file of walk(path.join(ROOT, 'tests'), '.js')) {
+    const relative = rel(file)
+    if (VIEWER_EXEMPT.has(relative)) continue
+    const lines = read(file).split('\n')
+    // Proximity, not parsing: a `role:` within ten lines of a resolver-only
+    // field is a viewer literal in every real occurrence in this repository.
+    const hit = lines.some((line, i) =>
+      roleLiteral.test(line) && viewerField.test(lines.slice(Math.max(0, i - 10), i + 11).join('\n')))
+    if (hit) offenders.push(relative)
+  }
+  offenders.sort()
+  const baseline = existsSync(VIEWER_BASELINE) ? JSON.parse(read(VIEWER_BASELINE)).files || [] : []
+  const known = new Set(baseline)
+
+  const introduced = offenders.filter((f) => !known.has(f))
+  if (introduced.length) {
+    add('critical', 'viewer-fixture', `${introduced.length} test file(s) build a viewer by hand`, introduced.join(', '), introduced,
+      'Use makeViewer()/ownsElsewhere() from tests/factories/viewer.js — never widen .viewer-fixture-baseline.json to silence this')
+  }
+  const repaid = baseline.filter((f) => !offenders.includes(f))
+  if (repaid.length) {
+    add('info', 'viewer-fixture', `${repaid.length} baseline file(s) no longer build a viewer by hand`, repaid.join(', '), [rel(VIEWER_BASELINE)],
+      'Remove them from .viewer-fixture-baseline.json so the ratchet keeps its ground')
+  }
+  const remaining = offenders.length - introduced.length
+  if (remaining) {
+    add('info', 'viewer-fixture', `${remaining} test file(s) still build viewers by hand (accepted debt)`, `baseline: ${rel(VIEWER_BASELINE)}`, [rel(VIEWER_BASELINE)],
+      'Migrate them to the factory; the baseline may only shrink')
+  }
+}
+
 // ---- Output --------------------------------------------------------------
 const counts = findings.reduce((a, f) => ({ ...a, [f.severity]: (a[f.severity] || 0) + 1 }), {})
 const report = {

@@ -59,6 +59,7 @@ contracts/                JSON Schema + sample envelopes
 
 ```bash
 npm run dev            # dev server (use the preview tool, not a raw shell, when available)
+npm run verify         # the definition of done in one command: test → build → govern → e2e
 npm run build          # production build — must stay clean
 npm test               # Vitest: unit + integration (own SQLite db per run, prisma/.test-dbs/)
 npm run test:e2e       # Playwright against the dev server on :3100
@@ -69,6 +70,18 @@ npm run docs:check     # fails when the committed graph is stale
 npm run docs:preflight # doc health — exits non-zero on any CRITICAL (--strict)
 npm run docs:preflight:report  # same findings, never fails — for reading, not gating
 ```
+
+**Both test commands are wrapped by `scripts/assert-tests-ran.mjs`**, which fails a
+run that executed zero tests. `npx vitest run -t "NO_MATCH"` exits **0** with all 792
+tests skipped; a green exit code must mean the work ran and passed, never that it did
+not run.
+
+**Build a viewer in a test with `makeViewer()` / `ownsElsewhere()` from
+`tests/factories/viewer.js`, never by hand.** The factory enforces the resolver's
+invariants — `ownedBusinessIds ⊆ visibleBusinessIds`, a DEV owns nothing, an OWNER
+owns something — so the impossible fixture that hid three authorization holes cannot
+be constructed. A new hand-built viewer is a preflight CRITICAL against a shrink-only
+baseline (`docs/.viewer-fixture-baseline.json`).
 
 **Run `govern`, not the three commands in the order you remember them.** Two
 preflight checks read the committed graph, so on a branch that declares a new id
