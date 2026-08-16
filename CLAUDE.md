@@ -14,7 +14,7 @@ It is **not** a version of any other product ([ADR-024](docs/decisions/ADR-024-Z
 
 Current state: the Project Manager MVP, all four intake surfaces, and the LINE/AI
 stack are done (57 FRs, all with code and tests). The live delivery state is
-`docs/roadmap/ROADMAP-zuri-v2-lab.md`.
+`docs/roadmap/ROADMAP.md`.
 
 **Historical vocabulary — read this before reading old documents.** Files written
 before 2026-08-16 (ADR-001…023, ZV2-CR-001…008, older notes) call this product
@@ -43,11 +43,11 @@ still cite that path as a record.)
 ```
 docs/                     spec pack + ADRs + module docs (PRD-SDD, appendices, roadmap) — one tree
 src/app/(pm)/             UI routes      src/app/api/   route handlers
-src/modules/project-manager/
-  application/            services (the only place that writes)
-  progress/               pure calculators + roll-up (no I/O, no clock)
-  import/                 the one intake pipeline every surface ends at
-src/modules/{crm,identity,agent,knowledge}   LINE/AI stack (ADR-007: ingest · P3 gate · agent · GKS)
+src/modules/<domain>/     one folder per domain — DO NOT trust any prose list of these:
+                          enumerate `ls src/modules/` and read docs/domains/<d>/CHARTER.md.
+                          preflight fails if a module exists with no charter claiming it.
+  (project-manager keeps: application/ = the only place that writes ·
+   progress/ = pure calculators, no I/O · import/ = the one intake pipeline)
 src/lib/                  db, ids, validation/enums.js (enum source of truth), shell-mode.js, db-boundary.js
 prisma/schema.prisma      SQLite dev/test; schema.postgres.prisma + postgres/ for Supabase (FR-030)
 tests/{unit,integration,e2e}
@@ -73,23 +73,32 @@ model, a requirement or a document. Both write machine-readable reports
 (`docs/.doc-graph.json`, `docs/.preflight-report.json`) that the roadmap and
 GoVibe Mission Control read.
 
-### Where documentation lives (ADR-004)
+### Where documentation lives (ADR-025 — domain-driven spine)
 
 ```text
+docs/domains/<d>/               THE SPINE — one folder per domain, mirroring src/modules/
+docs/domains/<d>/CHARTER.md     the lane definition: what the domain owns, boundaries, contracts
+docs/domains/<d>/features/      feature notes owned by that domain (frontmatter: feature + domain)
 docs/PRODUCT.md                 Layer 0 — what zuri-ai is (surfaces, scope chain, rules)
-docs/ai-system/                 LINE + AI: intent pipeline, prompts, PDPA, model lifecycle
-docs/decisions/ADR-*.md         decisions (ADR-024 = current direction, ADR-004 = this structure)
-docs/PRD-SDD-v1.0.md            the Project Manager MODULE — the FR/NFR/BR/SEC/SDD registry
-docs/FEATURE-MAP.md             GENERATED index of every feature — never hand-edit
-docs/features/FR-0xx-*.md       one note per feature that has rationale worth recording
-docs/appendices/                A api · B db · D traceability (generated) · E risks · F glossary
+docs/PRD-SDD-v1.0.md            the FR/NFR/BR/SEC/SDD registry — ids are global and never move
+docs/FEATURE-MAP.md             GENERATED — the feature-driven user view over the spine; never hand-edit
+docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md  target architecture (Draft — taxonomy adopted, runtime not yet)
+docs/decisions/ADR-*.md         decisions (ADR-024 = direction, ADR-025 = this structure)
+docs/appendices/                A api - B db - D traceability (generated) - E risks - F glossary
 docs/roadmap/                   live delivery state (GoVibe Mission Control reads this)
+docs/archive/                   cold store — frozen records, excluded from all checks
 ```
 
-Feature notes declare their feature in frontmatter (`feature: FR-020`), so the map
-links them by id — moving or renaming a note never breaks anything. Write one only
-when there is a real decision to explain; otherwise the feature already appears in
-`FEATURE-MAP.md` with its code, tests and task. Full statement: AGENTS.md §19.
+**Working in a domain? Read `docs/domains/<d>/CHARTER.md` first** — it states what
+you own, what you must not touch, and which contracts to call for everything else.
+preflight enforces the lanes: a model claimed by two charters, a feature note whose
+`domain:` disagrees with its folder, or a domain without a charter fails the run.
+
+Feature notes declare their feature in frontmatter (`feature: FR-020`, `domain: <d>`),
+so the map links them by id — moving or renaming a note never breaks anything. Write
+one only when there is a real decision to explain; otherwise the feature already
+appears in `FEATURE-MAP.md` with its domain, code, tests and task. Full statement:
+AGENTS.md §19.
 
 ### Order of governance work, and the id contract
 

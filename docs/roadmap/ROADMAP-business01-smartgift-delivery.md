@@ -12,7 +12,7 @@ live_document: true
 # ROADMAP: Business-01 SmartGift — Delivery
 
 สถานะจริงของงานส่งมอบ SmartGift (Business-01) — เขียนใน dialect เดียวกับ
-`ROADMAP-zuri-v2-lab.md` เพื่อให้ GoVibe Mission Control อ่านเป็นอีก tab หนึ่ง
+`ROADMAP.md` เพื่อให้ GoVibe Mission Control อ่านเป็นอีก tab หนึ่ง
 คู่กับ Zuri V2 ทุกแถวอ้างหลักฐานจริงในเวิร์กสเปซ (`D:\workspace\Bussiness-01-SmartGift`)
 
 หลักฐานหลัก: `data/sot.duckdb` (SoT), `docs/SGMP01-state.md` (สถานะ pipeline D0–D8

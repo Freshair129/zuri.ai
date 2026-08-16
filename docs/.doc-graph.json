@@ -3,13 +3,13 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 505,
-    "total_edges": 1488,
+    "total_nodes": 512,
+    "total_edges": 1492,
     "dangling_edges": 0,
     "node_types": {
-      "document": 56,
       "appendix": 5,
-      "adr": 24,
+      "document": 62,
+      "adr": 25,
       "roadmap": 21,
       "requirement": 129,
       "test": 116,
@@ -36,9 +36,11 @@
   },
   "drift": {
     "changed": [
-      "doc:ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION",
-      "doc:ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY",
-      "doc:PRODUCT"
+      "doc:CHARTER",
+      "doc:CHARTER",
+      "doc:CHARTER",
+      "doc:CHARTER",
+      "doc:FEATURE-MAP"
     ],
     "added": [],
     "removed": []
@@ -3080,6 +3082,14 @@
       "status": "current"
     },
     {
+      "id": "doc:ARCHITECTURE-TARGET-MODULAR-MONOLITH",
+      "type": "document",
+      "path": "docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md",
+      "title": "Zuri Modular Monolith + Shared Database Architecture Specification",
+      "hash": "62d9c865",
+      "status": "current"
+    },
+    {
       "id": "doc:B-db-schema",
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
@@ -3087,6 +3097,46 @@
       "version": "1.3.0",
       "doc_status": "Draft",
       "hash": "f81a33ad",
+      "status": "current"
+    },
+    {
+      "id": "doc:CHARTER",
+      "type": "document",
+      "path": "docs/domains/agent/CHARTER.md",
+      "title": "Domain charter — agent",
+      "hash": "6d18ff36",
+      "status": "changed"
+    },
+    {
+      "id": "doc:CHARTER",
+      "type": "document",
+      "path": "docs/domains/crm/CHARTER.md",
+      "title": "Domain charter — crm",
+      "hash": "5f2d499f",
+      "status": "changed"
+    },
+    {
+      "id": "doc:CHARTER",
+      "type": "document",
+      "path": "docs/domains/identity/CHARTER.md",
+      "title": "Domain charter — identity",
+      "hash": "5367ec4e",
+      "status": "changed"
+    },
+    {
+      "id": "doc:CHARTER",
+      "type": "document",
+      "path": "docs/domains/knowledge/CHARTER.md",
+      "title": "Domain charter — knowledge",
+      "hash": "65d305aa",
+      "status": "changed"
+    },
+    {
+      "id": "doc:CHARTER",
+      "type": "document",
+      "path": "docs/domains/project-manager/CHARTER.md",
+      "title": "Domain charter — project-manager",
+      "hash": "b431e4c4",
       "status": "current"
     },
     {
@@ -3124,13 +3174,13 @@
       "title": "Appendix E — Risk Matrix",
       "version": "1.1.0",
       "doc_status": "Draft",
-      "hash": "a6bb10f0",
+      "hash": "1f0a6e88",
       "status": "current"
     },
     {
       "id": "doc:ethics-governance",
       "type": "document",
-      "path": "docs/ai-system/ethics-governance.md",
+      "path": "docs/domains/agent/ethics-governance.md",
       "title": "AI Ethics & Data Governance (PDPA)",
       "version": "1.0.0",
       "doc_status": "Draft — blocking for `TASK-V2-LINE-INTENT`",
@@ -3170,244 +3220,244 @@
       "title": "Feature Map",
       "version": "1.0.0",
       "doc_status": "Auto-generated",
-      "hash": "b177cf5e",
-      "status": "current"
+      "hash": "b1ade34e",
+      "status": "changed"
     },
     {
       "id": "doc:FR-019-enterprise-api",
       "type": "document",
-      "path": "docs/features/FR-019-enterprise-api.md",
+      "path": "docs/domains/project-manager/features/FR-019-enterprise-api.md",
       "title": "Enterprise API Surface — Backend-first Integration (Salesforce-style)",
       "version": "1.1.0",
       "doc_status": "Implemented (FR-019)",
-      "hash": "f29b776a",
+      "hash": "e1ff089e",
       "status": "current"
     },
     {
       "id": "doc:FR-020-adaptive-shell",
       "type": "document",
-      "path": "docs/features/FR-020-adaptive-shell.md",
+      "path": "docs/domains/project-manager/features/FR-020-adaptive-shell.md",
       "title": "UX Spec — Single-Business vs Multi-Business Owner",
       "version": "1.1.0",
       "doc_status": "Implemented (FR-020)",
-      "hash": "e94d1524",
+      "hash": "870eeb52",
       "status": "current"
     },
     {
       "id": "doc:FR-031-viewer-gate",
       "type": "document",
-      "path": "docs/features/FR-031-viewer-gate.md",
+      "path": "docs/domains/identity/features/FR-031-viewer-gate.md",
       "title": "FR-031: Viewer gate seam",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "dbeec90f",
+      "hash": "d224f6ff",
       "status": "current"
     },
     {
       "id": "doc:FR-032-home-entry",
       "type": "document",
-      "path": "docs/features/FR-032-home-entry.md",
+      "path": "docs/domains/project-manager/features/FR-032-home-entry.md",
       "title": "FR-032 — Home entry journey",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "34c6cc2f",
+      "hash": "89fd3bdf",
       "status": "current"
     },
     {
       "id": "doc:FR-033-topbar-without-scope-dropdowns",
       "type": "document",
-      "path": "docs/features/FR-033-topbar-without-scope-dropdowns.md",
+      "path": "docs/domains/project-manager/features/FR-033-topbar-without-scope-dropdowns.md",
       "title": "FR-033 — Topbar without scope dropdowns",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "6ed008ed",
+      "hash": "d557a14a",
       "status": "current"
     },
     {
       "id": "doc:FR-034-breadcrumb-scope-switcher",
       "type": "document",
-      "path": "docs/features/FR-034-breadcrumb-scope-switcher.md",
+      "path": "docs/domains/project-manager/features/FR-034-breadcrumb-scope-switcher.md",
       "title": "FR-034 — Breadcrumb scope switcher",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "2f8857d0",
+      "hash": "4cc75512",
       "status": "current"
     },
     {
       "id": "doc:FR-035-business-and-group-overview",
       "type": "document",
-      "path": "docs/features/FR-035-business-and-group-overview.md",
+      "path": "docs/domains/project-manager/features/FR-035-business-and-group-overview.md",
       "title": "FR-035 - Business Overview",
       "version": "1.1.0",
       "doc_status": "Implemented",
-      "hash": "7a83b40e",
+      "hash": "e0e6a601",
       "status": "current"
     },
     {
       "id": "doc:FR-036-project-team",
       "type": "document",
-      "path": "docs/features/FR-036-project-team.md",
+      "path": "docs/domains/project-manager/features/FR-036-project-team.md",
       "title": "FR-036 — Project Team manager",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "0ee64d58",
+      "hash": "e9b0e8d3",
       "status": "current"
     },
     {
       "id": "doc:FR-037-project-files",
       "type": "document",
-      "path": "docs/features/FR-037-project-files.md",
+      "path": "docs/domains/project-manager/features/FR-037-project-files.md",
       "title": "FR-037 — Project Files",
       "version": "1.1.0",
       "doc_status": "Implemented; compatibility boundary retained by FR-045",
-      "hash": "22bd46a0",
+      "hash": "e7c80ac9",
       "status": "current"
     },
     {
       "id": "doc:FR-038-profile-and-permissions",
       "type": "document",
-      "path": "docs/features/FR-038-profile-and-permissions.md",
+      "path": "docs/domains/identity/features/FR-038-profile-and-permissions.md",
       "title": "FR-038 — My Profile and Users & Permissions",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "90262609",
+      "hash": "6b48c16f",
       "status": "current"
     },
     {
       "id": "doc:FR-039-business-scope-ceiling",
       "type": "document",
-      "path": "docs/features/FR-039-business-scope-ceiling.md",
+      "path": "docs/domains/project-manager/features/FR-039-business-scope-ceiling.md",
       "title": "FR-039 — Business scope ceiling",
-      "hash": "79fa6174",
+      "hash": "1de2e075",
       "status": "current"
     },
     {
       "id": "doc:FR-040-project-work-views",
       "type": "document",
-      "path": "docs/features/FR-040-project-work-views.md",
+      "path": "docs/domains/project-manager/features/FR-040-project-work-views.md",
       "title": "FR-040 — Project Work views",
-      "hash": "c249b758",
+      "hash": "353ecf19",
       "status": "current"
     },
     {
       "id": "doc:FR-041-business-strategy-overview",
       "type": "document",
-      "path": "docs/features/FR-041-business-strategy-overview.md",
+      "path": "docs/domains/project-manager/features/FR-041-business-strategy-overview.md",
       "title": "FR-041 - Business Strategy Overview",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "22d55756",
+      "hash": "000a5e3f",
       "status": "current"
     },
     {
       "id": "doc:FR-042-hr-people-peer-domain",
       "type": "document",
-      "path": "docs/features/FR-042-hr-people-peer-domain.md",
+      "path": "docs/domains/project-manager/features/FR-042-hr-people-peer-domain.md",
       "title": "FR-042 - HR / People peer domain",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "5b3b0bd8",
+      "hash": "0c65b62c",
       "status": "current"
     },
     {
       "id": "doc:FR-043-project-business-ownership",
       "type": "document",
-      "path": "docs/features/FR-043-project-business-ownership.md",
+      "path": "docs/domains/project-manager/features/FR-043-project-business-ownership.md",
       "title": "FR-043 - Project Business Ownership and Space Context",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "934acb96",
+      "hash": "c7e63b3c",
       "status": "current"
     },
     {
       "id": "doc:FR-044-entry-landing-login-business-routing",
       "type": "document",
-      "path": "docs/features/FR-044-entry-landing-login-business-routing.md",
+      "path": "docs/domains/identity/features/FR-044-entry-landing-login-business-routing.md",
       "title": "FR-044 — Minimal entry and Business Routing before BusinessShell",
       "doc_status": "Implemented — owner-approved; exit gates verified",
-      "hash": "acca4d2b",
+      "hash": "8a59d2f1",
       "status": "current"
     },
     {
       "id": "doc:FR-045-managed-local-file-workspace",
       "type": "document",
-      "path": "docs/features/FR-045-managed-local-file-workspace.md",
+      "path": "docs/domains/project-manager/features/FR-045-managed-local-file-workspace.md",
       "title": "FR-045 — Managed local file workspace",
-      "hash": "907576ba",
+      "hash": "69bd3913",
       "status": "current"
     },
     {
       "id": "doc:FR-046-production-viewer-entry-contract",
       "type": "document",
-      "path": "docs/features/FR-046-production-viewer-entry-contract.md",
+      "path": "docs/domains/identity/features/FR-046-production-viewer-entry-contract.md",
       "title": "FR-046 — Production viewer session and entry contract",
       "version": "0.2.0b",
       "doc_status": "Implemented — beta",
-      "hash": "b9ec9ff3",
+      "hash": "10872f59",
       "status": "current"
     },
     {
       "id": "doc:FR-047-line-business-knowledge-pilot",
       "type": "document",
-      "path": "docs/features/FR-047-line-business-knowledge-pilot.md",
+      "path": "docs/domains/knowledge/features/FR-047-line-business-knowledge-pilot.md",
       "title": "LINE business-knowledge pilot",
-      "hash": "0a301dee",
+      "hash": "f009bc4d",
       "status": "current"
     },
     {
       "id": "doc:FR-051-production-supabase-tenant-isolation",
       "type": "document",
-      "path": "docs/features/FR-051-production-supabase-tenant-isolation.md",
+      "path": "docs/domains/agent/features/FR-051-production-supabase-tenant-isolation.md",
       "title": "FR-051 — Production Supabase tenant isolation",
-      "hash": "025d25e0",
+      "hash": "f6e2c51d",
       "status": "current"
     },
     {
       "id": "doc:FR-052-server-owned-line-scope-binding",
       "type": "document",
-      "path": "docs/features/FR-052-server-owned-line-scope-binding.md",
+      "path": "docs/domains/agent/features/FR-052-server-owned-line-scope-binding.md",
       "title": "FR-052 — Server-owned LINE scope binding",
-      "hash": "0d60e55c",
+      "hash": "beec43c8",
       "status": "current"
     },
     {
       "id": "doc:FR-053-phase1-golden-question-evaluation",
       "type": "document",
-      "path": "docs/features/FR-053-phase1-golden-question-evaluation.md",
+      "path": "docs/domains/agent/features/FR-053-phase1-golden-question-evaluation.md",
       "title": "FR-053 — Phase 1 golden question evaluation",
-      "hash": "4bb0e092",
+      "hash": "cacdcc5a",
       "status": "current"
     },
     {
       "id": "doc:FR-054-controlled-line-canary",
       "type": "document",
-      "path": "docs/features/FR-054-controlled-line-canary.md",
+      "path": "docs/domains/agent/features/FR-054-controlled-line-canary.md",
       "title": "FR-054 — Controlled LINE canary",
-      "hash": "47f9553d",
+      "hash": "3c933591",
       "status": "current"
     },
     {
       "id": "doc:FR-055-controlled-line-activation-receipt",
       "type": "document",
-      "path": "docs/features/FR-055-controlled-line-activation-receipt.md",
+      "path": "docs/domains/agent/features/FR-055-controlled-line-activation-receipt.md",
       "title": "FR-055 — Controlled LINE activation and receipt",
-      "hash": "5851e858",
+      "hash": "f2a648fd",
       "status": "current"
     },
     {
       "id": "doc:FR-056-zuri-branded-entry-landing",
       "type": "document",
-      "path": "docs/features/FR-056-zuri-branded-entry-landing.md",
+      "path": "docs/domains/project-manager/features/FR-056-zuri-branded-entry-landing.md",
       "title": "FR-056 — Zuri Branded Entry Landing Experience",
-      "hash": "5d68147c",
+      "hash": "bb1a64ad",
       "status": "current"
     },
     {
       "id": "doc:FR-057-authorized-agent-context-and-vault-resolution",
       "type": "document",
-      "path": "docs/features/FR-057-authorized-agent-context-and-vault-resolution.md",
+      "path": "docs/domains/agent/features/FR-057-authorized-agent-context-and-vault-resolution.md",
       "title": "FR-057 — Authorized agent context and vault resolution",
-      "hash": "acc3994d",
+      "hash": "18018795",
       "status": "current"
     },
     {
@@ -3423,7 +3473,7 @@
     {
       "id": "doc:intent-pipeline",
       "type": "document",
-      "path": "docs/ai-system/intent-pipeline.md",
+      "path": "docs/domains/agent/intent-pipeline.md",
       "title": "AI Intent Pipeline — LINE as the fifth intake surface",
       "version": "1.0.0",
       "doc_status": "Draft — not implemented (`TASK-V2-LINE-INTENT`)",
@@ -3451,7 +3501,7 @@
     {
       "id": "doc:model-lifecycle",
       "type": "document",
-      "path": "docs/ai-system/model-lifecycle.md",
+      "path": "docs/domains/agent/model-lifecycle.md",
       "title": "Model Lifecycle",
       "version": "1.0.0",
       "doc_status": "Draft",
@@ -3615,7 +3665,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.44.0b",
       "doc_status": "Draft",
-      "hash": "d4adb090",
+      "hash": "78dc3212",
       "status": "current"
     },
     {
@@ -3625,13 +3675,13 @@
       "title": "Zuri V2 — Product Definition",
       "version": "1.1.0",
       "doc_status": "Draft",
-      "hash": "34b861de",
-      "status": "changed"
+      "hash": "ad9bd6a0",
+      "status": "current"
     },
     {
       "id": "doc:prompt-engineering",
       "type": "document",
-      "path": "docs/ai-system/prompt-engineering.md",
+      "path": "docs/domains/agent/prompt-engineering.md",
       "title": "Prompt Engineering Guidelines",
       "version": "1.0.0",
       "doc_status": "Draft",
@@ -3647,19 +3697,19 @@
       "status": "current"
     },
     {
+      "id": "doc:ROADMAP",
+      "type": "roadmap",
+      "path": "docs/roadmap/ROADMAP.md",
+      "title": "ROADMAP: Zuri v2 Lab — Project Manager",
+      "hash": "9235f1db",
+      "status": "current"
+    },
+    {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "144bfa6c",
-      "status": "current"
-    },
-    {
-      "id": "doc:ROADMAP-zuri-v2-lab",
-      "type": "roadmap",
-      "path": "docs/roadmap/ROADMAP-zuri-v2-lab.md",
-      "title": "ROADMAP: Zuri v2 Lab — Project Manager",
-      "hash": "7c2dc2d8",
+      "hash": "a6764432",
       "status": "current"
     },
     {
@@ -3764,7 +3814,7 @@
       "path": "docs/changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md",
       "title": "ZV2-CR-007 — Interface Inventory normalization and responsibility split",
       "hash": "25be0eaf",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY",
@@ -3772,7 +3822,7 @@
       "path": "docs/changes/ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY.md",
       "title": "ZV2-CR-008 — Agent vault for private epistemic memory",
       "hash": "05ed0ab2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "req:BR-001",
@@ -4964,7 +5014,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-004-DOCUMENTATION-ARCHITECTURE.md",
       "title": "ADR-004 — Documentation Architecture: Product Layer, Feature-Driven Notes, Generated Index",
-      "hash": "0f9d9570",
+      "hash": "6f119ac6",
       "status": "current"
     },
     {
@@ -4988,7 +5038,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-007-LINE-AI-STACK-SEQUENCING.md",
       "title": "ADR-007 — LINE/AI Stack: Dependency Sequencing and Production Gates",
-      "hash": "81f99b36",
+      "hash": "3c0e6e2e",
       "status": "current"
     },
     {
@@ -5028,7 +5078,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY.md",
       "title": "ADR-012 — Project Work views and dependency boundary",
-      "hash": "047b0075",
+      "hash": "7cf462b0",
       "status": "current"
     },
     {
@@ -5129,6 +5179,14 @@
       "path": "docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md",
       "title": "ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired",
       "hash": "36dd311e",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md",
+      "title": "ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow",
+      "hash": "18a1b6e0",
       "status": "current"
     },
     {
@@ -11003,6 +11061,34 @@
       "from": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
       "to": "spec:ADR-005-V1-DOCUMENTATION-CORPUS",
       "type": "supersedes",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "to": "doc:ARCHITECTURE-TARGET-MODULAR-MONOLITH",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "to": "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "to": "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
+      "type": "supersedes",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "relates",
       "status": "current",
       "source": "control-block"
     },

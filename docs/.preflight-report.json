@@ -2,20 +2,31 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 106,
+    "docs": 113,
     "routes": 55,
     "test_files": 116
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 5,
+    "info": 11,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
     {
       "id": "I1",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "ARCHITECTURE-TARGET-MODULAR-MONOLITH.md",
+      "files": [
+        "docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I2",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -26,7 +37,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I2",
+      "id": "I3",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -37,7 +48,62 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I3",
+      "id": "I4",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "CHARTER.md",
+      "files": [
+        "docs/domains/agent/CHARTER.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I5",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "CHARTER.md",
+      "files": [
+        "docs/domains/crm/CHARTER.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I6",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "CHARTER.md",
+      "files": [
+        "docs/domains/identity/CHARTER.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I7",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "CHARTER.md",
+      "files": [
+        "docs/domains/knowledge/CHARTER.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I8",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "CHARTER.md",
+      "files": [
+        "docs/domains/project-manager/CHARTER.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I9",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -48,7 +114,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I4",
+      "id": "I10",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -59,13 +125,13 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I5",
+      "id": "I11",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
       "details": "\"| PHASE-ZV2-MVP | Build offline-first PM MVP (spec phases 00-07) | ACCEPTANCE-CRITERIA all PASS — MVP shipped \"",
       "files": [
-        "docs/roadmap/ROADMAP-zuri-v2-lab.md"
+        "docs/roadmap/ROADMAP.md"
       ],
       "action": "Current suite: 129 Vitest + 28 Playwright across 116 files"
     }

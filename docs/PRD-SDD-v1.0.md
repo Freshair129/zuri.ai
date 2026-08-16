@@ -82,7 +82,7 @@ Spec pack: `../../docs/` — START-HERE, AGENTS.md, ADR-001, ARCHITECTURE, DOMAI
 EXECUTION-MODES, IMPLEMENTATION-PLAN, ACCEPTANCE-CRITERIA, TEST-PLAN, UI-DESIGN-SYSTEM,
 ROUTES-SITEMAP, INTEGRATION-MAP-ZURI, ZURI-V2-HANDOFF.
 Build docs: `ARCHITECTURE-NOTES.md`, `DB-MIGRATION-NOTES.md`, `ZURI-INTEGRATION-ASSESSMENT.md`,
-`features/FR-020-adaptive-shell.md`, `features/FR-019-enterprise-api.md`, `../.agent/reports/FINAL.md`.
+`domains/project-manager/features/FR-020-adaptive-shell.md`, `domains/project-manager/features/FR-019-enterprise-api.md`, `../.agent/reports/FINAL.md`.
 
 ---
 
@@ -100,10 +100,10 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 
 | Persona | Use case หลัก | อ้างอิง |
 |---|---|---|
-| Owen A — เจ้าของธุรกิจเดียว | เข้าแอปเห็นงานทันที, สร้างโปรเจกต์จากเป้าหมาย, ไม่เจอศัพท์โครงสร้าง | features/FR-020-adaptive-shell.md (stories A1–A4) |
+| Owen A — เจ้าของธุรกิจเดียว | เข้าแอปเห็นงานทันที, สร้างโปรเจกต์จากเป้าหมาย, ไม่เจอศัพท์โครงสร้าง | domains/project-manager/features/FR-020-adaptive-shell.md (stories A1–A4) |
 | Owen B — เจ้าของหลายธุรกิจ | Portfolio overview, สลับธุรกิจ 1 คลิก, isolation ระหว่างธุรกิจ, งานข้ามธุรกิจ | เดียวกัน (stories B1–B5) |
 | ผู้ใช้กระดาษ/Excel | ดาวน์โหลด template → กรอก → อัปโหลด → dry run รายแถว | v0.1 pattern (`import-data/`) |
-| Enterprise integrator | upsert ผ่าน API ด้วย external ID ของระบบตัวเอง ไม่ใช้ UI | features/FR-019-enterprise-api.md |
+| Enterprise integrator | upsert ผ่าน API ด้วย external ID ของระบบตัวเอง ไม่ใช้ UI | domains/project-manager/features/FR-019-enterprise-api.md |
 | Planning agent | ส่ง PlanEnvelope JSON เข้า pipeline import | contracts/plan-envelope.schema.json |
 
 ## 1.3 Functional requirements
@@ -223,7 +223,7 @@ AC ทั้งชุดอยู่ที่ `../../docs/ACCEPTANCE-CRITERIA.md
 อยู่ที่ `../.agent/reports/FINAL.md` — traceability ราย FR ดู Appendix D
 
 FR-040 acceptance criteria and its implementation exit gates are defined in
-[`features/FR-040-project-work-views.md`](features/FR-040-project-work-views.md)
+[`domains/project-manager/features/FR-040-project-work-views.md`](domains/project-manager/features/FR-040-project-work-views.md)
 and [`roadmap/PLAN-FR-040-PROJECT-WORK-VIEWS.md`](roadmap/PLAN-FR-040-PROJECT-WORK-VIEWS.md).
 
 ---

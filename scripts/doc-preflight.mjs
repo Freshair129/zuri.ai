@@ -158,6 +158,117 @@ if (!existsSync(GRAPH)) {
     }
   }
 
+  // Generated-view blindness guard. A generated index is only trustworthy if it
+  // actually saw its inputs: when the FEATURE-MAP generator's discovery broke, the
+  // map regenerated "successfully" with every note link blank, and nothing
+  // noticed — generated guarantees consistency with the generator, not with the
+  // world. Assert the map cites every feature note that exists on disk.
+  {
+    const mapPath = path.join(SPEC_PACK, 'FEATURE-MAP.md')
+    if (existsSync(mapPath)) {
+      const map = read(mapPath)
+      const blind = []
+      for (const f of allDocs) {
+        if (!f.includes(`${path.sep}features${path.sep}`)) continue
+        const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read(f))?.[1] || ''
+        if (!/^feature:\s*\S+/m.test(fm)) continue
+        const relPath = rel(f).replace(/^docs\//, '')
+        if (!map.includes(relPath)) blind.push(rel(f))
+      }
+      if (blind.length) {
+        add('critical', 'generated-view', `FEATURE-MAP is blind to ${blind.length} feature note(s) that exist on disk`, blind.join(' · '), blind,
+          'The generator\'s discovery is broken or the map is stale — fix scripts/doc-graph.mjs and rerun docs:graph')
+      }
+    }
+  }
+
+  // Module ↔ charter guard. src/modules/ is enumerated from the filesystem — the
+  // stale hand-written module list in CLAUDE.md is exactly how two modules ended
+  // up in no domain's lane. Every module must be claimed by exactly one charter
+  // (charter frontmatter: `modules:`; a charter with no list claims the module
+  // matching its folder name).
+  {
+    const MODULES_DIR = path.join(ROOT, 'src', 'modules')
+    const DOMAINS_DIR = path.join(SPEC_PACK, 'domains')
+    if (existsSync(MODULES_DIR) && existsSync(DOMAINS_DIR)) {
+      const moduleClaims = new Map() // module → [domains]
+      for (const entry of readdirSync(DOMAINS_DIR)) {
+        const charter = path.join(DOMAINS_DIR, entry, 'CHARTER.md')
+        if (!existsSync(charter)) continue
+        const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read(charter))?.[1] || ''
+        const listed = (/modules:\s*\n((?:\s+-\s+\S+\n?)*)/.exec(fm)?.[1]?.match(/-\s+(\S+)/g) || []).map((x) => x.replace(/-\s+/, ''))
+        const claimed = listed.length ? listed : [entry]
+        for (const m of claimed) {
+          if (!moduleClaims.has(m)) moduleClaims.set(m, [])
+          moduleClaims.get(m).push(entry)
+        }
+      }
+      for (const m of readdirSync(MODULES_DIR)) {
+        if (!statSync(path.join(MODULES_DIR, m)).isDirectory()) continue
+        const owners = moduleClaims.get(m) || []
+        if (owners.length === 0) {
+          add('critical', 'domain-spine', `src/modules/${m} is in no domain's lane`, 'code with no charter is exactly how work gets lost — a module exists, so a domain owns it', [],
+            `Add "${m}" to the owning charter's modules: list (or create the domain)`)
+        } else if (owners.length > 1) {
+          add('critical', 'domain-spine', `src/modules/${m} is claimed by ${owners.length} charters: ${owners.join(', ')}`, 'one module, one lane', [],
+            'Remove it from all but the owning charter')
+        }
+      }
+    }
+  }
+
+  // Domain spine (ADR-025) — docs/domains/<d>/ is an agent's lane definition, so
+  // the lane must actually be defined and claims on it must be unambiguous.
+  {
+    const DOMAINS_DIR = path.join(SPEC_PACK, 'domains')
+    if (existsSync(DOMAINS_DIR)) {
+      const schemaModels = new Set(
+        (read(path.join(ROOT, 'prisma', 'schema.prisma')).match(/^model\s+(\w+)/gm) || []).map((m) => m.split(/\s+/)[1]),
+      )
+      const modelClaims = new Map() // model → [domains]
+      for (const entry of readdirSync(DOMAINS_DIR)) {
+        const dir = path.join(DOMAINS_DIR, entry)
+        if (!statSync(dir).isDirectory()) continue
+        const charter = path.join(dir, 'CHARTER.md')
+        if (!existsSync(charter)) {
+          add('critical', 'domain-spine', `Domain without a charter: ${entry}`, 'every domains/<d>/ needs CHARTER.md — it is the lane definition agents work from', [rel(dir)], 'Write the charter before putting documents in the domain')
+          continue
+        }
+        const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read(charter))?.[1] || ''
+        const declared = /^domain:\s*(\S+)/m.exec(fm)?.[1]
+        if (declared !== entry) {
+          add('warning', 'domain-spine', `Charter domain mismatch: frontmatter says "${declared}", folder is "${entry}"`, path.basename(charter), [rel(charter)], 'Make the frontmatter match the folder')
+        }
+        const inModels = /owns_models:\s*\n((?:\s+-\s+\S+\n?)*)/.exec(fm)?.[1] || ''
+        for (const m of inModels.match(/-\s+(\S+)/g)?.map((x) => x.replace(/-\s+/, '')) || []) {
+          if (!modelClaims.has(m)) modelClaims.set(m, [])
+          modelClaims.get(m).push(entry)
+          if (!schemaModels.has(m)) {
+            add('warning', 'domain-spine', `Charter claims a model that is not in the schema: ${m}`, `domains/${entry}`, [rel(charter)], 'Stale charter — sync owns_models with prisma/schema.prisma')
+          }
+        }
+        // Feature notes must declare the domain they sit in.
+        for (const note of walk(path.join(dir, 'features'), '.md')) {
+          const nfm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(read(note))?.[1] || ''
+          const nd = /^domain:\s*(\S+)/m.exec(nfm)?.[1]
+          if (nd !== entry) {
+            add('critical', 'domain-spine', `Feature note in domains/${entry} declares domain "${nd || '(none)'}"`, path.basename(note), [rel(note)], 'A feature has one home — set domain: to the folder it lives in, or move it')
+          }
+        }
+      }
+      // The architecture invariant, applied to documentation: one owner per model.
+      for (const [m, ds] of modelClaims) {
+        if (ds.length > 1) {
+          add('critical', 'domain-spine', `Model ${m} is claimed by ${ds.length} domains: ${ds.join(', ')}`, 'every operational table has exactly one owning domain (architecture invariant #1)', [], 'Pick the owner; the other domain reaches it through a contract')
+        }
+      }
+      const unowned = [...schemaModels].filter((m) => !modelClaims.has(m))
+      if (unowned.length) {
+        add('info', 'domain-spine', `Models not yet claimed by any charter: ${unowned.length}`, unowned.join(', '), [], 'Coverage debt — claim them as charters mature')
+      }
+    }
+  }
+
   // Lineage integrity — a doc marked superseded must carry a successor edge, so
   // "what replaced it" is answerable from the graph (RWANG lineage guard).
   for (const n of (g.nodes || []).filter((n) => n.status === 'superseded' || /supersed/i.test(n.doc_status || ''))) {
