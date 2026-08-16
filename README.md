@@ -1,35 +1,34 @@
-# Zuri v2 Project Manager — Agent Build Pack
+# zuri-ai
 
-A ready-to-run specification pack for a coding agent.
+An AI-native business operating system. LINE is the primary intake surface;
+the web app is the back-office console for detail, complex edits and audit.
 
-## One-line command to the agent
+Scope chain: **Portfolio → Tenant (isolation) → Business → Workspace → Project.**
 
-> Read `00-START-HERE.md` and execute the project autonomously through Phase 07. Do not modify the current Zuri repo. Build `zuri-v2-lab` as an offline-first standalone app and stop only when `docs/ACCEPTANCE-CRITERIA.md` passes or a genuine blocker is documented.
+zuri-ai is a standalone product
+([ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)) — it is
+not a version of, and shares nothing with, the legacy zuri project.
 
-## Important files
+## Start here
 
-- `AGENTS.md` — hard rules
-- `MASTER-PROMPT.md` — implementation mandate
-- `docs/ADR-001-STANDALONE-ZURI-V2.md` — why new repo
-- `docs/ARCHITECTURE.md`
-- `docs/DOMAIN-MODEL.md`
-- `docs/EXECUTION-MODES.md`
-- `docs/schema.local.prisma`
-- `contracts/plan-envelope.schema.json`
-- `contracts/sample-plan.json`
-- `docs/ACCEPTANCE-CRITERIA.md`
-- `agent/phases/*`
-- `reference/prototype/index.html`
+- [CLAUDE.md](CLAUDE.md) — the working guide: layout, toolchain, hard rules
+- [AGENTS.md](AGENTS.md) — the full rules for anyone (human or agent) changing this repo
+- [docs/PRODUCT.md](docs/PRODUCT.md) — what the product is
+- [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) — the requirement registry (FR/NFR/BR/SEC/SDD)
+- [docs/decisions/](docs/decisions/) — ADRs; ADR-024 is the current direction
+- [docs/roadmap/](docs/roadmap/) — live delivery state
 
-## Offline MVP
+## Toolchain
 
-Runtime:
-- local Next.js
-- local SQLite
-- no cloud dependency
+```bash
+npm run dev            # dev server
+npm run build          # production build — must stay clean
+npm test               # Vitest (each run gets its own SQLite database)
+npm run test:e2e       # Playwright on :3100
+npm run docs:graph     # rebuild the doc graph — run after any doc/route/model change
+npm run docs:preflight # doc health checks
+npm run docs:check     # CI guard: fails if the committed graph is stale
+```
 
-## Future
-
-After dogfooding, decide:
-- integrate as Zuri Project module, or
-- promote to Zuri v2 foundation.
+A change is not done until tests pass, the build is clean, and
+`docs:graph` + `docs:preflight` are green — see CLAUDE.md.

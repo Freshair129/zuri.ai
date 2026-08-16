@@ -71,8 +71,8 @@ Both are **Proposed** and need owner sign-off before any code is written.
 
 | doc | repo | what it settles |
 |---|---|---|
-| `RW-ADR-O-007` | `G:\Rwang` `docs/ADR-O-007--vault-taxonomy-and-epistemic-lineage.md` | RWANG owns the vault **vocabulary**: three vault roles, epistemic state enum, deprecation reasons, bitemporal contract, link classes, one-way promotion valve, conformance levels L1/L2/L3, cross-repo id prefixes |
-| `Z-ADR-023` | this repo, `docs/ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY.md` | what Zuri does differently: private tiers only, no MSP, gitignored `.brain/private/`, time in the vault never in the doc-graph |
+| `RW-ADR-O-007` | `G:\Rwang` `docs/decisions/ADR-O-007--vault-taxonomy-and-epistemic-lineage.md` | RWANG owns the vault **vocabulary**: three vault roles, epistemic state enum, deprecation reasons, bitemporal contract, link classes, one-way promotion valve, conformance levels L1/L2/L3, cross-repo id prefixes |
+| `Z-ADR-023` | this repo, `docs/decisions/ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY.md` | what Zuri does differently: private tiers only, no MSP, gitignored `.brain/private/`, time in the vault never in the doc-graph |
 
 Key points a reader should not have to re-derive:
 
@@ -146,7 +146,7 @@ same thing*. Check `git reflog` and `git branch -v` before assuming your view of
 current. Do not `reset --hard` or delete branches without checking who else is here.
 
 **2. ADR id collision — `ADR-020` was already taken.**
-This ADR was first written as `ADR-020` after `ls docs/ADR-*.md` showed nothing above 019. That
+This ADR was first written as `ADR-020` after `ls docs/decisions/ADR-*.md` showed nothing above 019. That
 listing was wrong: `ADR-020-CONTROLLED-LINE-BINDING-ACTIVATION-AND-RECEIPT.md`, `ADR-021-…` and
 `ADR-022-…` are all on `main`. Renumbered to `ADR-023` and both commits amended.
 **Allocate ids with `git ls-tree --name-only main docs/`.** A working-tree listing lags behind
@@ -180,8 +180,8 @@ also **behind `origin/main`** — fetch before branching off it. Re-read `git br
 guarantee.
 
 **6. Minor, unfixed:** `scripts/canonical-text.mjs` carries
-`@spec docs/ADR-004-DOC-STRUCTURE.md`, but the real file is
-`docs/ADR-004-DOCUMENTATION-ARCHITECTURE.md`. Harmless today because `doc-graph.mjs` only scans
+`@spec docs/decisions/ADR-004-DOC-STRUCTURE.md`, but the real file is
+`docs/decisions/ADR-004-DOCUMENTATION-ARCHITECTURE.md`. Harmless today because `doc-graph.mjs` only scans
 `src/` and `prisma/` for annotations, so preflight cannot catch it. Worth correcting.
 
 ## Scope — what the next session should do

@@ -1,11 +1,11 @@
-# Zuri V2 — Route and Shell Sitemap
+# Zuri — Route and Shell Sitemap
 
 | Field | Value |
 |---|---|
 | **Version** | 1.0.0 |
-| **Status** | Accepted — implemented FR-044 route/shell boundary |
-| **Date** | 2026-08-13 |
-| **Authority** | ADR-015, SDD-022, SITEMAP-V2-DOMAIN-NAV |
+| **Status** | draft |
+| **Date** | 2026-08-17 |
+| **Authority** 
 
 ## Entry and shell journey
 
@@ -99,7 +99,7 @@ People Directory
 ```
 
 Reserved domains and future lifted sub-domains remain in
-[`SITEMAP-V2-DOMAIN-NAV.md`](SITEMAP-V2-DOMAIN-NAV.md); they do not become active routes
+[`SITEMAP-DOMAIN-NAV.md`](SITEMAP-DOMAIN-NAV.md); they do not become active routes
 until their parity and BusinessModule gates are met.
 
 ## Scope and guard rules

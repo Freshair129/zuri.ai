@@ -2,394 +2,20 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 157,
+    "docs": 106,
     "routes": 55,
     "test_files": 116
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 45,
+    "info": 5,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
     {
       "id": "I1",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": ".rwang-progress.md",
-      "files": [
-        "docs/.rwang-progress.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I2",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr045-w0-brief.md",
-      "files": [
-        "docs/.rwang-tasks/fr045-w0-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I3",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "fr045-w0-report.md",
-      "files": [
-        "docs/.rwang-tasks/fr045-w0-report.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I4",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr045-w1-brief.md",
-      "files": [
-        "docs/.rwang-tasks/fr045-w1-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I5",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "fr045-w1-report.md",
-      "files": [
-        "docs/.rwang-tasks/fr045-w1-report.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I6",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr045-w2-brief.md",
-      "files": [
-        "docs/.rwang-tasks/fr045-w2-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I7",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr045-w2-report.md",
-      "files": [
-        "docs/.rwang-tasks/fr045-w2-report.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I8",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr045-w3-brief.md",
-      "files": [
-        "docs/.rwang-tasks/fr045-w3-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I9",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr045-w3-report.md",
-      "files": [
-        "docs/.rwang-tasks/fr045-w3-report.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I10",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr045-w4-w9-report.md",
-      "files": [
-        "docs/.rwang-tasks/fr045-w4-w9-report.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I11",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr053-w1-brief.md",
-      "files": [
-        "docs/.rwang-tasks/fr053-w1-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I12",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr054-w2-brief.md",
-      "files": [
-        "docs/.rwang-tasks/fr054-w2-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I13",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr054-w3-brief.md",
-      "files": [
-        "docs/.rwang-tasks/fr054-w3-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I14",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr055-w1a-contracts-brief.md",
-      "files": [
-        "docs/.rwang-tasks/fr055-w1a-contracts-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I15",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr055-w1b-migration-brief.md",
-      "files": [
-        "docs/.rwang-tasks/fr055-w1b-migration-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I16",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr055-w2-activation-cli-brief.md",
-      "files": [
-        "docs/.rwang-tasks/fr055-w2-activation-cli-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I17",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr055-w3-zuri-cli-receipt-brief.md",
-      "files": [
-        "docs/.rwang-tasks/fr055-w3-zuri-cli-receipt-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I18",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "fr055-w4-integration-brief.md",
-      "files": [
-        "docs/.rwang-tasks/fr055-w4-integration-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I19",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "parity-audit.md",
-      "files": [
-        "docs/.rwang-tasks/parity-audit.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I20",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "parity-commerce.md",
-      "files": [
-        "docs/.rwang-tasks/parity-commerce.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I21",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "parity-customer.md",
-      "files": [
-        "docs/.rwang-tasks/parity-customer.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I22",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "parity-gaps.md",
-      "files": [
-        "docs/.rwang-tasks/parity-gaps.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I23",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "parity-growth.md",
-      "files": [
-        "docs/.rwang-tasks/parity-growth.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I24",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "parity-operations.md",
-      "files": [
-        "docs/.rwang-tasks/parity-operations.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I25",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "parity-platform.md",
-      "files": [
-        "docs/.rwang-tasks/parity-platform.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I26",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "parity-workers.md",
-      "files": [
-        "docs/.rwang-tasks/parity-workers.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I27",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "phase1-a1-golden-brief.md",
-      "files": [
-        "docs/.rwang-tasks/phase1-a1-golden-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I28",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "phase1-a1-golden-report.md",
-      "files": [
-        "docs/.rwang-tasks/phase1-a1-golden-report.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I29",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "phase1-a2-isolation-brief.md",
-      "files": [
-        "docs/.rwang-tasks/phase1-a2-isolation-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I30",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "phase1-a3-canary-brief.md",
-      "files": [
-        "docs/.rwang-tasks/phase1-a3-canary-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I31",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "pr12-semantic-conflict-brief.md",
-      "files": [
-        "docs/.rwang-tasks/pr12-semantic-conflict-brief.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I32",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "pr12-semantic-conflict-report.md",
-      "files": [
-        "docs/.rwang-tasks/pr12-semantic-conflict-report.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I33",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "ACCEPTANCE-CRITERIA.md",
-      "files": [
-        "docs/ACCEPTANCE-CRITERIA.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I34",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "AGENTS-zuri-v2-lab.md",
-      "files": [
-        "docs/AGENTS-zuri-v2-lab.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I35",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -400,7 +26,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I36",
+      "id": "I2",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -411,7 +37,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I37",
+      "id": "I3",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -422,40 +48,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I38",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "HANDOFF-SHELL-V2-CODEX.md",
-      "files": [
-        "docs/HANDOFF-SHELL-V2-CODEX.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I39",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "IMPLEMENTATION-PLAN.md",
-      "files": [
-        "docs/IMPLEMENTATION-PLAN.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I40",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "INTEGRATION-MAP-ZURI.md",
-      "files": [
-        "docs/INTEGRATION-MAP-ZURI.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I41",
+      "id": "I4",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -466,40 +59,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I42",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "README-zuri-v2-lab.md",
-      "files": [
-        "docs/README-zuri-v2-lab.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I43",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "TEST-PLAN.md",
-      "files": [
-        "docs/TEST-PLAN.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I44",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "ZURI-V2-HANDOFF.md",
-      "files": [
-        "docs/ZURI-V2-HANDOFF.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I45",
+      "id": "I5",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",

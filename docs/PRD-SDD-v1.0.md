@@ -2,7 +2,7 @@
 
 > **Scope of this document: the Project Manager module of Zuri V2**, not the whole
 > product. What V2 is as a product — its surfaces, scope chain and non-negotiables —
-> is `../../docs/PRODUCT-V2.md` (Layer 0). The live index of every feature is
+> is `../../docs/PRODUCT.md` (Layer 0). The live index of every feature is
 > `FEATURE-MAP.md` (generated). Structure set by ADR-004.
 
 | Field | Value |

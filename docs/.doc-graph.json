@@ -3,13 +3,13 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 556,
-    "total_edges": 1494,
+    "total_nodes": 505,
+    "total_edges": 1488,
     "dangling_edges": 0,
     "node_types": {
-      "document": 107,
-      "adr": 24,
+      "document": 56,
       "appendix": 5,
+      "adr": 24,
       "roadmap": 21,
       "requirement": 129,
       "test": 116,
@@ -36,21 +36,12 @@
   },
   "drift": {
     "changed": [
-      "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
-      "spec:ADR-005-V1-DOCUMENTATION-CORPUS",
-      "doc:ROADMAP-zuri-v2-lab"
+      "doc:ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION",
+      "doc:ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY",
+      "doc:PRODUCT"
     ],
-    "added": [
-      "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT"
-    ],
-    "removed": [
-      "doc:CONTRACT-TESTS",
-      "doc:CUTOVER-RUNBOOK",
-      "doc:DEMO-RUNBOOK-SMARTGIFT",
-      "doc:IMPACT-SCAN-IDENTITY",
-      "doc:IMPLEMENTATION-PLAN-V2-REPLACE",
-      "doc:PARITY-INVENTORY"
-    ]
+    "added": [],
+    "removed": []
   },
   "nodes": [
     {
@@ -3051,14 +3042,6 @@
       }
     },
     {
-      "id": "doc:.rwang-progress",
-      "type": "document",
-      "path": "docs/.rwang-progress.md",
-      "title": "RWANG Subagent Progress Ledger — TASK-V2-PARITY",
-      "hash": "2bf2bd68",
-      "status": "current"
-    },
-    {
       "id": "doc:A-api-spec",
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
@@ -3066,22 +3049,6 @@
       "version": "1.4.0",
       "doc_status": "Draft",
       "hash": "dad7922a",
-      "status": "current"
-    },
-    {
-      "id": "doc:ACCEPTANCE-CRITERIA",
-      "type": "document",
-      "path": "docs/ACCEPTANCE-CRITERIA.md",
-      "title": "Acceptance Criteria",
-      "hash": "30e15696",
-      "status": "current"
-    },
-    {
-      "id": "doc:AGENTS-zuri-v2-lab",
-      "type": "document",
-      "path": "docs/AGENTS-zuri-v2-lab.md",
-      "title": "AGENTS.md — zuri-v2-lab",
-      "hash": "36f5edff",
       "status": "current"
     },
     {
@@ -3099,7 +3066,7 @@
       "title": "Architecture Diagrams — Zuri V2",
       "version": "1.1.0",
       "doc_status": "Draft",
-      "hash": "2f4f786e",
+      "hash": "f4db0dc8",
       "status": "current"
     },
     {
@@ -3141,16 +3108,6 @@
       "doc_status": "Approved",
       "hash": "55c2e4fb",
       "status": "current"
-    },
-    {
-      "id": "doc:DECISION-BRIEF-AB",
-      "type": "document",
-      "path": "docs/DECISION-BRIEF-AB.md",
-      "title": "Decision Brief — GATE-AB: โมดูลใน Zuri v1 (A) หรือฐานของ Zuri v2 (B)",
-      "version": "1.2.0",
-      "doc_status": "Superseded — ADR-003 (2026-08-12): V2 แทน V1 ด้วยการ reuse",
-      "hash": "bb6a204b",
-      "status": "superseded"
     },
     {
       "id": "doc:DOMAIN-MODEL",
@@ -3201,9 +3158,9 @@
       "type": "appendix",
       "path": "docs/appendices/F-glossary.md",
       "title": "Appendix F — Glossary",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "doc_status": "Draft",
-      "hash": "329a5dec",
+      "hash": "b4af61a1",
       "status": "current"
     },
     {
@@ -3321,7 +3278,7 @@
       "type": "document",
       "path": "docs/features/FR-039-business-scope-ceiling.md",
       "title": "FR-039 — Business scope ceiling",
-      "hash": "bcf267ba",
+      "hash": "79fa6174",
       "status": "current"
     },
     {
@@ -3329,7 +3286,7 @@
       "type": "document",
       "path": "docs/features/FR-040-project-work-views.md",
       "title": "FR-040 — Project Work views",
-      "hash": "b28ce743",
+      "hash": "c249b758",
       "status": "current"
     },
     {
@@ -3454,190 +3411,6 @@
       "status": "current"
     },
     {
-      "id": "doc:fr045-w0-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr045-w0-brief.md",
-      "title": "FR-045 W0 task brief",
-      "hash": "285c4b28",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr045-w0-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr045-w0-report.md",
-      "title": "fr045-w0-report",
-      "hash": "3ae352ac",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr045-w1-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr045-w1-brief.md",
-      "title": "FR-045 W1 task brief — additive schema",
-      "hash": "dcc98ba1",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr045-w1-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr045-w1-report.md",
-      "title": "fr045-w1-report",
-      "hash": "b97a1f75",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr045-w2-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr045-w2-brief.md",
-      "title": "FR-045 W2 task brief — path security and filesystem port",
-      "hash": "0bb62f7c",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr045-w2-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr045-w2-report.md",
-      "title": "FR-045 W2 report — path security and filesystem port",
-      "hash": "d093f154",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr045-w3-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr045-w3-brief.md",
-      "title": "FR-045 W3 task brief — File Manager read model",
-      "hash": "dc2e745a",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr045-w3-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr045-w3-report.md",
-      "title": "FR-045 W3 — File Manager read-model report",
-      "hash": "43ffd44c",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr045-w4-w9-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr045-w4-w9-report.md",
-      "title": "FR-045 W4-W9 Final Report",
-      "hash": "8680e56c",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr053-w1-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr053-w1-brief.md",
-      "title": "FR-053 W1 task brief — golden evaluation",
-      "hash": "84b936e3",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr054-w2-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr054-w2-brief.md",
-      "title": "FR-054 W2 task brief — runtime isolation probe",
-      "hash": "1446cd30",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr054-w3-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr054-w3-brief.md",
-      "title": "FR-054 W3 task brief — canary preflight",
-      "hash": "30e082de",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr055-w1a-contracts-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr055-w1a-contracts-brief.md",
-      "title": "FR-055 W1A brief — activation and receipt contracts",
-      "hash": "53944656",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr055-w1a-contracts-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr055-w1a-contracts-report.md",
-      "title": "FR-055 W1A report — activation and receipt contracts",
-      "hash": "2c2799ca",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr055-w1b-migration-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr055-w1b-migration-brief.md",
-      "title": "FR-055 W1B brief — operator role and activation event migration",
-      "hash": "04e8af5a",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr055-w1b-migration-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr055-w1b-migration-report.md",
-      "title": "FR-055 W1B report — operator role and activation event migration",
-      "hash": "7957e214",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr055-w2-activation-cli-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr055-w2-activation-cli-brief.md",
-      "title": "FR-055 W2 brief — activation and rollback operator CLI",
-      "hash": "c53c59d4",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr055-w2-activation-cli-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr055-w2-activation-cli-report.md",
-      "title": "FR-055 W2 report — activation and rollback operator CLI",
-      "hash": "dc9f933b",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr055-w3-zuri-cli-receipt-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr055-w3-zuri-cli-receipt-brief.md",
-      "title": "FR-055 W3 brief — redacted zuri-cli transport adapter",
-      "hash": "807b728d",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr055-w3-zuri-cli-receipt-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr055-w3-zuri-cli-receipt-report.md",
-      "title": "FR-055 W3 report — redacted zuri-cli transport adapter",
-      "hash": "260ea3f6",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr055-w4-integration-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr055-w4-integration-brief.md",
-      "title": "FR-055 W4 brief — composed PostgreSQL and public-surface verification",
-      "hash": "15220fec",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr055-w4-integration-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr055-w4-integration-report.md",
-      "title": "FR-055 W4 report — composed PostgreSQL and operator surface",
-      "hash": "c4a2a7fb",
-      "status": "current"
-    },
-    {
-      "id": "doc:fr057-api010-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/fr057-api010-report.md",
-      "title": "FR-057 API-010 canonical resolver — phase report",
-      "hash": "c38edbed",
-      "status": "current"
-    },
-    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -3645,30 +3418,6 @@
       "version": "1.0.0",
       "doc_status": "Active",
       "hash": "6a91d1a7",
-      "status": "current"
-    },
-    {
-      "id": "doc:HANDOFF-SHELL-V2-CODEX",
-      "type": "document",
-      "path": "docs/HANDOFF-SHELL-V2-CODEX.md",
-      "title": "HANDOFF — V2 business-centric shell (for Codex)",
-      "hash": "62c04fa3",
-      "status": "current"
-    },
-    {
-      "id": "doc:IMPLEMENTATION-PLAN",
-      "type": "document",
-      "path": "docs/IMPLEMENTATION-PLAN.md",
-      "title": "Implementation Plan",
-      "hash": "20221080",
-      "status": "current"
-    },
-    {
-      "id": "doc:INTEGRATION-MAP-ZURI",
-      "type": "document",
-      "path": "docs/INTEGRATION-MAP-ZURI.md",
-      "title": "Future Integration Map — Current Zuri → Zuri v2",
-      "hash": "d7219230",
       "status": "current"
     },
     {
@@ -3682,9 +3431,9 @@
       "status": "current"
     },
     {
-      "id": "doc:INTERFACE-INVENTORY-V2",
+      "id": "doc:INTERFACE-INVENTORY",
       "type": "document",
-      "path": "docs/INTERFACE-INVENTORY-V2.md",
+      "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory and Shell Boundary",
       "version": "0.4.0",
       "doc_status": "FR-044 and FR-046 verified beta",
@@ -3707,80 +3456,6 @@
       "version": "1.0.0",
       "doc_status": "Draft",
       "hash": "9c35127c",
-      "status": "current"
-    },
-    {
-      "id": "doc:PARALLEL-EXECUTION-PLAN",
-      "type": "document",
-      "path": "docs/PARALLEL-EXECUTION-PLAN.md",
-      "title": "Parallel Execution Plan — Agent Types & Gate Model",
-      "version": "1.0.0",
-      "doc_status": "Active",
-      "hash": "4cb7f88e",
-      "status": "current"
-    },
-    {
-      "id": "doc:parity-audit",
-      "type": "document",
-      "path": "docs/.rwang-tasks/parity-audit.md",
-      "title": "Parity Scan — Cross-Area Audit",
-      "hash": "c35e8699",
-      "status": "current"
-    },
-    {
-      "id": "doc:parity-commerce",
-      "type": "document",
-      "path": "docs/.rwang-tasks/parity-commerce.md",
-      "title": "P1 Commerce — Parity Inventory (Zuri V1 → V2)",
-      "hash": "50172614",
-      "status": "current"
-    },
-    {
-      "id": "doc:parity-customer",
-      "type": "document",
-      "path": "docs/.rwang-tasks/parity-customer.md",
-      "title": "Parity Inventory — CUSTOMER (P2)",
-      "hash": "c7b93821",
-      "status": "current"
-    },
-    {
-      "id": "doc:parity-gaps",
-      "type": "document",
-      "path": "docs/.rwang-tasks/parity-gaps.md",
-      "title": "P9 — Coverage Gaps (the seventh scan)",
-      "hash": "689f9bc3",
-      "status": "current"
-    },
-    {
-      "id": "doc:parity-growth",
-      "type": "document",
-      "path": "docs/.rwang-tasks/parity-growth.md",
-      "title": "Parity Inventory — GROWTH (P3)",
-      "hash": "cfcb0b3b",
-      "status": "current"
-    },
-    {
-      "id": "doc:parity-operations",
-      "type": "document",
-      "path": "docs/.rwang-tasks/parity-operations.md",
-      "title": "Parity Inventory — Operations (P4)",
-      "hash": "5eeb0b77",
-      "status": "current"
-    },
-    {
-      "id": "doc:parity-platform",
-      "type": "document",
-      "path": "docs/.rwang-tasks/parity-platform.md",
-      "title": "Parity Inventory — PLATFORM (V1 `G:\\zuri`)",
-      "hash": "f9b09ee7",
-      "status": "current"
-    },
-    {
-      "id": "doc:parity-workers",
-      "type": "document",
-      "path": "docs/.rwang-tasks/parity-workers.md",
-      "title": "Parity Inventory — Workers & Background Execution (P6)",
-      "hash": "c9492c51",
       "status": "current"
     },
     {
@@ -3837,54 +3512,6 @@
       "path": "docs/roadmap/line-oa-business-agent/PHASE-07-OMICHAT-UNIFIED-INBOX.md",
       "title": "Phase 7: OmiChat Unified Inbox",
       "hash": "a320a862",
-      "status": "current"
-    },
-    {
-      "id": "doc:phase1-a1-golden-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/phase1-a1-golden-brief.md",
-      "title": "A1 brief — Golden corpus production mapping",
-      "hash": "0c88b3b2",
-      "status": "current"
-    },
-    {
-      "id": "doc:phase1-a1-golden-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/phase1-a1-golden-report.md",
-      "title": "A1 audit report — Golden corpus production mapping",
-      "hash": "1138a5b4",
-      "status": "current"
-    },
-    {
-      "id": "doc:phase1-a2-isolation-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/phase1-a2-isolation-brief.md",
-      "title": "A2 brief — Supabase isolation and backup/PITR inventory",
-      "hash": "b3c13243",
-      "status": "current"
-    },
-    {
-      "id": "doc:phase1-a2-isolation-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/phase1-a2-isolation-report.md",
-      "title": "A2 report — live runtime isolation prerequisite audit",
-      "hash": "45f05463",
-      "status": "current"
-    },
-    {
-      "id": "doc:phase1-a3-canary-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/phase1-a3-canary-brief.md",
-      "title": "A3 brief — Canary prerequisite and receipt audit",
-      "hash": "df0c2ad8",
-      "status": "current"
-    },
-    {
-      "id": "doc:phase1-a3-canary-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/phase1-a3-canary-report.md",
-      "title": "Phase 1 A3 report — canary prerequisites and receipts",
-      "hash": "1d23ef5a",
       "status": "current"
     },
     {
@@ -3982,40 +3609,24 @@
       "status": "current"
     },
     {
-      "id": "doc:pr12-semantic-conflict-brief",
-      "type": "document",
-      "path": "docs/.rwang-tasks/pr12-semantic-conflict-brief.md",
-      "title": "PR #12 semantic conflict repair brief",
-      "hash": "62f243f5",
-      "status": "current"
-    },
-    {
-      "id": "doc:pr12-semantic-conflict-report",
-      "type": "document",
-      "path": "docs/.rwang-tasks/pr12-semantic-conflict-report.md",
-      "title": "PR #12 semantic conflict repair report",
-      "hash": "77425561",
-      "status": "current"
-    },
-    {
       "id": "doc:PRD-SDD-v1.0",
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.44.0b",
       "doc_status": "Draft",
-      "hash": "f1d852f6",
+      "hash": "d4adb090",
       "status": "current"
     },
     {
-      "id": "doc:PRODUCT-V2",
+      "id": "doc:PRODUCT",
       "type": "document",
-      "path": "docs/PRODUCT-V2.md",
+      "path": "docs/PRODUCT.md",
       "title": "Zuri V2 — Product Definition",
       "version": "1.1.0",
       "doc_status": "Draft",
-      "hash": "56cd3745",
-      "status": "current"
+      "hash": "34b861de",
+      "status": "changed"
     },
     {
       "id": "doc:prompt-engineering",
@@ -4036,14 +3647,6 @@
       "status": "current"
     },
     {
-      "id": "doc:README-zuri-v2-lab",
-      "type": "document",
-      "path": "docs/README-zuri-v2-lab.md",
-      "title": "zuri-v2-lab — Project Manager",
-      "hash": "79135ae8",
-      "status": "current"
-    },
-    {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
@@ -4057,34 +3660,26 @@
       "path": "docs/roadmap/ROADMAP-zuri-v2-lab.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
       "hash": "7c2dc2d8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROUTES-SITEMAP",
       "type": "document",
       "path": "docs/ROUTES-SITEMAP.md",
-      "title": "Zuri V2 — Route and Shell Sitemap",
+      "title": "Zuri — Route and Shell Sitemap",
       "version": "1.0.0",
-      "doc_status": "Accepted — implemented FR-044 route/shell boundary",
-      "hash": "ecf801ff",
+      "doc_status": "draft",
+      "hash": "bb90098b",
       "status": "current"
     },
     {
-      "id": "doc:SITEMAP-V2-DOMAIN-NAV",
+      "id": "doc:SITEMAP-DOMAIN-NAV",
       "type": "document",
-      "path": "docs/SITEMAP-V2-DOMAIN-NAV.md",
+      "path": "docs/SITEMAP-DOMAIN-NAV.md",
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
       "version": "0.4.2",
       "doc_status": "Accepted",
-      "hash": "dab666e7",
-      "status": "current"
-    },
-    {
-      "id": "doc:TEST-PLAN",
-      "type": "document",
-      "path": "docs/TEST-PLAN.md",
-      "title": "Test Plan",
-      "hash": "785250cf",
+      "hash": "dbf274f5",
       "status": "current"
     },
     {
@@ -4095,24 +3690,6 @@
       "version": "2.0.0",
       "doc_status": "Accepted",
       "hash": "6f15ca8e",
-      "status": "current"
-    },
-    {
-      "id": "doc:ZURI-INTEGRATION-ASSESSMENT",
-      "type": "document",
-      "path": "docs/ZURI-INTEGRATION-ASSESSMENT.md",
-      "title": "Zuri Integration Assessment",
-      "version": "1.1.0",
-      "doc_status": "Decided — A→B (ADR-002, 2026-08-12)",
-      "hash": "8f430275",
-      "status": "current"
-    },
-    {
-      "id": "doc:ZURI-V2-HANDOFF",
-      "type": "document",
-      "path": "docs/ZURI-V2-HANDOFF.md",
-      "title": "Zuri v2 Handoff Checklist",
-      "hash": "8adbcd06",
       "status": "current"
     },
     {
@@ -4162,7 +3739,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md",
       "title": "ZV2-CR-004 — Supabase production tenant bootstrap",
-      "hash": "11f7f9cc",
+      "hash": "b159fb22",
       "status": "current"
     },
     {
@@ -4186,16 +3763,16 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md",
       "title": "ZV2-CR-007 — Interface Inventory normalization and responsibility split",
-      "hash": "e6c87604",
-      "status": "current"
+      "hash": "25be0eaf",
+      "status": "changed"
     },
     {
       "id": "doc:ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY",
       "type": "document",
       "path": "docs/changes/ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY.md",
       "title": "ZV2-CR-008 — Agent vault for private epistemic memory",
-      "hash": "eddc6659",
-      "status": "current"
+      "hash": "05ed0ab2",
+      "status": "changed"
     },
     {
       "id": "req:BR-001",
@@ -5361,7 +4938,7 @@
     {
       "id": "spec:ADR-001-STANDALONE-ZURI-V2",
       "type": "adr",
-      "path": "docs/ADR-001-STANDALONE-ZURI-V2.md",
+      "path": "docs/decisions/ADR-001-STANDALONE-ZURI-V2.md",
       "title": "ADR-001 — Build Standalone Before Integrating with Zuri",
       "hash": "330e131c",
       "status": "current"
@@ -5369,7 +4946,7 @@
     {
       "id": "spec:ADR-002-INTEGRATION-DIRECTION",
       "type": "adr",
-      "path": "docs/ADR-002-INTEGRATION-DIRECTION.md",
+      "path": "docs/decisions/ADR-002-INTEGRATION-DIRECTION.md",
       "title": "ADR-002 — Ship Project Manager as a Zuri v1 Module, Promote to v2 on Trigger",
       "hash": "aa9f28a4",
       "status": "current"
@@ -5377,31 +4954,31 @@
     {
       "id": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
       "type": "adr",
-      "path": "docs/ADR-003-V2-REPLACES-V1-BY-REUSE.md",
+      "path": "docs/decisions/ADR-003-V2-REPLACES-V1-BY-REUSE.md",
       "title": "ADR-003 — V2 Replaces V1 by Reusing It (Everything Except Auth)",
       "hash": "66e6b0a7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-004-DOCUMENTATION-ARCHITECTURE",
       "type": "adr",
-      "path": "docs/ADR-004-DOCUMENTATION-ARCHITECTURE.md",
+      "path": "docs/decisions/ADR-004-DOCUMENTATION-ARCHITECTURE.md",
       "title": "ADR-004 — Documentation Architecture: Product Layer, Feature-Driven Notes, Generated Index",
-      "hash": "43361c7d",
+      "hash": "0f9d9570",
       "status": "current"
     },
     {
       "id": "spec:ADR-005-V1-DOCUMENTATION-CORPUS",
       "type": "adr",
-      "path": "docs/ADR-005-V1-DOCUMENTATION-CORPUS.md",
+      "path": "docs/decisions/ADR-005-V1-DOCUMENTATION-CORPUS.md",
       "title": "ADR-005 — Import V1's Documentation as a Read-Only Corpus, With Two Id Namespaces",
       "hash": "9f368d08",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER",
       "type": "adr",
-      "path": "docs/ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER.md",
+      "path": "docs/decisions/ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER.md",
       "title": "ADR-006 — Lift V1's Shell, Components and Sitemap; Wrap Them in V2's Scope",
       "hash": "ec22acc7",
       "status": "current"
@@ -5409,7 +4986,7 @@
     {
       "id": "spec:ADR-007-LINE-AI-STACK-SEQUENCING",
       "type": "adr",
-      "path": "docs/ADR-007-LINE-AI-STACK-SEQUENCING.md",
+      "path": "docs/decisions/ADR-007-LINE-AI-STACK-SEQUENCING.md",
       "title": "ADR-007 — LINE/AI Stack: Dependency Sequencing and Production Gates",
       "hash": "81f99b36",
       "status": "current"
@@ -5417,15 +4994,15 @@
     {
       "id": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
       "type": "adr",
-      "path": "docs/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md",
+      "path": "docs/decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md",
       "title": "ADR-008 — Business-centric shell, dual scope lens (ERP ⇄ PM), and entry flow",
-      "hash": "b13d9447",
+      "hash": "2fd33ec8",
       "status": "current"
     },
     {
       "id": "spec:ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY",
       "type": "adr",
-      "path": "docs/ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md",
+      "path": "docs/decisions/ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md",
       "title": "ADR-009 — Self-governance: doc-graph lineage, the IR boundary, and dogfooding the PM",
       "hash": "edf7b5bf",
       "status": "current"
@@ -5433,7 +5010,7 @@
     {
       "id": "spec:ADR-010-ZURI-HERITAGE-DESIGN-SYSTEM",
       "type": "adr",
-      "path": "docs/ADR-010-ZURI-HERITAGE-DESIGN-SYSTEM.md",
+      "path": "docs/decisions/ADR-010-ZURI-HERITAGE-DESIGN-SYSTEM.md",
       "title": "ADR-010: Zuri Heritage Design System and V1-Compatible Migration",
       "hash": "c45e612e",
       "status": "current"
@@ -5441,15 +5018,15 @@
     {
       "id": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
       "type": "adr",
-      "path": "docs/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md",
+      "path": "docs/decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md",
       "title": "ADR-011 — Context bar and Business scope ceiling",
-      "hash": "3ec036d7",
+      "hash": "186cd144",
       "status": "current"
     },
     {
       "id": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
       "type": "adr",
-      "path": "docs/ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY.md",
+      "path": "docs/decisions/ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY.md",
       "title": "ADR-012 — Project Work views and dependency boundary",
       "hash": "047b0075",
       "status": "current"
@@ -5457,15 +5034,15 @@
     {
       "id": "spec:ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN",
       "type": "adr",
-      "path": "docs/ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN.md",
+      "path": "docs/decisions/ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN.md",
       "title": "ADR-013 - Business-first Overview, Strategy, and HR domain boundary",
-      "hash": "1962c68c",
+      "hash": "e98c9fd4",
       "status": "current"
     },
     {
       "id": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
       "type": "adr",
-      "path": "docs/ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT.md",
+      "path": "docs/decisions/ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT.md",
       "title": "ADR-014 - Project Business Ownership and Space Context",
       "hash": "e05c479d",
       "status": "current"
@@ -5473,7 +5050,7 @@
     {
       "id": "spec:ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING",
       "type": "adr",
-      "path": "docs/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md",
+      "path": "docs/decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md",
       "title": "ADR-015 — Minimal entry, demo login, and Business Routing before BusinessShell",
       "doc_status": "Accepted — implementation complete",
       "hash": "63556b27",
@@ -5482,7 +5059,7 @@
     {
       "id": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
       "type": "adr",
-      "path": "docs/ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE.md",
+      "path": "docs/decisions/ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE.md",
       "title": "ADR-016 — SQLite authority and managed local file workspace",
       "hash": "e7e9b9b6",
       "status": "current"
@@ -5490,7 +5067,7 @@
     {
       "id": "spec:ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL",
       "type": "adr",
-      "path": "docs/ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL.md",
+      "path": "docs/decisions/ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL.md",
       "title": "ADR-017 — Production viewer session and viewer-scoped entry read model",
       "version": "0.2.0b",
       "hash": "8131668a",
@@ -5499,7 +5076,7 @@
     {
       "id": "spec:ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION",
       "type": "adr",
-      "path": "docs/ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION.md",
+      "path": "docs/decisions/ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION.md",
       "title": "ADR-018 — Supabase production tenant isolation",
       "version": "0.3.1b",
       "doc_status": "Accepted; production database slice deployed, LINE activation gated",
@@ -5509,7 +5086,7 @@
     {
       "id": "spec:ADR-019-PHASE1-ACTIVATION-READINESS",
       "type": "adr",
-      "path": "docs/ADR-019-PHASE1-ACTIVATION-READINESS.md",
+      "path": "docs/decisions/ADR-019-PHASE1-ACTIVATION-READINESS.md",
       "title": "ADR-019 — Phase 1 activation readiness",
       "hash": "4bcb73fa",
       "status": "current"
@@ -5517,7 +5094,7 @@
     {
       "id": "spec:ADR-020-CONTROLLED-LINE-BINDING-ACTIVATION-AND-RECEIPT",
       "type": "adr",
-      "path": "docs/ADR-020-CONTROLLED-LINE-BINDING-ACTIVATION-AND-RECEIPT.md",
+      "path": "docs/decisions/ADR-020-CONTROLLED-LINE-BINDING-ACTIVATION-AND-RECEIPT.md",
       "title": "ADR-020 — Controlled LINE binding activation and receipt",
       "hash": "a6e99993",
       "status": "current"
@@ -5525,7 +5102,7 @@
     {
       "id": "spec:ADR-021-ZURI-BRANDED-ENTRY-LANDING",
       "type": "adr",
-      "path": "docs/ADR-021-ZURI-BRANDED-ENTRY-LANDING.md",
+      "path": "docs/decisions/ADR-021-ZURI-BRANDED-ENTRY-LANDING.md",
       "title": "ADR-021 — Zuri Branded Entry Landing",
       "hash": "e48db0ce",
       "status": "current"
@@ -5533,7 +5110,7 @@
     {
       "id": "spec:ADR-022-MULTI-TENANT-MSP-VAULTS",
       "type": "adr",
-      "path": "docs/ADR-022-MULTI-TENANT-MSP-VAULTS.md",
+      "path": "docs/decisions/ADR-022-MULTI-TENANT-MSP-VAULTS.md",
       "title": "ADR-022 — Multi-tenant principal-scoped MSP vaults",
       "hash": "a4fe447e",
       "status": "current"
@@ -5541,7 +5118,7 @@
     {
       "id": "spec:ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY",
       "type": "adr",
-      "path": "docs/ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY.md",
+      "path": "docs/decisions/ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY.md",
       "title": "ADR-023 — Agent vault: private epistemic memory, and why it is not the doc-graph",
       "hash": "60a7d4d6",
       "status": "current"
@@ -5549,7 +5126,7 @@
     {
       "id": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
       "type": "adr",
-      "path": "docs/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md",
+      "path": "docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md",
       "title": "ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired",
       "hash": "36dd311e",
       "status": "current"
@@ -10044,41 +9621,6 @@
       "source": "annotation"
     },
     {
-      "from": "doc:HANDOFF-SHELL-V2-CODEX",
-      "to": "doc:SITEMAP-V2-DOMAIN-NAV",
-      "type": "relates",
-      "status": "current",
-      "source": "control-block"
-    },
-    {
-      "from": "doc:HANDOFF-SHELL-V2-CODEX",
-      "to": "req:FR-002",
-      "type": "relates",
-      "status": "current",
-      "source": "control-block"
-    },
-    {
-      "from": "doc:HANDOFF-SHELL-V2-CODEX",
-      "to": "req:FR-020",
-      "type": "relates",
-      "status": "current",
-      "source": "control-block"
-    },
-    {
-      "from": "doc:HANDOFF-SHELL-V2-CODEX",
-      "to": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
-      "type": "relates",
-      "status": "current",
-      "source": "control-block"
-    },
-    {
-      "from": "doc:HANDOFF-SHELL-V2-CODEX",
-      "to": "spec:ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY",
-      "type": "relates",
-      "status": "current",
-      "source": "control-block"
-    },
-    {
       "from": "req:BR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -10990,13 +10532,6 @@
     },
     {
       "from": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
-      "to": "doc:DECISION-BRIEF-AB",
-      "type": "supersedes",
-      "status": "current",
-      "source": "control-block"
-    },
-    {
-      "from": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
       "to": "spec:ADR-002-INTEGRATION-DIRECTION",
       "type": "supersedes",
       "status": "current",
@@ -11053,14 +10588,14 @@
     },
     {
       "from": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
-      "to": "doc:PRODUCT-V2",
+      "to": "doc:PRODUCT",
       "type": "supersedes",
       "status": "current",
       "source": "control-block"
     },
     {
       "from": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
-      "to": "doc:SITEMAP-V2-DOMAIN-NAV",
+      "to": "doc:SITEMAP-DOMAIN-NAV",
       "type": "supersedes",
       "status": "current",
       "source": "control-block"

@@ -85,7 +85,7 @@ Read files in this exact order:
 
 1. `AGENTS.md`
 2. `MASTER-PROMPT.md`
-3. `docs/ADR-001-STANDALONE-ZURI-V2.md`
+3. `docs/decisions/ADR-001-STANDALONE-ZURI-V2.md`
 4. `docs/ARCHITECTURE.md`
 5. `docs/DOMAIN-MODEL.md`
 6. `docs/EXECUTION-MODES.md`

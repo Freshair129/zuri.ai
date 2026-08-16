@@ -13,7 +13,7 @@ The system must model business execution, not just software delivery.
 
 `G:\zuri` (and its remote `Freshair129/zuri`) is a **different product's
 repository** — the legacy zuri project, discontinued as far as this product is
-concerned ([ADR-024](docs/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)). Reading it
+concerned ([ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)). Reading it
 as prior art is fine. Writing to it never is.
 
 `D:\workspace\zuri-command-agent` is the LINE OA transport this product's LINE
@@ -299,7 +299,7 @@ Build/test commands: `npm test` (Vitest), `npm run test:e2e` (Playwright on :310
 
 ### 17. Current direction
 
-`docs/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md` is the binding decision:
+`docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md` is the binding decision:
 **zuri-ai is a standalone product.** It does not replace, version, or migrate the
 legacy zuri project; nothing is lifted from it and no cutover will occur. LINE is
 the primary AI-native surface and the web app is the back-office console. The
@@ -345,11 +345,11 @@ key** — UUIDs for data, requirement ids for documents.
 
 ### 19. Documentation architecture (what lives where)
 
-Set by [ADR-004](docs/ADR-004-DOCUMENTATION-ARCHITECTURE.md). Four layers, and only
+Set by [ADR-004](docs/decisions/ADR-004-DOCUMENTATION-ARCHITECTURE.md). Four layers, and only
 one of them is written by hand at feature level:
 
 ```text
-Layer 0  docs/PRODUCT-V2.md            what zuri-ai is: surfaces, scope chain, non-negotiables (historical filename)
+Layer 0  docs/PRODUCT.md            what zuri-ai is: surfaces, scope chain, non-negotiables
 Layer 1-2  docs/PRD-SDD-v1.0.md   the Project Manager MODULE (FR/NFR/BR/SEC/SDD registry)
 Layer 3  docs/ai-system/               intent pipeline · prompts · PDPA/ethics · model lifecycle
 Feature  docs/features/    one note per feature that has rationale worth recording
@@ -381,7 +381,7 @@ five slots above, that is a signal the structure needs an ADR, not a stray file.
 
 ### 20. The legacy project's documentation (retired)
 
-Retired by [ADR-024](docs/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md). The mirror
+Retired by [ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md). The mirror
 (`docs/v1-inherited/`), the import script and the `V1-` citation prefix are gone
 with the program they served. Two things remain true:
 
@@ -391,3 +391,20 @@ with the program they served. Two things remain true:
 2. If a design question genuinely benefits from how the legacy project solved it,
    read `G:\zuri` directly, read-only, as prior art (ADR-024 D7) — the same way
    you would read any external codebase.
+
+### 21. Existence claims require enumeration, not search
+
+Before claiming that a document, spec, route, test, or any named artifact does or
+does not exist in this repository, **enumerate** — `git ls-files`, a directory
+listing, or the doc graph — and reconcile what you find against your working
+belief. Semantic or keyword search failing to surface something is never evidence
+of absence.
+
+This rule exists because an agent once concluded the repository had no interface
+inventory or sitemap while both sat in `docs/`, and the wrong conclusion survived
+into its final answer even after tree evidence contradicted it. The two failure
+modes it forbids:
+
+1. inferring absence from a search miss instead of an authoritative enumeration;
+2. letting an earlier hypothesis survive after newer repository evidence
+   contradicts it — the last enumeration wins, not the first guess.

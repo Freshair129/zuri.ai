@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 
-// @spec docs/ADR-004-DOC-STRUCTURE.md — the doc governance tools derive identity
+// @spec docs/decisions/ADR-004-DOCUMENTATION-ARCHITECTURE.md — the doc governance tools derive identity
 //   from file content, so that identity must not depend on how git materialized
 //   the file. `core.autocrlf` makes the same blob land as LF or CRLF depending on
 //   the checkout; hashing raw bytes then reports drift for content that never
