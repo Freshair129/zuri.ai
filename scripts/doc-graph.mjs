@@ -11,6 +11,7 @@ import { writeFileSync, readdirSync, statSync, existsSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
+import { domainMap, traceView } from './doc-views.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: the spec pack and the module docs are one tree under ROOT/docs.
@@ -18,6 +19,8 @@ const SPEC_PACK = path.join(ROOT, 'docs')
 const GRAPH_PATH = path.join(ROOT, 'docs', '.doc-graph.json')
 const MATRIX_PATH = path.join(ROOT, 'docs', 'appendices', 'D-traceability.md')
 const FEATURE_MAP_PATH = path.join(ROOT, 'docs', 'FEATURE-MAP.md')
+const DOMAIN_MAP_PATH = path.join(ROOT, 'docs', 'DOMAIN-MAP.md')
+const TRACE_PATH = path.join(ROOT, 'docs', 'TRACE.md')
 // Tombstone guard (ADR-024): the legacy-project mirror once lived here and may
 // still exist on old checkouts. Never index it.
 const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
@@ -142,14 +145,98 @@ function build() {
   // bootstraps. Frozen records keep the links they had when they were alive, so
   // they are neither indexed nor link-checked — the graph describes the living tree.
   const ARCHIVE_DIR = path.join(SPEC_PACK, 'archive')
-  const docFiles = walk(path.join(ROOT, 'docs'), ['.md']).filter((f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR))
+  // Generator outputs are projections of this graph, not sources — indexing
+  // them would make the graph depend on its own previous output and force two
+  // runs to converge (the two-pass disease docs:check was cured of once).
+  const GENERATED = new Set(['FEATURE-MAP.md', 'DOMAIN-MAP.md', 'TRACE.md', 'D-traceability.md'])
+  const docFiles = walk(path.join(ROOT, 'docs'), ['.md']).filter(
+    (f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR) && !GENERATED.has(path.basename(f)),
+  )
   for (const file of docFiles) {
     const base = path.basename(file)
+    // Domain charters all share the basename CHARTER.md, so the default
+    // basename-keyed id would collide five ways. They are their own node type:
+    // the domain, carrying its ownership manifest for the graph.
+    if (base === 'CHARTER.md' && file.includes(`${path.sep}domains${path.sep}`)) {
+      const domain = rel(file).split('/')[2]
+      const body = read(file)
+      const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(body)?.[1] || ''
+      const listOf = (key) =>
+        (new RegExp(`${key}:\\s*\\n((?:\\s+-\\s+\\S+\\n?)*)`).exec(fm)?.[1]?.match(/-\s+(\S+)/g) || []).map((x) => x.replace(/-\s+/, ''))
+      nodes.push({
+        id: `domain:${domain}`,
+        type: 'domain',
+        path: rel(file),
+        title: `Domain — ${domain}`,
+        owns_models: listOf('owns_models'),
+        owns_routes: listOf('owns_routes'),
+        modules: listOf('modules').length ? listOf('modules') : [domain],
+        hash: hash(body),
+        status: 'current',
+      })
+      continue
+    }
     const isAppendix = file.includes(`${path.sep}appendices${path.sep}`)
     const isRoadmap = file.includes(`${path.sep}roadmap${path.sep}`)
     const isAdr = base.startsWith('ADR-')
     const type = isAppendix ? 'appendix' : isRoadmap ? 'roadmap' : isAdr ? 'adr' : 'document'
     nodes.push(docNode(file, type, isAdr ? 'spec' : 'doc'))
+  }
+
+  // Features (FEAT) are product capabilities bundling one or more FRs — a
+  // separate id family from requirements (owner decision, ADR-025 rev 2). The
+  // registry is docs/FEATURES.md; rows are `| FEAT-xxx | name | FR-a, FR-b | status |`.
+  const featRegistry = path.join(ROOT, 'docs', 'FEATURES.md')
+  if (existsSync(featRegistry)) {
+    for (const line of read(featRegistry).split('\n')) {
+      const m = /^\|\s*(FEAT-\d{3})\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|/.exec(line)
+      if (!m) continue
+      const [, fid, name, frs, status] = m
+      nodes.push({ id: `feat:${fid}`, type: 'feature', label: name.trim(), declared: status.trim(), status: 'current' })
+      for (const fr of frs.match(/FR-\d{3}/g) || []) addEdge(`feat:${fid}`, `req:${fr}`, 'bundles', 'feature-registry')
+    }
+  }
+
+  // Routes: every page.jsx / route.js under src/app is a user-visible surface or
+  // an API endpoint. The URL derives from the directory (route groups stripped);
+  // ownership derives from charter owns_routes globs — longest matching prefix wins.
+  const domainNodes = nodes.filter((n) => n.type === 'domain')
+  const routeOwner = (fileRel) => {
+    let best = null
+    for (const d of domainNodes) {
+      for (const g of d.owns_routes || []) {
+        const prefix = g.replace(/\*\*$/, '').replace(/\/$/, '') + '/'
+        if ((fileRel + '/').startsWith(prefix) && (!best || prefix.length > best.prefix.length)) {
+          best = { domain: d.id, prefix }
+        }
+      }
+    }
+    return best?.domain || null
+  }
+  const appFiles = walk(path.join(ROOT, 'src', 'app'), ['.jsx', '.js'])
+    .filter((f) => ['page.jsx', 'route.js'].includes(path.basename(f)))
+  for (const file of appFiles) {
+    const fileRel = rel(file)
+    const dir = path.dirname(fileRel).replace(/^src\/app\/?/, '')
+    const url = '/' + dir.split('/').filter((seg) => seg && !/^\(.*\)$/.test(seg)).join('/')
+    const kind = path.basename(file) === 'route.js' ? 'api' : 'page'
+    const id = `route:${kind}:${url}`
+    if (!nodes.some((n) => n.id === id)) {
+      // `path` is the implementation pointer — no edge to a code node, because
+      // unannotated pages have no code node and a dangling edge is a warning.
+      nodes.push({ id, type: 'route', kind, route: url, path: fileRel, status: 'current' })
+    }
+    const owner = routeOwner(fileRel)
+    if (owner) addEdge(id, owner, 'owned_by', 'charter-glob')
+  }
+  // Model ownership edges from the charters, so "what is affected if domain X
+  // changes" is a query.
+  for (const d of domainNodes) {
+    for (const m of d.owns_models || []) addEdge(`model:${m}`, d.id, 'owned_by', 'charter')
+  }
+  const schemaBody = read(path.join(ROOT, 'prisma', 'schema.prisma'))
+  for (const m of schemaBody.match(/^model\s+(\w+)/gm) || []) {
+    nodes.push({ id: `model:${m.split(/\s+/)[1]}`, type: 'model', status: 'current' })
   }
 
   // Requirements from the PRD registry.
@@ -471,6 +558,8 @@ if (process.argv.includes('--check')) {
 writeFileSync(GRAPH_PATH, serialized)
 writeFileSync(MATRIX_PATH, matrix(nodes, edges, cov))
 writeFileSync(FEATURE_MAP_PATH, featureMap(nodes, edges))
+writeFileSync(DOMAIN_MAP_PATH, domainMap(nodes, edges))
+writeFileSync(TRACE_PATH, traceView(nodes, edges))
 
 console.log(`nodes ${nodes.length} · edges ${edges.length} · dangling ${dangling.length}`)
 console.log(`FR with code ${cov.fr_with_code} · FR with tests ${cov.fr_with_tests} · rules anchored ${cov.rules_anchored_in_code}`)

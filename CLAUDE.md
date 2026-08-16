@@ -100,6 +100,31 @@ one only when there is a real decision to explain; otherwise the feature already
 appears in `FEATURE-MAP.md` with its domain, code, tests and task. Full statement:
 AGENTS.md §19.
 
+### Adding a feature — why you cannot "just write code"
+
+Nothing stops you typing code. What the guards stop is **landing** code the
+system cannot account for — every gate below is a preflight/CI failure, not a
+convention:
+
+1. **Declare the FR first.** `@req` with an id not in `docs/PRD-SDD-v1.0.md` is
+   a preflight CRITICAL. FR = *functional requirement* (a precise system
+   behavior). If the work is a product capability spanning FRs, add a
+   `FEAT-xxx` row in `docs/FEATURES.md` bundling them — FEAT = *feature*, a
+   different id family (ADR-025 rev 2). Both families: never renumber, never
+   reuse; the duplicate-id guard enforces it.
+2. **Work in a chartered lane.** A new `src/modules/<m>` with no charter
+   claiming it is a CRITICAL. Read `docs/domains/<d>/CHARTER.md` before writing
+   into a lane; writing a model owned by another domain's charter is a CRITICAL.
+3. **Annotate** (`@req` / `@spec` / `@tested`) — unannotated code is invisible
+   to the graph, and an FR left without code/tests shows up in coverage.
+4. **Regenerate**: `docs:preflight` → `docs:graph` → `docs:check`. The generated
+   views (FEATURE-MAP, DOMAIN-MAP, TRACE) update themselves; blindness guards
+   fail if a note/domain/FR exists that a view does not cite.
+
+The order exists because ids are keys: declaring them first means everything
+you write is attributable from the first commit, and the trace views can answer
+"this screen came from which FR, which code, which test" without archaeology.
+
 ### Order of governance work, and the id contract
 
 Whichever step changes the **meaning** of another step's input runs first. Moving

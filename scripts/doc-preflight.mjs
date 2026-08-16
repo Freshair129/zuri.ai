@@ -180,6 +180,58 @@ if (!existsSync(GRAPH)) {
           'The generator\'s discovery is broken or the map is stale — fix scripts/doc-graph.mjs and rerun docs:graph')
       }
     }
+    // Same assertion for the other generated views: DOMAIN-MAP must cite every
+    // domain directory; TRACE must cite every FR in the registry; FEAT ids in
+    // the FEATURES registry must be unique and bundle only declared FRs.
+    const domainMapPath = path.join(SPEC_PACK, 'DOMAIN-MAP.md')
+    const domainsDir = path.join(SPEC_PACK, 'domains')
+    if (existsSync(domainMapPath) && existsSync(domainsDir)) {
+      const dm = read(domainMapPath)
+      for (const entry of readdirSync(domainsDir)) {
+        if (!statSync(path.join(domainsDir, entry)).isDirectory()) continue
+        if (!dm.includes(`## ${entry}`)) {
+          add('critical', 'generated-view', `DOMAIN-MAP is blind to domain "${entry}"`, 'the generator did not see a domain that exists on disk', [],
+            'Fix scripts/doc-views.mjs discovery and rerun docs:graph')
+        }
+      }
+    }
+    const tracePath = path.join(SPEC_PACK, 'TRACE.md')
+    if (existsSync(tracePath) && existsSync(GRAPH)) {
+      const trace = read(tracePath)
+      const g = JSON.parse(read(GRAPH))
+      const missing = g.nodes
+        .filter((n) => n.type === 'requirement' && n.family === 'FR')
+        .map((n) => n.id.slice(4))
+        .filter((fid) => !trace.includes(`### ${fid} `))
+      if (missing.length) {
+        add('critical', 'generated-view', `TRACE is blind to ${missing.length} FR(s)`, missing.join(', '), [],
+          'Fix scripts/doc-views.mjs and rerun docs:graph')
+      }
+    }
+    const featPath = path.join(SPEC_PACK, 'FEATURES.md')
+    if (existsSync(featPath)) {
+      const seen = new Map()
+      const declaredFr = existsSync(GRAPH)
+        ? new Set(JSON.parse(read(GRAPH)).nodes.filter((n) => n.type === 'requirement').map((n) => n.id.slice(4)))
+        : null
+      for (const line of read(featPath).split('\n')) {
+        const m = /^\|\s*(FEAT-\d{3})\s*\|[^|]*\|\s*([^|]*)\|/.exec(line)
+        if (!m) continue
+        const [, fid, frs] = m
+        seen.set(fid, (seen.get(fid) || 0) + 1)
+        if (declaredFr) {
+          for (const fr of frs.match(/FR-\d{3}/g) || []) {
+            if (!declaredFr.has(fr)) {
+              add('critical', 'id-uniqueness', `${fid} bundles ${fr}, which is not declared in the PRD registry`, 'features bundle real requirements only', ['docs/FEATURES.md'],
+                'Declare the FR first, then bundle it')
+            }
+          }
+        }
+      }
+      for (const [fid, n] of seen) {
+        if (n > 1) add('critical', 'id-uniqueness', `${fid} appears ${n} times in the FEATURES registry`, 'feature ids are immutable keys', ['docs/FEATURES.md'], 'The later row takes the next free number')
+      }
+    }
   }
 
   // Module ↔ charter guard. src/modules/ is enumerated from the filesystem — the

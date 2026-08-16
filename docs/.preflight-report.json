@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 113,
+    "docs": 116,
     "routes": 55,
-    "test_files": 116
+    "test_files": 117
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 11,
+    "info": 13,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -40,10 +40,10 @@
       "id": "I3",
       "severity": "info",
       "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "DOMAIN-MODEL.md",
+      "title": "Missing control fields: Version",
+      "details": "DOMAIN-MAP.md",
       "files": [
-        "docs/DOMAIN-MODEL.md"
+        "docs/DOMAIN-MAP.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -52,9 +52,9 @@
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
+      "details": "DOMAIN-MODEL.md",
       "files": [
-        "docs/domains/agent/CHARTER.md"
+        "docs/DOMAIN-MODEL.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -65,7 +65,7 @@
       "title": "Missing control fields: Version, Status",
       "details": "CHARTER.md",
       "files": [
-        "docs/domains/crm/CHARTER.md"
+        "docs/domains/agent/CHARTER.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -76,7 +76,7 @@
       "title": "Missing control fields: Version, Status",
       "details": "CHARTER.md",
       "files": [
-        "docs/domains/identity/CHARTER.md"
+        "docs/domains/crm/CHARTER.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -87,7 +87,7 @@
       "title": "Missing control fields: Version, Status",
       "details": "CHARTER.md",
       "files": [
-        "docs/domains/knowledge/CHARTER.md"
+        "docs/domains/identity/CHARTER.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -98,12 +98,23 @@
       "title": "Missing control fields: Version, Status",
       "details": "CHARTER.md",
       "files": [
-        "docs/domains/project-manager/CHARTER.md"
+        "docs/domains/knowledge/CHARTER.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
       "id": "I9",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "CHARTER.md",
+      "files": [
+        "docs/domains/project-manager/CHARTER.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I10",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -114,7 +125,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I10",
+      "id": "I11",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -125,7 +136,18 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I11",
+      "id": "I12",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version",
+      "details": "TRACE.md",
+      "files": [
+        "docs/TRACE.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I13",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
@@ -133,7 +155,7 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 116 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 117 files"
     }
   ]
 }

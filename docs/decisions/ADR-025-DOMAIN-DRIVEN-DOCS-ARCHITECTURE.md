@@ -77,8 +77,31 @@ underlying notes into their owning domains.
 - Preflight gains three checks (charter presence, domain declaration match,
   ownership uniqueness); none require renumbering or moving anything ever again.
 
+## Revision 2 — Feature (FEAT) is a first-class concept (2026-08-16)
+
+**Status:** Accepted · amends D5; adds D10–D11. Owner decision, stated
+directly: *"FR = functional requirement, ไม่ใช่ Feature. Feature = FEAT."*
+
+The original D5 treated features as a projection keyed by FR ids. That
+conflation is real debt: an FR is a precise system behavior; a feature is a
+product capability that may bundle several.
+
+| # | Decision |
+|---|---|
+| D10 | `FEAT-xxx` is a new id family under the §18 contract (immutable, never reused, duplicate-guarded). The registry is `docs/FEATURES.md` — hand-maintained source of truth; the graph reads it into `feat:` nodes with `bundles` edges to FRs |
+| D11 | An FR with no FEAT row is implicitly a feature of one — **rows are added when a capability genuinely spans FRs**, never mechanically for all 57. Existing FR ids and note filenames do not change; the feature axis is additive |
+
+Also in this revision: the graph gains `route:`, `model:` and `domain:` nodes
+with ownership edges (closing the trace chain), and two generated human views —
+`DOMAIN-MAP.md` and `TRACE.md` — each protected by a blindness assertion in
+preflight, per the prevention rule in the 2026-08-16 drift RCA. The charter
+node id collision (five files named `CHARTER.md` all mapping to `doc:CHARTER`)
+is fixed by making charters `domain:` nodes.
+
 ## Review
 
 When the first ERP domain from the architecture spec (sales, inventory, …) gets
 a module, its charter is written **before** its first feature lands — the lane
-exists before the agent enters it.
+exists before the agent enters it. Revisit D11's restraint if the FEAT registry
+grows past roughly a dozen rows — that is the signal features deserve their own
+notes, not just registry rows.
