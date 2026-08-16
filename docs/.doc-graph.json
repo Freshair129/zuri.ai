@@ -3,36 +3,39 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 680,
-    "total_edges": 1854,
+    "total_nodes": 683,
+    "total_edges": 1856,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 61,
+      "document": 62,
       "adr": 26,
       "domain": 5,
       "roadmap": 21,
       "feature": 2,
       "route": 96,
       "model": 33,
-      "requirement": 137,
+      "requirement": 139,
       "test": 130,
       "code_file": 165
     },
     "coverage": {
-      "requirements": 137,
+      "requirements": 139,
       "fr_with_code": "100% (61/61)",
       "fr_with_tests": "100% (61/61)",
-      "rules_anchored_in_code": "92% (57/62)",
+      "rules_anchored_in_code": "90% (57/63)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 165,
-      "fr_planned": [],
+      "fr_planned": [
+        "FR-062"
+      ],
       "fr_without_code": [],
       "fr_without_tests": [],
       "rules_without_anchor": [
         "SDD-001",
         "SDD-008",
         "SDD-013",
+        "SDD-035",
         "SEC-004",
         "SEC-005"
       ]
@@ -40,9 +43,13 @@
   },
   "drift": {
     "changed": [
-      "doc:FR-061-per-business-domain-visibility"
+      "doc:PRD-SDD-v1.0"
     ],
-    "added": [],
+    "added": [
+      "doc:FR-062-permissions-read-scope",
+      "req:FR-062",
+      "req:SDD-035"
+    ],
     "removed": []
   },
   "nodes": [
@@ -3709,7 +3716,17 @@
       "version": "1.0.0",
       "doc_status": "Implemented",
       "hash": "e0faf4f4",
-      "status": "changed"
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-062-permissions-read-scope",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-062-permissions-read-scope.md",
+      "title": "FR-062: Users & Permissions read scope",
+      "version": "1.0.0",
+      "doc_status": "Declared",
+      "hash": "0e6fde15",
+      "status": "current"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -3916,8 +3933,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.45.0b",
       "doc_status": "Draft",
-      "hash": "c150f2ea",
-      "status": "current"
+      "hash": "6b12203b",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -5051,6 +5068,15 @@
       "status": "current"
     },
     {
+      "id": "req:FR-062",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Users & Permissions read scope: `GET /api/platform/users` returns only Memberships the caller may actually administer — those whose Business is in `viewer.ownedBusinessIds` — so the list can no longer disagree with the authority `updateUserPermissions` enforces. Tenant-wide Memberships (`businessId: null`) are returned **only for tenants where the caller owns a Business**, never unconditionally, and each row carries a server-decided `manageable` flag; the client renders a non-manageable row read-only rather than inferring editability itself. The response carries no field the surface does not display — `Person.email` is dropped.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -5478,6 +5504,15 @@
       "type": "requirement",
       "family": "SDD",
       "label": "The per-Business domain map is derived from the same Membership rows and the same tenant-wide expansion that already produce `visibleBusinessIds` and `ownedBusinessIds`, and it is populated in **every** `resolveViewer` branch: the platform DEV and local-development branches fill it from their own visible-Business set rather than carrying a \"sees everything\" flag, so no consumer can answer the per-Business question by reading a shortcut. `domainsForBusiness` fails closed on an unknown Business and falls back to the flat `visibleDomains` only for a viewer that predates the map (a hand-built fixture), never for one a real resolver emitted. Cost is O(visible Businesses × domains) in the viewer payload — accepted at current scale; the exit if it stops being acceptable is a Business-scoped resolution (`resolveViewer({ businessId })`), not a flag.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-035",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "An administration surface derives its read scope from the **same** field its write path authorizes on. `listUserPermissions` filters on `ownedBusinessIds`, which is exactly what `assertMembershipBusinessOwned` checks, so a row that would 404 on save cannot be listed as editable in the first place. Tenant-wide rows are the one deliberate exception — unmanageable here by design, yet shown because a hidden tenant-wide grant is worse than a read-only one — so the server, not the client, states `manageable` per row. Cross-scope inclusion is never a bare `OR` on a nullable column: `businessId: null` is scoped by the caller's owned tenant ids.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -12483,6 +12518,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-062",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -12813,6 +12855,13 @@
     },
     {
       "from": "req:SDD-034",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-035",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
