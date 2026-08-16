@@ -36,7 +36,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "test:tests/unit/doc-graph-canonical-text.test.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -5955,8 +5957,8 @@
       "id": "test:tests/unit/doc-graph-canonical-text.test.js",
       "type": "test",
       "path": "tests/unit/doc-graph-canonical-text.test.js",
-      "hash": "e418865e",
-      "status": "current"
+      "hash": "20a34b65",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/domain-navigation.test.js",
