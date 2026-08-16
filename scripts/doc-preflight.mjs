@@ -37,12 +37,8 @@ function walk(dir, ext, out = []) {
   return out
 }
 
-// ADR-005 rev 2 — the V1 corpus is no longer tracked. `npm run docs:import-v1`
-// materializes it into docs/v1-inherited/ on demand and .gitignore keeps it out of
-// the repository, so it is excluded from the scan: reporting on it would make this
-// report describe whichever machines happen to have run the import. It also never
-// carried our control blocks and its links point at V1 paths that do not exist
-// here — 238 findings nobody can act on would drown the real ones.
+// Tombstone guard (ADR-024): the legacy-project mirror once lived at
+// docs/v1-inherited/ and may still exist on old checkouts. Never scan it.
 const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
 const labDocs = walk(path.join(ROOT, 'docs'), '.md').filter((f) => !f.startsWith(V1_DIR))
 const specDocs = []

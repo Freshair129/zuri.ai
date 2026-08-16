@@ -3,32 +3,36 @@
 Read this first, then `00-START-HERE.md` and `AGENTS.md` for the full spec pack.
 This file is the short version: where things are, what to run, what never to touch.
 
-## What this repo is (as of 2026-08-12)
+## What this repo is (as of 2026-08-16)
 
-This repo (root) is Zuri V2. It began as a nested `zuri-v2-lab/` Project Manager lab,
-flattened to the root on 2026-08-12, and is now
-**the system that replaces Zuri V1** — see [ADR-003](docs/ADR-003-V2-REPLACES-V1-BY-REUSE.md).
+This repo is **zuri-ai** — a standalone, AI-native business operating system.
+It is **not** a version of any other product ([ADR-024](docs/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)).
 
-- **V2 = V1's domain + what V1 never had**: workspace, business group, project, B2B.
+- **Scope chain**: Portfolio → Tenant (isolation) → Business → Workspace → Project.
 - **LINE is the primary surface** (AI-native intake); the web app is the back-office
   console for detail, complex edits and audit.
-- **V1's web UI is reused, not rebuilt** — everything except auth/identity, lifted
-  per module at that module's cutover.
 
-Current state: the Project Manager MVP plus all four intake surfaces are done
-(FR-001…FR-020, 129 Vitest + 28 Playwright green). Next phase is `PHASE-V2-REPLACE`
-in `docs/roadmap/ROADMAP-zuri-v2-lab.md`.
+Current state: the Project Manager MVP, all four intake surfaces, and the LINE/AI
+stack are done (57 FRs, all with code and tests). The live delivery state is
+`docs/roadmap/ROADMAP-zuri-v2-lab.md`.
+
+**Historical vocabulary — read this before reading old documents.** Files written
+before 2026-08-16 (ADR-001…023, ZV2-CR-001…008, older notes) call this product
+"Zuri V2" and a legacy project "V1", because an early plan intended to lift that
+project's UI. That plan was retired by ADR-024 with **zero** modules ever lifted.
+Those words in history are labels, not instructions: there is no migration, no
+cutover, no parity work, and nothing here descends from `G:\zuri`. Never derive
+work from them. Id strings keep their historical letters (`ZV2-CR-007` stays
+`ZV2-CR-007`) because ids are immutable keys (AGENTS.md §18).
 
 ## Hard rules (these do not bend)
 
 | Rule | Why |
 |---|---|
-| **Never modify `G:\zuri`** — no edits, no schema changes, no auth changes, never touch its database | It is live production. Copying V1 → V2 is allowed (ADR-003); the reverse and any mutation are not |
+| **Never modify anything under `G:\zuri`** | It is a different product's repository (the legacy zuri project). Reading it as prior art is fine (ADR-024 D7); writing to it never is |
 | **Never read `D:\workspace\zuri-command-agent\.env`** | It holds LINE OA secrets |
 | **External ids are never primary keys** | Internal UUID + human `code` + `ExternalRef` mapping (BR-002) |
 | **Never execute anything that arrives in a plan/envelope** | Plans are data (BR-007, SEC-002) |
-| **One tenant is owned by exactly one system at a time** | Double-processing means double LINE blasts and double charges (ADR-003 §D8) |
-| **Preserve UUIDs when migrating V1 data** | Printed documents, LINE bindings and external systems keep resolving |
 
 ## Layout
 
@@ -72,12 +76,11 @@ GoVibe Mission Control read.
 ### Where documentation lives (ADR-004)
 
 ```text
-docs/PRODUCT-V2.md              Layer 0 — what V2 is (surfaces, scope chain, rules)
+docs/PRODUCT-V2.md              Layer 0 — what zuri-ai is (surfaces, scope chain, rules); historical filename
 docs/ai-system/                 LINE + AI: intent pipeline, prompts, PDPA, model lifecycle
-docs/replacement/               replacing V1: parity inventory, cutover runbook, contract tests
-docs/ADR-*.md                   decisions (ADR-003 = current direction, ADR-004 = this structure)
+docs/ADR-*.md                   decisions (ADR-024 = current direction, ADR-004 = this structure)
 docs/PRD-SDD-v1.0.md            the Project Manager MODULE — the FR/NFR/BR/SEC/SDD registry
-docs/FEATURE-MAP.md             GENERATED index of every feature + cutover state — never hand-edit
+docs/FEATURE-MAP.md             GENERATED index of every feature — never hand-edit
 docs/features/FR-0xx-*.md       one note per feature that has rationale worth recording
 docs/appendices/                A api · B db · D traceability (generated) · E risks · F glossary
 docs/roadmap/                   live delivery state (GoVibe Mission Control reads this)
@@ -87,19 +90,6 @@ Feature notes declare their feature in frontmatter (`feature: FR-020`), so the m
 links them by id — moving or renaming a note never breaks anything. Write one only
 when there is a real decision to explain; otherwise the feature already appears in
 `FEATURE-MAP.md` with its code, tests and task. Full statement: AGENTS.md §19.
-
-V1's 234 product docs are **not in this repository** (ADR-005 rev 2). They were 59%
-of `docs/` and nothing cited them, in a vocabulary where *tenant* means one shop —
-so they read as noise between you and the V2 spec. Fetch them only when you are
-doing parity work:
-
-```bash
-npm run docs:import-v1     # → docs/v1-inherited/ (gitignored, read-only, on demand)
-```
-
-Never edit the mirror, and cite its ids with a `V1-` prefix (`V1-ADR-060`) because
-V1's ADRs run 057…086 and would collide with ours. Notes for lifted features record
-only the **delta**, citing the inherited doc for the rest.
 
 ### Order of governance work, and the id contract
 
@@ -138,8 +128,8 @@ preflight CRITICAL.
 ## Conventions worth knowing before writing code
 
 - **JavaScript + Zod at the boundary, not TypeScript** (SDD-008). Nothing but tests
-  enforces a contract here — that is why contract tests are mandatory before
-  reimplementing any V1 endpoint (ADR-003 §D6).
+  enforces a contract here — so any endpoint whose consumers already exist gets a
+  contract test before its implementation changes.
 - **Enums are strings in the database**, with `src/lib/validation/enums.js` as the
   single source of truth. Excel dropdowns, the OpenAPI document and validation all
   derive from it — never hand-copy an enum list.

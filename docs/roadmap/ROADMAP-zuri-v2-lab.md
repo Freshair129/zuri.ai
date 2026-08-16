@@ -28,7 +28,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | PHASE-ZV2-INTAKE | Intake surfaces: UI wizard, Excel template, Enterprise API, adaptive shell | FR-017..FR-020 implemented + tested through the unified pipeline | done | 100 |
 | PHASE-ZV2-DECIDE | Zuri v1 module merge vs Zuri v2 foundation decision | Owner decision recorded per ZURI-INTEGRATION-ASSESSMENT.md | done | 100 |
 | PHASE-ZV2-MERGE | ~~Ship PM into Zuri v1 as a module (ADR-002)~~ — **cancelled by ADR-003**: V2 replaces V1, so anything mounted into V1 retires with it | n/a | cancelled | 0 |
-| PHASE-V2-REPLACE | V2 replaces V1 by reuse: identity rebuilt, web UI lifted per module, LINE/AI surface on V2-native intake | every tenant cut over · V1 off · no tenant ever owned by two systems | in-progress | 8 |
+| PHASE-V2-REPLACE | ~~Replace the legacy project by reuse~~ — program retired by ADR-024: zuri-ai is standalone, nothing is lifted, no cutover. Delivered tasks below stand as shipped product work | retired | closed (ADR-024) | 8 |
 
 ## Backlog Items
 
@@ -49,13 +49,13 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-MERGE-TASKPOS | PHASE-ZV2-MERGE | task | ~~Position PM work items vs v1 Task inside v1~~ — folded into TASK-V2-PARITY | P2 | Owen | cancelled | - | ADR-003 |
 | TASK-MERGE-TRIGGER | PHASE-ZV2-MERGE | task | ~~Watch the B promotion trigger~~ — moot, B is now the plan | P2 | Owen | cancelled | - | ADR-003 |
 | TASK-V2-PARITY | PHASE-V2-REPLACE | task | Parity inventory: module × route × page × model × usage, classified must-have / later / drop before cutover | P0 | Claude | done | - | replacement/PARITY-INVENTORY |
-| TASK-V2-IDENTITY | PHASE-V2-REPLACE | task | Identity foundations FR-021/022 are implemented; production web request-session boundary and V1 Employee reconciliation remain | P0 | Claude | in-progress | TASK-V2-PARITY | ADR-003 §D10; ADR-017 candidate |
-| TASK-V2-CONTRACTS | PHASE-V2-REPLACE | task | Record request/response fixtures for V1 endpoints as contract tests before any internals are reimplemented | P0 | Claude | planned | TASK-V2-PARITY | ADR-003 §D6 |
-| TASK-V2-LINE-INTENT | PHASE-V2-REPLACE | task | FR-023..029 provide the backend/agent foundations; production consent, deployment and cutover gates remain | P0 | Claude | in-progress | TASK-V2-IDENTITY | ADR-003 §D7; ADR-007 |
-| TASK-V2-CUTOVER-RULES | PHASE-V2-REPLACE | task | Single-writer rule per tenant: LINE OA + workers + writes flip atomically; runbook + rollback | P0 | Owen | planned | TASK-V2-IDENTITY | ADR-003 §D8 |
-| TASK-V2-PILOT | PHASE-V2-REPLACE | task | Pilot one low-risk module end to end (lift UI + shim + migrate ids + reimplement endpoints) and measure the real cost per module | P1 | Claude | planned | TASK-V2-CONTRACTS | ADR-003 §D3 |
-| TASK-V2-CROSSBIZ | PHASE-V2-REPLACE | task | Ship one genuinely cross-business screen early, proving V2 is not V1 with new plumbing; time-box the useTenant shim | P1 | Claude | planned | TASK-V2-IDENTITY | ADR-003 §D9 |
-| TASK-V2-LASTDATE | PHASE-V2-REPLACE | task | Set and hold the date for the final per-tenant cutover; V1 goes read-only then off | P0 | Owen | planned | TASK-V2-CUTOVER-RULES | ADR-003 §D1 |
+| TASK-V2-IDENTITY | PHASE-V2-REPLACE | task | Identity foundations FR-021/022 are implemented; production web request-session boundary remains (legacy-Employee reconciliation dropped per ADR-024) | P0 | Claude | in-progress | - | ADR-017; ADR-024 |
+| TASK-V2-CONTRACTS | PHASE-V2-REPLACE | task | ~~Record contract tests for legacy endpoints before reimplementing~~ — no endpoint is being reimplemented | P0 | Claude | cancelled (ADR-024) | - | ADR-024 |
+| TASK-V2-LINE-INTENT | PHASE-V2-REPLACE | task | FR-023..029 provide the backend/agent foundations; production consent and deployment gates remain (cutover gate dropped per ADR-024) | P0 | Claude | in-progress | TASK-V2-IDENTITY | ADR-007; ADR-024 |
+| TASK-V2-CUTOVER-RULES | PHASE-V2-REPLACE | task | ~~Single-writer cutover rule per tenant~~ — no cutover will occur | P0 | Owen | cancelled (ADR-024) | - | ADR-024 |
+| TASK-V2-PILOT | PHASE-V2-REPLACE | task | ~~Pilot one lifted module to measure cost~~ — nothing is lifted | P1 | Claude | cancelled (ADR-024) | - | ADR-024 |
+| TASK-V2-CROSSBIZ | PHASE-V2-REPLACE | task | Ship one genuinely cross-business screen early (survives ADR-024 as ordinary product work — no longer tied to any migration) | P1 | Claude | planned | - | ADR-024 |
+| TASK-V2-LASTDATE | PHASE-V2-REPLACE | task | ~~Final per-tenant cutover date~~ — no cutover will occur | P0 | Owen | cancelled (ADR-024) | - | ADR-024 |
 | TASK-FR-045 | PHASE-V2-REPLACE | task | SQLite-authoritative managed local file workspace, Business/Project File Manager, disposable cache and legacy ProjectFile migration | P0 | Codex | done (beta) | ADR-016; ZV2-CR-001 | features/FR-045-managed-local-file-workspace.md; roadmap/PLAN-FR-045-MANAGED-LOCAL-FILE-WORKSPACE.md |
 | TASK-FR-046 | PHASE-V2-REPLACE | task | Trusted request viewer and atomic viewer-scoped `/api/entry` for production-safe Business Routing | P0 | Codex | done | FR-031; FR-044 | ADR-017; features/FR-046-production-viewer-entry-contract.md |
 | TASK-FR-053-054 | PHASE-V2-REPLACE | task | Phase 1 activation readiness: deterministic golden evaluation, live-role isolation probe and dry-run controlled canary plan | P0 | Codex | done (beta; external activation pending) | FR-047..052; ADR-018 | ADR-019; changes/ZV2-CR-005-PHASE1-ACTIVATION-READINESS.md |
