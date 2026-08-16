@@ -1,0 +1,33 @@
+{
+  "version": "1.0.0",
+  "purpose": "Files that spell out three or more members of an enum declared in src/lib/validation/enums.js instead of deriving from it, recorded as accepted debt on 2026-08-17. CLAUDE.md already forbids hand-copying an enum list; this list is what that rule cost before it was enforced. It may only shrink: preflight raises a CRITICAL for any copy not listed here. Never add an entry to silence a new one. An INCOMPLETE copy is the dangerous shape — two independent copies of WORK_STATUSES both dropped CANCELLED, so a work item in that status renders nowhere. See .brain/rca/2026-08-17-a-prose-rule-is-not-a-gate.md",
+  "recorded_at": "2026-08-17",
+  "copies": [
+    "src/app/(pm)/audit/page.jsx::DEPENDENCY_ENDPOINT_TYPES",
+    "src/app/(pm)/audit/page.jsx::WORKSPACE_SCOPE_TYPES",
+    "src/app/(pm)/projects/new/page.jsx::ITEM_SUBTYPES",
+    "src/components/landing/ZuriLanding.jsx::WORKSPACE_SCOPE_TYPES",
+    "src/modules/identity/classify-principal.js::PRINCIPAL_TYPES",
+    "src/modules/project-manager/application/dependency-service.js::DEPENDENCY_ENDPOINT_TYPES",
+    "src/modules/project-manager/application/progress-service.js::GOAL_STATUSES",
+    "src/modules/project-manager/application/progress-service.js::PROJECT_STATUSES",
+    "src/modules/project-manager/application/progress-service.js::WORKSTREAM_STATUSES",
+    "src/modules/project-manager/application/project-dependency-map.js::DEPENDENCY_ENDPOINT_TYPES",
+    "src/modules/project-manager/application/scope-service.js::WORKSPACE_SCOPE_TYPES",
+    "src/modules/project-manager/import/external-ref.js::DEPENDENCY_ENDPOINT_TYPES",
+    "src/modules/project-manager/import/plan-import-service.js::DEPENDENCY_ENDPOINT_TYPES",
+    "src/modules/project-manager/progress/strategies.js::GATE_STATUSES",
+    "src/modules/project-manager/progress/strategies.js::PROGRESS_STRATEGIES",
+    "src/modules/project-manager/progress/strategies.js::WORK_STATUSES",
+    "src/modules/project-manager/views/KanbanBoard.jsx::MILESTONE_STATUSES",
+    "src/modules/project-manager/views/KanbanBoard.jsx::WORK_STATUSES",
+    "src/modules/project-manager/views/execution/mode-bodies.jsx::CONTAINER_SUBTYPES",
+    "src/modules/project-manager/views/execution/mode-bodies.jsx::GATE_STATUSES",
+    "src/modules/project-manager/views/execution/mode-bodies.jsx::ITEM_SUBTYPES",
+    "src/modules/project-manager/views/execution/mode-bodies.jsx::MILESTONE_STATUSES",
+    "src/modules/project-manager/views/execution/mode-bodies.jsx::WORK_STATUSES",
+    "src/modules/project-manager/views/universal/MilestonesView.jsx::GATE_STATUSES",
+    "src/modules/project-manager/views/universal/MilestonesView.jsx::MILESTONE_STATUSES",
+    "src/modules/project-manager/views/universal/MilestonesView.jsx::WORK_STATUSES"
+  ]
+}

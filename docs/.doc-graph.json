@@ -43,9 +43,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/unit/people-service.test.js"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -7378,7 +7376,7 @@
       "type": "test",
       "path": "tests/unit/people-service.test.js",
       "hash": "9bdc2986",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/phase1-business-agent-runtime.test.js",

@@ -484,7 +484,8 @@ const VIEWER_EXEMPT = new Set([
   const introduced = offenders.filter((f) => !known.has(f))
   if (introduced.length) {
     add('critical', 'viewer-fixture', `${introduced.length} test file(s) build a viewer by hand`, introduced.join(', '), introduced,
-      'Use makeViewer()/ownsElsewhere() from tests/factories/viewer.js — never widen .viewer-fixture-baseline.json to silence this')
+      'Use makeViewer()/ownsElsewhere() from tests/factories/viewer.js — never widen .viewer-fixture-baseline.json to silence this. ' +
+      'If this file does NOT build a viewer (a Membership DB row also carries `role:`), fix the heuristic in this script — do not move the code to escape it')
   }
   const repaid = baseline.filter((f) => !offenders.includes(f))
   if (repaid.length) {
@@ -495,6 +496,73 @@ const VIEWER_EXEMPT = new Set([
   if (remaining) {
     add('info', 'viewer-fixture', `${remaining} test file(s) still build viewers by hand (accepted debt)`, `baseline: ${rel(VIEWER_BASELINE)}`, [rel(VIEWER_BASELINE)],
       'Migrate them to the factory; the baseline may only shrink')
+  }
+}
+
+// ---- Check 9: hand-copied enum lists (ratchet) ---------------------------
+// CLAUDE.md already says it: `src/lib/validation/enums.js` is the single source
+// of truth and an enum list is never hand-copied. That was prose, so it was not
+// enforced, and 25 copies accumulated.
+//
+// The cost is not theoretical. `WORK_STATUSES` has seven values; two separate
+// copies — KanbanBoard and the FR-009 execution mode bodies — both spell out
+// six and both drop the same one, `CANCELLED`. A WorkItem in that status renders
+// in no column and appears on no board, silently. Two independent copies losing
+// the *same* value is the signature of a list copied from another copy.
+//
+// This check deliberately does NOT judge whether a given copy is wrong: a subset
+// can be a legitimate filter (terminal statuses, active-only), and a guard that
+// guesses at intent produces false positives, which teach people to restructure
+// code to dodge it rather than fix it. It only refuses NEW copies, against a
+// shrink-only baseline — the same shape as checks 7 and 8.
+const ENUM_BASELINE = path.join(SPEC_PACK, '.enum-copy-baseline.json')
+const ENUM_SOURCE = path.join(ROOT, 'src', 'lib', 'validation', 'enums.js')
+if (existsSync(ENUM_SOURCE)) {
+  const enums = new Map()
+  for (const m of read(ENUM_SOURCE).matchAll(/export const ([A-Z_0-9]+)\s*=\s*\[([^\]]*)\]/g)) {
+    const values = [...m[2].matchAll(/'([^']+)'/g)].map((v) => v[1])
+    // Two shared members is coincidence (many enums share DONE/ACTIVE); three
+    // spelled-out members of one enum in one file is a copy.
+    if (values.length >= 3) enums.set(m[1], values)
+  }
+
+  const offenders = []
+  for (const file of walk(path.join(ROOT, 'src'), '.js').concat(walk(path.join(ROOT, 'src'), '.jsx'))) {
+    if (path.resolve(file) === path.resolve(ENUM_SOURCE)) continue
+    const body = read(file)
+    const literals = new Set([...body.matchAll(/'([A-Z][A-Z_0-9]{2,})'/g)].map((m) => m[1]))
+    for (const [name, values] of enums) {
+      const present = values.filter((v) => literals.has(v))
+      if (present.length < 3) continue
+      const missing = values.filter((v) => !literals.has(v))
+      offenders.push({ key: `${rel(file)}::${name}`, missing })
+    }
+  }
+  offenders.sort((a, b) => a.key.localeCompare(b.key))
+
+  const baseline = existsSync(ENUM_BASELINE) ? JSON.parse(read(ENUM_BASELINE)).copies || [] : []
+  const known = new Set(baseline)
+  const introduced = offenders.filter((o) => !known.has(o.key))
+  if (introduced.length) {
+    add('critical', 'enum-copy', `${introduced.length} hand-copied enum list(s)`,
+      introduced.map((o) => `${o.key}${o.missing.length ? ` (missing ${o.missing.join(', ')})` : ''}`).join(' · '),
+      introduced.map((o) => o.key.split('::')[0]),
+      'Import the list from src/lib/validation/enums.js and derive from it — never widen .enum-copy-baseline.json to silence this. ' +
+      'If these literals are genuinely unrelated to that enum, fix the matcher in this script — do not rename the values to escape it')
+  }
+  const currentKeys = new Set(offenders.map((o) => o.key))
+  const repaid = baseline.filter((k) => !currentKeys.has(k))
+  if (repaid.length) {
+    add('info', 'enum-copy', `${repaid.length} baseline entr(ies) no longer copy an enum`, repaid.join(', '), [rel(ENUM_BASELINE)],
+      'Remove them from .enum-copy-baseline.json so the ratchet keeps its ground')
+  }
+  const remaining = offenders.length - introduced.length
+  if (remaining) {
+    const incomplete = offenders.filter((o) => known.has(o.key) && o.missing.length)
+    add('info', 'enum-copy', `${remaining} hand-copied enum list(s) remain (accepted debt)`,
+      `${incomplete.length} of them are INCOMPLETE copies — those are the ones that silently drop a value: ${incomplete.slice(0, 6).map((o) => `${o.key} missing ${o.missing.join('/')}`).join(' · ')}`,
+      [rel(ENUM_BASELINE)],
+      'Derive from enums.js; the baseline may only shrink')
   }
 }
 

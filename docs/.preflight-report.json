@@ -9,7 +9,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 14,
+    "info": 15,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -167,6 +167,17 @@
         "docs/.route-anchor-baseline.json"
       ],
       "action": "Annotate them as their FRs get declared; the baseline may only shrink"
+    },
+    {
+      "id": "I15",
+      "severity": "info",
+      "check": "enum-copy",
+      "title": "26 hand-copied enum list(s) remain (accepted debt)",
+      "details": "12 of them are INCOMPLETE copies — those are the ones that silently drop a value: src/app/(pm)/projects/new/page.jsx::ITEM_SUBTYPES missing BUG/VALIDATION/RECONCILIATION/ACCOUNT/ACTIVITY/AUDIENCE/EXPERIMENT/ISSUE/SLA/APPROVAL · src/modules/project-manager/application/progress-service.js::GOAL_STATUSES missing PLANNED · src/modules/project-manager/application/progress-service.js::PROJECT_STATUSES missing PLANNED/ON_HOLD · src/modules/project-manager/application/progress-service.js::WORKSTREAM_STATUSES missing PLANNED/ON_HOLD · src/modules/project-manager/progress/strategies.js::GATE_STATUSES missing OPEN · src/modules/project-manager/progress/strategies.js::WORK_STATUSES missing PLANNED/READY/IN_PROGRESS/REVIEW",
+      "files": [
+        "docs/.enum-copy-baseline.json"
+      ],
+      "action": "Derive from enums.js; the baseline may only shrink"
     }
   ]
 }
