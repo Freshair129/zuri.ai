@@ -10,7 +10,7 @@ source: v2-native
 | Field | Value |
 |---|---|
 | **Version** | 1.0.0 |
-| **Status** | Declared |
+| **Status** | Implemented |
 | **Date** | 2026-08-17 |
 | **Relates to** | FR-031 (viewer gate), FR-038 (permissions), SDD-017, SDD-034, SEC-008 |
 | **Incident** | [.brain/rca/2026-08-16-global-role-is-not-per-business-authority.md](../../../../.brain/rca/2026-08-16-global-role-is-not-per-business-authority.md) — instance 3 |
@@ -101,6 +101,24 @@ domainsForBusiness(viewer, businessId) // → string[]
 must still land somewhere after choosing a Business. `isDomainVisible` keeps
 that rule, so it is honoured identically by the bar and the guard whichever
 allow-list is passed in.
+
+## Decision 4 — "not loaded yet" is not a denial
+
+Found by running it, not by reading it. The first implementation had `DomainBar`
+call `domainsForBusiness(viewer.data, businessId)` unconditionally. While
+`/api/viewer` was in flight `viewer.data` is `undefined`, the helper correctly
+failed closed, and the bar collapsed to Business Home for several seconds —
+every click had to wait the fetch out. It turned an e2e navigation into a 10s
+timeout, and a diagnostic run reported `DEVELOPMENT LINKS 0`.
+
+The helper is right to fail closed; the caller was wrong to ask early. The bar
+asks only once it has a viewer and stays unfiltered until then, which is exactly
+what it did before FR-061. The bar is chrome — the guard is what denies, and it
+does not render children until the viewer has resolved.
+
+Worth keeping as a general point: a fail-closed default is a property of the
+*answer*, not of the *question being asked at the wrong time*. Pushing the
+"unknown" case into the caller is what keeps the two from being confused.
 
 ## Out of scope
 

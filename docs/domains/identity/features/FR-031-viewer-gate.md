@@ -20,8 +20,14 @@ source: v2-native
 and the business-centric shell. It returns:
 
 ```js
-{ principal, role, visibleBusinessIds, visibleDomains, isPlatform }
+{ principal, role, visibleBusinessIds, ownedBusinessIds, domainsByBusinessId, visibleDomains, isPlatform }
 ```
+
+Two fields were added after this slice, both because `role` and `visibleDomains`
+are *per-principal* answers that consumers read as *per-Business* ones:
+`ownedBusinessIds` (FR-059) and `domainsByBusinessId` (FR-061). See
+[FR-061](FR-061-per-business-domain-visibility.md) and the
+[incident](../../../../.brain/rca/2026-08-16-global-role-is-not-per-business-authority.md).
 
 The resolver does not add authentication, new persistence, or UI guards in this slice.
 Those consumers are introduced by the later Home and permissions steps.
