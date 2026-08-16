@@ -1,0 +1,11 @@
+{
+  "version": "1.0.0",
+  "purpose": "Test files that build a viewer object by hand instead of using tests/factories/viewer.js, recorded as accepted debt on 2026-08-17. This list may only shrink: preflight raises a CRITICAL for any file not listed here. Never add an entry to silence a new test — use makeViewer()/ownsElsewhere() instead. Hand-built viewers are how three authorization holes shipped with a green suite; see .brain/rca/2026-08-16-global-role-is-not-per-business-authority.md",
+  "recorded_at": "2026-08-17",
+  "files": [
+    "tests/fixtures/fr046-entry-contract.js",
+    "tests/integration/fr059-business-strategy-mutation.test.js",
+    "tests/unit/people-service.test.js",
+    "tests/unit/profile-permission-service.test.js"
+  ]
+}

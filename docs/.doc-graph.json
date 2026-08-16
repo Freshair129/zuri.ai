@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 673,
+    "total_nodes": 675,
     "total_edges": 1821,
     "dangling_edges": 0,
     "node_types": {
@@ -16,7 +16,7 @@
       "route": 96,
       "model": 33,
       "requirement": 135,
-      "test": 127,
+      "test": 129,
       "code_file": 164
     },
     "coverage": {
@@ -41,18 +41,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/e2e/fr041-business-first.spec.js",
-      "test:tests/e2e/fr044-entry-routing.spec.js",
-      "test:tests/e2e/fr045-files.spec.js",
-      "test:tests/e2e/fr058-file-views.spec.js",
-      "test:tests/e2e/smoke.spec.js",
-      "test:tests/unit/fr060-business-home-read-model.test.js",
-      "code:src/modules/business/application/business-home-read-model.js"
-    ],
-    "added": [
-      "test:tests/e2e/fr060-business-home.spec.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -2098,7 +2088,7 @@
       "type": "code_file",
       "path": "src/modules/business/application/business-home-read-model.js",
       "hash": "851d4d73",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-060"
@@ -6545,21 +6535,21 @@
       "type": "test",
       "path": "tests/e2e/fr041-business-first.spec.js",
       "hash": "89554963",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr044-entry-routing.spec.js",
       "type": "test",
       "path": "tests/e2e/fr044-entry-routing.spec.js",
       "hash": "575da088",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr045-files.spec.js",
       "type": "test",
       "path": "tests/e2e/fr045-files.spec.js",
       "hash": "e9721d81",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr046-entry-contract.spec.js",
@@ -6573,7 +6563,7 @@
       "type": "test",
       "path": "tests/e2e/fr058-file-views.spec.js",
       "hash": "65dc161b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr059-strategy-edit.spec.js",
@@ -6594,7 +6584,7 @@
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
       "hash": "0e1746e5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/adaptive-shell.test.js",
@@ -6839,6 +6829,13 @@
       "type": "test",
       "path": "tests/unit/activation-readiness-integration.test.js",
       "hash": "d901fad4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/assert-tests-ran.test.js",
+      "type": "test",
+      "path": "tests/unit/assert-tests-ran.test.js",
+      "hash": "6dec444d",
       "status": "current"
     },
     {
@@ -7091,7 +7088,7 @@
       "type": "test",
       "path": "tests/unit/fr060-business-home-read-model.test.js",
       "hash": "4f6f2953",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr060-business-home-visibility.test.js",
@@ -7399,6 +7396,13 @@
       "type": "test",
       "path": "tests/unit/topbar-no-dropdown.test.js",
       "hash": "7fbe6b01",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/viewer-factory-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/viewer-factory-contract.test.js",
+      "hash": "37941b43",
       "status": "current"
     },
     {
