@@ -56,7 +56,7 @@ contracts/                JSON Schema + sample envelopes
 ```bash
 npm run dev            # dev server (use the preview tool, not a raw shell, when available)
 npm run build          # production build — must stay clean
-npm test               # Vitest: unit + integration (isolated prisma/test.db)
+npm test               # Vitest: unit + integration (own SQLite db per run, prisma/.test-dbs/)
 npm run test:e2e       # Playwright against the dev server on :3100
 npm run db:seed        # idempotent demo data   |  db:reset = drop + reseed
 npm run docs:graph     # rebuild docs/.doc-graph.json + Appendix D from the filesystem

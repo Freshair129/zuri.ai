@@ -3,6 +3,7 @@ node_modules/
 .next-stale-*/
 *.db
 *.db-journal
+prisma/.test-dbs/
 test-results/
 playwright-report/
 .playwright-cli/

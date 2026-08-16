@@ -36,7 +36,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "test:tests/unit/test-database-reset.test.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -6368,8 +6370,8 @@
       "id": "test:tests/unit/test-database-reset.test.js",
       "type": "test",
       "path": "tests/unit/test-database-reset.test.js",
-      "hash": "ed7f860d",
-      "status": "current"
+      "hash": "7140c1f8",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/topbar-no-dropdown.test.js",
