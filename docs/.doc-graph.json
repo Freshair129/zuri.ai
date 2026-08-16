@@ -3,36 +3,40 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 685,
-    "total_edges": 1876,
+    "total_nodes": 690,
+    "total_edges": 1879,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 62,
+      "document": 64,
       "adr": 26,
       "domain": 5,
       "roadmap": 21,
       "feature": 2,
       "route": 96,
       "model": 33,
-      "requirement": 139,
+      "requirement": 142,
       "test": 132,
       "code_file": 165
     },
     "coverage": {
-      "requirements": 139,
+      "requirements": 142,
       "fr_with_code": "100% (62/62)",
       "fr_with_tests": "100% (62/62)",
-      "rules_anchored_in_code": "92% (58/63)",
+      "rules_anchored_in_code": "91% (58/64)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 165,
-      "fr_planned": [],
+      "fr_planned": [
+        "FR-063",
+        "FR-064"
+      ],
       "fr_without_code": [],
       "fr_without_tests": [],
       "rules_without_anchor": [
         "SDD-001",
         "SDD-008",
         "SDD-013",
+        "SDD-036",
         "SEC-004",
         "SEC-005"
       ]
@@ -40,8 +44,7 @@
   },
   "drift": {
     "changed": [
-      "doc:FR-062-permissions-read-scope",
-      "doc:PRD-SDD-v1.0"
+      "test:tests/unit/people-service.test.js"
     ],
     "added": [],
     "removed": []
@@ -3728,7 +3731,27 @@
       "version": "1.0.0",
       "doc_status": "Implemented",
       "hash": "ef2968e7",
-      "status": "changed"
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-063-project-board",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-063-project-board.md",
+      "title": "FR-063: Project Board",
+      "version": "1.0.0",
+      "doc_status": "Declared — implementation predates the requirement and does not yet satisfy it",
+      "hash": "68e8933f",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-064-schedule-timeline",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-064-schedule-timeline.md",
+      "title": "FR-064: Schedule",
+      "version": "1.0.0",
+      "doc_status": "Declared — describes behaviour already shipped; awaiting its code anchor",
+      "hash": "dd77f96a",
+      "status": "current"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -3935,8 +3958,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.45.0b",
       "doc_status": "Draft",
-      "hash": "9677ef09",
-      "status": "changed"
+      "hash": "648b785f",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -4560,7 +4583,7 @@
       "id": "req:FR-005",
       "type": "requirement",
       "family": "FR",
-      "label": "Neutral work model: WorkContainer (ลำดับชั้น) + WorkItem (weight/value/probability/metrics)",
+      "label": "Neutral work model: WorkContainer (ลำดับชั้น) + WorkItem (weight/value/probability/metrics), browsed and status-edited at Development → All Work, both **global and project-scoped** (same view, different filter)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -4569,7 +4592,7 @@
       "id": "req:FR-006",
       "type": "requirement",
       "family": "FR",
-      "label": "Milestones + Gates (weighted, required flag, evidence JSON)",
+      "label": "Milestones + Gates (weighted, required flag, evidence JSON), browsed and status-edited at Development → Milestones & Gates, both **global and project-scoped**",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -4578,7 +4601,7 @@
       "id": "req:FR-007",
       "type": "requirement",
       "family": "FR",
-      "label": "Dependencies 5 ชนิด, กัน self/cycle, ประเมิน blocked/ready",
+      "label": "Dependencies 5 ชนิด, กัน self/cycle, ประเมิน blocked/ready — created, listed and deleted at the cross-project register Development → Dependencies. (The project-local Dependency **Map** is a separate read view, FR-040.)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -5079,6 +5102,24 @@
       "status": "current"
     },
     {
+      "id": "req:FR-063",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Project Board: the project-local Work tab renders that Project's WorkItems as a status board — **one column per value of `WORK_STATUSES`**, derived from `src/lib/validation/enums.js` rather than a hand-written list, so no status can exist that the board silently drops. Opening a card opens the existing Workpackage editor; the board itself persists nothing — no column, order or card position is stored, and every status change goes through the FR-005 services.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
+      "id": "req:FR-064",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Schedule: Project and Milestone dates render as a derived month-grid timeline, available **global and project-scoped** (the same view under a different filter, mirroring FR-009). Bars come from `Project.startAt`/`targetAt`, markers from `Milestone.targetAt`. It is read-only and non-owning: nothing is persisted, no date is editable from this view, and a Project or Milestone with no dates simply does not render a bar.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -5370,7 +5411,7 @@
       "id": "req:SDD-019",
       "type": "requirement",
       "family": "SDD",
-      "label": "`ProjectTabs` is the project-local boundary. Its `Work` tab owns `Structure Plan`, `Board`, `Schedule`, and `Dependency Map`. The map is a read model built from existing Dependency records and project-owned endpoints only; it never becomes a Development sidebar item, a shell scope, or a new persisted aggregate.",
+      "label": "`ProjectTabs` is the project-local boundary. Its `Work` tab owns `Structure Plan`, `Board`, `Schedule`, and `Dependency Map`. The map is a read model built from existing Dependency records and project-owned endpoints only; it never becomes a Development sidebar item, a shell scope, or a new persisted aggregate. **`Board` and `Schedule` are declared by FR-063 and FR-064**: this design decision asserted the tab owned four sub-views while its FR-040 stated only two, so two of the four shipped with no requirement behind them.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -5515,6 +5556,15 @@
       "type": "requirement",
       "family": "SDD",
       "label": "An administration surface derives its read scope from the **same** field its write path authorizes on. `listUserPermissions` filters on `ownedBusinessIds`, which is exactly what `assertMembershipBusinessOwned` checks, so a row that would 404 on save cannot be listed as editable in the first place. Tenant-wide rows are the one deliberate exception — unmanageable here by design, yet shown because a hidden tenant-wide grant is worse than a read-only one — so the server, not the client, states `manageable` per row. Cross-scope inclusion is never a bare `OR` on a nullable column: `businessId: null` is scoped by the caller's owned tenant ids.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-036",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Board and Schedule are **derived views over models other requirements already own** — WorkItem (FR-005), Project (FR-003), Milestone (FR-006). Neither introduces a persisted aggregate, an ordering column, or a second write path: a card opens the existing editor, and a bar is computed from dates the owning model already stores. Where such a view enumerates a vocabulary it does not own, it derives that vocabulary from `src/lib/validation/enums.js` — a hand-copied list is how a status ends up with nowhere to render.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -6781,7 +6831,7 @@
       "id": "test:tests/integration/fr059-business-strategy-mutation.test.js",
       "type": "test",
       "path": "tests/integration/fr059-business-strategy-mutation.test.js",
-      "hash": "7248f331",
+      "hash": "4f5127bd",
       "status": "current"
     },
     {
@@ -7327,8 +7377,8 @@
       "id": "test:tests/unit/people-service.test.js",
       "type": "test",
       "path": "tests/unit/people-service.test.js",
-      "hash": "85b22003",
-      "status": "current"
+      "hash": "9bdc2986",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/phase1-business-agent-runtime.test.js",
@@ -12583,6 +12633,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-063",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-064",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -12920,6 +12984,13 @@
     },
     {
       "from": "req:SDD-035",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-036",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",

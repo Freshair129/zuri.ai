@@ -36,21 +36,21 @@
 - **Follows:** BR-001, BR-004, SDD-004, SDD-021, SEC-001
 - **Tests:** `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js`
 
-### FR-005 — Neutral work model: WorkContainer (ลำดับชั้น) + WorkItem (weight/value/probability/metrics)
+### FR-005 — Neutral work model: WorkContainer (ลำดับชั้น) + WorkItem (weight/value/probability/metrics), browsed and status-edited at Development → All Work, both **global and project-scoped** (same view, different filter)
 
 - **Status:** done
 - **Code:** `src/modules/project-manager/application/work-service.js`
 - **Follows:** —
 - **Tests:** `tests/integration/project-core.test.js`
 
-### FR-006 — Milestones + Gates (weighted, required flag, evidence JSON)
+### FR-006 — Milestones + Gates (weighted, required flag, evidence JSON), browsed and status-edited at Development → Milestones & Gates, both **global and project-scoped**
 
 - **Status:** done
 - **Code:** `src/modules/project-manager/application/milestone-gate-service.js`
 - **Follows:** —
 - **Tests:** `tests/integration/project-core.test.js`
 
-### FR-007 — Dependencies 5 ชนิด, กัน self/cycle, ประเมิน blocked/ready
+### FR-007 — Dependencies 5 ชนิด, กัน self/cycle, ประเมิน blocked/ready — created, listed and deleted at the cross-project register Development → Dependencies. (The project-local Dependency **Map** is a separate read view, FR-040.)
 
 - **Status:** done
 - **Code:** `src/modules/project-manager/application/dependency-service.js`
@@ -470,3 +470,17 @@
 - **Code:** `src/app/(pm)/platform/users/page.jsx` · `src/modules/identity/profile-permission-service.js`
 - **Follows:** BR-001, FR-038, SDD-017, SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md, SDD-035, SEC-001, SEC-003
 - **Tests:** `tests/unit/fr062-permissions-read-scope.test.js` · `tests/unit/profile-permission-service.test.js`
+
+### FR-063 — Project Board: the project-local Work tab renders that Project's WorkItems as a status board — **one column per value of `WORK_STATUSES`**, derived from `src/lib/validation/enums.js` rather than a hand-written list, so no status can exist that the board silently drops. Opening a card opens the existing Workpackage editor; the board itself persists nothing — no column, order or card position is stored, and every status change goes through the FR-005 services.
+
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
+
+### FR-064 — Schedule: Project and Milestone dates render as a derived month-grid timeline, available **global and project-scoped** (the same view under a different filter, mirroring FR-009). Bars come from `Project.startAt`/`targetAt`, markers from `Milestone.targetAt`. It is read-only and non-owning: nothing is persisted, no date is editable from this view, and a Project or Milestone with no dates simply does not render a bar.
+
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
