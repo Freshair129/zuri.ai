@@ -8,9 +8,14 @@ import { readFileSync, writeFileSync, readdirSync, statSync, existsSync, mkdirSy
 import { execFileSync } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { stripTrailingNulls, interiorNullCount } from './canonical-text.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const DEST = path.resolve(ROOT, '..', 'docs', 'v1-inherited')
+// ROOT is the repository root. Before the 2026-08-12 flatten the app lived in
+// zuri-v2-lab/, so ROOT was that directory and the mirror was one level up; the
+// flatten moved this file without dropping the `..`, which pointed DEST outside
+// the repository entirely and made `npm run docs:import-v1` a no-op on the mirror.
+const DEST = path.resolve(ROOT, 'docs', 'v1-inherited')
 const argv = process.argv.slice(2)
 const SOURCE = argv.includes('--source') ? argv[argv.indexOf('--source') + 1] : 'G:/zuri'
 const DRY = argv.includes('--dry')
@@ -68,18 +73,38 @@ if (DRY) {
 if (existsSync(DEST)) rmSync(DEST, { recursive: true })
 mkdirSync(DEST, { recursive: true })
 
+/**
+ * The mirror is a faithful copy, so it inherits whatever V1 left in a file — and
+ * V1's product/roadmap/timeline.md ends in 22 NUL bytes. Git scans the whole
+ * buffer when guessing text vs binary, so that one run made a plain markdown file
+ * the single tracked document git called binary. Trailing NULs are padding, not
+ * content; dropping them changes nothing anyone reads. It is reported rather than
+ * done silently, because the artifact belongs upstream and someone should know
+ * the mirror is not byte-identical there.
+ */
+function sanitize(text, relPath) {
+  const cleaned = stripTrailingNulls(text)
+  const dropped = text.length - cleaned.length
+  if (dropped) console.log(`  stripped ${dropped} trailing NUL byte(s) — upstream artifact in ${relPath}`)
+  const interior = interiorNullCount(cleaned)
+  if (interior) console.warn(`  WARNING: ${interior} NUL byte(s) inside ${relPath} — left in place, check the source`)
+  return cleaned
+}
+
 let bytes = 0
 for (const file of files) {
   const relPath = path.relative(SOURCE, file).split(path.sep).join('/')
   const target = path.join(DEST, path.relative(docsDir, file))
   mkdirSync(path.dirname(target), { recursive: true })
-  const body = banner(relPath, commit) + readFileSync(file, 'utf8')
+  const body = banner(relPath, commit) + sanitize(readFileSync(file, 'utf8'), relPath)
   writeFileSync(target, body)
   bytes += body.length
 }
 for (const file of extras) {
   const name = path.basename(file)
-  const body = `# ADR-005: imported from Zuri V1 (${SOURCE}/${name} @ ${commit}) — DO NOT EDIT\n` + readFileSync(file, 'utf8')
+  const body =
+    `# ADR-005: imported from Zuri V1 (${SOURCE}/${name} @ ${commit}) — DO NOT EDIT\n` +
+    sanitize(readFileSync(file, 'utf8'), name)
   writeFileSync(path.join(DEST, name), body)
   bytes += body.length
 }
@@ -122,4 +147,4 @@ in \`../replacement/PARITY-INVENTORY.md\` — not upfront.
 )
 
 console.log(`imported ${manifest.files} files (${(bytes / 1024 / 1024).toFixed(1)} MB) from ${SOURCE} @ ${commit}`)
-console.log(`→ ${path.relative(path.resolve(ROOT, '..'), DEST)}`)
+console.log(`→ ${path.relative(ROOT, DEST).split(path.sep).join('/')}`)

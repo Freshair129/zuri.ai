@@ -18,3 +18,20 @@ export function normalizeNewlines(text) {
 export function readCanonical(filePath) {
   return normalizeNewlines(readFileSync(filePath, 'utf8'))
 }
+
+/**
+ * Drop NUL bytes padding the end of a text file. They are not document content —
+ * they are what a tool that pads to a block boundary or truncates a write leaves
+ * behind — but git's binary auto-detection scans the whole buffer, so a single
+ * trailing run makes it classify a markdown file as binary. Only the trailing run
+ * is removed; a NUL in the middle means something is genuinely wrong with the file
+ * and must stay visible.
+ */
+export function stripTrailingNulls(text) {
+  return text.replace(/\0+$/, '')
+}
+
+/** How many NUL bytes remain once the trailing run is gone — always expect zero. */
+export function interiorNullCount(text) {
+  return (stripTrailingNulls(text).match(/\0/g) || []).length
+}

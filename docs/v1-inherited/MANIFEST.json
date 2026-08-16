@@ -2,9 +2,9 @@
   "importedBy": "scripts/import-v1-docs.mjs (ADR-005)",
   "source": "G:/zuri",
   "sourceCommit": "0b6d3c3",
-  "importedAt": "2026-08-11T22:42:55.626Z",
+  "importedAt": "2026-08-16T02:33:01.060Z",
   "files": 234,
-  "bytes": 2031513,
+  "bytes": 2031491,
   "readOnly": true,
   "note": "Mirror of V1 product documentation. Evidence, not authority. Re-sync before each module cutover; never edit in place."
 }

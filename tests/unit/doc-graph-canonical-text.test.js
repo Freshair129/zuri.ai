@@ -3,7 +3,12 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { createHash } from 'node:crypto'
-import { normalizeNewlines, readCanonical } from '../../scripts/canonical-text.mjs'
+import {
+  normalizeNewlines,
+  readCanonical,
+  stripTrailingNulls,
+  interiorNullCount,
+} from '../../scripts/canonical-text.mjs'
 
 // @req docs governance — a file's identity in the doc graph must describe its
 // content, not how git materialized it on this checkout (core.autocrlf).
@@ -47,6 +52,21 @@ describe('canonical text reader (doc governance)', () => {
   it('leaves a lone carriage return alone (only \\r\\n pairs are line endings)', () => {
     expect(normalizeNewlines('a\rb')).toBe('a\rb')
     expect(normalizeNewlines('a\r\nb')).toBe('a\nb')
+  })
+
+  it('drops NUL padding at the end of a file', () => {
+    // V1's product/roadmap/timeline.md ends in 22 of them. Git scans the whole
+    // buffer when guessing text vs binary, so that one run made a markdown file
+    // the only tracked document git classified as binary.
+    expect(stripTrailingNulls('# Title\n' + '\0'.repeat(22))).toBe('# Title\n')
+    expect(stripTrailingNulls('# Title\n')).toBe('# Title\n')
+  })
+
+  it('leaves a NUL in the middle alone — that is a damaged file, not padding', () => {
+    const damaged = 'before\0after\n'
+    expect(stripTrailingNulls(damaged)).toBe(damaged)
+    expect(interiorNullCount(damaged)).toBe(1)
+    expect(interiorNullCount('# Title\n' + '\0'.repeat(22))).toBe(0)
   })
 
   it('keeps line-anchored captures free of trailing \\r', () => {
