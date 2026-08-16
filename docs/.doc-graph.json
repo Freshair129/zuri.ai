@@ -37,9 +37,7 @@
   },
   "drift": {
     "changed": [],
-    "added": [
-      "test:tests/unit/prisma-generate-gate.test.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
