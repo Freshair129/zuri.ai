@@ -1,0 +1,134 @@
+# Line-ending policy.
+#
+# The repository stores text as LF and checks it out as LF. Both halves are
+# declared here so neither depends on a contributor's `core.autocrlf`.
+#
+# Why LF in the working tree and not the Windows-native CRLF: every generator in
+# scripts/ writes LF (`writeFileSync` with \n) — the doc graph, Appendix D,
+# FEATURE-MAP, the preflight report, the Postgres schema, the v1-inherited
+# mirror — and the doc tooling's canonical form is LF too
+# (scripts/canonical-text.mjs). Against a CRLF checkout those files land smaller
+# than the index's cached stat, so git reports them modified forever while
+# `git diff` stays empty. Making the checkout form match what the tools write
+# removes that mismatch by construction rather than papering over it. The two
+# script types that genuinely need CRLF are pinned below.
+#
+# Background: .brain/rca/2026-08-16-doc-graph-line-ending-hash-drift.md and
+# .brain/rca/2026-08-14-business-knowledge-export-hash-newline.md.
+
+# Default: let git classify text vs binary; normalize text to LF in the
+# repository and check it out as LF. Later lines override per attribute, so
+# eol=lf holds for everything below unless a line restates it.
+* text=auto eol=lf
+
+# ---------------------------------------------------------------------------
+# Text — declared so the auto heuristic is never consulted for a format this
+# repository actually carries.
+# ---------------------------------------------------------------------------
+*.js        text
+*.jsx       text
+*.mjs       text
+*.cjs       text
+*.ts        text
+*.tsx       text
+*.json      text
+*.jsonl     text
+*.md        text
+*.css       text
+*.html      text
+*.svg       text
+*.sql       text
+*.prisma    text
+*.py        text
+*.yml       text
+*.yaml      text
+*.toml      text
+*.txt       text
+*.example   text
+.gitignore  text
+.gitattributes text
+
+# ---------------------------------------------------------------------------
+# Pinned to CRLF — the on-disk form is load-bearing.
+# ---------------------------------------------------------------------------
+# cmd.exe reads a batch file line by line while it executes it, so an LF-only
+# script can mis-parse labels, `goto` and multi-line blocks. run.bat is the
+# double-click entry point for the app; it must always materialize as CRLF.
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+
+# PowerShell parses LF-only scripts correctly in both 5.1 and 7, so this pin is
+# for consistency rather than correctness: every .ps1 here is Windows-only
+# operator tooling invoked through powershell.exe alongside run.bat, and it is
+# the one place a contributor might reasonably expect Windows-native endings.
+*.ps1       text eol=crlf
+
+# ---------------------------------------------------------------------------
+# Pinned to LF — CRLF breaks the shebang (`/usr/bin/env bash\r`).
+# ---------------------------------------------------------------------------
+*.sh        text eol=lf
+*.bash      text eol=lf
+
+# ---------------------------------------------------------------------------
+# Never converted — byte-exact artifacts git must not rewrite.
+# ---------------------------------------------------------------------------
+# Trust anchors. PEM is technically text, but a pinned CA is an exact artifact —
+# scripts/supabase-tls.mjs fingerprints it — and git has no business touching
+# its bytes.
+certs/**        -text
+config/certs/** -text
+*.crt       -text
+*.pem       -text
+*.cer       -text
+*.key       -text
+*.der       binary
+*.pfx       binary
+*.p12       binary
+
+# Images
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.bmp       binary
+*.webp      binary
+*.avif      binary
+*.ico       binary
+
+# Fonts
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.otf       binary
+*.eot       binary
+
+# Documents and spreadsheets
+*.pdf       binary
+*.xls       binary
+*.xlsx      binary
+*.doc       binary
+*.docx      binary
+*.ppt       binary
+*.pptx      binary
+
+# Archives, databases, native modules and media
+*.zip       binary
+*.gz        binary
+*.tgz       binary
+*.bz2       binary
+*.7z        binary
+*.rar       binary
+*.db        binary
+*.db-journal binary
+*.sqlite    binary
+*.sqlite3   binary
+*.node      binary
+*.dll       binary
+*.exe       binary
+*.so        binary
+*.dylib     binary
+*.wasm      binary
+*.mp4       binary
+*.webm      binary
+*.mp3       binary
+*.wav       binary
