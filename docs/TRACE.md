@@ -283,8 +283,8 @@
 - **Status:** done
 - **Surface:** `/platform/users` (page) · `/profile` (page) · `/api/platform/users` (api) · `/api/profile` (api)
 - **Code:** `src/app/(pm)/platform/users/page.jsx` · `src/app/(pm)/profile/page.jsx` · `src/app/api/platform/users/route.js` · `src/app/api/profile/route.js` · `src/components/layouts/DomainBar.jsx` · `src/modules/identity/profile-permission-service.js` · `src/modules/identity/resolve-viewer.js`
-- **Follows:** ADR-008 §D4, docs/features/FR-031-viewer-gate.md, FR-031, FR-038, SDD-017, SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md, SDD-017, docs/features/FR-038-profile-and-permissions.md, SDD-024, SDD-034, SEC-003, SEC-008
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/profile-permission-service.test.js` · `tests/unit/viewer-gate.test.js`
+- **Follows:** ADR-008 §D4, docs/features/FR-031-viewer-gate.md, BR-001, FR-031, FR-038, SDD-017, SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md, SDD-017, docs/features/FR-038-profile-and-permissions.md, SDD-024, SDD-034, SDD-035, SEC-001, SEC-003, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/fr062-permissions-read-scope.test.js` · `tests/unit/profile-permission-service.test.js` · `tests/unit/viewer-gate.test.js`
 
 ### FR-039 — The Base Context Bar maps `Portfolio > Tenant > Business` to `Workspace > Organization > Business` and stops global shell scope at Business. Schema Workspace and Project are Development resources, not shell or sidebar parents; Organization is a UI label for Tenant, whose UUID and isolation semantics remain unchanged.
 
@@ -462,3 +462,11 @@
 - **Code:** `src/components/layouts/DomainBar.jsx` · `src/lib/business-shell-guard.js` · `src/modules/identity/resolve-viewer.js` · `src/modules/identity/viewer-domains.js`
 - **Follows:** ADR-008 §D4, docs/features/FR-031-viewer-gate.md, FR-031, FR-038, SDD-017, SDD-017, docs/features/FR-038-profile-and-permissions.md, SDD-022, SDD-034, SEC-008
 - **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/unit/business-shell-guard.test.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/profile-permission-service.test.js` · `tests/unit/viewer-gate.test.js`
+
+### FR-062 — Users & Permissions read scope: `GET /api/platform/users` returns only Memberships the caller may actually administer — those whose Business is in `viewer.ownedBusinessIds` — so the list can no longer disagree with the authority `updateUserPermissions` enforces. Tenant-wide Memberships (`businessId: null`) are returned **only for tenants where the caller owns a Business**, never unconditionally, and each row carries a server-decided `manageable` flag; the client renders a non-manageable row read-only rather than inferring editability itself. The response carries no field the surface does not display — `Person.email` is dropped.
+
+- **Status:** done
+- **Surface:** `/platform/users` (page)
+- **Code:** `src/app/(pm)/platform/users/page.jsx` · `src/modules/identity/profile-permission-service.js`
+- **Follows:** BR-001, FR-038, SDD-017, SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md, SDD-035, SEC-001, SEC-003
+- **Tests:** `tests/unit/fr062-permissions-read-scope.test.js` · `tests/unit/profile-permission-service.test.js`

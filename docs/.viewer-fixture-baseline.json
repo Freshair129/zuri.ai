@@ -5,7 +5,6 @@
   "files": [
     "tests/fixtures/fr046-entry-contract.js",
     "tests/integration/fr059-business-strategy-mutation.test.js",
-    "tests/unit/people-service.test.js",
-    "tests/unit/profile-permission-service.test.js"
+    "tests/unit/people-service.test.js"
   ]
 }

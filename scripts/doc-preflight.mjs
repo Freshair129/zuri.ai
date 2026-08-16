@@ -451,7 +451,15 @@ const VIEWER_EXEMPT = new Set([
   for (const file of walk(path.join(ROOT, 'tests'), '.js')) {
     const relative = rel(file)
     if (VIEWER_EXEMPT.has(relative)) continue
-    const lines = read(file).split('\n')
+    // Comments are stripped before matching. A viewer literal's fields appear
+    // in code; prose about them does not build one. Without this, a file that
+    // had genuinely been repaid to use the factory still tripped the check,
+    // because a comment *explaining* the old hand-built shape sat within ten
+    // lines of an unrelated `role:` in a mutation payload — which teaches the
+    // next person to delete the explanation rather than fix the fixture.
+    const lines = read(file)
+      .split('\n')
+      .map((line) => line.replace(/\/\/.*$/, '').replace(/^\s*\*.*$/, ''))
     // Proximity, not parsing: a `role:` within ten lines of a resolver-only
     // field is a viewer literal in every real occurrence in this repository.
     const hit = lines.some((line, i) =>

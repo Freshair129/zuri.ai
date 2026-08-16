@@ -42,7 +42,18 @@ module.exports = defineConfig({
   // ran clean twice at --retries=0, both at default workers and at --workers=1.
   // If cold-compile flakes reappear, the fix is a warm-up step, not re-hiding
   // them behind a silent retry.
+  //
+  // They did reappear the same day, under load — three specs in one run, all
+  // "Timed out waiting for toHaveURL", none related to the change under test,
+  // and a control run on the unchanged tree flaked too. So: the warm-up project
+  // below, as promised, rather than a longer expect timeout.
   retries: 1,
+  projects: [
+    { name: 'warmup', testMatch: /warmup\.setup\.js/ },
+    // Every spec waits for the warm-up, so no test is the one that pays for a
+    // cold compile. `webServer.url` only ever warmed /overview.
+    { name: 'e2e', dependencies: ['warmup'], testMatch: /.*\.spec\.js/ },
+  ],
   use: {
     baseURL: 'http://localhost:3100',
     headless: true,

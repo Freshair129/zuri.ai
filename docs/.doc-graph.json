@@ -3,27 +3,27 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 680,
-    "total_edges": 1854,
+    "total_nodes": 685,
+    "total_edges": 1876,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 61,
+      "document": 62,
       "adr": 26,
       "domain": 5,
       "roadmap": 21,
       "feature": 2,
       "route": 96,
       "model": 33,
-      "requirement": 137,
-      "test": 130,
+      "requirement": 139,
+      "test": 132,
       "code_file": 165
     },
     "coverage": {
-      "requirements": 137,
-      "fr_with_code": "100% (61/61)",
-      "fr_with_tests": "100% (61/61)",
-      "rules_anchored_in_code": "92% (57/62)",
+      "requirements": 139,
+      "fr_with_code": "100% (62/62)",
+      "fr_with_tests": "100% (62/62)",
+      "rules_anchored_in_code": "92% (58/63)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 165,
       "fr_planned": [],
@@ -40,7 +40,8 @@
   },
   "drift": {
     "changed": [
-      "doc:FR-061-per-business-domain-visibility"
+      "doc:FR-062-permissions-read-scope",
+      "doc:PRD-SDD-v1.0"
     ],
     "added": [],
     "removed": []
@@ -215,20 +216,23 @@
       "id": "code:src/app/(pm)/platform/users/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/users/page.jsx",
-      "hash": "8b20e275",
+      "hash": "214e05dc",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-038"
+          "FR-038",
+          "FR-062"
         ],
         "@spec": [
           "SDD-017",
           "SEC-003",
           "FR-038",
-          "SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md"
+          "SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md",
+          "SDD-035"
         ],
         "@tested": [
-          "tests/unit/profile-permission-service.test.js"
+          "tests/unit/profile-permission-service.test.js",
+          "tests/unit/fr062-permissions-read-scope.test.js"
         ]
       }
     },
@@ -2239,20 +2243,25 @@
       "id": "code:src/modules/identity/profile-permission-service.js",
       "type": "code_file",
       "path": "src/modules/identity/profile-permission-service.js",
-      "hash": "726bd848",
+      "hash": "e03d3663",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-038"
+          "FR-038",
+          "FR-062"
         ],
         "@spec": [
           "SDD-017",
           "SEC-003",
           "FR-038",
-          "SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md"
+          "SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md",
+          "SDD-035",
+          "BR-001",
+          "SEC-001"
         ],
         "@tested": [
-          "tests/unit/profile-permission-service.test.js"
+          "tests/unit/profile-permission-service.test.js",
+          "tests/unit/fr062-permissions-read-scope.test.js"
         ]
       }
     },
@@ -3709,6 +3718,16 @@
       "version": "1.0.0",
       "doc_status": "Implemented",
       "hash": "e0faf4f4",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-062-permissions-read-scope",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-062-permissions-read-scope.md",
+      "title": "FR-062: Users & Permissions read scope",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "ef2968e7",
       "status": "changed"
     },
     {
@@ -3916,8 +3935,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.45.0b",
       "doc_status": "Draft",
-      "hash": "c150f2ea",
-      "status": "current"
+      "hash": "9677ef09",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -5051,6 +5070,15 @@
       "status": "current"
     },
     {
+      "id": "req:FR-062",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Users & Permissions read scope: `GET /api/platform/users` returns only Memberships the caller may actually administer — those whose Business is in `viewer.ownedBusinessIds` — so the list can no longer disagree with the authority `updateUserPermissions` enforces. Tenant-wide Memberships (`businessId: null`) are returned **only for tenants where the caller owns a Business**, never unconditionally, and each row carries a server-decided `manageable` flag; the client renders a non-manageable row read-only rather than inferring editability itself. The response carries no field the surface does not display — `Person.email` is dropped.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -5478,6 +5506,15 @@
       "type": "requirement",
       "family": "SDD",
       "label": "The per-Business domain map is derived from the same Membership rows and the same tenant-wide expansion that already produce `visibleBusinessIds` and `ownedBusinessIds`, and it is populated in **every** `resolveViewer` branch: the platform DEV and local-development branches fill it from their own visible-Business set rather than carrying a \"sees everything\" flag, so no consumer can answer the per-Business question by reading a shortcut. `domainsForBusiness` fails closed on an unknown Business and falls back to the flat `visibleDomains` only for a viewer that predates the map (a hand-built fixture), never for one a real resolver emitted. Cost is O(visible Businesses × domains) in the viewer payload — accepted at current scale; the exit if it stops being acceptable is a Business-scoped resolution (`resolveViewer({ businessId })`), not a flag.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-035",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "An administration surface derives its read scope from the **same** field its write path authorizes on. `listUserPermissions` filters on `ownedBusinessIds`, which is exactly what `assertMembershipBusinessOwned` checks, so a row that would 404 on save cannot be listed as editable in the first place. Tenant-wide rows are the one deliberate exception — unmanageable here by design, yet shown because a hidden tenant-wide grant is worse than a read-only one — so the server, not the client, states `manageable` per row. Cross-scope inclusion is never a bare `OR` on a nullable column: `businessId: null` is scoped by the caller's owned tenant ids.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -6993,6 +7030,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/e2e-warmup.test.js",
+      "type": "test",
+      "path": "tests/unit/e2e-warmup.test.js",
+      "hash": "96105e8a",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/entry-routing-boundary.test.js",
       "type": "test",
       "path": "tests/unit/entry-routing-boundary.test.js",
@@ -7161,6 +7205,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "type": "test",
+      "path": "tests/unit/fr062-permissions-read-scope.test.js",
+      "hash": "9f2ab8a2",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/golden-evaluation.test.js",
       "type": "test",
       "path": "tests/unit/golden-evaluation.test.js",
@@ -7325,7 +7376,7 @@
       "id": "test:tests/unit/profile-permission-service.test.js",
       "type": "test",
       "path": "tests/unit/profile-permission-service.test.js",
-      "hash": "664d8edc",
+      "hash": "70cf86e2",
       "status": "current"
     },
     {
@@ -7724,7 +7775,21 @@
     },
     {
       "from": "code:src/app/(pm)/platform/users/page.jsx",
+      "to": "req:FR-062",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/users/page.jsx",
       "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/users/page.jsx",
+      "to": "req:SDD-035",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -10426,6 +10491,13 @@
     },
     {
       "from": "code:src/modules/identity/profile-permission-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/profile-permission-service.js",
       "to": "req:FR-038",
       "type": "implements",
       "status": "current",
@@ -10440,7 +10512,28 @@
     },
     {
       "from": "code:src/modules/identity/profile-permission-service.js",
+      "to": "req:FR-062",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/profile-permission-service.js",
       "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/profile-permission-service.js",
+      "to": "req:SDD-035",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/profile-permission-service.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -12483,6 +12576,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-062",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -12813,6 +12913,13 @@
     },
     {
       "from": "req:SDD-034",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-035",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -17201,6 +17308,13 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/e2e-warmup.test.js",
+      "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/entry-routing-boundary.test.js",
       "to": "code:src/app/(pm)/layout.jsx",
       "type": "tests",
@@ -18797,6 +18911,69 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "code:src/app/(pm)/platform/users/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "code:src/modules/identity/profile-permission-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "req:FR-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "req:FR-062",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "req:SDD-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "req:SDD-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/golden-evaluation.test.js",
       "to": "code:src/modules/agent/golden-evaluation.js",
       "type": "tests",
@@ -19582,6 +19759,13 @@
     },
     {
       "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
       "to": "req:FR-038",
       "type": "verifies",
       "status": "current",
@@ -19603,6 +19787,13 @@
     },
     {
       "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:FR-062",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -19618,6 +19809,20 @@
     {
       "from": "test:tests/unit/profile-permission-service.test.js",
       "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:SDD-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
