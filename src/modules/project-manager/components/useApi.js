@@ -2,7 +2,7 @@
 
 // @spec SDD-007 — the UI reads through client fetch to API handlers, which
 // delegate to services; there is no server-component read path in the MVP.
-import { useCallback, useEffect, useState } from 'react'
+import { createElement, useCallback, useEffect, useState } from 'react'
 
 // @req FR-045 - capability requests may add explicit, narrow headers without bypassing JSON error handling.
 // @tested tests/unit/fr045-api-ui-contract.test.js
@@ -17,7 +17,15 @@ export async function api(path, { method = 'GET', body, headers } = {}) {
   if (!res.ok) {
     const message = data?.error || `Request failed (${res.status})`
     const issues = data?.issues ? `: ${data.issues.join('; ')}` : ''
-    throw new Error(message + issues)
+    const error = new Error(message + issues)
+    // T3b-1 FIX 6: purely additive — every existing consumer only reads
+    // `.message`. Attaching the HTTP status lets a caller branch on the
+    // actual status instead of sniffing message text (e.g. StrategyEditModals'
+    // 409-vs-everything-else split for an already-linked Project), which
+    // silently degrades to a generic red error the moment the server's
+    // message wording changes.
+    error.status = res.status
+    throw error
   }
   return data
 }
@@ -50,10 +58,15 @@ export function useFetch(path, deps = []) {
   return { ...state, reload }
 }
 
+// Written with createElement instead of JSX (this file keeps the plain .js
+// extension, and this repo's vitest config has no JSX loader configured for
+// .js — only .jsx/.tsx — so real JSX here would break any test that imports
+// this module transitively, e.g. `import { api } from './useApi'` elsewhere
+// in project-manager/components). Rendered output is unchanged.
 export function LoadingCard() {
-  return (
-    <div className="card grid place-items-center p-10 text-xs text-muted" role="status">
-      Loading…
-    </div>
+  return createElement(
+    'div',
+    { className: 'card grid place-items-center p-10 text-xs text-muted', role: 'status' },
+    'Loading…'
   )
 }

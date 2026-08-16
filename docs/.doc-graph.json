@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 637,
-    "total_edges": 1622,
+    "total_nodes": 665,
+    "total_edges": 1764,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 57,
+      "document": 59,
       "adr": 26,
       "domain": 5,
       "roadmap": 21,
       "feature": 1,
-      "route": 90,
+      "route": 96,
       "model": 33,
-      "requirement": 129,
-      "test": 117,
-      "code_file": 154
+      "requirement": 133,
+      "test": 124,
+      "code_file": 163
     },
     "coverage": {
-      "requirements": 129,
-      "fr_with_code": "100% (57/57)",
-      "fr_with_tests": "100% (57/57)",
-      "rules_anchored_in_code": "91% (53/58)",
+      "requirements": 133,
+      "fr_with_code": "100% (59/59)",
+      "fr_with_tests": "100% (59/59)",
+      "rules_anchored_in_code": "92% (55/60)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 154,
+      "annotated_code_files": 163,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -39,10 +39,11 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [
-      "spec:ADR-026-AGENT-TOPOLOGY-FOR-THE-VISUAL-OFFICE"
+    "changed": [
+      "test:tests/e2e/fr058-file-views.spec.js",
+      "test:tests/e2e/fr059-strategy-edit.spec.js"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -154,20 +155,25 @@
       "id": "code:src/app/(pm)/overview/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/overview/page.jsx",
-      "hash": "5121978c",
+      "hash": "d064d723",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-035",
-          "FR-041"
+          "FR-041",
+          "FR-059"
         ],
         "@spec": [
           "SDD-014",
-          "SDD-020"
+          "SDD-020",
+          "SDD-032",
+          "BR-001"
         ],
         "@tested": [
           "tests/unit/overview-split.test.js",
-          "tests/e2e/fr041-business-first.spec.js"
+          "tests/e2e/fr041-business-first.spec.js",
+          "tests/unit/fr059-strategy-edit-ui.test.js",
+          "tests/e2e/fr059-strategy-edit.spec.js"
         ]
       }
     },
@@ -478,6 +484,138 @@
         "@tested": [
           "tests/unit/fr045-api-ui-contract.test.js",
           "tests/unit/fr046-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/business/goals/[id]/projects/[projectId]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/business/goals/[id]/projects/[projectId]/route.js",
+      "hash": "36c658dc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-059",
+          "FR-046"
+        ],
+        "@spec": [
+          "SDD-032",
+          "BR-001",
+          "SDD-024",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr059-business-strategy-mutation.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/business/goals/[id]/projects/route.js",
+      "type": "code_file",
+      "path": "src/app/api/business/goals/[id]/projects/route.js",
+      "hash": "23428e29",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-059",
+          "FR-046"
+        ],
+        "@spec": [
+          "SDD-032",
+          "BR-001",
+          "SDD-024",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr059-business-strategy-mutation.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/business/goals/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/business/goals/[id]/route.js",
+      "hash": "d0b803e9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-059",
+          "FR-046"
+        ],
+        "@spec": [
+          "SDD-032",
+          "BR-001",
+          "SDD-024",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr059-business-strategy-mutation.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/business/goals/route.js",
+      "type": "code_file",
+      "path": "src/app/api/business/goals/route.js",
+      "hash": "be49392b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-059",
+          "FR-046"
+        ],
+        "@spec": [
+          "SDD-032",
+          "BR-001",
+          "SDD-024",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr059-business-strategy-mutation.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/business/roadmaps/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/business/roadmaps/[id]/route.js",
+      "hash": "6664a018",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-059",
+          "FR-046"
+        ],
+        "@spec": [
+          "SDD-032",
+          "BR-001",
+          "SDD-024",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr059-business-strategy-mutation.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/business/roadmaps/route.js",
+      "type": "code_file",
+      "path": "src/app/api/business/roadmaps/route.js",
+      "hash": "3cc6af94",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-059",
+          "FR-046"
+        ],
+        "@spec": [
+          "SDD-032",
+          "BR-001",
+          "SDD-024",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr059-business-strategy-mutation.test.js"
         ]
       }
     },
@@ -1428,7 +1566,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "5cb99be1",
+      "hash": "19e7ed77",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1437,6 +1575,7 @@
         "@spec": [
           "SDD-002",
           "BR-004",
+          "SDD-032",
           "BR-009"
         ],
         "@tested": [
@@ -2070,7 +2209,7 @@
       "id": "code:src/modules/identity/profile-permission-service.js",
       "type": "code_file",
       "path": "src/modules/identity/profile-permission-service.js",
-      "hash": "afb3596c",
+      "hash": "726bd848",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2129,7 +2268,7 @@
       "id": "code:src/modules/identity/resolve-viewer.js",
       "type": "code_file",
       "path": "src/modules/identity/resolve-viewer.js",
-      "hash": "53b21d76",
+      "hash": "1f46958e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2482,6 +2621,27 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/application/business-strategy-mutation-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/business-strategy-mutation-service.js",
+      "hash": "3a9d4019",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-059"
+        ],
+        "@spec": [
+          "SDD-032",
+          "BR-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/fr059-business-strategy-mutation.test.js",
+          "tests/unit/fr059-strategy-validation.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/application/dependency-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/dependency-service.js",
@@ -2505,7 +2665,7 @@
       "id": "code:src/modules/project-manager/application/file-asset-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/file-asset-service.js",
-      "hash": "879ce7e5",
+      "hash": "1f7adc0a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2526,18 +2686,21 @@
       "id": "code:src/modules/project-manager/application/file-manager-read-model.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/file-manager-read-model.js",
-      "hash": "766c40a9",
+      "hash": "d440ed60",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-045"
+          "FR-045",
+          "FR-058"
         ],
         "@spec": [
           "SDD-023",
-          "SEC-007"
+          "SEC-007",
+          "SDD-031"
         ],
         "@tested": [
-          "tests/unit/fr045-file-manager-read-model.test.js"
+          "tests/unit/fr045-file-manager-read-model.test.js",
+          "tests/unit/fr058-file-manager-views-model.test.js"
         ]
       }
     },
@@ -2545,7 +2708,7 @@
       "id": "code:src/modules/project-manager/application/file-reconcile-cache-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/file-reconcile-cache-service.js",
-      "hash": "80d7ba87",
+      "hash": "83d8ff97",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2748,21 +2911,45 @@
       }
     },
     {
-      "id": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "id": "code:src/modules/project-manager/components/FileManagerViews.jsx",
       "type": "code_file",
-      "path": "src/modules/project-manager/components/ManagedFilesPanel.jsx",
-      "hash": "499d2f92",
+      "path": "src/modules/project-manager/components/FileManagerViews.jsx",
+      "hash": "8b5a98b3",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-058",
           "FR-045"
         ],
         "@spec": [
-          "SDD-023",
+          "SDD-031",
           "SEC-007"
         ],
         "@tested": [
-          "tests/unit/fr045-api-ui-contract.test.js"
+          "tests/unit/fr058-file-manager-views-ui.test.js",
+          "tests/e2e/fr058-file-views.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "hash": "d4a62d8c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-045",
+          "FR-058"
+        ],
+        "@spec": [
+          "SDD-023",
+          "SEC-007",
+          "SDD-031"
+        ],
+        "@tested": [
+          "tests/unit/fr045-api-ui-contract.test.js",
+          "tests/unit/fr058-file-manager-views-ui.test.js"
         ]
       }
     },
@@ -2785,10 +2972,30 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/components/StrategyEditModals.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/StrategyEditModals.jsx",
+      "hash": "26d6772a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-059"
+        ],
+        "@spec": [
+          "BR-001",
+          "NFR-004"
+        ],
+        "@tested": [
+          "tests/unit/fr059-strategy-edit-ui.test.js",
+          "tests/e2e/fr059-strategy-edit.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/components/useApi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/components/useApi.js",
-      "hash": "bd554230",
+      "hash": "ca1c5405",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3050,7 +3257,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.4.0",
       "doc_status": "Draft",
-      "hash": "dad7922a",
+      "hash": "db60ab62",
       "status": "current"
     },
     {
@@ -3170,7 +3377,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.0.0",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "6594a05e",
+      "hash": "03279fed",
       "status": "current"
     },
     {
@@ -3411,6 +3618,26 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-058-file-manager-views",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-058-file-manager-views.md",
+      "title": "FR-058 - File Manager Views",
+      "version": "1.1.0",
+      "doc_status": "Candidate",
+      "hash": "b726cbb4",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-059-business-strategy-mutation",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-059-business-strategy-mutation.md",
+      "title": "FR-059 - Business Strategy Mutation",
+      "version": "1.2.0",
+      "doc_status": "Candidate",
+      "hash": "a6eec45c",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -3613,9 +3840,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.44.0b",
+      "version": "1.45.0b",
       "doc_status": "Draft",
-      "hash": "78dc3212",
+      "hash": "e72ad002",
       "status": "current"
     },
     {
@@ -4707,6 +4934,24 @@
       "status": "current"
     },
     {
+      "id": "req:FR-058",
+      "type": "requirement",
+      "family": "FR",
+      "label": "File Manager views: the Business and Project File Manager render the existing FR-045 asset set in four switchable read views — grid (current behaviour), timeline (ordered by `FileAsset.updatedAt`/`createdAt`), by-project (the read model's existing BUSINESS/PROJECT `groups`), and preview (inline for authorized `LOCAL_FILE` content via `/api/files/{id}/content`, mime-gated; link-out for `EXTERNAL_URL`). View choice is client state only — no new persistence, route or write path; the read-model `assetDto` gains `createdAt`/`updatedAt` additively.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-059",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Business Strategy mutation: create/update of `BusinessRoadmap` and its 2–3 ordered horizons, `BusinessGoal` (status/priority/progress/dates), and `ProjectGoal` link/unlink, through audited services in `project-manager/application`, authorized **per Business** — the caller must hold OWNER authority over the target Business (`viewer.ownedBusinessIds`), never merely the global OWNER label. The FR-041 read model remains the only read contract; horizon cardinality and Business isolation are enforced by the service.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -5103,6 +5348,24 @@
       "status": "current"
     },
     {
+      "id": "req:SDD-031",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "File Manager views are pure projections over the FR-045 read model: the switcher derives orderings and groupings client-side from one canonical `assetDto` list; secondary `FileLink` rows still never multiply a DTO, and preview never accepts a filesystem path directly.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-032",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Business Strategy writes live only in `src/modules/project-manager/application/` — the charter's sole writing lane; `src/modules/business` remains a read slice. Every mutation records an `AuditEvent`; Goal/roadmap status and priority vocabularies are the single Zod source in `src/lib/validation/enums.js`.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -5257,6 +5520,54 @@
       "kind": "api",
       "route": "/api/business/files",
       "path": "src/app/api/business/files/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/business/goals",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/business/goals",
+      "path": "src/app/api/business/goals/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/business/goals/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/business/goals/[id]",
+      "path": "src/app/api/business/goals/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/business/goals/[id]/projects",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/business/goals/[id]/projects",
+      "path": "src/app/api/business/goals/[id]/projects/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/business/goals/[id]/projects/[projectId]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/business/goals/[id]/projects/[projectId]",
+      "path": "src/app/api/business/goals/[id]/projects/[projectId]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/business/roadmaps",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/business/roadmaps",
+      "path": "src/app/api/business/roadmaps/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/business/roadmaps/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/business/roadmaps/[id]",
+      "path": "src/app/api/business/roadmaps/[id]/route.js",
       "status": "current"
     },
     {
@@ -6187,6 +6498,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/e2e/fr058-file-views.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr058-file-views.spec.js",
+      "hash": "26b1f606",
+      "status": "changed"
+    },
+    {
+      "id": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr059-strategy-edit.spec.js",
+      "hash": "a7680353",
+      "status": "changed"
+    },
+    {
       "id": "test:tests/e2e/smoke.spec.js",
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
@@ -6289,6 +6614,13 @@
       "type": "test",
       "path": "tests/integration/fr046-entry-contract.test.js",
       "hash": "edd85cca",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "type": "test",
+      "path": "tests/integration/fr059-business-strategy-mutation.test.js",
+      "hash": "7248f331",
       "status": "current"
     },
     {
@@ -6547,7 +6879,7 @@
       "id": "test:tests/unit/fr045-api-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr045-api-ui-contract.test.js",
-      "hash": "935977ac",
+      "hash": "356de1f0",
       "status": "current"
     },
     {
@@ -6561,14 +6893,14 @@
       "id": "test:tests/unit/fr045-file-asset-service.test.js",
       "type": "test",
       "path": "tests/unit/fr045-file-asset-service.test.js",
-      "hash": "ea4c2492",
+      "hash": "7b6ef0a5",
       "status": "current"
     },
     {
       "id": "test:tests/unit/fr045-file-manager-read-model.test.js",
       "type": "test",
       "path": "tests/unit/fr045-file-manager-read-model.test.js",
-      "hash": "16ff4f7f",
+      "hash": "b06270d4",
       "status": "current"
     },
     {
@@ -6589,7 +6921,7 @@
       "id": "test:tests/unit/fr045-reconcile-cache.test.js",
       "type": "test",
       "path": "tests/unit/fr045-reconcile-cache.test.js",
-      "hash": "d6a760ba",
+      "hash": "21a93426",
       "status": "current"
     },
     {
@@ -6646,6 +6978,34 @@
       "type": "test",
       "path": "tests/unit/fr056-landing.test.js",
       "hash": "4d9b9852",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr058-file-manager-views-model.test.js",
+      "type": "test",
+      "path": "tests/unit/fr058-file-manager-views-model.test.js",
+      "hash": "f2ee9579",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr058-file-manager-views-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/fr058-file-manager-views-ui.test.js",
+      "hash": "8928f934",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/fr059-strategy-edit-ui.test.js",
+      "hash": "82ef1015",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr059-strategy-validation.test.js",
+      "type": "test",
+      "path": "tests/unit/fr059-strategy-validation.test.js",
+      "hash": "8d9a3f8a",
       "status": "current"
     },
     {
@@ -6813,7 +7173,7 @@
       "id": "test:tests/unit/profile-permission-service.test.js",
       "type": "test",
       "path": "tests/unit/profile-permission-service.test.js",
-      "hash": "ef92dcd3",
+      "hash": "664d8edc",
       "status": "current"
     },
     {
@@ -6953,7 +7313,7 @@
       "id": "test:tests/unit/viewer-gate.test.js",
       "type": "test",
       "path": "tests/unit/viewer-gate.test.js",
-      "hash": "197e1b60",
+      "hash": "de03143d",
       "status": "current"
     },
     {
@@ -7100,6 +7460,13 @@
     },
     {
       "from": "code:src/app/(pm)/overview/page.jsx",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/overview/page.jsx",
       "to": "req:FR-035",
       "type": "implements",
       "status": "current",
@@ -7114,6 +7481,13 @@
     },
     {
       "from": "code:src/app/(pm)/overview/page.jsx",
+      "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/overview/page.jsx",
       "to": "req:SDD-014",
       "type": "follows",
       "status": "current",
@@ -7122,6 +7496,13 @@
     {
       "from": "code:src/app/(pm)/overview/page.jsx",
       "to": "req:SDD-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/overview/page.jsx",
+      "to": "req:SDD-032",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -7499,6 +7880,258 @@
     },
     {
       "from": "code:src/app/api/business/files/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/projects/[projectId]/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/projects/[projectId]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/projects/[projectId]/route.js",
+      "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/projects/[projectId]/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/projects/[projectId]/route.js",
+      "to": "req:SDD-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/projects/[projectId]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/projects/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/projects/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/projects/route.js",
+      "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/projects/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/projects/route.js",
+      "to": "req:SDD-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/projects/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/route.js",
+      "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/route.js",
+      "to": "req:SDD-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/route.js",
+      "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/route.js",
+      "to": "req:SDD-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/goals/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/roadmaps/[id]/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/roadmaps/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/roadmaps/[id]/route.js",
+      "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/roadmaps/[id]/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/roadmaps/[id]/route.js",
+      "to": "req:SDD-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/roadmaps/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/roadmaps/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/roadmaps/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/roadmaps/route.js",
+      "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/roadmaps/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/roadmaps/route.js",
+      "to": "req:SDD-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/business/roadmaps/route.js",
       "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
@@ -8814,6 +9447,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:SDD-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/action-gate.js",
       "to": "req:BR-009",
       "type": "follows",
@@ -9990,6 +10630,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/application/business-strategy-mutation-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/business-strategy-mutation-service.js",
+      "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/business-strategy-mutation-service.js",
+      "to": "req:SDD-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/business-strategy-mutation-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/dependency-service.js",
       "to": "req:FR-007",
       "type": "implements",
@@ -10047,7 +10715,21 @@
     },
     {
       "from": "code:src/modules/project-manager/application/file-manager-read-model.js",
+      "to": "req:FR-058",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-manager-read-model.js",
       "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/file-manager-read-model.js",
+      "to": "req:SDD-031",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -10326,6 +11008,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/components/FileManagerViews.jsx",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/FileManagerViews.jsx",
+      "to": "req:FR-058",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/FileManagerViews.jsx",
+      "to": "req:SDD-031",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/FileManagerViews.jsx",
+      "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
       "to": "req:FR-045",
       "type": "implements",
@@ -10334,7 +11044,21 @@
     },
     {
       "from": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "to": "req:FR-058",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
       "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "to": "req:SDD-031",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -10356,6 +11080,27 @@
     {
       "from": "code:src/modules/project-manager/components/ProjectTabs.jsx",
       "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/StrategyEditModals.jsx",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/StrategyEditModals.jsx",
+      "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/StrategyEditModals.jsx",
+      "to": "req:NFR-004",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -10657,6 +11402,13 @@
     {
       "from": "feat:FEAT-001",
       "to": "req:FR-045",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-001",
+      "to": "req:FR-058",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
@@ -11397,6 +12149,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-058",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-059",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -11705,6 +12471,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-031",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-032",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -11825,6 +12605,48 @@
     },
     {
       "from": "route:api:/api/business/files",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/business/goals/[id]/projects/[projectId]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/business/goals/[id]/projects",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/business/goals/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/business/goals",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/business/roadmaps/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/business/roadmaps",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -13015,6 +13837,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-016",
       "type": "verifies",
       "status": "current",
@@ -13078,6 +13907,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -13107,6 +13943,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SDD-032",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -13247,6 +14090,118 @@
     {
       "from": "test:tests/e2e/fr046-entry-contract.spec.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr058-file-views.spec.js",
+      "to": "code:src/modules/project-manager/components/FileManagerViews.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr058-file-views.spec.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr058-file-views.spec.js",
+      "to": "req:FR-058",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr058-file-views.spec.js",
+      "to": "req:NFR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr058-file-views.spec.js",
+      "to": "req:SDD-031",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr058-file-views.spec.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "code:src/app/(pm)/overview/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "code:src/modules/project-manager/components/StrategyEditModals.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "req:FR-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "req:NFR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "req:SDD-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "req:SDD-032",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -14125,6 +15080,118 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "code:src/app/api/business/goals/[id]/projects/[projectId]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "code:src/app/api/business/goals/[id]/projects/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "code:src/app/api/business/goals/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "code:src/app/api/business/goals/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "code:src/app/api/business/roadmaps/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "code:src/app/api/business/roadmaps/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "code:src/modules/project-manager/application/business-strategy-mutation-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/identity-classify.test.js",
@@ -15037,6 +16104,13 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/activation-readiness-contract.test.js",
       "to": "code:src/modules/agent/activation-readiness-contract.js",
       "type": "tests",
@@ -15892,6 +16966,20 @@
     },
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-058",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:SDD-007",
       "type": "verifies",
       "status": "current",
@@ -15921,6 +17009,13 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:SDD-031",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -16081,7 +17176,21 @@
     },
     {
       "from": "test:tests/unit/fr045-file-manager-read-model.test.js",
+      "to": "req:FR-058",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-manager-read-model.test.js",
       "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-file-manager-read-model.test.js",
+      "to": "req:SDD-031",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -16738,6 +17847,223 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/fr058-file-manager-views-model.test.js",
+      "to": "code:src/modules/project-manager/application/file-manager-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-model.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-model.test.js",
+      "to": "req:FR-058",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-model.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-model.test.js",
+      "to": "req:SDD-031",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-model.test.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-ui.test.js",
+      "to": "code:src/modules/project-manager/components/FileManagerViews.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-ui.test.js",
+      "to": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-ui.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-ui.test.js",
+      "to": "req:FR-058",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-ui.test.js",
+      "to": "req:NFR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-ui.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-ui.test.js",
+      "to": "req:SDD-031",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr058-file-manager-views-ui.test.js",
+      "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "code:src/app/(pm)/overview/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "code:src/modules/project-manager/components/StrategyEditModals.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "req:FR-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "req:NFR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "req:SDD-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-validation.test.js",
+      "to": "code:src/modules/project-manager/application/business-strategy-mutation-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-validation.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-validation.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-validation.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-validation.test.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-validation.test.js",
+      "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-validation.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/golden-evaluation.test.js",
       "to": "code:src/modules/agent/golden-evaluation.js",
       "type": "tests",
@@ -17110,6 +18436,13 @@
     },
     {
       "from": "test:tests/unit/overview-split.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/overview-split.test.js",
       "to": "req:FR-035",
       "type": "verifies",
       "status": "current",
@@ -17124,6 +18457,13 @@
     },
     {
       "from": "test:tests/unit/overview-split.test.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/overview-split.test.js",
       "to": "req:SDD-014",
       "type": "verifies",
       "status": "current",
@@ -17132,6 +18472,13 @@
     {
       "from": "test:tests/unit/overview-split.test.js",
       "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/overview-split.test.js",
+      "to": "req:SDD-032",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -17376,6 +18723,13 @@
     },
     {
       "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
       "to": "req:SEC-002",
       "type": "verifies",
       "status": "current",
@@ -17477,7 +18831,7 @@
       "to": "req:FR-038",
       "type": "verifies",
       "status": "current",
-      "source": "transitive"
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/profile-permission-service.test.js",

@@ -6,6 +6,7 @@ import {
   createManagedFileAsset,
   deleteManagedFileAsset,
   legacyFileAssetDto,
+  listManagedFileAssets,
   migrateProjectFiles,
   upsertLocalWorkspaceMount,
   relinkFileAsset,
@@ -143,5 +144,36 @@ describe('FR-045 FileAsset service', () => {
     await expect(relinkFileAsset('asset-a', { mountId: 'mount-a', relativePath: 'new.txt' }, { db, visibleBusinessIds: ['business-a'], filesystemPort })).resolves.toMatchObject({ relativePath: 'new.txt', status: 'ACTIVE' })
     await expect(deleteManagedFileAsset('asset-a', { db, visibleBusinessIds: ['business-a'] })).resolves.toMatchObject({ status: 'MISSING' })
     expect(filesystemPort.stat).toHaveBeenCalledWith({ mountRoot: 'D:\\workspace', relativePath: 'new.txt' })
+  })
+
+  it('selects Project name so the by-project group heading is never "code · undefined"', async () => {
+    const projectRow = { id: 'project-a', code: 'PRJ-A', name: 'Transform Co', businessId: 'business-a', deletedAt: null }
+    const assetRow = {
+      id: 'asset-a', code: 'FIL-A', businessId: 'business-a', projectId: 'project-a', workItemId: null,
+      deletedAt: null, status: 'ACTIVE', name: 'brief.pdf', mime: 'application/pdf', size: 10,
+      storageKind: 'EXTERNAL_URL', externalUrl: 'https://example.test/brief.pdf', blobRef: null,
+      relativePath: null, sha256: null, version: 1, createdAt: new Date('2026-01-01'), updatedAt: new Date('2026-01-02'),
+    }
+    const db = {
+      project: { findMany: vi.fn().mockResolvedValue([projectRow]) },
+      fileAsset: { findMany: vi.fn().mockResolvedValue([assetRow]) },
+    }
+
+    const businessView = await listManagedFileAssets({ businessId: 'business-a' }, { db, visibleBusinessIds: ['business-a'] })
+    // A test asserting only projectCode would still pass on the pre-fix `select`
+    // (which carried code but not name) — the group must carry the real name too.
+    expect(businessView.groups).toContainEqual(expect.objectContaining({
+      kind: 'PROJECT', projectId: 'project-a', projectCode: 'PRJ-A', projectName: 'Transform Co',
+    }))
+    expect(db.project.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      select: expect.objectContaining({ name: true }),
+    }))
+
+    // The Project File Manager page's own entry point (projectId set) goes through the
+    // same query — it must resolve the name too, not just avoid throwing.
+    const projectView = await listManagedFileAssets({ businessId: 'business-a', projectId: 'project-a' }, { db, visibleBusinessIds: ['business-a'] })
+    expect(projectView.groups).toContainEqual(expect.objectContaining({
+      kind: 'PROJECT', projectId: 'project-a', projectCode: 'PRJ-A', projectName: 'Transform Co',
+    }))
   })
 })

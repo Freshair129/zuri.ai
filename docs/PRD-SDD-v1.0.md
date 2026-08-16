@@ -7,11 +7,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.44.0b |
+| **Version** | 1.45.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-15 |
+| **Last Updated** | 2026-08-16 |
 | **Approved By** | — |
 
 ## Version History
@@ -69,6 +69,7 @@
 | 1.42.0b | 2026-08-14 | ATHER | Reconciled later branch facts: Zuri Landing is retained as FR-056/SDD-029/ADR-021, and the PlanEnvelope seven-mode/edit-only intake updates remain documented |
 | 1.43.0b | 2026-08-15 | ATHER | PR #12 semantic conflict repair: MSP authorization is FR-057/NFR-014/BR-015/SDD-030/SEC-013/ADR-022 while Phase 1 production IDs retain their meanings |
 | 1.44.0b | 2026-08-15 | ATHER | Approved FR-057 API-010 canonical GoVibe/MSP vault resolution; legacy API-009 scopeKey access is explicit compatibility mode only |
+| 1.45.0b | 2026-08-16 | Claude (W0-IDS) | Declared FR-058 (File Manager switchable views) + FR-059 (Business Strategy mutation) + SDD-031/032; FEAT-001 gains FR-058; ids reserved for the parallel development-domain build, not yet implemented |
 
 ## Referenced Standards
 
@@ -170,6 +171,8 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-055 | Controlled LINE activation and receipt: a dry-run-default operator command may install HMAC hashes and activate exactly one expiring binding only through a versioned compare-and-swap transaction and dedicated least-privilege role. Routing-first rollback and append-only redacted receipt events preserve truthful `ACCEPTED_BY_LINE` versus display/read unknown semantics. | Owner-approved for local implementation; production mutation remains gated |
 | FR-056 | Zuri-branded entry landing: `/` presents a full-viewport, responsive Zuri Heritage composition with one route-bearing action to `/login`, code-native/local visuals, reduced-motion support, and no third-party fashion or commerce semantics. FR-044/046 routing and identity boundaries remain unchanged. | Owner-approved beta 2026-08-14 |
 | FR-057 | Authorized agent context: every LINE turn resolves ExternalIdentity, Person, Membership, thread/session assurance and server-owned agent/workspace/project scope, then calls GoVibe/MSP API-010 `msp_vault_resolve` before API-009 retrieval; the model, prompt, client payload and stale session cannot widen the canonical authorized vault set. | Owner-approved beta; API-010 integration in progress |
+| FR-058 | File Manager views: the Business and Project File Manager render the existing FR-045 asset set in four switchable read views — grid (current behaviour), timeline (ordered by `FileAsset.updatedAt`/`createdAt`), by-project (the read model's existing BUSINESS/PROJECT `groups`), and preview (inline for authorized `LOCAL_FILE` content via `/api/files/{id}/content`, mime-gated; link-out for `EXTERNAL_URL`). View choice is client state only — no new persistence, route or write path; the read-model `assetDto` gains `createdAt`/`updatedAt` additively. | ✅ |
+| FR-059 | Business Strategy mutation: create/update of `BusinessRoadmap` and its 2–3 ordered horizons, `BusinessGoal` (status/priority/progress/dates), and `ProjectGoal` link/unlink, through audited services in `project-manager/application`, authorized **per Business** — the caller must hold OWNER authority over the target Business (`viewer.ownedBusinessIds`), never merely the global OWNER label. The FR-041 read model remains the only read contract; horizon cardinality and Business isolation are enforced by the service. | ✅ |
 
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
 > superseded for the operational shell. Home may show Organization/Portfolio ancestry
@@ -276,6 +279,8 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SDD-028 | FR-055 adds a separate operator port: strict schemas feed a dry-run-default CLI, a dedicated database role performs one versioned CAS mutation plus append-only event, and a `zuri-cli` adapter imports only redacted hash-pinned transport evidence. Readiness, mutation and transport remain separate owners. | FR-055; ADR-020 / ZV2-CR-006 |
 | SDD-029 | EntryShell exposes a landing-only full-viewport variant while keeping Login compact. The landing presentation owns its inert operational signal field, applies pointer motion only on fine-pointer non-reduced-motion devices, and keeps exactly one `/login` link. Metadata and raster assets are Zuri-owned and local. | FR-056; ADR-021, ADR-010, ADR-015 |
 | SDD-030 | Agent turns construct an immutable AuthContext and resolve an explicit authorized vault set before MSP retrieval. Private memory ownership is Tenant × Principal × Agent × Workspace; thread/session/instance/event are provenance and lifecycle. Legacy principal-only keys remain explicit compatibility mode only. | FR-057; ADR-022; BR-015; SEC-013 |
+| SDD-031 | File Manager views are pure projections over the FR-045 read model: the switcher derives orderings and groupings client-side from one canonical `assetDto` list; secondary `FileLink` rows still never multiply a DTO, and preview never accepts a filesystem path directly. | FR-058; ADR-016, SDD-023, SEC-007 |
+| SDD-032 | Business Strategy writes live only in `src/modules/project-manager/application/` — the charter's sole writing lane; `src/modules/business` remains a read slice. Every mutation records an `AuditEvent`; Goal/roadmap status and priority vocabularies are the single Zod source in `src/lib/validation/enums.js`. | FR-059; SDD-002, SDD-020 |
 
 ## 2.3 Security requirements
 

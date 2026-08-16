@@ -34,6 +34,44 @@ async function ownerViewer(resolve) {
   return viewer
 }
 
+// T3e FIX 1: `viewer.role === 'OWNER'` is a global per-principal label — OWNER
+// of any single Business gets role 'OWNER' everywhere (resolve-viewer.js) —
+// so `ownerViewer` above only screens out a principal who owns *no* Business
+// at all (a pure MEMBER, or a platform DEV grant, which never gets
+// ownedBusinessIds). It still does not prove the target Membership's
+// Business is one this OWNER actually owns, so it is kept only as a coarse,
+// cheap pre-filter ahead of the DB lookup — every write below it still needs
+// the per-Business check.
+//
+// A principal who is OWNER of Business A and merely MEMBER of Business B has
+// that global role AND Business B legitimately in visibleBusinessIds (the
+// MEMBER Membership populates it), so the old gate here —
+// `role === 'OWNER'` plus `visibleBusinessIds.includes(membership.businessId)`
+// — let that principal self-promote to OWNER of Business B. Proven live
+// against the database (T3e). `ownedBusinessIds` is the actual per-Business
+// OWNER grant set and is always a subset of `visibleBusinessIds`
+// (resolve-viewer.js), so checking it subsumes the old visibility check —
+// which is why that check is replaced below, not kept alongside this one.
+//
+// Fails closed on a missing/malformed `ownedBusinessIds` rather than
+// optional-chaining into `undefined` (which would fail *open*) — same
+// discipline as `assertBusinessOwned` in
+// project-manager/application/business-strategy-mutation-service.js (FR-059).
+// A Membership with a null `businessId` (tenant-wide) can never be in
+// `ownedBusinessIds` either, so a write to a tenant-wide Membership now also
+// fails closed here, rather than skipping the check entirely as the old
+// `membership.businessId && ...` guard did.
+function assertMembershipBusinessOwned(businessId, viewer) {
+  const ownedBusinessIds = viewer?.ownedBusinessIds
+  if (!Array.isArray(ownedBusinessIds) || !ownedBusinessIds.includes(businessId)) {
+    // Same status as the scope refusal it replaces, so the observable HTTP
+    // status the platform users page sees is unchanged (404 via _helpers.js).
+    const error = new Error('Membership is outside your owned scope')
+    error.status = 404
+    throw error
+  }
+}
+
 export async function getMyProfile({ db = prisma, resolve = resolveViewer } = {}) {
   const viewer = await resolve({ db })
   const identities = await db.externalIdentity.findMany({
@@ -57,11 +95,12 @@ export async function updateUserPermissions(input, { db = prisma, resolve = reso
   const data = zPermissionUpdate.parse(input)
   const viewer = await ownerViewer(() => resolve({ db }))
   const membership = await db.membership.findUnique({ where: { id: data.membershipId } })
-  if (!membership || (membership.businessId && !viewer.visibleBusinessIds.includes(membership.businessId))) {
+  if (!membership) {
     const error = new Error('Membership is outside your visible scope')
     error.status = 404
     throw error
   }
+  assertMembershipBusinessOwned(membership.businessId, viewer)
   const updated = await db.membership.update({
     where: { id: membership.id },
     data: { role: data.role, domainKeysJson: JSON.stringify(data.domainKeys) },

@@ -1,6 +1,7 @@
 // @req FR-045 — fixture data for Business and Project File Manager projections.
-// @spec SDD-023, ADR-016
-// @tested tests/unit/fr045-file-manager-read-model.test.js
+// @req FR-058 — same fixtures carry createdAt/updatedAt for the timeline and by-project views.
+// @spec SDD-023, ADR-016, SDD-031
+// @tested tests/unit/fr045-file-manager-read-model.test.js, tests/unit/fr058-file-manager-views-model.test.js
 
 export const FILE_MANAGER_BUSINESS_A = Object.freeze({ id: 'business-a', code: 'BIZ-A', name: 'Business A' })
 export const FILE_MANAGER_BUSINESS_B = Object.freeze({ id: 'business-b', code: 'BIZ-B', name: 'Business B' })
@@ -18,6 +19,7 @@ export const FILE_MANAGER_ASSETS = Object.freeze([
     name: 'business-plan.pdf', mime: 'application/pdf', size: 100, storageKind: 'LOCAL_FILE',
     relativePath: 'Business Files/business-plan.pdf', status: 'ACTIVE', version: 2,
     fileLinks: [{ entityType: 'BUSINESS', entityId: 'business-a' }], content: 'must-not-be-projected',
+    createdAt: new Date('2026-01-01T00:00:00.000Z'), updatedAt: new Date('2026-01-05T00:00:00.000Z'),
   },
   {
     id: 'asset-project-a-1', code: 'FIL-A-002', businessId: 'business-a', projectId: 'project-a-1',
@@ -27,26 +29,31 @@ export const FILE_MANAGER_ASSETS = Object.freeze([
       { entityType: 'PROJECT', entityId: 'project-a-1' },
       { entityType: 'WORK_ITEM', entityId: 'work-a-1' },
     ],
+    createdAt: new Date('2026-01-02T00:00:00.000Z'), updatedAt: new Date('2026-01-06T00:00:00.000Z'),
   },
   {
     id: 'asset-project-a-2', code: 'FIL-A-003', businessId: 'business-a', projectId: 'project-a-2',
     name: 'review.docx', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', size: 300,
     storageKind: 'MANAGED_BLOB', blobRef: 'local:review', status: 'QUARANTINED', version: 3,
+    createdAt: new Date('2026-01-03T00:00:00.000Z'), updatedAt: new Date('2026-01-07T00:00:00.000Z'),
   },
   {
     id: 'asset-project-b', code: 'FIL-B-001', businessId: 'business-b', projectId: 'project-b-1',
     name: 'other-business.pdf', mime: 'application/pdf', size: 400, storageKind: 'EXTERNAL_URL',
     externalUrl: 'https://example.test/other-business.pdf', status: 'ACTIVE', version: 1,
+    createdAt: new Date('2026-01-04T00:00:00.000Z'), updatedAt: new Date('2026-01-08T00:00:00.000Z'),
   },
   {
     id: 'asset-project-shared', code: 'FIL-S-001', businessId: 'business-a', projectId: 'project-shared',
     name: 'shared.pdf', mime: 'application/pdf', size: 500, storageKind: 'LOCAL_FILE',
     relativePath: 'Projects/SHARED/shared.pdf', status: 'ACTIVE', version: 1,
+    createdAt: new Date('2026-01-05T00:00:00.000Z'), updatedAt: new Date('2026-01-09T00:00:00.000Z'),
   },
   {
     id: 'asset-unknown-project', code: 'FIL-A-004', businessId: 'business-a', projectId: 'project-unknown',
     name: 'unknown.pdf', mime: 'application/pdf', size: 600, storageKind: 'LOCAL_FILE',
     relativePath: 'Projects/UNKNOWN/unknown.pdf', status: 'ACTIVE', version: 1,
+    createdAt: new Date('2026-01-06T00:00:00.000Z'), updatedAt: new Date('2026-01-10T00:00:00.000Z'),
   },
 ])
 

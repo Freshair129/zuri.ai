@@ -67,6 +67,17 @@ export const GATE_STATUSES = ['OPEN', 'PASSED', 'BLOCKED', 'WAIVED']
 export const WORKSPACE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
 export const MEMBERSHIP_ROLES = ['OWNER', 'MEMBER']
 
+// FR-059 — Business Strategy mutation. Frozen from observed usage only: schema
+// defaults (BusinessRoadmap.status, BusinessGoal.status/priority in
+// prisma/schema.prisma), prisma/seed.js values, and the `status: { not: 'ARCHIVED' }`
+// filters already applied to both models in
+// src/modules/business/application/business-strategy-service.js. Do not add
+// values (e.g. ON_HOLD, LOW) that are not observed anywhere yet.
+// @spec SDD-002, SDD-032
+export const ROADMAP_STATUSES = ['ACTIVE', 'ARCHIVED']
+export const GOAL_STATUSES = ['PLANNED', 'ACTIVE', 'DONE', 'ARCHIVED']
+export const GOAL_PRIORITIES = ['MEDIUM', 'HIGH']
+
 // FR-023 — CRM slice (ADR-007 P2)
 export const CHANNELS = ['LINE', 'FACEBOOK', 'WEB']
 export const MESSAGE_DIRECTIONS = ['INBOUND', 'OUTBOUND']
@@ -95,6 +106,9 @@ export const zMessageDirection = z.enum(MESSAGE_DIRECTIONS)
 export const zCustomerLifecycle = z.enum(CUSTOMER_LIFECYCLE)
 export const zPrincipalType = z.enum(PRINCIPAL_TYPES)
 export const zIdentityProvider = z.enum(IDENTITY_PROVIDERS)
+export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
+export const zGoalStatus = z.enum(GOAL_STATUSES)
+export const zGoalPriority = z.enum(GOAL_PRIORITIES)
 
 // Container subtype vocabulary per mode (open set; these are the documented ones).
 export const CONTAINER_SUBTYPES = [

@@ -1,5 +1,6 @@
 // @req FR-045 — Business and Project File Manager projection is isolated and content is not copied.
-// @spec SDD-023, ADR-016, SEC-007
+// @req FR-058 — assetDto's additive createdAt/updatedAt fields are covered here too.
+// @spec SDD-023, ADR-016, SEC-007, SDD-031
 // @tested tests/unit/fr045-file-manager-read-model.test.js
 import { describe, expect, it } from 'vitest'
 import {
@@ -34,11 +35,27 @@ describe('FR-045 File Manager read model', () => {
       'asset-business-a', 'asset-project-a-1', 'asset-project-a-2',
     ])
     expect(result.assets.every((asset) => !('content' in asset))).toBe(true)
+    // FR-058: assetDto gains createdAt/updatedAt additively — every pre-existing field unchanged.
+    expect(result.assets[0]).toEqual({
+      id: 'asset-business-a', code: 'FIL-A-001', businessId: 'business-a', projectId: null, workItemId: null,
+      name: 'business-plan.pdf', mime: 'application/pdf', size: 100, storageKind: 'LOCAL_FILE',
+      relativePath: 'Business Files/business-plan.pdf', externalUrl: null, blobRef: null, sha256: null,
+      state: 'ACTIVE', version: 2, localCapability: FILE_MANAGER_CAPABILITY,
+      createdAt: FILE_MANAGER_ASSETS[0].createdAt, updatedAt: FILE_MANAGER_ASSETS[0].updatedAt,
+    })
     expect(result.counts).toEqual({ total: 3, ACTIVE: 1, MISSING: 1, QUARANTINED: 1 })
+    // FR-058 v1.1.0: a PROJECT group carries the project's human identifiers
+    // (projectCode/projectName) additively — the BUSINESS group is unchanged.
     expect(result.groups).toEqual([
       { kind: 'BUSINESS', businessId: 'business-a', projectId: null, assetIds: ['asset-business-a'] },
-      { kind: 'PROJECT', businessId: 'business-a', projectId: 'project-a-1', assetIds: ['asset-project-a-1'] },
-      { kind: 'PROJECT', businessId: 'business-a', projectId: 'project-a-2', assetIds: ['asset-project-a-2'] },
+      {
+        kind: 'PROJECT', businessId: 'business-a', projectId: 'project-a-1',
+        projectCode: 'PRJ-A1', projectName: 'A one', assetIds: ['asset-project-a-1'],
+      },
+      {
+        kind: 'PROJECT', businessId: 'business-a', projectId: 'project-a-2',
+        projectCode: 'PRJ-A2', projectName: 'A two', assetIds: ['asset-project-a-2'],
+      },
     ])
     expect(result.localCapability).toEqual(FILE_MANAGER_CAPABILITY)
     expect(source.assets[0].content).toBe('must-not-be-projected')
@@ -83,7 +100,10 @@ describe('FR-045 File Manager read model', () => {
     ])
     expect(result.counts).toEqual({ total: 1, ACTIVE: 0, MISSING: 1, QUARANTINED: 0 })
     expect(result.groups).toEqual([
-      { kind: 'PROJECT', businessId: 'business-a', projectId: 'project-a-1', assetIds: ['asset-project-a-1'] },
+      {
+        kind: 'PROJECT', businessId: 'business-a', projectId: 'project-a-1',
+        projectCode: 'PRJ-A1', projectName: 'A one', assetIds: ['asset-project-a-1'],
+      },
     ])
   })
 
