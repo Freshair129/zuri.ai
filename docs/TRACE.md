@@ -303,6 +303,7 @@
 
 ### FR-041 — Business Overview renders the selected Business's Projects plus a Business Strategy read model: Roadmap and two or three ordered goal horizons. The service enforces horizon cardinality and viewer/business isolation; roadmap editing and Project links are a follow-up mutation slice.
 
+- **Feature:** FEAT-002 — Business Home — shell-level cross-domain aggregation (Dashboard now; Goals & KPIs, Risks & Alerts, Reports later)
 - **Status:** done
 - **Surface:** `/overview` (page) · `/api/business/strategy` (api)
 - **Code:** `prisma/seed.js` · `src/app/(pm)/overview/page.jsx` · `src/app/api/business/strategy/route.js` · `src/lib/shell-mode.js` · `src/modules/business/application/business-strategy-service.js`
@@ -445,3 +446,11 @@
 - **Code:** `src/app/(pm)/overview/page.jsx` · `src/app/api/business/goals/[id]/projects/[projectId]/route.js` · `src/app/api/business/goals/[id]/projects/route.js` · `src/app/api/business/goals/[id]/route.js` · `src/app/api/business/goals/route.js` · `src/app/api/business/roadmaps/[id]/route.js` · `src/app/api/business/roadmaps/route.js` · `src/modules/project-manager/application/business-strategy-mutation-service.js` · `src/modules/project-manager/components/StrategyEditModals.jsx`
 - **Follows:** BR-001, NFR-004, SDD-014, SDD-020, SDD-024, SDD-032, SEC-003, SEC-008
 - **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/unit/fr045-api-ui-contract.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr059-strategy-validation.test.js` · `tests/unit/overview-split.test.js`
+
+### FR-060 — Business Home: a shell-level Tier-2 slot whose Dashboard aggregates the selected Business across domains — a briefing line, KPI tiles, per-domain health, and an attention queue ordered by impact. It is a **non-owning read projection**: every figure is recomputed from the owning domain's read model, nothing is stored, and no write path is added. Domains with no module render as **reserved slots, never as zero or as invented figures**; only live domains contribute to any score. FR-041's Business Overview becomes this Dashboard rather than a second surface beside it.
+
+- **Feature:** FEAT-002 — Business Home — shell-level cross-domain aggregation (Dashboard now; Goals & KPIs, Risks & Alerts, Reports later)
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —

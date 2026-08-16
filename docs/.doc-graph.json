@@ -3,36 +3,39 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 665,
-    "total_edges": 1764,
+    "total_nodes": 669,
+    "total_edges": 1768,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 59,
+      "document": 60,
       "adr": 26,
       "domain": 5,
       "roadmap": 21,
-      "feature": 1,
+      "feature": 2,
       "route": 96,
       "model": 33,
-      "requirement": 133,
+      "requirement": 135,
       "test": 124,
       "code_file": 163
     },
     "coverage": {
-      "requirements": 133,
+      "requirements": 135,
       "fr_with_code": "100% (59/59)",
       "fr_with_tests": "100% (59/59)",
-      "rules_anchored_in_code": "92% (55/60)",
+      "rules_anchored_in_code": "90% (55/61)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 163,
-      "fr_planned": [],
+      "fr_planned": [
+        "FR-060"
+      ],
       "fr_without_code": [],
       "fr_without_tests": [],
       "rules_without_anchor": [
         "SDD-001",
         "SDD-008",
         "SDD-013",
+        "SDD-033",
         "SEC-004",
         "SEC-005"
       ]
@@ -40,7 +43,7 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0"
+      "doc:FR-060-business-home"
     ],
     "added": [],
     "removed": []
@@ -3376,7 +3379,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.0.0",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "03279fed",
+      "hash": "743852e9",
       "status": "current"
     },
     {
@@ -3637,6 +3640,16 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-060-business-home",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-060-business-home.md",
+      "title": "FR-060 — Business Home",
+      "version": "1.0.0",
+      "doc_status": "Proposed — Decision 1 needs owner sign-off before code",
+      "hash": "6dad082d",
+      "status": "changed"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -3841,8 +3854,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.45.0b",
       "doc_status": "Draft",
-      "hash": "41511c13",
-      "status": "changed"
+      "hash": "bb69911b",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -4117,6 +4130,13 @@
       "type": "feature",
       "label": "File Manager — Business/Project files with managed local workspace",
       "declared": "live",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-002",
+      "type": "feature",
+      "label": "Business Home — shell-level cross-domain aggregation (Dashboard now; Goals & KPIs, Risks & Alerts, Reports later)",
+      "declared": "building",
       "status": "current"
     },
     {
@@ -4951,6 +4971,15 @@
       "status": "current"
     },
     {
+      "id": "req:FR-060",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Business Home: a shell-level Tier-2 slot whose Dashboard aggregates the selected Business across domains — a briefing line, KPI tiles, per-domain health, and an attention queue ordered by impact. It is a **non-owning read projection**: every figure is recomputed from the owning domain's read model, nothing is stored, and no write path is added. Domains with no module render as **reserved slots, never as zero or as invented figures**; only live domains contribute to any score. FR-041's Business Overview becomes this Dashboard rather than a second surface beside it.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -5360,6 +5389,15 @@
       "type": "requirement",
       "family": "SDD",
       "label": "Business Strategy writes live only in `src/modules/project-manager/application/` — the charter's sole writing lane; `src/modules/business` remains a read slice. Every mutation records an `AuditEvent`; Goal/roadmap status and priority vocabularies are the single Zod source in `src/lib/validation/enums.js`.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-033",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Business Home is a **non-owning cross-domain projection** (architecture invariant 8): it lives in the `business` read slice, owns no model, writes nothing, and calls each domain's read model rather than querying another domain's tables. A figure it cannot source from a live domain is not rendered — reserved domains show as reserved, and any composite score states which domains it covers. This keeps the surface from becoming a second, drifting copy of numbers the domains already own.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -11413,6 +11451,20 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-002",
+      "to": "req:FR-041",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-002",
+      "to": "req:FR-060",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:AuditEvent",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -12162,6 +12214,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-060",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -12478,6 +12537,13 @@
     },
     {
       "from": "req:SDD-032",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-033",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
