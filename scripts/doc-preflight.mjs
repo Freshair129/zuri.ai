@@ -446,7 +446,7 @@ const VIEWER_EXEMPT = new Set([
 ])
 {
   const roleLiteral = /\brole:\s*['"](OWNER|MEMBER|DEV)['"]/
-  const viewerField = /visibleBusinessIds|ownedBusinessIds|visibleDomains|isPlatform/
+  const viewerField = /visibleBusinessIds|ownedBusinessIds|domainsByBusinessId|visibleDomains|isPlatform/
   const offenders = []
   for (const file of walk(path.join(ROOT, 'tests'), '.js')) {
     const relative = rel(file)

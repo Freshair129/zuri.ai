@@ -1,4 +1,5 @@
 import { domainForPath, isDomainVisible } from '@/config/domains'
+import { domainsForBusiness } from '@/modules/identity/viewer-domains'
 
 // @req FR-044 — Business selection and viewer access are resolved before the
 // BusinessShell/AppShell is mounted.
@@ -14,11 +15,14 @@ export function projectIdFromPath(pathname = '') {
   return decodeURIComponent(match[1])
 }
 
-function visibleDomain(viewer, domainKey) {
+function visibleDomain(viewer, domainKey, businessId) {
   // @req FR-060 — delegated to the registry so an `alwaysVisible` slot (Business
   // Home) is honoured identically here and in DomainBar. The undefined fallback
   // for old local fixtures is preserved inside `isDomainVisible`.
-  return isDomainVisible(domainKey, viewer?.visibleDomains)
+  // @req FR-061 — the allow-list is the one for THIS Business. `visibleDomains`
+  // is the union across every visible Business, so using it here would let a
+  // principal who owns Business A open A's domains inside Business B.
+  return isDomainVisible(domainKey, domainsForBusiness(viewer, businessId))
 }
 
 /**
@@ -66,7 +70,7 @@ export function resolveBusinessShellDecision({
     : pathname === '/profile' || pathname.startsWith('/profile/')
       ? { key: 'platform' }
       : domainForPath(pathname)
-  if (domain && !visibleDomain(viewer, domain.key)) {
+  if (domain && !visibleDomain(viewer, domain.key, businessId)) {
     return { state: 'FORBIDDEN', redirect: '/overview', reason: 'DOMAIN_ACCESS', domain: domain.key }
   }
 

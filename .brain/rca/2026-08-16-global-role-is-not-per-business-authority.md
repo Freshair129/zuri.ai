@@ -88,7 +88,7 @@ tenant-wide Membership — and the previous behaviour was *worse* than the hole
 being closed, since the old check short-circuited on `null` and let any global
 OWNER edit such rows **in unrelated tenants**.
 
-## Instance 3 — domain visibility (confirmed, NOT fixed)
+## Instance 3 — domain visibility (fixed 2026-08-17, FR-061)
 
 ```js
 function visibleDomainsForMemberships(memberships) {
@@ -115,6 +115,24 @@ cannot express the correct answer, so this is not a guard swap — it is a viewe
 contract change, consumed by `DomainBar`, `business-shell-guard.js` and
 `entry-read-model.js`. Per the FR-first rule it needs its FR declared before any
 code.
+
+**Fix** ([FR-061](../../docs/domains/identity/features/FR-061-per-business-domain-visibility.md),
+declared first, in its own commit). The viewer gained
+`domainsByBusinessId`, built from the same Membership rows and the same
+tenant-wide expansion as `visibleBusinessIds`/`ownedBusinessIds`, so OWNER-ness
+applies **per Membership**. `domainsForBusiness(viewer, businessId)` is now the
+only sanctioned way to ask, it fails closed, and both consumers ask it.
+
+`visibleDomains` was kept and its meaning pinned — the union across visible
+Businesses, "may this principal see this domain *anywhere*". That distinction is
+the actual lesson of all three instances: none of these fields was wrong, each
+answered a question no consumer was asking.
+
+Also rejected on purpose: a `allDomainsEverywhere: true` flag for the platform
+DEV and local-development branches. It would have been truthful and much
+smaller. But this document is a record of a shortcut being read in place of the
+scoped question three separate times, so those branches fill the same map as
+everyone else and there is nothing else to read.
 
 ## Why review caught this and tests did not
 

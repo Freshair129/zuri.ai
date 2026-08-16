@@ -32,6 +32,12 @@ Who a principal is and what they may see: external identity resolution
 - `resolveLineIdentity` — the one resolver; no other site may resolve a
   lineUserId on its own (see the identity impact scan, archived).
 - `classifyPrincipal`, the viewer gate, `erasePrincipal`.
+- The viewer's authority questions have one answer each, and none of them is
+  the global `role` label: **may I write here** → `ownedBusinessIds` (FR-059),
+  **which domains may I see here** → `domainsForBusiness(viewer, businessId)`
+  (FR-061). `visibleDomains` answers "anywhere", never "here". The pure rule
+  lives in `viewer-domains.js` with no I/O, because both consumers are client
+  components.
 
 ## Known shared-write exceptions (debt, visible on purpose)
 

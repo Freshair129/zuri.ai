@@ -31,7 +31,8 @@ function fail(message) {
  * @param {'OWNER'|'MEMBER'|'DEV'} [over.role]
  * @param {string[]} [over.visibleBusinessIds]
  * @param {string[]} [over.ownedBusinessIds]  must be a subset of visibleBusinessIds
- * @param {string[]} [over.visibleDomains]
+ * @param {string[]} [over.visibleDomains]        the union across Businesses
+ * @param {Record<string,string[]>} [over.domainsByBusinessId]  per-Business grant
  * @param {boolean}  [over.isPlatform]
  * @param {object}   [over.principal]
  */
@@ -41,6 +42,10 @@ export function makeViewer(over = {}) {
     visibleBusinessIds = ['b-1'],
     ownedBusinessIds = role === 'OWNER' ? visibleBusinessIds : [],
     visibleDomains = DEFAULT_DOMAINS,
+    // @req FR-061 — every resolver branch emits this, so a fixture without it
+    // is a shape production cannot produce. Filled in below (not here) so the
+    // array checks still run first on a caller that passed a non-array.
+    domainsByBusinessId = null,
     isPlatform = role === 'DEV',
     principal = { id: 'per-1', code: 'PER-1', displayName: 'Test Principal' },
   } = over
@@ -71,7 +76,29 @@ export function makeViewer(over = {}) {
     fail('role MEMBER cannot own a Business — resolveViewer would have labelled this principal OWNER')
   }
 
-  return { principal, role, visibleBusinessIds, ownedBusinessIds, visibleDomains, isPlatform }
+  // @req FR-061 — the map may only speak about Businesses the viewer can see,
+  // and an owned Business always carries every domain (an OWNER Membership
+  // derives them from the role, per Membership). Defaulting to an even grant on
+  // every visible Business keeps existing callers honest without forcing them
+  // to spell it out; pass it explicitly to model an uneven grant.
+  const domains = domainsByBusinessId
+    ?? Object.fromEntries(visibleBusinessIds.map((id) => [id, [...visibleDomains]]))
+  if (typeof domains !== 'object' || Array.isArray(domains)) {
+    fail('domainsByBusinessId must be a plain object keyed by Business id')
+  }
+  const unseen = Object.keys(domains).filter((id) => !visibleBusinessIds.includes(id))
+  if (unseen.length) {
+    fail(`domainsByBusinessId mentions ${unseen.join(', ')}, which is not in visibleBusinessIds`)
+  }
+  const thin = ownedBusinessIds.filter((id) => (domains[id] || []).length < visibleDomains.length)
+  if (thin.length) {
+    fail(`${thin.join(', ')} is owned, so it must carry every domain the viewer sees anywhere`)
+  }
+
+  return {
+    principal, role, visibleBusinessIds, ownedBusinessIds,
+    domainsByBusinessId: domains, visibleDomains, isPlatform,
+  }
 }
 
 /**
@@ -79,11 +106,17 @@ export function makeViewer(over = {}) {
  * MEMBER of Business B. `role` is the global 'OWNER' label and B is visible,
  * yet B is not owned — the exact combination two guards failed to compose.
  */
-export function ownsElsewhere({ owns = 'b-owned', sees = 'b-target', ...rest } = {}) {
+export function ownsElsewhere({ owns = 'b-owned', sees = 'b-target', seesDomains = null, ...rest } = {}) {
+  const visibleDomains = rest.visibleDomains || DEFAULT_DOMAINS
   return makeViewer({
     role: 'OWNER',
     visibleBusinessIds: [owns, sees],
     ownedBusinessIds: [owns],
+    // @req FR-061 — the same shape has a domain dimension: all domains on the
+    // owned Business, only what the Membership granted on the other. Pass
+    // `seesDomains` to model it; omitted keeps the pre-FR-061 default of an
+    // even grant, so existing callers still assert what they meant to.
+    ...(seesDomains ? { domainsByBusinessId: { [owns]: [...visibleDomains], [sees]: seesDomains } } : {}),
     ...rest,
   })
 }

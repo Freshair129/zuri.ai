@@ -83,13 +83,17 @@ describe('the route guard honours it', () => {
 describe('both consumers use one predicate', () => {
   // The bar and the guard disagreeing is the failure mode this replaces: one
   // would show the tab and the other would refuse the route.
+  // FR-061 changed *which* allow-list is passed in (per Business, not the flat
+  // union). These assertions pin the shared predicate, which is what FR-060
+  // actually decided — pinning the argument expression made them fail on a
+  // change that kept the two consumers perfectly in step.
   it('DomainBar filters through isDomainVisible, not a local Set', () => {
     const source = readSource('src/components/layouts/DomainBar.jsx')
-    expect(source).toContain('isDomainVisible(domain.key, viewer.data?.visibleDomains)')
+    expect(source).toMatch(/isDomainVisible\(domain\.key,/)
     expect(source).not.toContain('visibleDomains.has(')
   })
 
   it('business-shell-guard delegates to the same predicate', () => {
-    expect(readSource('src/lib/business-shell-guard.js')).toContain('isDomainVisible(domainKey, viewer?.visibleDomains)')
+    expect(readSource('src/lib/business-shell-guard.js')).toMatch(/isDomainVisible\(domainKey,/)
   })
 })

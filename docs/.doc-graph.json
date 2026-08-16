@@ -3,32 +3,30 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 675,
-    "total_edges": 1821,
+    "total_nodes": 680,
+    "total_edges": 1854,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 60,
+      "document": 61,
       "adr": 26,
       "domain": 5,
       "roadmap": 21,
       "feature": 2,
       "route": 96,
       "model": 33,
-      "requirement": 135,
-      "test": 129,
-      "code_file": 164
+      "requirement": 137,
+      "test": 130,
+      "code_file": 165
     },
     "coverage": {
-      "requirements": 135,
-      "fr_with_code": "100% (59/59)",
-      "fr_with_tests": "100% (59/59)",
-      "rules_anchored_in_code": "92% (56/61)",
+      "requirements": 137,
+      "fr_with_code": "100% (61/61)",
+      "fr_with_tests": "100% (61/61)",
+      "rules_anchored_in_code": "92% (57/62)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 164,
-      "fr_planned": [
-        "FR-060"
-      ],
+      "annotated_code_files": 165,
+      "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
       "rules_without_anchor": [
@@ -42,7 +40,7 @@
   },
   "drift": {
     "changed": [
-      "test:tests/unit/assert-tests-ran.test.js"
+      "doc:FR-061-per-business-domain-visibility"
     ],
     "added": [],
     "removed": []
@@ -1272,19 +1270,22 @@
       "id": "code:src/components/layouts/DomainBar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/DomainBar.jsx",
-      "hash": "1a8c72f7",
+      "hash": "f0247388",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-038"
+          "FR-038",
+          "FR-061"
         ],
         "@spec": [
           "SDD-017",
           "FR-038",
-          "SDD-017, docs/features/FR-038-profile-and-permissions.md"
+          "SDD-017, docs/features/FR-038-profile-and-permissions.md",
+          "SDD-034"
         ],
         "@tested": [
           "tests/unit/profile-permission-service.test.js",
+          "tests/unit/fr061-per-business-domain-visibility.test.js",
           "tests/unit/domain-navigation.test.js",
           "tests/e2e/fr041-business-first.spec.js"
         ]
@@ -1482,12 +1483,13 @@
       "id": "code:src/lib/business-shell-guard.js",
       "type": "code_file",
       "path": "src/lib/business-shell-guard.js",
-      "hash": "dd2ae617",
+      "hash": "d21222a4",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
-          "FR-060"
+          "FR-060",
+          "FR-061"
         ],
         "@spec": [
           "SDD-022"
@@ -2296,20 +2298,24 @@
       "id": "code:src/modules/identity/resolve-viewer.js",
       "type": "code_file",
       "path": "src/modules/identity/resolve-viewer.js",
-      "hash": "1f46958e",
+      "hash": "67cddb7a",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-031",
-          "FR-038"
+          "FR-038",
+          "FR-061",
+          "SDD-034"
         ],
         "@spec": [
           "FR-031",
           "ADR-008 §D4, docs/features/FR-031-viewer-gate.md",
-          "SDD-017"
+          "SDD-017",
+          "SDD-034"
         ],
         "@tested": [
-          "tests/unit/viewer-gate.test.js"
+          "tests/unit/viewer-gate.test.js",
+          "tests/unit/fr061-per-business-domain-visibility.test.js"
         ]
       }
     },
@@ -2329,6 +2335,26 @@
         ],
         "@tested": [
           "tests/unit/fr046-session-port.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/viewer-domains.js",
+      "type": "code_file",
+      "path": "src/modules/identity/viewer-domains.js",
+      "hash": "db0b80b8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-061"
+        ],
+        "@spec": [
+          "SDD-034",
+          "SDD-017",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/fr061-per-business-domain-visibility.test.js"
         ]
       }
     },
@@ -3435,7 +3461,7 @@
       "title": "FR-031: Viewer gate seam",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "d224f6ff",
+      "hash": "52865ccf",
       "status": "current"
     },
     {
@@ -3676,6 +3702,16 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-061-per-business-domain-visibility",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-061-per-business-domain-visibility.md",
+      "title": "FR-061: Per-Business domain visibility",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "e0faf4f4",
+      "status": "changed"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -3880,7 +3916,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.45.0b",
       "doc_status": "Draft",
-      "hash": "bb69911b",
+      "hash": "c150f2ea",
       "status": "current"
     },
     {
@@ -4090,7 +4126,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "9ffb14f1",
+      "hash": "d6e33c70",
       "status": "current"
     },
     {
@@ -5002,8 +5038,17 @@
       "family": "FR",
       "label": "Business Home: a shell-level Tier-2 slot whose Dashboard aggregates the selected Business across domains — a briefing line, KPI tiles, per-domain health, and an attention queue ordered by impact. It is a **non-owning read projection**: every figure is recomputed from the owning domain's read model, nothing is stored, and no write path is added. Domains with no module render as **reserved slots, never as zero or as invented figures**; only live domains contribute to any score. FR-041's Business Overview becomes this Dashboard rather than a second surface beside it.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned"
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-061",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Per-Business domain visibility: `resolveViewer()` resolves which domains a principal may see **per Business**, not once per principal. Each Membership's grant applies only to the Businesses that Membership covers — an OWNER Membership confers all domains on the Businesses it owns, and never widens what the same principal sees in a Business where they hold only a MEMBER Membership. The viewer gains `domainsByBusinessId` (per-Business allow-list; absent or `[]` denies), and `domainsForBusiness(viewer, businessId)` is the only way a Business-scoped consumer may ask the question. The existing flat `visibleDomains` is retained and additively redefined as the union across visible Businesses — \"may this principal see this domain *anywhere*\" — and is never an authorization input for a Business-scoped decision. The route guard and the domain bar both read the per-Business answer.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
     },
     {
       "id": "req:NFR-001",
@@ -5279,7 +5324,7 @@
       "id": "req:SDD-017",
       "type": "requirement",
       "family": "SDD",
-      "label": "`Membership.domainKeysJson` persists an allow-list of DOMAINS keys for MEMBER. Empty is deny-by-default. Owner and DEV derive all current domains from their role, not from checkbox state. The resolver is the only interpreter; DomainBar reads its `visibleDomains`, and owner-only API mutations audit the resulting role/domain grant.",
+      "label": "`Membership.domainKeysJson` persists an allow-list of DOMAINS keys for MEMBER. Empty is deny-by-default. Owner and DEV derive all current domains from their role, not from checkbox state. The resolver is the only interpreter; DomainBar reads its `visibleDomains`, and owner-only API mutations audit the resulting role/domain grant. **Refined by FR-061/SDD-034**: \"derive from their role\" is a *per-Membership* rule, so an OWNER Membership grants all domains on the Businesses that Membership covers and nowhere else; DomainBar now reads the per-Business answer, not the flat field.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -5424,6 +5469,15 @@
       "type": "requirement",
       "family": "SDD",
       "label": "Business Home is a **non-owning cross-domain projection** (architecture invariant 8): it lives in the `business` read slice, owns no model, writes nothing, and calls each domain's read model rather than querying another domain's tables. A figure it cannot source from a live domain is not rendered — reserved domains show as reserved, and any composite score states which domains it covers. This keeps the surface from becoming a second, drifting copy of numbers the domains already own.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-034",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "The per-Business domain map is derived from the same Membership rows and the same tenant-wide expansion that already produce `visibleBusinessIds` and `ownedBusinessIds`, and it is populated in **every** `resolveViewer` branch: the platform DEV and local-development branches fill it from their own visible-Business set rather than carrying a \"sees everything\" flag, so no consumer can answer the per-Business question by reading a shortcut. `domainsForBusiness` fails closed on an unknown Business and falls back to the flat `visibleDomains` only for a viewer that predates the map (a hand-built fixture), never for one a real resolver emitted. Cost is O(visible Businesses × domains) in the viewer payload — accepted at current scale; the exit if it stops being acceptable is a Business-scoped resolution (`resolveViewer({ businessId })`), not a flag.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -6838,7 +6892,7 @@
       "type": "test",
       "path": "tests/unit/assert-tests-ran.test.js",
       "hash": "3c730e8d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/breadcrumb-switcher.test.js",
@@ -7096,7 +7150,14 @@
       "id": "test:tests/unit/fr060-business-home-visibility.test.js",
       "type": "test",
       "path": "tests/unit/fr060-business-home-visibility.test.js",
-      "hash": "94ba13e5",
+      "hash": "06fa3744",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "type": "test",
+      "path": "tests/unit/fr061-per-business-domain-visibility.test.js",
+      "hash": "45eac8a0",
       "status": "current"
     },
     {
@@ -9203,7 +9264,21 @@
     },
     {
       "from": "code:src/components/layouts/DomainBar.jsx",
+      "to": "req:FR-061",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/DomainBar.jsx",
       "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/DomainBar.jsx",
+      "to": "req:SDD-034",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -9470,6 +9545,13 @@
     {
       "from": "code:src/lib/business-shell-guard.js",
       "to": "req:FR-060",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/business-shell-guard.js",
+      "to": "req:FR-061",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -10442,7 +10524,28 @@
     },
     {
       "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:FR-061",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
       "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:SDD-034",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:SDD-034",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -10463,6 +10566,34 @@
     },
     {
       "from": "code:src/modules/identity/session-port.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/viewer-domains.js",
+      "to": "req:FR-061",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/viewer-domains.js",
+      "to": "req:SDD-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/viewer-domains.js",
+      "to": "req:SDD-034",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/viewer-domains.js",
       "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
@@ -12345,6 +12476,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-061",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -12668,6 +12806,13 @@
     },
     {
       "from": "req:SDD-033",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-034",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -14110,6 +14255,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -14153,6 +14305,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SDD-034",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -16756,6 +16915,13 @@
     },
     {
       "from": "test:tests/unit/business-shell-guard.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-shell-guard.test.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
@@ -17008,6 +17174,13 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -17019,6 +17192,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/entry-routing-boundary.test.js",
@@ -18506,6 +18686,13 @@
     },
     {
       "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
       "to": "req:SDD-014",
       "type": "verifies",
       "status": "current",
@@ -18528,6 +18715,83 @@
     {
       "from": "test:tests/unit/fr060-business-home-visibility.test.js",
       "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "code:src/components/layouts/DomainBar.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "code:src/modules/identity/resolve-viewer.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "code:src/modules/identity/viewer-domains.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-031",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:SDD-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -19332,6 +19596,13 @@
     },
     {
       "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -19340,6 +19611,13 @@
     {
       "from": "test:tests/unit/profile-permission-service.test.js",
       "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:SDD-034",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -20102,6 +20380,13 @@
     },
     {
       "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
       "to": "req:SDD-011",
       "type": "verifies",
       "status": "current",
@@ -20110,6 +20395,13 @@
     {
       "from": "test:tests/unit/viewer-gate.test.js",
       "to": "req:SDD-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:SDD-034",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

@@ -1,5 +1,5 @@
 import prisma from '@/lib/db'
-import { DOMAINS } from '@/config/domains'
+import { VIEWER_DOMAINS, allDomainsFor, buildDomainsByBusiness } from './viewer-domains'
 
 // @req FR-031 — all future shell visibility starts from one resolved viewer scope.
 // @spec ADR-008 §D4, docs/features/FR-031-viewer-gate.md — DEV is a platform grant,
@@ -16,23 +16,25 @@ import { DOMAINS } from '@/config/domains'
 // actual per-Business OWNER grant set; callers guarding a write MUST check
 // `ownedBusinessIds.includes(businessId)`, never `role === 'OWNER'` plus
 // `visibleBusinessIds` alone.
+// @req FR-061 — domain visibility is per Business for the same reason: a
+// consumer holding a businessId asks `domainsForBusiness(viewer, businessId)`,
+// never the flat `visibleDomains`, which answers "anywhere" and not "here".
+// @spec SDD-034 — every branch below fills `domainsByBusinessId`.
+// @tested tests/unit/fr061-per-business-domain-visibility.test.js
 
 const LOCAL_OWNER_CODE = 'PER-OWNER'
-export const VIEWER_DOMAINS = DOMAINS.map((domain) => domain.key)
+export { VIEWER_DOMAINS }
 
 const unique = (values) => [...new Set(values.filter(Boolean))]
 
-function visibleDomainsForMemberships(memberships) {
-  if (memberships.some((membership) => membership.role === 'OWNER')) return VIEWER_DOMAINS
-  const grants = memberships.flatMap((membership) => {
-    try {
-      const keys = JSON.parse(membership.domainKeysJson || '[]')
-      return Array.isArray(keys) ? keys : []
-    } catch {
-      return []
-    }
-  })
-  return unique(grants.filter((key) => VIEWER_DOMAINS.includes(key)))
+// @req FR-061 — the flat field is the UNION across visible Businesses: "may
+// this principal see this domain *anywhere*". It is retained because
+// `GET /api/entry` publishes it under a strict contract (FR-046) on a surface
+// with no Business selected. It is never an authorization input for a
+// Business-scoped decision — ask `domainsForBusiness(viewer, businessId)`.
+function unionOfDomains(domainsByBusinessId) {
+  const seen = new Set(Object.values(domainsByBusinessId).flat())
+  return VIEWER_DOMAINS.filter((key) => seen.has(key))
 }
 
 async function allBusinessIds(db) {
@@ -55,7 +57,7 @@ async function resolvePrincipal(db, principalId) {
  * not derived from Membership, because DEV is cross-tenant while Membership is not.
  *
  * @param {{ principalId?: string, platformGrant?: boolean, allowDevelopmentFallback?: boolean, db?: import('@prisma/client').PrismaClient }} [input]
- * @returns {Promise<{principal: {id:string,code:string,displayName:string}, role:'OWNER'|'MEMBER'|'DEV', visibleBusinessIds:string[], ownedBusinessIds:string[], visibleDomains:string[], isPlatform:boolean}>}
+ * @returns {Promise<{principal: {id:string,code:string,displayName:string}, role:'OWNER'|'MEMBER'|'DEV', visibleBusinessIds:string[], ownedBusinessIds:string[], domainsByBusinessId:Record<string,string[]>, visibleDomains:string[], isPlatform:boolean}>}
  */
 export async function resolveViewer({
   principalId = null,
@@ -73,12 +75,17 @@ export async function resolveViewer({
     // A platform DEV grant is cross-tenant visibility, not per-Business OWNER
     // authority — it is not derived from Membership, so it confers no ownership.
     // requireOwner-style checks and the Overview UI both rely on this staying empty.
+    const visibleBusinessIds = await allBusinessIds(db)
     return {
       principal,
       role: 'DEV',
-      visibleBusinessIds: await allBusinessIds(db),
+      visibleBusinessIds,
       ownedBusinessIds: [],
-      visibleDomains: VIEWER_DOMAINS,
+      // @req FR-061 — unrestricted, but still stated per Business (SDD-034):
+      // filling the map rather than raising a flag leaves consumers no
+      // shortcut to read in place of the scoped question.
+      domainsByBusinessId: allDomainsFor(visibleBusinessIds),
+      visibleDomains: [...VIEWER_DOMAINS],
       isPlatform: true,
     }
   }
@@ -96,7 +103,8 @@ export async function resolveViewer({
       role: 'OWNER',
       visibleBusinessIds: [...businessIds],
       ownedBusinessIds: [...businessIds],
-      visibleDomains: VIEWER_DOMAINS,
+      domainsByBusinessId: allDomainsFor(businessIds),
+      visibleDomains: [...VIEWER_DOMAINS],
       isPlatform: false,
     }
   }
@@ -125,12 +133,18 @@ export async function resolveViewer({
     ...tenantBusinesses.filter((business) => ownerTenantWideIds.includes(business.tenantId)).map((business) => business.id),
   ])
 
+  // @req FR-061 — built from the same rows and the same tenant-wide expansion
+  // as the two id sets above, so an OWNER Membership grants every domain on the
+  // Businesses it covers and widens nothing elsewhere.
+  const domainsByBusinessId = buildDomainsByBusiness({ memberships, tenantBusinesses })
+
   return {
     principal,
     role: memberships.some((membership) => membership.role === 'OWNER') ? 'OWNER' : 'MEMBER',
     visibleBusinessIds,
     ownedBusinessIds,
-    visibleDomains: visibleDomainsForMemberships(memberships),
+    domainsByBusinessId,
+    visibleDomains: unionOfDomains(domainsByBusinessId),
     isPlatform: false,
   }
 }
