@@ -41,7 +41,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "test:tests/unit/assert-tests-ran.test.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -6835,8 +6837,8 @@
       "id": "test:tests/unit/assert-tests-ran.test.js",
       "type": "test",
       "path": "tests/unit/assert-tests-ran.test.js",
-      "hash": "6dec444d",
-      "status": "current"
+      "hash": "3c730e8d",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/breadcrumb-switcher.test.js",

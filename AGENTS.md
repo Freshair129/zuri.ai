@@ -280,7 +280,10 @@ npm run docs:preflight  # doc health → docs/.preflight-report.json; --strict, 
 `npm run verify` is the definition of done in one command (test → build → govern →
 e2e). Both test commands are wrapped by `scripts/assert-tests-ran.mjs`, which fails a
 run that executed **zero** tests — `vitest run -t "NO_MATCH"` exits 0 with everything
-skipped, and an exit code of 0 must never mean the work did not run.
+skipped, and an exit code of 0 must never mean the work did not run. `test:e2e`
+additionally fails on **flaky**: Playwright exits 0 for a test that passes only on
+retry, so a degrading suite reads as green. The retry is kept to label flakiness, not
+to hide it.
 
 Viewers in tests come from `tests/factories/viewer.js` (`makeViewer`,
 `ownsElsewhere`, `makeDevViewer`), never hand-built. The factory enforces the

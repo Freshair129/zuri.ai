@@ -35,6 +35,32 @@ export function executedFromVitest(report) {
   return numPassedTests + numFailedTests
 }
 
+/**
+ * Tests that failed and then passed on a retry.
+ *
+ * Playwright exits **0** for these, and the summary reports them on a line
+ * separate from "failed" — so a flaky suite is green to every automated reader
+ * and easy to miss for a human one. A retry that turns red into green is not
+ * absorbing noise, it is discarding evidence: the test is not trustworthy, and
+ * the build should say so. Keeping `retries: 1` and failing here preserves the
+ * diagnosis (flaky, not consistently broken) while removing the concealment.
+ */
+export function flakyFromPlaywright(report) {
+  if (!report || !Array.isArray(report.suites)) return null
+  const flaky = []
+  const visit = (suite, trail) => {
+    const here = suite.title ? [...trail, suite.title] : trail
+    for (const spec of suite.specs || []) {
+      for (const test of spec.tests || []) {
+        if (test.status === 'flaky') flaky.push([...here, spec.title].filter(Boolean).join(' › '))
+      }
+    }
+    for (const child of suite.suites || []) visit(child, here)
+  }
+  for (const suite of report.suites) visit(suite, [])
+  return flaky
+}
+
 export function executedFromPlaywright(report) {
   if (!report || typeof report !== 'object') return null
   let executed = 0
@@ -73,7 +99,10 @@ const RUNNERS = {
 }
 
 function main() {
-  const [kind, ...rest] = process.argv.slice(2)
+  const [kind, ...argv] = process.argv.slice(2)
+  const FLAKY_FLAG = '--fail-on-flaky'
+  const failOnFlaky = argv.includes(FLAKY_FLAG)
+  const rest = argv.filter((a) => a !== FLAKY_FLAG)
   const runner = RUNNERS[kind]
   if (!runner) {
     console.error(`assert-tests-ran: unknown runner "${kind}" (expected: ${Object.keys(RUNNERS).join(', ')})`)
@@ -104,9 +133,12 @@ function main() {
   }
 
   let executed = null
+  let flaky = null
   if (existsSync(reportPath)) {
     try {
-      executed = runner.parse(JSON.parse(readFileSync(reportPath, 'utf8')))
+      const report = JSON.parse(readFileSync(reportPath, 'utf8'))
+      executed = runner.parse(report)
+      if (kind === 'playwright') flaky = flakyFromPlaywright(report)
     } catch {
       executed = null
     }
@@ -133,7 +165,23 @@ function main() {
     process.exit(1)
   }
 
-  console.log(`\nassert-tests-ran: ${kind} executed ${executed} test(s).`)
+  // Always report flakiness, even when it is tolerated — the failure mode this
+  // closes is that nobody notices the suite degrading.
+  if (flaky?.length) {
+    console.error(`\nassert-tests-ran: ${flaky.length} flaky test(s) — passed only on retry:`)
+    for (const title of flaky) console.error(`  · ${title}`)
+    if (failOnFlaky) {
+      console.error(
+        '\n::error::A test that passes only on retry is not trustworthy. Playwright exits 0 for ' +
+        'these and reports them on a line separate from "failed", so a flaky suite is green to ' +
+        'every automated reader. Fix the nondeterminism, or quarantine the test explicitly — do ' +
+        'not let the retry hide it.',
+      )
+      process.exit(1)
+    }
+  }
+
+  console.log(`\nassert-tests-ran: ${kind} executed ${executed} test(s)${flaky?.length ? `, ${flaky.length} flaky` : ''}.`)
   process.exit(0)
 }
 

@@ -76,6 +76,13 @@ run that executed zero tests. `npx vitest run -t "NO_MATCH"` exits **0** with al
 tests skipped; a green exit code must mean the work ran and passed, never that it did
 not run.
 
+**`test:e2e` also fails on `flaky`.** Playwright exits **0** for a test that passes
+only on retry and reports it on a line separate from "failed", so a degrading suite
+stays green to every automated reader. `retries: 1` is kept to *label* flakiness —
+the report still distinguishes flaky from consistently broken — but the build now
+fails on it. Fix the nondeterminism or quarantine the test explicitly; do not let the
+retry hide it.
+
 **Build a viewer in a test with `makeViewer()` / `ownsElsewhere()` from
 `tests/factories/viewer.js`, never by hand.** The factory enforces the resolver's
 invariants — `ownedBusinessIds ⊆ visibleBusinessIds`, a DEV owns nothing, an OWNER

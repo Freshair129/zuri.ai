@@ -32,8 +32,16 @@ module.exports = defineConfig({
   globalSetup: './tests/e2e/global-setup.js',
   timeout: 60000,
   expect: { timeout: 10000 },
-  // E2E runs against the dev server; first hits can pay Next.js on-demand
-  // compile cost, so allow one retry to absorb cold-route flakes.
+  // One retry is kept to *label* flakiness, not to hide it. `npm run test:e2e`
+  // passes --fail-on-flaky, so a test that passes only on retry fails the build
+  // while its report still distinguishes "flaky" from "consistently broken" —
+  // which a bare retries:0 would throw away.
+  //
+  // The original justification for the retry was Next.js on-demand compile cost
+  // on first hit. That is no longer load-bearing: on 2026-08-17 the full suite
+  // ran clean twice at --retries=0, both at default workers and at --workers=1.
+  // If cold-compile flakes reappear, the fix is a warm-up step, not re-hiding
+  // them behind a silent retry.
   retries: 1,
   use: {
     baseURL: 'http://localhost:3100',
