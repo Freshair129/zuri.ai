@@ -6,9 +6,10 @@
 // Usage: node scripts/doc-preflight.mjs [--strict]
 //   --strict  exit 1 on any CRITICAL finding
 
-import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'fs'
+import { writeFileSync, readdirSync, statSync, existsSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { readCanonical } from './canonical-text.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -16,7 +17,10 @@ const SPEC_PACK = path.join(ROOT, 'docs')
 const REPORT = path.join(ROOT, 'docs', '.preflight-report.json')
 const GRAPH = path.join(ROOT, 'docs', '.doc-graph.json')
 
-const read = (p) => readFileSync(p, 'utf8')
+// Canonical for the same reason as doc-graph's reader: a CRLF checkout leaves a
+// trailing \r on every line-anchored capture, so control-block and link checks
+// must not depend on how git materialized the file.
+const read = readCanonical
 const rel = (p) => path.relative(ROOT, p).split(path.sep).join('/')
 const findings = []
 const add = (severity, check, title, details, files = [], action = '') =>

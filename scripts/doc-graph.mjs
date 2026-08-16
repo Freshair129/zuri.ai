@@ -7,9 +7,10 @@
 //   --check  exit 1 if the committed graph differs from a fresh scan (CI guard)
 
 import { createHash } from 'crypto'
-import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'fs'
+import { writeFileSync, readdirSync, statSync, existsSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { readCanonical } from './canonical-text.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: the spec pack and the module docs are one tree under ROOT/docs.
@@ -34,7 +35,9 @@ function walk(dir, exts, out = []) {
   return out
 }
 
-const read = (p) => readFileSync(p, 'utf8')
+// One canonical form for everything downstream: node hashes and the --check
+// comparison must describe content, not how git materialized it.
+const read = readCanonical
 
 // ---------------------------------------------------------------- documents
 const DOC_TITLE = /^#\s+(.+)$/m
@@ -436,10 +439,24 @@ const graph = {
 
 const serialized = JSON.stringify(graph, null, 2) + '\n'
 
+// The question --check answers is "does the committed graph still describe the
+// filesystem?" — that lives in the nodes, edges and hashes. `drift` and a node's
+// `status` are bookkeeping the graph keeps *about its own previous revision*, so
+// they flip on the run after the content settles and never match in one pass.
+// Comparing them made the guard demand two consecutive `docs:graph` runs; a
+// genuine change still fails the guard through its node hash.
+const canonical = (text) => {
+  let g
+  try { g = JSON.parse(text) } catch { return text }
+  delete g.generated_at
+  delete g.drift
+  for (const n of g.nodes || []) delete n.status
+  return JSON.stringify(g, null, 2) + '\n'
+}
+
 if (process.argv.includes('--check')) {
   const current = existsSync(GRAPH_PATH) ? read(GRAPH_PATH) : ''
-  const normalise = (s) => s.replace(/"generated_at":\s*"[^"]*",?\n?/g, '')
-  if (normalise(current) !== normalise(serialized)) {
+  if (canonical(current) !== canonical(serialized)) {
     console.error('doc-graph is stale — run: npm run docs:graph')
     process.exit(1)
   }
