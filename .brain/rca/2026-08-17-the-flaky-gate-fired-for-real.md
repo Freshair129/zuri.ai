@@ -54,6 +54,23 @@ sub-domain fails a unit test instead of becoming the next flake — and it also
 asserts the project is actually wired as a dependency, because a warm-up nothing
 depends on warms nothing.
 
+## Third finding: CI does not reproduce it
+
+The same suite, same commit, on `windows-latest` in GitHub Actions: **green,
+zero flaky**, 7m12s ([run](https://github.com/Freshair129/zuri.ai/actions/runs/31976784247)).
+The FR-061 PR's e2e job was also green the same day, *before* the warm-up
+existed.
+
+So the nondeterminism is a property of the **local development machine under
+sustained load** — hours of back-to-back builds, vitest runs and e2e runs — not
+of the suite on dedicated hardware. That reorders the leads below: this is
+probably resource contention, not a logic race.
+
+It also means the gate is not currently blocking anything on CI, which is the
+only place it gates a merge. Locally it is telling the truth: on a loaded
+machine this suite is not trustworthy, and a developer who sees it flake should
+believe it rather than re-run until green.
+
 ## What is still open
 
 Two survivors, both at ~28s on the first attempt:
@@ -64,13 +81,18 @@ Two survivors, both at ~28s on the first attempt:
 - `fr044` — expects a redirect to `/login`, still on `/overview` after 10s.
   Not obviously a compile problem; possibly session-state timing.
 
-Leads, in order of likely value:
+Leads, reordered after the CI finding:
 
-1. Warm dynamic routes too, using ids the seed guarantees.
-2. Ask whether a 10s `expect.timeout` is the right budget for a dev server, or
-   whether these assertions should await a navigation rather than poll a URL.
-3. Check whether the suite is contending for the single dev server across
-   workers — the first-attempt durations (~28s) suggest queueing, not compiling.
+1. **Worker contention against the single dev server.** First-attempt durations
+   were ~28s for an assertion with a 10s budget — that is queueing, not
+   compiling, and it fits "only under load" exactly. Try `workers: 1` locally
+   and see whether it goes away; if it does, the question is whether the default
+   worker count is right for a suite sharing one dev server and one SQLite file.
+2. Warm dynamic routes too, using ids the seed guarantees (`fr040` hits
+   `/projects/[id]/...`, which the warm-up cannot reach).
+3. Only then ask whether 10s is the right `expect.timeout` for a dev server —
+   and if the answer is yes, raise it as a considered decision with a reason,
+   not as a way to get green.
 
 ## What must not happen
 
