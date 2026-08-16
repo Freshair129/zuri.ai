@@ -450,8 +450,15 @@
 ### FR-060 — Business Home: a shell-level Tier-2 slot whose Dashboard aggregates the selected Business across domains — a briefing line, KPI tiles, per-domain health, and an attention queue ordered by impact. It is a **non-owning read projection**: every figure is recomputed from the owning domain's read model, nothing is stored, and no write path is added. Domains with no module render as **reserved slots, never as zero or as invented figures**; only live domains contribute to any score. FR-041's Business Overview becomes this Dashboard rather than a second surface beside it.
 
 - **Feature:** FEAT-002 — Business Home — shell-level cross-domain aggregation (Dashboard now; Goals & KPIs, Risks & Alerts, Reports later)
-- **Status:** planned
+- **Status:** done
 - **Surface:** `/overview` (page)
 - **Code:** `src/app/(pm)/overview/page.jsx` · `src/config/domains.js` · `src/config/modules.js` · `src/lib/business-shell-guard.js` · `src/modules/business/application/business-home-read-model.js`
 - **Follows:** BR-001, BR-004, SDD-014, SDD-018, SDD-020, SDD-022, SDD-032, SDD-033
 - **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr044-entry-routing.spec.js` · `tests/e2e/fr045-files.spec.js` · `tests/e2e/fr058-file-views.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/e2e/fr060-business-home.spec.js` · `tests/unit/business-shell-guard.test.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr045-api-ui-contract.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr060-business-home-read-model.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/overview-split.test.js` · `tests/unit/sidebar-visible-subdomains.test.js`
+
+### FR-061 — Per-Business domain visibility: `resolveViewer()` resolves which domains a principal may see **per Business**, not once per principal. Each Membership's grant applies only to the Businesses that Membership covers — an OWNER Membership confers all domains on the Businesses it owns, and never widens what the same principal sees in a Business where they hold only a MEMBER Membership. The viewer gains `domainsByBusinessId` (per-Business allow-list; absent or `[]` denies), and `domainsForBusiness(viewer, businessId)` is the only way a Business-scoped consumer may ask the question. The existing flat `visibleDomains` is retained and additively redefined as the union across visible Businesses — "may this principal see this domain *anywhere*" — and is never an authorization input for a Business-scoped decision. The route guard and the domain bar both read the per-Business answer.
+
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
