@@ -1,6 +1,7 @@
 // @req FR-045 — File Manager aggregates authorized Business and Project assets without copying content.
-// @spec SDD-023, ADR-016, SEC-007
-// @tested tests/unit/fr045-file-manager-read-model.test.js
+// @req FR-058 — assetDto gains createdAt/updatedAt; exposes deterministic timeline ordering and by-project groups for the view switcher.
+// @spec SDD-023, ADR-016, SEC-007, SDD-031
+// @tested tests/unit/fr045-file-manager-read-model.test.js, tests/unit/fr058-file-manager-views-model.test.js
 
 export const FILE_MANAGER_ASSET_STATES = Object.freeze(['ACTIVE', 'MISSING', 'QUARANTINED'])
 
@@ -48,7 +49,27 @@ function assetDto(asset, localCapability) {
     state: asset.status,
     version: asset.version,
     localCapability,
+    createdAt: asset.createdAt,
+    updatedAt: asset.updatedAt,
   }
+}
+
+/**
+ * Deterministic timeline ordering (FR-058): most-recently-updated first, ties
+ * broken by most-recently-created first, remaining ties broken by the existing
+ * compareAssets code|id discipline. Pure function over the DTO list — no new
+ * server route or persisted ordering field.
+ */
+export function compareAssetsByTimeline(left, right) {
+  const leftUpdated = new Date(left.updatedAt).getTime()
+  const rightUpdated = new Date(right.updatedAt).getTime()
+  if (leftUpdated !== rightUpdated) return rightUpdated - leftUpdated
+
+  const leftCreated = new Date(left.createdAt).getTime()
+  const rightCreated = new Date(right.createdAt).getTime()
+  if (leftCreated !== rightCreated) return rightCreated - leftCreated
+
+  return compareAssets(left, right)
 }
 
 function deduplicatedAssets(assets) {
@@ -85,7 +106,17 @@ function groupsFor({ businessId, assets, projectsById }) {
     [left.code || '', left.id].join('|').localeCompare([right.code || '', right.id].join('|'))
   )) {
     const assetIds = projectAssetIds.get(project.id)
-    if (assetIds?.length) groups.push({ kind: 'PROJECT', businessId, projectId: project.id, assetIds })
+    if (assetIds?.length) {
+      // FR-058 §3 (amended): carry the Project's human identifiers on the group so
+      // the by-project view never has to render a raw uuid. `project` here is the
+      // full record from projectsById — already in hand, so this is additive and
+      // costs zero extra queries (see the FR-058 note's "Amendment" section).
+      groups.push({
+        kind: 'PROJECT', businessId, projectId: project.id,
+        projectCode: project.code, projectName: project.name,
+        assetIds,
+      })
+    }
   }
   return groups
 }

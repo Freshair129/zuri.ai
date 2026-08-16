@@ -1,14 +1,26 @@
 'use client'
 
 // @req FR-035, FR-041 - Overview is the selected Business's operational home.
+// @req FR-059 - OWNER-scoped Business Strategy editing (roadmap/horizons, goals,
+// Project link/unlink) lives on this same StrategyCard; MEMBER/DEV viewers see
+// the FR-041 read-only card with no edit affordance at all.
 // @spec ADR-013, SDD-014, SDD-020 - Organization/Portfolio is ancestry/reporting only.
+// @spec SDD-032, BR-001 - writes go through the mutation service; this page
+// gates the affordance on the current Business's membership in
+// viewer.ownedBusinessIds (never the global `role` label alone — see
+// resolve-viewer.js) and re-reads via the unchanged FR-041 GET after every
+// mutation.
 // @tested tests/unit/overview-split.test.js, tests/e2e/fr041-business-first.spec.js
+// @tested tests/unit/fr059-strategy-edit-ui.test.js, tests/e2e/fr059-strategy-edit.spec.js
 
+import { useState } from 'react'
 import Link from 'next/link'
+import { Pencil, Plus, Link2 } from 'lucide-react'
 import { PageHeader, Card, Kpi, SectionTitle, StatusPill, ProgressBar, EmptyState, ErrorState } from '@/components/ui'
 import { MODE_LABELS, SLUG_BY_MODE } from '@/lib/validation/enums'
 import { useScope } from '@/context/ScopeContext'
 import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
+import { RoadmapModal, GoalModal, LinkProjectModal } from '@/modules/project-manager/components/StrategyEditModals'
 import { DOMAINS } from '@/config/domains'
 
 function ProjectProgressRow({ project }) {
@@ -33,26 +45,60 @@ function ProjectProgressRow({ project }) {
   )
 }
 
-function StrategyCard({ strategy, loading, error, reload }) {
+function StrategyCard({ strategy, loading, error, reload, businessId, isOwner, projects }) {
+  // Non-OWNER viewers (MEMBER, DEV) never see an edit control here at all —
+  // not disabled, not hidden-by-CSS, simply not rendered (FR-059 §1).
+  const [editingRoadmap, setEditingRoadmap] = useState(false)
+  // Store an id, not the goal object itself: after a mutation, `reload()`
+  // replaces `strategy` wholesale, so a captured object reference would go
+  // stale (e.g. a just-linked Project would not show in an already-open Link
+  // modal until it was closed and reopened). Re-deriving the live goal by id
+  // from the freshly-reloaded `strategy` on every render keeps an open modal
+  // in sync with its own mutation.
+  const [goalModalState, setGoalModalState] = useState(null) // { goalId, horizonId } | null
+  const [linkingGoalId, setLinkingGoalId] = useState(null)
+
+  const roadmap = strategy?.roadmaps?.[0] || null
+  const horizonOptions = roadmap ? roadmap.horizons.map((h) => ({ id: h.id, key: h.key, label: h.label })) : []
+  const allGoals = roadmap ? roadmap.horizons.flatMap((h) => h.goals) : []
+  const editingGoal = goalModalState?.goalId ? allGoals.find((g) => g.id === goalModalState.goalId) || null : null
+  const linkingGoal = linkingGoalId ? allGoals.find((g) => g.id === linkingGoalId) || null : null
+  const onMutated = () => reload()
+
   return (
     <Card className="mb-4" data-testid="business-strategy">
-      <SectionTitle caption="Business direction above project execution">Business Strategy · Roadmap & Goals</SectionTitle>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <SectionTitle caption="Business direction above project execution">Business Strategy · Roadmap & Goals</SectionTitle>
+        {isOwner && roadmap && (
+          <button type="button" className="btn px-2 py-1 text-[11px]" onClick={() => setEditingRoadmap(true)}>
+            <Pencil size={12} className="mr-1 inline" aria-hidden /> Edit roadmap
+          </button>
+        )}
+      </div>
       {loading && <LoadingCard />}
       {error && <ErrorState detail={error} retry={reload} />}
       {!loading && !error && strategy && strategy.roadmaps.length === 0 && (
-        <EmptyState title="No Business Roadmap yet" hint="Set the Business direction before decomposing more Projects." />
+        <EmptyState
+          title="No Business Roadmap yet"
+          hint="Set the Business direction before decomposing more Projects."
+          action={isOwner && (
+            <button type="button" className="btn btn-primary" onClick={() => setEditingRoadmap(true)}>
+              <Plus size={13} className="mr-1 inline" aria-hidden /> Create Roadmap
+            </button>
+          )}
+        />
       )}
-      {!loading && !error && strategy?.roadmaps?.[0] && (
+      {!loading && !error && roadmap && (
         <div>
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
-              <p className="text-sm font-bold">{strategy.roadmaps[0].title}</p>
-              {strategy.roadmaps[0].description && <p className="mt-1 text-xs text-muted">{strategy.roadmaps[0].description}</p>}
+              <p className="text-sm font-bold">{roadmap.title}</p>
+              {roadmap.description && <p className="mt-1 text-xs text-muted">{roadmap.description}</p>}
             </div>
             <span className="pill pill-planned">{strategy.summary.horizonCount} horizons</span>
           </div>
           <div className="grid gap-3 md:grid-cols-3">
-            {strategy.roadmaps[0].horizons.map((horizon) => (
+            {roadmap.horizons.map((horizon) => (
               <div key={horizon.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface-muted)] p-3" data-testid={`strategy-horizon-${horizon.key.toLowerCase()}`}>
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-xs font-bold">{horizon.label}</p>
@@ -61,7 +107,7 @@ function StrategyCard({ strategy, loading, error, reload }) {
                 <div className="mt-3 space-y-2">
                   {horizon.goals.length === 0 && <p className="text-[10px] text-muted">No goals yet</p>}
                   {horizon.goals.map((goal) => (
-                    <div key={goal.id} className="rounded-lg border border-[var(--border)] bg-white p-2.5">
+                    <div key={goal.id} className="rounded-lg border border-[var(--border)] bg-white p-2.5" data-testid={`strategy-goal-${goal.code}`}>
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-[11px] font-bold">{goal.title}</p>
                         <StatusPill status={goal.status} />
@@ -71,13 +117,88 @@ function StrategyCard({ strategy, loading, error, reload }) {
                         <span className="text-[10px] font-bold">{goal.progress}%</span>
                       </div>
                       {goal.projects.length > 0 && <p className="mt-1 text-[10px] text-muted">{goal.projects.length} linked project{goal.projects.length === 1 ? '' : 's'}</p>}
+                      {isOwner && (
+                        <div className="mt-2 flex gap-1.5">
+                          <button
+                            type="button"
+                            className="btn px-1.5 py-0.5 text-[10px]"
+                            onClick={() => setGoalModalState({ goalId: goal.id, horizonId: horizon.id })}
+                            aria-label={`Edit ${goal.title}`}
+                          >
+                            <Pencil size={11} className="mr-1 inline" aria-hidden /> Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="btn px-1.5 py-0.5 text-[10px]"
+                            onClick={() => setLinkingGoalId(goal.id)}
+                            aria-label={`Link Projects to ${goal.title}`}
+                          >
+                            <Link2 size={11} className="mr-1 inline" aria-hidden /> Link
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
+                  {isOwner && (
+                    <button
+                      type="button"
+                      className="w-full rounded-lg border border-dashed border-[var(--border)] py-1.5 text-[10px] font-semibold text-muted hover:bg-[var(--brand-surface)]"
+                      onClick={() => setGoalModalState({ goalId: null, horizonId: horizon.id })}
+                    >
+                      <Plus size={11} className="mr-1 inline" aria-hidden /> New goal
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         </div>
+      )}
+
+      {/* T3b-1 FIX 3: rendered conditionally on `editingRoadmap` (like GoalModal
+          and LinkProjectModal below), not unconditionally-with-`open`-toggled.
+          RoadmapModal's form/horizons state is a `useState(() => ...)`
+          initializer that only re-runs on mount — leaving it permanently
+          mounted with only `open` flipping meant Cancel discarded nothing
+          (reopening showed the previously-typed, supposedly-cancelled text)
+          and a goal created while the modal was closed still showed the
+          horizon's stale goalCount on reopen. Unmounting on close (the shared
+          `Modal` already no-ops while `open` is false, so this changes
+          nothing about the closed-state rendering) forces a fresh initializer
+          run — and therefore fresh form state and a fresh goalCount — on
+          every open. */}
+      {isOwner && editingRoadmap && (
+        <RoadmapModal
+          key={roadmap ? roadmap.id : `new-roadmap-${businessId}`}
+          open
+          onClose={() => setEditingRoadmap(false)}
+          businessId={businessId}
+          roadmap={roadmap}
+          onSaved={onMutated}
+        />
+      )}
+      {isOwner && goalModalState && (
+        <GoalModal
+          key={goalModalState.goalId || `new-${goalModalState.horizonId}`}
+          open
+          onClose={() => setGoalModalState(null)}
+          businessId={businessId}
+          roadmapId={roadmap?.id}
+          horizons={horizonOptions}
+          goal={editingGoal}
+          currentHorizonId={goalModalState.horizonId}
+          onSaved={onMutated}
+        />
+      )}
+      {isOwner && linkingGoal && (
+        <LinkProjectModal
+          key={linkingGoal.id}
+          open
+          onClose={() => setLinkingGoalId(null)}
+          goal={linkingGoal}
+          projects={projects}
+          onSaved={onMutated}
+        />
       )}
     </Card>
   )
@@ -97,6 +218,18 @@ function BusinessOverview({ scope }) {
     businessId ? `/api/business/strategy?businessId=${encodeURIComponent(businessId)}` : null,
     [businessId],
   )
+  // @req FR-059 - edit affordances are gated on the resolved viewer's
+  // per-Business OWNER grant (`ownedBusinessIds`), the same `/api/viewer`
+  // contract DomainBar/BusinessShellGuard already use for the rest of the
+  // shell. `viewer.data?.role === 'OWNER'` is a *global* per-principal label
+  // (resolve-viewer.js) — true for any principal who owns any single
+  // Business — so it would wrongly show edit affordances for this Business
+  // to an OWNER-of-somewhere-else who is only a MEMBER here. Gating on
+  // membership of the *current* Business in ownedBusinessIds is the correct,
+  // per-Business check; a MEMBER or platform DEV grant (ownedBusinessIds: [])
+  // still never renders an edit control.
+  const viewer = useFetch('/api/viewer')
+  const isOwner = Boolean(viewer.data?.ownedBusinessIds?.includes(businessId))
 
   if (!businessId) {
     return (
@@ -130,7 +263,15 @@ function BusinessOverview({ scope }) {
             <Kpi label="Open required gates" value={openGates} tone={openGates > 0 ? 'warn' : 'good'} meta="guarding progress" />
             <Kpi label="Milestones done" value={`${milestonesDone}/${milestonesTotal}`} meta="in this Business" />
           </div>
-          <StrategyCard strategy={strategy.data} loading={strategy.loading} error={strategy.error} reload={strategy.reload} />
+          <StrategyCard
+            strategy={strategy.data}
+            loading={strategy.loading}
+            error={strategy.error}
+            reload={strategy.reload}
+            businessId={businessId}
+            isOwner={isOwner}
+            projects={projects}
+          />
           <Card className="mb-4">
             <SectionTitle caption="Open a domain without changing the selected Business">Business domains</SectionTitle>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">

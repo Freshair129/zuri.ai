@@ -7,6 +7,15 @@ import { DOMAINS } from '@/config/domains'
 // @tested tests/unit/viewer-gate.test.js
 // @req FR-038 — MEMBER domain allow-lists are interpreted here, never by a UI checkbox.
 // @spec SDD-017 — OWNER and platform DEV remain role-bound all-domain grants.
+// Note (T3e): bare `SEC` cited nothing — no PRD-SDD-v1.0.md SEC-xxx currently
+// states this discipline, so this is demoted to a plain comment rather than a
+// fabricated citation. `role: 'OWNER'` is a per-principal label, not
+// per-business authority: a principal who is OWNER of one Business and
+// merely MEMBER of another must not gain write authority over the second
+// just because it is also in visibleBusinessIds. `ownedBusinessIds` is the
+// actual per-Business OWNER grant set; callers guarding a write MUST check
+// `ownedBusinessIds.includes(businessId)`, never `role === 'OWNER'` plus
+// `visibleBusinessIds` alone.
 
 const LOCAL_OWNER_CODE = 'PER-OWNER'
 export const VIEWER_DOMAINS = DOMAINS.map((domain) => domain.key)
@@ -46,7 +55,7 @@ async function resolvePrincipal(db, principalId) {
  * not derived from Membership, because DEV is cross-tenant while Membership is not.
  *
  * @param {{ principalId?: string, platformGrant?: boolean, allowDevelopmentFallback?: boolean, db?: import('@prisma/client').PrismaClient }} [input]
- * @returns {Promise<{principal: {id:string,code:string,displayName:string}, role:'OWNER'|'MEMBER'|'DEV', visibleBusinessIds:string[], visibleDomains:string[], isPlatform:boolean}>}
+ * @returns {Promise<{principal: {id:string,code:string,displayName:string}, role:'OWNER'|'MEMBER'|'DEV', visibleBusinessIds:string[], ownedBusinessIds:string[], visibleDomains:string[], isPlatform:boolean}>}
  */
 export async function resolveViewer({
   principalId = null,
@@ -61,10 +70,14 @@ export async function resolveViewer({
   const principal = await resolvePrincipal(db, principalId)
 
   if (platformGrant) {
+    // A platform DEV grant is cross-tenant visibility, not per-Business OWNER
+    // authority — it is not derived from Membership, so it confers no ownership.
+    // requireOwner-style checks and the Overview UI both rely on this staying empty.
     return {
       principal,
       role: 'DEV',
       visibleBusinessIds: await allBusinessIds(db),
+      ownedBusinessIds: [],
       visibleDomains: VIEWER_DOMAINS,
       isPlatform: true,
     }
@@ -73,10 +86,16 @@ export async function resolveViewer({
   // There is no authenticated principal yet, so the local development owner can
   // exercise every shell path. This branch is unavailable to production callers.
   if (!principalId) {
+    const businessIds = await allBusinessIds(db)
+    // Two independently owned arrays, not the same object twice: no consumer
+    // mutates either today, but sharing one array between visibleBusinessIds
+    // and ownedBusinessIds is an invisible coupling — a future mutation of
+    // one would silently corrupt the other.
     return {
       principal,
       role: 'OWNER',
-      visibleBusinessIds: await allBusinessIds(db),
+      visibleBusinessIds: [...businessIds],
+      ownedBusinessIds: [...businessIds],
       visibleDomains: VIEWER_DOMAINS,
       isPlatform: false,
     }
@@ -95,10 +114,22 @@ export async function resolveViewer({
     ...tenantBusinesses.filter((business) => tenantWideIds.includes(business.tenantId)).map((business) => business.id),
   ])
 
+  // Per-Business OWNER authority, mirroring the tenant-wide expansion above but
+  // restricted to OWNER memberships only — this is the actual write-authority set.
+  // A MEMBER membership elsewhere must never land here just because `role` above
+  // is a global 'OWNER'|'MEMBER' label and that Business is already visible.
+  const ownerMemberships = memberships.filter((membership) => membership.role === 'OWNER')
+  const ownerTenantWideIds = unique(ownerMemberships.filter((membership) => !membership.businessId).map((membership) => membership.tenantId))
+  const ownedBusinessIds = unique([
+    ...ownerMemberships.map((membership) => membership.businessId),
+    ...tenantBusinesses.filter((business) => ownerTenantWideIds.includes(business.tenantId)).map((business) => business.id),
+  ])
+
   return {
     principal,
     role: memberships.some((membership) => membership.role === 'OWNER') ? 'OWNER' : 'MEMBER',
     visibleBusinessIds,
+    ownedBusinessIds,
     visibleDomains: visibleDomainsForMemberships(memberships),
     isPlatform: false,
   }

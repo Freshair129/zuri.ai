@@ -76,7 +76,7 @@ export async function rebuildBusinessFileCache({ businessId, mountId }, {
   assertVisible(businessId, visibleBusinessIds)
   const mount = await activeMount(db, mountId, businessId)
   const [projects, assets] = await Promise.all([
-    db.project.findMany({ where: { businessId, deletedAt: null }, select: { id: true, code: true, businessId: true, deletedAt: true } }),
+    db.project.findMany({ where: { businessId, deletedAt: null }, select: { id: true, code: true, name: true, businessId: true, deletedAt: true } }),
     db.fileAsset.findMany({ where: { businessId, deletedAt: null }, orderBy: { code: 'asc' } }),
   ])
   const readModel = buildBusinessFileManagerReadModel({ businessId, visibleBusinessIds, projects, assets, localCapability: { available: false, reason: 'Cache projection' } })

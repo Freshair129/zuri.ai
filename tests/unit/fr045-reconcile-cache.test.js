@@ -32,7 +32,7 @@ describe('FR-045 reconcile and cache', () => {
   it('rebuilds a revisioned cache from the canonical read model via atomic promotion', async () => {
     const db = {
       localWorkspaceMount: { findUnique: vi.fn().mockResolvedValue({ id: 'mount-a', businessId: 'business-a', rootPath: 'D:\\workspace', status: 'ACTIVE' }) },
-      project: { findMany: vi.fn().mockResolvedValue([{ id: 'p', code: 'P', businessId: 'business-a', deletedAt: null }]) },
+      project: { findMany: vi.fn().mockResolvedValue([{ id: 'p', code: 'P', name: 'Transform Co', businessId: 'business-a', deletedAt: null }]) },
       fileAsset: { findMany: vi.fn().mockResolvedValue([{ id: 'a', code: 'A', businessId: 'business-a', projectId: 'p', status: 'ACTIVE', storageKind: 'LOCAL_FILE', name: 'a', mime: 'text/plain', size: 1, version: 1 }]) },
       auditEvent: { create: vi.fn().mockResolvedValue({}) },
     }
@@ -43,6 +43,16 @@ describe('FR-045 reconcile and cache', () => {
     expect(port.stageWrite).toHaveBeenCalled()
     expect(port.promote).toHaveBeenCalled()
     const staged = JSON.parse(port.stageWrite.mock.calls[0][0].content.toString())
+    // A test only comparing against buildBusinessFileManagerReadModel(...) fed the SAME
+    // db mock would still pass even with a too-narrow `select` (both sides would agree on
+    // `undefined` projectName) — that's exactly how this defect slipped through before.
+    // Assert the cached PROJECT group explicitly carries the real projectName.
+    expect(staged.readModel.groups).toContainEqual(expect.objectContaining({
+      kind: 'PROJECT', projectId: 'p', projectCode: 'P', projectName: 'Transform Co',
+    }))
+    expect(db.project.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      select: expect.objectContaining({ name: true }),
+    }))
     expect(staged.readModel).toEqual(buildBusinessFileManagerReadModel({
       businessId: 'business-a', visibleBusinessIds: ['business-a'],
       projects: await db.project.findMany(), assets: await db.fileAsset.findMany(),

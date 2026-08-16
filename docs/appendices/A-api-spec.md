@@ -24,6 +24,31 @@ seam; local demo capability เปิดได้เฉพาะ non-production 
 | GET | `/api/business/strategy?businessId=` | Business-scoped Roadmap, two/three ordered goal horizons, and goal progress read model (FR-041) |
 | GET | `/api/people?businessId=` | viewer-filtered Business People Directory over Person/Membership (FR-042) |
 
+## Business Strategy mutation (FR-059)
+
+OWNER-only writes. `src/modules/business` stays a read slice (SDD-032) — every
+handler here delegates to `src/modules/project-manager/application/business-strategy-mutation-service.js`,
+which records one `AuditEvent` per mutation and returns the same serialized
+Roadmap/Goal shape the FR-041 GET already produces. A `BusinessRoadmap` always
+has 2–3 `horizons`; a Goal↔Project link is rejected when the Project's owning
+Business differs from the Goal's (FR-043 isolation, extended to writes).
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| POST | `/api/business/roadmaps` | `{businessId, title, description?, status?, startAt?, targetAt?, horizons: [{key, label, position, description?, targetAt?}, ...]}` (2–3 entries) | serialized Roadmap |
+| PATCH | `/api/business/roadmaps/[id]` | partial of the same fields; `horizons` present ⇒ reconciled by `key` (2–3 entries); removing a key that still has goals attached is refused, not silently orphaned | serialized Roadmap |
+| POST | `/api/business/goals` | `{businessId, roadmapId?, horizonId, title, description?, status?, priority?, progress?, startAt?, targetAt?}` — `horizonId` is required | serialized Goal |
+| PATCH | `/api/business/goals/[id]` | partial of the same fields; `horizonId`/`roadmapId` may move a Goal but never explicitly clear it | serialized Goal |
+| POST | `/api/business/goals/[id]/projects` | `{projectId}` | serialized Goal (with the link); re-linking an already-linked Project is `409` |
+| DELETE | `/api/business/goals/[id]/projects/[projectId]` | — | serialized Goal (without the link) |
+
+Isolation failures (`Roadmap does not belong to Business`, `Horizon does not
+belong to Business`, `Project does not belong to Business`, a mismatched
+`horizonId`/`roadmapId` pair, or a duplicate horizon `key`/`position`) return
+`400`. All six mutations also require the target Business to be in the
+viewer's `visibleBusinessIds` (not just `role === 'OWNER'`, which is a global
+grant) — see FR-059-business-strategy-mutation.md §1.
+
 ## Entry and Business Routing (FR-044 and FR-046 implemented beta)
 
 The entry slice selects no real login provider. `/` and `/login` remain UI stubs; in

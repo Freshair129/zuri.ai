@@ -168,7 +168,7 @@ export async function listManagedFileAssets({ businessId, projectId = null }, {
   env = process.env,
 } = {}) {
   assertVisible(businessId, visibleBusinessIds)
-  const projects = await db.project.findMany({ where: { businessId, deletedAt: null }, select: { id: true, code: true, businessId: true, deletedAt: true } })
+  const projects = await db.project.findMany({ where: { businessId, deletedAt: null }, select: { id: true, code: true, name: true, businessId: true, deletedAt: true } })
   const assets = await db.fileAsset.findMany({ where: { businessId, deletedAt: null }, orderBy: { code: 'asc' } })
   const args = { businessId, visibleBusinessIds, projects, assets, localCapability: localFileCapability(env) }
   return projectId
