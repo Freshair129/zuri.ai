@@ -1,6 +1,13 @@
 # ADR-003 — V2 Replaces V1 by Reusing It (Everything Except Auth)
 
-**Status:** Accepted
+> [!WARNING]
+> **Superseded in full — do not act on this document.** The replace-by-reuse
+> program described here was retired by [ADR-024](ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
+> (2026-08-16): zuri-ai is a standalone product, nothing is lifted from the
+> legacy project, and no cutover will occur. This text is preserved as history.
+
+**Status:** Superseded
+**Superseded by:** [ADR-024](ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
 **Date:** 2026-08-12
 **Decided by:** Owen (owner)
 **Supersedes:** [ADR-002](ADR-002-INTEGRATION-DIRECTION.md) (A→B) — in full

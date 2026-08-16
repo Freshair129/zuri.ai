@@ -1,5 +1,5 @@
 {
-  "name": "zuri-v2-lab",
+  "name": "zuri-ai",
   "version": "0.1.0",
   "private": true,
   "description": "Zuri v2 Project Manager — offline-first standalone lab build",
@@ -24,7 +24,6 @@
     "docs:graph": "node scripts/doc-graph.mjs",
     "docs:check": "node scripts/doc-graph.mjs --check",
     "docs:preflight": "node scripts/doc-preflight.mjs",
-    "docs:import-v1": "node scripts/import-v1-docs.mjs",
     "phase1:evaluate": "node scripts/evaluate-phase1-golden.mjs",
     "phase1:isolation:verify": "node scripts/verify-line-runtime-isolation.mjs",
     "phase1:canary:plan": "node scripts/plan-line-canary.mjs",

@@ -9,32 +9,27 @@ The system must model business execution, not just software delivery.
 
 ## Non-negotiable rules
 
-### 1. Do not modify current Zuri
+### 1. Do not modify the legacy zuri project
 
-The existing `Freshair129/zuri` repository is read-only reference during this build.
-The existing `G:\zuri` is the current working Zuri V1 project — **read-only compatibility
-reference**. Do not copy it into this repo; `zuri-v2-lab` is built standalone per
-ADR-001. Porting V1 modules happens only in a later integration phase
-(see `docs/ZURI-INTEGRATION-ASSESSMENT.md`), decided after MVP dogfooding.
-The existing `D:\workspace\zuri-command-agent` is a LINE OA agent — out of MVP scope
-(LINE is on the do-not-implement list). Never read or copy its `.env` (secrets).
-Revisit merge-vs-rebuild at the integration phase.
+`G:\zuri` (and its remote `Freshair129/zuri`) is a **different product's
+repository** — the legacy zuri project, discontinued as far as this product is
+concerned ([ADR-024](docs/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)). Reading it
+as prior art is fine. Writing to it never is.
 
-> Resolution note (2026-08-11, confirmed by owner): an earlier revision of this
-> section both forbade and required copying `G:\zuri`. Standalone build is the
-> confirmed interpretation, consistent with MASTER-PROMPT scope and ADR-001.
->
-> **Amendment (2026-08-12, ADR-003):** the destination changed — V2 now replaces V1
-> by reusing it. **Copying V1 → V2 is permitted and expected** (web UI except
-> auth/identity, lifted per module at that module's cutover). Everything below still
-> holds: `G:\zuri` itself is never edited, its database is never mutated, and its
-> auth is never changed. The rule is one-directional reuse, not shared ownership.
+`D:\workspace\zuri-command-agent` is the LINE OA transport this product's LINE
+surface talks to. Never read or copy its `.env` (secrets).
+
+> History (kept so old citations resolve): earlier revisions of this section moved
+> twice — first "standalone, do not copy" (ADR-001), then "copying is expected,
+> the legacy UI will be lifted per module" (ADR-003, 2026-08-12). ADR-024
+> (2026-08-16) retired that program with zero modules ever lifted. Any document
+> that speaks of lifting, cutover, parity or migration from the legacy project
+> describes a dead plan — do not derive work from it.
 
 Do not:
-- edit it
-- migrate its production database
-- change its auth
-- change its Tenant semantics in place
+- edit anything under `G:\zuri`
+- touch its database
+- treat its documents or ids as authority over anything in this repository
 
 ### 2. New root hierarchy
 
@@ -302,14 +297,14 @@ anchor is a lie.
 Build/test commands: `npm test` (Vitest), `npm run test:e2e` (Playwright on :3100),
 `npm run build`, `npm run db:seed` / `db:reset`.
 
-### 17. Current integration direction
+### 17. Current direction
 
-`docs/ADR-003-V2-REPLACES-V1-BY-REUSE.md` is the binding decision (it supersedes
-ADR-002 in full and amends §1 above): **V2 replaces V1 by reusing it** — the web UI
-is lifted per module at cutover, everything except auth/identity; LINE is the
-primary AI-native surface and the web becomes the back-office console. ADR-001's
-standalone-build rationale still explains how this repo got here, but "do not copy
-`G:\zuri`" no longer applies in the V1 → V2 direction.
+`docs/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md` is the binding decision:
+**zuri-ai is a standalone product.** It does not replace, version, or migrate the
+legacy zuri project; nothing is lifted from it and no cutover will occur. LINE is
+the primary AI-native surface and the web app is the back-office console. The
+decision chain ADR-001 → ADR-002 → ADR-003 → ADR-024 is preserved as history;
+only ADR-024 is in force.
 
 ### 18. Order of governance work, and the id contract
 
@@ -354,10 +349,9 @@ Set by [ADR-004](docs/ADR-004-DOCUMENTATION-ARCHITECTURE.md). Four layers, and o
 one of them is written by hand at feature level:
 
 ```text
-Layer 0  docs/PRODUCT-V2.md            what Zuri V2 is: surfaces, scope chain, non-negotiables
+Layer 0  docs/PRODUCT-V2.md            what zuri-ai is: surfaces, scope chain, non-negotiables (historical filename)
 Layer 1-2  docs/PRD-SDD-v1.0.md   the Project Manager MODULE (FR/NFR/BR/SEC/SDD registry)
 Layer 3  docs/ai-system/               intent pipeline · prompts · PDPA/ethics · model lifecycle
-         docs/replacement/             parity inventory · cutover runbook · contract tests
 Feature  docs/features/    one note per feature that has rationale worth recording
 Index    docs/FEATURE-MAP.md        GENERATED — never hand-edit
 Appendix docs/appendices/  A api · B db · C model cards · D traceability (generated) · E risks · F glossary
@@ -385,27 +379,15 @@ live in two places — exactly the drift the generators exist to prevent.
 When adding a new document, decide its layer first. If it does not fit one of the
 five slots above, that is a signal the structure needs an ADR, not a stray file.
 
-### 20. V1's inherited documentation
+### 20. The legacy project's documentation (retired)
 
-[ADR-005](docs/ADR-005-V1-DOCUMENTATION-CORPUS.md). `docs/v1-inherited/` is a
-**read-only mirror** of V1's product documentation (234 files, imported by
-`npm run docs:import-v1`, provenance in `MANIFEST.json`).
+Retired by [ADR-024](docs/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md). The mirror
+(`docs/v1-inherited/`), the import script and the `V1-` citation prefix are gone
+with the program they served. Two things remain true:
 
-1. **Never edit anything in it.** It is evidence of what V1 says. Corrections go in
-   a V2 document that cites the inherited file.
-2. **It describes V1 semantics** — "tenant" there means *one shop*. Every file
-   carries a banner saying so.
-3. **Two id namespaces coexist.** V2 owns `FR/NFR/BR/SEC/SDD` and `ADR-00x`; V1's
-   ids are cited with a `V1-` prefix (`V1-ADR-060`, `V1-FEAT-21`, `V1-CR-007`)
-   because V1's ADR series runs 057…086 and would otherwise collide with ours.
-   Filenames keep their original form so comments inside lifted V1 code resolve.
-4. **It is evidence, not authority.** A V2 document wins on disagreement; V1's code
-   wins over V1's docs.
-5. **Re-sync before each module cutover** — V1 moves ~213 commits/90 days. Drift is
-   visible as `MANIFEST.json → sourceCommit`.
-6. Mapping V1 ids → V2 requirement ids happens **per feature at lift time** in
-   `docs/replacement/PARITY-INVENTORY.md`, never as an upfront exercise.
-
-Feature notes for lifted features record **only the delta** — what changed in the
-lift (scope model, auth, endpoints) — and cite the inherited document for the rest.
-That is the point of importing: no blank page per feature.
+1. Historical documents in this repository cite legacy ids with a `V1-` prefix
+   (`V1-ADR-060`). Those citations resolve to nothing here — they are fossils, and
+   that is fine; do not "fix" them.
+2. If a design question genuinely benefits from how the legacy project solved it,
+   read `G:\zuri` directly, read-only, as prior art (ADR-024 D7) — the same way
+   you would read any external codebase.

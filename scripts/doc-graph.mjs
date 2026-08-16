@@ -18,7 +18,8 @@ const SPEC_PACK = path.join(ROOT, 'docs')
 const GRAPH_PATH = path.join(ROOT, 'docs', '.doc-graph.json')
 const MATRIX_PATH = path.join(ROOT, 'docs', 'appendices', 'D-traceability.md')
 const FEATURE_MAP_PATH = path.join(ROOT, 'docs', 'FEATURE-MAP.md')
-// Untracked and gitignored — an on-demand local artifact, never part of the graph.
+// Tombstone guard (ADR-024): the legacy-project mirror once lived here and may
+// still exist on old checkouts. Never index it.
 const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
 
 const SKIP_DIRS = new Set(['node_modules', '.next', '.git', 'test-results', 'playwright-report', 'migrations'])

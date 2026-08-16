@@ -1,6 +1,13 @@
 # ADR-005 — Import V1's Documentation as a Read-Only Corpus, With Two Id Namespaces
 
-**Status:** Accepted
+> [!WARNING]
+> **Superseded in full — do not act on this document.** The corpus, the import
+> script and the `V1-` citation namespace were retired by
+> [ADR-024](ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md) (2026-08-16) together
+> with the replace-by-reuse program they served. This text is preserved as history.
+
+**Status:** Superseded
+**Superseded by:** [ADR-024](ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
 **Date:** 2026-08-12
 **Decided by:** Owen (owner)
 **Relates to:** [ADR-003](ADR-003-V2-REPLACES-V1-BY-REUSE.md) (reuse V1), [ADR-004](ADR-004-DOCUMENTATION-ARCHITECTURE.md) (doc structure), AGENTS.md §18 (id contract)
