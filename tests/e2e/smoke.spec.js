@@ -205,14 +205,14 @@ test.describe('FR-020 adaptive shell', () => {
     await page.getByRole('menuitem', { name: 'Business 01' }).click()
 
     // Landing becomes that business's work, and the shell narrows with it.
-    await expect(page.getByRole('heading', { name: 'Business 01 — Overview' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Business 01 — Command Center' })).toBeVisible()
     const workspaceSelect = page.getByLabel('Workspace', { exact: true })
     await expect(workspaceSelect.locator('option')).toHaveCount(3) // all + own + group-level
     await expect(workspaceSelect.locator('option', { hasText: 'WS-B02-MIG' })).toHaveCount(0)
 
     // B2 — the shell remembers the business across a full page load.
     await page.reload()
-    await expect(page.getByRole('heading', { name: 'Business 01 — Overview' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Business 01 — Command Center' })).toBeVisible()
 
     // "ทุกธุรกิจ" returns to the read-only group roll-up.
     await switcher.click()
@@ -243,7 +243,7 @@ test.describe('FR-020 adaptive shell', () => {
     await expect(page).toHaveURL(/\/businesses$/)
     await page.getByRole('button', { name: new RegExp(`Open Business ${sole.name}`) }).click()
     // A1/A3 — after explicit selection, identity is static text, no switcher.
-    await expect(page.getByRole('heading', { name: `${sole.name} — Overview` })).toBeVisible()
+    await expect(page.getByRole('heading', { name: `${sole.name} — Command Center` })).toBeVisible()
     await expect(page.getByRole('button', { name: 'สลับธุรกิจ' })).toHaveCount(0)
     await expect(page.locator('header').getByText(sole.name)).toBeVisible()
 

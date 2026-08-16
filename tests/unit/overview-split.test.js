@@ -9,7 +9,9 @@ describe('Business-first Overview', () => {
     expect(overview).not.toContain("scope.shell.landing === 'PORTFOLIO'")
     expect(overview).toContain('Business Strategy')
     expect(overview).toContain('Business domains')
-    expect(overview).toContain('DOMAINS.filter((domain) => !domain.soon)')
+    // @req FR-060 — the shortcut list still hides reserved domains, and now also
+    // excludes Business Home itself, since this page *is* Business Home.
+    expect(overview).toContain("DOMAINS.filter((domain) => !domain.soon && domain.key !== 'business-home')")
     expect(overview).toContain('Choose a Business to open Overview')
     expect(overview).toContain('module-local Workspace')
   })

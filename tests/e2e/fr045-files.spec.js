@@ -13,6 +13,9 @@ async function chooseBusiness(page) {
 test.describe('FR-045 Business File Manager', () => {
   test('opens Files inside Development with mount and managed-file controls', async ({ page }) => {
     await chooseBusiness(page)
+    // FR-060 — landing is Business Home; Files is a Development sub-domain.
+    await page.getByRole('link', { name: 'Development' }).first().click()
+    await expect(page).toHaveURL(/\/projects$/)
     await page.getByRole('link', { name: 'Files', exact: true }).click()
     await expect(page).toHaveURL(/\/files$/)
     await expect(page.getByRole('heading', { name: 'Files', exact: true })).toBeVisible()

@@ -1,4 +1,4 @@
-import { domainForPath } from '@/config/domains'
+import { domainForPath, isDomainVisible } from '@/config/domains'
 
 // @req FR-044 — Business selection and viewer access are resolved before the
 // BusinessShell/AppShell is mounted.
@@ -15,9 +15,10 @@ export function projectIdFromPath(pathname = '') {
 }
 
 function visibleDomain(viewer, domainKey) {
-  // A resolved viewer always carries visibleDomains. The undefined fallback is
-  // retained for old local fixtures while the route boundary is being lifted.
-  return !Array.isArray(viewer?.visibleDomains) || viewer.visibleDomains.includes(domainKey)
+  // @req FR-060 — delegated to the registry so an `alwaysVisible` slot (Business
+  // Home) is honoured identically here and in DomainBar. The undefined fallback
+  // for old local fixtures is preserved inside `isDomainVisible`.
+  return isDomainVisible(domainKey, viewer?.visibleDomains)
 }
 
 /**

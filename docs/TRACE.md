@@ -258,8 +258,8 @@
 - **Status:** done
 - **Surface:** `/overview` (page)
 - **Code:** `src/app/(pm)/overview/page.jsx`
-- **Follows:** BR-001, SDD-014, SDD-020, SDD-032
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/overview-split.test.js`
+- **Follows:** BR-001, SDD-014, SDD-020, SDD-032, SDD-033
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr060-business-home-read-model.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/overview-split.test.js`
 
 ### FR-036 — Project Team (`/projects/{id}/team`) lists Memberships in the project’s business scope, adds/removes business-scoped members, changes Owner/Member role, and shows each member’s active WorkItem assignee load. Group-workspace memberships remain read-only because they are tenant-wide.
 
@@ -307,16 +307,16 @@
 - **Status:** done
 - **Surface:** `/overview` (page) · `/api/business/strategy` (api)
 - **Code:** `prisma/seed.js` · `src/app/(pm)/overview/page.jsx` · `src/app/api/business/strategy/route.js` · `src/lib/shell-mode.js` · `src/modules/business/application/business-strategy-service.js`
-- **Follows:** BR-001, FR-020, NFR-007, SDD-014, SDD-020, SDD-024, SDD-032, SEC-008, docs/features/FR-020-adaptive-shell.md
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/adaptive-shell.test.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/unit/business-strategy-route.test.js` · `tests/unit/business-strategy-service.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr059-strategy-validation.test.js` · `tests/unit/overview-split.test.js` · `tests/unit/shell-mode.test.js`
+- **Follows:** BR-001, FR-020, NFR-007, SDD-014, SDD-020, SDD-024, SDD-032, SDD-033, SEC-008, docs/features/FR-020-adaptive-shell.md
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/adaptive-shell.test.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/unit/business-strategy-route.test.js` · `tests/unit/business-strategy-service.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr059-strategy-validation.test.js` · `tests/unit/fr060-business-home-read-model.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/overview-split.test.js` · `tests/unit/shell-mode.test.js`
 
 ### FR-042 — HR / People is a peer ERP domain (route key `people`) with a Business-scoped People Directory over Person/Membership. It is not nested under Development; Project Team remains Project-local. Attendance, leave, payroll, and performance are out of scope for this slice.
 
 - **Status:** done
-- **Surface:** `/people/directory` (page) · `/people` (page) · `/api/people` (api)
-- **Code:** `src/app/(pm)/people/directory/page.jsx` · `src/app/(pm)/people/page.jsx` · `src/app/api/people/route.js` · `src/config/domains.js` · `src/modules/people/application/people-service.js` · `src/modules/people/components/PeopleDirectory.jsx`
-- **Follows:** BR-001, SDD-018, SDD-020, SDD-024, SEC-003, SEC-008
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr045-api-ui-contract.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/people-directory.test.js` · `tests/unit/people-route.test.js` · `tests/unit/people-service.test.js`
+- **Surface:** `/overview` (page) · `/people/directory` (page) · `/people` (page) · `/api/people` (api)
+- **Code:** `src/app/(pm)/overview/page.jsx` · `src/app/(pm)/people/directory/page.jsx` · `src/app/(pm)/people/page.jsx` · `src/app/api/people/route.js` · `src/config/domains.js` · `src/modules/people/application/people-service.js` · `src/modules/people/components/PeopleDirectory.jsx`
+- **Follows:** BR-001, SDD-014, SDD-018, SDD-020, SDD-024, SDD-032, SDD-033, SEC-003, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr045-api-ui-contract.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr060-business-home-read-model.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/overview-split.test.js` · `tests/unit/people-directory.test.js` · `tests/unit/people-route.test.js` · `tests/unit/people-service.test.js`
 
 ### FR-043 — Project stores a direct nullable `businessId` owner plus `workspaceId` as Development Space context. Business-scoped projects must match their Space owner; explicit portfolio/tenant shared projects remain null-owner and are never attributed to a Business Overview.
 
@@ -444,13 +444,14 @@
 - **Status:** done
 - **Surface:** `/overview` (page) · `/api/business/goals/[id]/projects/[projectId]` (api) · `/api/business/goals/[id]/projects` (api) · `/api/business/goals/[id]` (api) · `/api/business/goals` (api) · `/api/business/roadmaps/[id]` (api) · `/api/business/roadmaps` (api)
 - **Code:** `src/app/(pm)/overview/page.jsx` · `src/app/api/business/goals/[id]/projects/[projectId]/route.js` · `src/app/api/business/goals/[id]/projects/route.js` · `src/app/api/business/goals/[id]/route.js` · `src/app/api/business/goals/route.js` · `src/app/api/business/roadmaps/[id]/route.js` · `src/app/api/business/roadmaps/route.js` · `src/modules/project-manager/application/business-strategy-mutation-service.js` · `src/modules/project-manager/components/StrategyEditModals.jsx`
-- **Follows:** BR-001, NFR-004, SDD-014, SDD-020, SDD-024, SDD-032, SEC-003, SEC-008
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/unit/fr045-api-ui-contract.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr059-strategy-validation.test.js` · `tests/unit/overview-split.test.js`
+- **Follows:** BR-001, NFR-004, SDD-014, SDD-020, SDD-024, SDD-032, SDD-033, SEC-003, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/unit/fr045-api-ui-contract.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr059-strategy-validation.test.js` · `tests/unit/fr060-business-home-read-model.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/overview-split.test.js`
 
 ### FR-060 — Business Home: a shell-level Tier-2 slot whose Dashboard aggregates the selected Business across domains — a briefing line, KPI tiles, per-domain health, and an attention queue ordered by impact. It is a **non-owning read projection**: every figure is recomputed from the owning domain's read model, nothing is stored, and no write path is added. Domains with no module render as **reserved slots, never as zero or as invented figures**; only live domains contribute to any score. FR-041's Business Overview becomes this Dashboard rather than a second surface beside it.
 
 - **Feature:** FEAT-002 — Business Home — shell-level cross-domain aggregation (Dashboard now; Goals & KPIs, Risks & Alerts, Reports later)
 - **Status:** planned
-- **Code:** —
-- **Follows:** —
-- **Tests:** —
+- **Surface:** `/overview` (page)
+- **Code:** `src/app/(pm)/overview/page.jsx` · `src/config/domains.js` · `src/config/modules.js` · `src/lib/business-shell-guard.js` · `src/modules/business/application/business-home-read-model.js`
+- **Follows:** BR-001, BR-004, SDD-014, SDD-018, SDD-020, SDD-022, SDD-032, SDD-033
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr044-entry-routing.spec.js` · `tests/e2e/fr045-files.spec.js` · `tests/e2e/fr058-file-views.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/e2e/fr060-business-home.spec.js` · `tests/unit/business-shell-guard.test.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr045-api-ui-contract.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr060-business-home-read-model.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/overview-split.test.js` · `tests/unit/sidebar-visible-subdomains.test.js`
