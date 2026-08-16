@@ -63,10 +63,20 @@ npm run build          # production build — must stay clean
 npm test               # Vitest: unit + integration (own SQLite db per run, prisma/.test-dbs/)
 npm run test:e2e       # Playwright against the dev server on :3100
 npm run db:seed        # idempotent demo data   |  db:reset = drop + reseed
+npm run govern         # the whole chain in the order the checks require — use this
 npm run docs:graph     # rebuild docs/.doc-graph.json + Appendix D from the filesystem
-npm run docs:check     # CI guard — fails when the committed graph is stale
-npm run docs:preflight # doc health: control blocks, links, coverage, appendix drift
+npm run docs:check     # fails when the committed graph is stale
+npm run docs:preflight # doc health — exits non-zero on any CRITICAL (--strict)
+npm run docs:preflight:report  # same findings, never fails — for reading, not gating
 ```
+
+**Run `govern`, not the three commands in the order you remember them.** Two
+preflight checks read the committed graph, so on a branch that declares a new id
+or adds a route, preflight *before* graph reports CRITICALs that are artifacts of
+a stale input — and preflight *without* `--strict` used to print CRITICAL and
+still exit 0. Both were real defects, fixed on 2026-08-17
+([RCA](.brain/rca/2026-08-17-governance-did-not-govern.md)). `.github/workflows/governance.yml`
+now runs this chain plus tests, build and the full e2e suite on every pull request.
 
 Run `docs:graph` **and** `docs:preflight` after any change that adds a route, a
 model, a requirement or a document. Both write machine-readable reports
@@ -118,11 +128,17 @@ convention:
 2. **Work in a chartered lane.** A new `src/modules/<m>` with no charter
    claiming it is a CRITICAL. Read `docs/domains/<d>/CHARTER.md` before writing
    into a lane; writing a model owned by another domain's charter is a CRITICAL.
-3. **Annotate** (`@req` / `@spec` / `@tested`) — unannotated code is invisible
-   to the graph, and an FR left without code/tests shows up in coverage.
-4. **Regenerate**: `docs:preflight` → `docs:graph` → `docs:check`. The generated
-   views (FEATURE-MAP, DOMAIN-MAP, TRACE) update themselves; blindness guards
-   fail if a note/domain/FR exists that a view does not cite.
+3. **Annotate** (`@req` / `@spec` / `@tested`). For a **route**, this is now
+   enforced rather than encouraged: a route implementing no declared requirement
+   is a preflight CRITICAL. 46 routes predate the check and are recorded in
+   `docs/.route-anchor-baseline.json` as accepted debt — that list may only
+   shrink. Adding your route to it instead of declaring its FR is the one move
+   the guard exists to stop.
+4. **Regenerate**: `npm run govern` (graph → check → preflight, in that order —
+   see the toolchain note above). The generated views (FEATURE-MAP, DOMAIN-MAP,
+   TRACE) update themselves; blindness guards fail if a note/domain/FR exists
+   that a view does not cite. CI runs the same chain and additionally fails if
+   the branch ships a generated file the chain would rewrite.
 
 The order exists because ids are keys: declaring them first means everything
 you write is attributable from the first commit, and the trace views can answer

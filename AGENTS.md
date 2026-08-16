@@ -271,10 +271,19 @@ working view for each of the seven execution modes must be functional.
 The document graph and the preflight report are **generated**, never edited by hand:
 
 ```bash
+npm run govern          # graph → check → preflight, in the order the checks require
 npm run docs:graph      # rebuild docs/.doc-graph.json + appendices/D-traceability.md
-npm run docs:check      # CI guard: fails when the committed graph is stale
-npm run docs:preflight  # doc health → docs/.preflight-report.json
+npm run docs:check      # fails when the committed graph is stale
+npm run docs:preflight  # doc health → docs/.preflight-report.json; --strict, fails on CRITICAL
 ```
+
+Until 2026-08-17 none of this was enforced: there was no CI, no git hook, and
+`docs:preflight` omitted `--strict`, so it printed `CRITICAL` and exited 0. The
+rule was a habit, not a gate. `.github/workflows/governance.yml` now runs the
+chain, the tests, the build and the full e2e suite on every pull request, and
+a route that implements no declared requirement is a CRITICAL against a
+shrink-only baseline. Full account:
+[RCA](.brain/rca/2026-08-17-governance-did-not-govern.md).
 
 Run both after any change that adds a route, a Prisma model, a requirement or a
 document. They are the reason drift gets caught: the graph is built from the
