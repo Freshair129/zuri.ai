@@ -88,11 +88,18 @@ links them by id — moving or renaming a note never breaks anything. Write one 
 when there is a real decision to explain; otherwise the feature already appears in
 `FEATURE-MAP.md` with its code, tests and task. Full statement: AGENTS.md §19.
 
-`docs/v1-inherited/` is a **read-only mirror** of V1's 234 product docs (ADR-005):
-never edit it, it describes V1 semantics (*tenant = one shop*), and cite its ids with
-a `V1-` prefix (`V1-ADR-060`) because V1's ADRs run 057…086 and would collide with
-ours. Re-sync with `npm run docs:import-v1` before each module cutover. Notes for
-lifted features record only the **delta**, citing the inherited doc for the rest.
+V1's 234 product docs are **not in this repository** (ADR-005 rev 2). They were 59%
+of `docs/` and nothing cited them, in a vocabulary where *tenant* means one shop —
+so they read as noise between you and the V2 spec. Fetch them only when you are
+doing parity work:
+
+```bash
+npm run docs:import-v1     # → docs/v1-inherited/ (gitignored, read-only, on demand)
+```
+
+Never edit the mirror, and cite its ids with a `V1-` prefix (`V1-ADR-060`) because
+V1's ADRs run 057…086 and would collide with ours. Notes for lifted features record
+only the **delta**, citing the inherited doc for the rest.
 
 ### Order of governance work, and the id contract
 
