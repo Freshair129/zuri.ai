@@ -3,11 +3,11 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 792,
+    "total_nodes": 793,
     "total_edges": 1491,
     "dangling_edges": 0,
     "node_types": {
-      "document": 112,
+      "document": 113,
       "adr": 23,
       "appendix": 5,
       "roadmap": 21,
@@ -38,7 +38,7 @@
   "drift": {
     "changed": [],
     "added": [
-      "spec:ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY"
+      "doc:ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY"
     ],
     "removed": []
   },
@@ -4237,6 +4237,14 @@
       "path": "docs/changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md",
       "title": "ZV2-CR-007 — Interface Inventory normalization and responsibility split",
       "hash": "e6c87604",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY",
+      "type": "document",
+      "path": "docs/changes/ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY.md",
+      "title": "ZV2-CR-008 — Agent vault for private epistemic memory",
+      "hash": "eddc6659",
       "status": "current"
     },
     {
