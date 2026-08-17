@@ -7,6 +7,7 @@
 
 import { Card, SectionTitle, StatusPill, ProgressBar, DataTable, EmptyState } from '@/components/ui'
 import { WORK_STATUSES, MILESTONE_STATUSES, GATE_STATUSES } from '@/lib/validation/enums'
+import { activeItems } from '../../progress/strategies'
 import StatusSelect from '../../components/StatusSelect'
 
 const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString())
@@ -122,7 +123,9 @@ export function MigrationMonitor({ workstream, reload }) {
 
 /** 3. B2B_SALES — weighted pipeline board. */
 export function SalesPipeline({ workstream, reload }) {
-  const deals = workstream.items.filter((i) => i.subtype === 'DEAL' || i.numericValue != null)
+  // @req FR-009 — the same population the calculator sums over (activeItems),
+  // not the raw list: a cancelled deal used to count here and not there.
+  const deals = activeItems(workstream.items).filter((i) => i.subtype === 'DEAL' || i.numericValue != null)
   const stages = ['Discovery', 'Proposal', 'Negotiation', 'Won']
   const stageOf = (d) =>
     d.status === 'DONE' ? 'Won' : d.metadata.stage && stages.includes(d.metadata.stage) ? d.metadata.stage : 'Discovery'
@@ -270,9 +273,11 @@ export function OperationsBoard({ workstream, reload }) {
   const checklists = workstream.items.filter((i) => i.subtype === 'CHECKLIST_ITEM')
   const issues = workstream.items.filter((i) => i.subtype === 'ISSUE')
   const others = workstream.items.filter((i) => !['CHECKLIST_ITEM', 'ISSUE'].includes(i.subtype))
-  const slaMet = workstream.items.reduce((s, i) => s + (i.metrics.slaMet || 0), 0)
-  const slaTotal = workstream.items.reduce((s, i) => s + (i.metrics.slaTotal || 0), 0)
-  const incidents = workstream.items.reduce((s, i) => s + (i.metrics.incidents || 0), 0)
+  // @req FR-009 — same population as slaScore; see activeItems.
+  const opsItems = activeItems(workstream.items)
+  const slaMet = opsItems.reduce((s, i) => s + (i.metrics.slaMet || 0), 0)
+  const slaTotal = opsItems.reduce((s, i) => s + (i.metrics.slaTotal || 0), 0)
+  const incidents = opsItems.reduce((s, i) => s + (i.metrics.incidents || 0), 0)
   return (
     <div>
       <div className="mb-3 grid grid-cols-3 gap-3 max-md:grid-cols-1">

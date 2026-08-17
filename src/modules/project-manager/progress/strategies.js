@@ -20,7 +20,40 @@ export function clampPercent(value) {
   return Math.max(0, Math.min(100, Math.round(value * 10) / 10))
 }
 
-function activeItems(items) {
+/**
+ * Would this raw percent be SHOWN as 100?
+ *
+ * @spec BR-006 — an open required gate caps progress below complete.
+ *
+ * The gate cap used to test `percent >= 100` on the raw value while the caller
+ * rendered `clampPercent(percent)`. Anything in [99.95, 100) — 2499 of 2500
+ * weight, say — passed the cap untouched and then rounded to **100.0%** with a
+ * required gate still open and no warning: exactly the claim BR-006 exists to
+ * forbid.
+ *
+ * A threshold has to be evaluated on the representation the reader sees. Testing
+ * it on an earlier one is the same mistake as reading a per-principal label as
+ * per-Business authority — the check and the thing it protects disagreed about
+ * what the value meant.
+ */
+export function reportsAsComplete(rawPercent) {
+  return clampPercent(rawPercent) >= 100
+}
+
+/**
+ * Which rows count.
+ *
+ * Exported because the execution-mode cards were reducing over the raw item
+ * list while the calculators reduced over this one, so a cancelled deal was
+ * counted by the card and excluded by the calculator: the same screen showed
+ * 157,000 on the tile and 125,000 in the Explain panel. The formulas agreed;
+ * only the population did.
+ *
+ * CLAUDE.md: "Never report a number a page would disagree with." A shared
+ * formula is not enough — the two sides must also agree on what they are
+ * summing over.
+ */
+export function activeItems(items) {
   return (items || []).filter((i) => !CANCELLED.has(i.status) && !i.deletedAt)
 }
 
@@ -51,7 +84,7 @@ export function taskWeight({ items = [], gates = [] }) {
   }
   const releaseGates = (gates || []).filter((g) => g.required)
   const openReleaseGates = releaseGates.filter((g) => !GATE_SATISFIED.has(g.status))
-  if (openReleaseGates.length > 0 && percent >= 100) {
+  if (openReleaseGates.length > 0 && reportsAsComplete(percent)) {
     percent = 99
     warnings.push(`All weight complete but ${openReleaseGates.length} required gate(s) not passed — capped at 99%.`)
   }
@@ -249,7 +282,7 @@ export function milestoneReadiness({ milestones = [], gates = [] }) {
   const requiredGates = (gates || []).filter((g) => g.required)
   const blockedGates = requiredGates.filter((g) => g.status === 'BLOCKED')
   const openGates = requiredGates.filter((g) => !GATE_SATISFIED.has(g.status))
-  if (openGates.length > 0 && percent >= 100) {
+  if (openGates.length > 0 && reportsAsComplete(percent)) {
     percent = 99
     warnings.push(`${openGates.length} required gate(s) not passed — readiness capped at 99%.`)
   }
