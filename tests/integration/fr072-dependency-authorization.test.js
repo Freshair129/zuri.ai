@@ -37,22 +37,10 @@ describe('FR-072 dependency-service authorization', () => {
     businessB = await createBusiness({ tenantId: tenant.id, name: 'Dep Authz Business B', code: 'BUS-DEPAUTHZ-B' })
     businessAttackerHome = await createBusiness({ tenantId: tenant.id, name: 'Attacker Home', code: 'BUS-DEPAUTHZ-C' })
 
-    workspaceA = await createWorkspace({ name: 'Dep WS A', scopeType: 'BUSINESS', businessId: businessA.id, code: 'WS-DEPAUTHZ-A' })
-    workspaceB = await createWorkspace({ name: 'Dep WS B', scopeType: 'BUSINESS', businessId: businessB.id, code: 'WS-DEPAUTHZ-B' })
-
-    projectA = await createProject({ workspaceId: workspaceA.id, name: 'Dep Project A', code: 'PRJ-DEPAUTHZ-A' })
-    projectB = await createProject({ workspaceId: workspaceB.id, name: 'Dep Project B', code: 'PRJ-DEPAUTHZ-B' })
-
-    workstreamA = await createWorkstream({
-      projectId: projectA.id, name: 'Dep Stream A', executionMode: 'SOFTWARE_SPRINT', code: 'WST-DEPAUTHZ-A',
-    })
-    workstreamB = await createWorkstream({
-      projectId: projectB.id, name: 'Dep Stream B', executionMode: 'SOFTWARE_SPRINT', code: 'WST-DEPAUTHZ-B',
-    })
-    workstreamB2 = await createWorkstream({
-      projectId: projectB.id, name: 'Dep Stream B2', executionMode: 'SOFTWARE_SPRINT', code: 'WST-DEPAUTHZ-B2',
-    })
-
+    // Built before the fixtures below, not beside their first assertion: Wave 1
+    // landed after this file and guarded createProject/createWorkstream, so
+    // this suite's own fixture-building calls now need a viewer too. viewerBoth
+    // owns both A and B, so it is the one used to plant fixtures on either side.
     ownerB = makeViewer({ visibleBusinessIds: [businessB.id], ownedBusinessIds: [businessB.id] })
     // Owns a Business elsewhere, merely sees Business B — the attacker shape.
     attacker = ownsElsewhere({ owns: businessAttackerHome.id, sees: businessB.id })
@@ -64,6 +52,22 @@ describe('FR-072 dependency-service authorization', () => {
       visibleBusinessIds: [businessA.id, businessB.id],
       ownedBusinessIds: [businessA.id],
     })
+
+    workspaceA = await createWorkspace({ name: 'Dep WS A', scopeType: 'BUSINESS', businessId: businessA.id, code: 'WS-DEPAUTHZ-A' })
+    workspaceB = await createWorkspace({ name: 'Dep WS B', scopeType: 'BUSINESS', businessId: businessB.id, code: 'WS-DEPAUTHZ-B' })
+
+    projectA = await createProject({ workspaceId: workspaceA.id, name: 'Dep Project A', code: 'PRJ-DEPAUTHZ-A' }, { viewer: viewerBoth })
+    projectB = await createProject({ workspaceId: workspaceB.id, name: 'Dep Project B', code: 'PRJ-DEPAUTHZ-B' }, { viewer: viewerBoth })
+
+    workstreamA = await createWorkstream({
+      projectId: projectA.id, name: 'Dep Stream A', executionMode: 'SOFTWARE_SPRINT', code: 'WST-DEPAUTHZ-A',
+    }, { viewer: viewerBoth })
+    workstreamB = await createWorkstream({
+      projectId: projectB.id, name: 'Dep Stream B', executionMode: 'SOFTWARE_SPRINT', code: 'WST-DEPAUTHZ-B',
+    }, { viewer: viewerBoth })
+    workstreamB2 = await createWorkstream({
+      projectId: projectB.id, name: 'Dep Stream B2', executionMode: 'SOFTWARE_SPRINT', code: 'WST-DEPAUTHZ-B2',
+    }, { viewer: viewerBoth })
   })
 
   describe('createDependency — fixture (i): both endpoints in Business B', () => {

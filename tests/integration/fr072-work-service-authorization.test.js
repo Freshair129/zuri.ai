@@ -44,30 +44,48 @@ describe('FR-072 work-service authorization', () => {
     business = await createBusiness({ tenantId: tenant.id, name: 'Work Authz Business', code: 'BUS-WORKAUTHZ' })
     otherBusiness = await createBusiness({ tenantId: tenant.id, name: 'Other Business', code: 'BUS-WORKAUTHZ-2' })
 
-    workspace = await createWorkspace({
-      name: 'Work Authz WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-WORKAUTHZ',
-    })
-    project = await createProject({ workspaceId: workspace.id, name: 'Work Authz Project', code: 'PRJ-WORKAUTHZ' })
-    workstream = await createWorkstream({
-      projectId: project.id, name: 'Work Authz Stream', executionMode: 'SOFTWARE_SPRINT', code: 'WST-WORKAUTHZ',
-    })
-
-    // A shared-Space Project (Tier B — no Business governs it).
-    sharedWorkspace = await createWorkspace({
-      name: 'Work Authz Shared WS', scopeType: 'PORTFOLIO', portfolioId: portfolio.id, code: 'WS-WORKAUTHZ-SHARED',
-    })
-    sharedProject = await createProject({
-      workspaceId: sharedWorkspace.id, name: 'Shared Project', code: 'PRJ-WORKAUTHZ-SHARED',
-    })
-    sharedWorkstream = await createWorkstream({
-      projectId: sharedProject.id, name: 'Shared Stream', executionMode: 'SOFTWARE_SPRINT', code: 'WST-WORKAUTHZ-SHARED',
-    })
-
+    // Built before the fixtures below, not beside their first assertion: Wave 1
+    // landed after this file and guarded createProject/createWorkstream, so
+    // this suite's own fixture-building calls now need a viewer too.
     owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
     attacker = ownsElsewhere({ owns: otherBusiness.id, sees: business.id })
     ownsEverything = makeViewer({
       visibleBusinessIds: [business.id, otherBusiness.id],
       ownedBusinessIds: [business.id, otherBusiness.id],
+    })
+
+    workspace = await createWorkspace({
+      name: 'Work Authz WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-WORKAUTHZ',
+    })
+    project = await createProject({ workspaceId: workspace.id, name: 'Work Authz Project', code: 'PRJ-WORKAUTHZ' }, { viewer: owner })
+    workstream = await createWorkstream({
+      projectId: project.id, name: 'Work Authz Stream', executionMode: 'SOFTWARE_SPRINT', code: 'WST-WORKAUTHZ',
+    }, { viewer: owner })
+
+    // A shared-Space Project (Tier B — no Business governs it).
+    sharedWorkspace = await createWorkspace({
+      name: 'Work Authz Shared WS', scopeType: 'PORTFOLIO', portfolioId: portfolio.id, code: 'WS-WORKAUTHZ-SHARED',
+    })
+    // FR-072(b): createProject now refuses a PORTFOLIO-scoped destination for
+    // every principal, so this fixture — which exists only to prove Tier B
+    // refuses createContainer under it — is planted directly with Prisma
+    // instead of going through the now-guarded service. Arrangement, not
+    // guard-dodging: production has exactly this state (WS-PLATFORM).
+    sharedProject = await prisma.project.create({
+      data: { code: 'PRJ-WORKAUTHZ-SHARED', workspaceId: sharedWorkspace.id, name: 'Shared Project' },
+    })
+    // Same reasoning one level down: createWorkstream now guards via
+    // assertProjectWritable(viewer, projectId), and sharedProject is
+    // Business-governed by nobody, so no viewer — not even ownsEverything —
+    // could create this through the service either.
+    sharedWorkstream = await prisma.workstream.create({
+      data: {
+        code: 'WST-WORKAUTHZ-SHARED',
+        projectId: sharedProject.id,
+        name: 'Shared Stream',
+        executionMode: 'SOFTWARE_SPRINT',
+        progressStrategy: 'TASK_WEIGHT',
+      },
     })
   })
 
