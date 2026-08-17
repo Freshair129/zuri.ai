@@ -65,7 +65,11 @@ jobs:
 
           echo "changed files:"; echo "$changed"
 
-          if printf '%s\n' "$changed" | grep -qvE '^(docs/|\.brain/)'; then
+          # Root documentation files are enumerated, never matched by a `*.md`
+          # wildcard. A wildcard would also skip a README dropped into `src/`
+          # beside code, and the whole point of this filter is that a surprise
+          # runs the suite rather than dodges it.
+          if printf '%s\n' "$changed" | grep -qvE '^(docs/|\.brain/|AGENTS\.md$|CLAUDE\.md$|README\.md$)'; then
             echo "code=true" >> "$GITHUB_OUTPUT"
             echo "→ non-documentation files changed: running e2e"
           else

@@ -6,6 +6,11 @@ Execution mode belongs to a Workstream.
 
 Project may mix modes.
 
+The user/Agent intake contract for each mode is defined in
+[FR-069 — Plan Blueprint and Human/Agent intake](domains/project-manager/features/FR-069-plan-blueprint-and-intake.md).
+This document remains the canonical mode/subtype/evidence reference; FR-069
+defines how each mode is collected, shown and closed for a Human user.
+
 ## PlanEnvelope mode contract
 
 The neutral database model is shared, but an imported plan is validated against the
