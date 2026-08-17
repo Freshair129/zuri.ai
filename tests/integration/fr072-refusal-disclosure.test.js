@@ -70,7 +70,7 @@ import { updateWorkspace } from '@/modules/project-manager/application/scope-ser
 // assertion can fail, per mission rule 8.
 
 let business, workspace, project, workstream, container, item, dependency, projectFile
-let milestone, gate, repositoryLink
+let milestone, gate, repositoryLink, linkableRepositoryId
 let owner, attacker
 
 /**
@@ -88,13 +88,26 @@ async function observed(fn) {
  * The claim, for one target kind: refusing an unowned real target is
  * indistinguishable from refusing an id that never existed.
  */
-async function assertIndistinguishable(name, callWith) {
-  const real = await observed(() => callWith(attacker, 'REAL'))
-  const fabricated = await observed(() => callWith(attacker, 'no-such-id-at-all'))
+async function assertIndistinguishable(name, callWith, { normalize = (r) => r } = {}) {
+  const real = normalize(await observed(() => callWith(attacker, 'REAL')), 'REAL')
+  const fabricated = normalize(await observed(() => callWith(attacker, FAKE_ID)), FAKE_ID)
   expect(real, `${name}: an unowned real target must not answer differently`).toEqual(fabricated)
   // And both must be the refusal, not an accidental success or a 500.
   expect(real.status, `${name}: expected a 404-shaped refusal`).toBe(404)
 }
+
+const FAKE_ID = 'no-such-id-at-all'
+
+/**
+ * A few refusals echo the id the caller supplied (`Dependency endpoint not
+ * found: WORK_ITEM <id>`). Two calls with different ids therefore produce
+ * different strings — which discloses nothing, because the id came from the
+ * caller. Blank it out so the comparison tests what is actually at stake.
+ */
+const blankSuppliedId = (realId) => (result) => ({
+  ...result,
+  body: { ...result.body, error: result.body.error?.replace(realId, '<id>').replace(FAKE_ID, '<id>') },
+})
 
 describe('FR-072(a) refusals disclose nothing at the boundary', () => {
   beforeAll(async () => {
@@ -150,6 +163,7 @@ describe('FR-072(a) refusals disclose nothing at the boundary', () => {
     // createRepository is BLOCKED (no scope field on Repository, so no predicate
     // can govern it) and takes no viewer — only the *link* is repaid.
     const repository = await createRepository({ provider: 'github', fullName: 'org/disc', code: 'REP-DISC' })
+    linkableRepositoryId = repository.id
     repositoryLink = await linkRepository(
       { projectId: project.id, repoId: repository.id, role: 'PRIMARY' }, { viewer: owner },
     )
@@ -188,8 +202,11 @@ describe('FR-072(a) refusals disclose nothing at the boundary', () => {
   })
 
   it('a Project file answers the same whether unowned or absent', async () => {
+    // Varying the *projectId*, not the fileId: the guard refuses on the project
+    // before the fileId is ever read, so varying the fileId would send both
+    // calls down a byte-identical path and prove nothing.
     await assertIndistinguishable('deleteProjectFile', (viewer, which) =>
-      deleteProjectFile(project.id, which === 'REAL' ? projectFile.id : which, { viewer }))
+      deleteProjectFile(which === 'REAL' ? project.id : which, projectFile.id, { viewer }))
   })
 
   it('a Milestone and a Gate answer the same whether unowned or absent', async () => {
@@ -207,6 +224,62 @@ describe('FR-072(a) refusals disclose nothing at the boundary', () => {
   it('a Workspace answers the same whether unowned or absent', async () => {
     await assertIndistinguishable('updateWorkspace', (viewer, which) =>
       updateWorkspace(which === 'REAL' ? workspace.id : which, { name: 'x' }, { viewer }))
+  })
+
+  // The create paths, and why they are the ones that matter most.
+  //
+  // On an update or delete, the guard usually runs first and throws an explicit
+  // 404 on *both* branches, so those paths are structurally immune to the sniff
+  // being removed. A create is different: the absent branch hits a pre-existing
+  // `throw new Error('X not found')` with no status, while the unowned branch
+  // reaches the guard's explicit `refusal(404, 'X not found')`. That asymmetry
+  // is exactly the shape this file exists to pin, and it survives only because
+  // the two strings are byte-identical today.
+  describe('creates disclose nothing about the container they are refused from', () => {
+    it('a Project created into an unowned vs absent Workspace', async () => {
+      await assertIndistinguishable('createProject', (viewer, which) =>
+        createProject({ workspaceId: which === 'REAL' ? workspace.id : which, name: 'x', code: `PRJ-D-${which}` }, { viewer }))
+    })
+
+    it('a Workstream, Milestone, Gate, file and repository link, under an unowned vs absent Project', async () => {
+      const target = (which) => (which === 'REAL' ? project.id : which)
+      await assertIndistinguishable('createWorkstream', (viewer, which) =>
+        createWorkstream({ projectId: target(which), name: 'x', executionMode: 'SOFTWARE_SPRINT', code: `WST-D-${which}` }, { viewer }))
+      await assertIndistinguishable('createMilestone', (viewer, which) =>
+        createMilestone({ projectId: target(which), title: 'x', code: `MS-D-${which}` }, { viewer }))
+      await assertIndistinguishable('createGate', (viewer, which) =>
+        createGate({ projectId: target(which), title: 'x', code: `GATE-D-${which}` }, { viewer }))
+      await assertIndistinguishable('createProjectFile', (viewer, which) =>
+        createProjectFile(target(which), { name: 'x.txt', mime: 'text/plain', size: 1, url: 'https://e.test/x' }, { viewer }))
+      await assertIndistinguishable('linkRepository', (viewer, which) =>
+        linkRepository({ projectId: target(which), repoId: linkableRepositoryId, role: 'REFERENCE' }, { viewer }))
+    })
+
+    it('a Container and Item, under an unowned vs absent Workstream', async () => {
+      const target = (which) => (which === 'REAL' ? workstream.id : which)
+      await assertIndistinguishable('createContainer', (viewer, which) =>
+        createContainer({ workstreamId: target(which), subtype: 'SPRINT', title: 'x', code: `WC-D-${which}` }, { viewer }))
+      await assertIndistinguishable('createItem', (viewer, which) =>
+        createItem({ workstreamId: target(which), subtype: 'TASK', title: 'x', code: `WI-D-${which}` }, { viewer }))
+    })
+
+    it('a Dependency, on an unowned vs absent endpoint', async () => {
+      // This refusal echoes the id the caller supplied, so the two answers
+      // differ by that string alone — the caller's own input, disclosing
+      // nothing. Blanked before comparing; everything else must match.
+      await assertIndistinguishable(
+        'createDependency',
+        (viewer, which) =>
+          createDependency({
+            // Distinct endpoint kinds: pointing both ends at one record would
+            // trip the self-dependency check (400) before the guard is reached.
+            sourceType: 'WORK_ITEM', sourceId: which === 'REAL' ? item.id : which,
+            targetType: 'WORK_CONTAINER', targetId: container.id,
+            dependencyType: 'BLOCKS',
+          }, { viewer }),
+        { normalize: blankSuppliedId(item.id) },
+      )
+    })
   })
 
   // Rule 8: a loosening — or an equality — must be proven in both directions.

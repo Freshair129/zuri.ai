@@ -72,9 +72,10 @@ npm run docs:preflight:report  # same findings, never fails — for reading, not
 ```
 
 **Both test commands are wrapped by `scripts/assert-tests-ran.mjs`**, which fails a
-run that executed zero tests. `npx vitest run -t "NO_MATCH"` exits **0** with all 1070
-tests skipped; a green exit code must mean the work ran and passed, never that it did
-not run.
+run that executed zero tests. `npx vitest run -t "NO_MATCH"` exits **0** with *every*
+test skipped; a green exit code must mean the work ran and passed, never that it did
+not run. (Stated without a count on purpose: the number here was wrong by 200 on
+2026-08-18, and a figure that drifts silently is the thing this paragraph warns about.)
 
 **`test:e2e` also fails on `flaky`.** Playwright exits **0** for a test that passes
 only on retry and reports it on a line separate from "failed", so a degrading suite

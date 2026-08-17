@@ -21,8 +21,8 @@
     },
     "coverage": {
       "requirements": 158,
-      "fr_with_code": "100% (65/65)",
-      "fr_with_tests": "100% (65/65)",
+      "fr_with_code": "100% (66/66)",
+      "fr_with_tests": "100% (66/66)",
       "rules_anchored_in_code": "83% (60/72)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 217,
@@ -32,8 +32,7 @@
         "FR-068",
         "FR-069",
         "FR-070",
-        "FR-071",
-        "FR-072"
+        "FR-071"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -4969,7 +4968,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.64.0b",
       "doc_status": "Draft",
-      "hash": "b69c2d0b",
+      "hash": "a9098e34",
       "status": "current"
     },
     {
@@ -6223,10 +6222,10 @@
       "id": "req:FR-072",
       "type": "requirement",
       "family": "FR",
-      "label": "Project-Manager mutation authorization: every mutating route repaid from `docs/.route-viewer-baseline.json` resolves a request viewer and the service behind it refuses the write unless `ownsBusiness(viewer, <governing Business>)`, where the governing Business is derived from the target's Space (`workspace.businessId`; for Project-scoped targets via the Project's Space per FR-043; for a Dependency, the governing Business of **both** endpoints; for a Project moved between Spaces, the authority of **both** the current governing Business and the destination Space). (a) A Business-governed target that is not owned answers exactly as a nonexistent one, so a refusal is never an enumeration oracle over another tenant's ids. (b) A target governed above Business (a Project in a PORTFOLIO/TENANT Space, a non-BUSINESS-scoped Workspace) is refused for **every** principal with a reason naming the missing authority — this requirement deliberately does **not** invent authority above Business; enabling such writes requires a prior FR that makes that authority holdable (FR-066/FR-067 direction), per the FR-065 precedent. Routes whose authorization question no declared rule answers (`/api/scope`, `/api/backup/import`, `/api/repositories`) are out of scope and remain recorded debt.",
+      "label": "Project-Manager mutation authorization: every mutating route repaid from `docs/.route-viewer-baseline.json` resolves a request viewer and the service behind it refuses the write unless `ownsBusiness(viewer, <governing Business>)`, where the governing Business is derived from the target's Space (`workspace.businessId`; for Project-scoped targets via the Project's Space per FR-043; for a Dependency, the governing Business of **both** endpoints; for a Project moved between Spaces, the authority of **both** the current governing Business and the destination Space). (a) A Business-governed target that is not owned answers exactly as a nonexistent one, so a refusal is never an enumeration oracle over another tenant's ids. (b) A target governed above Business (a Project in a PORTFOLIO/TENANT Space, a non-BUSINESS-scoped Workspace) is refused for **every** principal with a reason naming the missing authority — this requirement deliberately does **not** invent authority above Business; enabling such writes requires a prior FR that makes that authority holdable (FR-066/FR-067 direction), per the FR-065 precedent. Routes whose authorization question no declared rule answers (`/api/scope`, `/api/backup/import`, `/api/repositories`, `/api/repositories/[id]`) are out of scope and remain recorded debt in `docs/.route-viewer-baseline.json`, each with the missing decision named.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned"
+      "declared": "done",
+      "status": "current"
     },
     {
       "id": "req:NFR-001",
@@ -8070,7 +8069,7 @@
       "id": "test:tests/integration/fr072-refusal-disclosure.test.js",
       "type": "test",
       "path": "tests/integration/fr072-refusal-disclosure.test.js",
-      "hash": "01a5b270",
+      "hash": "2dbbb2fe",
       "status": "current"
     },
     {
