@@ -53,6 +53,28 @@ operational context exists; those objects are not mandatory first-run fields.
 - **AC-066.7** The no-external-provider mode still uses a server-owned identity
   and trusted session; browser-local labels are never authorization input.
 
+Space is removed from the path the user walks (ADR-027 §D2) but stays required in
+the model, so the next three criteria are what stop that from failing at first
+use (ADR-027 §D8):
+
+- **AC-066.8** Creating a Business creates a **Default Space** for it in the same
+  transaction, with `scopeType: 'BUSINESS'` and that Business's `businessId` set.
+  `Project.workspaceId` is a required column, so a Business whose owner was never
+  asked to create a Space must still have one to create a Project into.
+- **AC-066.9** A Default Space is never created with a null `businessId`.
+  Authorization for Project work reads `workspace.businessId` — team management,
+  FR-065 import, and `resolveProjectBusinessId` all do — so a Business-less
+  Default Space would present a working product that silently refuses every
+  write.
+- **AC-066.10** Onboarding may create the Organization/Tenant implicitly so the
+  user never sees that step, and never attaches a Business to a Workspace without
+  one. `Business.tenantId` is required and Tenant is the BR-001 isolation
+  boundary; skipping it in the interface is a simplification, skipping it in the
+  data is removing tenant isolation.
+- **AC-066.11** Project creation from onboarding names a Business and a Project
+  only. No screen in the first-run path asks the user to pick, name or create a
+  Space.
+
 ## Non-goals
 
 - choosing a real authentication provider;
