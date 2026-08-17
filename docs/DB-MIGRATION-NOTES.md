@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.1 |
+| **Version** | 1.0.2 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-11 |
+| **Last Updated** | 2026-08-18 |
 
 The MVP schema was designed to move to Postgres without semantic changes.
 
@@ -52,6 +52,21 @@ The lab stays SQLite (`prisma/schema.prisma`); production is generated, not hand
    then, with `DATABASE_URL` pointed at Supabase, `npm run db:pg:import` (refuses a
    non-empty target). `importSnapshot` recreates each row with its original id.
 5. Re-run the suite against Postgres; integration tests are provider-independent.
+
+### Phase 1 runtime connection metadata (FR-074 / ADR-031)
+
+Production Phase 1 connection metadata belongs to the private `zuri_core` schema,
+not the exposed Data API. Apply
+`supabase/migrations/20260818040000_phase1_line_runtime_connections.sql` only
+after the production tenant/bootstrap migration. It creates provider,
+Business-scoped connection and opaque credential-reference tables, forced RLS,
+read-only `zuri_line_smartgift_ro` access, and the database-enforced single
+`ACTIVE PRIMARY` `PHASE1_LINE_LLM` index. It does not create or migrate raw
+provider credentials; those remain in the owner-selected external secret manager.
+
+`prisma/postgres/0002_phase1_line_primary_connection.sql` is the corresponding
+generic Prisma/Postgres lab invariant for the canonical SQLite schema. It is not
+a substitute for the private Supabase migration or its role/RLS grants.
 
 ## DB boundary — Zuri DB ≠ MSP DB (do not merge)
 

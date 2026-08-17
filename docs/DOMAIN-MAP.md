@@ -17,7 +17,7 @@ Charter: [docs/domains/agent/CHARTER.md](domains/agent/CHARTER.md)
 | Modules | `src/modules/agent` |
 | Models owned | — (state lives outside the shared schema by design) |
 | Routes owned | 1 (1 api · 0 pages) |
-| FRs implemented in lane | FR-025, FR-026, FR-027, FR-029, FR-047, FR-048, FR-049, FR-051, FR-052, FR-053, FR-054, FR-055, FR-057 |
+| FRs implemented in lane | FR-025, FR-026, FR-027, FR-029, FR-047, FR-048, FR-049, FR-051, FR-052, FR-053, FR-054, FR-055, FR-057, FR-074 |
 
 ## crm
 
@@ -40,6 +40,17 @@ Charter: [docs/domains/identity/CHARTER.md](domains/identity/CHARTER.md)
 | Models owned | ExternalIdentity, IdentityLinkToken, ExternalRef |
 | Routes owned | 3 (1 api · 2 pages) |
 | FRs implemented in lane | FR-021, FR-022, FR-031, FR-036, FR-038, FR-046, FR-059, FR-061, FR-062, SDD-034 |
+
+## integration
+
+Charter: [docs/domains/integration/CHARTER.md](domains/integration/CHARTER.md)
+
+| | |
+|---|---|
+| Modules | `src/modules/integration` |
+| Models owned | IntegrationProvider, IntegrationConnection, IntegrationCredential |
+| Routes owned | 0 (0 api · 0 pages) |
+| FRs implemented in lane | — |
 
 ## knowledge
 

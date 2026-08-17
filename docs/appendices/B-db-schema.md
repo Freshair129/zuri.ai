@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.3.0 |
+| **Version** | 1.4.0 |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-14 |
+| **Last Updated** | 2026-08-18 |
 
 Source of truth: `prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md)
 Conventions: UUID PK · unique human `code` · `createdAt/updatedAt` · `version` บน aggregate
@@ -85,3 +85,21 @@ types are limited to approved FR-045 targets; arbitrary polymorphic input is den
 These models are additive. `ProjectFile` remains for compatibility and is not
 removed by ZV2-CR-001. SQLite is canonical for MVP; the generated Postgres schema
 preserves metadata semantics while device root paths remain local configuration.
+
+## Integration runtime connections (FR-074 / ADR-031)
+
+`IntegrationProvider { code, name, status, capabilitiesJson }` is provider
+metadata. `IntegrationConnection { tenantId, businessId?, providerId, name,
+authorizationType, externalAccountId?, purpose, role, status, metadataJson,
+version }` is the Business-scoped connection registry; Phase 1 selection requires
+`purpose=PHASE1_LINE_LLM`, `status=ACTIVE`, and `role=PRIMARY` under the
+server-resolved binding scope. `IntegrationCredential { connectionId@unique,
+secretRef, status, expiresAt?, rotatedAt?, version }` stores only an opaque
+external secret-manager reference; raw credential material is never persisted in
+Prisma or returned to the browser.
+
+The generic Postgres artifact carries the additive connection tables and
+`prisma/postgres/0002_phase1_line_primary_connection.sql` adds the active-primary
+unique index. Production Supabase uses the private-schema migration
+`supabase/migrations/20260818040000_phase1_line_runtime_connections.sql`, which
+adds forced RLS and read-only `zuri_line_smartgift_ro` grants.

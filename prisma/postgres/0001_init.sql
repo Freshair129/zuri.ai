@@ -99,6 +99,7 @@ CREATE TABLE "Membership" (
     "branchId" TEXT,
     "employeeRef" TEXT,
     "role" TEXT NOT NULL DEFAULT 'OWNER',
+    "domainKeysJson" TEXT NOT NULL DEFAULT '[]',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Membership_pkey" PRIMARY KEY ("id")
@@ -125,6 +126,7 @@ CREATE TABLE "Workspace" (
 CREATE TABLE "Project" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
+    "businessId" TEXT,
     "workspaceId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
@@ -138,6 +140,67 @@ CREATE TABLE "Project" (
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessRoadmap" (
+    "id" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "startAt" TIMESTAMP(3),
+    "targetAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "BusinessRoadmap_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessRoadmapHorizon" (
+    "id" TEXT NOT NULL,
+    "roadmapId" TEXT NOT NULL,
+    "key" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "position" INTEGER NOT NULL,
+    "description" TEXT,
+    "targetAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "BusinessRoadmapHorizon_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessGoal" (
+    "id" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "roadmapId" TEXT,
+    "horizonId" TEXT,
+    "code" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'PLANNED',
+    "priority" TEXT NOT NULL DEFAULT 'MEDIUM',
+    "progress" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "startAt" TIMESTAMP(3),
+    "targetAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "BusinessGoal_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProjectGoal" (
+    "projectId" TEXT NOT NULL,
+    "goalId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ProjectGoal_pkey" PRIMARY KEY ("projectId","goalId")
 );
 
 -- CreateTable
@@ -283,6 +346,80 @@ CREATE TABLE "ProjectRepository" (
 );
 
 -- CreateTable
+CREATE TABLE "ProjectFile" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "projectId" TEXT NOT NULL,
+    "workItemId" TEXT,
+    "name" TEXT NOT NULL,
+    "mime" TEXT NOT NULL,
+    "size" INTEGER NOT NULL,
+    "url" TEXT,
+    "blobRef" TEXT,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "uploadedBy" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ProjectFile_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "LocalWorkspaceMount" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "deviceKey" TEXT NOT NULL,
+    "rootPath" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "lastScanAt" TIMESTAMP(3),
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "LocalWorkspaceMount_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "FileAsset" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "projectId" TEXT,
+    "workItemId" TEXT,
+    "storageKind" TEXT NOT NULL,
+    "relativePath" TEXT,
+    "externalUrl" TEXT,
+    "blobRef" TEXT,
+    "name" TEXT NOT NULL,
+    "mime" TEXT NOT NULL,
+    "size" INTEGER NOT NULL,
+    "sha256" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "uploadedBy" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "FileAsset_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "FileLink" (
+    "id" TEXT NOT NULL,
+    "fileId" TEXT NOT NULL,
+    "entityType" TEXT NOT NULL,
+    "entityId" TEXT NOT NULL,
+    "relationType" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "FileLink_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "ExternalIdentity" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -385,6 +522,57 @@ CREATE TABLE "AuditEvent" (
     CONSTRAINT "AuditEvent_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "IntegrationProvider" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "capabilitiesJson" TEXT NOT NULL DEFAULT '{}',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "IntegrationProvider_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "IntegrationConnection" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT,
+    "providerId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "authorizationType" TEXT NOT NULL DEFAULT 'SECRET_MANAGER',
+    "externalAccountId" TEXT,
+    "purpose" TEXT NOT NULL DEFAULT 'GENERAL',
+    "role" TEXT NOT NULL DEFAULT 'SECONDARY',
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "metadataJson" TEXT NOT NULL DEFAULT '{}',
+    "lastSyncAt" TIMESTAMP(3),
+    "lastSuccessAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "IntegrationConnection_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "IntegrationCredential" (
+    "id" TEXT NOT NULL,
+    "connectionId" TEXT NOT NULL,
+    "secretRef" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "expiresAt" TIMESTAMP(3),
+    "rotatedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "IntegrationCredential_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Portfolio_code_key" ON "Portfolio"("code");
 
@@ -446,10 +634,43 @@ CREATE INDEX "Workspace_businessId_idx" ON "Workspace"("businessId");
 CREATE UNIQUE INDEX "Project_code_key" ON "Project"("code");
 
 -- CreateIndex
+CREATE INDEX "Project_businessId_idx" ON "Project"("businessId");
+
+-- CreateIndex
 CREATE INDEX "Project_workspaceId_idx" ON "Project"("workspaceId");
 
 -- CreateIndex
 CREATE INDEX "Project_status_idx" ON "Project"("status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "BusinessRoadmap_code_key" ON "BusinessRoadmap"("code");
+
+-- CreateIndex
+CREATE INDEX "BusinessRoadmap_businessId_status_idx" ON "BusinessRoadmap"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "BusinessRoadmapHorizon_roadmapId_idx" ON "BusinessRoadmapHorizon"("roadmapId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "BusinessRoadmapHorizon_roadmapId_key_key" ON "BusinessRoadmapHorizon"("roadmapId", "key");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "BusinessRoadmapHorizon_roadmapId_position_key" ON "BusinessRoadmapHorizon"("roadmapId", "position");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "BusinessGoal_code_key" ON "BusinessGoal"("code");
+
+-- CreateIndex
+CREATE INDEX "BusinessGoal_businessId_status_idx" ON "BusinessGoal"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "BusinessGoal_roadmapId_idx" ON "BusinessGoal"("roadmapId");
+
+-- CreateIndex
+CREATE INDEX "BusinessGoal_horizonId_idx" ON "BusinessGoal"("horizonId");
+
+-- CreateIndex
+CREATE INDEX "ProjectGoal_goalId_idx" ON "ProjectGoal"("goalId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Workstream_code_key" ON "Workstream"("code");
@@ -527,6 +748,42 @@ CREATE INDEX "ProjectRepository_repoId_idx" ON "ProjectRepository"("repoId");
 CREATE UNIQUE INDEX "ProjectRepository_projectId_repoId_role_key" ON "ProjectRepository"("projectId", "repoId", "role");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "ProjectFile_code_key" ON "ProjectFile"("code");
+
+-- CreateIndex
+CREATE INDEX "ProjectFile_projectId_idx" ON "ProjectFile"("projectId");
+
+-- CreateIndex
+CREATE INDEX "ProjectFile_workItemId_idx" ON "ProjectFile"("workItemId");
+
+-- CreateIndex
+CREATE INDEX "LocalWorkspaceMount_tenantId_idx" ON "LocalWorkspaceMount"("tenantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LocalWorkspaceMount_businessId_deviceKey_key" ON "LocalWorkspaceMount"("businessId", "deviceKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "FileAsset_code_key" ON "FileAsset"("code");
+
+-- CreateIndex
+CREATE INDEX "FileAsset_tenantId_idx" ON "FileAsset"("tenantId");
+
+-- CreateIndex
+CREATE INDEX "FileAsset_businessId_idx" ON "FileAsset"("businessId");
+
+-- CreateIndex
+CREATE INDEX "FileAsset_projectId_idx" ON "FileAsset"("projectId");
+
+-- CreateIndex
+CREATE INDEX "FileAsset_workItemId_idx" ON "FileAsset"("workItemId");
+
+-- CreateIndex
+CREATE INDEX "FileLink_entityType_entityId_idx" ON "FileLink"("entityType", "entityId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "FileLink_fileId_entityType_entityId_relationType_key" ON "FileLink"("fileId", "entityType", "entityId", "relationType");
+
+-- CreateIndex
 CREATE INDEX "ExternalIdentity_personId_idx" ON "ExternalIdentity"("personId");
 
 -- CreateIndex
@@ -577,6 +834,18 @@ CREATE INDEX "AuditEvent_entityType_entityId_idx" ON "AuditEvent"("entityType", 
 -- CreateIndex
 CREATE INDEX "AuditEvent_occurredAt_idx" ON "AuditEvent"("occurredAt");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "IntegrationProvider_code_key" ON "IntegrationProvider"("code");
+
+-- CreateIndex
+CREATE INDEX "IntegrationConnection_tenantId_businessId_purpose_status_ro_idx" ON "IntegrationConnection"("tenantId", "businessId", "purpose", "status", "role");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "IntegrationConnection_tenantId_providerId_externalAccountId_key" ON "IntegrationConnection"("tenantId", "providerId", "externalAccountId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "IntegrationCredential_connectionId_key" ON "IntegrationCredential"("connectionId");
+
 -- AddForeignKey
 ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -617,7 +886,31 @@ ALTER TABLE "Workspace" ADD CONSTRAINT "Workspace_tenantId_fkey" FOREIGN KEY ("t
 ALTER TABLE "Workspace" ADD CONSTRAINT "Workspace_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Project" ADD CONSTRAINT "Project_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Project" ADD CONSTRAINT "Project_workspaceId_fkey" FOREIGN KEY ("workspaceId") REFERENCES "Workspace"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessRoadmap" ADD CONSTRAINT "BusinessRoadmap_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessRoadmapHorizon" ADD CONSTRAINT "BusinessRoadmapHorizon_roadmapId_fkey" FOREIGN KEY ("roadmapId") REFERENCES "BusinessRoadmap"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessGoal" ADD CONSTRAINT "BusinessGoal_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessGoal" ADD CONSTRAINT "BusinessGoal_roadmapId_fkey" FOREIGN KEY ("roadmapId") REFERENCES "BusinessRoadmap"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessGoal" ADD CONSTRAINT "BusinessGoal_horizonId_fkey" FOREIGN KEY ("horizonId") REFERENCES "BusinessRoadmapHorizon"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectGoal" ADD CONSTRAINT "ProjectGoal_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectGoal" ADD CONSTRAINT "ProjectGoal_goalId_fkey" FOREIGN KEY ("goalId") REFERENCES "BusinessGoal"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Workstream" ADD CONSTRAINT "Workstream_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -653,6 +946,33 @@ ALTER TABLE "ProjectRepository" ADD CONSTRAINT "ProjectRepository_projectId_fkey
 ALTER TABLE "ProjectRepository" ADD CONSTRAINT "ProjectRepository_repoId_fkey" FOREIGN KEY ("repoId") REFERENCES "Repository"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "ProjectFile" ADD CONSTRAINT "ProjectFile_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectFile" ADD CONSTRAINT "ProjectFile_workItemId_fkey" FOREIGN KEY ("workItemId") REFERENCES "WorkItem"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LocalWorkspaceMount" ADD CONSTRAINT "LocalWorkspaceMount_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LocalWorkspaceMount" ADD CONSTRAINT "LocalWorkspaceMount_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FileAsset" ADD CONSTRAINT "FileAsset_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FileAsset" ADD CONSTRAINT "FileAsset_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FileAsset" ADD CONSTRAINT "FileAsset_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FileAsset" ADD CONSTRAINT "FileAsset_workItemId_fkey" FOREIGN KEY ("workItemId") REFERENCES "WorkItem"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "FileLink" ADD CONSTRAINT "FileLink_fileId_fkey" FOREIGN KEY ("fileId") REFERENCES "FileAsset"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "ExternalIdentity" ADD CONSTRAINT "ExternalIdentity_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -678,4 +998,16 @@ ALTER TABLE "Conversation" ADD CONSTRAINT "Conversation_customerId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "IntegrationConnection" ADD CONSTRAINT "IntegrationConnection_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "IntegrationConnection" ADD CONSTRAINT "IntegrationConnection_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "IntegrationConnection" ADD CONSTRAINT "IntegrationConnection_providerId_fkey" FOREIGN KEY ("providerId") REFERENCES "IntegrationProvider"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "IntegrationCredential" ADD CONSTRAINT "IntegrationCredential_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "IntegrationConnection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 

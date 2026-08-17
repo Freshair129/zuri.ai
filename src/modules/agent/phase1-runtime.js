@@ -2,6 +2,13 @@ import { createPostgresBusinessKnowledgeReader } from '@/modules/knowledge'
 import { createModelProviderPort } from './model-provider'
 import { createPostgresLineBindingResolver } from './line-binding-resolver'
 import {
+  PHASE1_LINE_LLM_PURPOSE,
+  resolvePhase1PrimaryConnection,
+  resolvePhase1PrimaryConnectionByQuery,
+} from '@/platform/integrations/core/integration-registry'
+import { createEnvCredentialVault } from '@/platform/integrations/core/credential-vault'
+import { createSecretManagerPort, createVaultSecretManagerAdapter } from '@/platform/integrations/core/secret-manager'
+import {
   parseDedicatedRuntimeDatabaseUrl,
   readRuntimeDatabaseCa,
 } from '../knowledge/runtime-postgres-config.js'
@@ -54,8 +61,35 @@ export async function executeAsLineReadRole(pool, sql, values) {
   }
 }
 
-export function createPhase1BusinessAgentPortsFromEnv(env = process.env, { fetchFn, queryFn } = {}) {
+function runtimeSourceFor(env) {
+  const source = env.ZURI_PHASE1_RUNTIME_SOURCE
+    ?? (env.NODE_ENV === 'production' ? null : env.NODE_ENV === 'test' ? 'TEST' : 'LOCAL_DEV')
+  if (!source) throw new Error('PHASE1_RUNTIME_SOURCE_REQUIRED')
+  if (env.NODE_ENV === 'production' && source !== 'PRODUCTION_LINE') {
+    throw new Error('PHASE1_PRODUCTION_RUNTIME_SOURCE_FORBIDDEN')
+  }
+  if (!['PRODUCTION_LINE', 'LOCAL_DEV', 'TEST', 'EVAL'].includes(source)) {
+    throw new Error('PHASE1_RUNTIME_SOURCE_INVALID')
+  }
+  return source
+}
+
+function parseConnectionMetadata(connection) {
+  try {
+    const parsed = JSON.parse(connection.metadataJson ?? '{}')
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    throw new Error('PHASE1_CONNECTION_METADATA_INVALID')
+  }
+}
+
+export function createPhase1BusinessAgentPortsFromEnv(
+  env = process.env,
+  { fetchFn, queryFn, integrationDb, connectionResolver, secretManager } = {},
+) {
   if (env.ZURI_LINE_BUSINESS_AGENT_ENABLED !== 'true') return null
+
+  const runtimeSource = runtimeSourceFor(env)
 
   if (env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error('PHASE1_SUPABASE_SECRET_FORBIDDEN: secret/service credentials bypass RLS')
@@ -64,12 +98,28 @@ export function createPhase1BusinessAgentPortsFromEnv(env = process.env, { fetch
   const required = {
     ZURI_LINE_DB_URL: env.ZURI_LINE_DB_URL,
     ZURI_LINE_BINDING_HASH_PEPPER: env.ZURI_LINE_BINDING_HASH_PEPPER,
-    ZURI_MODEL_PROVIDER: env.ZURI_MODEL_PROVIDER,
-    ZURI_MODEL_NAME: env.ZURI_MODEL_NAME,
-    ZURI_MODEL_CREDENTIAL: env.ZURI_MODEL_CREDENTIAL,
+  }
+  if (runtimeSource !== 'PRODUCTION_LINE') {
+    required.ZURI_MODEL_PROVIDER = env.ZURI_MODEL_PROVIDER
+    required.ZURI_MODEL_NAME = env.ZURI_MODEL_NAME
+    if (env.ZURI_MODEL_PROVIDER !== 'ollama') required.ZURI_MODEL_CREDENTIAL = env.ZURI_MODEL_CREDENTIAL
+  } else if (env.ZURI_MODEL_PROVIDER || env.ZURI_MODEL_NAME || env.ZURI_MODEL_CREDENTIAL) {
+    throw new Error('PHASE1_PRODUCTION_LEGACY_MODEL_CONFIG_FORBIDDEN')
   }
   const missing = Object.entries(required).filter(([, value]) => !value).map(([name]) => name)
   if (missing.length) throw new Error(`PHASE1_CONFIGURATION_MISSING: ${missing.join(', ')}`)
+
+  const runtimeSecretManager = secretManager ?? (
+    runtimeSource === 'PRODUCTION_LINE' || !env.ZURI_CREDENTIAL_VAULT_MASTER_KEY
+      ? null
+      : createSecretManagerPort({
+        runtimeSource,
+        adapter: createVaultSecretManagerAdapter({ vault: createEnvCredentialVault({ env }) }),
+      })
+  )
+  if (runtimeSource === 'PRODUCTION_LINE' && runtimeSecretManager?.runtimeSource !== 'PRODUCTION_LINE') {
+    throw new Error('PRODUCTION_SECRET_MANAGER_NOT_CONFIGURED: production SecretManagerPort is required')
+  }
 
   const databaseUrl = assertRuntimeDatabaseUrl(required.ZURI_LINE_DB_URL)
   const pool = queryFn ? null : runtimePool(
@@ -79,21 +129,90 @@ export function createPhase1BusinessAgentPortsFromEnv(env = process.env, { fetch
   )
   const execute = queryFn ?? ((sql, values) => executeAsLineReadRole(pool, sql, values))
 
-  return {
+  const legacyModel = runtimeSource === 'PRODUCTION_LINE'
+    ? null
+    : createModelProviderPort({
+      runtimeSource,
+      provider: required.ZURI_MODEL_PROVIDER,
+      model: required.ZURI_MODEL_NAME,
+      credential: env.ZURI_MODEL_CREDENTIAL,
+      baseUrl: required.ZURI_MODEL_PROVIDER === 'ollama' ? env.ZURI_OLLAMA_BASE_URL : undefined,
+      timeoutMs: Number(env.ZURI_MODEL_TIMEOUT_MS ?? 10000),
+      fetchFn,
+    })
+
+  const resolveConnection = connectionResolver ?? (integrationDb
+    ? ((scope) => resolvePhase1PrimaryConnection({
+      db: integrationDb,
+      tenantId: scope.tenantId,
+      businessId: scope.businessId,
+      purpose: PHASE1_LINE_LLM_PURPOSE,
+    }))
+    : ((scope) => resolvePhase1PrimaryConnectionByQuery({
+      queryFn: execute,
+      tenantId: scope.tenantId,
+      businessId: scope.businessId,
+      purpose: PHASE1_LINE_LLM_PURPOSE,
+    })))
+  async function resolveModel(scope) {
+    let connection
+    try {
+      connection = await resolveConnection({ tenantId: scope.tenantId, businessId: scope.businessId })
+    } catch (error) {
+      // Local/test direct provider configuration remains a compatibility seam. It
+      // is never reachable from PRODUCTION_LINE and never hides ambiguity or a
+      // secret-manager failure.
+      if (runtimeSource !== 'PRODUCTION_LINE' && error?.message === 'PHASE1_CONNECTION_NOT_FOUND' && legacyModel) {
+        return legacyModel
+      }
+      throw error
+    }
+    const provider = String(connection.provider?.code ?? '').trim().toLowerCase()
+    const metadata = parseConnectionMetadata(connection)
+    const model = metadata.model
+    if (!provider || !model) throw new Error('PHASE1_CONNECTION_MODEL_MISSING')
+
+    if (provider === 'ollama') {
+      return createModelProviderPort({
+        runtimeSource,
+        provider,
+        model,
+        baseUrl: metadata.baseUrl ?? env.ZURI_OLLAMA_BASE_URL,
+        timeoutMs: Number(env.ZURI_MODEL_TIMEOUT_MS ?? 10000),
+        fetchFn,
+      })
+    }
+
+    const secretRef = connection.credential?.secretRef
+    if (!secretRef) throw new Error('PHASE1_CONNECTION_SECRET_REF_MISSING')
+    if (!runtimeSecretManager) throw new Error('SECRET_MANAGER_NOT_CONFIGURED')
+    const secret = await runtimeSecretManager.resolve(secretRef, {
+      tenantId: scope.tenantId,
+      businessId: scope.businessId,
+    })
+    return createModelProviderPort({
+      runtimeSource,
+      provider,
+      model,
+      credential: secret.material,
+      baseUrl: metadata.baseUrl,
+      timeoutMs: Number(env.ZURI_MODEL_TIMEOUT_MS ?? 10000),
+      fetchFn,
+    })
+  }
+
+  const ports = {
+    runtimeSource,
     businessKnowledge: createPostgresBusinessKnowledgeReader({ queryFn: execute }),
     bindingResolver: createPostgresLineBindingResolver({
       queryFn: execute,
       pepper: required.ZURI_LINE_BINDING_HASH_PEPPER,
     }),
-    model: createModelProviderPort({
-      provider: required.ZURI_MODEL_PROVIDER,
-      model: required.ZURI_MODEL_NAME,
-      credential: required.ZURI_MODEL_CREDENTIAL,
-      timeoutMs: Number(env.ZURI_MODEL_TIMEOUT_MS ?? 10000),
-      fetchFn,
-    }),
+    model: legacyModel,
+    resolveModel,
     close: async () => {},
   }
+  return ports
 }
 
 function badRequest(message) {
