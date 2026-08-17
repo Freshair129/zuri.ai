@@ -10,8 +10,9 @@ import {
   assertWorkspaceInScope,
 } from '@/modules/project-manager/application/scope-service'
 import { createProject, listProjects } from '@/modules/project-manager/application/project-service'
+import { makeViewer } from '../factories/viewer'
 
-let portfolio, tenant1, tenant2, bus1, bus2, ws1, ws2
+let portfolio, tenant1, tenant2, bus1, bus2, ws1, ws2, owner
 
 describe('scope chain + tenant isolation', () => {
   beforeAll(async () => {
@@ -22,10 +23,11 @@ describe('scope chain + tenant isolation', () => {
     bus2 = await createBusiness({ tenantId: tenant2.id, name: 'Iso Business 2', code: 'BUS-ISO-2' })
     ws1 = await createWorkspace({ name: 'Iso WS 1', scopeType: 'BUSINESS', businessId: bus1.id, code: 'WS-ISO-1' })
     ws2 = await createWorkspace({ name: 'Iso WS 2', scopeType: 'BUSINESS', businessId: bus2.id, code: 'WS-ISO-2' })
+    owner = makeViewer({ visibleBusinessIds: [bus1.id], ownedBusinessIds: [bus1.id] })
   })
 
   it('creates the full chain portfolio → tenant → business → workspace → project', async () => {
-    const project = await createProject({ workspaceId: ws1.id, name: 'Iso Project', code: 'PRJ-ISO-1' })
+    const project = await createProject({ workspaceId: ws1.id, name: 'Iso Project', code: 'PRJ-ISO-1' }, { viewer: owner })
     expect(project.id).toBeTruthy()
     expect(project.code).toBe('PRJ-ISO-1')
     const loaded = await prisma.project.findUnique({ where: { id: project.id }, include: { workspace: true } })

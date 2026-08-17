@@ -4,6 +4,7 @@ import { createPortfolio, createTenant, createBusiness, createWorkspace } from '
 import { createProject } from '@/modules/project-manager/application/project-service'
 import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 import { assembleAgentContext, createInMemoryMemory, createMspMemoryPort } from '@/modules/agent'
+import { makeViewer } from '../factories/viewer'
 
 // @req FR-057 — multi-principal group threads use separate authorized private vaults.
 // @spec ADR-022, SDD-030, SEC-013 — policy-before-retrieval, no client/model vault injection,
@@ -42,16 +43,19 @@ describe('FR-057 multi-principal agent context', () => {
     business = await createBusiness({ tenantId: tenant.id, name: 'Vault Business', code: 'BUS-FR057' })
     salesWorkspace = await createWorkspace({ scopeType: 'BUSINESS', businessId: business.id, name: 'Sales Vault', code: 'WS-FR057-SALES' })
     supportWorkspace = await createWorkspace({ scopeType: 'BUSINESS', businessId: business.id, name: 'Support Vault', code: 'WS-FR057-SUPPORT' })
-    salesProject = await createProject({ workspaceId: salesWorkspace.id, businessId: business.id, name: 'Sales Project', code: 'PRJ-FR057-SALES' })
-    archivedProject = await createProject({ workspaceId: salesWorkspace.id, businessId: business.id, name: 'Archived Project', code: 'PRJ-FR057-ARCHIVED' })
+    const ownerOfBusiness = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    salesProject = await createProject({ workspaceId: salesWorkspace.id, businessId: business.id, name: 'Sales Project', code: 'PRJ-FR057-SALES' }, { viewer: ownerOfBusiness })
+    archivedProject = await createProject({ workspaceId: salesWorkspace.id, businessId: business.id, name: 'Archived Project', code: 'PRJ-FR057-ARCHIVED' }, { viewer: ownerOfBusiness })
     await prisma.project.update({ where: { id: archivedProject.id }, data: { status: 'ARCHIVED' } })
     foreignBusiness = await createBusiness({ tenantId: tenant.id, name: 'Foreign Vault Business', code: 'BUS-FR057-FOREIGN' })
     foreignWorkspace = await createWorkspace({ scopeType: 'BUSINESS', businessId: foreignBusiness.id, name: 'Foreign Vault', code: 'WS-FR057-FOREIGN' })
-    foreignProject = await createProject({ workspaceId: foreignWorkspace.id, businessId: foreignBusiness.id, name: 'Foreign Project', code: 'PRJ-FR057-FOREIGN' })
+    const ownerOfForeignBusiness = makeViewer({ visibleBusinessIds: [foreignBusiness.id], ownedBusinessIds: [foreignBusiness.id] })
+    foreignProject = await createProject({ workspaceId: foreignWorkspace.id, businessId: foreignBusiness.id, name: 'Foreign Project', code: 'PRJ-FR057-FOREIGN' }, { viewer: ownerOfForeignBusiness })
     const crossTenant = await createTenant({ portfolioId: portfolio.id, name: 'Cross Tenant', code: 'TNT-FR057-CROSS' })
     crossTenantBusiness = await createBusiness({ tenantId: crossTenant.id, name: 'Cross Tenant Business', code: 'BUS-FR057-CROSS' })
     crossTenantWorkspace = await createWorkspace({ scopeType: 'BUSINESS', businessId: crossTenantBusiness.id, name: 'Cross Tenant Vault', code: 'WS-FR057-CROSS' })
-    crossTenantProject = await createProject({ workspaceId: crossTenantWorkspace.id, businessId: crossTenantBusiness.id, name: 'Cross Tenant Project', code: 'PRJ-FR057-CROSS' })
+    const ownerOfCrossTenantBusiness = makeViewer({ visibleBusinessIds: [crossTenantBusiness.id], ownedBusinessIds: [crossTenantBusiness.id] })
+    crossTenantProject = await createProject({ workspaceId: crossTenantWorkspace.id, businessId: crossTenantBusiness.id, name: 'Cross Tenant Project', code: 'PRJ-FR057-CROSS' }, { viewer: ownerOfCrossTenantBusiness })
     alice = await linkedStaff('PSN-FR057-ALICE', 'UFR057-alice')
     bob = await linkedStaff('PSN-FR057-BOB', 'UFR057-bob')
   })

@@ -47,20 +47,29 @@ describe('FR-072 project authorization', () => {
     business = await createBusiness({ tenantId: tenant.id, name: 'Authz Business', code: 'BUS-AUTHZ' })
     otherBusiness = await createBusiness({ tenantId: tenant.id, name: 'Other Business', code: 'BUS-AUTHZ-2' })
 
-    // Built here (rather than with the other viewers below) because Wave 2
-    // guarded createContainer/createItem after this file was written — its own
-    // fixture-building calls to them below now need a viewer. Narrow fix, per
-    // the design's residual-risk fallback (route-viewer-design.md §5): the
-    // wave that broke a call site fixes exactly that call site and reports it.
+    // All four viewers are built before the fixtures, not beside their first
+    // assertion, because the fixtures themselves now need one: this Wave 0 suite
+    // was written before its own subject guarded anything, and Waves 1 and 2
+    // subsequently guarded createProject/createWorkstream and
+    // createContainer/createItem. Each wave fixed only the call sites it broke
+    // (route-viewer-design.md §5); this is the union of those fixes.
     owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    // The attacker shape from the RCAs: global role OWNER, target Business
+    // visible, owned elsewhere.
+    attacker = ownsElsewhere({ owns: otherBusiness.id, sees: business.id })
+    dev = makeDevViewer({ visibleBusinessIds: [business.id, otherBusiness.id] })
+    ownsEverything = makeViewer({
+      visibleBusinessIds: [business.id, otherBusiness.id],
+      ownedBusinessIds: [business.id, otherBusiness.id],
+    })
 
     workspace = await createWorkspace({
       name: 'Authz WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-AUTHZ',
     })
-    project = await createProject({ workspaceId: workspace.id, name: 'Authz Project', code: 'PRJ-AUTHZ' })
+    project = await createProject({ workspaceId: workspace.id, name: 'Authz Project', code: 'PRJ-AUTHZ' }, { viewer: owner })
     workstream = await createWorkstream({
       projectId: project.id, name: 'Authz Stream', executionMode: 'SOFTWARE_SPRINT', code: 'WST-AUTHZ',
-    })
+    }, { viewer: owner })
     milestone = await createMilestone({ projectId: project.id, title: 'Authz MS', code: 'MS-AUTHZ' })
     container = await createContainer({
       workstreamId: workstream.id, subtype: 'SPRINT', title: 'Authz Cont', code: 'WC-AUTHZ',
@@ -74,17 +83,14 @@ describe('FR-072 project authorization', () => {
     sharedWorkspace = await createWorkspace({
       name: 'Shared WS', scopeType: 'PORTFOLIO', portfolioId: portfolio.id, code: 'WS-AUTHZ-SHARED',
     })
-    sharedProject = await createProject({
-      workspaceId: sharedWorkspace.id, name: 'Shared Project', code: 'PRJ-AUTHZ-SHARED',
-    })
-
-    // The attacker shape from the RCAs: global role OWNER, target Business
-    // visible, owned elsewhere.
-    attacker = ownsElsewhere({ owns: otherBusiness.id, sees: business.id })
-    dev = makeDevViewer({ visibleBusinessIds: [business.id, otherBusiness.id] })
-    ownsEverything = makeViewer({
-      visibleBusinessIds: [business.id, otherBusiness.id],
-      ownedBusinessIds: [business.id, otherBusiness.id],
+    // FR-072(b): createProject now refuses this for every principal (a
+    // PORTFOLIO-scoped Workspace is governed by no Business), so this fixture
+    // — which exists only to give assertProjectWritable's own Tier B tests a
+    // shared Project to authorize against — is built directly with Prisma
+    // instead of going through the now-guarded service. Arrangement, not
+    // subject: production has exactly this state, seeded as WS-PLATFORM.
+    sharedProject = await prisma.project.create({
+      data: { code: 'PRJ-AUTHZ-SHARED', workspaceId: sharedWorkspace.id, name: 'Shared Project' },
     })
   })
 
@@ -214,10 +220,10 @@ describe('FR-072 project authorization', () => {
     it('fails closed when the chain dangles instead of authorizing against nothing', async () => {
       const orphanProject = await createProject({
         workspaceId: workspace.id, name: 'Orphan', code: 'PRJ-AUTHZ-ORPHAN',
-      })
+      }, { viewer: owner })
       const orphanStream = await createWorkstream({
         projectId: orphanProject.id, name: 'Orphan Stream', executionMode: 'SOFTWARE_SPRINT', code: 'WST-AUTHZ-ORPHAN',
-      })
+      }, { viewer: owner })
       // The owner could write here a moment ago — the control for what follows.
       await expect(assertWorkstreamWritable(owner, orphanStream.id)).resolves.toBeDefined()
 
