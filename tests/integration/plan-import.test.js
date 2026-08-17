@@ -7,8 +7,18 @@ import {
   createWorkspace,
 } from '@/modules/project-manager/application/scope-service'
 import { dryRunPlan, commitPlan } from '@/modules/project-manager/import/plan-import-service'
+import { makeViewer } from '../factories/viewer'
 
 let workspace
+let viewer
+
+// @req FR-065 — import authorizes its target, so the pipeline now takes a viewer.
+// This suite is about validation, diffing and transactional commit, not about
+// authorization: it runs as the owner of the Business it creates. The
+// authorization behaviour itself is pinned in
+// tests/integration/import-target-authorization.test.js.
+const dryRun = (plan, opts = {}) => dryRunPlan(plan, { viewer, ...opts })
+const runCommit = (plan, opts = {}) => commitPlan(plan, { viewer, ...opts })
 
 const plan = {
   schemaVersion: '1.0',
@@ -60,12 +70,13 @@ describe('plan envelope import', () => {
     const tenant = await createTenant({ portfolioId: portfolio.id, name: 'Import Tenant', code: 'TNT-IMP' })
     const business = await createBusiness({ tenantId: tenant.id, name: 'Import Business', code: 'BUS-IMP' })
     workspace = await createWorkspace({ name: 'Import WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-IMP' })
+    viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
   })
 
   it('rejects unknown execution mode at validation', async () => {
     const bad = structuredClone(plan)
     bad.workstreams[0].executionMode = 'CHAOS_MODE'
-    const result = await dryRunPlan(bad)
+    const result = await dryRun(bad)
     expect(result.valid).toBe(false)
     expect(result.errors.join(' ')).toMatch(/executionMode/i)
   })
@@ -73,14 +84,14 @@ describe('plan envelope import', () => {
   it('rejects malformed references', async () => {
     const bad = structuredClone(plan)
     bad.dependencies = [{ sourceRef: 'MISSING', targetRef: 'WST-IMP-DEV', type: 'BLOCKS' }]
-    const result = await dryRunPlan(bad)
+    const result = await dryRun(bad)
     expect(result.valid).toBe(false)
     expect(result.errors.join(' ')).toMatch(/MISSING/)
   })
 
   it('dry-run previews inserts without writing', async () => {
     const before = await prisma.project.count()
-    const result = await dryRunPlan(plan)
+    const result = await dryRun(plan)
     expect(result.valid).toBe(true)
     expect(result.workspace.code).toBe('WS-IMP')
     expect(result.preview.summary.insertCount).toBeGreaterThan(0)
@@ -90,7 +101,7 @@ describe('plan envelope import', () => {
   })
 
   it('commit is transactional and audited', async () => {
-    const result = await commitPlan(plan)
+    const result = await runCommit(plan)
     expect(result.committed).toBe(true)
     const project = await prisma.project.findUnique({
       where: { code: 'PRJ-IMP' },
@@ -111,10 +122,10 @@ describe('plan envelope import', () => {
   })
 
   it('re-import classifies as updates, not conflicts (idempotent upsert)', async () => {
-    const result = await dryRunPlan(plan)
+    const result = await dryRun(plan)
     expect(result.valid).toBe(true)
     expect(result.preview.summary.updateCount).toBeGreaterThan(0)
-    const commit2 = await commitPlan(plan)
+    const commit2 = await runCommit(plan)
     expect(commit2.committed).toBe(true)
     const count = await prisma.workstream.count({ where: { code: 'WST-IMP-DEV' } })
     expect(count).toBe(1)
@@ -129,17 +140,17 @@ describe('plan envelope import', () => {
     })
     const conflicted = structuredClone(plan)
     conflicted.scope.workspaceCode = 'WS-IMP-2'
-    const result = await dryRunPlan(conflicted)
+    const result = await dryRun(conflicted)
     expect(result.valid).toBe(false)
     expect(result.preview.conflicts.length).toBeGreaterThan(0)
-    const commit = await commitPlan(conflicted)
-    expect(commit.committed).toBe(false)
+    const blocked = await runCommit(conflicted)
+    expect(blocked.committed).toBe(false)
   })
 
   it('rejects plan without resolvable workspace', async () => {
     const orphan = structuredClone(plan)
     orphan.scope = { workspaceCode: 'WS-DOES-NOT-EXIST' }
-    const result = await dryRunPlan(orphan)
+    const result = await dryRun(orphan)
     expect(result.valid).toBe(false)
   })
 })

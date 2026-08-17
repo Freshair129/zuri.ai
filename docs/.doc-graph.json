@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 747,
-    "total_edges": 1993,
+    "total_nodes": 750,
+    "total_edges": 2048,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,40 +16,31 @@
       "route": 96,
       "model": 33,
       "requirement": 144,
-      "test": 138,
-      "code_file": 213
+      "test": 140,
+      "code_file": 214
     },
     "coverage": {
       "requirements": 144,
-      "fr_with_code": "100% (64/64)",
-      "fr_with_tests": "100% (64/64)",
-      "rules_anchored_in_code": "91% (59/65)",
+      "fr_with_code": "100% (65/65)",
+      "fr_with_tests": "100% (65/65)",
+      "rules_anchored_in_code": "92% (60/65)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 213,
-      "fr_planned": [
-        "FR-065"
-      ],
+      "annotated_code_files": 214,
+      "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
       "rules_without_anchor": [
         "SDD-001",
         "SDD-008",
         "SDD-013",
-        "SDD-037",
         "SEC-004",
         "SEC-005"
       ]
     }
   },
   "drift": {
-    "changed": [
-      "doc:PRD-SDD-v1.0"
-    ],
-    "added": [
-      "doc:FR-065-import-target-authorization",
-      "req:FR-065",
-      "req:SDD-037"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -1241,11 +1232,17 @@
       "id": "code:src/app/api/import/commit/route.js",
       "type": "code_file",
       "path": "src/app/api/import/commit/route.js",
-      "hash": "125940fc",
+      "hash": "eb80dacc",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-012"
+          "FR-012",
+          "FR-065"
+        ],
+        "@spec": [
+          "SDD-037",
+          "SEC-001",
+          "SEC-008"
         ]
       }
     },
@@ -1253,11 +1250,17 @@
       "id": "code:src/app/api/import/dry-run/route.js",
       "type": "code_file",
       "path": "src/app/api/import/dry-run/route.js",
-      "hash": "237e19bc",
+      "hash": "a8ef21d9",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-012"
+          "FR-012",
+          "FR-065"
+        ],
+        "@spec": [
+          "SDD-037",
+          "SEC-001",
+          "SEC-008"
         ]
       }
     },
@@ -1277,11 +1280,17 @@
       "id": "code:src/app/api/import/xlsx/route.js",
       "type": "code_file",
       "path": "src/app/api/import/xlsx/route.js",
-      "hash": "ba331fa7",
+      "hash": "f4df3a7f",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-018"
+          "FR-018",
+          "FR-065"
+        ],
+        "@spec": [
+          "SDD-037",
+          "SEC-001",
+          "SEC-008"
         ]
       }
     },
@@ -3741,16 +3750,40 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/import/import-authorization.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/import-authorization.js",
+      "hash": "bfc32ad5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-065"
+        ],
+        "@spec": [
+          "SDD-037",
+          "SEC-001",
+          "SEC-002",
+          "SEC-008",
+          "BR-001"
+        ],
+        "@tested": [
+          "tests/unit/import-authorization.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/import/plan-import-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
-      "hash": "46f1d0cb",
+      "hash": "fa000beb",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
           "FR-019",
-          "FR-043"
+          "FR-043",
+          "FR-065",
+          "SDD-037"
         ],
         "@spec": [
           "SDD-006",
@@ -3759,12 +3792,15 @@
           "BR-009",
           "SDD-021",
           "BR-001",
-          "SEC-001"
+          "SEC-001",
+          "SDD-037",
+          "SEC-008"
         ],
         "@tested": [
           "tests/integration/plan-import.test.js",
           "tests/integration/external-ref-import.test.js",
-          "tests/integration/project-business-binding.test.js"
+          "tests/integration/project-business-binding.test.js",
+          "tests/integration/import-target-authorization.test.js"
         ]
       }
     },
@@ -4398,9 +4434,9 @@
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-065-import-target-authorization.md",
       "title": "Import Target Authorization — who may write into the Workspace a plan names",
-      "version": "1.0.0",
-      "doc_status": "Declared (🔜) — not yet implemented",
-      "hash": "20ea3379",
+      "version": "1.1.0",
+      "doc_status": "Implemented (FR-065)",
+      "hash": "69dec937",
       "status": "current"
     },
     {
@@ -4606,10 +4642,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.50.0b",
+      "version": "1.51.0b",
       "doc_status": "Draft",
-      "hash": "9f2c7e9a",
-      "status": "changed"
+      "hash": "6d6a23a8",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -5775,8 +5811,8 @@
       "family": "FR",
       "label": "Import target authorization: the FR-012 pipeline authorizes the Workspace it is about to write to, instead of accepting whichever `workspaceId` the request body names. All three intake routes (`/api/import/dry-run`, `/api/import/commit`, `/api/import/xlsx`) resolve a viewer, and the target Workspace is resolved **before** validation so an unauthorized target is refused without the caller learning anything about the plan. (a) A **Business-scoped** Workspace requires `ownsBusiness(viewer, workspace.businessId)` — the same predicate the other write paths use, not a second reading of it; a caller who may see the Business but does not own it is refused. (b) A Workspace **above Business** (`scopeType` PORTFOLIO or TENANT) is refused with an explicit reason stating that no authority above Business is declared — this requirement deliberately does **not** invent one. Enabling such an import requires a prior FR that makes portfolio/tenant authority *holdable*: a viewer-contract change in the manner of FR-061, since today no principal can hold it. The dry run is authorized identically to the commit — a read-only preview of another scope's contents is the leak the commit guard would otherwise still allow.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned"
+      "declared": "done",
+      "status": "current"
     },
     {
       "id": "req:NFR-001",
@@ -7394,7 +7430,7 @@
       "id": "test:tests/e2e/smoke.spec.js",
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
-      "hash": "0e1746e5",
+      "hash": "0a15bde0",
       "status": "current"
     },
     {
@@ -7478,7 +7514,7 @@
       "id": "test:tests/integration/external-ref-import.test.js",
       "type": "test",
       "path": "tests/integration/external-ref-import.test.js",
-      "hash": "8e2f4a11",
+      "hash": "161206ed",
       "status": "current"
     },
     {
@@ -7538,6 +7574,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/import-target-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/import-target-authorization.test.js",
+      "hash": "8761065e",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/knowledge-genesis-sink.test.js",
       "type": "test",
       "path": "tests/integration/knowledge-genesis-sink.test.js",
@@ -7590,14 +7633,14 @@
       "id": "test:tests/integration/plan-import-scope.test.js",
       "type": "test",
       "path": "tests/integration/plan-import-scope.test.js",
-      "hash": "95871bbb",
+      "hash": "e2076002",
       "status": "current"
     },
     {
       "id": "test:tests/integration/plan-import.test.js",
       "type": "test",
       "path": "tests/integration/plan-import.test.js",
-      "hash": "fe5ac486",
+      "hash": "936609c6",
       "status": "current"
     },
     {
@@ -7632,7 +7675,7 @@
       "id": "test:tests/integration/xlsx-intake.test.js",
       "type": "test",
       "path": "tests/integration/xlsx-intake.test.js",
-      "hash": "61987283",
+      "hash": "23e8797a",
       "status": "current"
     },
     {
@@ -7997,6 +8040,13 @@
       "type": "test",
       "path": "tests/unit/ids.test.js",
       "hash": "54bcbecc",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/import-authorization.test.js",
+      "type": "test",
+      "path": "tests/unit/import-authorization.test.js",
+      "hash": "09e56659",
       "status": "current"
     },
     {
@@ -9787,9 +9837,65 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/import/commit/route.js",
+      "to": "req:FR-065",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/commit/route.js",
+      "to": "req:SDD-037",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/commit/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/commit/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/import/dry-run/route.js",
       "to": "req:FR-012",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/dry-run/route.js",
+      "to": "req:FR-065",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/dry-run/route.js",
+      "to": "req:SDD-037",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/dry-run/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/dry-run/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -9804,6 +9910,34 @@
       "from": "code:src/app/api/import/xlsx/route.js",
       "to": "req:FR-018",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/xlsx/route.js",
+      "to": "req:FR-065",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/xlsx/route.js",
+      "to": "req:SDD-037",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/xlsx/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/xlsx/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -12748,6 +12882,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/import/import-authorization.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/import-authorization.js",
+      "to": "req:FR-065",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/import-authorization.js",
+      "to": "req:SDD-037",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/import-authorization.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/import-authorization.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/import-authorization.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/import/plan-import-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -12784,6 +12960,13 @@
     },
     {
       "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:FR-065",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
       "to": "req:SDD-006",
       "type": "follows",
       "status": "current",
@@ -12805,6 +12988,20 @@
     },
     {
       "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:SDD-037",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:SDD-037",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -12813,6 +13010,13 @@
     {
       "from": "code:src/modules/project-manager/import/plan-import-service.js",
       "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -16256,6 +16460,13 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-065",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -16294,7 +16505,7 @@
       "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
-      "source": "transitive"
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/adaptive-shell.test.js",
@@ -16886,6 +17097,13 @@
     },
     {
       "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:FR-065",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -16907,6 +17125,13 @@
     },
     {
       "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:SDD-037",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -16915,6 +17140,13 @@
     {
       "from": "test:tests/integration/external-ref-import.test.js",
       "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -17221,6 +17453,104 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "code:src/modules/project-manager/import/plan-import-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:FR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:FR-065",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:SDD-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:SDD-037",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/knowledge-genesis-sink.test.js",
       "to": "code:src/modules/knowledge/genesisblockdb-sink.js",
       "type": "tests",
@@ -17522,6 +17852,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/plan-import-scope.test.js",
+      "to": "req:FR-065",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/plan-import.test.js",
       "to": "code:src/modules/project-manager/application/audit.js",
       "type": "tests",
@@ -17579,6 +17916,13 @@
     },
     {
       "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:FR-065",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -17600,6 +17944,13 @@
     },
     {
       "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:SDD-037",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -17615,6 +17966,13 @@
     {
       "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -17691,6 +18049,13 @@
     },
     {
       "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-065",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
       "to": "req:SDD-004",
       "type": "verifies",
       "status": "current",
@@ -17719,6 +18084,13 @@
     },
     {
       "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:SDD-037",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -17727,6 +18099,13 @@
     {
       "from": "test:tests/integration/project-business-binding.test.js",
       "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -18014,6 +18393,13 @@
     {
       "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "req:FR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-065",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -20586,6 +20972,55 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/import-authorization.test.js",
+      "to": "code:src/modules/project-manager/import/import-authorization.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/import-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/import-authorization.test.js",
+      "to": "req:FR-065",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/import-authorization.test.js",
+      "to": "req:SDD-037",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/import-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/import-authorization.test.js",
+      "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/import-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/line-activation-contract.test.js",

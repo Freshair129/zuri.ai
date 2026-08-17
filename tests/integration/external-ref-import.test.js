@@ -8,6 +8,15 @@ import {
 } from '@/modules/project-manager/application/scope-service'
 import { dryRunPlan, commitPlan } from '@/modules/project-manager/import/plan-import-service'
 import { lookupExternalRef, listExternalRefs } from '@/modules/project-manager/import/external-ref'
+import { makeViewer } from '../factories/viewer'
+
+// @req FR-065 — the pipeline now authorizes its target, so it takes a viewer.
+// This suite is about external-id identity resolution; it runs as the owner of
+// the Business it creates. Authorization itself is pinned in
+// tests/integration/import-target-authorization.test.js.
+let viewer
+const dryRun = (plan, opts = {}) => dryRunPlan(plan, { viewer, ...opts })
+const runCommit = (plan, opts = {}) => commitPlan(plan, { viewer, ...opts })
 
 // @req FR-019 — a customer's existing core ids validated against our records:
 // matched → update (relabel), new → insert + mapping, conflict → blocked.
@@ -50,6 +59,7 @@ describe('external id intake', () => {
     const tenant = await createTenant({ portfolioId: portfolio.id, name: 'Ext Tenant', code: 'TNT-EXT' })
     const business = await createBusiness({ tenantId: tenant.id, name: 'Ext Business', code: 'BUS-EXT' })
     workspace = await createWorkspace({ name: 'Ext WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-EXT' })
+    viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
   })
 
   it('accepts a 1.0 envelope unchanged — external refs are additive', async () => {
@@ -60,14 +70,14 @@ describe('external id intake', () => {
     legacy.project.code = 'PRJ-EXT-LEGACY'
     legacy.workstreams[0].code = 'WST-EXT-LEGACY'
     legacy.workstreams[0].items[0].code = 'WI-EXT-LEGACY'
-    const dry = await dryRunPlan(legacy)
+    const dry = await dryRun(legacy)
     expect(dry.valid).toBe(true)
     expect(dry.preview.externalRefCount).toBe(0)
-    expect((await commitPlan(legacy)).committed).toBe(true)
+    expect((await runCommit(legacy)).committed).toBe(true)
   })
 
   it('first import: unknown ids are reported as new mappings and then persisted', async () => {
-    const dry = await dryRunPlan(envelope())
+    const dry = await dryRun(envelope())
     expect(dry.valid).toBe(true)
     expect(dry.preview.externalRefCount).toBe(2)
     expect(dry.preview.matchedByExternalId).toBe(0)
@@ -76,7 +86,7 @@ describe('external id intake', () => {
     // Dry run stays read-only: nothing was mapped yet.
     expect(await lookupExternalRef('SAP', 'PRJ-88421')).toBeNull()
 
-    const commit = await commitPlan(envelope())
+    const commit = await runCommit(envelope())
     expect(commit.committed).toBe(true)
     const mapped = await lookupExternalRef('SAP', 'PRJ-88421')
     expect(mapped.ref.entityType).toBe('PROJECT')
@@ -92,14 +102,14 @@ describe('external id intake', () => {
     relabelled.workstreams[0].items[0].code = 'WI-CUSTOMER-RENAME'
     relabelled.workstreams[0].items[0].title = 'Install POS terminals'
 
-    const dry = await dryRunPlan(relabelled)
+    const dry = await dryRun(relabelled)
     expect(dry.valid).toBe(true)
     expect(dry.preview.matchedByExternalId).toBe(2)
     const projectRow = dry.preview.updates.find((u) => u.kind === 'project')
     expect(projectRow.code).toBe('PRJ-EXT') // our namespace wins
     expect(projectRow.planCode).toBe('PRJ-CUSTOMER-RENAME')
 
-    const commit = await commitPlan(relabelled)
+    const commit = await runCommit(relabelled)
     expect(commit.committed).toBe(true)
     expect(commit.projectCode).toBe('PRJ-EXT')
 
@@ -112,7 +122,7 @@ describe('external id intake', () => {
   })
 
   it('re-importing the same batch is idempotent (one mapping per id)', async () => {
-    await commitPlan(envelope())
+    await runCommit(envelope())
     const refs = await prisma.externalRef.findMany({ where: { system: 'SAP', value: 'PRJ-88421' } })
     expect(refs).toHaveLength(1)
   })
@@ -126,10 +136,10 @@ describe('external id intake', () => {
     wrong.workstreams[0].items[0].code = 'WI-EXT-2'
     wrong.workstreams[0].items[0].externalRefs = [{ system: 'SAP', id: 'PRJ-88421' }]
 
-    const dry = await dryRunPlan(wrong)
+    const dry = await dryRun(wrong)
     expect(dry.valid).toBe(false)
     expect(dry.errors.join(' ')).toMatch(/already mapped to a PROJECT, not a WORK_ITEM/)
-    const commit = await commitPlan(wrong)
+    const commit = await runCommit(wrong)
     expect(commit.committed).toBe(false)
   })
 
@@ -137,7 +147,7 @@ describe('external id intake', () => {
     const clash = envelope()
     // SAP:PRJ-88421 → PRJ-EXT, but the plan calls it PRJ-EXT-LEGACY (a real other project).
     clash.project.code = 'PRJ-EXT-LEGACY'
-    const dry = await dryRunPlan(clash)
+    const dry = await dryRun(clash)
     expect(dry.valid).toBe(false)
     expect(dry.errors.join(' ')).toMatch(/already belongs to a different record/)
   })
@@ -150,7 +160,7 @@ describe('external id intake', () => {
       title: 'Duplicate claim',
       externalRefs: [{ system: 'LEGACY_POS', id: 'TASK-1001' }],
     })
-    const dry = await dryRunPlan(dup)
+    const dry = await dryRun(dup)
     expect(dry.valid).toBe(false)
     expect(dry.errors.join(' ')).toMatch(/claimed twice/)
   })
@@ -166,7 +176,7 @@ describe('external id intake', () => {
       { system: 'SAP', id: 'PRJ-88421' },
       { system: 'ERP', id: 'LEGACY-9' },
     ]
-    const dry = await dryRunPlan(split)
+    const dry = await dryRun(split)
     expect(dry.valid).toBe(false)
     expect(dry.errors.join(' ')).toMatch(/different records — cannot merge/)
   })
@@ -180,7 +190,7 @@ describe('external id intake', () => {
   it('honours labelAs:false for ids that should not become display labels', async () => {
     const quiet = envelope()
     quiet.project.externalRefs = [{ system: 'SAP', id: 'PRJ-88421', labelAs: false }]
-    await commitPlan(quiet)
+    await runCommit(quiet)
     const hit = await lookupExternalRef('SAP', 'PRJ-88421')
     expect(hit.ref.labelAs).toBe(false)
   })

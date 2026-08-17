@@ -9,8 +9,8 @@ source: v2-native
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
-| **Status** | Declared (🔜) — not yet implemented |
+| **Version** | 1.1.0 |
+| **Status** | Implemented (FR-065) |
 | **Author** | Claude |
 | **Created** | 2026-08-17 |
 | **Last Updated** | 2026-08-17 |
@@ -22,6 +22,22 @@ source: v2-native
 > becomes the next incident. Writing the id first is what makes "we chose not to
 > guess" a recorded decision rather than an omission someone later mistakes for
 > an oversight.
+
+> **Implemented 2026-08-17.** `src/modules/project-manager/import/import-authorization.js`
+> holds the decision; `plan-import-service.js` calls it from `resolveAuthorizedTarget`,
+> before the plan is parsed. All three routes resolve a viewer and have left
+> `docs/.route-viewer-baseline.json` (26 → 23). Pinned by
+> `tests/unit/import-authorization.test.js` (the decision) and
+> `tests/integration/import-target-authorization.test.js` (the pipeline).
+>
+> One thing implementation clarified that the declaration only implied: the target
+> can arrive as an explicit `workspaceId` **or** as the plan's own
+> `scope.workspaceCode`. A guard placed in the route handlers would have covered
+> only the first and left the second wide open — the same "checked in one
+> representation, used in another" shape as every other defect this review found.
+> That is the concrete reason SDD-037 puts the check in the pipeline rather than
+> at the three call sites, and there is a test for the plan-supplied path
+> specifically.
 
 ## The state this requirement addresses
 

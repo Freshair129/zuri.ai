@@ -10,6 +10,14 @@ import {
   createWorkspace,
 } from '@/modules/project-manager/application/scope-service'
 import prisma from '@/lib/db'
+import { makeViewer } from '../factories/viewer'
+
+// @req FR-065 — the pipeline authorizes its target, so it takes a viewer. This
+// suite is about the workbook → envelope conversion; it runs as the owner of the
+// Business it creates.
+let viewer
+const dryRun = (plan, opts = {}) => dryRunPlan(plan, { viewer, ...opts })
+const runCommit = (plan, opts = {}) => commitPlan(plan, { viewer, ...opts })
 
 // Helper: load the generated template and fill rows by sheet title.
 async function filledTemplate(fill) {
@@ -61,6 +69,7 @@ describe('FR-018 xlsx intake', () => {
     const tenant = await createTenant({ portfolioId: portfolio.id, name: 'Xlsx Tenant', code: 'TNT-XLSX' })
     const business = await createBusiness({ tenantId: tenant.id, name: 'Xlsx Business', code: 'BUS-XLSX' })
     await createWorkspace({ name: 'Xlsx WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-XLSX' })
+    viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
   })
 
   it('template workbook contains every entity sheet with enum dropdowns', async () => {
@@ -91,7 +100,7 @@ describe('FR-018 xlsx intake', () => {
     expect(envelope.workstreams[1].gates).toEqual([])
     expect(envelope.workstreams[0].gates[0].required).toBe(true)
 
-    const dry = await dryRunPlan(envelope, {
+    const dry = await dryRun(envelope, {
       workspaceId: (await prisma.workspace.findUnique({ where: { code: 'WS-XLSX' } })).id,
     })
     expect(dry.valid).toBe(true)
@@ -102,7 +111,7 @@ describe('FR-018 xlsx intake', () => {
     const buffer = await filledTemplate(GOOD_FILL)
     const { envelope } = await workbookToEnvelope(buffer)
     const workspace = await prisma.workspace.findUnique({ where: { code: 'WS-XLSX' } })
-    const result = await commitPlan(envelope, { workspaceId: workspace.id })
+    const result = await runCommit(envelope, { workspaceId: workspace.id })
     expect(result.committed).toBe(true)
     const project = await prisma.project.findUnique({
       where: { code: 'PRJ-XLSX' },

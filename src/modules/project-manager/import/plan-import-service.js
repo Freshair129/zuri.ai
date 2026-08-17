@@ -1,6 +1,7 @@
 import prisma from '@/lib/db'
 import { zPlanEnvelope, validatePlanSemantics } from './plan-schema'
 import { resolveEntityIdentity, syncExternalRefs } from './external-ref'
+import { authorizeImportTarget } from './import-authorization'
 import { recordAudit } from '../application/audit'
 
 // @req FR-012, FR-019 — dry-run preview + transactional commit + audit,
@@ -9,9 +10,11 @@ import { recordAudit } from '../application/audit'
 // converges on this one envelope pipeline
 // @req FR-043 - imported Projects inherit and preserve the target Space owner
 // @spec ADR-014, SDD-021, BR-001, SEC-001
-// @tested tests/integration/plan-import.test.js, tests/integration/external-ref-import.test.js, tests/integration/project-business-binding.test.js
+// @req FR-065 — the target Workspace is authorized before the plan is parsed
+// @spec SDD-037, SEC-001, SEC-008
+// @tested tests/integration/plan-import.test.js, tests/integration/external-ref-import.test.js, tests/integration/project-business-binding.test.js, tests/integration/import-target-authorization.test.js
 // PlanEnvelope import pipeline:
-//   JSON → Zod validation → semantic validation → dry-run diff → transactional commit → AuditEvent.
+//   authorize target → JSON → Zod validation → semantic validation → dry-run diff → transactional commit → AuditEvent.
 // Imported plans are data only; nothing in a plan is ever executed.
 
 const KIND_TO_ENDPOINT = {
@@ -37,11 +40,62 @@ export async function resolveImportWorkspaceId({ workspaceId, projectId } = {}) 
 }
 
 /**
+ * Resolve the target Workspace and decide whether this viewer may write to it.
+ *
+ * @req FR-065 / @spec SDD-037. Two properties this shape exists to hold:
+ *
+ *   1. **The authorized thing is the resolved thing.** The target can arrive as
+ *      an explicit `workspaceId` OR as the plan's own `scope.workspaceCode`, so
+ *      authorizing `workspaceId` in a route handler would leave the second path
+ *      completely unguarded. Checking one representation while using another is
+ *      this repository's most repeated defect; the check therefore lives where
+ *      the Workspace is actually resolved, and there is only one such place.
+ *   2. **Refusal is indistinguishable from absence.** A Business-scoped target
+ *      the viewer does not own returns the identical message a missing Workspace
+ *      returns, built by the same `missing()` closure so the two cannot drift
+ *      apart. Otherwise the refusal is an oracle for enumerating other tenants'
+ *      Workspace ids and codes.
+ *
+ * Only the field naming the target is read from `rawPlan` here — never the plan
+ * body — so an unauthorized caller learns nothing about the envelope they sent.
+ */
+async function resolveAuthorizedTarget(rawPlan, { workspaceId, viewer }) {
+  const workspaceCode =
+    typeof rawPlan?.scope?.workspaceCode === 'string' ? rawPlan.scope.workspaceCode : null
+
+  const missing = () =>
+    workspaceId
+      ? `Target workspace not found: ${workspaceId}`
+      : `Plan scope.workspaceCode "${workspaceCode || '(none)'}" does not match an existing workspace — select a target workspace.`
+
+  let workspace = null
+  if (workspaceId) {
+    workspace = await prisma.workspace.findUnique({ where: { id: workspaceId } })
+  } else if (workspaceCode) {
+    workspace = await prisma.workspace.findUnique({ where: { code: workspaceCode } })
+  }
+  if (!workspace) return { error: missing() }
+
+  const decision = authorizeImportTarget(viewer, workspace)
+  if (decision.authorized) return { workspace }
+  return { error: decision.reason ?? missing() }
+}
+
+/**
  * Validate + diff a plan against the current database. Read-only.
  * Returns { valid, errors, plan, workspace, preview } where preview lists
  * inserts / updates / conflicts per entity kind.
+ *
+ * `viewer` is REQUIRED (@req FR-065) — a read-only preview of a scope you were
+ * not given is the same leak as writing to it, so the dry run is authorized
+ * identically to the commit.
  */
-export async function dryRunPlan(rawPlan, { workspaceId } = {}) {
+export async function dryRunPlan(rawPlan, { workspaceId, viewer } = {}) {
+  // Authorize the target BEFORE parsing the plan.
+  const target = await resolveAuthorizedTarget(rawPlan, { workspaceId, viewer })
+  if (target.error) return { valid: false, errors: [target.error], preview: null }
+  const workspace = target.workspace
+
   const parsed = zPlanEnvelope.safeParse(rawPlan)
   if (!parsed.success) {
     return {
@@ -56,24 +110,7 @@ export async function dryRunPlan(rawPlan, { workspaceId } = {}) {
     return { valid: false, errors: semanticErrors, preview: null }
   }
 
-  // Resolve target workspace: explicit id wins, else scope.workspaceCode.
-  let workspace = null
-  if (workspaceId) {
-    workspace = await prisma.workspace.findUnique({ where: { id: workspaceId } })
-  } else if (plan.scope?.workspaceCode) {
-    workspace = await prisma.workspace.findUnique({ where: { code: plan.scope.workspaceCode } })
-  }
-  if (!workspace) {
-    return {
-      valid: false,
-      errors: [
-        workspaceId
-          ? `Target workspace not found: ${workspaceId}`
-          : `Plan scope.workspaceCode "${plan.scope?.workspaceCode || '(none)'}" does not match an existing workspace — select a target workspace.`,
-      ],
-      preview: null,
-    }
-  }
+  // The target was resolved and authorized above, before this plan was parsed.
 
   const inserts = []
   const updates = []
@@ -239,9 +276,12 @@ export async function dryRunPlan(rawPlan, { workspaceId } = {}) {
 
 /**
  * Transactional commit. Re-runs dry-run first; refuses on conflicts.
+ *
+ * `viewer` is REQUIRED (@req FR-065) and is authorized by the dry run this
+ * delegates to — one decision point, not two that could disagree.
  */
-export async function commitPlan(rawPlan, { workspaceId } = {}) {
-  const dry = await dryRunPlan(rawPlan, { workspaceId })
+export async function commitPlan(rawPlan, { workspaceId, viewer } = {}) {
+  const dry = await dryRunPlan(rawPlan, { workspaceId, viewer })
   if (!dry.valid) {
     return { committed: false, errors: dry.errors, preview: dry.preview }
   }
