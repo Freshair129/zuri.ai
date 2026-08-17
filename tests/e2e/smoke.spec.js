@@ -66,8 +66,28 @@ test.describe('universal routes', () => {
   })
 
   test('audit log shows events', async ({ page }) => {
+    // @req FR-014 — this test asserted only the heading, so an audit table
+    // rendering zero rows passed it: the same "empty is indistinguishable from
+    // broken" failure the page itself was reviewed for, sitting in its own test.
+    // `/api/audit` now returns { events, limit, truncated }, and a page still
+    // reading the old array shape would render the empty state below.
+    //
+    // It writes its own event first. The seed populates the database with raw
+    // upserts rather than through the services, so a fresh e2e database holds NO
+    // AuditEvent rows — asserting on rows without creating one made the result
+    // depend on which tests had already run.
+    const scope = await (await page.request.get('/api/scope')).json()
+    const workspace = (scope.workspaces || []).find((w) => w.code === 'WS-B01-MIG')
+    expect(workspace, 'seeded Business workspace').toBeTruthy()
+    const created = await page.request.post('/api/projects', {
+      data: { workspaceId: workspace.id, name: 'Audit probe', businessId: workspace.businessId },
+    })
+    expect(created.ok()).toBe(true)
+
     await page.goto('/audit')
     await expect(page.getByRole('heading', { name: 'Audit Log' })).toBeVisible()
+    await expect(page.getByText('No audit events')).toHaveCount(0)
+    await expect(page.locator('tbody tr').first()).toBeVisible()
   })
 
   test('backup page has export and import preview', async ({ page }) => {

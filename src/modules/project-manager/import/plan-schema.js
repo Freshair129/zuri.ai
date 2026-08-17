@@ -1,11 +1,45 @@
 import { z } from 'zod'
-import { zExecutionMode, zProgressStrategy, zDependencyType, EXECUTION_MODE_CONTRACTS } from '@/lib/validation/enums'
+import {
+  zExecutionMode,
+  zProgressStrategy,
+  zDependencyType,
+  zProjectStatus,
+  zContainerStatus,
+  // No zWorkstreamStatus: the envelope carries no workstream status field, and
+  // importing an enum this file does not use would be the first step toward one.
+  zWorkStatus,
+  zMilestoneStatus,
+  zGateStatus,
+  EXECUTION_MODE_CONTRACTS,
+} from '@/lib/validation/enums'
 
 // @req FR-012, FR-019 — PlanEnvelope validation (shape + semantics)
 // @spec BR-004, BR-007, SEC-002 — unknown modes rejected; plans are data, never executed
-// @tested tests/unit/plan-schema.test.js
+// @spec SDD-002 — every status here is the Zod enum from the single source of
+// truth, never `z.string()`
+// @tested tests/unit/plan-schema.test.js, tests/unit/plan-status-vocabulary.test.js
 // Zod mirror of contracts/plan-envelope.schema.json (schemaVersion 1.0 / 1.1).
 // strict() everywhere = additionalProperties:false. Never executes plan content.
+//
+// `status` was typed `z.string()` on all five entities while `executionMode`,
+// `progressStrategy` and `dependencyType` beside it were enum-typed. An import
+// could therefore commit `status: 'BANANA'` — proven, it persisted — and the
+// consequence is not cosmetic: the FR-063 board derives its columns from
+// `WORK_STATUSES`, so an item carrying a status outside that list has no column
+// to land in and vanishes from the board entirely. That is the exact failure
+// FR-063 exists to prevent, arriving through the intake surface instead of
+// through a hand-written column list.
+//
+// The same rule, one level apart, enforced in one place and not the other — the
+// shape this repository has now diagnosed nine times. The Excel template already
+// constrained item/milestone/gate status from these enums; the schema that
+// actually validates constrained none of them.
+//
+// `subtype` stays `z.string()` on purpose: CONTAINER_SUBTYPES and ITEM_SUBTYPES
+// are documented as an OPEN set (enums.js), and the mode contract already
+// restricts which subtypes a workstream may carry. `project.type` stays a string
+// because no PROJECT_TYPES vocabulary is declared anywhere — inventing one here
+// would be the hand-written list this rule forbids.
 
 // FR-019 — the customer's own core id, carried alongside our code. It maps to
 // an internal UUID and may act as the display label; it never becomes a key.
@@ -25,7 +59,7 @@ const zContainer = z
     parentCode: z.string().optional(),
     subtype: z.string().min(1),
     title: z.string().min(1),
-    status: z.string().optional(),
+    status: zContainerStatus.optional(),
     metadata: z.record(z.any()).optional(),
     externalRefs,
   })
@@ -37,7 +71,7 @@ const zItem = z
     containerCode: z.string().optional(),
     subtype: z.string().min(1),
     title: z.string().min(1),
-    status: z.string().optional(),
+    status: zWorkStatus.optional(),
     weight: z.number().optional(),
     numericValue: z.number().optional(),
     probability: z.number().min(0).max(1).optional(),
@@ -51,7 +85,7 @@ const zMilestone = z
   .object({
     code: z.string().min(1),
     title: z.string().min(1),
-    status: z.string().optional(),
+    status: zMilestoneStatus.optional(),
     weight: z.number().optional(),
     externalRefs,
   })
@@ -61,7 +95,7 @@ const zGate = z
   .object({
     code: z.string().min(1),
     title: z.string().min(1),
-    status: z.string().optional(),
+    status: zGateStatus.optional(),
     required: z.boolean().optional(),
     evidence: z.record(z.any()).optional(),
     externalRefs,
@@ -104,7 +138,7 @@ export const zPlanEnvelope = z
         name: z.string().min(1),
         description: z.string().optional(),
         type: z.string().optional(),
-        status: z.string().optional(),
+        status: zProjectStatus.optional(),
         targetAt: z.union([z.string().datetime(), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).optional(),
         externalRefs,
       })

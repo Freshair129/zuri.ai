@@ -2,6 +2,7 @@ import prisma from '@/lib/db'
 import { calculateWorkstreamProgress } from '../progress/strategies'
 import { rollupProject, rollupBusiness } from '../progress/rollup'
 import { safeParse } from './audit'
+import { activeWorkstream } from './active-filters'
 
 function hydrateBundle(workstream) {
   return {
@@ -52,7 +53,7 @@ export async function computeProjectProgress(projectId) {
     where: { id: projectId },
     include: {
       workstreams: {
-        where: { deletedAt: null, status: { not: 'ARCHIVED' } },
+        where: activeWorkstream(),
         include: { items: true, containers: true, milestones: true, gates: true },
       },
     },
@@ -93,7 +94,7 @@ const PROJECT_BUNDLE_INCLUDE = {
   milestones: { orderBy: { targetAt: 'asc' } },
   gates: true,
   workstreams: {
-    where: { deletedAt: null, status: { not: 'ARCHIVED' } },
+    where: activeWorkstream(),
     include: { items: true, containers: true, milestones: true, gates: true },
   },
 }
@@ -148,7 +149,7 @@ export async function computePortfolioProgress() {
   const [businesses, projects] = await Promise.all([
     prisma.business.findMany({ orderBy: { code: 'asc' } }),
     prisma.project.findMany({
-      where: { deletedAt: null, status: { not: 'ARCHIVED' } },
+      where: activeWorkstream(),
       include: PROJECT_BUNDLE_INCLUDE,
     }),
   ])

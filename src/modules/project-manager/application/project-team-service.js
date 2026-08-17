@@ -83,10 +83,15 @@ export async function listProjectTeam(projectId, { db = prisma, viewer } = {}) {
     // to anyone who could open any project's Team tab. Same shape as the FR-062
     // read leak (.brain/rca/2026-08-17-read-scope-outran-the-write-scope.md):
     // a read that was wider than anything it fronted.
+    // No `email`: the picker renders `displayName · code` and nothing else, so
+    // sending an address for every Person in the tenant hands out contact
+    // details the surface never shows. Same rule as FR-062/SDD-035 — a response
+    // carries no field its surface displays. `members` below keeps `email`
+    // precisely because the roster line does render it.
     db.person.findMany({
       where: { memberships: { some: { tenantId: workspace.tenantId } } },
       orderBy: { displayName: 'asc' },
-      select: { id: true, code: true, displayName: true, email: true },
+      select: { id: true, code: true, displayName: true },
     }),
   ])
   const loadByMembershipId = new Map(loads.map((load) => [load.membershipId, load.activeWorkItems]))

@@ -62,6 +62,17 @@ export const DEPENDENCY_ENDPOINT_TYPES = [
 export const PROJECT_STATUSES = ['PLANNED', 'ACTIVE', 'ON_HOLD', 'DONE', 'ARCHIVED']
 export const WORKSTREAM_STATUSES = ['PLANNED', 'ACTIVE', 'ON_HOLD', 'DONE', 'ARCHIVED']
 export const WORK_STATUSES = ['PLANNED', 'READY', 'IN_PROGRESS', 'REVIEW', 'BLOCKED', 'DONE', 'CANCELLED']
+// A WorkContainer (sprint / stage / pipeline / wave / phase / period / site) is a
+// grouping, not a unit of work, so it does not share WORK_STATUSES — it has no
+// READY, REVIEW, BLOCKED or CANCELLED. Frozen from observed usage only, the same
+// discipline as ROADMAP_STATUSES below: `PLANNED` is the default in both
+// `prisma/schema.prisma` and `zWorkContainerInput`, and `ACTIVE` is what
+// `prisma/seed.js` gives every container it creates. Nothing else has ever been
+// written — no UI path mutates a container's status at all (`StatusSelect`
+// wires `entity="container"` but nobody renders it). Do NOT add DONE or
+// ARCHIVED here on the argument that they feel right; add them when something
+// actually sets them.
+export const CONTAINER_STATUSES = ['PLANNED', 'ACTIVE']
 export const MILESTONE_STATUSES = ['PLANNED', 'IN_PROGRESS', 'DONE', 'MISSED']
 export const GATE_STATUSES = ['OPEN', 'PASSED', 'BLOCKED', 'WAIVED']
 export const WORKSPACE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
@@ -104,6 +115,7 @@ export const zDependencyEndpointType = z.enum(DEPENDENCY_ENDPOINT_TYPES)
 export const zProjectStatus = z.enum(PROJECT_STATUSES)
 export const zWorkstreamStatus = z.enum(WORKSTREAM_STATUSES)
 export const zWorkStatus = z.enum(WORK_STATUSES)
+export const zContainerStatus = z.enum(CONTAINER_STATUSES)
 export const zMilestoneStatus = z.enum(MILESTONE_STATUSES)
 export const zGateStatus = z.enum(GATE_STATUSES)
 export const zWorkspaceScopeType = z.enum(WORKSPACE_SCOPE_TYPES)

@@ -5,7 +5,7 @@
 
 import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
-import { DataTable, StatusPill, EmptyState, ErrorState } from '@/components/ui'
+import { DataTable, StatusPill, EmptyState, ErrorState, TruncationNotice } from '@/components/ui'
 import { WORK_STATUSES, ITEM_SUBTYPES, MODE_LABELS } from '@/lib/validation/enums'
 import { useFetch, LoadingCard } from '../../components/useApi'
 import StatusSelect from '../../components/StatusSelect'
@@ -23,11 +23,15 @@ export default function AllWorkView({ projectId }) {
   if (mode) params.set('executionMode', mode)
   const { data, loading, error, reload } = useFetch(`/api/work?${params.toString()}`)
 
+  // @req FR-005 — `/api/work` returns { items, limit, truncated } so the cap it
+  // applied is visible. This search box filters CLIENT-side over exactly those
+  // items, which is why an undisclosed cap mattered here: past the limit, typing
+  // a query returned "no work items match" for work that exists.
   const rows = useMemo(() => {
-    if (!data) return []
+    const items = data?.items || []
     const query = q.trim().toLowerCase()
-    if (!query) return data
-    return data.filter(
+    if (!query) return items
+    return items.filter(
       (r) => r.title.toLowerCase().includes(query) || r.code.toLowerCase().includes(query)
     )
   }, [data, q])
@@ -66,6 +70,13 @@ export default function AllWorkView({ projectId }) {
       </div>
       {loading && <LoadingCard />}
       {error && <ErrorState detail={error} retry={reload} />}
+      {!loading && !error && data?.truncated && (
+        <TruncationNotice
+          limit={data.limit}
+          noun="work items"
+          hint="Narrow the filters above — the search box only searches what is listed here."
+        />
+      )}
       {!loading && !error && (
         <DataTable
           columns={[

@@ -43,9 +43,9 @@
 
 - **Status:** done
 - **Surface:** `/projects/[projectId]/all-work` (page) · `/work` (page) · `/api/containers/[id]` (api) · `/api/containers` (api) · `/api/work/[id]` (api) · `/api/work` (api)
-- **Code:** `src/app/(pm)/projects/[projectId]/all-work/page.jsx` · `src/app/(pm)/work/page.jsx` · `src/app/api/containers/[id]/route.js` · `src/app/api/containers/route.js` · `src/app/api/work/[id]/route.js` · `src/app/api/work/route.js` · `src/modules/project-manager/application/work-service.js`
-- **Follows:** —
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/project-core.test.js`
+- **Code:** `src/app/(pm)/projects/[projectId]/all-work/page.jsx` · `src/app/(pm)/work/page.jsx` · `src/app/api/containers/[id]/route.js` · `src/app/api/containers/route.js` · `src/app/api/work/[id]/route.js` · `src/app/api/work/route.js` · `src/components/ui/index.jsx` · `src/modules/project-manager/application/active-filters.js` · `src/modules/project-manager/application/work-service.js` · `src/modules/project-manager/views/KanbanBoard.jsx` · `src/modules/project-manager/views/universal/AllWorkView.jsx`
+- **Follows:** BR-004, SDD-002, SDD-010
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/project-core.test.js` · `tests/integration/work-listing-scope.test.js` · `tests/unit/design-system.test.js`
 
 ### FR-006 — Milestones + Gates (weighted, required flag, evidence JSON), browsed and status-edited at Development → Milestones & Gates, both **global and project-scoped**
 
@@ -59,9 +59,9 @@
 
 - **Status:** done
 - **Surface:** `/dependencies` (page) · `/api/dependencies/[id]` (api) · `/api/dependencies` (api)
-- **Code:** `src/app/(pm)/dependencies/page.jsx` · `src/app/api/dependencies/[id]/route.js` · `src/app/api/dependencies/route.js` · `src/modules/project-manager/application/dependency-service.js`
-- **Follows:** SDD-019
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/project-core.test.js` · `tests/unit/project-dependency-service.test.js`
+- **Code:** `src/app/(pm)/dependencies/page.jsx` · `src/app/api/dependencies/[id]/route.js` · `src/app/api/dependencies/route.js` · `src/modules/project-manager/application/active-filters.js` · `src/modules/project-manager/application/dependency-service.js` · `src/modules/project-manager/application/work-service.js`
+- **Follows:** BR-004, SDD-002, SDD-019
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/project-core.test.js` · `tests/integration/work-listing-scope.test.js` · `tests/unit/project-dependency-service.test.js`
 
 ### FR-008 — Repository records (local metadata) + ผูกโปรเจกต์แบบ many-to-many
 
@@ -101,7 +101,7 @@
 - **Surface:** `/projects/[projectId]/import` (page) · `/api/import/commit` (api) · `/api/import/dry-run` (api)
 - **Code:** `src/app/(pm)/projects/[projectId]/import/page.jsx` · `src/app/api/import/commit/route.js` · `src/app/api/import/dry-run/route.js` · `src/lib/validation/enums.js` · `src/modules/project-manager/import/plan-import-service.js` · `src/modules/project-manager/import/plan-schema.js`
 - **Follows:** BR-001, BR-004, BR-007, BR-009, SDD-002, SDD-006, SDD-009, SDD-021, SDD-032, SDD-037, SEC-001, SEC-002, SEC-008
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import-scope.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/plan-schema.test.js`
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import-scope.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/plan-schema.test.js` · `tests/unit/plan-status-vocabulary.test.js`
 
 ### FR-013 — Snapshot backup: export + import แบบ preview-then-confirm
 
@@ -115,9 +115,9 @@
 
 - **Status:** done
 - **Surface:** `/audit` (page) · `/api/audit` (api)
-- **Code:** `src/app/(pm)/audit/page.jsx` · `src/app/api/audit/route.js` · `src/modules/project-manager/application/audit.js`
-- **Follows:** SEC-003
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-core.test.js`
+- **Code:** `src/app/(pm)/audit/page.jsx` · `src/app/api/audit/route.js` · `src/components/ui/index.jsx` · `src/modules/project-manager/application/audit.js`
+- **Follows:** SDD-010, SEC-003
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-core.test.js` · `tests/integration/work-listing-scope.test.js` · `tests/unit/design-system.test.js`
 
 ### FR-015 — Command palette (Ctrl+K), filters, search
 
@@ -147,15 +147,15 @@
 - **Surface:** `/api/import/template` (api) · `/api/import/xlsx` (api)
 - **Code:** `src/app/api/import/template/route.js` · `src/app/api/import/xlsx/route.js` · `src/modules/project-manager/import/xlsx-convert.js` · `src/modules/project-manager/import/xlsx-template.js`
 - **Follows:** SDD-037, SEC-001, SEC-008
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/xlsx-intake.test.js`
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/plan-status-vocabulary.test.js`
 
 ### FR-019 — Enterprise API: ExternalRef mapping + upsert-by-external-id + OpenAPI docs
 
 - **Status:** done
 - **Surface:** `/api/docs` (api) · `/api/resolve` (api)
 - **Code:** `src/app/api/docs/route.js` · `src/app/api/resolve/route.js` · `src/modules/project-manager/api-docs/openapi.js` · `src/modules/project-manager/import/external-ref.js` · `src/modules/project-manager/import/plan-import-service.js` · `src/modules/project-manager/import/plan-schema.js`
-- **Follows:** BR-001, BR-002, BR-004, BR-007, BR-009, FR-019, SDD-003, SDD-006, SDD-009, SDD-021, SDD-037, SEC-001, SEC-002, SEC-006, SEC-008, docs/features/FR-019-enterprise-api.md
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/openapi-docs.test.js` · `tests/integration/plan-import-scope.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/unit/plan-schema.test.js`
+- **Follows:** BR-001, BR-002, BR-004, BR-007, BR-009, FR-019, SDD-002, SDD-003, SDD-006, SDD-009, SDD-021, SDD-037, SEC-001, SEC-002, SEC-006, SEC-008, docs/features/FR-019-enterprise-api.md
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/openapi-docs.test.js` · `tests/integration/plan-import-scope.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/unit/plan-schema.test.js` · `tests/unit/plan-status-vocabulary.test.js`
 
 ### FR-020 — Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing)
 
@@ -482,7 +482,7 @@
 - **Surface:** `/platform/users` (page)
 - **Code:** `src/app/(pm)/platform/users/page.jsx` · `src/modules/identity/profile-permission-service.js`
 - **Follows:** BR-001, FR-038, SDD-017, SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md, SDD-035, SEC-001, SEC-003
-- **Tests:** `tests/unit/fr062-permissions-read-scope.test.js` · `tests/unit/profile-permission-service.test.js`
+- **Tests:** `tests/unit/fr036-team-authorization.test.js` · `tests/unit/fr062-permissions-read-scope.test.js` · `tests/unit/profile-permission-service.test.js`
 
 ### FR-063 — Project Board: the project-local Work tab renders that Project's WorkItems as a status board — **one column per value of `WORK_STATUSES`**, derived from `src/lib/validation/enums.js` rather than a hand-written list, so no status can exist that the board silently drops. Opening a card opens the existing Workpackage editor; the board itself persists nothing — no column, order or card position is stored, and every status change goes through the FR-005 services.
 
@@ -490,7 +490,7 @@
 - **Surface:** `/projects/[projectId]/board` (page)
 - **Code:** `src/app/(pm)/projects/[projectId]/board/page.jsx` · `src/modules/project-manager/views/KanbanBoard.jsx`
 - **Follows:** SDD-019, SDD-036
-- **Tests:** `tests/unit/fr063-board-columns.test.js`
+- **Tests:** `tests/unit/fr063-board-columns.test.js` · `tests/unit/plan-status-vocabulary.test.js`
 
 ### FR-064 — Schedule: Project and Milestone dates render as a derived month-grid timeline, available **global and project-scoped** (the same view under a different filter, mirroring FR-009). Bars come from `Project.startAt`/`targetAt`, markers from `Milestone.targetAt`. It is read-only and non-owning: nothing is persisted, no date is editable from this view, and a Project or Milestone with no dates simply does not render a bar.
 
