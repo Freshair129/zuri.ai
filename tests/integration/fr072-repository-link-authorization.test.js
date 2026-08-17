@@ -53,10 +53,12 @@ describe('FR-072 repository link authorization', () => {
       ownedBusinessIds: [business.id, otherBusiness.id],
     })
 
+    // createWorkspace is BLOCKED (route-viewer-plan.md §BLOCKED B1) and never
+    // accepts a viewer — no options bag passed here.
     workspace = await createWorkspace({
       name: 'Repo Authz WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-REPOAUTHZ',
     })
-    project = await createProject({ workspaceId: workspace.id, name: 'Repo Authz Project', code: 'PRJ-REPOAUTHZ' })
+    project = await createProject({ workspaceId: workspace.id, name: 'Repo Authz Project', code: 'PRJ-REPOAUTHZ' }, { viewer: owner })
 
     // Repository records carry no scope at all — createRepository is BLOCKED
     // and stays unguarded; a repo is a plain fixture here.
@@ -67,8 +69,14 @@ describe('FR-072 repository link authorization', () => {
     sharedWorkspace = await createWorkspace({
       name: 'Repo Shared WS', scopeType: 'PORTFOLIO', portfolioId: portfolio.id, code: 'WS-REPOAUTHZ-SHARED',
     })
-    sharedProject = await createProject({
-      workspaceId: sharedWorkspace.id, name: 'Repo Shared Project', code: 'PRJ-REPOAUTHZ-SHARED',
+    // FR-072(b): createProject now refuses this for every principal (a
+    // PORTFOLIO-scoped Workspace is governed by no Business), so this fixture
+    // — which exists only to give the Tier B test below a shared Project to
+    // authorize against — is built directly with Prisma instead of going
+    // through the now-guarded service. Arrangement, not subject: production
+    // has exactly this state, seeded as WS-PLATFORM.
+    sharedProject = await prisma.project.create({
+      data: { code: 'PRJ-REPOAUTHZ-SHARED', workspaceId: sharedWorkspace.id, name: 'Repo Shared Project' },
     })
   })
 

@@ -1,4 +1,5 @@
 // @req FR-008 — unlink repository from project (many-to-many relationship)
+// @req FR-046 — every mutating request resolves one trusted viewer and fails closed.
 // @req FR-072 — the service refuses this write unless the viewer owns the governing Business.
 // @spec SEC-001, SEC-008
 // @tested tests/integration/fr072-repository-link-authorization.test.js

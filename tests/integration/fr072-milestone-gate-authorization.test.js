@@ -55,9 +55,11 @@ describe('FR-072 milestone/gate authorization', () => {
       ownedBusinessIds: [business.id, otherBusiness.id],
     })
 
+    // createWorkspace is BLOCKED (route-viewer-plan.md §BLOCKED B1) and never
+    // accepts a viewer — no options bag passed here.
     workspace = await createWorkspace({
       name: 'MG Authz WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-MGAUTHZ',
-    }, { viewer: owner })
+    })
     project = await createProject({ workspaceId: workspace.id, name: 'MG Authz Project', code: 'PRJ-MGAUTHZ' }, { viewer: owner })
 
     // A Project in a PORTFOLIO-scoped Space: businessId is null all the way
@@ -65,8 +67,14 @@ describe('FR-072 milestone/gate authorization', () => {
     sharedWorkspace = await createWorkspace({
       name: 'MG Shared WS', scopeType: 'PORTFOLIO', portfolioId: portfolio.id, code: 'WS-MGAUTHZ-SHARED',
     })
-    sharedProject = await createProject({
-      workspaceId: sharedWorkspace.id, name: 'MG Shared Project', code: 'PRJ-MGAUTHZ-SHARED',
+    // FR-072(b): createProject now refuses this for every principal (a
+    // PORTFOLIO-scoped Workspace is governed by no Business), so this fixture
+    // — which exists only to give the Tier B tests below a shared Project to
+    // authorize against — is built directly with Prisma instead of going
+    // through the now-guarded service. Arrangement, not subject: production
+    // has exactly this state, seeded as WS-PLATFORM.
+    sharedProject = await prisma.project.create({
+      data: { code: 'PRJ-MGAUTHZ-SHARED', workspaceId: sharedWorkspace.id, name: 'MG Shared Project' },
     })
   })
 
@@ -150,6 +158,10 @@ describe('FR-072 milestone/gate authorization', () => {
       expect(error.message).toBe('Milestone not found')
       const unchanged = await prisma.milestone.findUnique({ where: { id: milestone.id } })
       expect(unchanged.title).toBe('Update Target')
+      // Milestone carries no `version` counter (unlike Workspace); `updatedAt`
+      // is its equivalent mutation witness — Prisma's `@updatedAt` only fires
+      // on an actual `.update()` call, which the refused guard never reaches.
+      expect(unchanged.updatedAt).toEqual(milestone.updatedAt)
 
       const updated = await updateMilestone(milestone.id, { title: 'Owner Renamed' }, { viewer: owner })
       expect(updated.title).toBe('Owner Renamed')
@@ -196,6 +208,9 @@ describe('FR-072 milestone/gate authorization', () => {
       expect(error.message).toBe('Gate not found')
       const unchanged = await prisma.gate.findUnique({ where: { id: gate.id } })
       expect(unchanged.title).toBe('Update Gate Target')
+      // Gate carries no `version` counter (unlike Workspace); `updatedAt` is
+      // its equivalent mutation witness — see the milestone test above.
+      expect(unchanged.updatedAt).toEqual(gate.updatedAt)
 
       const updated = await updateGate(gate.id, { title: 'Owner Renamed Gate' }, { viewer: owner })
       expect(updated.title).toBe('Owner Renamed Gate')
