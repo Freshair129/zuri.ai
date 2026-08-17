@@ -49,10 +49,10 @@ describe('FR-072 project authorization', () => {
 
     // All four viewers are built before the fixtures, not beside their first
     // assertion, because the fixtures themselves now need one: this Wave 0 suite
-    // was written before its own subject guarded anything, and Waves 1 and 2
-    // subsequently guarded createProject/createWorkstream and
-    // createContainer/createItem. Each wave fixed only the call sites it broke
-    // (route-viewer-design.md §5); this is the union of those fixes.
+    // was written before its own subject guarded anything, and Waves 1, 2 and 3
+    // subsequently guarded createProject/createWorkstream,
+    // createContainer/createItem and createMilestone. Each wave fixed only the
+    // call sites it broke (route-viewer-design.md §5); this is the union.
     owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
     // The attacker shape from the RCAs: global role OWNER, target Business
     // visible, owned elsewhere.
@@ -70,7 +70,7 @@ describe('FR-072 project authorization', () => {
     workstream = await createWorkstream({
       projectId: project.id, name: 'Authz Stream', executionMode: 'SOFTWARE_SPRINT', code: 'WST-AUTHZ',
     }, { viewer: owner })
-    milestone = await createMilestone({ projectId: project.id, title: 'Authz MS', code: 'MS-AUTHZ' })
+    milestone = await createMilestone({ projectId: project.id, title: 'Authz MS', code: 'MS-AUTHZ' }, { viewer: owner })
     container = await createContainer({
       workstreamId: workstream.id, subtype: 'SPRINT', title: 'Authz Cont', code: 'WC-AUTHZ',
     }, { viewer: owner })
