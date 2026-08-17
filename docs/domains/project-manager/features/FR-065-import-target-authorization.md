@@ -137,14 +137,34 @@ today*. **FR-067 (Workspace invitation and scoped membership, design-approved
 2026-08-17) is designed to make exactly that authority holdable** — which is the
 "prior FR of the FR-061 shape" this requirement named as its own exit.
 
-So the sequence is the intended one, not a conflict. What must not happen is
-FR-067 landing while this file still asserts the premise as current. When it
-does:
+**Resolved 2026-08-17 — clause (b) does not change.** The question that was left
+open (may a WorkspaceMembership on Portfolio *P* import into a Space whose
+`scopeType` is `PORTFOLIO` and whose `portfolioId` is *P*?) is answered **no**,
+and answered from FR-067's own acceptance criteria rather than invented:
+AC-067.5 makes Space assignment a separate audited mutation requiring the
+relevant owner authority, so membership on the container does not reach a Space
+inside it; AC-067.4 denies membership even the *read* of Project data that an
+import would *create*. Verified alongside it: a portfolio-scoped Space carries no
+`tenantId` at all (`prisma/seed.js` WS-PLATFORM), so it sits above the BR-001
+isolation boundary that the whole scope chain rests on. Full reasoning in
+FR-067's "Decision" section.
 
-- **Re-read SDD-037's justification before touching the guard.** The refusal was
-  never "portfolio import is wrong"; it was "no rule here could be tested,
-  because nothing could satisfy or be denied by it". Once a principal can hold
-  the authority, that argument expires and the case becomes decidable.
+So the behaviour here is unchanged and the sequence is the intended one. What
+changes is only the **reason** printed in SDD-037, which has been amended into
+two tenses — the pre-FR-067 premise ("no such authority can be held") is true
+today and expires on the day FR-067 ships, replaced by the stronger one ("the
+authority exists and does not extend to writing a Space"). That amendment is the
+whole point: an argument resting on a verified fact must say when the fact stops
+being true, or the next reader finds a false premise and discounts the entire
+requirement.
+
+When FR-067 lands:
+
+- **Swap SDD-037's justification to its second tense; change no code.** The
+  pre-FR-067 argument was "no rule here could be tested, because nothing could
+  satisfy or be denied by it". From that day it is "the authority exists as
+  collaboration scope and AC-067.5 keeps Space assignment separate". The guard,
+  the tests and the refusal message all stay as they are.
 - **Decide it through the viewer contract, not by relaxing
   `authorizeImportTarget`.** Adding a `PORTFOLIO` entry to `AUTHORIZERS` is
   correct only once the viewer actually carries a portfolio-keyed grant;

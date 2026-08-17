@@ -47,12 +47,30 @@ export const UNGOVERNED_SCOPE_TYPES = WORKSPACE_SCOPE_TYPES.filter(
  * Why a Workspace above Business is refused rather than governed.
  *
  * This is a statement about the system, not about the caller: the answer is the
- * same for every principal, because no principal can hold authority above
- * Business. Verified rather than assumed — `Membership` is created in exactly two
- * code paths and both bind `businessId`, and the viewer contract exposes only
- * Business-keyed grants (`visibleBusinessIds`, `ownedBusinessIds`,
- * `domainsByBusinessId`). A rule invented for this case today would be
- * untestable: no principal could satisfy it, and none could be denied by it.
+ * same for every principal. The reason is stated in two tenses on purpose,
+ * because the first one has a known expiry date (SDD-037).
+ *
+ * **Today.** No principal can hold authority above Business at all. Verified
+ * rather than assumed — `Membership` is created in exactly two code paths and
+ * both bind `businessId`, and the viewer contract exposes only Business-keyed
+ * grants (`visibleBusinessIds`, `ownedBusinessIds`, `domainsByBusinessId`). A
+ * rule invented for this case would be untestable: no principal could satisfy
+ * it, and none could be denied by it.
+ *
+ * **Once FR-067 ships** (Workspace invitation and scoped membership, design
+ * approved 2026-08-17) that premise is false — and the refusal survives on a
+ * stronger reason, so nothing here changes. A `WorkspaceMembership` is
+ * collaboration scope on the top-level container (keyed by `portfolioId`), and
+ * FR-067 AC-067.5 makes Tenant/Business/Space/Project assignment a separate
+ * audited mutation requiring the relevant owner authority: holding it confers no
+ * write authority over a Space belonging to that Portfolio. AC-067.4 says it
+ * from the read side — membership alone returns no hidden Project data, and an
+ * import creates Project data.
+ *
+ * A portfolio-scoped Space also carries no `tenantId` at all (`prisma/seed.js`
+ * WS-PLATFORM sets only `portfolioId`) while one Portfolio spans every Tenant
+ * beneath it, so authorizing a write there would place one above the BR-001
+ * isolation boundary.
  *
  * The message names the missing authority on purpose. A refusal that says what is
  * absent is a signpost to the next requirement; a silent denial is a bug report
@@ -60,15 +78,21 @@ export const UNGOVERNED_SCOPE_TYPES = WORKSPACE_SCOPE_TYPES.filter(
  * and is not Business-scoped — accepted knowingly, because that fact is static,
  * identical for every authenticated caller, and grants nobody anything.
  *
- * The exit is a PRIOR requirement that makes such authority *holdable* — a
- * viewer-contract change of the FR-061 shape. Authority must be expressible
- * before anything can check it.
+ * The exit is neither FR-067 nor a looser predicate here: it is a Space-level
+ * owner authority carried in the viewer contract — the FR-061 shape again —
+ * after which `AUTHORIZERS` gains an entry. Never before. Authority must be
+ * expressible before anything can check it.
  */
 function ungovernedScopeRefusal(workspace) {
   return (
+    // Worded to stay true across FR-067. "…does not grant it" holds both while no
+    // authority above Business can be held at all, and afterwards, when a
+    // WorkspaceMembership can be held and still confers no Space write authority
+    // (AC-067.5). A message that needs editing on a future merge is a message
+    // that will be wrong for a while first.
     `Import target "${workspace.code}" is a ${workspace.scopeType}-scoped workspace. ` +
     'Import authority is declared at Business scope only — no authority above Business ' +
-    'exists in this system, so there is no principal this import could be granted to. ' +
+    'grants it, so this import cannot be authorized for any principal. ' +
     'Choose a Business-scoped workspace.'
   )
 }
