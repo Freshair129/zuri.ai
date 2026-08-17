@@ -443,19 +443,30 @@ const VIEWER_EXEMPT = new Set([
   'tests/unit/viewer-gate.test.js',
   'tests/factories/viewer.js',
   'tests/unit/viewer-factory-contract.test.js',
+  // Owns the authorization predicate. Its hand-built viewers are adversarial
+  // *inputs* — `{ role: 'OWNER', visibleBusinessIds: [x] }` is exactly the shape
+  // that must be refused, and the file asserts `false` for every one of them.
+  // A fixture that pretends to be a real viewer is dangerous because a guard
+  // then passes on it; a literal that exists to prove refusal cannot have that
+  // failure mode. Its realistic viewers come from `resolveViewer` against the
+  // real database.
+  'tests/unit/viewer-authority.test.js',
 ])
 {
   const roleLiteral = /\brole:\s*['"](OWNER|MEMBER|DEV)['"]/
   const viewerField = /visibleBusinessIds|ownedBusinessIds|domainsByBusinessId|visibleDomains|isPlatform/
-  // A `role:` that sits in a **Membership row** is DB data, not a viewer. These
-  // fields exist only on Membership; no viewer has ever carried one. Suppressing
-  // them is what lets a test keep its own database fixtures next to its viewer
-  // assertions — the first version of this check made an agent relocate a
-  // Membership mock into a separate file purely to escape the proximity window,
-  // and a guard that makes people move code to avoid it is teaching the wrong
-  // lesson twice over: the workaround gets documented, and the real signal gets
-  // weaker everywhere else.
-  const membershipRow = /personId|domainKeysJson|employeeRef|branchId|tenantId/
+  // A `role:` that sits in a **Membership row or a Membership mutation payload**
+  // is data, not a viewer. Every field listed here belongs to Membership or to a
+  // call that changes one; none has ever appeared on a viewer, so suppressing
+  // them is provable rather than a fudge.
+  //
+  // This has now been widened twice, both times because the check fired on
+  // something that was not a viewer: first a Prisma mock (`personId`,
+  // `domainKeysJson`), then a service call (`membershipId`). Each time the cheap
+  // move was to restructure the test around the guard — and each time that would
+  // have documented a workaround and weakened the real signal everywhere else
+  // (.brain/rca/2026-08-17-a-guard-that-teaches-a-workaround.md).
+  const membershipRow = /personId|membershipId|domainKeysJson|employeeRef|branchId|tenantId/
   const offenders = []
   for (const file of walk(path.join(ROOT, 'tests'), '.js')) {
     const relative = rel(file)

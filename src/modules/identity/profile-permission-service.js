@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { DOMAINS } from '@/config/domains'
 import { zMembershipRole } from '@/lib/validation/enums'
 import { resolveViewer } from './resolve-viewer'
+import { ownsBusiness } from './viewer-authority'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 
 const DOMAIN_KEYS = DOMAINS.map((domain) => domain.key)
@@ -62,8 +63,9 @@ async function ownerViewer(resolve) {
 // fails closed here, rather than skipping the check entirely as the old
 // `membership.businessId && ...` guard did.
 function assertMembershipBusinessOwned(businessId, viewer) {
-  const ownedBusinessIds = viewer?.ownedBusinessIds
-  if (!Array.isArray(ownedBusinessIds) || !ownedBusinessIds.includes(businessId)) {
+  // Decision in one place (./viewer-authority); status and message stay here,
+  // because 404 is what this surface has already promised its callers.
+  if (!ownsBusiness(viewer, businessId)) {
     // Same status as the scope refusal it replaces, so the observable HTTP
     // status the platform users page sees is unchanged (404 via _helpers.js).
     const error = new Error('Membership is outside your owned scope')
