@@ -153,7 +153,50 @@ a guard in a route handler where the service has more than one caller.
 an authorization decision of their own. If a worker has to decide *who may do
 this*, the design is incomplete.
 
-## 3. Worker — `sonnet`, one per wave
+## Parallelism — 3 workers, and the three things that make it break
+
+Three workers run concurrently. Naively that corrupts the tree, because three
+things in this repository are **singletons**, verified before this was written:
+
+| Singleton | Evidence | Consequence |
+|---|---|---|
+| the e2e suite | `playwright.config.js` — port `3100` hardcoded, `reuseExistingServer: false`, one `file:./e2e.db` | two concurrent runs fight over the port and the database |
+| `npm run govern` | rewrites `docs/.doc-graph.json` and the generated views | two runs interleave; the first to finish commits a graph describing files the other has not committed. This happened twice on 2026-08-17 and cost a reverted commit |
+| `docs/.route-viewer-baseline.json` | every worker would edit it | a guaranteed three-way conflict on one small file |
+
+Unit and integration tests are **safe** in parallel — `tests/setup.js` injects a
+per-run database under `prisma/.test-dbs/`.
+
+So the rules are:
+
+1. **Each worker runs in its own git worktree.** Spawn with
+   `isolation: "worktree"`. Workers never share a working tree.
+2. **Workers run `npm test` and `npm run build` only.** Never `npm run test:e2e`,
+   never `npm run govern`, never `npm run verify`.
+3. **Workers do not touch the baseline.** Each reports the routes it repaid; the
+   integrator makes one edit at the end. This turns a certain conflict into a
+   single deliberate change.
+4. **Wave 0 is serial and lands first.** Any predicate more than one wave needs
+   is written, tested and merged **before** the three workers start. Otherwise
+   three workers invent three versions of it, which is the exact defect this
+   whole effort exists to remove.
+5. **Waves in flight must not share a source file.** The planner assigns by
+   service for this reason. `project-service` owns eight of the 23 routes and is
+   one wave — do not split it across workers to balance the load.
+
+**Integration, after all three return and each has passed its verify gate:**
+
+- merge the three worktrees onto one branch, one at a time
+- make the single baseline edit removing every repaid route
+- run `npm run govern` **once**, commit whatever it rewrites
+- run `npm run verify` **once**, on the merged result
+- an integration verify gate (`opus`) re-checks the merged diff against the same
+  9 checks, plus: **no wave's guard was weakened by another wave's merge**
+
+A wave that passed alone and fails merged is the interesting case. Do not fix it
+in the merge commit — send it back to its worker with the failure.
+
+## 3. Worker — `sonnet`, ×3 in parallel, one wave each
 
 **Receives:** one wave from the plan plus the matching design section. **Never
 more than one wave.**
@@ -167,11 +210,17 @@ more than one wave.**
 4. Update existing tests that call the service without a viewer. Prefer a
    file-local `const asOwner = (...) => service(..., { viewer })` wrapper over
    editing every call site by hand.
-5. Remove the wave's routes from `docs/.route-viewer-baseline.json`.
-6. Run `npm run verify`. Paste the real counts.
+5. Run `npm test` and `npm run build`. Paste the real counts.
+6. Report the routes it repaid, as a list, for the integrator's single baseline
+   edit. **Do not edit the baseline** — three workers editing one small file is a
+   guaranteed conflict.
 
-**May touch:** the files named in its wave, their tests, and the baseline. **Not
-another wave's files. Not the preflight scripts. Not requirement ids.**
+**Runs in its own git worktree** (`isolation: "worktree"`). Never runs
+`test:e2e`, `govern` or `verify` — all three are singletons and belong to the
+integrator.
+
+**May touch:** the files named in its wave and their tests. **Not another wave's
+files. Not the baseline. Not the preflight scripts. Not requirement ids.**
 
 **Must report, verbatim and unedited:** the red state before the fix (how many
 tests failed and why), and the green state after. A worker that reports only
@@ -195,8 +244,8 @@ design did not make. Stop and return to the architect — **do not choose.**
 | 5 | **The baseline only shrank** | any entry added or reworded to fit |
 | 6 | **Viewers come from the factory** | any hand-built viewer literal |
 | 7 | **No oracle** | the refusal distinguishes a real resource from a fabricated one where the design said it must not |
-| 8 | **Verification is real** | `npm run verify` output not pasted, or counts inconsistent with the diff; e2e flaky; a skipped suite reported as passing |
-| 9 | **Scope** | files outside the wave touched |
+| 8 | **Verification is real** | `npm test` / `npm run build` output not pasted, or counts inconsistent with the diff; a skipped suite reported as passing |
+| 9 | **Scope** | files outside the wave touched; the baseline edited; `govern`, `verify` or `test:e2e` run by a worker |
 
 **Emits:** `APPROVED` or `REJECTED: <check #> — <specific evidence>`. Never
 "looks good". A rejection names the file and line.
@@ -209,15 +258,20 @@ the suite did not run.
 
 ## Wave completion
 
-A wave is done when the verify gate returns APPROVED **and**:
+A wave is done, **in its worktree**, when its verify gate returns APPROVED and:
 
-- `npm run verify` is green — tests, build, `govern` critical 0 / warning 0, e2e
-  with no flaky
-- `docs/.route-viewer-baseline.json` is smaller by exactly the wave's routes
+- `npm test` and `npm run build` are green, with counts pasted
 - the commit message states what could be done before and cannot now
 
-Commit per wave. Small doc/CI changes may go straight to `main` (no branch
-protection; CI runs on push). Code changes go through a PR.
+The wave is done **for real** only after integration: baseline shrunk by exactly
+its routes, `govern` critical 0 / warning 0, `verify` green including e2e with no
+flaky, and the integration gate APPROVED.
+
+Commit per wave. Code changes go through a PR. Small doc/CI changes may go
+straight to `main` — no branch protection, and CI runs on push to it. A PR whose
+diff is documentation-only skips the e2e job automatically, so it costs ~2m40s
+rather than ~10m; a diff touching `src/`, `tests/`, `prisma/` or `.github/` runs
+everything.
 
 ## Overall done
 
