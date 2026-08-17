@@ -317,7 +317,9 @@ is a preflight CRITICAL. Do not chase 100% coverage by adding annotations to fil
 that do not really enforce the rule — an unanchored rule is information, a false
 anchor is a lie.
 
-Build/test commands: `npm test` (Vitest), `npm run test:e2e` (Playwright on :3100),
+Build/test commands: `npm test` (Vitest), `npm run test:e2e` (Playwright on :3100
+in the primary checkout; a git worktree derives its own port and its own seeded
+database from its path, so two trees can run e2e at once — `E2E_PORT` pins it),
 `npm run build`, `npm run db:seed` / `db:reset`.
 
 ### 17. Current direction

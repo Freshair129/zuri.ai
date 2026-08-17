@@ -53,7 +53,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "test:tests/unit/playwright-database-bootstrap.test.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -8791,8 +8793,8 @@
       "id": "test:tests/unit/playwright-database-bootstrap.test.js",
       "type": "test",
       "path": "tests/unit/playwright-database-bootstrap.test.js",
-      "hash": "5a9dfc60",
-      "status": "current"
+      "hash": "97f43c83",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/postgres-business-knowledge.test.js",
