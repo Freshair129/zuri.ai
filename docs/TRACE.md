@@ -552,3 +552,10 @@
 - **Code:** —
 - **Follows:** —
 - **Tests:** —
+
+### FR-072 — Project-Manager mutation authorization: every mutating route repaid from `docs/.route-viewer-baseline.json` resolves a request viewer and the service behind it refuses the write unless `ownsBusiness(viewer, <governing Business>)`, where the governing Business is derived from the target's Space (`workspace.businessId`; for Project-scoped targets via the Project's Space per FR-043; for a Dependency, the governing Business of **both** endpoints; for a Project moved between Spaces, the authority of **both** the current governing Business and the destination Space). (a) A Business-governed target that is not owned answers exactly as a nonexistent one, so a refusal is never an enumeration oracle over another tenant's ids. (b) A target governed above Business (a Project in a PORTFOLIO/TENANT Space, a non-BUSINESS-scoped Workspace) is refused for **every** principal with a reason naming the missing authority — this requirement deliberately does **not** invent authority above Business; enabling such writes requires a prior FR that makes that authority holdable (FR-066/FR-067 direction), per the FR-065 precedent. Routes whose authorization question no declared rule answers (`/api/scope`, `/api/backup/import`, `/api/repositories`) are out of scope and remain recorded debt.
+
+- **Status:** planned
+- **Code:** `src/modules/project-manager/application/project-authorization.js`
+- **Follows:** BR-001, SEC-001, SEC-008
+- **Tests:** `tests/integration/adaptive-shell.test.js` · `tests/integration/project-authorization.test.js` · `tests/integration/project-core.test.js`

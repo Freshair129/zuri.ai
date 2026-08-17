@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 780,
-    "total_edges": 2145,
+    "total_nodes": 783,
+    "total_edges": 2157,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,24 +15,25 @@
       "feature": 3,
       "route": 96,
       "model": 33,
-      "requirement": 157,
-      "test": 143,
-      "code_file": 216
+      "requirement": 158,
+      "test": 144,
+      "code_file": 217
     },
     "coverage": {
-      "requirements": 157,
+      "requirements": 158,
       "fr_with_code": "100% (65/65)",
       "fr_with_tests": "100% (65/65)",
       "rules_anchored_in_code": "83% (60/72)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 216,
+      "annotated_code_files": 217,
       "fr_planned": [
         "FR-066",
         "FR-067",
         "FR-068",
         "FR-069",
         "FR-070",
-        "FR-071"
+        "FR-071",
+        "FR-072"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -54,11 +55,14 @@
   },
   "drift": {
     "changed": [
-      "code:src/app/(pm)/audit/page.jsx",
-      "code:src/modules/project-manager/application/project-dependency-map.js"
+      "doc:PRD-SDD-v1.0",
+      "test:tests/integration/adaptive-shell.test.js",
+      "test:tests/integration/project-core.test.js"
     ],
     "added": [
-      "test:tests/unit/mode-default-subtype.test.js"
+      "req:FR-072",
+      "test:tests/integration/project-authorization.test.js",
+      "code:src/modules/project-manager/application/project-authorization.js"
     ],
     "removed": []
   },
@@ -113,7 +117,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/audit/page.jsx",
       "hash": "86ba33c7",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-014"
@@ -3512,11 +3516,31 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/application/project-authorization.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/project-authorization.js",
+      "hash": "96822353",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008",
+          "BR-001"
+        ],
+        "@tested": [
+          "tests/integration/project-authorization.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/application/project-dependency-map.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-dependency-map.js",
       "hash": "7dcfeef9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-040"
@@ -4757,8 +4781,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.64.0b",
       "doc_status": "Draft",
-      "hash": "957b42e8",
-      "status": "current"
+      "hash": "b69c2d0b",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -6003,6 +6027,15 @@
       "type": "requirement",
       "family": "FR",
       "label": "Supabase data pipeline monitor and replay: the governed SmartGift DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
+      "id": "req:FR-072",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Project-Manager mutation authorization: every mutating route repaid from `docs/.route-viewer-baseline.json` resolves a request viewer and the service behind it refuses the write unless `ownsBusiness(viewer, <governing Business>)`, where the governing Business is derived from the target's Space (`workspace.businessId`; for Project-scoped targets via the Project's Space per FR-043; for a Dependency, the governing Business of **both** endpoints; for a Project moved between Spaces, the authority of **both** the current governing Business and the destination Space). (a) A Business-governed target that is not owned answers exactly as a nonexistent one, so a refusal is never an enumeration oracle over another tenant's ids. (b) A target governed above Business (a Project in a PORTFOLIO/TENANT Space, a non-BUSINESS-scoped Workspace) is refused for **every** principal with a reason naming the missing authority — this requirement deliberately does **not** invent authority above Business; enabling such writes requires a prior FR that makes that authority holdable (FR-066/FR-067 direction), per the FR-065 precedent. Routes whose authorization question no declared rule answers (`/api/scope`, `/api/backup/import`, `/api/repositories`) are out of scope and remain recorded debt.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
       "status": "planned"
@@ -7716,8 +7749,8 @@
       "id": "test:tests/integration/adaptive-shell.test.js",
       "type": "test",
       "path": "tests/integration/adaptive-shell.test.js",
-      "hash": "ce182ea1",
-      "status": "current"
+      "hash": "ae46766b",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/agent-action-gate.test.js",
@@ -7923,6 +7956,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/project-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/project-authorization.test.js",
+      "hash": "9fe16f92",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/project-business-binding.test.js",
       "type": "test",
       "path": "tests/integration/project-business-binding.test.js",
@@ -7933,8 +7973,8 @@
       "id": "test:tests/integration/project-core.test.js",
       "type": "test",
       "path": "tests/integration/project-core.test.js",
-      "hash": "1cbc02ca",
-      "status": "current"
+      "hash": "b98ce02a",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
@@ -12860,6 +12900,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/application/project-authorization.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-authorization.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-authorization.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-authorization.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/project-dependency-map.js",
       "to": "req:FR-040",
       "type": "implements",
@@ -14464,6 +14532,13 @@
     },
     {
       "from": "req:FR-071",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-072",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -17354,6 +17429,13 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/adaptive-shell.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/agent-action-gate.test.js",
       "to": "code:src/modules/agent/action-gate.js",
       "type": "tests",
@@ -18789,6 +18871,41 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/project-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/project-authorization.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-authorization.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/project-business-binding.test.js",
       "to": "code:src/modules/project-manager/application/project-service.js",
       "type": "tests",
@@ -19060,6 +19177,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/project-core.test.js",
