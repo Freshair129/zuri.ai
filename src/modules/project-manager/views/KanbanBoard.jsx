@@ -1,21 +1,29 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { CircleDashed, CircleDot, Loader, Eye, Ban, CircleCheck } from 'lucide-react'
+import { CircleDashed, CircleDot, Loader, Eye, Ban, CircleCheck, XCircle } from 'lucide-react'
 import { useFetch, LoadingCard } from '../components/useApi'
 import { ErrorState } from '@/components/ui'
 import WorkpackageModal from '../components/WorkpackageModal'
+import { WORK_STATUSES } from '@/lib/validation/enums'
 
-// Work Execution board (Indest "Work") over real WorkItems, grouped by the seven
-// canonical statuses. Read-only for now — status changes still go through the services.
-const COLUMNS = [
-  { key: 'PLANNED', label: 'Backlog', color: '#9CA3AF', Icon: CircleDashed },
-  { key: 'READY', label: 'To Do', color: '#3b82f6', Icon: CircleDot },
-  { key: 'IN_PROGRESS', label: 'In Progress', color: '#2563eb', Icon: Loader },
-  { key: 'REVIEW', label: 'In Review', color: '#f59e0b', Icon: Eye },
-  { key: 'BLOCKED', label: 'Blocked', color: '#C84B4B', Icon: Ban },
-  { key: 'DONE', label: 'Done', color: '#238553', Icon: CircleCheck },
-]
+// @req FR-063 — one column per value of WORK_STATUSES, derived from enums.js
+// rather than a hand-written list, so a status can never render in no column.
+// Presentation-only metadata (label/color/icon) keyed by status; membership and
+// order come from WORK_STATUSES itself, not from this map.
+const COLUMN_META = {
+  PLANNED: { label: 'Backlog', color: '#9CA3AF', Icon: CircleDashed },
+  READY: { label: 'To Do', color: '#3b82f6', Icon: CircleDot },
+  IN_PROGRESS: { label: 'In Progress', color: '#2563eb', Icon: Loader },
+  REVIEW: { label: 'In Review', color: '#f59e0b', Icon: Eye },
+  BLOCKED: { label: 'Blocked', color: '#C84B4B', Icon: Ban },
+  DONE: { label: 'Done', color: '#238553', Icon: CircleCheck },
+  CANCELLED: { label: 'Cancelled', color: '#6B7280', Icon: XCircle },
+}
+const COLUMNS = WORK_STATUSES.map((key) => ({
+  key,
+  ...(COLUMN_META[key] || { label: key, color: '#9CA3AF', Icon: CircleDashed }),
+}))
 
 function Card({ item, onOpen }) {
   return (

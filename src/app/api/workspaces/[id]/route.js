@@ -1,3 +1,4 @@
+// @req FR-001 — update and archive workspace
 import { handle } from '../../_helpers'
 import { updateWorkspace, archiveWorkspace } from '@/modules/project-manager/application/scope-service'
 

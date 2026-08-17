@@ -1,3 +1,4 @@
+// @req FR-012 — transactional commit leg of PlanEnvelope import pipeline
 import { handle } from '../../_helpers'
 import { commitPlan, resolveImportWorkspaceId } from '@/modules/project-manager/import/plan-import-service'
 

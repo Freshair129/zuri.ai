@@ -1,5 +1,8 @@
 'use client'
 
+// @req FR-009 — renders one of the seven execution mode views, scoped to
+// this Project (the project-scoped instance over the same neutral core
+// model as the global route).
 import { useParams } from 'next/navigation'
 import { MODE_SLUGS } from '@/lib/validation/enums'
 import { EmptyState } from '@/components/ui'

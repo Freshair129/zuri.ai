@@ -67,6 +67,13 @@ export const GATE_STATUSES = ['OPEN', 'PASSED', 'BLOCKED', 'WAIVED']
 export const WORKSPACE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
 export const MEMBERSHIP_ROLES = ['OWNER', 'MEMBER']
 
+// Derived subsets — a genuine filter over an enum is named here, next to its
+// source, and imported, rather than hand-copied at each call site (CLAUDE.md;
+// .brain/rca/2026-08-17-a-prose-rule-is-not-a-gate.md). Computed from the
+// parent above so it cannot drift from it.
+// A gate no longer blocks progress once PASSED or WAIVED (progress/strategies.js).
+export const SATISFIED_GATE_STATUSES = GATE_STATUSES.filter((s) => s === 'PASSED' || s === 'WAIVED')
+
 // FR-059 — Business Strategy mutation. Frozen from observed usage only: schema
 // defaults (BusinessRoadmap.status, BusinessGoal.status/priority in
 // prisma/schema.prisma), prisma/seed.js values, and the `status: { not: 'ARCHIVED' }`

@@ -1,3 +1,4 @@
+// @req FR-006 — list or create weighted milestones with gates
 import { handle, queryParams } from '../_helpers'
 import { listMilestonesAndGates, createMilestone } from '@/modules/project-manager/application/milestone-gate-service'
 

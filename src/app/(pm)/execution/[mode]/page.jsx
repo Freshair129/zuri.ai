@@ -1,5 +1,8 @@
 'use client'
 
+// @req FR-009 — renders one of the seven execution mode views, unscoped
+// (global instance) over the neutral core model.
+// @tested tests/e2e/smoke.spec.js
 import { useParams } from 'next/navigation'
 import { MODE_SLUGS } from '@/lib/validation/enums'
 import { EmptyState } from '@/components/ui'

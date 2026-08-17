@@ -1,5 +1,8 @@
 'use client'
 
+// @req FR-008 — repository records (create/edit via RepoModal: provider,
+// fullName, url, defaultBranch, externalRepoId) and their many-to-many
+// project links.
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { PageHeader, Card, StatusPill, EmptyState, ErrorState, Modal, Field } from '@/components/ui'

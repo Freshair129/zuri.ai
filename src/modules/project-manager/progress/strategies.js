@@ -5,9 +5,15 @@
 // Pure functions: input is pre-loaded workstream data, output is
 // { percent, evidence, warnings } — no I/O, no clock, no randomness.
 
+import { SATISFIED_GATE_STATUSES } from '@/lib/validation/enums'
+
+// DONE/CANCELLED are terminal-status filters, not enumerations of
+// WORK_STATUSES: DONE means "counts as complete", CANCELLED means "excluded
+// from active work" (activeItems, below). PLANNED/READY/IN_PROGRESS/REVIEW are
+// all still counted — they are simply neither done nor excluded.
 const DONE = new Set(['DONE', 'COMPLETED'])
 const CANCELLED = new Set(['CANCELLED'])
-const GATE_SATISFIED = new Set(['PASSED', 'WAIVED'])
+const GATE_SATISFIED = new Set(SATISFIED_GATE_STATUSES)
 
 export function clampPercent(value) {
   if (!Number.isFinite(value)) return 0

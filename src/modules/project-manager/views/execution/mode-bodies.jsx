@@ -6,7 +6,7 @@
 // WorkContainer/WorkItem model — mode-specific vocabulary lives only here.
 
 import { Card, SectionTitle, StatusPill, ProgressBar, DataTable, EmptyState } from '@/components/ui'
-import { WORK_STATUSES } from '@/lib/validation/enums'
+import { WORK_STATUSES, MILESTONE_STATUSES, GATE_STATUSES } from '@/lib/validation/enums'
 import StatusSelect from '../../components/StatusSelect'
 
 const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString())
@@ -24,14 +24,38 @@ function ItemCard({ item, reload }) {
   )
 }
 
+// Sprint board groups the seven WORK_STATUSES values into fewer visual
+// columns. The grouping is a genuine filter (a status→column map), but it
+// must still be exhaustive: every WORK_STATUSES value needs a column, or an
+// item in an ungrouped status silently disappears from the board (the same
+// defect class as FR-063 in KanbanBoard.jsx). CANCELLED previously had no
+// column and vanished; it now gets its own terminal column.
+const SPRINT_COLUMN_LABELS = {
+  PLANNED: 'Backlog',
+  READY: 'Backlog',
+  IN_PROGRESS: 'In Progress',
+  REVIEW: 'Review',
+  BLOCKED: 'Review',
+  DONE: 'Done',
+  CANCELLED: 'Cancelled',
+}
+const SPRINT_COLUMN_ORDER = ['Backlog', 'In Progress', 'Review', 'Done', 'Cancelled']
+
+function buildSprintColumns() {
+  const byLabel = new Map(SPRINT_COLUMN_ORDER.map((label) => [label, []]))
+  for (const status of WORK_STATUSES) {
+    // Fallback: an unmapped future status gets its own column instead of
+    // being dropped, so this can't repeat the CANCELLED bug.
+    const label = SPRINT_COLUMN_LABELS[status] || status
+    if (!byLabel.has(label)) byLabel.set(label, [])
+    byLabel.get(label).push(status)
+  }
+  return [...byLabel.entries()].map(([label, statuses]) => ({ key: label, label, statuses }))
+}
+
 /** 1. SOFTWARE_SPRINT — Sprint Board (kanban by status). */
 export function SprintBoard({ workstream, reload }) {
-  const columns = [
-    { key: 'PLANNED', label: 'Backlog', statuses: ['PLANNED', 'READY'] },
-    { key: 'IN_PROGRESS', label: 'In Progress', statuses: ['IN_PROGRESS'] },
-    { key: 'REVIEW', label: 'Review', statuses: ['REVIEW', 'BLOCKED'] },
-    { key: 'DONE', label: 'Done', statuses: ['DONE'] },
-  ]
+  const columns = buildSprintColumns()
   const sprints = workstream.containers.filter((c) => c.subtype === 'SPRINT')
   return (
     <div>
@@ -40,7 +64,7 @@ export function SprintBoard({ workstream, reload }) {
           Sprint: <b>{sprints.map((s) => s.title).join(', ')}</b>
         </p>
       )}
-      <div className="grid grid-cols-4 gap-2.5 overflow-x-auto max-md:grid-cols-1">
+      <div className="grid grid-cols-5 gap-2.5 overflow-x-auto max-md:grid-cols-1">
         {columns.map((col) => {
           const items = workstream.items.filter((i) => col.statuses.includes(i.status))
           return (
@@ -205,7 +229,7 @@ export function LaunchTimeline({ workstream, reload }) {
                 <p className="text-xs font-bold">{m.title}</p>
                 {m.targetAt && <p className="text-[9px] text-muted">target {new Date(m.targetAt).toLocaleDateString()}</p>}
               </div>
-              <StatusSelect entity="milestone" id={m.id} value={m.status} statuses={['PLANNED', 'IN_PROGRESS', 'DONE', 'MISSED']} onChanged={reload} />
+              <StatusSelect entity="milestone" id={m.id} value={m.status} statuses={MILESTONE_STATUSES} onChanged={reload} />
             </div>
           ))}
         </div>
@@ -218,7 +242,7 @@ export function LaunchTimeline({ workstream, reload }) {
               <div key={g.id} className={`gate-row ${g.status === 'PASSED' ? 'done' : g.status === 'BLOCKED' ? 'blocked' : ''}`}>
                 <div className="flex items-center justify-between gap-2">
                   <b className="text-[11px]">{g.title}</b>
-                  <StatusSelect entity="gate" id={g.id} value={g.status} statuses={['OPEN', 'PASSED', 'BLOCKED', 'WAIVED']} onChanged={reload} />
+                  <StatusSelect entity="gate" id={g.id} value={g.status} statuses={GATE_STATUSES} onChanged={reload} />
                 </div>
                 <small className="text-muted">{g.code} · {g.required ? 'required' : 'optional'}</small>
               </div>
@@ -315,7 +339,7 @@ export function ExpansionPortfolio({ workstream, reload, progress }) {
               <div key={g.id} className={`gate-row ${g.status === 'PASSED' ? 'done' : g.status === 'BLOCKED' ? 'blocked' : ''}`}>
                 <div className="flex items-center justify-between gap-2">
                   <b className="text-[11px]">{g.title}</b>
-                  <StatusSelect entity="gate" id={g.id} value={g.status} statuses={['OPEN', 'PASSED', 'BLOCKED', 'WAIVED']} onChanged={reload} />
+                  <StatusSelect entity="gate" id={g.id} value={g.status} statuses={GATE_STATUSES} onChanged={reload} />
                 </div>
               </div>
             ))}

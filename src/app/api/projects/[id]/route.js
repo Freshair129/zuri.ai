@@ -1,3 +1,4 @@
+// @req FR-003 — project CRUD: get, update, and archive
 import { handle } from '../../_helpers'
 import { getProject, updateProject, archiveProject } from '@/modules/project-manager/application/project-service'
 

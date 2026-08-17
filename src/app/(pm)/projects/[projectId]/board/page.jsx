@@ -1,5 +1,11 @@
 'use client'
 
+// @req FR-063 — Project Board: this Project's WorkItems rendered as a status
+// board, one column per value of `WORK_STATUSES` (derived from
+// src/lib/validation/enums.js, never a hand-written list). A card opens the
+// existing Workpackage editor; the board itself persists no column, order,
+// or card position.
+// @spec SDD-036, SDD-019
 import { useParams } from 'next/navigation'
 import WorkViewTabs from '@/modules/project-manager/components/WorkViewTabs'
 import KanbanBoard from '@/modules/project-manager/views/KanbanBoard'

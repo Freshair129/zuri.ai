@@ -1,10 +1,10 @@
+// @req FR-018 — upload filled template: convert with per-row error reporting, then dry-run
 import { NextResponse } from 'next/server'
 import { workbookToEnvelope } from '@/modules/project-manager/import/xlsx-convert'
 import { dryRunPlan, resolveImportWorkspaceId } from '@/modules/project-manager/import/plan-import-service'
 
 export const dynamic = 'force-dynamic'
 
-// FR-018 — upload a filled template: convert (per-row errors) then dry-run.
 // Commit still happens through the shared /api/import/commit endpoint with
 // the returned envelope, keeping one pipeline for every surface.
 export async function POST(request) {

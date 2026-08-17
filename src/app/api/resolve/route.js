@@ -1,3 +1,5 @@
+// @req FR-019 — resolve external ref lookup or human code to internal id
+// @spec BR-002, SDD-003 — support both customer core-id mapping (system/value) and human-code lookup (type/code)
 import { handle, httpError, queryParams } from '../_helpers'
 import prisma from '@/lib/db'
 import { lookupExternalRef, listExternalRefs } from '@/modules/project-manager/import/external-ref'

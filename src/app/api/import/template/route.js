@@ -1,8 +1,7 @@
+// @req FR-018 — download intake template workbook (generated from Zod enums)
 import { buildTemplateWorkbook } from '@/modules/project-manager/import/xlsx-template'
 
 export const dynamic = 'force-dynamic'
-
-// FR-018 — download the intake workbook (generated from Zod enums; no drift).
 export async function GET() {
   const wb = buildTemplateWorkbook()
   const buffer = await wb.xlsx.writeBuffer()

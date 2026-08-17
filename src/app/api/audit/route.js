@@ -1,3 +1,4 @@
+// @req FR-014 — list immutable audit events filtered by entity type or id
 import { handle, queryParams } from '../_helpers'
 import prisma from '@/lib/db'
 import { listAudit } from '@/modules/project-manager/application/audit'

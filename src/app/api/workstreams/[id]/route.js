@@ -1,3 +1,4 @@
+// @req FR-004 — update or archive workstreams with mode, strategy, and weight
 import { handle } from '../../_helpers'
 import { updateWorkstream, archiveWorkstream } from '@/modules/project-manager/application/project-service'
 

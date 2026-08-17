@@ -1,3 +1,4 @@
+// @req FR-005 — create a work container in the neutral WorkContainer/WorkItem model
 import { handle } from '../_helpers'
 import { createContainer } from '@/modules/project-manager/application/work-service'
 

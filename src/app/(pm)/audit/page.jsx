@@ -1,5 +1,8 @@
 'use client'
 
+// @req FR-014 — the immutable audit event browser: filter by entityType and
+// list occurredAt/action/actorType/payload from /api/audit.
+// @tested tests/e2e/smoke.spec.js
 import { useState } from 'react'
 import { PageHeader, DataTable, StatusPill, EmptyState, ErrorState } from '@/components/ui'
 import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
