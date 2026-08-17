@@ -9,6 +9,7 @@ owns_models:
   - ExternalIdentity
   - IdentityLinkToken
   - ExternalRef
+  - RoleBinding
 ---
 
 # Domain charter — identity
@@ -38,6 +39,11 @@ Who a principal is and what they may see: external identity resolution
   (FR-061). `visibleDomains` answers "anywhere", never "here". The pure rule
   lives in `viewer-domains.js` with no I/O, because both consumers are client
   components.
+
+- Product Owner is the `PRODUCT_OWNER` key in the generic Business-scoped
+  `RoleBinding` registry resolved by `resolveViewer`; `Membership.role`,
+  platform `DEV`, Workspace/Portfolio ancestry and visibility do not infer it
+  (FR-076 / ADR-033).
 
 ## Approved next boundary (ADR-027)
 

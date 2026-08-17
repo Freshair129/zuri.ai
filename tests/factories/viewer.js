@@ -2,6 +2,8 @@
 //
 // @spec .brain/rca/2026-08-16-global-role-is-not-per-business-authority.md
 // @tested tests/unit/viewer-factory-contract.test.js
+
+import { permissionsForRoles } from '@/modules/identity/rbac'
 //
 // Three authorization holes shipped this repository's tests green because every
 // suite built viewers by hand, in shapes `resolveViewer` cannot actually
@@ -33,6 +35,8 @@ function fail(message) {
  * @param {string[]} [over.ownedBusinessIds]  must be a subset of visibleBusinessIds
  * @param {string[]} [over.visibleDomains]        the union across Businesses
  * @param {Record<string,string[]>} [over.domainsByBusinessId]  per-Business grant
+ * @param {Record<string,string[]>} [over.rolesByBusinessId]  generic role bindings by Business
+ * @param {Record<string,string[]>} [over.permissionsByBusinessId]  resolved permissions by Business
  * @param {boolean}  [over.isPlatform]
  * @param {object}   [over.principal]
  */
@@ -46,11 +50,17 @@ export function makeViewer(over = {}) {
     // is a shape production cannot produce. Filled in below (not here) so the
     // array checks still run first on a caller that passed a non-array.
     domainsByBusinessId = null,
+    rolesByBusinessId = {},
+    permissionsByBusinessId = null,
     isPlatform = role === 'DEV',
     principal = { id: 'per-1', code: 'PER-1', displayName: 'Test Principal' },
   } = over
 
-  for (const [name, value] of Object.entries({ visibleBusinessIds, ownedBusinessIds, visibleDomains })) {
+  for (const [name, value] of Object.entries({
+    visibleBusinessIds,
+    ownedBusinessIds,
+    visibleDomains,
+  })) {
     if (!Array.isArray(value)) fail(`${name} must be an array — resolveViewer always returns one`)
   }
 
@@ -95,9 +105,41 @@ export function makeViewer(over = {}) {
     fail(`${thin.join(', ')} is owned, so it must carry every domain the viewer sees anywhere`)
   }
 
+  // @req FR-076 — generic role bindings and resolved permissions are separate
+  // per-Business maps. Neither is inferred from role, ownership or visibility.
+  if (typeof rolesByBusinessId !== 'object' || Array.isArray(rolesByBusinessId)) {
+    fail('rolesByBusinessId must be a plain object keyed by Business id')
+  }
+  const roleKeysOutside = Object.keys(rolesByBusinessId).filter((id) => !visibleBusinessIds.includes(id))
+  if (roleKeysOutside.length) {
+    fail(`rolesByBusinessId mentions ${roleKeysOutside.join(', ')}, which is not in visibleBusinessIds`)
+  }
+  for (const [businessId, roleKeys] of Object.entries(rolesByBusinessId)) {
+    if (!Array.isArray(roleKeys)) fail(`rolesByBusinessId[${businessId}] must be an array`)
+  }
+  const permissions = permissionsByBusinessId
+    ?? Object.fromEntries(Object.entries(rolesByBusinessId).map(([id, roleKeys]) => [id, permissionsForRoles(roleKeys)]))
+  if (typeof permissions !== 'object' || Array.isArray(permissions)) {
+    fail('permissionsByBusinessId must be a plain object keyed by Business id')
+  }
+  const permissionKeysOutside = Object.keys(permissions).filter((id) => !visibleBusinessIds.includes(id))
+  if (permissionKeysOutside.length) {
+    fail(`permissionsByBusinessId mentions ${permissionKeysOutside.join(', ')}, which is not in visibleBusinessIds`)
+  }
+  for (const [businessId, roleKeys] of Object.entries(rolesByBusinessId)) {
+    const expected = permissionsForRoles(roleKeys)
+    if (JSON.stringify(permissions[businessId] || []) !== JSON.stringify(expected)) {
+      fail(`permissionsByBusinessId[${businessId}] does not match the registered roles`)
+    }
+  }
+
   return {
     principal, role, visibleBusinessIds, ownedBusinessIds,
-    domainsByBusinessId: domains, visibleDomains, isPlatform,
+    domainsByBusinessId: domains,
+    visibleDomains,
+    rolesByBusinessId,
+    permissionsByBusinessId: permissions,
+    isPlatform,
   }
 }
 

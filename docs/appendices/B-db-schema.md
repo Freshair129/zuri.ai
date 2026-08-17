@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.4.0 |
+| **Version** | 1.6.0 |
 | **Status** | Draft |
 | **Last Updated** | 2026-08-18 |
 
@@ -20,6 +20,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Business | tenantId, legalEntityId? | ธุรกิจปฏิบัติการ |
 | Branch | tenantId, businessId | tenantId ต้องตรงกับ business (tested) |
 | Person / Membership | tenant, business?, branch?, role, domainKeysJson | local identity; MEMBER domain allow-list, OWNER/DEV role grant (FR-038) |
+| RoleBinding | personId, tenantId, businessId, roleKey, scopeType, status, assignedBy, revokedAt | generic Business-scoped RBAC binding; `PRODUCT_OWNER` is the current Product role (FR-076) |
 | Workspace | scopeType (PORTFOLIO/TENANT/BUSINESS) + denormalized ancestor ids | ต้องมี scope ชัดเจน |
 | Project | businessId?, workspaceId, type, status, startAt/targetAt | direct Business owner; schema Workspace is Development Space; null owner only for explicit shared work; soft delete |
 | Workstream | projectId, executionMode, progressStrategy, progressWeight, progressCache, viewConfigJson | หัวใจของ 7 โหมด |
@@ -35,6 +36,19 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | BusinessGoal | businessId, roadmapId?, horizonId?, code, title, status, progress | Business goal displayed in Strategy Overview |
 | ProjectGoal | projectId, goalId | optional many-to-many link; Project remains a Development resource |
 | AuditEvent | entityType, entityId, action, payloadJson, actorType | append-only (SEC-003) |
+
+## Product Owner RBAC role (FR-076 / ADR-033)
+
+`RoleBinding { personId→Person, tenantId→Tenant, businessId→Business, roleKey,
+scopeType, status, assignedBy?, version, createdAt, updatedAt, revokedAt? }`
+is the generic responsibility relation. The current supported scope is
+`BUSINESS`; `roleKey=PRODUCT_OWNER` expands through the identity role registry
+to Product permissions. `status` is `ACTIVE`, `SUSPENDED` or `REVOKED`.
+`tenantId` and `businessId` are both persisted for scoped queries, while the
+service rejects a mismatch against `Business.tenantId`. The relation is
+many-to-many and does not change `Membership.role`, platform authority or
+import authority. Changes append an `AuditEvent` without secrets or customer
+content.
 
 ## Planned (FR-019)
 

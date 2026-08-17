@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.4.0b"
 created_at: "2026-08-18T04:37:44+07:00,ATHER"
-last_update: "2026-08-18T04:37:44+07:00,ATHER"
+last_update: "2026-08-18T06:35:00+07:00,ATHER"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -15,10 +15,48 @@ attributes:
 
 เอกสารนี้กำหนดลำดับการทำงาน 4 ระยะเพื่อให้ SmartGift ใช้งานข้อมูลสินค้าใน
 Production ได้ก่อน แล้วจึงออกแบบและนำเข้าข้อมูลลูกค้าเก่าผ่าน backfill path ที่
-ควบคุมได้ แผนนี้เป็น roadmap/implementation boundary ไม่ใช่หลักฐานว่าได้เขียน
-ข้อมูลเข้า Production แล้ว
+ควบคุมได้ แผนนี้เป็น roadmap/implementation boundary และมี current evidence
+แนบไว้เพื่อแยกสิ่งที่ migrate แล้วออกจากงาน customer backfill ที่ยังไม่ได้อนุมัติ
 
-## 1. Execution mode contract
+## 1. Mission identity and approval
+
+The execution is tracked by
+[`smartgift-data-migration-mission.json`](../../contracts/migrations/smartgift-data-migration-mission.json).
+The mission identity is separate from a future database `Project`, migration
+run, batch or audit event ID.
+
+| Field | Value |
+|---|---|
+| `missionId` | `MIS-SG-CUSTOMER-DATA-MIGRATION-001` |
+| `versionId` | `VER-SG-DATA-MIGRATION-0.2.0B` |
+| Approver | Boss (บอส) |
+| `approver.personId` | `c82690eb-84e8-48a8-8a28-fe3d839c2276` (`PER-BOSS`) |
+| Approver authority | `PLATFORM_OWNER_APPROVER`; no customer Membership created |
+| Local bootstrap map | `PF-WANNAPA-WORKSPACE` / `5c621811-7e7a-42dd-ac39-ea9e8416ba98`; candidate Tenant `f477c41a-c8d4-4c89-8612-372265907089` |
+| Remote Portfolio / Workspace target | `PF-WANNAPA-WORKSPACE` / `5c621811-7e7a-42dd-ac39-ea9e8416ba98` |
+| Remote Tenant / Organization target | `TNT-ETOHGROUP` / `77cdbe70-3111-4a04-922a-8059be99a8b0` (existing pilot UUID, relabeled/reparented by applied migration) |
+| Remote Target Business | `BUS-SMARTGIFT` / `834fa869-62f3-431c-a287-e9a95e91175b` (existing pilot UUID, preserved) |
+| Remote identity state | Reconciled: customer Portfolio created, existing Tenant/SmartGift UUIDs preserved, three Business rows added |
+| `bootstrapBatchId` | `32a14e35-8896-45b5-b949-4ca1dda24620` |
+| Current artifact | 74 rows; remote-scope SHA-256 `769d6f83743656591ff095f945f3f32aa8d8b9702dfc5cbb4184011260082717` |
+| Pre-migration backup | `BKP-SG-MIGRATION-20260818-001`; SHA-256 `33c76f7e3c761a13b73caf9fd8b3f6ae1e037c388e559049d978c478a9885178` |
+| Current write state | Applied and postflight verified; migration `20260818060000`, LINE binding remains `PENDING` |
+| Applied migration hash | `aa9975f27610456c359c59ac4fc3ce2734ab74f328deea4c7270a439dcd144fb` |
+
+Post-apply evidence is recorded at
+[`supabase-post-migration-verification.json`](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-MIGRATION-001/supabase-post-migration-verification.json).
+It verifies the four-Business tenant hierarchy, 74 distinct SmartGift records,
+zero price/currency/non-public rows, source/batch/artifact hashes, forced RLS,
+the append-only cutover audit event and the still-pending LINE binding.
+
+The manifest records all four remote Business IDs. The remote preflight
+confirmed that the existing production Tenant UUID and SmartGift Business UUID
+were the identities to preserve; the applied migration added the three missing
+Business rows and relabeled/reparented the existing pilot scope. The local
+candidate Tenant UUID remains only bootstrap evidence and was not used in the
+remote SQL.
+
+## 2. Execution mode contract
 
 แผนนี้ใช้โหมดที่มีอยู่แล้วใน [Seven Execution Modes](../EXECUTION-MODES.md)
 และไม่สร้าง canonical execution mode ใหม่
@@ -39,7 +77,7 @@ Production ได้ก่อน แล้วจึงออกแบบแล�
 Progress must be evidence-based. ห้ามใช้ `tasks_done / tasks_total` เป็น progress ของ
 การย้ายข้อมูล และห้ามถือว่าเอกสารหรือไฟล์ SQL ที่สร้างแล้วเป็นหลักฐานว่า import สำเร็จ
 
-## 2. Scope and boundary
+## 3. Scope and boundary
 
 ### In scope
 
@@ -59,7 +97,7 @@ Progress must be evidence-based. ห้ามใช้ `tasks_done / tasks_total
   remains a separately approved follow-up; this roadmap still requires batch audit,
   reconciliation and rollback evidence for every write.
 
-## 3. Channel architecture
+## 4. Channel architecture
 
 The destination and security boundary are shared with Production, but the ingress
 channels are intentionally different:
@@ -88,7 +126,7 @@ role remains read-only; it is not an import role. An operator-only API may start
 backfill job later, but it must not accept unrestricted raw customer payloads from a
 browser.
 
-## 4. Ordered work plan
+## 5. Ordered work plan
 
 | Phase | Name | Mode subtype | Primary deliverable | Exit gate | Estimate |
 |---|---|---|---|---|---|
@@ -110,10 +148,13 @@ private Production data boundary without using the live LINE channel.
 - Source: SmartGift DuckDB, opened read-only.
 - Approval: one source SHA-256 in
   [`smartgift-phase1-pilot.json`](../../contracts/approvals/smartgift-phase1-pilot.json).
-- Current exporter result: 74 rows, price publication disabled, current artifact hash
-  `769d6f83743656591ff095f945f3f32aa8d8b9702dfc5cbb4184011260082717`.
-- Existing post-apply evidence pins an older hash beginning `63a2d542`; this drift
-  must be reconciled before any Production write.
+- Fresh read-only exporter result: 74 rows, price publication disabled, remote-scope
+  artifact hash
+  `769d6f83743656591ff095f945f3f32aa8d8b9702dfc5cbb4184011260082717` targeting
+  the reconciled production Tenant/SmartGift UUIDs.
+- The prior post-apply hash beginning `63a2d542` was treated as historical evidence;
+  the new artifact, audit event and postflight report now reconcile to the approved
+  DuckDB source hash.
 
 **Work items:**
 
@@ -130,9 +171,11 @@ private Production data boundary without using the live LINE channel.
 - Exactly 74 product records and 74 distinct product codes are reconciled.
 - `sell_price`, `currency`, customer/contact/document data and cost/margin fields
   remain excluded.
-- Import SQL targets only `zuri_core.business_knowledge` and writes the immutable
-  `bootstrap_audit_event` record.
-- No Production write is performed until the hash drift is resolved.
+- The migration transaction targets the reconciled customer identity rows,
+  `zuri_core.business_knowledge`, the scope-bound RLS policies and immutable
+  `bootstrap_audit_event` records; it does not activate LINE.
+- The controlled Production write completed only after hash, scope, backup and
+  transaction-smoke gates passed; postflight reconciliation is required for closure.
 
 **Stop conditions:** source approval does not match the artifact, UUID mapping is
 ambiguous, row count/hash differs, a forbidden field is present, or the destination
@@ -172,6 +215,10 @@ any customer row.
 
 This phase is documentation and approval work. It does not import data and does not
 reuse the product-knowledge record contract.
+
+The draft contract is [FR-078 — Customer data backfill contract](../domains/crm/features/FR-078-customer-data-backfill-contract.md).
+Its machine-readable manifest fixes the current SmartGift Tenant/Business scope,
+but leaves customer-data owner, Security/PDPA and target-schema approvals pending.
 
 **Required contract sections:**
 
@@ -238,7 +285,7 @@ DuckDB read-only
 - Production execution uses the approved migration role/job, never the LINE read role.
 - Post-apply counts, scope, provenance and audit receipt reconcile exactly.
 
-## 5. Critical path and dependencies
+## 6. Critical path and dependencies
 
 ```mermaid
 flowchart LR
@@ -255,17 +302,17 @@ The critical path is P1 → P2 → P3 → P4. Customer importer work may be prep
 locally only after P3 contract decisions are explicit; it may not write customer
 data before the P3/P4 gates.
 
-## 6. Milestones
+## 7. Milestones
 
 | ID | Milestone | Phase | Gate criteria | Status |
 |---|---|---|---|---|
-| M1 | Product artifact reconciled | P1 | 74 rows, UUID scope, current artifact hash approved | blocked on hash reconciliation |
-| M2 | Product knowledge usable by runtime | P2 | Fresh RLS/read/mutation-denial/post-apply evidence | planned |
-| M3 | Customer backfill contract approved | P3 | Scope, identity, PII, provenance, rollback and owner approval | not started |
+| M1 | Product artifact reconciled | P1 | 74 rows, UUID scope, current artifact hash approved | complete |
+| M2 | Product knowledge usable by runtime | P2 | Fresh RLS/read/mutation-denial/post-apply evidence | complete for data/RLS; LINE remains pending |
+| M3 | Customer backfill contract approved | P3 | Scope, identity, PII, provenance, rollback and owner approval | draft created; approval pending |
 | M4 | Customer importer non-production proof | P4 | Fixture, idempotency, isolation, failure and rollback tests pass | not started |
 | M5 | Customer cutover decision | P4 | Live-delta, backup and signed operator receipt | separately gated |
 
-## 7. Progress and reporting contract
+## 8. Progress and reporting contract
 
 The workstream reports the following evidence per batch/run:
 
@@ -281,7 +328,7 @@ The workstream reports the following evidence per batch/run:
 Unknown values remain `unknown`/unavailable. A historical report, generated SQL or
 catalog count alone cannot promote a phase to `done`.
 
-## 8. Risk register
+## 9. Risk register
 
 Risk score is Probability × Impact, on a 1–5 scale.
 
@@ -294,12 +341,12 @@ Risk score is Probability × Impact, on a 1–5 scale.
 | R5 | Customer PII enters an unapproved table or log | 3 | 5 | 15 | Field allowlist, classification, redaction scan and approval gate | Security/PDPA Owner |
 | R6 | Source changes during a long backfill create a snapshot/live gap | 3 | 4 | 12 | Snapshot watermark, delta plan, cutover owner and reconciliation before enablement | Migration Owner |
 
-## 9. Definition of done
+## 10. Definition of done
 
-- [ ] P1 current artifact hash is reconciled with all post-apply evidence.
-- [ ] P1 product artifact/import contract passes schema, scope, row-count and
+- [x] P1 current artifact hash is reconciled with all post-apply evidence.
+- [x] P1 product artifact/import contract passes schema, scope, row-count and
   forbidden-field checks.
-- [ ] P2 fresh Production read/isolation evidence passes; LINE activation remains a
+- [x] P2 fresh Production read/isolation evidence passes; LINE activation remains a
   separate decision.
 - [ ] P3 customer contract is approved with bounded scope, identity, PII,
   provenance, rollback and cutover rules.
@@ -309,16 +356,19 @@ Risk score is Probability × Impact, on a 1–5 scale.
 - [ ] `npm run govern`, `npm run docs:check`, strict preflight, relevant tests and
   build pass after implementation changes.
 
-## 10. Source documents and current evidence
+## 11. Source documents and current evidence
 
 - [Execution mode contract](../EXECUTION-MODES.md)
 - [FR-047 — curated business knowledge](../domains/knowledge/features/FR-047-line-business-knowledge-pilot.md)
 - [FR-051 — Production Supabase tenant isolation](../domains/agent/features/FR-051-production-supabase-tenant-isolation.md)
 - [FR-052 — server-owned LINE scope binding](../domains/agent/features/FR-052-server-owned-line-scope-binding.md)
 - [FR-071 — data pipeline monitor and replay](../domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md)
+- [FR-078 — customer data backfill contract](../domains/crm/features/FR-078-customer-data-backfill-contract.md)
 - [ADR-030 — Supabase data pipeline observability and replay](../decisions/ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY.md)
 - [ZV2-CR-004 — production tenant bootstrap](../changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md)
 - [Business knowledge record schema](../../contracts/business-knowledge-record.schema.json)
+- [Customer data contract](../../contracts/migrations/smartgift-customer-data-contract.json)
+- [Customer record schema](../../contracts/migrations/smartgift-customer-record.schema.json)
 - [DuckDB exporter](../../scripts/export_smartgift_business_knowledge.py)
 - [Import SQL builder](../../scripts/build_business_knowledge_import.py)
 - [Production post-apply inventory](../../supabase/tests/production_import_post_apply_inventory.sql)
@@ -326,12 +376,18 @@ Risk score is Probability × Impact, on a 1–5 scale.
 
 ## Current state
 
-This is a candidate roadmap. P1 is blocked only on artifact/evidence hash
-reconciliation; P2 requires fresh Production verification; P3 and P4 are not started.
-No Production write or customer import is claimed by this document.
+This is a candidate roadmap. The human approver profile and local customer
+identity map are complete. P1 product backfill and P2 destination/isolation
+verification are complete for the approved 74-row SmartGift product projection.
+The historical customer/contact contract (P3) is drafted but not approved; the
+customer importer (P4) is not started and no customer/contact data was imported.
+LINE activation remains a separate pending gate.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.4.0b | 2026-08-18 | candidate | Add FR-078 Customer Profile contract, read-only source inventory and explicit approval/PII/entity-resolution gates | working-tree | ATHER |
+| 0.3.0b | 2026-08-18 | candidate | Record remote identity reconciliation, transactional Supabase apply and postflight verification for the 74-row SmartGift projection | working-tree | ATHER |
+| 0.2.0b | 2026-08-18 | candidate | Add mission/version/approver identity, local Wannapa/TNT-EtohGroup bootstrap IDs and explicit remote reconciliation gate | working-tree | ATHER |
 | 0.1.0b | 2026-08-18 | candidate | Initial four-phase SmartGift product backfill and customer-import roadmap using `EXM-DATA-MIGRATION` | working-tree | ATHER |

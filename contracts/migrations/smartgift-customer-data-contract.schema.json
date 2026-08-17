@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.local/contracts/migrations/smartgift-customer-data-contract.schema.json",
+  "title": "SmartGift customer data backfill contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "customerDataContractId",
+    "versionId",
+    "status",
+    "missionId",
+    "approvals",
+    "scope",
+    "source",
+    "recordContract",
+    "identityResolution",
+    "fieldPolicy",
+    "target",
+    "writePlan",
+    "rollbackPlan",
+    "gates"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "customerDataContractId": { "type": "string", "pattern": "^CDC-[A-Z0-9-]+$" },
+    "versionId": { "type": "string", "pattern": "^VER-[A-Z0-9.-]+$" },
+    "status": { "enum": ["DRAFT", "CANDIDATE", "APPROVED", "SUPERSEDED"] },
+    "missionId": { "type": "string", "pattern": "^MIS-[A-Z0-9-]+$" },
+    "approvals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requestedBy", "requiredApprovals"],
+      "properties": {
+        "requestedBy": { "$ref": "#/$defs/person" },
+        "requiredApprovals": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["role", "status"],
+            "properties": {
+              "role": { "enum": ["PLATFORM_OWNER", "CUSTOMER_DATA_OWNER", "SECURITY_PDPA"] },
+              "status": { "enum": ["UNASSIGNED", "PENDING", "APPROVED", "REJECTED"] },
+              "personId": { "type": ["string", "null"], "format": "uuid" },
+              "code": { "type": ["string", "null"] },
+              "displayName": { "type": ["string", "null"] },
+              "evidenceRef": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["portfolio", "tenant", "businesses", "targetBusinessCode", "crossBusinessMerge", "historicalWindow"],
+      "properties": {
+        "portfolio": { "$ref": "#/$defs/identity" },
+        "tenant": { "$ref": "#/$defs/identity" },
+        "businesses": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/identity" }
+        },
+        "targetBusinessCode": { "const": "BUS-SMARTGIFT" },
+        "crossBusinessMerge": { "const": false },
+        "historicalWindow": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "from", "to"],
+          "properties": {
+            "status": { "enum": ["UNSPECIFIED", "REQUIRED_BEFORE_IMPORT", "APPROVED"] },
+            "from": { "type": ["string", "null"], "format": "date" },
+            "to": { "type": ["string", "null"], "format": "date" }
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceRef", "sourceKind", "accessMode", "snapshotSha256", "snapshotObservedAt", "inventoryStatus", "tables"],
+      "properties": {
+        "sourceRef": { "const": "SMARTGIFT_DUCKDB_PATH" },
+        "sourceKind": { "const": "DUCKDB_ANALYTICAL_SOT" },
+        "accessMode": { "const": "READ_ONLY" },
+        "snapshotSha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+        "snapshotObservedAt": { "type": "string", "format": "date-time" },
+        "inventoryStatus": { "const": "READ_ONLY_INVENTORY_ONLY" },
+        "tables": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "role", "rowCount", "identityKey", "publishRole"],
+            "properties": {
+              "name": { "enum": ["customer", "stg_contact", "stg_doc", "interaction"] },
+              "role": { "enum": ["CANONICAL_PROFILE_CANDIDATE", "IDENTITY_EVIDENCE", "TRANSACTION_EVIDENCE", "INTERACTION_EVIDENCE"] },
+              "rowCount": { "type": "integer", "minimum": 0 },
+              "identityKey": { "type": "string", "minLength": 1 },
+              "publishRole": { "enum": ["PROFILE_SOURCE", "RESOLUTION_ONLY", "EXCLUDED_FROM_INITIAL_PUBLISH"] }
+            }
+          }
+        }
+      }
+    },
+    "recordContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordType", "contractVersion", "schemaRef", "requiredFields", "fields"],
+      "properties": {
+        "recordType": { "const": "CUSTOMER_PROFILE" },
+        "contractVersion": { "const": "1.0.0" },
+        "schemaRef": { "const": "contracts/migrations/smartgift-customer-record.schema.json" },
+        "requiredFields": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "classification", "disposition", "sourceTables", "targetMapping", "required"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "classification": { "enum": ["INTERNAL_IDENTIFIER", "NON_PII", "PERSONAL", "RESTRICTED_PERSONAL", "FINANCIAL", "SECRET"] },
+              "disposition": { "enum": ["PUBLISHABLE", "STAGING_ONLY", "EXCLUDED"] },
+              "sourceTables": { "type": "array", "items": { "type": "string" } },
+              "targetMapping": { "type": ["string", "null"] },
+              "required": { "type": "boolean" },
+              "notes": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "identityResolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policyVersion", "precedence", "nameOnlyAutoMerge", "conflictDisposition", "unresolvedDisposition"],
+      "properties": {
+        "policyVersion": { "const": "1.0.0" },
+        "precedence": { "type": "array", "minItems": 3, "items": { "type": "string" } },
+        "nameOnlyAutoMerge": { "const": false },
+        "conflictDisposition": { "const": "REVIEW_QUEUE" },
+        "unresolvedDisposition": { "const": "HOLD_NO_WRITE" }
+      }
+    },
+    "fieldPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowedForStaging", "allowedForInitialPublish", "excludedFromInitialPublish", "logPolicy"],
+      "properties": {
+        "allowedForStaging": { "type": "array", "items": { "type": "string" } },
+        "allowedForInitialPublish": { "type": "array", "items": { "type": "string" } },
+        "excludedFromInitialPublish": { "type": "array", "items": { "type": "string" } },
+        "logPolicy": { "const": "NO_RAW_PII" }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storageBoundary", "tenantId", "businessId", "targetEntities", "internalIdPolicy", "personPolicy", "linePolicy", "schemaGate"],
+      "properties": {
+        "storageBoundary": { "const": "ZURI_CRM_PRIVATE_SUPABASE" },
+        "tenantId": { "type": "string", "format": "uuid" },
+        "businessId": { "type": "string", "format": "uuid" },
+        "targetEntities": { "const": ["Person", "Customer"] },
+        "internalIdPolicy": { "const": "SERVER_UUID_NOT_SOURCE_KEY" },
+        "personPolicy": { "const": "EXPLICIT_MATCH_OR_APPROVED_CREATE_ONLY" },
+        "linePolicy": { "const": "DO_NOT_CREATE_OR_ACTIVATE_LINE_BINDING" },
+        "schemaGate": { "const": "REQUIRED_BEFORE_IMPORT" }
+      }
+    },
+    "writePlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ingress", "dryRunRequired", "transactionRequired", "idempotencyKeyPolicy", "sequence", "browserWrites", "lineReplay", "serviceRoleInUi"],
+      "properties": {
+        "ingress": { "const": "SERVER_OWNED_BATCH_IMPORT" },
+        "dryRunRequired": { "const": true },
+        "transactionRequired": { "const": true },
+        "idempotencyKeyPolicy": { "const": "SOURCE_SYSTEM|SOURCE_TABLE|SOURCE_RECORD_KEY|SNAPSHOT_SHA256" },
+        "sequence": {
+          "const": ["READ_ONLY_SNAPSHOT", "SCHEMA_VALIDATE", "ENTITY_RESOLVE", "DUPLICATE_REVIEW", "OWNER_APPROVAL", "BACKUP", "TRANSACTIONAL_UPSERT", "POST_APPLY_RECONCILE"]
+        },
+        "browserWrites": { "const": false },
+        "lineReplay": { "const": false },
+        "serviceRoleInUi": { "const": false }
+      }
+    },
+    "rollbackPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["backupRequired", "scope", "existingPersonPolicy", "auditPolicy", "owner"],
+      "properties": {
+        "backupRequired": { "const": true },
+        "scope": { "const": "BATCH_SCOPED_ONLY" },
+        "existingPersonPolicy": { "const": "NEVER_HARD_DELETE_OR_REHOME_WITHOUT_EXPLICIT_MAPPING" },
+        "auditPolicy": { "const": "APPEND_ONLY" },
+        "owner": { "type": ["string", "null"] }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "status", "evidenceRequired"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^CDC-G[0-9]+$" },
+          "name": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["COMPLETE", "PENDING", "NOT_STARTED", "BLOCKED"] },
+          "evidenceRequired": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "name"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "code": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
+      }
+    },
+    "person": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["personId", "code", "displayName"],
+      "properties": {
+        "personId": { "type": "string", "format": "uuid" },
+        "code": { "const": "PER-BOSS" },
+        "displayName": { "const": "Boss (บอส)" }
+      }
+    }
+  }
+}

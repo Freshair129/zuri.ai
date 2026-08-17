@@ -1,0 +1,607 @@
+{
+  "mode": "READ_ONLY",
+  "projectRef": "qcnmhyglarzcpudjorzc",
+  "generatedAt": "2026-08-17T23:03:20.469Z",
+  "backupEvidence": "UNAVAILABLE_FROM_DATABASE_ONLY",
+  "queries": {
+    "connection": {
+      "status": "OK",
+      "rows": [
+        {
+          "database": "postgres",
+          "user": "postgres",
+          "schema": "public"
+        }
+      ]
+    },
+    "schemas": {
+      "status": "OK",
+      "rows": [
+        {
+          "schema": "public"
+        },
+        {
+          "schema": "supabase_migrations"
+        },
+        {
+          "schema": "zuri_core"
+        }
+      ]
+    },
+    "tables": {
+      "status": "OK",
+      "rows": [
+        {
+          "schema": "supabase_migrations",
+          "table": "schema_migrations"
+        },
+        {
+          "schema": "zuri_core",
+          "table": "bootstrap_audit_event"
+        },
+        {
+          "schema": "zuri_core",
+          "table": "business"
+        },
+        {
+          "schema": "zuri_core",
+          "table": "business_knowledge"
+        },
+        {
+          "schema": "zuri_core",
+          "table": "line_channel_binding"
+        },
+        {
+          "schema": "zuri_core",
+          "table": "portfolio"
+        },
+        {
+          "schema": "zuri_core",
+          "table": "tenant"
+        }
+      ]
+    },
+    "migration_history": {
+      "status": "OK",
+      "rows": [
+        {
+          "version": "20260813192826",
+          "name": "business_knowledge"
+        },
+        {
+          "version": "20260813213654",
+          "name": "production_tenant_bootstrap"
+        }
+      ]
+    },
+    "portfolio_identity": {
+      "status": "OK",
+      "rows": [
+        {
+          "id": "dfeaa9d2-7c65-48bc-9c30-ba083eac8439",
+          "code": "PF-ZURI-OWNER",
+          "name": "Zuri Owner Portfolio",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    "tenant_identity": {
+      "status": "OK",
+      "rows": [
+        {
+          "id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+          "portfolio_id": "dfeaa9d2-7c65-48bc-9c30-ba083eac8439",
+          "code": "TNT-SMARTGIFT",
+          "name": "SmartGift Tenant",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    "business_identity": {
+      "status": "OK",
+      "rows": [
+        {
+          "id": "834fa869-62f3-431c-a287-e9a95e91175b",
+          "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+          "code": "BUS-SMARTGIFT",
+          "name": "SmartGift",
+          "status": "ACTIVE"
+        }
+      ]
+    },
+    "knowledge_scope_counts": {
+      "status": "OK",
+      "rows": [
+        {
+          "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+          "business_id": "834fa869-62f3-431c-a287-e9a95e91175b",
+          "rows": 74,
+          "distinct_product_codes": 74,
+          "priced_rows": 0,
+          "non_public_rows": 0,
+          "min_source_sha256": "017e72b6748d5f3ad99d2c85da0d3df71cf0e7e3d66fe79e67591066f2788c76",
+          "max_source_sha256": "017e72b6748d5f3ad99d2c85da0d3df71cf0e7e3d66fe79e67591066f2788c76"
+        }
+      ]
+    },
+    "bootstrap_audit_scope": {
+      "status": "OK",
+      "rows": [
+        {
+          "id": "fcab484c-425e-5bd7-9cc3-384c681caf22",
+          "code": "KNOWLEDGE-834fa869-63a2d5426838a2fe",
+          "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+          "business_id": "834fa869-62f3-431c-a287-e9a95e91175b",
+          "migration_id": "business-knowledge-import-v1",
+          "operation": "BUSINESS_KNOWLEDGE_IMPORT",
+          "artifact_sha256": "63a2d5426838a2fe6e11eb14c370377f28c494e62c6f160d228dc619cf862c5a",
+          "row_count": 74,
+          "correlation_id": "948076f9-6a0a-43f3-88f5-d7225345ac8a"
+        },
+        {
+          "id": "948076f9-6a0a-43f3-88f5-d7225345ac8a",
+          "code": "BOOTSTRAP-PROD-001",
+          "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+          "business_id": "834fa869-62f3-431c-a287-e9a95e91175b",
+          "migration_id": "20260813213654",
+          "operation": "PRODUCTION_TENANT_BOOTSTRAP",
+          "artifact_sha256": null,
+          "row_count": 0,
+          "correlation_id": "948076f9-6a0a-43f3-88f5-d7225345ac8a"
+        }
+      ]
+    },
+    "line_binding_scope": {
+      "status": "OK",
+      "rows": [
+        {
+          "id": "84ed2c90-ab44-46f3-9618-1f24df0744b9",
+          "code": "LINE-SMARTGIFT-OA",
+          "provider": "LINE",
+          "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+          "business_id": "834fa869-62f3-431c-a287-e9a95e91175b",
+          "status": "PENDING",
+          "external_channel_id_hash": null,
+          "credential_hash": null
+        }
+      ]
+    },
+    "rls_tables": {
+      "status": "OK",
+      "rows": [
+        {
+          "schema": "zuri_core",
+          "table": "bootstrap_audit_event",
+          "rowsecurity": false,
+          "forcerowsecurity": false
+        },
+        {
+          "schema": "zuri_core",
+          "table": "business",
+          "rowsecurity": true,
+          "forcerowsecurity": true
+        },
+        {
+          "schema": "zuri_core",
+          "table": "business_knowledge",
+          "rowsecurity": true,
+          "forcerowsecurity": true
+        },
+        {
+          "schema": "zuri_core",
+          "table": "line_channel_binding",
+          "rowsecurity": true,
+          "forcerowsecurity": true
+        },
+        {
+          "schema": "zuri_core",
+          "table": "portfolio",
+          "rowsecurity": false,
+          "forcerowsecurity": false
+        },
+        {
+          "schema": "zuri_core",
+          "table": "tenant",
+          "rowsecurity": true,
+          "forcerowsecurity": true
+        }
+      ]
+    },
+    "rls_policies": {
+      "status": "OK",
+      "rows": [
+        {
+          "schema": "zuri_core",
+          "table": "business_knowledge",
+          "policyname": "line_smartgift_knowledge_read",
+          "permissive": "PERMISSIVE",
+          "roles": "{zuri_line_smartgift_ro}",
+          "cmd": "SELECT",
+          "qual": "((tenant_id = '77cdbe70-3111-4a04-922a-8059be99a8b0'::text) AND (business_id = '834fa869-62f3-431c-a287-e9a95e91175b'::text) AND (sensitivity = 'PUBLIC'::text) AND is_active)",
+          "with_check": null
+        },
+        {
+          "schema": "zuri_core",
+          "table": "line_channel_binding",
+          "policyname": "line_smartgift_binding_read",
+          "permissive": "PERMISSIVE",
+          "roles": "{zuri_line_smartgift_ro}",
+          "cmd": "SELECT",
+          "qual": "((tenant_id = '77cdbe70-3111-4a04-922a-8059be99a8b0'::text) AND (business_id = '834fa869-62f3-431c-a287-e9a95e91175b'::text) AND (status = 'ACTIVE'::text) AND (valid_from <= now()) AND ((expires_at IS NULL) OR (expires_at > now())))",
+          "with_check": null
+        }
+      ]
+    },
+    "roles": {
+      "status": "OK",
+      "rows": [
+        {
+          "rolname": "anon",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolbypassrls": false,
+          "rolcanlogin": false
+        },
+        {
+          "rolname": "authenticated",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolbypassrls": false,
+          "rolcanlogin": false
+        },
+        {
+          "rolname": "service_role",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolbypassrls": true,
+          "rolcanlogin": false
+        },
+        {
+          "rolname": "zuri_app_runtime",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolbypassrls": false,
+          "rolcanlogin": false
+        },
+        {
+          "rolname": "zuri_line_smartgift_login",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolbypassrls": false,
+          "rolcanlogin": true
+        },
+        {
+          "rolname": "zuri_line_smartgift_ro",
+          "rolsuper": false,
+          "rolcreaterole": false,
+          "rolbypassrls": false,
+          "rolcanlogin": false
+        }
+      ]
+    },
+    "current_user_table_grants": {
+      "status": "OK",
+      "rows": [
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "bootstrap_audit_event",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "bootstrap_audit_event",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "bootstrap_audit_event",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "bootstrap_audit_event",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "bootstrap_audit_event",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "bootstrap_audit_event",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "bootstrap_audit_event",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business_knowledge",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business_knowledge",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business_knowledge",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business_knowledge",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business_knowledge",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business_knowledge",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "business_knowledge",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "line_channel_binding",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "line_channel_binding",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "line_channel_binding",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "line_channel_binding",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "line_channel_binding",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "line_channel_binding",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "line_channel_binding",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "portfolio",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "portfolio",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "portfolio",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "portfolio",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "portfolio",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "portfolio",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "portfolio",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "tenant",
+          "privilege_type": "DELETE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "tenant",
+          "privilege_type": "INSERT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "tenant",
+          "privilege_type": "REFERENCES",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "tenant",
+          "privilege_type": "SELECT",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "tenant",
+          "privilege_type": "TRIGGER",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "tenant",
+          "privilege_type": "TRUNCATE",
+          "is_grantable": "YES"
+        },
+        {
+          "grantee": "postgres",
+          "schema": "zuri_core",
+          "table": "tenant",
+          "privilege_type": "UPDATE",
+          "is_grantable": "YES"
+        }
+      ]
+    },
+    "extensions": {
+      "status": "OK",
+      "rows": [
+        {
+          "extname": "pg_stat_statements",
+          "extversion": "1.11"
+        },
+        {
+          "extname": "pgcrypto",
+          "extversion": "1.3"
+        },
+        {
+          "extname": "plpgsql",
+          "extversion": "1.0"
+        },
+        {
+          "extname": "supabase_vault",
+          "extversion": "0.3.1"
+        },
+        {
+          "extname": "uuid-ossp",
+          "extversion": "1.1"
+        }
+      ]
+    }
+  }
+}

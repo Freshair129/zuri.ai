@@ -1,0 +1,171 @@
+{
+  "mode": "READ_ONLY_POSTFLIGHT",
+  "generatedAt": "2026-08-17T23:19:10.692Z",
+  "expected": {
+    "portfolioId": "5c621811-7e7a-42dd-ac39-ea9e8416ba98",
+    "portfolioCode": "PF-WANNAPA-WORKSPACE",
+    "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+    "tenantCode": "TNT-ETOHGROUP",
+    "businessIds": {
+      "BUS-SMARTGIFT": "834fa869-62f3-431c-a287-e9a95e91175b",
+      "BUS-ETOH-MUKU": "ad6627eb-cc3c-4465-8d55-10ef68786fa3",
+      "BUS-MUJEEN": "dc84f828-df37-4417-84e0-63b863bedb34",
+      "BUS-EMC": "161c1acf-7c0a-44bc-875c-39bee1628685"
+    },
+    "batchId": "32a14e35-8896-45b5-b949-4ca1dda24620",
+    "missionId": "MIS-SG-CUSTOMER-DATA-MIGRATION-001",
+    "versionId": "VER-SG-DATA-MIGRATION-0.2.0B",
+    "approverPersonId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+    "artifactSha256": "769d6f83743656591ff095f945f3f32aa8d8b9702dfc5cbb4184011260082717",
+    "sourceSha256": "017e72b6748d5f3ad99d2c85da0d3df71cf0e7e3d66fe79e67591066f2788c76",
+    "migrationVersion": "20260818060000",
+    "migrationName": "customer_wannapa_identity_and_smartgift_cutover",
+    "lineBindingCode": "LINE-SMARTGIFT-OA"
+  },
+  "checks": {
+    "connection": [
+      {
+        "database": "postgres",
+        "user": "postgres"
+      }
+    ],
+    "portfolio": [
+      {
+        "id": "5c621811-7e7a-42dd-ac39-ea9e8416ba98",
+        "code": "PF-WANNAPA-WORKSPACE",
+        "name": "Wannapa Workspace",
+        "status": "ACTIVE"
+      }
+    ],
+    "tenant": [
+      {
+        "id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+        "portfolio_id": "5c621811-7e7a-42dd-ac39-ea9e8416ba98",
+        "code": "TNT-ETOHGROUP",
+        "name": "TNT-EtohGroup",
+        "status": "ACTIVE"
+      }
+    ],
+    "businesses": [
+      {
+        "id": "161c1acf-7c0a-44bc-875c-39bee1628685",
+        "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+        "code": "BUS-EMC",
+        "name": "EMC",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "ad6627eb-cc3c-4465-8d55-10ef68786fa3",
+        "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+        "code": "BUS-ETOH-MUKU",
+        "name": "Etoh-Muku",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "dc84f828-df37-4417-84e0-63b863bedb34",
+        "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+        "code": "BUS-MUJEEN",
+        "name": "Mujeen",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "834fa869-62f3-431c-a287-e9a95e91175b",
+        "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+        "code": "BUS-SMARTGIFT",
+        "name": "SmartGift",
+        "status": "ACTIVE"
+      }
+    ],
+    "knowledge": [
+      {
+        "rows": 74,
+        "distinct_product_codes": 74,
+        "priced_rows": 0,
+        "currency_rows": 0,
+        "non_public_rows": 0,
+        "source_mismatch_rows": 0,
+        "batch_mismatch_rows": 0,
+        "min_source_sha256": "017e72b6748d5f3ad99d2c85da0d3df71cf0e7e3d66fe79e67591066f2788c76",
+        "max_source_sha256": "017e72b6748d5f3ad99d2c85da0d3df71cf0e7e3d66fe79e67591066f2788c76"
+      }
+    ],
+    "cutover_audit": [
+      {
+        "id": "4a06e228-e85c-44a2-af55-3562756ce31e",
+        "code": "CUSTOMER-SCOPE-CUTOVER-MIS-SG-CUSTOMER-DATA-MIGRATION-001",
+        "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+        "business_id": "834fa869-62f3-431c-a287-e9a95e91175b",
+        "migration_id": "MIS-SG-CUSTOMER-DATA-MIGRATION-001",
+        "operation": "CUSTOMER_SCOPE_CUTOVER",
+        "artifact_sha256": "769d6f83743656591ff095f945f3f32aa8d8b9702dfc5cbb4184011260082717",
+        "row_count": 74,
+        "correlation_id": "32a14e35-8896-45b5-b949-4ca1dda24620",
+        "details": {
+          "versionId": "VER-SG-DATA-MIGRATION-0.2.0B",
+          "tenantCode": "TNT-ETOHGROUP",
+          "portfolioId": "5c621811-7e7a-42dd-ac39-ea9e8416ba98",
+          "businessCodes": [
+            "BUS-SMARTGIFT",
+            "BUS-ETOH-MUKU",
+            "BUS-MUJEEN",
+            "BUS-EMC"
+          ],
+          "approverPersonId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+          "legacyTenantCode": "TNT-SMARTGIFT",
+          "lineBindingStatus": "PENDING"
+        }
+      }
+    ],
+    "line_binding": [
+      {
+        "id": "84ed2c90-ab44-46f3-9618-1f24df0744b9",
+        "code": "LINE-SMARTGIFT-OA",
+        "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+        "business_id": "834fa869-62f3-431c-a287-e9a95e91175b",
+        "status": "PENDING",
+        "external_channel_id_hash": null,
+        "credential_hash": null
+      }
+    ],
+    "rls": [
+      {
+        "table": "business_knowledge",
+        "rowsecurity": true,
+        "forcerowsecurity": true
+      },
+      {
+        "table": "line_channel_binding",
+        "rowsecurity": true,
+        "forcerowsecurity": true
+      }
+    ],
+    "policies": [
+      {
+        "tablename": "line_channel_binding",
+        "policyname": "line_smartgift_binding_read",
+        "roles": "{zuri_line_smartgift_ro}",
+        "cmd": "SELECT",
+        "qual": "((tenant_id = '77cdbe70-3111-4a04-922a-8059be99a8b0'::text) AND (business_id = '834fa869-62f3-431c-a287-e9a95e91175b'::text) AND (status = 'ACTIVE'::text) AND (valid_from <= now()) AND ((expires_at IS NULL) OR (expires_at > now())))"
+      },
+      {
+        "tablename": "business_knowledge",
+        "policyname": "line_smartgift_knowledge_read",
+        "roles": "{zuri_line_smartgift_ro}",
+        "cmd": "SELECT",
+        "qual": "((tenant_id = '77cdbe70-3111-4a04-922a-8059be99a8b0'::text) AND (business_id = '834fa869-62f3-431c-a287-e9a95e91175b'::text) AND (sensitivity = 'PUBLIC'::text) AND is_active)"
+      }
+    ],
+    "old_portfolio": [
+      {
+        "tenant_count": 0
+      }
+    ],
+    "migration_history": [
+      {
+        "version": "20260818060000",
+        "name": "customer_wannapa_identity_and_smartgift_cutover"
+      }
+    ]
+  },
+  "status": "VERIFIED"
+}

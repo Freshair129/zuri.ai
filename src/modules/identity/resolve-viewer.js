@@ -1,5 +1,6 @@
 import prisma from '@/lib/db'
 import { VIEWER_DOMAINS, allDomainsFor, buildDomainsByBusiness } from './viewer-domains'
+import { permissionsForRoles, ROLE_PERMISSIONS, ROLE_SCOPE_BUSINESS } from './rbac'
 
 // @req FR-031 — all future shell visibility starts from one resolved viewer scope.
 // @spec ADR-008 §D4, docs/features/FR-031-viewer-gate.md — DEV is a platform grant,
@@ -49,6 +50,59 @@ async function resolvePrincipal(db, principalId) {
   return principal
 }
 
+// @req FR-076 — active generic role bindings are resolved per Business.
+// @spec ADR-033 D3-D5 — binding status, role registry and Tenant/Business
+// ancestry are checked server-side; visibility alone never grants authority.
+// @tested tests/unit/fr076-product-owner-business-assignment.test.js
+async function resolveRoleBindings(db, principalId, visibleBusinessIds) {
+  const empty = { rolesByBusinessId: {}, permissionsByBusinessId: {} }
+  if (typeof db.roleBinding?.findMany !== 'function') return empty
+
+  const bindings = await db.roleBinding.findMany({
+    where: {
+      personId: principalId,
+      status: 'ACTIVE',
+      scopeType: ROLE_SCOPE_BUSINESS,
+      businessId: { in: visibleBusinessIds },
+    },
+    select: { tenantId: true, businessId: true, roleKey: true, scopeType: true, status: true },
+  })
+  if (!bindings.length) return empty
+
+  const businessIds = unique(bindings.map((binding) => binding.businessId))
+  const businesses = businessIds.length
+    ? await db.business.findMany({
+        where: { id: { in: businessIds } },
+        select: { id: true, tenantId: true, status: true },
+      })
+    : []
+  const businessById = new Map(businesses.map((business) => [business.id, business]))
+  const rolesByBusinessId = {}
+  for (const binding of bindings) {
+    const business = businessById.get(binding.businessId)
+    const valid = visibleBusinessIds.includes(binding.businessId) &&
+      binding.status === 'ACTIVE' &&
+      binding.scopeType === ROLE_SCOPE_BUSINESS &&
+      ROLE_PERMISSIONS[binding.roleKey] &&
+      business &&
+      business.status === 'ACTIVE' &&
+      business.tenantId === binding.tenantId
+    if (valid) {
+      rolesByBusinessId[binding.businessId] = unique([
+        ...(rolesByBusinessId[binding.businessId] || []),
+        binding.roleKey,
+      ])
+    }
+  }
+
+  return {
+    rolesByBusinessId,
+    permissionsByBusinessId: Object.fromEntries(
+      Object.entries(rolesByBusinessId).map(([businessId, roleKeys]) => [businessId, permissionsForRoles(roleKeys)]),
+    ),
+  }
+}
+
 /**
  * Resolve the authenticated (or local-development) viewer into the access shape
  * consumed by the ADR-008 Home journey and later route guards.
@@ -57,7 +111,7 @@ async function resolvePrincipal(db, principalId) {
  * not derived from Membership, because DEV is cross-tenant while Membership is not.
  *
  * @param {{ principalId?: string, platformGrant?: boolean, allowDevelopmentFallback?: boolean, db?: import('@prisma/client').PrismaClient }} [input]
- * @returns {Promise<{principal: {id:string,code:string,displayName:string}, role:'OWNER'|'MEMBER'|'DEV', visibleBusinessIds:string[], ownedBusinessIds:string[], domainsByBusinessId:Record<string,string[]>, visibleDomains:string[], isPlatform:boolean}>}
+ * @returns {Promise<{principal: {id:string,code:string,displayName:string}, role:'OWNER'|'MEMBER'|'DEV', visibleBusinessIds:string[], ownedBusinessIds:string[], domainsByBusinessId:Record<string,string[]>, visibleDomains:string[], rolesByBusinessId:Record<string,string[]>, permissionsByBusinessId:Record<string,string[]>, isPlatform:boolean}>}
  */
 export async function resolveViewer({
   principalId = null,
@@ -76,6 +130,7 @@ export async function resolveViewer({
     // authority — it is not derived from Membership, so it confers no ownership.
     // requireOwner-style checks and the Overview UI both rely on this staying empty.
     const visibleBusinessIds = await allBusinessIds(db)
+    const roleBindings = await resolveRoleBindings(db, principal.id, visibleBusinessIds)
     return {
       principal,
       role: 'DEV',
@@ -86,6 +141,7 @@ export async function resolveViewer({
       // shortcut to read in place of the scoped question.
       domainsByBusinessId: allDomainsFor(visibleBusinessIds),
       visibleDomains: [...VIEWER_DOMAINS],
+      ...roleBindings,
       isPlatform: true,
     }
   }
@@ -94,6 +150,7 @@ export async function resolveViewer({
   // exercise every shell path. This branch is unavailable to production callers.
   if (!principalId) {
     const businessIds = await allBusinessIds(db)
+    const roleBindings = await resolveRoleBindings(db, principal.id, businessIds)
     // Two independently owned arrays, not the same object twice: no consumer
     // mutates either today, but sharing one array between visibleBusinessIds
     // and ownedBusinessIds is an invisible coupling — a future mutation of
@@ -105,6 +162,7 @@ export async function resolveViewer({
       ownedBusinessIds: [...businessIds],
       domainsByBusinessId: allDomainsFor(businessIds),
       visibleDomains: [...VIEWER_DOMAINS],
+      ...roleBindings,
       isPlatform: false,
     }
   }
@@ -137,6 +195,7 @@ export async function resolveViewer({
   // as the two id sets above, so an OWNER Membership grants every domain on the
   // Businesses it covers and widens nothing elsewhere.
   const domainsByBusinessId = buildDomainsByBusiness({ memberships, tenantBusinesses })
+  const roleBindings = await resolveRoleBindings(db, principal.id, visibleBusinessIds)
 
   return {
     principal,
@@ -145,6 +204,7 @@ export async function resolveViewer({
     ownedBusinessIds,
     domainsByBusinessId,
     visibleDomains: unionOfDomains(domainsByBusinessId),
+    ...roleBindings,
     isPlatform: false,
   }
 }

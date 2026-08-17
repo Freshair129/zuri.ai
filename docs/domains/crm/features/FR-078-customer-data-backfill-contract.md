@@ -1,0 +1,312 @@
+---
+domain: crm
+feature: FR-078
+module: crm
+source: v2-native
+version: "0.1.0b"
+created_at: "2026-08-18T06:35:00+07:00,ATHER"
+last_update: "2026-08-18T06:35:00+07:00,ATHER"
+status: "draft"
+---
+
+# FR-078 — Customer data backfill contract
+
+## Intent
+
+กำหนด contract สำหรับนำเข้าประวัติ Customer Profile จาก SmartGift DuckDB เข้า
+CRM ของ Zuri อย่างมีขอบเขตและตรวจสอบย้อนกลับได้ โดยรอบแรกครอบคลุมเฉพาะ
+Customer Profile ของ `BUS-SMARTGIFT` เท่านั้น
+
+เอกสารนี้ยังไม่อนุมัติการเขียนข้อมูล ไม่สร้าง importer และไม่เปลี่ยนข้อมูลใน
+Supabase การอนุมัติของ contract นี้เป็นคนละ gate กับ mission ที่ migrate
+product knowledge 74 แถวเสร็จแล้ว
+
+Machine-readable contracts:
+
+- [Contract manifest](../../../../contracts/migrations/smartgift-customer-data-contract.json)
+- [Contract schema](../../../../contracts/migrations/smartgift-customer-data-contract.schema.json)
+- [Staging record schema](../../../../contracts/migrations/smartgift-customer-record.schema.json)
+
+## Identity and approval
+
+| Identity | Value |
+|---|---|
+| `customerDataContractId` | `CDC-SG-CUSTOMER-DATA-001` |
+| `versionId` | `VER-SG-CUSTOMER-DATA-CONTRACT-0.1.0B` |
+| `missionId` | `MIS-SG-CUSTOMER-DATA-BACKFILL-001` |
+| Requested by / Platform approver | Boss (`PER-BOSS`, `c82690eb-84e8-48a8-8a28-fe3d839c2276`) |
+| Contract status | `DRAFT` |
+| Customer Data Owner | ยังไม่ระบุ — required before import |
+| Security/PDPA approver | ยังไม่ระบุ — required before import |
+
+`customerDataContractId` เป็น identity ของ data contract ไม่ใช่
+Project Manager `contract_id` ซึ่งหมายถึง CRM Contact ตาม FR-070/FR-071
+
+## Scope
+
+```text
+Wannapa Workspace / PF-WANNAPA-WORKSPACE
+  └── TNT-EtohGroup / 77cdbe70-3111-4a04-922a-8059be99a8b0
+        └── SmartGift / BUS-SMARTGIFT
+             834fa869-62f3-431c-a287-e9a95e91175b
+```
+
+Rules for this contract:
+
+- Target is one Tenant and one Business: SmartGift.
+- No automatic merge or sharing across Etoh-Muku, Mujeen or EMC.
+- A customer appearing to belong to more than one Business goes to review;
+  the importer must not infer cross-Business ownership.
+- Historical date range is still required and is intentionally unspecified in
+  the draft contract.
+- Customer Profile is the only initial publishable record type.
+
+## Source inventory
+
+The source was inspected read-only. Counts below are inventory evidence, not
+approval that all rows are valid or ready to publish.
+
+| DuckDB table | Role | Rows | Key | Initial disposition |
+|---|---|---:|---|---|
+| `customer` | Canonical profile candidate | 3,569 | `customer_key` | Profile source |
+| `stg_contact` | Contact/identity evidence | 4,679 | `contact_code` | Resolution only |
+| `stg_doc` | Transaction/document evidence | 8,285 | `doc_no` | Excluded from initial publish |
+| `interaction` | Interaction evidence | 0 | `interaction_id` | Excluded from initial publish |
+
+Snapshot evidence:
+
+- Source alias: `SMARTGIFT_DUCKDB_PATH`
+- DuckDB snapshot SHA-256:
+  `a8da233228cb80a088f11ff98fdef5773d0890bc158bcc40752c6d7a5e4bd5d7`
+- Snapshot last-write observation: `2026-08-12T12:13:43+07:00`
+- Access mode: `READ_ONLY`
+- `customer` contains 65 duplicate `normalized_name` groups; name alone is
+  therefore not a safe merge key.
+- `customer` has 2,540 rows without a tax ID and `stg_contact` has 3,387 rows
+  without a tax ID; fallback identity must remain reviewable.
+
+The source database is analytical evidence. It is not allowed to become the
+runtime CRM database or to be written to by the importer.
+
+## Record contract
+
+The staged record is `CUSTOMER_PROFILE` and must validate against the staging
+record schema. A record carries:
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "recordType": "CUSTOMER_PROFILE",
+  "scope": {
+    "tenantId": "server-resolved",
+    "businessId": "server-resolved"
+  },
+  "source": {
+    "sourceSystem": "SMARTGIFT_DUCKDB",
+    "sourceTable": "customer",
+    "sourceRecordKey": "source-key",
+    "sourceRow": 1,
+    "sourceSha256": "sha256",
+    "snapshotSha256": "sha256"
+  },
+  "identity": {
+    "taxId": null,
+    "normalizedName": null,
+    "email": null,
+    "phoneE164": null
+  },
+  "profile": {
+    "displayName": "redacted-example",
+    "postcode": null,
+    "contactType": null
+  },
+  "resolution": {
+    "status": "NEW_CANDIDATE",
+    "matchMethod": "NONE",
+    "matchedPersonId": null,
+    "matchedCustomerId": null,
+    "reasonCode": "NEW_SOURCE_PROFILE"
+  },
+  "privacy": {
+    "basis": "PENDING_APPROVAL",
+    "evidenceRef": null,
+    "approvedByPersonId": null,
+    "retentionUntil": null
+  },
+  "disposition": {
+    "action": "HOLD",
+    "reasonCode": "CONTRACT_NOT_APPROVED"
+  },
+  "idempotencyKey": "SMARTGIFT_DUCKDB|customer|source-key|sha256"
+}
+```
+
+The source key, source row, source hash, artifact reference and logical source
+reference are provenance evidence. They are not primary keys and must not be
+shown as a customer-facing label.
+
+## Identity resolution
+
+Resolution is server-owned and produces an explicit disposition for every
+source candidate:
+
+1. Deduplicate an exact `sourceRecordKey` within the same snapshot. Conflicting
+   rows enter the review queue.
+2. Match an exact, non-empty `taxId` only when it is one-to-one and corroborated.
+   A tax ID shared by conflicting names, Businesses or source entities enters
+   the review queue.
+3. Allow an exact `normalizedName` match only when one corroborating attribute
+   (email, phone or postcode) also agrees and there is exactly one candidate.
+4. Name-only candidates are always `REVIEW_REQUIRED`; they never auto-merge.
+5. An existing Zuri `Person` or `Customer` may be linked only by an explicit
+   internal mapping or an approved owner decision. The importer must not create
+   a global Person from a name-only historical row.
+
+Resolution outcomes:
+
+| Outcome | Meaning | Write allowed |
+|---|---|---:|
+| `AUTO_MATCH` | One-to-one evidence satisfies the rule | Only after all contract gates |
+| `NEW_CANDIDATE` | No existing match; candidate may be created | Hold until privacy/owner approval |
+| `REVIEW_REQUIRED` | Duplicate, conflict, cross-Business or name-only case | No |
+| `UNRESOLVED` | Required identity evidence is unavailable | No |
+| `REJECTED` | Malformed or prohibited record | No |
+
+Required reports before any write:
+
+- duplicate source keys;
+- duplicate/colliding tax IDs;
+- name-only candidates;
+- cross-Business candidates;
+- unresolved and rejected rows;
+- source rows with no provenance; and
+- source rows that do not map to the approved SmartGift scope.
+
+## Field and privacy policy
+
+| Field/group | Classification | Staging | Initial publish |
+|---|---|---:|---:|
+| `sourceRecordKey`, source row/hash | Internal identifier/evidence | yes | no |
+| `displayName` | Personal data | yes | yes, with approved basis |
+| `normalizedName` | Personal data | yes | no |
+| `taxId` | Restricted personal data | yes, exact-match only | no |
+| `email`, `phoneE164`, `postcode` | Personal data | yes | no; target schema/PDPA gate required |
+| `contactType` | Profile metadata | yes | no until target mapping is approved |
+| `orders`, `quotes`, `lifetime_value` | Financial/derived | no for this contract | no |
+| `amount`, `vat`, `total`, `credit_days` | Financial | no for this contract | no |
+| raw documents, raw paths, LINE identifiers, credentials/secrets | Restricted/secret | no | no |
+
+No raw PII may appear in logs, monitor payloads, browser responses, test
+fixtures committed to the repository or error messages. PII-bearing staging
+artifacts must be access-controlled, short-lived according to the approved
+retention decision and referenced by hash rather than copied into audit text.
+
+## Target mapping
+
+The current Zuri CRM model has `Person` and tenant-scoped `Customer`. A
+historical row cannot be written until the target mapping is approved because:
+
+- `Customer` requires a `personId`;
+- `Person` is global while `Customer` is tenant-scoped;
+- source `customer_key` is external/source identity, not a Zuri primary key;
+- the current target does not yet provide a dedicated customer provenance table;
+- contact phone/tax ID fields do not have an approved target mapping; and
+- `Customer.businessId` must remain SmartGift-scoped for this contract.
+
+Target rules once the schema gate is approved:
+
+- server generates internal UUIDs;
+- source identity is stored in a private provenance/idempotency mapping;
+- existing Person/Customer links are explicit and auditable;
+- new Person creation requires an approved privacy basis and owner decision;
+- no Membership or Product Owner RoleBinding is created for a customer;
+- no LINE `ExternalIdentity` or channel binding is synthesized from historical
+  contact data; and
+- no cross-Business customer sharing is inferred.
+
+## Write, rollback and channel boundary
+
+The only permitted future ingress is:
+
+```text
+DuckDB read-only snapshot
+  → validated customer artifact
+  → entity-resolution report
+  → duplicate/unresolved review
+  → named approvals
+  → verified backup
+  → transaction-local staging
+  → server-owned scoped upsert
+  → post-apply reconciliation
+```
+
+The importer must not use LINE webhook/reply APIs, a public REST endpoint,
+browser-side writes, `anon`, `authenticated` or a runtime `service_role` key.
+The destination transaction must be idempotent by source-system/table/key/
+snapshot hash and must publish no partial batch.
+
+Rollback is batch-scoped and append-audited:
+
+- new Customer rows may be soft-deleted or reversed by the batch rollback;
+- updated rows restore the prior version from the verified backup;
+- existing shared Person rows are never hard-deleted or re-homed implicitly;
+- unrelated Businesses, customer rows and LINE bindings are untouched; and
+- a rollback receipt records the affected batch, restored rows and verification.
+
+## Approval gates
+
+| Gate | Status | Exit evidence |
+|---|---|---|
+| CDC-G1 Source snapshot/inventory | complete | source hash, table counts, read-only evidence |
+| CDC-G2 Record/forbidden-field validation | pending | valid artifact, rejection report, redaction scan |
+| CDC-G3 Entity resolution | pending | duplicate/collision/unresolved reports and decisions |
+| CDC-G4 Customer data owner + Security/PDPA | pending | named approvers, legal basis, retention decision |
+| CDC-G5 Target schema/scope | pending | Person/Customer/provenance mapping, RLS and authorization proof |
+| CDC-G6 Dry-run/backup/rollback | pending | dry-run receipt, backup, rollback rehearsal, post-apply checks |
+
+No customer row may be written while any gate above is `pending` or `blocked`.
+
+## Acceptance criteria
+
+- **AC-078.1** The contract has one immutable `customerDataContractId`,
+  `versionId` and a separate customer-backfill `missionId`.
+- **AC-078.2** The destination is fixed to the reconciled
+  `TNT-EtohGroup`/`BUS-SMARTGIFT` scope; a client cannot select another scope.
+- **AC-078.3** Every staged record carries source table/key/row/hash,
+  snapshot hash, resolution status, privacy basis, disposition and idempotency
+  key.
+- **AC-078.4** Name-only, conflicting, duplicate and cross-Business records
+  fail closed into review or hold; no implicit merge occurs.
+- **AC-078.5** Financial, raw document, LINE and secret fields are excluded from
+  this contract and require separate approval if ever needed.
+- **AC-078.6** No raw PII is emitted into logs, monitor payloads, browser
+  responses, repository fixtures or audit detail.
+- **AC-078.7** Target writes require the Person/Customer/provenance schema gate,
+  privacy basis, named data owner/security approval, backup and dry-run receipt.
+- **AC-078.8** The future write is server-owned, transactional, idempotent,
+  tenant/business-scoped and independently rollbackable.
+- **AC-078.9** Historical customer data is not replayed through LINE and does not
+  activate a LINE binding.
+
+## Non-goals
+
+- Importing customer data in this documentation change.
+- Importing invoices, quotations, payments, costs, margin, orders or documents.
+- Importing interactions or consent/erasure history without their own contract.
+- Creating LINE identities, memberships, Product Owner bindings or marketing
+  segments from historical rows.
+- Treating DuckDB as the transactional CRM database.
+
+## Related documents
+
+- [FR-023 — CRM Customer/Conversation/Message](../../../PRD-SDD-v1.0.md#fr-023)
+- [FR-071 — Supabase data pipeline monitor and replay](../../knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md)
+- [ADR-007 — LINE/AI stack sequencing](../../../decisions/ADR-007-LINE-AI-STACK-SEQUENCING.md)
+- [ADR-018 — Supabase production tenant isolation](../../../decisions/ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION.md)
+- [SmartGift data backfill roadmap](../../../roadmap/PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT.md)
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 0.1.0b | 2026-08-18 | draft | Define scoped Customer Profile contract, resolution rules, PII boundary and approval gates | working-tree | ATHER |

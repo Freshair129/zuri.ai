@@ -40,6 +40,7 @@ model Tenant {
   externalIdentities ExternalIdentity[]
   identityLinkTokens IdentityLinkToken[]
   customers          Customer[]
+  roleBindings         RoleBinding[]
   localWorkspaceMounts LocalWorkspaceMount[]
   fileAssets           FileAsset[]
   integrationConnections IntegrationConnection[]
@@ -94,6 +95,7 @@ model Business {
   workspaces  Workspace[]
   memberships Membership[]
   customers   Customer[]
+  roleBindings         RoleBinding[]
   roadmaps    BusinessRoadmap[]
   goals       BusinessGoal[]
   projects    Project[]
@@ -133,6 +135,7 @@ model Person {
   externalIdentities ExternalIdentity[]
   identityLinkTokens IdentityLinkToken[]
   customers          Customer[]
+  roleBindings         RoleBinding[]
 }
 
 model Membership {
@@ -153,6 +156,30 @@ model Membership {
 
   @@index([personId])
   @@index([tenantId])
+}
+
+model RoleBinding {
+  id         String   @id @default(uuid())
+  personId   String
+  tenantId   String
+  businessId String
+  roleKey    String
+  scopeType  String   @default("BUSINESS")
+  status     String   @default("ACTIVE")
+  assignedBy String?
+  version    Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  revokedAt  DateTime?
+
+  person   Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  business Business @relation(fields: [businessId], references: [id])
+
+  @@unique([personId, businessId, roleKey])
+  @@index([tenantId, businessId, status])
+  @@index([personId, status])
+  @@index([roleKey, status])
 }
 
 model Workspace {

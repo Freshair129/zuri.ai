@@ -1,0 +1,268 @@
+{
+  "schemaVersion": "1.0.0",
+  "customerDataContractId": "CDC-SG-CUSTOMER-DATA-001",
+  "versionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.1.0B",
+  "status": "DRAFT",
+  "missionId": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
+  "approvals": {
+    "requestedBy": {
+      "personId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+      "code": "PER-BOSS",
+      "displayName": "Boss (บอส)"
+    },
+    "requiredApprovals": [
+      {
+        "role": "PLATFORM_OWNER",
+        "status": "PENDING",
+        "personId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+        "code": "PER-BOSS",
+        "displayName": "Boss (บอส)",
+        "evidenceRef": null
+      },
+      {
+        "role": "CUSTOMER_DATA_OWNER",
+        "status": "UNASSIGNED",
+        "personId": null,
+        "code": null,
+        "displayName": null,
+        "evidenceRef": null
+      },
+      {
+        "role": "SECURITY_PDPA",
+        "status": "UNASSIGNED",
+        "personId": null,
+        "code": null,
+        "displayName": null,
+        "evidenceRef": null
+      }
+    ]
+  },
+  "scope": {
+    "portfolio": {
+      "id": "5c621811-7e7a-42dd-ac39-ea9e8416ba98",
+      "code": "PF-WANNAPA-WORKSPACE",
+      "name": "Wannapa Workspace"
+    },
+    "tenant": {
+      "id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+      "code": "TNT-ETOHGROUP",
+      "name": "TNT-EtohGroup"
+    },
+    "businesses": [
+      {
+        "id": "834fa869-62f3-431c-a287-e9a95e91175b",
+        "code": "BUS-SMARTGIFT",
+        "name": "SmartGift"
+      }
+    ],
+    "targetBusinessCode": "BUS-SMARTGIFT",
+    "crossBusinessMerge": false,
+    "historicalWindow": {
+      "status": "REQUIRED_BEFORE_IMPORT",
+      "from": null,
+      "to": null
+    }
+  },
+  "source": {
+    "sourceRef": "SMARTGIFT_DUCKDB_PATH",
+    "sourceKind": "DUCKDB_ANALYTICAL_SOT",
+    "accessMode": "READ_ONLY",
+    "snapshotSha256": "a8da233228cb80a088f11ff98fdef5773d0890bc158bcc40752c6d7a5e4bd5d7",
+    "snapshotObservedAt": "2026-08-12T12:13:43+07:00",
+    "inventoryStatus": "READ_ONLY_INVENTORY_ONLY",
+    "tables": [
+      {
+        "name": "customer",
+        "role": "CANONICAL_PROFILE_CANDIDATE",
+        "rowCount": 3569,
+        "identityKey": "customer_key",
+        "publishRole": "PROFILE_SOURCE"
+      },
+      {
+        "name": "stg_contact",
+        "role": "IDENTITY_EVIDENCE",
+        "rowCount": 4679,
+        "identityKey": "contact_code",
+        "publishRole": "RESOLUTION_ONLY"
+      },
+      {
+        "name": "stg_doc",
+        "role": "TRANSACTION_EVIDENCE",
+        "rowCount": 8285,
+        "identityKey": "doc_no",
+        "publishRole": "EXCLUDED_FROM_INITIAL_PUBLISH"
+      },
+      {
+        "name": "interaction",
+        "role": "INTERACTION_EVIDENCE",
+        "rowCount": 0,
+        "identityKey": "interaction_id",
+        "publishRole": "EXCLUDED_FROM_INITIAL_PUBLISH"
+      }
+    ]
+  },
+  "recordContract": {
+    "recordType": "CUSTOMER_PROFILE",
+    "contractVersion": "1.0.0",
+    "schemaRef": "contracts/migrations/smartgift-customer-record.schema.json",
+    "requiredFields": ["scope", "source", "profile.displayName", "resolution", "privacy", "disposition", "idempotencyKey"],
+    "fields": [
+      {
+        "name": "sourceRecordKey",
+        "classification": "INTERNAL_IDENTIFIER",
+        "disposition": "STAGING_ONLY",
+        "sourceTables": ["customer", "stg_contact"],
+        "targetMapping": "private provenance/idempotency ledger",
+        "required": true,
+        "notes": "Never becomes a primary key or a browser-visible label."
+      },
+      {
+        "name": "displayName",
+        "classification": "PERSONAL",
+        "disposition": "PUBLISHABLE",
+        "sourceTables": ["customer", "stg_contact"],
+        "targetMapping": "Customer.displayName",
+        "required": true,
+        "notes": "Requires a valid privacy basis and approved target scope."
+      },
+      {
+        "name": "normalizedName",
+        "classification": "PERSONAL",
+        "disposition": "STAGING_ONLY",
+        "sourceTables": ["customer", "stg_contact", "stg_doc"],
+        "targetMapping": null,
+        "required": false,
+        "notes": "Resolution aid only; name-only matching cannot auto-merge."
+      },
+      {
+        "name": "taxId",
+        "classification": "RESTRICTED_PERSONAL",
+        "disposition": "STAGING_ONLY",
+        "sourceTables": ["customer", "stg_contact", "stg_doc"],
+        "targetMapping": null,
+        "required": false,
+        "notes": "Exact-match evidence only; never copied to logs or the initial Customer target."
+      },
+      {
+        "name": "email",
+        "classification": "PERSONAL",
+        "disposition": "STAGING_ONLY",
+        "sourceTables": ["customer", "stg_contact"],
+        "targetMapping": null,
+        "required": false,
+        "notes": "Target schema and PDPA basis must be approved before publication."
+      },
+      {
+        "name": "phoneE164",
+        "classification": "PERSONAL",
+        "disposition": "STAGING_ONLY",
+        "sourceTables": ["customer", "stg_contact"],
+        "targetMapping": null,
+        "required": false,
+        "notes": "Target schema and PDPA basis must be approved before publication."
+      },
+      {
+        "name": "orders/quotes/lifetime_value/amount/vat/total/credit_days",
+        "classification": "FINANCIAL",
+        "disposition": "EXCLUDED",
+        "sourceTables": ["customer", "stg_contact", "stg_doc"],
+        "targetMapping": null,
+        "required": false,
+        "notes": "Requires a separate financial-data contract."
+      },
+      {
+        "name": "raw document content, raw source paths, LINE identifiers and secrets",
+        "classification": "SECRET",
+        "disposition": "EXCLUDED",
+        "sourceTables": ["stg_doc", "stg_contact"],
+        "targetMapping": null,
+        "required": false,
+        "notes": "Never enters customer records, monitor payloads, browser responses or logs."
+      }
+    ]
+  },
+  "identityResolution": {
+    "policyVersion": "1.0.0",
+    "precedence": [
+      "Within-snapshot exact sourceRecordKey deduplication; conflicting duplicates go to review",
+      "Exact non-empty taxId with one-to-one corroboration; cross-business or conflicting matches go to review",
+      "Exact normalizedName plus one corroborating email, phone or postcode with one candidate",
+      "Name-only candidates never auto-merge and remain REVIEW_REQUIRED",
+      "Existing Person/Customer links require an explicit internal mapping or approved owner decision"
+    ],
+    "nameOnlyAutoMerge": false,
+    "conflictDisposition": "REVIEW_QUEUE",
+    "unresolvedDisposition": "HOLD_NO_WRITE"
+  },
+  "fieldPolicy": {
+    "allowedForStaging": ["sourceRecordKey", "displayName", "normalizedName", "taxId", "email", "phoneE164", "postcode", "contactType", "sourceSha256", "sourceRow"],
+    "allowedForInitialPublish": ["displayName"],
+    "excludedFromInitialPublish": ["taxId", "email", "phoneE164", "postcode", "orders", "quotes", "lifetime_value", "amount", "vat", "total", "credit_days", "raw_document_content", "raw_source_path", "LINE identifiers", "secrets"],
+    "logPolicy": "NO_RAW_PII"
+  },
+  "target": {
+    "storageBoundary": "ZURI_CRM_PRIVATE_SUPABASE",
+    "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+    "businessId": "834fa869-62f3-431c-a287-e9a95e91175b",
+    "targetEntities": ["Person", "Customer"],
+    "internalIdPolicy": "SERVER_UUID_NOT_SOURCE_KEY",
+    "personPolicy": "EXPLICIT_MATCH_OR_APPROVED_CREATE_ONLY",
+    "linePolicy": "DO_NOT_CREATE_OR_ACTIVATE_LINE_BINDING",
+    "schemaGate": "REQUIRED_BEFORE_IMPORT"
+  },
+  "writePlan": {
+    "ingress": "SERVER_OWNED_BATCH_IMPORT",
+    "dryRunRequired": true,
+    "transactionRequired": true,
+    "idempotencyKeyPolicy": "SOURCE_SYSTEM|SOURCE_TABLE|SOURCE_RECORD_KEY|SNAPSHOT_SHA256",
+    "sequence": ["READ_ONLY_SNAPSHOT", "SCHEMA_VALIDATE", "ENTITY_RESOLVE", "DUPLICATE_REVIEW", "OWNER_APPROVAL", "BACKUP", "TRANSACTIONAL_UPSERT", "POST_APPLY_RECONCILE"],
+    "browserWrites": false,
+    "lineReplay": false,
+    "serviceRoleInUi": false
+  },
+  "rollbackPlan": {
+    "backupRequired": true,
+    "scope": "BATCH_SCOPED_ONLY",
+    "existingPersonPolicy": "NEVER_HARD_DELETE_OR_REHOME_WITHOUT_EXPLICIT_MAPPING",
+    "auditPolicy": "APPEND_ONLY",
+    "owner": null
+  },
+  "gates": [
+    {
+      "id": "CDC-G1",
+      "name": "Source snapshot and table inventory",
+      "status": "COMPLETE",
+      "evidenceRequired": ["source snapshot SHA-256", "read-only table counts", "source as-of"]
+    },
+    {
+      "id": "CDC-G2",
+      "name": "Record schema and forbidden-field validation",
+      "status": "PENDING",
+      "evidenceRequired": ["validated record artifact", "rejected-field report", "no raw PII in logs"]
+    },
+    {
+      "id": "CDC-G3",
+      "name": "Entity resolution and duplicate review",
+      "status": "PENDING",
+      "evidenceRequired": ["one-to-one match report", "duplicate report", "unresolved queue", "owner decisions"]
+    },
+    {
+      "id": "CDC-G4",
+      "name": "Customer-data owner and PDPA/security approval",
+      "status": "PENDING",
+      "evidenceRequired": ["named customer data owner", "privacy basis", "retention decision", "security approval"]
+    },
+    {
+      "id": "CDC-G5",
+      "name": "Target schema and scope authorization",
+      "status": "PENDING",
+      "evidenceRequired": ["Person/Customer target mapping", "Tenant/Business authorization", "RLS/read boundary"]
+    },
+    {
+      "id": "CDC-G6",
+      "name": "Dry-run, backup and rollback readiness",
+      "status": "PENDING",
+      "evidenceRequired": ["dry-run receipt", "verified backup", "rollback rehearsal", "post-apply assertions"]
+    }
+  ]
+}
