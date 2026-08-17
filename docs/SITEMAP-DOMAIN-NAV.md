@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 0.4.2 |
+| **Version** | 0.5.0 |
 | **Status** | Accepted |
 | **Author** | Claude |
 | **Date** | 2026-08-14 |
@@ -39,6 +39,27 @@ Tier 2  Domain     Business Home · Commerce · CRM · Marketing · Operations �
                    (a NEW bar under the topbar; the set is BOUND to the Business)
 Tier 3  Sub-domain the active domain's sidebar; each domain defines its own root contract
 ```
+
+### 1.1 Stable product-domain IDs
+
+The route key and display label are projections. They are not foreign keys for
+execution plans, tags or authorization. The IDs below are the stable product
+domain identities used by FR-070.
+
+| Product domain ID | Route key | Display label | Execution role |
+|---|---|---|---|
+| `DOM-BUSINESS-HOME` | `business-home` | Business Home | non-owning cross-domain shell projection |
+| `DOM-COMMERCE` | `commerce` | Commerce | commerce, products, orders and B2B/wholesale |
+| `DOM-CRM` | `customer` | CRM | customer/account/person context |
+| `DOM-MARKETING` | `growth` | Marketing | campaigns, channels and KPI outcomes |
+| `DOM-OPERATIONS` | `operations` | Operations | operating periods, processes and SLA outcomes |
+| `DOM-PEOPLE` | `people` | HR / People | workforce and accountable Human context |
+| `DOM-DEVELOPMENT` | `projects` | Development | Project and execution-plan views |
+| `DOM-PLATFORM` | `platform` | Platform | configuration, identity, audit and system capabilities |
+
+Changing a label or route key does not change the product domain ID. A domain
+ID is not a technical charter owner; the technical owner is carried separately
+as `technicalOwnerDomainId` (FR-070).
 
 - **Context is chosen on pages, not dropdowns.** The Base Context Bar exposes exactly Workspace,
   Organization, and Business. Schema Workspace and Project are module-local resources: they do not
