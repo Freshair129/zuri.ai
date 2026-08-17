@@ -160,9 +160,10 @@ describe('FR-072(a) refusals disclose nothing at the boundary', () => {
     gate = await createGate(
       { projectId: project.id, title: 'Disclosure Gate', code: 'GATE-DISC' }, { viewer: owner },
     )
-    // createRepository is BLOCKED (no scope field on Repository, so no predicate
-    // can govern it) and takes no viewer — only the *link* is repaid.
-    const repository = await createRepository({ provider: 'github', fullName: 'org/disc', code: 'REP-DISC' })
+    // @req FR-073 — createRepository is governed now and takes an owner.
+    const repository = await createRepository(
+      { businessId: business.id, provider: 'github', fullName: 'org/disc', code: 'REP-DISC' }, { viewer: owner },
+    )
     linkableRepositoryId = repository.id
     repositoryLink = await linkRepository(
       { projectId: project.id, repoId: repository.id, role: 'PRIMARY' }, { viewer: owner },
