@@ -122,9 +122,16 @@ describe('FR-059 Business Strategy mutation', () => {
     const wsB = await createWorkspace({ name: `FR059 B ${suffix}`, scopeType: 'BUSINESS', businessId: businessB.id, code: `WS-F59B-${suffix}` })
     const wsShared = await createWorkspace({ name: `FR059 Shared ${suffix}`, scopeType: 'PORTFOLIO', portfolioId: portfolio.id, code: `WS-F59S-${suffix}` })
 
-    projectA = await createProject({ workspaceId: wsA.id, name: `FR059 Project A ${suffix}`, code: `PRJ-F59A-${suffix}` })
-    projectB = await createProject({ workspaceId: wsB.id, name: `FR059 Project B ${suffix}`, code: `PRJ-F59B-${suffix}` })
-    sharedProject = await createProject({ workspaceId: wsShared.id, name: `FR059 Shared Project ${suffix}`, code: `PRJ-F59S-${suffix}` })
+    projectA = await createProject({ workspaceId: wsA.id, name: `FR059 Project A ${suffix}`, code: `PRJ-F59A-${suffix}` }, { viewer: OWNER })
+    projectB = await createProject({ workspaceId: wsB.id, name: `FR059 Project B ${suffix}`, code: `PRJ-F59B-${suffix}` }, { viewer: OWNER })
+    // FR-072(b): a PORTFOLIO-scoped Workspace is governed by no Business, so
+    // createProject now refuses this for every principal — created directly
+    // with Prisma instead, since this fixture exists to exercise
+    // business-strategy-mutation-service's cross-business isolation rule
+    // (untouched by this wave), not project-service's own authorization.
+    sharedProject = await prisma.project.create({
+      data: { code: `PRJ-F59S-${suffix}`, workspaceId: wsShared.id, name: `FR059 Shared Project ${suffix}` },
+    })
     expect(sharedProject.businessId).toBeNull()
 
     await ensureLocalDemoOwner()

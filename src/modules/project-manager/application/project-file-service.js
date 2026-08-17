@@ -1,11 +1,16 @@
 // @req FR-037 — ProjectFile metadata references, optional WorkItem link, and audited mutation.
 // @spec SDD-016, BR-002, SEC-003, docs/features/FR-037-project-files.md
 // @tested tests/unit/project-file-service.test.js
+// @req FR-072 — mutations refuse the write unless the viewer owns the
+// governing Business of the Project named in the route path.
+// @spec SEC-001, SEC-008, BR-001
+// @tested tests/integration/fr072-project-file-authorization.test.js
 import prisma from '@/lib/db'
 import { uniqueHumanCode } from '@/lib/ids'
 import { zProjectFileInput } from '@/lib/validation/entities'
 import { recordAudit } from './audit'
 import { legacyFileAssetDto } from './file-asset-service'
+import { assertProjectWritable } from './project-authorization'
 
 const codeExists = async (code) => Boolean(await prisma.projectFile.findUnique({ where: { code } }))
 
@@ -32,9 +37,10 @@ export async function listProjectFiles(projectId, { db = prisma } = {}) {
   return [...managed.map(legacyFileAssetDto), ...legacy.filter((file) => !managedIds.has(file.id))]
 }
 
-export async function createProjectFile(projectId, input, { db = prisma } = {}) {
+export async function createProjectFile(projectId, input, { db = prisma, viewer } = {}) {
   const data = zProjectFileInput.parse(input)
   await assertProject(db, projectId)
+  await assertProjectWritable(viewer, projectId, { db })
   if (data.workItemId) {
     const workItem = await db.workItem.findFirst({ where: { id: data.workItemId, deletedAt: null, workstream: { projectId } } })
     if (!workItem) throw new Error('Work item must belong to the project')
@@ -58,8 +64,9 @@ export async function createProjectFile(projectId, input, { db = prisma } = {}) 
   return file
 }
 
-export async function deleteProjectFile(projectId, fileId, { db = prisma } = {}) {
+export async function deleteProjectFile(projectId, fileId, { db = prisma, viewer } = {}) {
   await assertProject(db, projectId)
+  await assertProjectWritable(viewer, projectId, { db })
   const file = await db.projectFile.findFirst({ where: { id: fileId, projectId } })
   const asset = db.fileAsset?.findFirst
     ? await db.fileAsset.findFirst({ where: { id: fileId, projectId, deletedAt: null } })
