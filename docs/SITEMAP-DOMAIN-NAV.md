@@ -123,7 +123,8 @@ shell scope. The active lens changes labels, never identity or isolation.
 | 4 | **`/overview`… domain home** | sidebar → **sub-domain** | 🏠 › ABC › Overview |
 | 5 | **`/projects` (list)** | open a Project resource | 🏠 › Workspace › Organization › Business › Projects |
 | 6 | **`/projects/{id}`** | tabs → work view | 🏠 › Workspace › Organization › Business › PRJ-x |
-| 7 | **`/projects/{id}/files`** | — (leaf) | 🏠 › Workspace › Organization › Business › PRJ-x › Files |
+| 7 | **`/projects/{id}/inventory`** | — (Project Inventory read model) | 🏠 › Workspace › Organization › Business › PRJ-x › Inventory |
+| 8 | **`/projects/{id}/files`** | — (leaf) | 🏠 › Workspace › Organization › Business › PRJ-x › Files |
 
 - **Accepted FR-044 route contract:** `/` is minimal Landing,
   `/login` is a demo Login stub, `/businesses` is Business Routing, and `/overview` is the

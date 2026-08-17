@@ -585,3 +585,12 @@
 - **Code:** —
 - **Follows:** —
 - **Tests:** `tests/unit/fr076-product-owner-business-assignment.test.js`
+
+### FR-077 — Project Inventory MVP: an authorized viewer can open one Project and receive a stable, read-only `PROJECT_INVENTORY` DTO covering Project identity/Business/Space context, Workstreams/Containers/Items, Milestones/Gates, Project-contained Dependencies, legacy and managed file metadata, linked Repositories, visible Team/Memberships, strategy-based progress/evidence and redacted recent activity. The route uses trusted viewer scope, independent pagination/truncation metadata, no raw Prisma graph, no mutation, no external sync and does not change the Project List or `overview`/`timeline`/`workspace` compatibility views.
+
+- **Feature:** FEAT-005 — Project Inventory — authorized, read-only Project-wide operational snapshot
+- **Status:** done
+- **Surface:** `/projects/[projectId]/inventory` (page) · `/api/projects/[id]/inventory` (api)
+- **Code:** `src/app/(pm)/projects/[projectId]/inventory/page.jsx` · `src/app/api/projects/[id]/inventory/route.js` · `src/modules/project-manager/application/project-inventory-read-model.js`
+- **Follows:** SDD-045
+- **Tests:** `tests/e2e/fr077-project-inventory.spec.js` · `tests/integration/project-inventory.test.js` · `tests/unit/project-inventory-read-model.test.js`

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.7.0b |
+| **Version** | 1.8.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-08-18 |
 
@@ -148,7 +148,7 @@ Contract constraints:
 |---|---|---|
 | GET/POST | `/api/projects` | list (filter: workspaceId, businessId, tenantId, status, q, limit, view) → `{ items, limit, truncated }` / create; `view=overview|timeline|workspace` are explicit relation-rich compatibility reads for existing consumers; create derives `businessId` from the target Space and rejects owner/Space mismatch |
 | GET/PATCH/DELETE | `/api/projects/[id]` | detail (includes direct Business owner and Space context) / update with owner/Space invariant / archive |
-| GET | `/api/projects/[id]/inventory` | trusted-viewer, read-only `PROJECT_INVENTORY` DTO v1.0 with bounded work, milestones/gates, contained dependencies, file metadata, repository links, team, progress/evidence and redacted activity sections; working tree/pending commit for FR-077 |
+| GET | `/api/projects/[id]/inventory` | implemented: trusted-viewer, read-only `PROJECT_INVENTORY` DTO v1.0 with bounded work, milestones/gates, contained dependencies, file metadata, repository links, team, progress/evidence and redacted activity sections |
 | GET/POST/PATCH/DELETE | `/api/projects/[id]/team` | team in business scope / add member / change role / remove business-scoped member |
 | GET/POST | `/api/projects/[id]/files` | list/add ProjectFile metadata reference; optional WorkItem must belong to Project |
 | DELETE | `/api/projects/[id]/files/[fileId]` | delete ProjectFile reference within its owning Project |
@@ -245,5 +245,6 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.8.0b | 2026-08-18 | candidate | Promote the Project Inventory endpoint from working-tree evidence to implemented local MVP after scoped publication | working-tree | ATHER |
 | 1.7.0b | 2026-08-18 | candidate | Added contract completeness standard, current/deferred integration split, 63-handler evidence marker and release-boundary rules | working-tree | ATHER |
 | 1.6.0b | 2026-08-18 | draft | Added Phase 1 integration metadata and Project Inventory route inventory | c519d0b | ATHER |
