@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
+import { makeViewer } from '../factories/viewer'
 import {
   createBusinessInGroup,
   listWorkspacesForScope,
@@ -11,8 +12,13 @@ import { deriveShell } from '@/lib/shell-mode'
 
 // @req FR-020 — adding a business (A → B transition) and the group roll-up
 // that the multi-business landing renders.
+// @req FR-072 — the Project/Workstream/Milestone/Gate writes below authorize
+// against a resolved viewer, so the roll-up fixtures are built by an owner of
+// both group Businesses. `createBusinessInGroup` is deliberately NOT threaded:
+// who may create top-level scope is undeclared (§BLOCKED B1) and it stays
+// unguarded.
 
-let first, second
+let first, second, viewer
 
 describe('add a business to the group', () => {
   beforeAll(async () => {
@@ -59,8 +65,12 @@ describe('add a business to the group', () => {
 
 describe('group roll-up for the multi-business landing', () => {
   beforeAll(async () => {
+    viewer = makeViewer({
+      visibleBusinessIds: [first.business.id, second.business.id],
+      ownedBusinessIds: [first.business.id, second.business.id],
+    })
     // Business one: two workstreams, one fully done → 50% at equal weight.
-    const p1 = await createProject({ workspaceId: first.workspace.id, name: 'Shell P1', code: 'PRJ-SHELL-1' })
+    const p1 = await createProject({ workspaceId: first.workspace.id, name: 'Shell P1', code: 'PRJ-SHELL-1' }, { viewer })
     const done = await createWorkstream({
       projectId: p1.id,
       code: 'WST-SHELL-DONE',
@@ -68,7 +78,7 @@ describe('group roll-up for the multi-business landing', () => {
       executionMode: 'OPERATIONS',
       progressStrategy: 'TASK_WEIGHT',
       progressWeight: 1,
-    })
+    }, { viewer })
     const open = await createWorkstream({
       projectId: p1.id,
       code: 'WST-SHELL-OPEN',
@@ -76,7 +86,7 @@ describe('group roll-up for the multi-business landing', () => {
       executionMode: 'OPERATIONS',
       progressStrategy: 'TASK_WEIGHT',
       progressWeight: 1,
-    })
+    }, { viewer })
     await prisma.workItem.createMany({
       data: [
         { workstreamId: done.id, code: 'WI-SHELL-1', subtype: 'CHECKLIST_ITEM', title: 'a', status: 'DONE', weight: 1 },
@@ -89,14 +99,14 @@ describe('group roll-up for the multi-business landing', () => {
       code: 'MS-SHELL-LATE',
       title: 'Grand opening',
       targetAt: new Date('2027-01-01').toISOString(),
-    })
+    }, { viewer })
     await createMilestone({
       projectId: p1.id,
       code: 'MS-SHELL-NEXT',
       title: 'Soft launch',
       targetAt: new Date('2026-09-01').toISOString(),
-    })
-    await createGate({ projectId: p1.id, code: 'GATE-SHELL-1', title: 'Health permit', required: true })
+    }, { viewer })
+    await createGate({ projectId: p1.id, code: 'GATE-SHELL-1', title: 'Health permit', required: true }, { viewer })
   })
 
   it('returns a card per business, with the empty one honestly at 0%', async () => {

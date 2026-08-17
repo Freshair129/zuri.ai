@@ -12,6 +12,7 @@ import { archiveWorkstream } from '@/modules/project-manager/application/project
 import { computeProjectProgress } from '@/modules/project-manager/application/progress-service'
 import { activeWorkstream } from '@/modules/project-manager/application/active-filters'
 import { listAudit, AUDIT_MAX_LIMIT } from '@/modules/project-manager/application/audit'
+import { makeViewer } from '../factories/viewer'
 
 // @req FR-005, FR-007, FR-014 — the global browser lists the population the
 // calculators count, and says when it is showing a window.
@@ -58,7 +59,8 @@ beforeAll(async () => {
   await prisma.workItem.create({
     data: { code: 'WI-WLS-GHOST', workstreamId: archivedStream.id, subtype: 'TASK', title: 'Ghost task', status: 'PLANNED', weight: 1 },
   })
-  await archiveWorkstream(archivedStream.id)
+  const owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+  await archiveWorkstream(archivedStream.id, { viewer: owner })
 })
 
 describe('the browser and the calculators share one population', () => {

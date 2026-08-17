@@ -4,7 +4,7 @@
   "scanned": {
     "docs": 136,
     "routes": 61,
-    "test_files": 143
+    "test_files": 152
   },
   "summary": {
     "critical": 0,
@@ -155,7 +155,7 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 143 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 152 files"
     },
     {
       "id": "I14",
@@ -172,7 +172,7 @@
       "id": "I15",
       "severity": "info",
       "check": "route-viewer",
-      "title": "23 mutating route(s) still resolve no viewer (accepted debt)",
+      "title": "4 mutating route(s) still resolve no viewer (accepted debt)",
       "details": "baseline: docs/.route-viewer-baseline.json",
       "files": [
         "docs/.route-viewer-baseline.json"

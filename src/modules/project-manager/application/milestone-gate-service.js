@@ -2,17 +2,22 @@ import prisma from '@/lib/db'
 import { uniqueHumanCode } from '@/lib/ids'
 import { zMilestoneInput, zGateInput } from '@/lib/validation/entities'
 import { recordAudit, safeParse } from './audit'
+import { assertProjectWritable } from './project-authorization'
 
 // @req FR-006 — weighted milestones + required gates with evidence
+// @req FR-072 — the service refuses this write unless the viewer owns the governing Business.
+// @spec SEC-001, SEC-008, BR-001
 // @tested tests/integration/project-core.test.js
+// @tested tests/integration/fr072-milestone-gate-authorization.test.js
 
 const codeExists = (model) => async (code) =>
   Boolean(await prisma[model].findUnique({ where: { code } }))
 
-export async function createMilestone(input) {
+export async function createMilestone(input, { viewer } = {}) {
   const data = zMilestoneInput.parse(input)
   const project = await prisma.project.findUnique({ where: { id: data.projectId } })
   if (!project || project.deletedAt) throw new Error('Project not found')
+  await assertProjectWritable(viewer, data.projectId)
   if (data.workstreamId) {
     const ws = await prisma.workstream.findUnique({ where: { id: data.workstreamId } })
     if (!ws || ws.projectId !== data.projectId) throw new Error('Workstream must belong to the same project')
@@ -34,9 +39,10 @@ export async function createMilestone(input) {
   return milestone
 }
 
-export async function updateMilestone(id, patch) {
+export async function updateMilestone(id, patch, { viewer } = {}) {
   const existing = await prisma.milestone.findUnique({ where: { id } })
   if (!existing) throw new Error('Milestone not found')
+  await assertProjectWritable(viewer, existing.projectId, { notFoundMessage: 'Milestone not found' })
   const completedAt =
     patch.status === 'DONE' && existing.status !== 'DONE'
       ? new Date()
@@ -57,10 +63,11 @@ export async function updateMilestone(id, patch) {
   return milestone
 }
 
-export async function createGate(input) {
+export async function createGate(input, { viewer } = {}) {
   const data = zGateInput.parse(input)
   const project = await prisma.project.findUnique({ where: { id: data.projectId } })
   if (!project || project.deletedAt) throw new Error('Project not found')
+  await assertProjectWritable(viewer, data.projectId)
   if (data.workstreamId) {
     const ws = await prisma.workstream.findUnique({ where: { id: data.workstreamId } })
     if (!ws || ws.projectId !== data.projectId) throw new Error('Workstream must belong to the same project')
@@ -82,9 +89,10 @@ export async function createGate(input) {
   return gate
 }
 
-export async function updateGate(id, patch) {
+export async function updateGate(id, patch, { viewer } = {}) {
   const existing = await prisma.gate.findUnique({ where: { id } })
   if (!existing) throw new Error('Gate not found')
+  await assertProjectWritable(viewer, existing.projectId, { notFoundMessage: 'Gate not found' })
   const gate = await prisma.gate.update({
     where: { id },
     data: {

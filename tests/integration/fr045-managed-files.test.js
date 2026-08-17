@@ -8,6 +8,7 @@ import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { createPortfolio, createTenant, createBusiness, createWorkspace } from '@/modules/project-manager/application/scope-service'
 import { createProject } from '@/modules/project-manager/application/project-service'
+import { makeViewer } from '../factories/viewer'
 import {
   createManagedFileAsset,
   listManagedFileAssets,
@@ -31,7 +32,8 @@ describe('FR-045 managed local files integration', () => {
     const tenant = await createTenant({ portfolioId: portfolio.id, name: `FR045 ${suffix}`, code: `TNT-F45-${suffix}` })
     business = await createBusiness({ tenantId: tenant.id, name: `FR045 ${suffix}`, code: `BUS-F45-${suffix}` })
     const workspace = await createWorkspace({ name: `FR045 ${suffix}`, scopeType: 'BUSINESS', businessId: business.id, code: `WS-F45-${suffix}` })
-    project = await createProject({ workspaceId: workspace.id, name: `FR045 ${suffix}`, code: `PRJ-F45-${suffix}` })
+    const owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    project = await createProject({ workspaceId: workspace.id, name: `FR045 ${suffix}`, code: `PRJ-F45-${suffix}` }, { viewer: owner })
     mount = await upsertLocalWorkspaceMount({ businessId: business.id, deviceKey: `test-${suffix}`, rootPath: root }, { visibleBusinessIds: [business.id] })
   })
 

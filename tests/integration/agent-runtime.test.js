@@ -5,6 +5,7 @@ import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import prisma from '@/lib/db'
 import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 import { assembleAgentContext, createAgentPorts, handleAgentTurn } from '@/modules/agent'
+import { makeViewer } from '../factories/viewer'
 
 // @req FR-029 — the agent runs on the REAL backends when configured: MSP memory +
 // GenesisBlockDB knowledge, wired through createAgentPorts, with graceful fallback.
@@ -17,7 +18,8 @@ describe('createAgentPorts — agent bound to MSP + GenesisBlockDB (FR-029)', ()
     tenant = await createTenant({ portfolioId: pf.id, name: 'Runtime Tenant', code: 'TNT-RT' })
     business = await createBusiness({ tenantId: tenant.id, name: 'Runtime Business', code: 'BUS-RT' })
     workspace = await createWorkspace({ scopeType: 'BUSINESS', businessId: business.id, name: 'Runtime Workspace', code: 'WS-RT' })
-    project = await createProject({ workspaceId: workspace.id, businessId: business.id, name: 'Runtime Project', code: 'PRJ-RT' })
+    const owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    project = await createProject({ workspaceId: workspace.id, businessId: business.id, name: 'Runtime Project', code: 'PRJ-RT' }, { viewer: owner })
   })
 
   it('with no backends, ports fall back to in-memory + Prisma (agent still works)', async () => {
