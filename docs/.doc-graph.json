@@ -54,27 +54,9 @@
   },
   "drift": {
     "changed": [
-      "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
-      "doc:DOMAIN-MODEL",
-      "doc:intent-pipeline",
-      "doc:FR-068-human-visible-execution-roadmap",
-      "doc:FR-069-plan-blueprint-and-intake",
-      "doc:EXECUTION-MODES",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:SITEMAP-DOMAIN-NAV"
+      "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS"
     ],
-    "added": [
-      "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
-      "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
-      "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
-      "doc:FR-070-stable-execution-domain-and-tag-identities",
-      "req:FR-070",
-      "req:FR-071",
-      "req:SDD-040",
-      "req:SDD-041",
-      "req:SDD-042"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -4140,7 +4122,7 @@
       "path": "docs/DOMAIN-MODEL.md",
       "title": "Domain Model",
       "hash": "a71c3e0d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:E-risk-matrix",
@@ -4168,7 +4150,7 @@
       "path": "docs/EXECUTION-MODES.md",
       "title": "Seven Execution Modes",
       "hash": "93f419cf",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:EXTRACT-MSP.codex",
@@ -4196,7 +4178,7 @@
       "version": "1.0.0",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "f2e13d7a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-019-enterprise-api",
@@ -4541,7 +4523,7 @@
       "path": "docs/domains/project-manager/features/FR-068-human-visible-execution-roadmap.md",
       "title": "FR-068 — Human-visible Project Execution Roadmap and identity references",
       "hash": "154e416a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-069-plan-blueprint-and-intake",
@@ -4549,7 +4531,7 @@
       "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
       "title": "FR-069 — Plan Blueprint and Human/Agent intake with stable references",
       "hash": "76973cae",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-070-stable-execution-domain-and-tag-identities",
@@ -4585,7 +4567,7 @@
       "version": "1.3.0",
       "doc_status": "Draft — not implemented (`TASK-V2-LINE-INTENT`)",
       "hash": "ff959da9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:INTERFACE-INVENTORY",
@@ -4773,7 +4755,7 @@
       "version": "1.64.0b",
       "doc_status": "Draft",
       "hash": "957b42e8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -4837,7 +4819,7 @@
       "version": "0.5.0",
       "doc_status": "Accepted",
       "hash": "e0c37778",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:UI-DESIGN-SYSTEM",
@@ -7646,15 +7628,15 @@
       "path": "docs/decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md",
       "title": "ADR-028 — Human-visible execution roadmap and shared plan intake",
       "hash": "ca8a2764",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
       "type": "adr",
       "path": "docs/decisions/ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS.md",
       "title": "ADR-029 — Stable identity bindings for execution plans, tags, domains and supporting references",
-      "hash": "240a082f",
-      "status": "current"
+      "hash": "24c74143",
+      "status": "changed"
     },
     {
       "id": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
