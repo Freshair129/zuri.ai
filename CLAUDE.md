@@ -72,7 +72,7 @@ npm run docs:preflight:report  # same findings, never fails — for reading, not
 ```
 
 **Both test commands are wrapped by `scripts/assert-tests-ran.mjs`**, which fails a
-run that executed zero tests. `npx vitest run -t "NO_MATCH"` exits **0** with all 792
+run that executed zero tests. `npx vitest run -t "NO_MATCH"` exits **0** with all 1070
 tests skipped; a green exit code must mean the work ran and passed, never that it did
 not run.
 

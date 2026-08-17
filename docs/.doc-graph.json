@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 783,
-    "total_edges": 2157,
+    "total_nodes": 791,
+    "total_edges": 2360,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 96,
       "model": 33,
       "requirement": 158,
-      "test": 144,
+      "test": 152,
       "code_file": 217
     },
     "coverage": {
@@ -54,16 +54,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:PRD-SDD-v1.0",
-      "test:tests/integration/adaptive-shell.test.js",
-      "test:tests/integration/project-core.test.js"
-    ],
-    "added": [
-      "req:FR-072",
-      "test:tests/integration/project-authorization.test.js",
-      "code:src/modules/project-manager/application/project-authorization.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -942,11 +934,20 @@
       "id": "code:src/app/api/containers/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/containers/[id]/route.js",
-      "hash": "60f03c5f",
+      "hash": "85d083ab",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-005"
+          "FR-005",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-work-service-authorization.test.js"
         ]
       }
     },
@@ -954,11 +955,20 @@
       "id": "code:src/app/api/containers/route.js",
       "type": "code_file",
       "path": "src/app/api/containers/route.js",
-      "hash": "28244bd5",
+      "hash": "60f934e1",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-005"
+          "FR-005",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-work-service-authorization.test.js"
         ]
       }
     },
@@ -966,11 +976,20 @@
       "id": "code:src/app/api/dependencies/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/dependencies/[id]/route.js",
-      "hash": "3ab3afca",
+      "hash": "a73eec77",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-007"
+          "FR-007",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-dependency-authorization.test.js"
         ]
       }
     },
@@ -978,11 +997,20 @@
       "id": "code:src/app/api/dependencies/route.js",
       "type": "code_file",
       "path": "src/app/api/dependencies/route.js",
-      "hash": "7427719a",
+      "hash": "64c8d6d9",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-007"
+          "FR-007",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-dependency-authorization.test.js"
         ]
       }
     },
@@ -1231,11 +1259,20 @@
       "id": "code:src/app/api/gates/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/gates/[id]/route.js",
-      "hash": "569697c4",
+      "hash": "8f6a695d",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-006"
+          "FR-006",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-milestone-gate-authorization.test.js"
         ]
       }
     },
@@ -1243,11 +1280,20 @@
       "id": "code:src/app/api/gates/route.js",
       "type": "code_file",
       "path": "src/app/api/gates/route.js",
-      "hash": "32becb65",
+      "hash": "0d7e7e50",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-006"
+          "FR-006",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-milestone-gate-authorization.test.js"
         ]
       }
     },
@@ -1321,11 +1367,20 @@
       "id": "code:src/app/api/milestones/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/milestones/[id]/route.js",
-      "hash": "2a0f0cbc",
+      "hash": "fc330d56",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-006"
+          "FR-006",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-milestone-gate-authorization.test.js"
         ]
       }
     },
@@ -1333,11 +1388,20 @@
       "id": "code:src/app/api/milestones/route.js",
       "type": "code_file",
       "path": "src/app/api/milestones/route.js",
-      "hash": "e5ff8395",
+      "hash": "e9f345d8",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-006"
+          "FR-006",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-milestone-gate-authorization.test.js"
         ]
       }
     },
@@ -1473,20 +1537,25 @@
       "id": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/[id]/files/[fileId]/route.js",
-      "hash": "2e02a137",
+      "hash": "d21e52b6",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-037"
+          "FR-037",
+          "FR-046",
+          "FR-072"
         ],
         "@spec": [
           "SDD-016",
           "SEC-003",
           "FR-037",
-          "SDD-016, SEC-003, docs/features/FR-037-project-files.md"
+          "SDD-016, SEC-003, docs/features/FR-037-project-files.md",
+          "SEC-001",
+          "SEC-008"
         ],
         "@tested": [
-          "tests/unit/project-file-service.test.js"
+          "tests/unit/project-file-service.test.js",
+          "tests/integration/fr072-project-file-authorization.test.js"
         ]
       }
     },
@@ -1494,20 +1563,25 @@
       "id": "code:src/app/api/projects/[id]/files/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/[id]/files/route.js",
-      "hash": "438dc160",
+      "hash": "1122d264",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-037"
+          "FR-037",
+          "FR-046",
+          "FR-072"
         ],
         "@spec": [
           "SDD-016",
           "SEC-003",
           "FR-037",
-          "SDD-016, SEC-003, docs/features/FR-037-project-files.md"
+          "SDD-016, SEC-003, docs/features/FR-037-project-files.md",
+          "SEC-001",
+          "SEC-008"
         ],
         "@tested": [
-          "tests/unit/project-file-service.test.js"
+          "tests/unit/project-file-service.test.js",
+          "tests/integration/fr072-project-file-authorization.test.js"
         ]
       }
     },
@@ -1515,11 +1589,20 @@
       "id": "code:src/app/api/projects/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/[id]/route.js",
-      "hash": "a04bca30",
+      "hash": "53722eb3",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-003"
+          "FR-003",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-project-service-authorization.test.js"
         ]
       }
     },
@@ -1567,11 +1650,20 @@
       "id": "code:src/app/api/projects/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/route.js",
-      "hash": "155e8cd7",
+      "hash": "e88e5e62",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-003"
+          "FR-003",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-project-service-authorization.test.js"
         ]
       }
     },
@@ -1591,11 +1683,20 @@
       "id": "code:src/app/api/repositories/link/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/repositories/link/[id]/route.js",
-      "hash": "3278355e",
+      "hash": "ed7f6edb",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-008"
+          "FR-008",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-repository-link-authorization.test.js"
         ]
       }
     },
@@ -1603,11 +1704,20 @@
       "id": "code:src/app/api/repositories/link/route.js",
       "type": "code_file",
       "path": "src/app/api/repositories/link/route.js",
-      "hash": "d0e28679",
+      "hash": "eba32dbd",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-008"
+          "FR-008",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-repository-link-authorization.test.js"
         ]
       }
     },
@@ -1697,11 +1807,20 @@
       "id": "code:src/app/api/work/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/work/[id]/route.js",
-      "hash": "cd68e2b8",
+      "hash": "9fdbf138",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-005"
+          "FR-005",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-work-service-authorization.test.js"
         ]
       }
     },
@@ -1709,11 +1828,20 @@
       "id": "code:src/app/api/work/route.js",
       "type": "code_file",
       "path": "src/app/api/work/route.js",
-      "hash": "2c89e7a3",
+      "hash": "5c6d145b",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-005"
+          "FR-005",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-work-service-authorization.test.js"
         ]
       }
     },
@@ -1721,11 +1849,20 @@
       "id": "code:src/app/api/workspaces/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/workspaces/[id]/route.js",
-      "hash": "6729bd4e",
+      "hash": "b888f558",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-001"
+          "FR-001",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-workspace-mutation-authorization.test.js"
         ]
       }
     },
@@ -1733,11 +1870,20 @@
       "id": "code:src/app/api/workstreams/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/workstreams/[id]/route.js",
-      "hash": "28f05e6f",
+      "hash": "f2bfbeba",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-004"
+          "FR-004",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-project-service-authorization.test.js"
         ]
       }
     },
@@ -1745,11 +1891,20 @@
       "id": "code:src/app/api/workstreams/route.js",
       "type": "code_file",
       "path": "src/app/api/workstreams/route.js",
-      "hash": "eae70683",
+      "hash": "32e27a5f",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-004"
+          "FR-004",
+          "FR-046",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr072-project-service-authorization.test.js"
         ]
       }
     },
@@ -3390,19 +3545,24 @@
       "id": "code:src/modules/project-manager/application/dependency-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/dependency-service.js",
-      "hash": "af7a0a28",
+      "hash": "c4ea0fc8",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-007",
-          "FR-040"
+          "FR-040",
+          "FR-072"
         ],
         "@spec": [
-          "SDD-019"
+          "SDD-019",
+          "SEC-001",
+          "SEC-008",
+          "BR-001"
         ],
         "@tested": [
           "tests/integration/project-core.test.js",
-          "tests/unit/project-dependency-service.test.js"
+          "tests/unit/project-dependency-service.test.js",
+          "tests/integration/fr072-dependency-authorization.test.js"
         ]
       }
     },
@@ -3492,14 +3652,21 @@
       "id": "code:src/modules/project-manager/application/milestone-gate-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/milestone-gate-service.js",
-      "hash": "df5ef079",
+      "hash": "104fd1a9",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-006"
+          "FR-006",
+          "FR-072"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008",
+          "BR-001"
         ],
         "@tested": [
-          "tests/integration/project-core.test.js"
+          "tests/integration/project-core.test.js",
+          "tests/integration/fr072-milestone-gate-authorization.test.js"
         ]
       }
     },
@@ -3557,21 +3724,26 @@
       "id": "code:src/modules/project-manager/application/project-file-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-file-service.js",
-      "hash": "ce3ebefe",
+      "hash": "e30cd5f5",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-037"
+          "FR-037",
+          "FR-072"
         ],
         "@spec": [
           "SDD-016",
           "BR-002",
           "SEC-003",
           "FR-037",
-          "SDD-016, BR-002, SEC-003, docs/features/FR-037-project-files.md"
+          "SDD-016, BR-002, SEC-003, docs/features/FR-037-project-files.md",
+          "SEC-001",
+          "SEC-008",
+          "BR-001"
         ],
         "@tested": [
-          "tests/unit/project-file-service.test.js"
+          "tests/unit/project-file-service.test.js",
+          "tests/integration/fr072-project-file-authorization.test.js"
         ]
       }
     },
@@ -3579,24 +3751,27 @@
       "id": "code:src/modules/project-manager/application/project-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-service.js",
-      "hash": "dba49cd7",
+      "hash": "677191a1",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-003",
           "FR-004",
-          "FR-043"
+          "FR-043",
+          "FR-072"
         ],
         "@spec": [
           "BR-004",
           "SDD-004",
           "SDD-021",
           "BR-001",
-          "SEC-001"
+          "SEC-001",
+          "SEC-008"
         ],
         "@tested": [
           "tests/integration/project-core.test.js",
-          "tests/integration/project-business-binding.test.js"
+          "tests/integration/project-business-binding.test.js",
+          "tests/integration/fr072-project-service-authorization.test.js"
         ]
       }
     },
@@ -3629,17 +3804,22 @@
       "id": "code:src/modules/project-manager/application/repository-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/repository-service.js",
-      "hash": "9b6e5e71",
+      "hash": "7a5e6ee8",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-008"
+          "FR-008",
+          "FR-072"
         ],
         "@spec": [
-          "BR-002"
+          "BR-002",
+          "SEC-001",
+          "SEC-008",
+          "BR-001"
         ],
         "@tested": [
-          "tests/integration/project-core.test.js"
+          "tests/integration/project-core.test.js",
+          "tests/integration/fr072-repository-link-authorization.test.js"
         ]
       }
     },
@@ -3647,19 +3827,22 @@
       "id": "code:src/modules/project-manager/application/scope-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/scope-service.js",
-      "hash": "b2530b13",
+      "hash": "ddcfa0af",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-001",
+          "FR-072",
           "FR-020"
         ],
         "@spec": [
           "BR-001",
-          "SEC-001"
+          "SEC-001",
+          "SEC-008"
         ],
         "@tested": [
-          "tests/integration/scope-and-isolation.test.js"
+          "tests/integration/scope-and-isolation.test.js",
+          "tests/integration/fr072-workspace-mutation-authorization.test.js"
         ]
       }
     },
@@ -3667,19 +3850,24 @@
       "id": "code:src/modules/project-manager/application/work-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/work-service.js",
-      "hash": "1e669752",
+      "hash": "7da81d6e",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-005",
-          "FR-007"
+          "FR-007",
+          "FR-072"
         ],
         "@spec": [
-          "BR-004"
+          "BR-004",
+          "SEC-001",
+          "SEC-008",
+          "BR-001"
         ],
         "@tested": [
           "tests/integration/project-core.test.js",
-          "tests/integration/work-listing-scope.test.js"
+          "tests/integration/work-listing-scope.test.js",
+          "tests/integration/fr072-work-service-authorization.test.js"
         ]
       }
     },
@@ -4782,7 +4970,7 @@
       "version": "1.64.0b",
       "doc_status": "Draft",
       "hash": "b69c2d0b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -7750,7 +7938,7 @@
       "type": "test",
       "path": "tests/integration/adaptive-shell.test.js",
       "hash": "ae46766b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/agent-action-gate.test.js",
@@ -7777,14 +7965,14 @@
       "id": "test:tests/integration/agent-multi-principal.test.js",
       "type": "test",
       "path": "tests/integration/agent-multi-principal.test.js",
-      "hash": "93a01d5e",
+      "hash": "8578ffb4",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-runtime.test.js",
       "type": "test",
       "path": "tests/integration/agent-runtime.test.js",
-      "hash": "19d558c5",
+      "hash": "577ce1ba",
       "status": "current"
     },
     {
@@ -7812,7 +8000,7 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
-      "hash": "5bb93442",
+      "hash": "97542d57",
       "status": "current"
     },
     {
@@ -7833,7 +8021,7 @@
       "id": "test:tests/integration/fr045-managed-files.test.js",
       "type": "test",
       "path": "tests/integration/fr045-managed-files.test.js",
-      "hash": "78661e6f",
+      "hash": "9a414e43",
       "status": "current"
     },
     {
@@ -7847,7 +8035,63 @@
       "id": "test:tests/integration/fr059-business-strategy-mutation.test.js",
       "type": "test",
       "path": "tests/integration/fr059-business-strategy-mutation.test.js",
-      "hash": "4f5127bd",
+      "hash": "197884a6",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/fr072-dependency-authorization.test.js",
+      "hash": "f0f9cc6d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/fr072-milestone-gate-authorization.test.js",
+      "hash": "96136bca",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/fr072-project-file-authorization.test.js",
+      "hash": "e103e9eb",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/fr072-project-service-authorization.test.js",
+      "hash": "50c2e489",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr072-refusal-disclosure.test.js",
+      "type": "test",
+      "path": "tests/integration/fr072-refusal-disclosure.test.js",
+      "hash": "01a5b270",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr072-repository-link-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/fr072-repository-link-authorization.test.js",
+      "hash": "3448d737",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/fr072-work-service-authorization.test.js",
+      "hash": "8e6a1091",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "hash": "c6d3a2f7",
       "status": "current"
     },
     {
@@ -7959,14 +8203,14 @@
       "id": "test:tests/integration/project-authorization.test.js",
       "type": "test",
       "path": "tests/integration/project-authorization.test.js",
-      "hash": "9fe16f92",
+      "hash": "cb03d132",
       "status": "current"
     },
     {
       "id": "test:tests/integration/project-business-binding.test.js",
       "type": "test",
       "path": "tests/integration/project-business-binding.test.js",
-      "hash": "23f9caaa",
+      "hash": "5b9b10c1",
       "status": "current"
     },
     {
@@ -7974,7 +8218,7 @@
       "type": "test",
       "path": "tests/integration/project-core.test.js",
       "hash": "b98ce02a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
@@ -7987,14 +8231,14 @@
       "id": "test:tests/integration/scope-and-isolation.test.js",
       "type": "test",
       "path": "tests/integration/scope-and-isolation.test.js",
-      "hash": "6c3a58e5",
+      "hash": "514854be",
       "status": "current"
     },
     {
       "id": "test:tests/integration/work-listing-scope.test.js",
       "type": "test",
       "path": "tests/integration/work-listing-scope.test.js",
-      "hash": "4f7e7ff5",
+      "hash": "c64609e4",
       "status": "current"
     },
     {
@@ -8554,7 +8798,7 @@
       "id": "test:tests/unit/project-file-service.test.js",
       "type": "test",
       "path": "tests/unit/project-file-service.test.js",
-      "hash": "13f93dea",
+      "hash": "407cec67",
       "status": "current"
     },
     {
@@ -9750,9 +9994,65 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/containers/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/containers/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/containers/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/containers/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/containers/route.js",
       "to": "req:FR-005",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/containers/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/containers/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/containers/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/containers/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -9764,9 +10064,65 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/dependencies/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/dependencies/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/dependencies/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/dependencies/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/dependencies/route.js",
       "to": "req:FR-007",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/dependencies/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/dependencies/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/dependencies/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/dependencies/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -10163,9 +10519,65 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/gates/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/gates/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/gates/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/gates/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/gates/route.js",
       "to": "req:FR-006",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/gates/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/gates/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/gates/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/gates/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -10289,9 +10701,65 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/milestones/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/milestones/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/milestones/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/milestones/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/milestones/route.js",
       "to": "req:FR-006",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/milestones/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/milestones/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/milestones/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/milestones/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -10493,6 +10961,20 @@
     },
     {
       "from": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
       "to": "req:SDD-016",
       "type": "follows",
       "status": "current",
@@ -10500,7 +10982,21 @@
     },
     {
       "from": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
       "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -10528,7 +11024,28 @@
     },
     {
       "from": "code:src/app/api/projects/[id]/files/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/route.js",
       "to": "req:SDD-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/files/route.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -10541,9 +11058,44 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/projects/[id]/files/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/projects/[id]/route.js",
       "to": "req:FR-003",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -10618,6 +11170,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/projects/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/repositories/[id]/route.js",
       "to": "req:FR-008",
       "type": "implements",
@@ -10632,9 +11212,65 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/repositories/link/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/link/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/link/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/link/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/repositories/link/route.js",
       "to": "req:FR-008",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/link/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/link/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/link/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/link/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -10744,9 +11380,65 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/work/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/work/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/work/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/work/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/work/route.js",
       "to": "req:FR-005",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/work/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/work/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/work/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/work/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -10758,6 +11450,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/workspaces/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspaces/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspaces/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspaces/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/workstreams/[id]/route.js",
       "to": "req:FR-004",
       "type": "implements",
@@ -10765,9 +11485,65 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/workstreams/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workstreams/[id]/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workstreams/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workstreams/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/workstreams/route.js",
       "to": "req:FR-004",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workstreams/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workstreams/route.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workstreams/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workstreams/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -12754,6 +13530,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/dependency-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/dependency-service.js",
       "to": "req:FR-007",
       "type": "implements",
       "status": "current",
@@ -12768,7 +13551,28 @@
     },
     {
       "from": "code:src/modules/project-manager/application/dependency-service.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/dependency-service.js",
       "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/dependency-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/dependency-service.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -12887,8 +13691,36 @@
     },
     {
       "from": "code:src/modules/project-manager/application/milestone-gate-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/milestone-gate-service.js",
       "to": "req:FR-006",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/milestone-gate-service.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/milestone-gate-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/milestone-gate-service.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -12950,6 +13782,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/project-file-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-file-service.js",
       "to": "req:BR-002",
       "type": "follows",
       "status": "current",
@@ -12971,6 +13810,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/project-file-service.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-file-service.js",
       "to": "req:SDD-016",
       "type": "follows",
       "status": "current",
@@ -12978,7 +13824,21 @@
     },
     {
       "from": "code:src/modules/project-manager/application/project-file-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-file-service.js",
       "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-file-service.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -13020,6 +13880,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
       "to": "req:SDD-004",
       "type": "follows",
       "status": "current",
@@ -13035,6 +13902,13 @@
     {
       "from": "code:src/modules/project-manager/application/project-service.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -13097,6 +13971,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/repository-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/repository-service.js",
       "to": "req:BR-002",
       "type": "follows",
       "status": "current",
@@ -13106,6 +13987,27 @@
       "from": "code:src/modules/project-manager/application/repository-service.js",
       "to": "req:FR-008",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/repository-service.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/repository-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/repository-service.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -13132,7 +14034,28 @@
     },
     {
       "from": "code:src/modules/project-manager/application/scope-service.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/scope-service.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/scope-service.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-service.js",
+      "to": "req:BR-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -13155,6 +14078,27 @@
       "from": "code:src/modules/project-manager/application/work-service.js",
       "to": "req:FR-007",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-service.js",
+      "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-service.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -18200,6 +19144,13 @@
     },
     {
       "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr059-business-strategy-mutation.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -18225,6 +19176,601 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "to": "code:src/app/api/dependencies/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "to": "code:src/app/api/dependencies/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/dependency-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "to": "req:FR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-dependency-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
+      "to": "code:src/app/api/gates/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
+      "to": "code:src/app/api/gates/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
+      "to": "code:src/app/api/milestones/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
+      "to": "code:src/app/api/milestones/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/milestone-gate-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
+      "to": "req:FR-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "to": "code:src/app/api/projects/[id]/files/[fileId]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "to": "code:src/app/api/projects/[id]/files/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/project-file-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "to": "req:FR-037",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "to": "req:SDD-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-file-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "code:src/app/api/projects/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "code:src/app/api/projects/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "code:src/app/api/workstreams/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "code:src/app/api/workstreams/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/project-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:FR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:FR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:SDD-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-refusal-disclosure.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-refusal-disclosure.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-refusal-disclosure.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-repository-link-authorization.test.js",
+      "to": "code:src/app/api/repositories/link/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-repository-link-authorization.test.js",
+      "to": "code:src/app/api/repositories/link/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-repository-link-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/repository-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-repository-link-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-repository-link-authorization.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-repository-link-authorization.test.js",
+      "to": "req:FR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-repository-link-authorization.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-repository-link-authorization.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-repository-link-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-repository-link-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "code:src/app/api/containers/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "code:src/app/api/containers/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "code:src/app/api/work/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "code:src/app/api/work/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/work-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "req:FR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "req:FR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-work-service-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "code:src/app/api/workspaces/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/scope-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/identity-classify.test.js",
@@ -18984,6 +20530,13 @@
     },
     {
       "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
       "to": "req:SDD-004",
       "type": "verifies",
       "status": "current",
@@ -19221,6 +20774,13 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
       "to": "code:src/modules/knowledge/runtime-isolation-probe.js",
       "type": "tests",
@@ -19278,7 +20838,21 @@
     },
     {
       "from": "test:tests/integration/scope-and-isolation.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/scope-and-isolation.test.js",
       "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/scope-and-isolation.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -19296,6 +20870,13 @@
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/work-listing-scope.test.js",
@@ -19327,10 +20908,31 @@
     },
     {
       "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
       "to": "req:SDD-002",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/xlsx-intake.test.js",
@@ -22967,6 +24569,13 @@
     },
     {
       "from": "test:tests/unit/project-dependency-service.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-service.test.js",
       "to": "req:FR-007",
       "type": "verifies",
       "status": "current",
@@ -22981,10 +24590,31 @@
     },
     {
       "from": "test:tests/unit/project-dependency-service.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-service.test.js",
       "to": "req:SDD-019",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-service.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-service.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/project-file-service.test.js",
@@ -23016,6 +24646,13 @@
     },
     {
       "from": "test:tests/unit/project-file-service.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
       "to": "req:BR-002",
       "type": "verifies",
       "status": "current",
@@ -23037,6 +24674,20 @@
     },
     {
       "from": "test:tests/unit/project-file-service.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
       "to": "req:SDD-016",
       "type": "verifies",
       "status": "current",
@@ -23051,6 +24702,13 @@
     },
     {
       "from": "test:tests/unit/project-file-service.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
       "to": "req:SEC-003",
       "type": "verifies",
       "status": "current",
@@ -23059,6 +24717,13 @@
     {
       "from": "test:tests/unit/project-file-service.test.js",
       "to": "req:SEC-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-file-service.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

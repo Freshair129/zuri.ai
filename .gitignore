@@ -4,6 +4,9 @@ node_modules/
 *.db
 *.db-journal
 prisma/.test-dbs/
+# Agent worktrees live inside the repo and are full checkouts. Untracked, they
+# are one `git add -A` away from being committed as thousands of duplicate files.
+.claude/worktrees/
 test-results/
 playwright-report/
 .playwright-cli/

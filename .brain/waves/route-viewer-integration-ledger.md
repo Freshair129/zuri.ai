@@ -42,6 +42,119 @@ Wave 1's five agents shared one tree safely because none of them ran
 tree corrupt each other. So the shared-tree-separated-by-file protocol that Wave 1
 proved is **not** transferable to this wave, independently of C1.
 
+## C7 — `isolation: "worktree"` branches from `main`, not from the controller's HEAD
+
+Wave 0 was committed to the branch `fr072-route-viewer-wave0`. All three worker
+worktrees were created at `aed93d9` — `main`'s tip — which is exactly one commit
+*behind* Wave 0, so none of them contained `project-authorization.js`.
+`git merge-base --is-ancestor e89fe37 HEAD` returned false in every worktree.
+
+Worker 1 hit the precondition check written into its brief, stopped without
+writing a line, and reported the divergence with the merge-base evidence. That is
+the check earning its place: the alternative outcome is a worker inventing its
+own predicate because the shared one appeared not to exist — the exact defect
+this mission exists to remove, reintroduced by its own tooling.
+
+Fixed by fast-forwarding `fr072-route-viewer-wave0` into each worktree
+(`git -C <wt> merge --ff-only`), which preserves each worker's ~64s `npm install`
+and needs no push to `main`. A modified `package-lock.json` in a worker's tree is
+expected from that install and is not a source change.
+
+**For any future wave dispatch:** either land the prerequisite on `main` before
+spawning, or merge it into each worktree immediately after spawning. Do not
+assume a worktree inherits uncommitted or side-branch work.
+
+## C8 — Wave 0 pre-threaded two shared test files and created a third it forgot
+
+The design identified `project-core.test.js` and `adaptive-shell.test.js` as the
+files several waves would otherwise all edit, and had Wave 0 pre-thread them.
+Wave 0 then wrote `tests/integration/project-authorization.test.js`, whose
+`beforeAll` builds fixtures with `createContainer`, `createItem`, `createMilestone`
+and `createWorkstream` — five waves' services — and did **not** pre-thread it.
+Controller's oversight: the rule was applied to the files that existed when the
+rule was written, and not to the one the same commit created.
+
+Worker 2 hit it, made the minimal fix (threaded `{ viewer: owner }` into the two
+call sites its guard broke), and reported it explicitly under the design's
+residual-risk clause. Exactly the requested behaviour.
+
+**Consequence to expect at merge:** Worker 3's waves guard `createMilestone`,
+so it will break and fix the *same* `beforeAll` in the *same* file. A conflict
+there is expected and mechanical — both sides thread a viewer into different
+call sites of one function. Merge serially and take the union; do not treat it
+as a wave failing.
+
+## C9 — the no-oracle guarantee rests on a substring, and both gates found it independently
+
+**Integration task, not a wave defect.** Tier A promises that an unowned real
+target is indistinguishable from an absent one. Traced end to end, that currently
+holds like this:
+
+| Path | Thrown | `handle()` maps to |
+|---|---|---|
+| unowned real target | `refusal(404, 'Milestone not found')` — explicit `.status` | 404 |
+| fabricated id | pre-existing `new Error('Milestone not found')` — **no** `.status` | 404, via `/not found/i` |
+
+Identical status, byte-identical body — so there is no oracle today. Verified
+directly by the controller against `_helpers.js`, and independently by the Wave
+2/4 gate.
+
+**But the second row is load-bearing on the string "not found" appearing in a
+legacy message.** Reword one of those pre-existing checks to, say, "no such
+milestone" and the sniff falls through to **500** while the unowned path stays
+404 — an enumeration oracle, reintroduced by an innocuous copy edit, and no
+current test would catch it. This is also why Worker 3's Tier A assertions had to
+be relaxed from status-equality to message-equality: at the raw service layer the
+two shapes genuinely differ, and only `handle()` makes them equal.
+
+**Fix at integration (controller):** assert the property where it actually
+lives — push both shapes through the same mapping `handle()` uses and require
+identical effective status *and* message per repaid target kind. That test fails
+on a reword, which the current per-wave assertions do not. Do not weaken the
+per-wave tests further; add the boundary-level one.
+
+**Upgraded from "worth tightening" to a REJECTION, on evidence.** The Waves
+3/5/6 gate planted the regression rather than reasoning about it — set
+`const notFound = false` in `_helpers.js:31` (the explicit-status-only direction
+that file's own header says it is moving toward) so a fabricated id yields 500
+while an unowned real target yields 404: **a live enumeration oracle**. All 26 of
+Worker 3's tests stayed green. The single red in 1040 was an unrelated GET-route
+unit test that pins the sniff incidentally.
+
+So the property is asserted **nowhere**, and the claim survives only in code
+comments. Check 7 fails for Waves 3/5/6 and the same gap exists in Waves 1, 2, 4
+and 7 — the Waves 2/4 gate spotted it as an observation and approved anyway.
+
+**Division of the remedy** (deliberate, and the reason it is not sent back three
+times): writing the same oracle assertion into six wave test files is the exact
+disease this mission exists to cure — a rule applied by hand at each site,
+correct at the sites someone remembered. The controller writes **one**
+boundary-level test covering every repaid target kind, plus the planted control
+rule 8 requires. Workers fix only what is theirs. The integration gate re-checks
+it, so the controller does not mark its own homework.
+
+## C10 — why e2e should survive the guards (checked before merging, not after)
+
+Every e2e write now passes through a guard, so the demo viewer's grants decide
+whether the suite still runs. Read from `resolve-viewer.js` rather than assumed:
+
+| Branch | `ownedBusinessIds` | Consequence |
+|---|---|---|
+| local demo / dev fallback (`!principalId`) | **every Business** | Business-governed e2e flows keep passing |
+| `platformGrant` (DEV) | **`[]`** — empty by design | owns nothing; any flow running as DEV would be refused |
+| real principal | per-Membership | unchanged |
+
+E2e runs the first branch, so Tier A is satisfied everywhere. **The residual risk
+is Tier B, which no grant can satisfy**: a Project in a PORTFOLIO/TENANT Space is
+refused for every principal including the demo owner. Any e2e flow that writes to
+a shared-Space Project will now fail — correctly, but visibly. The planner found
+none; the first full `verify` on the merged tree is the actual proof.
+
+`prisma/seed.js` is unaffected: it builds `WS-PLATFORM` and everything else with
+raw `prisma.upsert`, never through the guarded services. That also makes Worker 1's
+Prisma-direct fixtures for shared-Space Projects consistent with how the
+repository already constructs that state.
+
 ## Worker worktree setup protocol
 
 1. Spawn with `isolation: "worktree"`.
@@ -121,8 +234,65 @@ worker holds both waves.
 | Gate | Status | Agent | Output |
 |---|---|---|---|
 | Planner | ✅ BLOCKED(partial) | fable5 | `.brain/waves/route-viewer-plan.md` |
-| Architect | 🔄 running | fable5 | `.brain/waves/route-viewer-design.md` |
-| Wave 0 (serial, lands first) | ⏸ | controller | helper + FR-072 row + pre-threaded shared tests |
-| Workers ×3 | ⏸ | sonnet | one wave each, own worktree |
-| Verify gates | ⏸ | opus | per wave |
-| Integration | ⏸ | controller + opus | baseline −19, `govern` ×1, `verify` ×1 |
+| Architect | ✅ DESIGN COMPLETE | fable5 | `.brain/waves/route-viewer-design.md` |
+| **Wave 0** | ✅ **committed `e89fe37`** | controller | helper + FR-072 + pre-thread |
+| Worker 2 — Waves 2, 4 | ✅ **APPROVED**, committed `0ea085e` | sonnet | 6 routes |
+| Worker 1 — Waves 1, 7 | ❌ REJECTED check 3 → 🔄 fixing | sonnet | 6 routes |
+| Worker 3 — Waves 3, 5, 6 | ❌ REJECTED check 7 → ⏸ blocked on Wave 1 | sonnet | 7 routes |
+| Integration | ⏸ | controller + opus | oracle test, baseline −19, `govern` ×1, `verify` ×1 |
+
+### Gate verdicts — both rejections were found by evidence, not by reading
+
+**Waves 2+4 APPROVED.** Gate re-ran and measured 1021/134 itself, matching the
+worker. Zero endpoint derivation written by hand; the A/B conjunction control
+differs only in `ownedBusinessIds`, so no fixture artefact explains the refusal.
+
+**Waves 1+7 REJECTED — check 3**, `project-business-binding.test.js:74`. The
+worker correctly converted a create-test into a refusal test, but left the
+downstream `expect(…'PRJ-BIND-SHARED').toBe(false)` in place. That row is now
+never created — the only other mention is inside a `rejects` expectation — so the
+assertion **passes vacuously and cannot fail**. It was the negative half of
+FR-043's proof that `listProjects` excludes ownerless shared-Space Projects, a
+filter production still needs because seeded `WS-PLATFORM` holds exactly those.
+
+The same gate **corrected the controller's brief**: there were two Prisma-direct
+fixture sites, not three, and both are arrangement rather than subject. It also
+ruled the broadened capability removal (refusing *creation* into a shared Space,
+not only the move) squarely inside FR-072(b) and mandated verbatim by design
+§4 Wave 1 — so it is not worker invention.
+
+**Waves 3/5/6 REJECTED — check 7**, on the planted-regression evidence in C9.
+
+### Worker 3's merge hazard — the mission's "passed alone, fails merged" case
+
+Its three test files build fixtures with bare `createProject(...)`, and its Tier B
+fixtures put a Project in a **PORTFOLIO** Space. Once Wave 1 merges, those
+`beforeAll` blocks fail — first on the wiring 500, then *irreparably*, because a
+shared-Space Project is Tier B 403 for every principal and cannot be built
+through `createProject` at all. Per the mission this goes back to its worker, not
+into the merge commit. Sequencing: fix Wave 1 → merge Waves 1+7 and 2+4 → merge
+that into Worker 3's worktree so it fixes against the real merged tree → re-gate.
+
+## C6 — Wave 0, done and measured (branch `fr072-route-viewer-wave0`, commit `e89fe37`)
+
+| Gate | Result |
+|---|---|
+| `npm test` | **1005 passed, 9 skipped / 132 files** — exactly the 992 floor + 13 new cases, 131 + 1 files |
+| `npm run build` | ✓ Compiled successfully, 25/25 static pages |
+| `npm run govern` | **critical 0 · warning 0 · info 16 → PASS** |
+| ratchet | still `23 remaining` — correct, Wave 0 repays no route |
+
+**The pre-thread is a verified no-op**, not an assumed one: no existing test moved.
+
+**The helper is proven load-bearing, not merely green.** Planting the exact
+historical defect — `viewer.role !== 'OWNER'` in place of
+`ownsBusiness(viewer, businessId)` — turned exactly **4 tests red**: all three
+Tier A refusals plus the endpoint-chain case. Reverted before commit. A guard
+whose tests stay green when you break it is decoration, and this one is not.
+
+Worth keeping: `handle()` in `_helpers.js` sniffs messages for a status when
+`err.status` is absent. Its `denied` regex includes `cannot`, and the Tier B
+message contains "cannot be authorized for any principal" — so a Tier B refusal
+that ever loses its explicit `403` would silently become a **400**. It is set
+explicitly, and `requireViewer`'s message was checked against both regexes
+(`requires` ≠ `required`) to confirm it really does reach 500.
