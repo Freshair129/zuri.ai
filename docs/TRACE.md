@@ -507,3 +507,17 @@
 - **Code:** `src/app/api/import/commit/route.js` · `src/app/api/import/dry-run/route.js` · `src/app/api/import/xlsx/route.js` · `src/modules/project-manager/import/import-authorization.js` · `src/modules/project-manager/import/plan-import-service.js`
 - **Follows:** BR-001, BR-009, SDD-006, SDD-009, SDD-021, SDD-037, SEC-001, SEC-002, SEC-008
 - **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import-scope.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/import-authorization.test.js`
+
+### FR-066 — Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant.
+
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
+
+### FR-067 — Workspace collaboration boundary: an authorized Workspace/Tenant owner can issue a scoped, expiring, single-use invite that creates a separate WorkspaceMembership. Workspace membership grants only Workspace collaboration visibility; Tenant, Business, Space and Project access require separate server-authorized assignment, with audit and fail-closed replay/revocation behavior.
+
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —

@@ -4,7 +4,7 @@
 **Date:** 2026-08-13
 **Decided by:** Owen (owner)
 **Amends:** [ADR-008](ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) §D3–D6 and [SITEMAP-V2](../SITEMAP-DOMAIN-NAV.md) §1–§2
-**Relates to:** FR-001, FR-020, FR-033, FR-034, FR-039, FR-041, FR-042; BR-001; ADR-003, ADR-013
+**Relates to:** FR-001, FR-020, FR-033, FR-034, FR-039, FR-041, FR-042; BR-001; ADR-003, ADR-013, [ADR-027](ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md)
 
 ## Context
 
@@ -32,6 +32,25 @@ Workspace name  >  Organization name  >  Business name
 `Organization` is a presentation name for `Tenant`, not a second entity and not
 a new `organizationId`. Legal Entity and Branch retain their financial and
 operational meanings and do not appear in this navigation bar.
+
+### D1a — Profile is identity, not context
+
+`Profile` is the user-facing completion step over `Person`. It describes who the
+person is and is not a fourth context-bar level, a Tenant, a Business, or an
+authorization grant. A Profile-only member is a valid pre-shell state and does
+not need to create a Business or Project before being invited to work.
+
+### D1b — Workspace-first is a pre-shell entry rule
+
+The top-level Workspace may exist without an Organization/Tenant, Business, Space,
+or Project. The Profile-first and invitation states are defined by
+[ADR-027](ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md). They extend the
+pre-shell journey only; once a Business is selected, the context bar remains
+exactly:
+
+```text
+Workspace > Organization > Business
+```
 
 ### D2 — Business is the shell-scope ceiling
 
@@ -85,3 +104,6 @@ Project's content and tabs.
   boundary.
 - Breadcrumbs show the three context names and an opened resource when useful; they
   never make Space or Project a global scope switcher.
+- Profile setup and Workspace waiting/invitation are pre-shell surfaces; they do
+  not widen the BusinessShell ceiling or turn Workspace membership into Business
+  authorization.

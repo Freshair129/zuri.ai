@@ -60,9 +60,24 @@ and shows only the levels that offer a real choice (FR-020).
 
 This chain is the **schema truth**. How it is *presented* — Business-centric root, the
 dual **ERP ⇄ PM** lens over the same entities, and the `Landing → Login stub → Business
-Routing → Business Overview` entry flow — is defined by draft [ADR-015](decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md),
-which amends the earlier [ADR-008](decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) journey for this slice.
+Routing → Business Overview` operational flow — is defined by [ADR-015](decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md).
+The approved Profile-first extension for users without Business access is defined by
+[ADR-027](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md), which preserves
+the Business-bound operational shell while allowing a member to wait for an invite.
 Project and Campaign are two **domains** (Projects · Growth), never the app root.
+
+### 2.1 Profile-first onboarding boundary
+
+Every person starts with a Profile. A Profile-only member may remain in a Waiting
+Room or accept a Workspace invitation without creating an Organization/Tenant,
+Business, Space, or Project. Workspace is the shared top-level collaboration
+container; schema `Workspace` is displayed as Space inside Project Manager. A
+Business is required only when the person is ready to enter the operational
+BusinessShell.
+
+```text
+Profile → Waiting Room / Workspace Home → Business access → BusinessShell
+```
 
 ## 3. Non-negotiables
 

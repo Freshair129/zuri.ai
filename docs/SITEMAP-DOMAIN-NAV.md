@@ -25,6 +25,12 @@ sub-features, with an explicit root contract per domain** — and binds it to V2
 > FR-046 now propose the separate viewer/session contract; it is not runtime behavior
 > until approved and implemented.
 
+> **Approved next entry amendment:** ADR-027 / FR-066/067 adds `Profile` before any
+> operating scope. A Profile-only member may remain in `/waiting-room`, accept a
+> Workspace invitation, or open top-level `/workspaces` without creating Tenant,
+> Business, Space or Project. Business Routing remains the gate before BusinessShell;
+> this is a documentation target and is not yet runtime behavior.
+
 ## 1. The three navigation tiers
 
 ```
@@ -102,6 +108,10 @@ shell scope. The active lens changes labels, never identity or isolation.
   `/login` is a demo Login stub, `/businesses` is Business Routing, and `/overview` is the
   guarded BusinessShell. Business Routing is shown even for one visible Business; no final
   shell chrome renders before selection. Historical rows above remain for traceability only.
+- **Profile-first target (ADR-027):** `/onboarding/profile` completes the Person
+  Profile; `/waiting-room` is valid with no Business access; `/workspaces` is the
+  top-level collaboration Workspace backed by Portfolio. A Profile or Workspace
+  membership never bypasses the Business authorization gate.
 - **The context bar is the shell boundary.** To change Workspace, Organization, or Business, return
   to Home. Project navigation stays in Development.
 - **Desktop sidebar is always labelled.** It exposes the active domain's sub-domains without hover;

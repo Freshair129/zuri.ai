@@ -7,7 +7,7 @@
 | **Date** | 2026-08-17 |
 | **Authority** 
 
-## Entry and shell journey
+## Current verified FR-044 entry and shell journey
 
 ```text
 /                 EntryShell: minimal Landing → /login
@@ -20,6 +20,28 @@
 
 Business selection happens before the final BusinessShell. No entry route renders the
 final DomainBar, Development sidebar, or Project tabs.
+
+## Approved next pre-shell target (ADR-027)
+
+This is the approved documentation target for Profile-first onboarding. It is not
+implemented by the current route tree yet.
+
+```text
+/                         EntryShell: Landing
+/login                    EntryShell: local/demo identity transition
+/onboarding/profile       Profile setup over the resolved Person
+/waiting-room             Profile-only member or pending invitation state
+/workspaces               top-level collaboration Workspace list/home (Portfolio)
+/workspaces/:id           Workspace Home and membership/invitation state
+/businesses               Business Routing, only when Business access exists
+/overview                 BusinessShell: selected Business Overview
+```
+
+The current PM `/workspaces` compatibility page exposes schema `Workspace` and
+must be displayed as **Space** when this target is implemented. It must not be
+silently treated as the top-level collaboration Workspace. A future route move to
+`/spaces` or a Business/Project-nested route may be implemented separately without
+changing schema identities.
 
 ## Logical layout boundaries
 
@@ -109,6 +131,9 @@ until their parity and BusinessModule gates are met.
 - `/overview` and Business domain routes require an authorized Business selection.
 - Missing viewer → `/login`.
 - Missing Business → `/businesses`.
+- Missing Profile → `/onboarding/profile` in the ADR-027 target flow.
+- Profile-only or Workspace-only access → `/waiting-room` or `/workspaces`; it does
+  not imply Business access.
 - Unauthorized Business/domain → explicit forbidden state or Business Overview.
 - Project deep links require the selected Business unless the Project is an explicit
   shared Portfolio Space resource.
@@ -119,7 +144,8 @@ The current API route inventory is maintained in
 [`appendices/A-api-spec.md`](appendices/A-api-spec.md). It contains 43 route handlers;
 FR-044 adds no login endpoint. The entry routing contract reuses `/api/viewer` and
 `/api/scope` until production authentication introduces a viewer-scoped session
-interface.
+interface. ADR-027's future contract will add viewer-scoped Profile/Workspace
+entry data and invitation mutations; those endpoints are not present yet.
 
 ## Evidence and drift rule
 

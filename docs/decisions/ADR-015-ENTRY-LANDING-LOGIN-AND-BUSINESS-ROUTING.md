@@ -8,7 +8,7 @@
 | **Date** | 2026-08-13 |
 | **Decided by** | Owner approval (2026-08-13) |
 | **Amends** | ADR-008 §D4, ADR-011 §D2, SITEMAP-V2 §2b (entry boundary only) |
-| **Relates to** | FR-044, SDD-022, FR-031, FR-032, FR-035, FR-039 |
+| **Relates to** | FR-044, SDD-022, FR-031, FR-032, FR-035, FR-039, [ADR-027](ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md), FR-066, FR-067, SDD-038 |
 
 ## Context
 
@@ -116,6 +116,30 @@ Landing, Login, and Business Routing use the existing Zuri Heritage tokens and s
 primitives from ADR-010 / `docs/UI-DESIGN-SYSTEM.md`. Typography, spacing, color, and
 component token redesign are explicitly deferred to a future design-token document.
 
+### D7 — Profile-first extension for users without Business access
+
+[ADR-027](ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md) is the approved next
+amendment to the pre-shell journey. It does not invalidate the verified FR-044
+routing proof; it adds the missing no-Business states before Business Routing:
+
+```text
+Landing → local identity/session → Profile setup
+  ├─ Profile only → Waiting Room
+  ├─ Workspace membership → Workspace Home
+  └─ Business membership → Business Routing → BusinessShell
+```
+
+The target routes are `/onboarding/profile`, `/waiting-room`, and top-level
+`/workspaces` (the collaboration Workspace backed by `Portfolio`). The existing
+Project Manager schema `Workspace` remains a lower-level **Space** and is not
+silently repurposed. A Profile-only or Workspace-only member must not be sent to
+Business Routing merely because the current compatibility route assumes a
+Business.
+
+Implementation of this extension is pending FR-066/067, SDD-038, the new
+Workspace membership/invite authority, and the corresponding route and security
+tests.
+
 ## Non-goals
 
 - production authentication, password/OIDC/LINE login, sessions, or token storage;
@@ -138,3 +162,7 @@ component token redesign are explicitly deferred to a future design-token docume
 Owner approval was given on 2026-08-13. FR-044, SDD-022, and the implementation plan
 are accepted for the routing proof slice; implementation and verification gates are
 recorded in the feature note and plan.
+
+The owner approved the Profile-first documentation amendment on 2026-08-17.
+FR-066/067 and SDD-038 remain implementation-pending; until they are delivered,
+the FR-044 route behavior above is the verified compatibility behavior.
