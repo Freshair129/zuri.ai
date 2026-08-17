@@ -48,6 +48,26 @@ module.exports = defineConfig({
   // and a control run on the unchanged tree flaked too. So: the warm-up project
   // below, as promised, rather than a longer expect timeout.
   retries: 1,
+  // Serial on purpose, and it costs nothing. Measured on 2026-08-17, 12-core
+  // machine, full suite at --retries=0:
+  //
+  //   idle   6 workers → 43 passed, 154s
+  //   idle   1 worker  → 43 passed, 156s      ← 6-way parallelism buys 1.3%
+  //   loaded 6 workers → 1 FAILED,  264s
+  //   loaded 1 worker  → 43 passed, 275s
+  //
+  // Two seconds between six workers and one, on an idle machine, means the
+  // workers were never running in parallel in any useful sense: `webServer`
+  // starts ONE Next dev server and every worker queues behind it. Under load
+  // that queue grows past the 10s `expect` budget and the suite reports compile
+  // latency as a failure — three specs in one run, all "Timed out waiting for
+  // toHaveURL", none related to the change under test.
+  //
+  // So parallelism here was not buying speed, it was buying nondeterminism.
+  // If a future change makes the workers genuinely independent — a server per
+  // worker, or a production build instead of dev — re-measure before raising
+  // this. The number to beat is 154s.
+  workers: 1,
   projects: [
     { name: 'warmup', testMatch: /warmup\.setup\.js/ },
     // Every spec waits for the warm-up, so no test is the one that pays for a

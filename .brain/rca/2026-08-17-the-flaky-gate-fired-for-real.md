@@ -7,14 +7,14 @@ superseded_by: null
 attributes:
   domain: "test-harness"
   doc_type: "root-cause-analysis"
-  scope: "the e2e suite degrades under machine load; partly diagnosed, partly open"
+  scope: "six e2e workers queueing behind one dev server — parallelism that bought nondeterminism and no speed"
 ---
 
 # Incident — the flaky gate fired for real, and it was not the change under test
 
-**Status: OPEN.** The warm-up below removed roughly half the flakiness. The
-remainder is not yet diagnosed. This record exists so the next person starts
-from evidence instead of repeating it.
+**Status: RESOLVED 2026-08-17.** Root cause measured, not inferred: the suite ran
+six workers against a single Next dev server, so they queued rather than
+parallelised. Fixed with `workers: 1`, which costs two seconds.
 
 ## What happened
 
@@ -71,32 +71,80 @@ only place it gates a merge. Locally it is telling the truth: on a loaded
 machine this suite is not trustworthy, and a developer who sees it flake should
 believe it rather than re-run until green.
 
-## What is still open
+## The measurement that settled it
 
-Two survivors, both at ~28s on the first attempt:
+The flakiness would not reproduce on an idle machine, so the first step was to
+**reproduce it deliberately** — eight CPU burners alongside the suite. Full
+suite, `--retries=0`, 12-core machine:
 
-- `fr040` — `getByRole('tree', {name: /work breakdown structure/i})` not visible
-  in 10s. A **dynamic** route (`/projects/[id]/...`) that the warm-up cannot hit
-  without a real id.
-- `fr044` — expects a redirect to `/login`, still on `/overview` after 10s.
-  Not obviously a compile problem; possibly session-state timing.
+| machine | workers | result | wall clock |
+|---|---|---|---|
+| idle | 6 (default) | 43 passed | **154s** |
+| idle | **1** | 43 passed | **156s** |
+| loaded | 6 (default) | **1 FAILED** | 264s |
+| loaded | **1** | 43 passed | 275s |
 
-Leads, reordered after the CI finding:
+The decisive row is the second. **Two seconds between six workers and one, on an
+idle machine.** Six-way parallelism was buying 1.3%, which means the workers were
+never running in parallel in any useful sense — `webServer` starts one Next dev
+server and all six queue behind it. Under load that queue grows past the 10s
+`expect` budget, and the suite reports compile-and-queue latency as a failure.
 
-1. **Worker contention against the single dev server.** First-attempt durations
-   were ~28s for an assertion with a 10s budget — that is queueing, not
-   compiling, and it fits "only under load" exactly. Try `workers: 1` locally
-   and see whether it goes away; if it does, the question is whether the default
-   worker count is right for a suite sharing one dev server and one SQLite file.
-2. Warm dynamic routes too, using ids the seed guarantees (`fr040` hits
-   `/projects/[id]/...`, which the warm-up cannot reach).
-3. Only then ask whether 10s is the right `expect.timeout` for a dev server —
-   and if the answer is yes, raise it as a considered decision with a reason,
-   not as a way to get green.
+Parallelism here was not buying speed. It was buying nondeterminism.
+
+That reframes the earlier symptoms: the three "unrelated" specs that flaked were
+not three problems, and the two that survived the warm-up were not a separate
+mystery. They were whichever tests happened to be at the back of the queue.
+
+## Fix
+
+`workers: 1` in `playwright.config.js`, with the table above recorded beside it
+and the number to beat (154s) written down, so raising it later requires
+re-measuring rather than guessing.
+
+The warm-up project is kept. It was not sufficient alone — that was the honest
+finding at the time — but it removes cold compilation from inside the tests,
+which is worth having independently of the queue.
+
+Proven end to end: `npm run test:e2e` — the real gate command, with
+`--fail-on-flaky` and the retry-labelling still enabled — run under the **same**
+synthetic load that had just failed it: exit 0, 43 passed, zero flaky, 245s.
+
+## What was never needed
+
+Two remedies were on the shortlist and neither was used.
+
+**Warming dynamic routes.** `fr040` hits `/projects/[id]/…`, which the warm-up
+cannot reach without a real id, and that looked like the obvious next step. It
+was not the cause — that spec failed because it was at the back of a queue, not
+because its route was cold.
+
+**Raising `expect.timeout` from 10s.** This was third on the list precisely
+because it is the move that makes a red gate green without changing anything
+real. It stayed unused, and should stay unused: 10s is a fine budget for an
+assertion once the thing being asserted is not waiting behind five other
+workers.
 
 ## What must not happen
 
 Raising `expect.timeout` until it goes green, or dropping `--fail-on-flaky`.
 Both restore the exact property the gate was built to remove: a degrading suite
-that reports success. The gate is currently doing its job — it is telling us the
-suite is not trustworthy, and it is right.
+that reports success.
+
+Nor should `workers` be raised back without re-measuring. The number to beat is
+154s, and it is written in the config next to the table. A future change might
+genuinely make the workers independent — a dev server per worker, or a
+production build instead of `next dev` — and then parallelism would buy
+something. Until someone measures that, it does not.
+
+## The general lesson
+
+**Reproduce before diagnosing, even when reproducing means building the
+conditions yourself.** The flakiness did not appear on an idle machine, so the
+first real step was eight CPU burners — not a fix, not a theory, a reproduction.
+Everything before that in this document was inference, and one of the inferences
+(cold compilation) was half wrong.
+
+And the finding that mattered was not the failure. It was the **two seconds**
+between six workers and one on an idle machine — a number nobody would have
+looked at while chasing a failure, and the number that explained everything.
