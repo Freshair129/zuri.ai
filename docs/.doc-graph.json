@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 791,
-    "total_edges": 2360,
+    "total_nodes": 794,
+    "total_edges": 2390,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,17 +15,17 @@
       "feature": 3,
       "route": 96,
       "model": 33,
-      "requirement": 158,
-      "test": 152,
-      "code_file": 217
+      "requirement": 159,
+      "test": 153,
+      "code_file": 218
     },
     "coverage": {
-      "requirements": 158,
-      "fr_with_code": "100% (66/66)",
-      "fr_with_tests": "100% (66/66)",
+      "requirements": 159,
+      "fr_with_code": "100% (67/67)",
+      "fr_with_tests": "100% (67/67)",
       "rules_anchored_in_code": "83% (60/72)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 217,
+      "annotated_code_files": 218,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -62,12 +62,13 @@
       "id": "code:prisma/seed.js",
       "type": "code_file",
       "path": "prisma/seed.js",
-      "hash": "a59feb62",
+      "hash": "168b6e7c",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-016",
           "FR-041",
+          "FR-073",
           "FR-043"
         ],
         "@spec": [
@@ -1670,11 +1671,20 @@
       "id": "code:src/app/api/repositories/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/repositories/[id]/route.js",
-      "hash": "c91fd135",
+      "hash": "19fd074b",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-008"
+          "FR-008",
+          "FR-046",
+          "FR-073"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr073-repository-scope.test.js"
         ]
       }
     },
@@ -1724,11 +1734,20 @@
       "id": "code:src/app/api/repositories/route.js",
       "type": "code_file",
       "path": "src/app/api/repositories/route.js",
-      "hash": "38e43579",
+      "hash": "33b01cf6",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-008"
+          "FR-008",
+          "FR-046",
+          "FR-073"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr073-repository-scope.test.js"
         ]
       }
     },
@@ -2369,6 +2388,18 @@
           "tests/e2e/smoke.spec.js",
           "tests/integration/adaptive-shell.test.js",
           "tests/e2e/fr041-business-first.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/validation/entities.js",
+      "type": "code_file",
+      "path": "src/lib/validation/entities.js",
+      "hash": "8b770df4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-073"
         ]
       }
     },
@@ -3685,11 +3716,12 @@
       "id": "code:src/modules/project-manager/application/project-authorization.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-authorization.js",
-      "hash": "96822353",
+      "hash": "abd89c12",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-072"
+          "FR-072",
+          "FR-073"
         ],
         "@spec": [
           "SEC-001",
@@ -3803,12 +3835,13 @@
       "id": "code:src/modules/project-manager/application/repository-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/repository-service.js",
-      "hash": "7a5e6ee8",
+      "hash": "1c94136d",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-008",
-          "FR-072"
+          "FR-072",
+          "FR-073"
         ],
         "@spec": [
           "BR-002",
@@ -3818,7 +3851,8 @@
         ],
         "@tested": [
           "tests/integration/project-core.test.js",
-          "tests/integration/fr072-repository-link-authorization.test.js"
+          "tests/integration/fr072-repository-link-authorization.test.js",
+          "tests/integration/fr073-repository-scope.test.js"
         ]
       }
     },
@@ -4968,7 +5002,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.64.0b",
       "doc_status": "Draft",
-      "hash": "a9098e34",
+      "hash": "4583c75a",
       "status": "current"
     },
     {
@@ -6222,7 +6256,16 @@
       "id": "req:FR-072",
       "type": "requirement",
       "family": "FR",
-      "label": "Project-Manager mutation authorization: every mutating route repaid from `docs/.route-viewer-baseline.json` resolves a request viewer and the service behind it refuses the write unless `ownsBusiness(viewer, <governing Business>)`, where the governing Business is derived from the target's Space (`workspace.businessId`; for Project-scoped targets via the Project's Space per FR-043; for a Dependency, the governing Business of **both** endpoints; for a Project moved between Spaces, the authority of **both** the current governing Business and the destination Space). (a) A Business-governed target that is not owned answers exactly as a nonexistent one, so a refusal is never an enumeration oracle over another tenant's ids. (b) A target governed above Business (a Project in a PORTFOLIO/TENANT Space, a non-BUSINESS-scoped Workspace) is refused for **every** principal with a reason naming the missing authority — this requirement deliberately does **not** invent authority above Business; enabling such writes requires a prior FR that makes that authority holdable (FR-066/FR-067 direction), per the FR-065 precedent. Routes whose authorization question no declared rule answers (`/api/scope`, `/api/backup/import`, `/api/repositories`, `/api/repositories/[id]`) are out of scope and remain recorded debt in `docs/.route-viewer-baseline.json`, each with the missing decision named.",
+      "label": "Project-Manager mutation authorization: every mutating route repaid from `docs/.route-viewer-baseline.json` resolves a request viewer and the service behind it refuses the write unless `ownsBusiness(viewer, <governing Business>)`, where the governing Business is derived from the target's Space (`workspace.businessId`; for Project-scoped targets via the Project's Space per FR-043; for a Dependency, the governing Business of **both** endpoints; for a Project moved between Spaces, the authority of **both** the current governing Business and the destination Space). (a) A Business-governed target that is not owned answers exactly as a nonexistent one, so a refusal is never an enumeration oracle over another tenant's ids. (b) A target governed above Business (a Project in a PORTFOLIO/TENANT Space, a non-BUSINESS-scoped Workspace) is refused for **every** principal with a reason naming the missing authority — this requirement deliberately does **not** invent authority above Business; enabling such writes requires a prior FR that makes that authority holdable (FR-066/FR-067 direction), per the FR-065 precedent. Routes whose authorization question no declared rule answers (`/api/scope`, `/api/backup/import`) are out of scope and remain recorded debt in `docs/.route-viewer-baseline.json`, each with the missing decision named. (`/api/repositories` and `/api/repositories/[id]` were answered by FR-073 and repaid.)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-073",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Repository ownership: a `Repository` is owned by exactly one Business (`Repository.businessId`), which is the decision FR-072 recorded as missing for `/api/repositories` and `/api/repositories/[id]`. Business rather than Tenant or Portfolio is forced, not chosen: the viewer contract carries only Business-keyed grants, so no principal can hold authority above Business (SDD-037) and a higher-scoped Repository would be ungovernable. (a) Creating a Repository requires `ownsBusiness(viewer, businessId)`, and the Business is required at the input boundary so every new Repository is governed. (b) Updating one requires the same authority over its owning Business; an unowned Repository answers exactly as a nonexistent one. (c) Linking a Repository to a Project requires authority over **both** the Project's governing Business and the Repository's Business — the same fail-closed composition FR-072 applies to a Dependency edge. (d) `Repository.businessId` is nullable only for rows predating this requirement; such a Repository is governed by nobody, is refused for every principal with the missing owner named, and is invisible to every reader until backfilled (`scripts/backfill-repository-business.mjs`, which infers an owner only where a Repository's Project links agree and reports the rest rather than guessing). (e) Listing Repositories is scoped by `seesBusiness`, closing a cross-tenant read that previously returned every Repository in the installation with its project links attached.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -8069,14 +8112,14 @@
       "id": "test:tests/integration/fr072-refusal-disclosure.test.js",
       "type": "test",
       "path": "tests/integration/fr072-refusal-disclosure.test.js",
-      "hash": "2dbbb2fe",
+      "hash": "526c5f48",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-repository-link-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-repository-link-authorization.test.js",
-      "hash": "3448d737",
+      "hash": "adc6e17f",
       "status": "current"
     },
     {
@@ -8091,6 +8134,13 @@
       "type": "test",
       "path": "tests/integration/fr072-workspace-mutation-authorization.test.js",
       "hash": "c6d3a2f7",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr073-repository-scope.test.js",
+      "type": "test",
+      "path": "tests/integration/fr073-repository-scope.test.js",
+      "hash": "43b146a5",
       "status": "current"
     },
     {
@@ -8216,7 +8266,7 @@
       "id": "test:tests/integration/project-core.test.js",
       "type": "test",
       "path": "tests/integration/project-core.test.js",
-      "hash": "b98ce02a",
+      "hash": "e6d98d92",
       "status": "current"
     },
     {
@@ -8952,6 +9002,13 @@
     {
       "from": "code:prisma/seed.js",
       "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:prisma/seed.js",
+      "to": "req:FR-073",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -11204,6 +11261,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/repositories/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/[id]/route.js",
+      "to": "req:FR-073",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/repositories/link/[id]/route.js",
       "to": "req:FR-008",
       "type": "implements",
@@ -11277,6 +11362,34 @@
       "from": "code:src/app/api/repositories/route.js",
       "to": "req:FR-008",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/route.js",
+      "to": "req:FR-073",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/repositories/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -12123,6 +12236,13 @@
     {
       "from": "code:src/lib/shell-mode.js",
       "to": "req:FR-041",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/entities.js",
+      "to": "req:FR-073",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -13746,6 +13866,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/project-authorization.js",
+      "to": "req:FR-073",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-authorization.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -13992,6 +14119,13 @@
     {
       "from": "code:src/modules/project-manager/application/repository-service.js",
       "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/repository-service.js",
+      "to": "req:FR-073",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -15482,6 +15616,13 @@
     },
     {
       "from": "req:FR-072",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-073",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -17652,6 +17793,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -18293,6 +18441,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
@@ -19535,6 +19690,13 @@
     },
     {
       "from": "test:tests/integration/fr072-refusal-disclosure.test.js",
+      "to": "req:FR-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-refusal-disclosure.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -19599,6 +19761,13 @@
     {
       "from": "test:tests/integration/fr072-repository-link-authorization.test.js",
       "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-repository-link-authorization.test.js",
+      "to": "req:FR-073",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -19766,6 +19935,83 @@
     },
     {
       "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr073-repository-scope.test.js",
+      "to": "code:src/app/api/repositories/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr073-repository-scope.test.js",
+      "to": "code:src/app/api/repositories/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr073-repository-scope.test.js",
+      "to": "code:src/modules/project-manager/application/repository-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr073-repository-scope.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr073-repository-scope.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr073-repository-scope.test.js",
+      "to": "req:FR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr073-repository-scope.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr073-repository-scope.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr073-repository-scope.test.js",
+      "to": "req:FR-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr073-repository-scope.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr073-repository-scope.test.js",
       "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
@@ -20438,6 +20684,13 @@
     },
     {
       "from": "test:tests/integration/project-authorization.test.js",
+      "to": "req:FR-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-authorization.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -20733,6 +20986,13 @@
     {
       "from": "test:tests/integration/project-core.test.js",
       "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-073",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

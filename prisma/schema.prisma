@@ -98,6 +98,7 @@ model Business {
   projects    Project[]
   localWorkspaceMounts LocalWorkspaceMount[]
   fileAssets           FileAsset[]
+  repositories         Repository[]
 
   @@index([tenantId])
 }
@@ -426,6 +427,18 @@ model Dependency {
 model Repository {
   id             String   @id @default(uuid())
   code           String   @unique
+  // The owning Business. Nullable for the same reason Project.businessId was
+  // (FR-043): the column is additive over rows that predate it. A Repository
+  // with no Business is governed by nobody and is refused for every principal
+  // (FR-073), which is why the backfill exists — see
+  // scripts/backfill-repository-business.mjs.
+  //
+  // Business rather than Tenant or Portfolio, and that is forced rather than
+  // chosen: the viewer contract carries only Business-keyed grants, so no
+  // principal can hold authority above Business (SDD-037). A Tenant-scoped
+  // Repository would be ungovernable — the same dead end that keeps
+  // /api/scope and /api/backup/import unrepayable.
+  businessId     String?
   provider       String
   externalRepoId String?
   ownerName      String?
@@ -437,9 +450,11 @@ model Repository {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  business Business?          @relation(fields: [businessId], references: [id])
   projects ProjectRepository[]
 
   @@index([provider, fullName])
+  @@index([businessId])
 }
 
 model ProjectRepository {
