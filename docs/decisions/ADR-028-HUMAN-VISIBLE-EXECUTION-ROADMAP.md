@@ -3,7 +3,7 @@
 **Status:** Accepted — design approved; implementation pending  
 **Date:** 2026-08-17  
 **Decided by:** Boss (owner approval, 2026-08-17)  
-**Relates to:** [ADR-012](ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY.md), [ADR-025](ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md), [ADR-027](ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md), [FR-040](../domains/project-manager/features/FR-040-project-work-views.md), [FR-063](../domains/project-manager/features/FR-063-project-board.md), [FR-064](../domains/project-manager/features/FR-064-schedule-timeline.md), [FR-068](../domains/project-manager/features/FR-068-human-visible-execution-roadmap.md), [FR-069](../domains/project-manager/features/FR-069-plan-blueprint-and-intake.md), SDD-039
+**Relates to:** [ADR-012](ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY.md), [ADR-025](ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md), [ADR-027](ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md), [ADR-029](ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS.md), [FR-040](../domains/project-manager/features/FR-040-project-work-views.md), [FR-063](../domains/project-manager/features/FR-063-project-board.md), [FR-064](../domains/project-manager/features/FR-064-schedule-timeline.md), [FR-068](../domains/project-manager/features/FR-068-human-visible-execution-roadmap.md), [FR-069](../domains/project-manager/features/FR-069-plan-blueprint-and-intake.md), [FR-070](../domains/project-manager/features/FR-070-stable-execution-domain-and-tag-identities.md), SDD-039, SDD-040
 
 ## Context
 

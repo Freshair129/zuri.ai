@@ -3,11 +3,11 @@ domain: project-manager
 feature: FR-068
 module: project-manager
 source: v2-native
-version: 0.1.0
+version: 0.5.0
 status: proposed
 ---
 
-# FR-068 — Human-visible Project Execution Roadmap
+# FR-068 — Human-visible Project Execution Roadmap and identity references
 
 ## Intent
 
@@ -20,8 +20,9 @@ not a decorative dashboard and does not introduce a second work model.
 
 1. The user opens a Project from the authorized Business context.
 2. The user opens `Work > Execution Roadmap`.
-3. The header shows the Project goal, timeline/deadline, strategy-based
-   progress, total/backlog counts and the active approved source.
+3. The header shows the Project goal, linked `goalIds[]`, linked `riskIds[]` when
+   available, timeline/deadline, strategy-based progress, total/backlog counts
+   and the active approved source.
 4. The user expands the current Execution Plan/Workstream and sees the
    mode-specific phase, stage, period, sprint, batch or wave.
 5. The user opens a work item to see its status, tags, Human/Agent assignee,
@@ -39,15 +40,18 @@ not a decorative dashboard and does not introduce a second work model.
 
 | Contract area | Required behavior |
 |---|---|
-| `project` | name, goal/outcome, accountable owner, start/target dates when present, status and strategy-based progress state |
+| `project` | name, goal/outcome, `goalIds[]`, `riskIds[]` when available, accountable owner, start/target dates when present, status and strategy-based progress state |
+| `goals` | authorized `goalId`/`goal_id` links to `BusinessGoal`, with code/title/status/progress as projections; an empty list is valid |
+| `risks` | authorized `riskId`/`risk_id` links to Project Manager Risk records when available, with status/severity/owner/mitigation projections; unavailable is explicit until the Risk owner/model exists |
 | `summary` | total work, backlog/open work, completed work, blocked work and deadline state; counts are derived from authorized records |
 | `sources` | only approved sources that are actually available; active source and unavailable reason are explicit |
-| `plans` | Workstream identity, execution mode, display vocabulary, progress strategy, weight, status, dates and current container |
-| `containers` | WorkContainer identity, mode-valid subtype, label, parent, dates, status, progress evidence and closure state |
-| `items` | WorkItem identity, title, status, human-visible tags, assignees, dates, parent, evidence, criteria and trace/changelog links when present |
-| `dependencies` | source/target identity, type, status, blocked reason, blocking owner and affected item; accessible list equivalent required |
+| `plans` | `projectId`, `planId` (= Workstream UUID), `planCode`, execution mode ID, `executionContractId`, display vocabulary, progress strategy, weight, status, dates and current container |
+| `containers` | `projectId`, `planId`, `containerId`, the mode-valid typed ID (`phaseId`, `sprintId`, `stageId`, `batchId`, `waveId`, etc.), subtype, code, parent container ID, dates, status, progress evidence and closure state |
+| `items` | `projectId`, `planId`, `containerId`, `workItemId`, the mode-valid typed item ID, subtype, code, title, status, linked `goalId`/`riskId` when present, human-visible tags, assignees, dates, parent, `artifactId`/`verifyId` evidence references, criteria and trace/changelog links when present |
+| `dependencies` | canonical source/target `endpointType` + `endpointId`, type, status, blocked reason, blocking owner and affected item; accessible list equivalent required |
+| `identityRefs` | applicable `gateId`, `artifactId`, `contractId` (CRM Contact), `meetingId`, `callId`, `followupId`, `reqId`, `verifyId`, `integrationId`, `graphId`, `nodeId`, `edgeId`, `workflowContractId`, `workflowId`, `runbookId`, `promotionId`, `skillId` and `toolId` references from FR-070; unresolved data is explicit `unavailable` |
 | `roster` | authorized Human/Agent subjects only; display name, role/capability and availability when sourced; no fabricated agents |
-| `closure` | phase/container summary, gate state, criteria, carry-over and owner decision/audit reference |
+| `closure` | phase/container summary, `gateId`/gate state, criteria, carry-over and owner decision/audit reference |
 
 The API/read model may omit a field only when it returns an explicit unavailable
 state. It must not replace absent dates, evidence, owners or progress with a
@@ -71,17 +75,20 @@ The view uses the canonical contract in [`EXECUTION-MODES.md`](../../../EXECUTIO
 
 - **AC-068.1** An authorized Project viewer can open Execution Roadmap from the
   Project Work area without entering a separate Agent surface.
-- **AC-068.2** The header shows Project goal/outcome, timeline/deadline,
-  strategy-based progress, total/backlog summary and active source. Missing
-  source data is shown as unavailable rather than inferred.
+- **AC-068.2** The header shows Project goal/outcome, authorized `goalIds[]`,
+  authorized `riskIds[]` when available, timeline/deadline, strategy-based
+  progress, total/backlog summary and active source. Missing source data is
+  shown as unavailable rather than inferred.
 - **AC-068.3** The view renders the existing hierarchy
   `Project → Workstream/Execution Plan → WorkContainer → WorkItem` and uses the
   selected mode's labels without creating a new hierarchy or mode.
 - **AC-068.4** A Human can see the current phase/stage/period and
-  sprint/batch/wave with dates, status, progress evidence and closure state.
-- **AC-068.5** Work item detail exposes title, status, visible tags, assignees,
-  dates, parent context, completion evidence, DoD/acceptance links and
-  changelog/trace links when those records exist.
+  sprint/batch/wave with its `containerId`, valid typed ID, `planId`, parent
+  container ID, dates, status, progress evidence and closure state.
+- **AC-068.5** Work item detail exposes title, status, visible tags, linked
+  `goalId`/`riskId` references when authorized, assignees, dates, parent context,
+  completion evidence, DoD/acceptance links and changelog/trace links when those
+  records exist.
 - **AC-068.6** The dependency view shows predecessor/successor, dependency
   status, blocked reason, blocking owner and affected work item, with a
   non-canvas accessible list.
@@ -92,8 +99,10 @@ The view uses the canonical contract in [`EXECUTION-MODES.md`](../../../EXECUTIO
   carried-over work, required gates, acceptance/success/exit criteria and the
   authorized close decision. Required gates preserve the BR-006 progress cap.
 - **AC-068.9** Structure Plan, Board, Schedule, Dependency Map and Roadmap agree
-  on record identity and current status/date/assignment; Roadmap does not write
-  a parallel copy.
+  on `projectId`, `planId`, `containerId`, typed period/item IDs, dependency
+  endpoint IDs, `goalId`/`riskId` links, applicable FR-070 supporting identity
+  references and current status/date/assignment; Roadmap does not write a
+  parallel copy.
 - **AC-068.10** Source tabs and export controls are displayed only for approved,
   viewer-authorized sources and data.
 - **AC-068.11** Loading, empty, error, narrow viewport, keyboard and
@@ -101,6 +110,13 @@ The view uses the canonical contract in [`EXECUTION-MODES.md`](../../../EXECUTIO
 - **AC-068.12** The implementation adds no new Project/Work aggregate, no
   cross-project traversal, no new execution mode and no duplicate owner for
   Requirements, Risks, Resources or Files.
+- **AC-068.13** Human-visible views preserve the same resolved
+  `gate_id`, `artifact_id`, `verify_id`, `graph_id`, `node_id`, `edge_id`,
+  `contract_id`, `meeting_id`, `call_id`, `followup_id`, `req_id`,
+  `integration_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`,
+  `promotion_id`, `skill_id` and `tool_id` references as Agent/read contracts.
+  `contract_id` is CRM Contact context and never replaces `executionContractId`
+  or `workflowContractId`; unavailable owner data is shown explicitly.
 
 ## Non-goals
 
@@ -111,6 +127,9 @@ The view uses the canonical contract in [`EXECUTION-MODES.md`](../../../EXECUTIO
 - Replacing the existing Requirements, Risks, Resources, Team or Files
   surfaces.
 - Universal progress from task counts or invented Agent roster/metadata.
+- Creating supporting Artifact, Contact, Meeting, Call, Follow-up, Verify,
+  Integration, Workflow, Runbook, Promotion, Skill, Tool or graph persistence
+  models as part of the read contract.
 
 ## Security, audit and provenance
 
@@ -118,14 +137,17 @@ Roadmap reads are project-scoped and use the same viewer/tenant/business guards
 as the existing Project views. Assignment and closure are audited mutations in
 their owning services. Agent-produced content carries the PlanEnvelope
 provenance and follows validate → dry-run → preview → commit; imported content is
-data only and never executable code.
+data only and never executable code. Goal, risk and FR-070 supporting identity
+references are resolved by their owning services before they enter the read
+model; a label cannot widen scope or create a new reference.
 
 ## Implementation boundary
 
 The current model already has Workstream/WorkContainer/WorkItem hierarchy,
 `WorkItem.assigneeRef`, status, dates, metadata and AuditEvent primitives. It
 does not yet provide first-class Project accountability, tags, criteria or an
-explicit closure-decision record. FR-068 therefore defines the user contract,
+explicit closure-decision record. BusinessGoal/ProjectGoal already provide the
+goal link; a first-class Risk model is not yet present. FR-068 therefore defines the user contract,
 not a permission to hide those gaps in arbitrary JSON or free text. Any schema,
 migration or ownership change needed to make those fields durable must be
 specified and approved before implementation; until then the UI renders the
@@ -138,4 +160,5 @@ field as unavailable rather than inventing it.
 - [FR-063 — Project Board](FR-063-project-board.md)
 - [FR-064 — Schedule](FR-064-schedule-timeline.md)
 - [FR-069 — Plan Blueprint and intake](FR-069-plan-blueprint-and-intake.md)
+- [FR-070 — Stable execution, domain, goal, risk and tag identities](FR-070-stable-execution-domain-and-tag-identities.md)
 - SDD-039 — Roadmap contract (registered in [PRD-SDD-v1.0.md](../../../PRD-SDD-v1.0.md))

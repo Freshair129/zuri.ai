@@ -3,34 +3,36 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 770,
-    "total_edges": 2115,
+    "total_nodes": 779,
+    "total_edges": 2142,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 70,
-      "adr": 28,
+      "document": 72,
+      "adr": 30,
       "domain": 5,
       "roadmap": 21,
       "feature": 3,
       "route": 96,
       "model": 33,
-      "requirement": 152,
+      "requirement": 157,
       "test": 142,
       "code_file": 216
     },
     "coverage": {
-      "requirements": 152,
+      "requirements": 157,
       "fr_with_code": "100% (65/65)",
       "fr_with_tests": "100% (65/65)",
-      "rules_anchored_in_code": "87% (60/69)",
+      "rules_anchored_in_code": "83% (60/72)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 216,
       "fr_planned": [
         "FR-066",
         "FR-067",
         "FR-068",
-        "FR-069"
+        "FR-069",
+        "FR-070",
+        "FR-071"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -41,6 +43,9 @@
         "SDD-013",
         "SDD-038",
         "SDD-039",
+        "SDD-040",
+        "SDD-041",
+        "SDD-042",
         "SEC-004",
         "SEC-005",
         "SEC-014"
@@ -48,7 +53,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS"
+    ],
     "added": [],
     "removed": []
   },
@@ -4114,7 +4121,7 @@
       "type": "document",
       "path": "docs/DOMAIN-MODEL.md",
       "title": "Domain Model",
-      "hash": "594ebc6f",
+      "hash": "a71c3e0d",
       "status": "current"
     },
     {
@@ -4142,7 +4149,7 @@
       "type": "document",
       "path": "docs/EXECUTION-MODES.md",
       "title": "Seven Execution Modes",
-      "hash": "227102ee",
+      "hash": "93f419cf",
       "status": "current"
     },
     {
@@ -4170,7 +4177,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.0.0",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "0611bd50",
+      "hash": "f2e13d7a",
       "status": "current"
     },
     {
@@ -4514,16 +4521,32 @@
       "id": "doc:FR-068-human-visible-execution-roadmap",
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-068-human-visible-execution-roadmap.md",
-      "title": "FR-068 — Human-visible Project Execution Roadmap",
-      "hash": "0bc8d68b",
+      "title": "FR-068 — Human-visible Project Execution Roadmap and identity references",
+      "hash": "154e416a",
       "status": "current"
     },
     {
       "id": "doc:FR-069-plan-blueprint-and-intake",
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
-      "title": "FR-069 — Plan Blueprint and Human/Agent intake",
-      "hash": "8a96d163",
+      "title": "FR-069 — Plan Blueprint and Human/Agent intake with stable references",
+      "hash": "76973cae",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-070-stable-execution-domain-and-tag-identities",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-070-stable-execution-domain-and-tag-identities.md",
+      "title": "FR-070 — Stable execution, domain, goal, risk, tag and supporting identities",
+      "hash": "0087aaec",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md",
+      "title": "FR-071 — Supabase data pipeline monitor and replay",
+      "hash": "ae4a211f",
       "status": "current"
     },
     {
@@ -4541,9 +4564,9 @@
       "type": "document",
       "path": "docs/domains/agent/intent-pipeline.md",
       "title": "AI Intent Pipeline — LINE as the fifth intake surface",
-      "version": "1.0.0",
+      "version": "1.3.0",
       "doc_status": "Draft — not implemented (`TASK-V2-LINE-INTENT`)",
-      "hash": "15e7b203",
+      "hash": "ff959da9",
       "status": "current"
     },
     {
@@ -4729,9 +4752,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.54.0b",
+      "version": "1.64.0b",
       "doc_status": "Draft",
-      "hash": "f7782071",
+      "hash": "957b42e8",
       "status": "current"
     },
     {
@@ -4793,9 +4816,9 @@
       "type": "document",
       "path": "docs/SITEMAP-DOMAIN-NAV.md",
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
-      "version": "0.4.2",
+      "version": "0.5.0",
       "doc_status": "Accepted",
-      "hash": "978384a5",
+      "hash": "e0c37778",
       "status": "current"
     },
     {
@@ -5029,7 +5052,7 @@
     {
       "id": "feat:FEAT-003",
       "type": "feature",
-      "label": "Execution Planning — Human-visible Roadmap and Blueprint intake",
+      "label": "Execution Planning — Human-visible Roadmap, Blueprint intake and stable identity bindings",
       "declared": "proposed",
       "status": "current"
     },
@@ -5949,7 +5972,7 @@
       "id": "req:FR-068",
       "type": "requirement",
       "family": "FR",
-      "label": "Human-visible Project Execution Roadmap: an authorized Human sees the same Project execution structure as Agents — current mode-specific phase/stage/period, sprint/batch/wave, backlog, tags, Human/Agent assignees, dependencies/blocker owners, gates, evidence and closure — as a composed Work view over the existing Project/Workstream/WorkContainer/WorkItem model.",
+      "label": "Human-visible Project Execution Roadmap: an authorized Human sees the same Project execution structure as Agents — current mode-specific phase/stage/period, sprint/batch/wave, backlog, linked `goal_id`/`risk_id` references when available, tags, Human/Agent assignees, dependencies/blocker owners, `gate_id`, evidence and closure, plus applicable supporting identity references — as a composed Work view over the existing Project/Workstream/WorkContainer/WorkItem model.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
       "status": "planned"
@@ -5958,7 +5981,25 @@
       "id": "req:FR-069",
       "type": "requirement",
       "family": "FR",
-      "label": "Plan Blueprint and Human/Agent intake: after the user states an objective, Zuri may recommend an editable mode-specific Blueprint; Human forms and external Agent plans normalize to the same PlanEnvelope validation, dry-run, preview, authorization, transactional commit and audit path. No first-step template picker, fake execution state or new execution mode.",
+      "label": "Plan Blueprint and Human/Agent intake: after the user states an objective, Zuri may recommend an editable mode-specific Blueprint; Human forms and external Agent plans normalize to the same PlanEnvelope validation, dry-run, preview, authorization, transactional commit and audit path. Each mode has an `executionContractId`; every lifecycle/evidence step has run, step, attempt and replay IDs for tags, failure localization and append-only replay, with applicable `goal_id`/`risk_id` and supporting identity references. No first-step template picker, fake execution state or new execution mode.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
+      "id": "req:FR-070",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Stable execution, domain, goal, risk, tag, trace and supporting identities: every committed Execution Plan exposes canonical `executionModeId`, `executionContractId`, `planId` (= Workstream UUID), domain bindings, authorized `goal_id`/`goalIds[]`, resolved `risk_id`/`riskIds[]` when available, `containerId` plus a mode-valid period alias, `workItemId` plus a mode-valid item alias and `tagId` references; applicable `node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id` references are owner-resolved and remain distinct from execution trace IDs.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
+      "id": "req:FR-071",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Supabase data pipeline monitor and replay: the governed SmartGift DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
       "status": "planned"
@@ -6435,7 +6476,34 @@
       "id": "req:SDD-039",
       "type": "requirement",
       "family": "SDD",
-      "label": "Execution Roadmap is a composed Human/Agent read contract over existing Project, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Membership and approved Agent-subject data. It maps the seven canonical execution modes to truthful phase/stage/period and sprint/batch/wave labels; derives progress from each Workstream's declared strategy/evidence; exposes tags, assignment, blocker owner, criteria and closure; and never creates a second aggregate or write path. Human UI and Agent input converge on PlanEnvelope validation → dry-run/conflict check → preview → authorized transaction → AuditEvent. Unavailable data is explicit; imported plans are data only.",
+      "label": "Execution Roadmap is a composed Human/Agent read contract over existing Project, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Membership and approved Agent-subject data. It maps the seven canonical execution modes to seven explicit intake/closure contracts in FR-069, each bound to its machine allowlist for hierarchy, subtypes, strategy and evidence; derives progress from each Workstream's declared strategy/evidence; exposes authorized `goal_id`/`risk_id` links, tags, assignment, blocker owner, criteria, closure and applicable FR-070 supporting identity references; and never creates a second aggregate or write path. Human UI and Agent input converge on PlanEnvelope validation → dry-run/conflict check → preview → authorized transaction → AuditEvent. Unavailable data is explicit; imported plans are data only.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-040",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Identity binding is explicit at every axis: product domain catalog IDs map to route keys/labels, technical owner IDs map to charters, `executionModeId` resolves the seven mode contracts, `planId` aliases the committed Workstream UUID, `goal_id` aliases `BusinessGoal.id` through `ProjectGoal`, `risk_id` aliases an authorized Project Manager Risk record when available, every mode-specific period alias (`phaseId`, `sprintId`, `stageId`, `batchId`, `waveId`, `periodId`, etc.) aliases `WorkContainer.id`, every item alias aliases `WorkItem.id`, and WorkItem tag attachments use `tagId`. Supporting owner-resolved references are explicit: `node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id`. `contract_id` is CRM Contact context, `execution_contract_id` is the seven-mode Execution contract, and `workflow_contract_id` is the multi-agent workflow contract. `req_id` resolves to a declared requirement key; `runbook_id` is the concrete procedure under `workflow_id`; and `promotion_id` is the governed knowledge-promotion occurrence. `B2B_SALES` binds to Commerce primary + CRM supporting; `B2C_CAMPAIGN` to Marketing primary + CRM supporting; `OPERATIONS` to Operations primary; all seven execution records remain technically owned by Project Manager. Legacy labels are normalized before authorization, unresolved IDs fail closed, and the same IDs appear in Roadmap, specialized views, Agent import and AuditEvent.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-041",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Execution trace identity is separate from business work identity: each mode has a versioned `executionContractId`; each run emits `executionRunId`, `executionStepId`, `stepKey`, `attemptId`, correlation/idempotency IDs, applicable project/plan/container/item/`goal_id`/`risk_id` business context, supporting `gate_id`/`artifact_id`/`verify_id`/`graph_id`/`node_id`/`edge_id`/`contract_id`/`meeting_id`/`call_id`/`followup_id`/`req_id`/`integration_id`/`workflow_contract_id`/`workflow_id`/`runbook_id`/`promotion_id`/`skill_id`/`tool_id` references, tag IDs, hashes, failure code and audit event linkage. Replay is append-only with source-run/source-step references, retains applicable goal/risk/supporting context and revalidates before commit.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-042",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "The SmartGift source-to-Supabase data pipeline is a server-owned, scope-filtered, append-only stage/record ledger around the existing `bootstrap_audit_event`; `dataPipelineDefinitionId`, `pipelineStageId`, `executionRunId`, `executionStepId`, `attemptId`, `pipelineRecordId`, `doc_id`, `pic_id`, `fact_id`, hashes, `tagId`, the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id`), failure code and replay lineage identify every point. `knowledge_id` remains the destination projection of `fact_id`. Every event carries the same keys with `null`/`[]` when not applicable. Replay creates new trace IDs, preserves same-fact provenance, revalidates the approved artifact and Tenant/Business/RLS boundary, and applies idempotently to Supabase.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -7559,7 +7627,23 @@
       "type": "adr",
       "path": "docs/decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md",
       "title": "ADR-028 — Human-visible execution roadmap and shared plan intake",
-      "hash": "9d1305d5",
+      "hash": "ca8a2764",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "type": "adr",
+      "path": "docs/decisions/ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS.md",
+      "title": "ADR-029 — Stable identity bindings for execution plans, tags, domains and supporting references",
+      "hash": "24c74143",
+      "status": "changed"
+    },
+    {
+      "id": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "type": "adr",
+      "path": "docs/decisions/ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY.md",
+      "title": "ADR-030 — Supabase data pipeline observability and replay",
+      "hash": "08537967",
       "status": "current"
     },
     {
@@ -13529,6 +13613,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-003",
+      "to": "req:FR-070",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:AuditEvent",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -14355,6 +14446,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-070",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-071",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -14720,6 +14825,27 @@
     },
     {
       "from": "req:SDD-039",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-040",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-041",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-042",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -16134,6 +16260,13 @@
     },
     {
       "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "doc:FR-070-stable-execution-domain-and-tag-identities",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
       "to": "req:FR-040",
       "type": "relates",
       "status": "current",
@@ -16169,7 +16302,21 @@
     },
     {
       "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "req:FR-070",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
       "to": "req:SDD-039",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "req:SDD-040",
       "type": "relates",
       "status": "current",
       "source": "control-block"
@@ -16191,6 +16338,132 @@
     {
       "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
       "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "to": "doc:EXECUTION-MODES",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "to": "doc:FR-069-plan-blueprint-and-intake",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "to": "doc:FR-070-stable-execution-domain-and-tag-identities",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "to": "doc:SITEMAP-DOMAIN-NAV",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "to": "req:FR-069",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "to": "req:FR-070",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "to": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "to": "doc:FR-047-line-business-knowledge-pilot",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "to": "doc:FR-051-production-supabase-tenant-isolation",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "to": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "to": "req:FR-047",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "to": "req:FR-051",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "to": "req:FR-071",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "to": "req:SDD-042",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "to": "spec:ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "to": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
       "type": "relates",
       "status": "current",
       "source": "control-block"

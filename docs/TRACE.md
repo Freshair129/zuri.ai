@@ -522,17 +522,32 @@
 - **Follows:** —
 - **Tests:** —
 
-### FR-068 — Human-visible Project Execution Roadmap: an authorized Human sees the same Project execution structure as Agents — current mode-specific phase/stage/period, sprint/batch/wave, backlog, tags, Human/Agent assignees, dependencies/blocker owners, gates, evidence and closure — as a composed Work view over the existing Project/Workstream/WorkContainer/WorkItem model.
+### FR-068 — Human-visible Project Execution Roadmap: an authorized Human sees the same Project execution structure as Agents — current mode-specific phase/stage/period, sprint/batch/wave, backlog, linked `goal_id`/`risk_id` references when available, tags, Human/Agent assignees, dependencies/blocker owners, `gate_id`, evidence and closure, plus applicable supporting identity references — as a composed Work view over the existing Project/Workstream/WorkContainer/WorkItem model.
 
-- **Feature:** FEAT-003 — Execution Planning — Human-visible Roadmap and Blueprint intake
+- **Feature:** FEAT-003 — Execution Planning — Human-visible Roadmap, Blueprint intake and stable identity bindings
 - **Status:** planned
 - **Code:** —
 - **Follows:** —
 - **Tests:** —
 
-### FR-069 — Plan Blueprint and Human/Agent intake: after the user states an objective, Zuri may recommend an editable mode-specific Blueprint; Human forms and external Agent plans normalize to the same PlanEnvelope validation, dry-run, preview, authorization, transactional commit and audit path. No first-step template picker, fake execution state or new execution mode.
+### FR-069 — Plan Blueprint and Human/Agent intake: after the user states an objective, Zuri may recommend an editable mode-specific Blueprint; Human forms and external Agent plans normalize to the same PlanEnvelope validation, dry-run, preview, authorization, transactional commit and audit path. Each mode has an `executionContractId`; every lifecycle/evidence step has run, step, attempt and replay IDs for tags, failure localization and append-only replay, with applicable `goal_id`/`risk_id` and supporting identity references. No first-step template picker, fake execution state or new execution mode.
 
-- **Feature:** FEAT-003 — Execution Planning — Human-visible Roadmap and Blueprint intake
+- **Feature:** FEAT-003 — Execution Planning — Human-visible Roadmap, Blueprint intake and stable identity bindings
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
+
+### FR-070 — Stable execution, domain, goal, risk, tag, trace and supporting identities: every committed Execution Plan exposes canonical `executionModeId`, `executionContractId`, `planId` (= Workstream UUID), domain bindings, authorized `goal_id`/`goalIds[]`, resolved `risk_id`/`riskIds[]` when available, `containerId` plus a mode-valid period alias, `workItemId` plus a mode-valid item alias and `tagId` references; applicable `node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id` references are owner-resolved and remain distinct from execution trace IDs.
+
+- **Feature:** FEAT-003 — Execution Planning — Human-visible Roadmap, Blueprint intake and stable identity bindings
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
+
+### FR-071 — Supabase data pipeline monitor and replay: the governed SmartGift DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes.
+
 - **Status:** planned
 - **Code:** —
 - **Follows:** —

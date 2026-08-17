@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GoVibe Knowledge Link Candidate v1",
+  "type": "object",
+  "required": ["schema", "candidate_id", "link_type", "source", "target", "provenance", "confidence"],
+  "properties": {
+    "schema": { "const": "govibe-knowledge-link-candidate/v1" },
+    "candidate_id": { "type": "string", "minLength": 1 },
+    "link_type": { "enum": ["wikilink", "crosslink", "symbol_link", "reference", "import", "call", "inheritance"] },
+    "relation_type": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "object",
+      "required": ["candidate_ref"],
+      "properties": {
+        "candidate_ref": { "type": "string", "minLength": 1 },
+        "path": { "type": ["string", "null"] },
+        "span": { "type": ["object", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "target": {
+      "type": "object",
+      "required": ["label"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "candidate_ref": { "type": ["string", "null"] },
+        "canonical_ref": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["run_id", "stage", "source_hash"],
+      "properties": {
+        "run_id": { "type": "string", "minLength": 1 },
+        "stage": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "source_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "source_path": { "type": ["string", "null"] },
+        "source_line": { "type": ["integer", "null"], "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "resolution_state": { "enum": ["unresolved", "resolved_candidate", "submitted", "rejected", "canonicalized"] }
+  },
+  "additionalProperties": false
+}
