@@ -3,36 +3,39 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 744,
-    "total_edges": 1991,
+    "total_nodes": 747,
+    "total_edges": 1993,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 64,
+      "document": 65,
       "adr": 26,
       "domain": 5,
       "roadmap": 21,
       "feature": 2,
       "route": 96,
       "model": 33,
-      "requirement": 142,
+      "requirement": 144,
       "test": 138,
       "code_file": 213
     },
     "coverage": {
-      "requirements": 142,
+      "requirements": 144,
       "fr_with_code": "100% (64/64)",
       "fr_with_tests": "100% (64/64)",
-      "rules_anchored_in_code": "92% (59/64)",
+      "rules_anchored_in_code": "91% (59/65)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 213,
-      "fr_planned": [],
+      "fr_planned": [
+        "FR-065"
+      ],
       "fr_without_code": [],
       "fr_without_tests": [],
       "rules_without_anchor": [
         "SDD-001",
         "SDD-008",
         "SDD-013",
+        "SDD-037",
         "SEC-004",
         "SEC-005"
       ]
@@ -40,12 +43,12 @@
   },
   "drift": {
     "changed": [
-      "code:src/modules/project-manager/progress/strategies.js",
-      "code:src/modules/project-manager/views/execution/mode-bodies.jsx"
+      "doc:PRD-SDD-v1.0"
     ],
     "added": [
-      "test:tests/unit/card-calculator-agreement.test.js",
-      "test:tests/unit/gate-cap-rounding.test.js"
+      "doc:FR-065-import-target-authorization",
+      "req:FR-065",
+      "req:SDD-037"
     ],
     "removed": []
   },
@@ -3875,7 +3878,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/progress/strategies.js",
       "hash": "b3b061b1",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-010"
@@ -3913,7 +3916,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/views/execution/mode-bodies.jsx",
       "hash": "504fe6e3",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-009"
@@ -4391,6 +4394,16 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-065-import-target-authorization",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-065-import-target-authorization.md",
+      "title": "Import Target Authorization — who may write into the Workspace a plan names",
+      "version": "1.0.0",
+      "doc_status": "Declared (🔜) — not yet implemented",
+      "hash": "20ea3379",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -4593,10 +4606,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.49.0b",
+      "version": "1.50.0b",
       "doc_status": "Draft",
-      "hash": "4a78d20c",
-      "status": "current"
+      "hash": "9f2c7e9a",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -5757,6 +5770,15 @@
       "status": "current"
     },
     {
+      "id": "req:FR-065",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Import target authorization: the FR-012 pipeline authorizes the Workspace it is about to write to, instead of accepting whichever `workspaceId` the request body names. All three intake routes (`/api/import/dry-run`, `/api/import/commit`, `/api/import/xlsx`) resolve a viewer, and the target Workspace is resolved **before** validation so an unauthorized target is refused without the caller learning anything about the plan. (a) A **Business-scoped** Workspace requires `ownsBusiness(viewer, workspace.businessId)` — the same predicate the other write paths use, not a second reading of it; a caller who may see the Business but does not own it is refused. (b) A Workspace **above Business** (`scopeType` PORTFOLIO or TENANT) is refused with an explicit reason stating that no authority above Business is declared — this requirement deliberately does **not** invent one. Enabling such an import requires a prior FR that makes portfolio/tenant authority *holdable*: a viewer-contract change in the manner of FR-061, since today no principal can hold it. The dry run is authorized identically to the commit — a read-only preview of another scope's contents is the leak the commit guard would otherwise still allow.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -6202,6 +6224,15 @@
       "type": "requirement",
       "family": "SDD",
       "label": "Board and Schedule are **derived views over models other requirements already own** — WorkItem (FR-005), Project (FR-003), Milestone (FR-006). Neither introduces a persisted aggregate, an ordering column, or a second write path: a card opens the existing editor, and a bar is computed from dates the owning model already stores. Where such a view enumerates a vocabulary it does not own, it derives that vocabulary from `src/lib/validation/enums.js` — a hand-copied list is how a status ends up with nowhere to render.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-037",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Import authorization is decided **once, on the resolved target Workspace**, in the pipeline that resolves it — not in each of the three route handlers, which is how three copies of a predicate drift. `authorizeImportTarget(viewer, workspace)` is the single entry point, it calls `ownsBusiness` rather than re-deriving ownership, and it is a required argument: a caller that omits the viewer throws at the call, in the manner `classify()` now requires its `scope`, so a fourth intake surface cannot be wired up unauthorized by simply not passing it. A Workspace above Business is refused rather than governed, and the refusal is **evidence-backed, not conservatism**: `Membership` is created in exactly two code paths and both set `businessId`, and the viewer contract exposes only Business-keyed grants (`visibleBusinessIds`, `ownedBusinessIds`, `domainsByBusinessId`) — so no principal can hold portfolio or tenant authority today, and any rule written for it here would be an untestable guess. Inventing one at the end of a security fix is how the fix becomes the next incident. The three routes leave `docs/.route-viewer-baseline.json` when this lands; the baseline shrinks, it is never edited to accommodate them.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -13781,6 +13812,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-065",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -14125,6 +14163,13 @@
     },
     {
       "from": "req:SDD-036",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-037",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
