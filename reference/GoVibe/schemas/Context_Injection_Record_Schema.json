@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GoVibe Context Injection Record v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "injection_id",
+    "context_id",
+    "cache_id",
+    "agent_id",
+    "run_id",
+    "turn_id",
+    "workspace_id",
+    "context_profile",
+    "injected_at",
+    "source_manifest_hash",
+    "context_hash"
+  ],
+  "properties": {
+    "schema": { "const": "govibe-context-injection/v1" },
+    "injection_id": { "type": "string", "minLength": 1 },
+    "context_id": { "type": "string", "pattern": "^ctx_" },
+    "cache_id": { "type": "string", "pattern": "^cache_" },
+    "kv_id": { "type": ["string", "null"] },
+    "parent_context_id": { "type": ["string", "null"] },
+    "agent_id": { "type": "string", "minLength": 1 },
+    "project_id": { "type": ["string", "null"] },
+    "workspace_id": { "type": "string", "minLength": 1 },
+    "session_id": { "type": ["string", "null"] },
+    "run_id": { "type": "string", "minLength": 1 },
+    "turn_id": { "type": "string", "minLength": 1 },
+    "context_profile": { "enum": ["T-ctx", "V-ctx", "W-ctx", "M-ctx"] },
+    "injected_at": { "type": "string", "format": "date-time" },
+    "source_manifest_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "context_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "source_refs": { "type": "object" },
+    "diff_ref": { "type": ["string", "null"] },
+    "replay": {
+      "type": "object",
+      "properties": {
+        "replayable": { "type": "boolean" },
+        "requires_same_model": { "type": "boolean" },
+        "requires_same_tool_contracts": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

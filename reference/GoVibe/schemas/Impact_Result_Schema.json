@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GoVibe Impact Result v2",
+  "type": "object",
+  "required": ["schema", "change_id", "change_type", "seeds", "affected", "references", "unresolved", "graph_summary", "policy"],
+  "properties": {
+    "schema": { "const": "govibe-impact/v2" },
+    "change_id": { "type": "string", "pattern": "^change_" },
+    "change_type": { "type": "string", "minLength": 1 },
+    "seeds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "path"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "affected": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "path", "distance", "impact_score", "relations", "reason", "required_action", "chain"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "distance": { "type": "integer", "minimum": 1 },
+          "impact_score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "relations": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "reason": { "type": "string", "minLength": 1 },
+          "required_action": { "enum": ["must_update", "review_and_update", "review"] },
+          "chain": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["source", "target", "relation", "link_id"],
+              "properties": {
+                "source": { "type": "string", "minLength": 1 },
+                "target": { "type": "string", "minLength": 1 },
+                "relation": { "type": "string", "minLength": 1 },
+                "link_id": { "type": "string", "minLength": 1 }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "references": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "unresolved": { "type": "array", "items": { "type": "object" } },
+    "graph_summary": {
+      "type": "object",
+      "required": ["nodes", "links", "backlinks"],
+      "properties": {
+        "nodes": { "type": "integer", "minimum": 0 },
+        "links": { "type": "integer", "minimum": 0 },
+        "backlinks": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "required": ["max_distance", "minimum_score"],
+      "properties": {
+        "max_distance": { "type": "integer", "minimum": 1, "maximum": 8 },
+        "minimum_score": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

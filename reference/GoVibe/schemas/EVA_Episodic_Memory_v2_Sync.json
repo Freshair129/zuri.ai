@@ -1,0 +1,102 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EVA Episodic Memory v2 Sync",
+  "description": "Workspace Private Vault episodic memory with normalized identity, lifecycle, 9D state snapshot references, and crosslinks.",
+  "type": "object",
+  "required": ["schema", "vault_id", "agent_id", "project_id", "workspace_id", "user_id", "memory_version", "session_id", "timestamp", "episodes_structure"],
+  "properties": {
+    "schema": { "const": "eva-episodic-memory/v2-sync" },
+    "vault_id": { "type": "string", "minLength": 1 },
+    "agent_id": { "type": "string", "minLength": 1 },
+    "agent_name": { "type": "string" },
+    "project_id": { "type": "string", "minLength": 1 },
+    "workspace_id": { "type": "string", "minLength": 1 },
+    "user_id": { "type": "string", "minLength": 1 },
+    "memory_version": { "type": "string", "minLength": 1 },
+    "session_id": { "type": "string", "minLength": 1 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "episodes_structure": { "type": "object", "additionalProperties": { "$ref": "#/definitions/episode" } }
+  },
+  "definitions": {
+    "episode": {
+      "type": "object",
+      "required": ["episode_id", "episode_type", "situation_context", "turn_user", "turn_llm", "state_snapshot", "memory_lifecycle"],
+      "properties": {
+        "episode_id": { "type": "string" },
+        "episode_type": { "enum": ["interaction", "synthesis", "meta_cognition", "system_event"] },
+        "episode_tag": { "type": "string" },
+        "event_label": { "type": "string" },
+        "situation_context": {
+          "type": "object",
+          "required": ["context_id", "interaction_mode", "stakes_level", "time_pressure"],
+          "properties": {
+            "context_id": { "type": "string" },
+            "cache_id": { "type": ["string", "null"] },
+            "kv_id": { "type": ["string", "null"] },
+            "interaction_mode": { "enum": ["small_talk", "casual", "deep_discussion", "conflict", "instruction", "meta"] },
+            "stakes_level": { "enum": ["low", "medium", "high"] },
+            "time_pressure": { "enum": ["low", "medium", "high"] }
+          },
+          "additionalProperties": false
+        },
+        "turn_user": { "$ref": "#/definitions/turn_user" },
+        "turn_llm": { "$ref": "#/definitions/turn_llm" },
+        "state_snapshot": { "$ref": "State_Snapshot_Schema.json#" },
+        "crosslinks": {
+          "type": "object",
+          "properties": {
+            "semantic_refs": { "type": "array", "items": { "type": "string" } },
+            "sensory_refs": { "type": "array", "items": { "type": "string" } },
+            "gks_refs": { "type": "array", "items": { "type": "string" } },
+            "aqi_refs": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        "memory_lifecycle": {
+          "type": "object",
+          "required": ["state"],
+          "properties": {
+            "state": { "enum": ["raw", "reflected", "compressed", "promoted_global", "promoted_shared", "archived"] },
+            "global_memory_ref": { "type": ["string", "null"] },
+            "shared_knowledge_ref": { "type": ["string", "null"] }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "turn_user": {
+      "type": "object",
+      "required": ["turn_id", "speaker"],
+      "properties": {
+        "turn_id": { "type": "string" },
+        "speaker": { "enum": ["user", "system", "unknown"] },
+        "username": { "type": "string" },
+        "user_id": { "type": "string" },
+        "source_type": { "enum": ["Primary_Information", "Secondary_Information"] },
+        "raw_text": { "type": "string" },
+        "summary": { "type": "string" },
+        "affective_inference": { "type": "object" },
+        "semantic_frames": { "type": "array", "items": { "type": "string" } },
+        "salience_anchor": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "turn_llm": {
+      "type": "object",
+      "required": ["turn_id", "speaker"],
+      "properties": {
+        "turn_id": { "type": "string" },
+        "speaker": { "enum": ["llm", "eva"] },
+        "text_excerpt": { "type": "string" },
+        "summary": { "type": "string" },
+        "epistemic_mode": { "enum": ["explore", "hypothesize", "assert", "caution", "reflect"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "salience_anchor": { "type": "object" },
+        "stimulus_output": { "$ref": "Stimulus_Output_Schema.json#" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

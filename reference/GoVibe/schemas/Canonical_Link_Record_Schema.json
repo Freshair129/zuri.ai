@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GKS Canonical Link Record v1",
+  "type": "object",
+  "required": ["schema", "relation_id", "relation_type", "source_id", "target_id", "status", "provenance_refs"],
+  "properties": {
+    "schema": { "const": "gks-canonical-link-record/v1" },
+    "relation_id": { "type": "string", "minLength": 1 },
+    "relation_type": { "type": "string", "minLength": 1 },
+    "link_class": { "enum": ["wikilink", "crosslink", "symbol_link", "semantic_relation"] },
+    "source_id": { "type": "string", "minLength": 1 },
+    "target_id": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["active", "superseded", "deprecated", "revoked"] },
+    "valid_from": { "type": ["string", "null"], "format": "date-time" },
+    "valid_to": { "type": ["string", "null"], "format": "date-time" },
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "provenance_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "candidate_refs": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "backlink_projection": {
+      "type": "object",
+      "required": ["target_id", "incoming_relation_id", "source_id"],
+      "properties": {
+        "target_id": { "type": "string", "minLength": 1 },
+        "incoming_relation_id": { "type": "string", "minLength": 1 },
+        "source_id": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

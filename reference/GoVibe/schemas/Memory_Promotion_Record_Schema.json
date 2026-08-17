@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GoVibe Memory Promotion Record v1",
+  "type": "object",
+  "required": ["schema", "promotion_id", "promotion_type", "source_vault_id", "source_refs", "target_vault_id", "agent_id", "status", "requested_at"],
+  "properties": {
+    "schema": { "const": "govibe-memory-promotion/v1" },
+    "promotion_id": { "type": "string", "minLength": 1 },
+    "promotion_type": { "enum": ["workspace_to_global_private", "workspace_to_shared"] },
+    "source_vault_id": { "type": "string", "minLength": 1 },
+    "source_refs": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+    "target_vault_id": { "type": "string", "minLength": 1 },
+    "agent_id": { "type": "string", "minLength": 1 },
+    "project_id": { "type": ["string", "null"] },
+    "workspace_id": { "type": ["string", "null"] },
+    "compression_profile": { "type": ["string", "null"] },
+    "privacy_screened": { "type": "boolean" },
+    "validation_refs": { "type": "array", "items": { "type": "string" } },
+    "status": { "enum": ["requested", "approved", "rejected", "promoted", "failed"] },
+    "requested_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": ["string", "null"], "format": "date-time" },
+    "target_ref": { "type": ["string", "null"] }
+  },
+  "allOf": [
+    { "if": { "properties": { "promotion_type": { "const": "workspace_to_global_private" } } }, "then": { "required": ["compression_profile", "privacy_screened"] } },
+    { "if": { "properties": { "promotion_type": { "const": "workspace_to_shared" } } }, "then": { "required": ["project_id", "validation_refs"] } }
+  ],
+  "additionalProperties": false
+}

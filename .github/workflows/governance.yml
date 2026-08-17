@@ -13,6 +13,66 @@ on:
     branches: [main]
 
 jobs:
+  # Which parts of the tree changed. The e2e suite takes 7-8 minutes and cannot
+  # observe a documentation-only change at all, so a doc slice used to pay the
+  # full price for nothing — four of six pull requests on 2026-08-17 were
+  # docs-only.
+  #
+  # The condition is computed from the actual diff, never from a label, a title
+  # convention or an author's word, and it FAILS SAFE in every direction:
+  # anything outside `docs/` and `.brain/` counts as code, an unreadable diff
+  # counts as code, and a missing base sha counts as code. A path nobody
+  # anticipated therefore runs the full suite rather than skipping it — the
+  # opposite of an allowlist that silently grows holes.
+  #
+  # `verify` is deliberately NOT gated on this. It carries the governance chain,
+  # which is exactly what a documentation change has to pass.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: filter
+        shell: bash
+        run: |
+          set -uo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base='${{ github.event.pull_request.base.sha }}'
+            head='${{ github.event.pull_request.head.sha }}'
+          else
+            base='${{ github.event.before }}'
+            head='${{ github.sha }}'
+          fi
+
+          # A first push, a force push or a branch with no common history gives
+          # an empty or all-zero base. Nothing can be concluded from that, so
+          # conclude nothing and run everything.
+          case "$base" in
+            ''|0000000000000000000000000000000000000000)
+              echo "no usable base ($base) — running the full suite"
+              echo "code=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+
+          if ! changed=$(git diff --name-only "$base" "$head" 2>&1); then
+            echo "could not diff $base..$head — running the full suite"
+            echo "$changed"
+            echo "code=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+
+          echo "changed files:"; echo "$changed"
+
+          if printf '%s\n' "$changed" | grep -qvE '^(docs/|\.brain/)'; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            echo "→ non-documentation files changed: running e2e"
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+            echo "→ documentation only: skipping e2e (it cannot observe this change)"
+          fi
+
   verify:
     # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
     # hardcodes `path.win32` in three files, deliberately — mounted-root
@@ -66,6 +126,10 @@ jobs:
           fi
 
   e2e:
+    # Skipped when the diff touches only `docs/` and `.brain/` — see the
+    # `changes` job for why that decision is safe in the direction it fails.
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
     # hardcodes `path.win32` in three files, deliberately — mounted-root
     # containment has to reason about drive letters, UNC paths and

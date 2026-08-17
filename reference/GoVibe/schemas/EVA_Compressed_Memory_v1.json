@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EVA Compressed Memory v1",
+  "type": "object",
+  "required": ["schema", "memory_id", "agent_id", "user_id", "source", "memory_type", "summary", "salience", "scope", "privacy", "created_at"],
+  "properties": {
+    "schema": { "const": "eva-compressed-memory/v1" },
+    "memory_id": { "type": "string", "minLength": 1 },
+    "agent_id": { "type": "string", "minLength": 1 },
+    "user_id": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "object",
+      "required": ["workspace_private_vault_id", "episode_refs"],
+      "properties": {
+        "workspace_private_vault_id": { "type": "string", "minLength": 1 },
+        "episode_refs": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "memory_type": { "enum": ["durable_lesson", "stable_preference", "cross_project_pattern", "identity_continuity", "strategy", "metacognitive_summary"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "generalized_pattern": { "type": "object" },
+    "salience": {
+      "type": "object",
+      "required": ["importance", "confidence"],
+      "properties": {
+        "importance": { "type": "number", "minimum": 0, "maximum": 1 },
+        "recurrence": { "type": "integer", "minimum": 1 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "scope": {
+      "type": "object",
+      "required": ["reusable_across_projects", "project_specific_details_removed"],
+      "properties": {
+        "reusable_across_projects": { "type": "boolean" },
+        "project_specific_details_removed": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "privacy": {
+      "type": "object",
+      "required": ["contains_raw_user_text", "contains_project_secret", "screened"],
+      "properties": {
+        "contains_raw_user_text": { "type": "boolean" },
+        "contains_project_secret": { "type": "boolean" },
+        "screened": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "created_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": false
+}

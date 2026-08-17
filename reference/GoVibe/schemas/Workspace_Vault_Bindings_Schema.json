@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GoVibe Workspace Vault Bindings v1",
+  "description": "Workspace vault bindings with optional multi-tenant authorization scope. The canonical Shared / Workspace Private / Global Private model is unchanged.",
+  "type": "object",
+  "required": ["schema", "project_id", "workspace_id", "primary_shared_vault", "workspace_private_vaults", "global_private_vault", "mounted_shared_vaults"],
+  "properties": {
+    "schema": { "const": "govibe-workspace-vault-bindings/v1" },
+    "project_id": { "type": "string", "minLength": 1 },
+    "workspace_id": { "type": "string", "minLength": 1 },
+    "tenant_id": { "type": ["string", "null"] },
+    "business_id": { "type": ["string", "null"] },
+    "principal_id": { "type": ["string", "null"] },
+    "policy_version": { "type": ["string", "integer", "null"] },
+    "primary_shared_vault": { "$ref": "#/definitions/binding" },
+    "workspace_private_vaults": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/binding" } },
+    "global_private_vault": { "$ref": "#/definitions/binding" },
+    "mounted_shared_vaults": { "type": "array", "items": { "$ref": "#/definitions/binding" } }
+  },
+  "definitions": {
+    "binding": {
+      "type": "object",
+      "required": ["vault_id", "slug", "vault_type", "vault_level", "role", "mode", "status"],
+      "properties": {
+        "vault_id": { "type": "string", "minLength": 1 },
+        "slug": { "type": "string", "minLength": 1 },
+        "vault_type": { "enum": ["shared", "private"] },
+        "vault_level": { "enum": ["project", "workspace", "global"] },
+        "role": { "enum": ["project_source_of_truth", "business_source_of_truth", "episodic_memory", "compressed_durable_memory"] },
+        "project_id": { "type": ["string", "null"] },
+        "workspace_id": { "type": ["string", "null"] },
+        "agent_id": { "type": ["string", "null"] },
+        "tenant_id": { "type": ["string", "null"] },
+        "business_id": { "type": ["string", "null"] },
+        "principal_id": { "type": ["string", "null"] },
+        "visibility": { "enum": ["principal_private", "tenant_private", "business_shared", "project_shared"] },
+        "policy_version": { "type": ["string", "integer", "null"] },
+        "mode": { "enum": ["read_only", "read_write"] },
+        "status": { "enum": ["draft", "active", "read_only", "deprecated", "archived", "revoked"] },
+        "materialization_path": { "type": ["string", "null"] },
+        "registry_ref": { "type": ["string", "null"] }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "visibility": { "const": "principal_private" } }, "required": ["visibility"] },
+          "then": {
+            "required": ["tenant_id", "principal_id", "agent_id"],
+            "properties": {
+              "tenant_id": { "type": "string", "minLength": 1 },
+              "principal_id": { "type": "string", "minLength": 1 },
+              "agent_id": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "vault_type": { "const": "shared" } }, "required": ["vault_type"] },
+          "then": { "properties": { "principal_id": { "type": "null" } } }
+        }
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
