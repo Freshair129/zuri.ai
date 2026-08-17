@@ -47,38 +47,12 @@ describe('FR-072 project authorization', () => {
     business = await createBusiness({ tenantId: tenant.id, name: 'Authz Business', code: 'BUS-AUTHZ' })
     otherBusiness = await createBusiness({ tenantId: tenant.id, name: 'Other Business', code: 'BUS-AUTHZ-2' })
 
-    workspace = await createWorkspace({
-      name: 'Authz WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-AUTHZ',
-    })
-    project = await createProject({ workspaceId: workspace.id, name: 'Authz Project', code: 'PRJ-AUTHZ' })
-    workstream = await createWorkstream({
-      projectId: project.id, name: 'Authz Stream', executionMode: 'SOFTWARE_SPRINT', code: 'WST-AUTHZ',
-    })
-    // Wave 3 landed a guard on createMilestone after this file's beforeAll was
-    // written; this fixture-building call needs a viewer now. Not one of the
-    // two pre-threaded shared files, so fixed here directly (per the design's
-    // documented fallback for a call site a later wave's guard invalidates —
-    // route-viewer-design.md §5) rather than left broken.
-    milestone = await createMilestone(
-      { projectId: project.id, title: 'Authz MS', code: 'MS-AUTHZ' },
-      { viewer: makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] }) },
-    )
-    container = await createContainer({
-      workstreamId: workstream.id, subtype: 'SPRINT', title: 'Authz Cont', code: 'WC-AUTHZ',
-    })
-    item = await createItem({
-      workstreamId: workstream.id, subtype: 'TASK', title: 'Authz Item', code: 'WI-AUTHZ',
-    })
-
-    // A Project in a PORTFOLIO-scoped Space: businessId is null all the way
-    // down, so no Business governs it — the Tier B / FR-072(b) case.
-    sharedWorkspace = await createWorkspace({
-      name: 'Shared WS', scopeType: 'PORTFOLIO', portfolioId: portfolio.id, code: 'WS-AUTHZ-SHARED',
-    })
-    sharedProject = await createProject({
-      workspaceId: sharedWorkspace.id, name: 'Shared Project', code: 'PRJ-AUTHZ-SHARED',
-    })
-
+    // All four viewers are built before the fixtures, not beside their first
+    // assertion, because the fixtures themselves now need one: this Wave 0 suite
+    // was written before its own subject guarded anything, and Waves 1, 2 and 3
+    // subsequently guarded createProject/createWorkstream,
+    // createContainer/createItem and createMilestone. Each wave fixed only the
+    // call sites it broke (route-viewer-design.md §5); this is the union.
     owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
     // The attacker shape from the RCAs: global role OWNER, target Business
     // visible, owned elsewhere.
@@ -87,6 +61,36 @@ describe('FR-072 project authorization', () => {
     ownsEverything = makeViewer({
       visibleBusinessIds: [business.id, otherBusiness.id],
       ownedBusinessIds: [business.id, otherBusiness.id],
+    })
+
+    workspace = await createWorkspace({
+      name: 'Authz WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-AUTHZ',
+    })
+    project = await createProject({ workspaceId: workspace.id, name: 'Authz Project', code: 'PRJ-AUTHZ' }, { viewer: owner })
+    workstream = await createWorkstream({
+      projectId: project.id, name: 'Authz Stream', executionMode: 'SOFTWARE_SPRINT', code: 'WST-AUTHZ',
+    }, { viewer: owner })
+    milestone = await createMilestone({ projectId: project.id, title: 'Authz MS', code: 'MS-AUTHZ' }, { viewer: owner })
+    container = await createContainer({
+      workstreamId: workstream.id, subtype: 'SPRINT', title: 'Authz Cont', code: 'WC-AUTHZ',
+    }, { viewer: owner })
+    item = await createItem({
+      workstreamId: workstream.id, subtype: 'TASK', title: 'Authz Item', code: 'WI-AUTHZ',
+    }, { viewer: owner })
+
+    // A Project in a PORTFOLIO-scoped Space: businessId is null all the way
+    // down, so no Business governs it — the Tier B / FR-072(b) case.
+    sharedWorkspace = await createWorkspace({
+      name: 'Shared WS', scopeType: 'PORTFOLIO', portfolioId: portfolio.id, code: 'WS-AUTHZ-SHARED',
+    })
+    // FR-072(b): createProject now refuses this for every principal (a
+    // PORTFOLIO-scoped Workspace is governed by no Business), so this fixture
+    // — which exists only to give assertProjectWritable's own Tier B tests a
+    // shared Project to authorize against — is built directly with Prisma
+    // instead of going through the now-guarded service. Arrangement, not
+    // subject: production has exactly this state, seeded as WS-PLATFORM.
+    sharedProject = await prisma.project.create({
+      data: { code: 'PRJ-AUTHZ-SHARED', workspaceId: sharedWorkspace.id, name: 'Shared Project' },
     })
   })
 
@@ -216,10 +220,10 @@ describe('FR-072 project authorization', () => {
     it('fails closed when the chain dangles instead of authorizing against nothing', async () => {
       const orphanProject = await createProject({
         workspaceId: workspace.id, name: 'Orphan', code: 'PRJ-AUTHZ-ORPHAN',
-      })
+      }, { viewer: owner })
       const orphanStream = await createWorkstream({
         projectId: orphanProject.id, name: 'Orphan Stream', executionMode: 'SOFTWARE_SPRINT', code: 'WST-AUTHZ-ORPHAN',
-      })
+      }, { viewer: owner })
       // The owner could write here a moment ago — the control for what follows.
       await expect(assertWorkstreamWritable(owner, orphanStream.id)).resolves.toBeDefined()
 

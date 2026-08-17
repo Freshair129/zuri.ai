@@ -8,6 +8,7 @@ import {
 } from '@/lib/validation/entities'
 import { MODE_DEFAULT_STRATEGY } from '@/lib/validation/enums'
 import { recordAudit } from './audit'
+import { assertProjectWritable, assertWorkstreamWritable, assertWorkspaceWritable } from './project-authorization'
 
 // @req FR-003, FR-004 — project CRUD/archive + workstream mode/strategy/weight
 // @spec BR-004, SDD-004 — seven canonical modes (Zod-enforced); archive is a
@@ -15,6 +16,10 @@ import { recordAudit } from './audit'
 // @req FR-043 - direct Project Business ownership with Space as Development context
 // @spec ADR-014, SDD-021, BR-001, SEC-001
 // @tested tests/integration/project-core.test.js, tests/integration/project-business-binding.test.js
+// @req FR-072 — mutations refuse the write unless the viewer owns the
+// governing Business, derived from the target's Space.
+// @spec SEC-001, SEC-008, BR-001
+// @tested tests/integration/fr072-project-service-authorization.test.js
 
 const codeExists = (model) => async (code) =>
   Boolean(await prisma[model].findUnique({ where: { code } }))
@@ -87,10 +92,11 @@ export async function getProject(id) {
   })
 }
 
-export async function createProject(input) {
+export async function createProject(input, { viewer } = {}) {
   const data = zProjectInput.parse(input)
   const workspace = await prisma.workspace.findUnique({ where: { id: data.workspaceId } })
   if (!workspace) throw new Error('Workspace not found')
+  await assertWorkspaceWritable(viewer, workspace)
   const businessId = resolveProjectBusinessId(workspace, data.businessId, hasOwn(data, 'businessId'))
   const code = data.code || (await uniqueHumanCode('PRJ', data.name, codeExists('project')))
   const project = await prisma.project.create({
@@ -110,8 +116,9 @@ export async function createProject(input) {
   return project
 }
 
-export async function updateProject(id, patch) {
+export async function updateProject(id, patch, { viewer } = {}) {
   const data = zProjectUpdate.parse(patch)
+  await assertProjectWritable(viewer, id)
   const existing = await prisma.project.findUnique({ where: { id }, include: { workspace: true } })
   if (!existing || existing.deletedAt) throw new Error('Project not found')
   const targetWorkspaceId = data.workspaceId ?? existing.workspaceId
@@ -120,6 +127,9 @@ export async function updateProject(id, patch) {
     : await prisma.workspace.findUnique({ where: { id: targetWorkspaceId } })
   if (!targetWorkspace) throw new Error('Workspace not found')
   const workspaceChanged = targetWorkspaceId !== existing.workspaceId
+  // The move conjunction: the current Project's Business and the destination
+  // Space's authority are both required (FR-072, Wave 1 §4).
+  if (workspaceChanged) await assertWorkspaceWritable(viewer, targetWorkspace)
   const explicitBusiness = hasOwn(data, 'businessId')
   const requestedBusinessId = explicitBusiness
     ? data.businessId
@@ -148,7 +158,8 @@ export async function updateProject(id, patch) {
   return project
 }
 
-export async function archiveProject(id) {
+export async function archiveProject(id, { viewer } = {}) {
+  await assertProjectWritable(viewer, id)
   const project = await prisma.project.update({
     where: { id },
     data: { status: 'ARCHIVED', deletedAt: new Date(), version: { increment: 1 } },
@@ -159,10 +170,11 @@ export async function archiveProject(id) {
 
 // ---- Workstreams -----------------------------------------------------------
 
-export async function createWorkstream(input) {
+export async function createWorkstream(input, { viewer } = {}) {
   const data = zWorkstreamInput.parse(input)
   const project = await prisma.project.findUnique({ where: { id: data.projectId } })
   if (!project || project.deletedAt) throw new Error('Project not found')
+  await assertProjectWritable(viewer, data.projectId)
   const strategy = data.progressStrategy || MODE_DEFAULT_STRATEGY[data.executionMode]
   const code = data.code || (await uniqueHumanCode('WST', data.name, codeExists('workstream')))
   const workstream = await prisma.workstream.create({
@@ -186,10 +198,11 @@ export async function createWorkstream(input) {
   return workstream
 }
 
-export async function updateWorkstream(id, patch) {
+export async function updateWorkstream(id, patch, { viewer } = {}) {
   const data = zWorkstreamUpdate.parse(patch)
   const existing = await prisma.workstream.findUnique({ where: { id } })
   if (!existing || existing.deletedAt) throw new Error('Workstream not found')
+  await assertWorkstreamWritable(viewer, id)
   const workstream = await prisma.workstream.update({
     where: { id },
     data: {
@@ -206,7 +219,8 @@ export async function updateWorkstream(id, patch) {
   return workstream
 }
 
-export async function archiveWorkstream(id) {
+export async function archiveWorkstream(id, { viewer } = {}) {
+  await assertWorkstreamWritable(viewer, id)
   const workstream = await prisma.workstream.update({
     where: { id },
     data: { status: 'ARCHIVED', deletedAt: new Date(), version: { increment: 1 } },

@@ -12,6 +12,9 @@ import {
   createWorkspace,
 } from '@/modules/project-manager/application/scope-service'
 import { createProject } from '@/modules/project-manager/application/project-service'
+import { makeViewer } from '../factories/viewer'
+
+let owner
 
 describe('snapshot backup round trip', () => {
   beforeAll(async () => {
@@ -19,7 +22,8 @@ describe('snapshot backup round trip', () => {
     const tenant = await createTenant({ portfolioId: portfolio.id, name: 'Backup Tenant', code: 'TNT-BAK' })
     const business = await createBusiness({ tenantId: tenant.id, name: 'Backup Business', code: 'BUS-BAK' })
     const workspace = await createWorkspace({ name: 'Backup WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-BAK' })
-    await createProject({ workspaceId: workspace.id, name: 'Backup Project', code: 'PRJ-BAK' })
+    owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    await createProject({ workspaceId: workspace.id, name: 'Backup Project', code: 'PRJ-BAK' }, { viewer: owner })
   })
 
   it('export includes schema version, timestamp and table counts', async () => {
@@ -51,7 +55,7 @@ describe('snapshot backup round trip', () => {
 
     // Mutate: add an extra project after the snapshot.
     const ws = await prisma.workspace.findUnique({ where: { code: 'WS-BAK' } })
-    await createProject({ workspaceId: ws.id, name: 'Post-snapshot project', code: 'PRJ-BAK-EXTRA' })
+    await createProject({ workspaceId: ws.id, name: 'Post-snapshot project', code: 'PRJ-BAK-EXTRA' }, { viewer: owner })
     expect(await prisma.project.count()).toBe(projectCountAtExport + 1)
 
     // Restore with confirmation.
