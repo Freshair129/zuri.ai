@@ -1,17 +1,14 @@
 // @req FR-040 — project-local Dependency Map read contract.
 // @spec SDD-019, ADR-012
 // @tested tests/unit/project-dependency-map.test.js
+import { DEPENDENCY_ENDPOINT_TYPES } from '@/lib/validation/enums'
 
 export const PROJECT_DEPENDENCY_GRAPH_VERSION = '1.0'
 
-export const PROJECT_DEPENDENCY_ENDPOINT_TYPES = Object.freeze([
-  'PROJECT',
-  'WORKSTREAM',
-  'MILESTONE',
-  'GATE',
-  'WORK_CONTAINER',
-  'WORK_ITEM',
-])
+// Derived, not copied: this list was a verbatim duplicate of
+// DEPENDENCY_ENDPOINT_TYPES, so adding an endpoint type to the vocabulary would
+// have left the map silently unable to render it (SDD-002, CLAUDE.md).
+export const PROJECT_DEPENDENCY_ENDPOINT_TYPES = Object.freeze([...DEPENDENCY_ENDPOINT_TYPES])
 
 export const dependencyNodeKey = (type, id) => `${type}:${id}`
 

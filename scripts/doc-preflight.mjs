@@ -584,12 +584,53 @@ if (existsSync(ENUM_SOURCE)) {
   // A hand-copied list is compact by nature: an array, a column map, a
   // status→label object. Requiring three distinct members inside a five-line
   // window is what separates a list from a vocabulary used across a file.
+  // Third narrowing, 2026-08-17, and the one that matters most: only literals
+  // that are actually LIST ELEMENTS count. The check previously counted every
+  // quoted uppercase literal, so on its first full review 8 of its 10 findings
+  // turned out not to be copies at all:
+  //
+  //   mapping value   KIND_TO_ENDPOINT = { project: 'PROJECT', ... }
+  //                   DEFAULT_ITEM_SUBTYPE = { SOFTWARE_SPRINT: 'TASK', ... }
+  //   mapping pair    [['portfolio', 'PORTFOLIO'], ['tenant', 'TENANT'], ...]
+  //   call argument   nodeKey('PROJECT', projectId)
+  //   comparison      workspace.scopeType === 'PORTFOLIO'
+  //   JSDoc union     @returns {{ principalType: 'STAFF'|'CUSTOMER'|... }}
+  //
+  // None of those is a list that can drift out of step with the enum, and the
+  // report actively misled about one: `DEFAULT_ITEM_SUBTYPE` was called an
+  // "INCOMPLETE copy of ITEM_SUBTYPES missing BUG/VALIDATION/…", when it is a
+  // per-mode default — one entry per execution mode, deliberately choosing DEAL
+  // over the contract's first entry ACCOUNT. Adding the "missing" values would
+  // have corrupted it. That is the failure the earlier narrowing was written
+  // about: a finding phrased as "missing X" invites adding X.
+  //
+  // A list element is a literal whose preceding non-space character is `[` or
+  // `,` (looking back through line breaks for a wrapped array). A line that also
+  // carries a lower-case quoted string is a mapping pair, not a list.
+  const listElements = (lines) => {
+    const out = lines.map(() => new Set())
+    let prevTail = ''
+    lines.forEach((raw, idx) => {
+      const line = raw.replace(/\/\/.*$/, '').replace(/^\s*\*.*$/, '')
+      if (!/'[a-z][^']*'/.test(line)) {
+        for (const m of line.matchAll(/'([A-Z][A-Z_0-9]{2,})'/g)) {
+          const before = line.slice(0, m.index).replace(/\s+$/, '')
+          const prev = before ? before.slice(-1) : prevTail
+          if (prev === '[' || prev === ',') out[idx].add(m[1])
+        }
+      }
+      const trimmed = line.replace(/\s+$/, '')
+      if (trimmed) prevTail = trimmed.slice(-1)
+    })
+    return out
+  }
+
   const WINDOW = 5
   const offenders = []
   for (const file of walk(path.join(ROOT, 'src'), '.js').concat(walk(path.join(ROOT, 'src'), '.jsx'))) {
     if (path.resolve(file) === path.resolve(ENUM_SOURCE)) continue
     const lines = read(file).split('\n')
-    const perLine = lines.map((line) => new Set([...line.matchAll(/'([A-Z][A-Z_0-9]{2,})'/g)].map((m) => m[1])))
+    const perLine = listElements(lines)
     const fileLiterals = new Set(perLine.flatMap((s) => [...s]))
     for (const [name, values] of enums) {
       let clustered = false

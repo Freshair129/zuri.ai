@@ -4,11 +4,22 @@
 // list occurredAt/action/actorType/payload from /api/audit.
 // @tested tests/e2e/smoke.spec.js
 import { useState } from 'react'
+import { DEPENDENCY_ENDPOINT_TYPES } from '@/lib/validation/enums'
 import { PageHeader, DataTable, StatusPill, EmptyState, ErrorState, TruncationNotice } from '@/components/ui'
 import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
 
+// The dependency-endpoint half is DERIVED: those six are the same vocabulary
+// `DEPENDENCY_ENDPOINT_TYPES` declares, so a new endpoint type appears in this
+// filter without anyone remembering to add it (SDD-002).
+//
+// The rest stays spelled out, and PORTFOLIO/TENANT/BUSINESS deliberately are NOT
+// taken from `WORKSPACE_SCOPE_TYPES` even though the three values are identical.
+// Here they name the **entity** an AuditEvent is about; there they name a
+// Workspace's scope. Deriving one from the other because the strings coincide
+// would couple two vocabularies that are free to diverge — a worse defect than
+// the copy, and a silent one.
 const ENTITY_TYPES = [
-  '', 'PROJECT', 'WORKSTREAM', 'WORK_ITEM', 'WORK_CONTAINER', 'MILESTONE', 'GATE',
+  '', ...DEPENDENCY_ENDPOINT_TYPES,
   'DEPENDENCY', 'REPOSITORY', 'PROJECT_REPOSITORY', 'WORKSPACE', 'PORTFOLIO', 'TENANT',
   'BUSINESS', 'BRANCH', 'LEGAL_ENTITY', 'SNAPSHOT',
 ]

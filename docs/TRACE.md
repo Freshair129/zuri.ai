@@ -139,7 +139,7 @@
 - **Surface:** `/projects/new` (page) · `/api/projects/[id]/tree` (api)
 - **Code:** `src/app/(pm)/projects/new/page.jsx` · `src/app/api/projects/[id]/tree/route.js`
 - **Follows:** BR-003
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/project-core.test.js`
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/project-core.test.js` · `tests/unit/mode-default-subtype.test.js`
 
 ### FR-018 — Excel template intake: generator จาก Zod schema + xlsx→envelope converter + error รายแถว
 

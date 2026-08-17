@@ -4,7 +4,7 @@
   "scanned": {
     "docs": 136,
     "routes": 61,
-    "test_files": 142
+    "test_files": 143
   },
   "summary": {
     "critical": 0,
@@ -155,14 +155,14 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 142 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 143 files"
     },
     {
       "id": "I14",
       "severity": "info",
       "check": "enum-copy",
-      "title": "10 hand-copied enum list(s) remain (accepted debt)",
-      "details": "1 of them are INCOMPLETE copies — those are the ones that silently drop a value: src/app/(pm)/projects/new/page.jsx::ITEM_SUBTYPES missing BUG/VALIDATION/RECONCILIATION/ACCOUNT/ACTIVITY/AUDIENCE/EXPERIMENT/ISSUE/SLA/APPROVAL",
+      "title": "1 hand-copied enum list(s) remain (accepted debt)",
+      "details": "0 of them are INCOMPLETE copies — those are the ones that silently drop a value: ",
       "files": [
         "docs/.enum-copy-baseline.json"
       ],

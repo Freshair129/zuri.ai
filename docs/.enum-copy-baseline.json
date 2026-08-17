@@ -1,17 +1,8 @@
 {
   "version": "1.0.0",
-  "purpose": "Files that spell out three or more members of an enum declared in src/lib/validation/enums.js instead of deriving from it, recorded as accepted debt on 2026-08-17. CLAUDE.md already forbids hand-copying an enum list; this list is what that rule cost before it was enforced. It may only shrink: preflight raises a CRITICAL for any copy not listed here. Never add an entry to silence a new one. An INCOMPLETE copy is the dangerous shape — two independent copies of WORK_STATUSES both dropped CANCELLED, so a work item in that status renders nowhere. See .brain/rca/2026-08-17-a-prose-rule-is-not-a-gate.md",
+  "purpose": "Files that spell out three or more members of an enum declared in src/lib/validation/enums.js instead of deriving from it, recorded as accepted debt on 2026-08-17. CLAUDE.md already forbids hand-copying an enum list; this list is what that rule cost before it was enforced. It may only shrink: preflight raises a CRITICAL for any copy not listed here. Never add an entry to silence a new one. An INCOMPLETE copy is the dangerous shape — two independent copies of WORK_STATUSES both dropped CANCELLED, so a work item in that status renders nowhere. See .brain/rca/2026-08-17-a-prose-rule-is-not-a-gate.md 2026-08-17 (second pass): the check was narrowed to count only list ELEMENTS — a mapping value, mapping pair, call argument, comparison or JSDoc union is not a copy — and 8 of the original 10 turned out not to be copies at all. The 2 that were are now derived. The single remaining entry is deliberate: the audit browser lists PORTFOLIO/TENANT/BUSINESS as ENTITY names, and although those three strings equal WORKSPACE_SCOPE_TYPES they are a different vocabulary that is free to diverge; deriving one from the other because the values coincide would be a worse and quieter defect than the copy.",
   "recorded_at": "2026-08-17",
   "copies": [
-    "src/app/(pm)/audit/page.jsx::DEPENDENCY_ENDPOINT_TYPES",
-    "src/app/(pm)/audit/page.jsx::WORKSPACE_SCOPE_TYPES",
-    "src/app/(pm)/projects/new/page.jsx::ITEM_SUBTYPES",
-    "src/components/landing/ZuriLanding.jsx::WORKSPACE_SCOPE_TYPES",
-    "src/modules/identity/classify-principal.js::PRINCIPAL_TYPES",
-    "src/modules/project-manager/application/dependency-service.js::DEPENDENCY_ENDPOINT_TYPES",
-    "src/modules/project-manager/application/project-dependency-map.js::DEPENDENCY_ENDPOINT_TYPES",
-    "src/modules/project-manager/application/scope-service.js::WORKSPACE_SCOPE_TYPES",
-    "src/modules/project-manager/import/external-ref.js::DEPENDENCY_ENDPOINT_TYPES",
-    "src/modules/project-manager/import/plan-import-service.js::DEPENDENCY_ENDPOINT_TYPES"
+    "src/app/(pm)/audit/page.jsx::WORKSPACE_SCOPE_TYPES"
   ]
 }

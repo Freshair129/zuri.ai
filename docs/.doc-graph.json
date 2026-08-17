@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 779,
-    "total_edges": 2142,
+    "total_nodes": 780,
+    "total_edges": 2145,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 96,
       "model": 33,
       "requirement": 157,
-      "test": 142,
+      "test": 143,
       "code_file": 216
     },
     "coverage": {
@@ -54,9 +54,12 @@
   },
   "drift": {
     "changed": [
-      "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS"
+      "code:src/app/(pm)/audit/page.jsx",
+      "code:src/modules/project-manager/application/project-dependency-map.js"
     ],
-    "added": [],
+    "added": [
+      "test:tests/unit/mode-default-subtype.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -109,8 +112,8 @@
       "id": "code:src/app/(pm)/audit/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/audit/page.jsx",
-      "hash": "1697b9ea",
-      "status": "current",
+      "hash": "86ba33c7",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-014"
@@ -3512,8 +3515,8 @@
       "id": "code:src/modules/project-manager/application/project-dependency-map.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-dependency-map.js",
-      "hash": "c56fd162",
-      "status": "current",
+      "hash": "7dcfeef9",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-040"
@@ -7636,7 +7639,7 @@
       "path": "docs/decisions/ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS.md",
       "title": "ADR-029 — Stable identity bindings for execution plans, tags, domains and supporting references",
       "hash": "24c74143",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
@@ -8372,6 +8375,13 @@
       "type": "test",
       "path": "tests/unit/line-channel-binding.test.js",
       "hash": "e81dca9c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/mode-default-subtype.test.js",
+      "type": "test",
+      "path": "tests/unit/mode-default-subtype.test.js",
+      "hash": "41f609d4",
       "status": "current"
     },
     {
@@ -22106,6 +22116,27 @@
     {
       "from": "test:tests/unit/line-channel-binding.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/mode-default-subtype.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/mode-default-subtype.test.js",
+      "to": "req:FR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/mode-default-subtype.test.js",
+      "to": "req:SDD-002",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
