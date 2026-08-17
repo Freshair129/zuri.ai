@@ -407,6 +407,25 @@ live in two places — exactly the drift the generators exist to prevent.
 When adding a new document, decide its layer first. If it does not fit one of the
 five slots above, that is a signal the structure needs an ADR, not a stray file.
 
+**Then run `npm run govern` and commit what it rewrites.** Creating or editing any
+document — an ADR, a feature note, a PRD/FEATURES row — changes the graph's input,
+and the generated views do not update themselves. A document that exists on disk
+but not in the graph is a preflight CRITICAL (`FEATURE-MAP is blind to N feature
+note(s)`), and CI fails the branch that ships a stale view.
+
+This sentence lives here, in the section you are reading while you write the
+document, and not only in `CLAUDE.md` where it was stated as a general rule. It
+was added on 2026-08-17 after two sessions created feature notes without
+regenerating: the rule existed, but not where the author was standing. That is
+the same defect this repository keeps finding in its own code — a rule enforced at
+one level and absent at the level below.
+
+**One exception, and it is about people, not tooling:** when another session is
+holding the graph, do not run it concurrently. Two `govern` runs over one tree
+interleave, and the first one to finish commits a graph describing files the other
+has not committed yet. Say what you changed and let the graph-owning session
+reconcile in a single pass.
+
 ### 20. The legacy project's documentation (retired)
 
 Retired by [ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md). The mirror
