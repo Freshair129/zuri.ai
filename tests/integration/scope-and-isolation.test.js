@@ -59,9 +59,9 @@ describe('scope chain + tenant isolation', () => {
 
   it('projects are isolated per business scope', async () => {
     const bus2Projects = await listProjects({ businessId: bus2.id })
-    expect(bus2Projects.find((p) => p.code === 'PRJ-ISO-1')).toBeUndefined()
+    expect(bus2Projects.items.find((p) => p.code === 'PRJ-ISO-1')).toBeUndefined()
     const bus1Projects = await listProjects({ businessId: bus1.id })
-    expect(bus1Projects.find((p) => p.code === 'PRJ-ISO-1')).toBeTruthy()
+    expect(bus1Projects.items.find((p) => p.code === 'PRJ-ISO-1')).toBeTruthy()
   })
 
   it('cross-tenant scope assertion is rejected', async () => {

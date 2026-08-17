@@ -88,7 +88,7 @@ Contract constraints:
 
 | Method | Path | ทำอะไร |
 |---|---|---|
-| GET/POST | `/api/projects` | list (filter: workspaceId, businessId, tenantId, status, q) / create; create derives `businessId` from the target Space and rejects owner/Space mismatch |
+| GET/POST | `/api/projects` | list (filter: workspaceId, businessId, tenantId, status, q, limit, view) → `{ items, limit, truncated }` / create; `view=overview|timeline|workspace` are explicit relation-rich compatibility reads for existing consumers; create derives `businessId` from the target Space and rejects owner/Space mismatch |
 | GET/PATCH/DELETE | `/api/projects/[id]` | detail (includes direct Business owner and Space context) / update with owner/Space invariant / archive |
 | GET/POST/PATCH/DELETE | `/api/projects/[id]/team` | team in business scope / add member / change role / remove business-scoped member |
 | GET/POST | `/api/projects/[id]/files` | list/add ProjectFile metadata reference; optional WorkItem must belong to Project |
@@ -106,6 +106,20 @@ Contract constraints:
 | GET/POST, PATCH | `/api/repositories`, `/api/repositories/[id]` | list / register / update repo metadata |
 | POST, DELETE | `/api/repositories/link`, `/api/repositories/link/[id]` | link / unlink project↔repo |
 | GET | `/api/resolve?type=&code=` | human code → internal id |
+
+`GET /api/projects` returns a machine-checked Project list projection. Each item
+contains `id`, `code`, `name`, `description`, `type`, `status`, `businessId`,
+`workspaceId`, `workspace { code, name, scopeType }`, ISO `startAt`/`targetAt`,
+and `workstreamCount`. Archived rows (`deletedAt IS NOT NULL`) are excluded;
+the default and hard maximum limit is 500, and `truncated` discloses when the
+most recent window is incomplete. Filters compose with `AND`, Business filters
+use direct `Project.businessId`, and ordering is `updatedAt DESC, id DESC`.
+
+`view=list` is the default stable Project list contract. `/overview`, the global
+Schedule, and Space detail send `view=overview`, `view=timeline`, and
+`view=workspace` explicitly and receive their existing relation-rich array shape;
+these compatibility reads are not second stable list DTOs and are not used by
+`/projects`.
 
 ## Progress / Import / Backup / Audit
 

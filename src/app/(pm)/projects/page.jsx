@@ -2,12 +2,12 @@
 
 // @req FR-003 — Project CRUD + archive (soft delete): list, create link,
 // edit modal and archive action over /api/projects.
-// @tested tests/e2e/smoke.spec.js
+// @tested tests/e2e/smoke.spec.js, tests/unit/project-list-contract.test.js
 import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Plus, Archive } from 'lucide-react'
-import { PageHeader, DataTable, StatusPill, EmptyState, ErrorState } from '@/components/ui'
+import { PageHeader, DataTable, StatusPill, EmptyState, ErrorState, TruncationNotice } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { useFetch, api, LoadingCard } from '@/modules/project-manager/components/useApi'
 import ProjectModal from '@/modules/project-manager/components/ProjectModal'
@@ -38,6 +38,7 @@ function ProjectsPageInner() {
     scope.selection.workspaceId,
     q,
   ])
+  const rows = data?.items || []
 
   const closeModal = () => {
     setModalOpen(false)
@@ -62,7 +63,16 @@ function ProjectsPageInner() {
       {loading && <LoadingCard />}
       {error && <ErrorState detail={error} retry={reload} />}
       {!loading && !error && (
-        <DataTable
+        <>
+          {data?.truncated && (
+            <TruncationNotice
+              shown={rows.length}
+              limit={data.limit}
+              noun="projects"
+              hint="Narrow the search or scope filters to find older projects."
+            />
+          )}
+          <DataTable
           columns={[
             { key: 'code', label: 'Code' },
             {
@@ -115,7 +125,7 @@ function ProjectsPageInner() {
               ),
             },
           ]}
-          rows={data || []}
+          rows={rows}
           onRowClick={(p) => router.push(`/projects/${p.id}`)}
           empty={
             <EmptyState
@@ -124,7 +134,8 @@ function ProjectsPageInner() {
               action={<Link href="/projects/new" className="btn btn-primary">Create the first project</Link>}
             />
           }
-        />
+          />
+        </>
       )}
       {modalOpen && (
         <ProjectModal

@@ -83,8 +83,8 @@ describe('Project Business ownership and Space context', () => {
     expect(sharedProject.businessId).toBeNull()
 
     const projects = await listProjects({ businessId: businessA.id })
-    expect(projects.some((item) => item.id === project.id)).toBe(true)
-    expect(projects.some((item) => item.id === sharedProject.id)).toBe(false)
+    expect(projects.items.some((item) => item.id === project.id)).toBe(true)
+    expect(projects.items.some((item) => item.id === sharedProject.id)).toBe(false)
   })
 
   it('rejects moving a Business project to another Business Space', async () => {

@@ -9,6 +9,7 @@ import {
 import { MODE_DEFAULT_STRATEGY } from '@/lib/validation/enums'
 import { recordAudit } from './audit'
 import { assertProjectWritable, assertWorkstreamWritable, assertWorkspaceWritable } from './project-authorization'
+import { PROJECT_LIST_LIMIT, serializeProjectListItem, zProjectListResponse } from './project-list-read-model'
 
 // @req FR-003, FR-004 — project CRUD/archive + workstream mode/strategy/weight
 // @spec BR-004, SDD-004 — seven canonical modes (Zod-enforced); archive is a
@@ -49,12 +50,13 @@ function resolveProjectBusinessId(workspace, requestedBusinessId, explicit = fal
   return businessId
 }
 
-export async function listProjects({ workspaceId, businessId, tenantId, status, q } = {}) {
+function buildProjectListWhere({ workspaceId, businessId, tenantId, status, q } = {}) {
   const where = { deletedAt: null }
   if (workspaceId) where.workspaceId = workspaceId
   if (status) where.status = status
-  if (q) {
-    where.OR = [{ name: { contains: q } }, { code: { contains: q } }]
+  const search = typeof q === 'string' ? q.trim() : q
+  if (search) {
+    where.OR = [{ name: { contains: search } }, { code: { contains: search } }]
   }
   // Tenant isolation flows through the Space; Business ownership is direct.
   if (businessId || tenantId) {
@@ -62,8 +64,40 @@ export async function listProjects({ workspaceId, businessId, tenantId, status, 
     if (businessId) where.businessId = businessId
     if (tenantId) where.workspace.tenantId = tenantId
   }
-  return prisma.project.findMany({
+  return where
+}
+
+export async function listProjects({ workspaceId, businessId, tenantId, status, q, limit = PROJECT_LIST_LIMIT } = {}) {
+  const where = buildProjectListWhere({ workspaceId, businessId, tenantId, status, q })
+  const effectiveLimit = Math.min(
+    Math.max(Number.isFinite(Number(limit)) ? Math.trunc(Number(limit)) : PROJECT_LIST_LIMIT, 1),
+    PROJECT_LIST_LIMIT
+  )
+  const rows = await prisma.project.findMany({
     where,
+    orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+    include: {
+      workspace: { select: { code: true, name: true, scopeType: true } },
+      workstreams: { where: { deletedAt: null }, select: { id: true } },
+    },
+    take: effectiveLimit + 1,
+  })
+  return zProjectListResponse.parse({
+    items: rows.slice(0, effectiveLimit).map(serializeProjectListItem),
+    limit: effectiveLimit,
+    truncated: rows.length > effectiveLimit,
+  })
+}
+
+// @req FR-001, FR-041, FR-060, FR-064 — preserve the relation-rich read shape
+// used by existing Workspace, Business Home, and Timeline projections while
+// the stable /projects list uses its DTO.
+// @spec SDD-033, SDD-036 — explicit compatibility views; do not widen the
+// stable list contract.
+// @tested tests/unit/project-list-contract.test.js, tests/e2e/fr041-business-first.spec.js, tests/e2e/smoke.spec.js
+async function listProjectsWithRelations({ workspaceId, businessId, tenantId, status, q } = {}) {
+  return prisma.project.findMany({
+    where: buildProjectListWhere({ workspaceId, businessId, tenantId, status, q }),
     orderBy: { updatedAt: 'desc' },
     include: {
       business: { select: { id: true, code: true, name: true, tenantId: true } },
@@ -73,6 +107,18 @@ export async function listProjects({ workspaceId, businessId, tenantId, status, 
       gates: true,
     },
   })
+}
+
+export async function listProjectsForOverview(filters = {}) {
+  return listProjectsWithRelations(filters)
+}
+
+export async function listProjectsForTimeline(filters = {}) {
+  return listProjectsWithRelations(filters)
+}
+
+export async function listProjectsForWorkspace(filters = {}) {
+  return listProjectsWithRelations(filters)
 }
 
 export async function getProject(id) {

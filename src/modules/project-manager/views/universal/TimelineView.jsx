@@ -2,6 +2,10 @@
 
 // Universal timeline: projects/workstreams/milestones on a month grid.
 // Neutral vocabulary — "streams", not sprints.
+// @req FR-064 — global Schedule reads the relation-rich compatibility view,
+// while the Project list route remains a stable DTO boundary.
+// @spec SDD-036
+// @tested tests/unit/project-list-contract.test.js, tests/e2e/smoke.spec.js
 
 import { differenceInDays, format, max, min } from 'date-fns'
 import { Card, StatusPill, EmptyState, ErrorState } from '@/components/ui'
@@ -35,7 +39,7 @@ function Bar({ label, start, end, rangeStart, rangeEnd, status, percent }) {
 }
 
 export default function TimelineView({ projectId }) {
-  const url = projectId ? `/api/projects/${projectId}` : '/api/projects'
+  const url = projectId ? `/api/projects/${projectId}` : '/api/projects?view=timeline'
   const { data, loading, error, reload } = useFetch(url)
 
   if (loading) return <LoadingCard />
