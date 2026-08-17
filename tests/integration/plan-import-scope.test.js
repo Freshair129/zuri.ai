@@ -7,6 +7,7 @@ import {
   createWorkspace,
 } from '@/modules/project-manager/application/scope-service'
 import { dryRunPlan, commitPlan } from '@/modules/project-manager/import/plan-import-service'
+import { makeViewer } from '../factories/viewer'
 
 // @req FR-012, FR-019 — import child entities must be scoped to the plan's
 // target workspace/project/workstream by construction, not matched by a
@@ -22,6 +23,14 @@ import { dryRunPlan, commitPlan } from '@/modules/project-manager/import/plan-im
 let workspaceA
 let workspaceB
 
+// @req FR-065 — the pipeline authorizes its target, so it takes a viewer. This
+// suite proves child entities are scoped by construction, which is a *different*
+// guarantee from authorization: it deliberately runs as a viewer who owns BOTH
+// Businesses, so every refusal it observes is scoping, never a missing grant.
+let viewer
+const dryRun = (plan, opts = {}) => dryRunPlan(plan, { viewer, ...opts })
+const runCommit = (plan, opts = {}) => commitPlan(plan, { viewer, ...opts })
+
 async function makeScope(suffix) {
   const portfolio = await createPortfolio({ name: `Scope Group ${suffix}`, code: `PF-SCOPEBUG-${suffix}` })
   const tenant = await createTenant({ portfolioId: portfolio.id, name: `Scope Tenant ${suffix}`, code: `TNT-SCOPEBUG-${suffix}` })
@@ -35,6 +44,8 @@ describe('import child-entity scoping (cross-workspace / cross-tenant hijack)', 
     // or business. Only their codes will collide, on purpose.
     workspaceA = await makeScope('A')
     workspaceB = await makeScope('B')
+    const businesses = [workspaceA.businessId, workspaceB.businessId]
+    viewer = makeViewer({ visibleBusinessIds: businesses, ownedBusinessIds: businesses })
 
     const planA = {
       schemaVersion: '1.1',
@@ -61,7 +72,7 @@ describe('import child-entity scoping (cross-workspace / cross-tenant hijack)', 
       ],
     }
 
-    const seed = await commitPlan(planA)
+    const seed = await runCommit(planA)
     expect(seed.committed).toBe(true)
   })
 
@@ -97,14 +108,14 @@ describe('import child-entity scoping (cross-workspace / cross-tenant hijack)', 
     expect(before).toBeTruthy()
     expect(before.title).toBe('Alpha original title')
 
-    const dry = await dryRunPlan(planB)
+    const dry = await dryRun(planB)
     // The preview must not lie: this is not a benign update of Beta's own
     // item (Beta has none yet) — it is a collision with Alpha's item.
     expect(dry.valid).toBe(false)
     expect(dry.preview.conflicts.some((c) => c.kind === 'item' && c.code === 'ITEM-SCOPEBUG-SHARED')).toBe(true)
     expect(dry.preview.updates.some((u) => u.code === 'ITEM-SCOPEBUG-SHARED')).toBe(false)
 
-    const commit = await commitPlan(planB)
+    const commit = await runCommit(planB)
     expect(commit.committed).toBe(false)
 
     const after = await prisma.workItem.findUnique({ where: { code: 'ITEM-SCOPEBUG-SHARED' } })
@@ -132,11 +143,11 @@ describe('import child-entity scoping (cross-workspace / cross-tenant hijack)', 
       ],
     }
 
-    const dry = await dryRunPlan(planB2, { workspaceId: workspaceB.id })
+    const dry = await dryRun(planB2, { workspaceId: workspaceB.id })
     expect(dry.valid).toBe(false)
     expect(dry.preview.conflicts.some((c) => c.kind === 'workstream' && c.code === 'WST-SCOPEBUG-A')).toBe(true)
 
-    const commit = await commitPlan(planB2, { workspaceId: workspaceB.id })
+    const commit = await runCommit(planB2, { workspaceId: workspaceB.id })
     expect(commit.committed).toBe(false)
 
     const alphaWorkstream = await prisma.workstream.findUnique({ where: { code: 'WST-SCOPEBUG-A' } })
@@ -168,12 +179,12 @@ describe('import child-entity scoping (cross-workspace / cross-tenant hijack)', 
       ],
     }
 
-    const dry = await dryRunPlan(planA2)
+    const dry = await dryRun(planA2)
     expect(dry.valid).toBe(true)
     expect(dry.preview.updates.some((u) => u.kind === 'item' && u.code === 'ITEM-SCOPEBUG-SHARED')).toBe(true)
     expect(dry.preview.conflicts.length).toBe(0)
 
-    const commit = await commitPlan(planA2)
+    const commit = await runCommit(planA2)
     expect(commit.committed).toBe(true)
 
     const item = await prisma.workItem.findUnique({ where: { code: 'ITEM-SCOPEBUG-SHARED' } })
@@ -206,13 +217,13 @@ describe('import child-entity scoping (cross-workspace / cross-tenant hijack)', 
       ],
     }
 
-    const dry = await dryRunPlan(relabel)
+    const dry = await dryRun(relabel)
     expect(dry.valid).toBe(true)
     const updateRow = dry.preview.updates.find((u) => u.matchedBy === 'externalRef' && u.planCode === 'ITEM-SCOPEBUG-RENAMED')
     expect(updateRow).toBeTruthy()
     expect(updateRow.code).toBe('ITEM-SCOPEBUG-SHARED') // our code namespace still wins
 
-    const commit = await commitPlan(relabel)
+    const commit = await runCommit(relabel)
     expect(commit.committed).toBe(true)
 
     const item = await prisma.workItem.findUnique({ where: { code: 'ITEM-SCOPEBUG-SHARED' } })
@@ -245,11 +256,11 @@ describe('import child-entity scoping (cross-workspace / cross-tenant hijack)', 
       ],
     }
 
-    const dry = await dryRunPlan(crossScopeRelabel, { workspaceId: workspaceB.id })
+    const dry = await dryRun(crossScopeRelabel, { workspaceId: workspaceB.id })
     expect(dry.valid).toBe(false)
     expect(dry.preview.conflicts.some((c) => c.kind === 'item' && c.code === 'ITEM-SCOPEBUG-STEAL')).toBe(true)
 
-    const commit = await commitPlan(crossScopeRelabel, { workspaceId: workspaceB.id })
+    const commit = await runCommit(crossScopeRelabel, { workspaceId: workspaceB.id })
     expect(commit.committed).toBe(false)
 
     const item = await prisma.workItem.findUnique({ where: { code: 'ITEM-SCOPEBUG-SHARED' } })

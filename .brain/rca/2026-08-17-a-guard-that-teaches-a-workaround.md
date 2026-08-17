@@ -126,3 +126,48 @@ CRITICAL, and three scattered single-value comparisons pass.
    might be "this is not a list at all", the message has already pointed the
    reader at the wrong repair. Prefer a wording that names the *shape* it
    objects to, not the values it thinks are absent.
+
+---
+
+## Third occurrence, 2026-08-17 (FR-065): the guard fired on its own remedy
+
+Two new test files were flagged by `viewer-fixture` while both used
+`makeViewer()` — the sanctioned factory the check exists to push people toward.
+
+The mechanism is worth stating precisely, because it is the first of these three
+where the false positive punished the *correct* behaviour:
+
+- `tests/integration/import-target-authorization.test.js` — the offending
+  `role:` was itself an argument to the factory:
+  `makeViewer({ visibleBusinessIds: [], ownedBusinessIds: [], role: 'MEMBER' })`.
+- `tests/unit/import-authorization.test.js` — the offending literal was
+  `authorizeImportTarget({ role: 'OWNER' }, ws)`, a deliberate *refusal* proof,
+  and the "resolver-only field within ten lines" half of the heuristic was
+  satisfied by a `makeViewer(...)` call in the test above it.
+
+One root cause: **a sanctioned factory call was being read as evidence of hand
+building.** So a file could start failing this check by adopting the factory —
+the exact inversion the guard is meant to prevent.
+
+**Fix.** Factory-call spans (`makeViewer` / `ownsElsewhere` / `makeDevViewer`,
+paren-matched across lines) are blanked before matching, for *both* halves of the
+test: such a line can neither be the offending `role:` nor supply the
+resolver-only field that convicts a neighbouring one. No file was restructured
+and no exemption was added.
+
+**Proven in both directions**, per prevention item 3 — three planted controls,
+each confirmed CRITICAL before removal:
+
+1. a bare hand-built `{ role: 'OWNER', visibleBusinessIds: [...] }`
+2. the same, sitting directly beside a legitimate `makeViewer(...)` call
+3. a multi-line hand-built viewer beside a legitimate `makeViewer(...)` call
+
+Known and accepted gap: a bare `{ role: 'OWNER' }` with no grant fields at all,
+next to a factory call, no longer trips the check. That shape carries no
+authority — every guard reading it fails closed — so it is not the fixture class
+this check exists to catch.
+
+**What this adds to prevention.** A guard over "did you use the sanctioned
+constructor" must treat calls to that constructor as *inert*, never as evidence.
+Otherwise its false-positive rate rises exactly as adoption rises, and the people
+it fires on are the ones who complied.

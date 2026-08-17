@@ -276,10 +276,22 @@ test.describe('FR-020 adaptive shell', () => {
 test.describe('FR-019 enterprise API', () => {
   // Backend-first surface: no UI, so this exercises it the way an integrator
   // would — HTTP only, against the running server.
-  const plan = (overrides = {}) => ({
+  //
+  // @req FR-065 — two changes here, and they are different in kind:
+  //
+  //   * The integrator now authenticates. An unauthenticated import was never a
+  //     declared capability of FR-019; it was the absence of a guard, and
+  //     SEC-008 says identity fails closed.
+  //   * The target moved from `WS-PLATFORM` to `WS-B01-MIG`. WS-PLATFORM is
+  //     PORTFOLIO-scoped, and FR-065 refuses a target above Business because no
+  //     principal in this system can hold authority there. This test was the
+  //     live proof that the path was reachable, so it had to move — what it is
+  //     actually about (upsert by customer core id, then resolve it back) is
+  //     unchanged and still asserted.
+  const plan = (overrides = {}, workspaceCode = 'WS-B01-MIG') => ({
     schemaVersion: '1.1',
     generatedBy: 'e2e-erp',
-    scope: { workspaceCode: 'WS-PLATFORM' },
+    scope: { workspaceCode },
     project: {
       code: 'PRJ-E2E-ENTERPRISE',
       name: 'E2E enterprise rollout',
@@ -307,7 +319,37 @@ test.describe('FR-019 enterprise API', () => {
     expect(doc.components.schemas.PlanEnvelope.properties.project.properties.externalRefs).toBeTruthy()
   })
 
+  // @req FR-065 — the route-level half of the change, over real HTTP. The
+  // pipeline is pinned in tests/integration/import-target-authorization.test.js;
+  // what only an end-to-end request can prove is that the handler resolves a
+  // viewer at all, rather than reading `workspaceId` out of the body and going.
+  test('refuses an unauthenticated import instead of writing', async ({ request }) => {
+    const dry = await request.post('/api/import/dry-run', { data: { plan: plan() } })
+    expect(dry.status()).toBe(401)
+
+    const commit = await request.post('/api/import/commit', { data: { plan: plan() } })
+    expect(commit.status()).toBe(401)
+
+    // The upload surface is the third route into the same pipeline, and it had
+    // its own catch-all that would have reported a 401 as a 500.
+    const xlsx = await request.post('/api/import/xlsx', { multipart: { workspaceId: 'x' } })
+    expect(xlsx.status()).toBe(401)
+  })
+
+  test('refuses an import above Business, naming the authority that does not exist', async ({ request }) => {
+    await request.post('/api/session/demo', { maxRedirects: 0 })
+    // WS-PLATFORM is PORTFOLIO-scoped. No principal can hold authority there, so
+    // this is refused for everyone — and says so, rather than denying silently.
+    const res = await request.post('/api/import/dry-run', {
+      data: { plan: plan({}, 'WS-PLATFORM') },
+    })
+    const body = await res.json()
+    expect(body.valid).toBe(false)
+    expect(body.errors.join(' ')).toContain('no authority above Business')
+  })
+
   test('upserts by the customer core id and resolves it back', async ({ request }) => {
+    await request.post('/api/session/demo', { maxRedirects: 0 })
     const dry = await (await request.post('/api/import/dry-run', { data: { plan: plan() } })).json()
     expect(dry.valid).toBe(true)
 

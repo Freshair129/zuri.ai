@@ -467,6 +467,36 @@ const VIEWER_EXEMPT = new Set([
   // have documented a workaround and weakened the real signal everywhere else
   // (.brain/rca/2026-08-17-a-guard-that-teaches-a-workaround.md).
   const membershipRow = /personId|membershipId|domainKeysJson|employeeRef|branchId|tenantId/
+  // A call to the sanctioned factory is the behaviour this check exists to
+  // produce, so its own argument list must never be the evidence against a file.
+  // `makeViewer({ visibleBusinessIds: [], ownedBusinessIds: [], role: 'MEMBER' })`
+  // is correct usage, and a factory call ten lines above an unrelated `role:`
+  // supplied the "resolver-only field" half of the heuristic for free — so
+  // adopting the factory could make a file *start* failing. That is the third
+  // widening, and the first where the false positive pointed at the very thing
+  // the guard is trying to encourage
+  // (.brain/rca/2026-08-17-a-guard-that-teaches-a-workaround.md).
+  const FACTORY_CALL = /\b(?:makeViewer|ownsElsewhere|makeDevViewer)\s*\(/
+  /** Line indices spanned by a sanctioned factory call, matched by paren depth. */
+  const factorySpan = (lines) => {
+    const inside = new Set()
+    for (let i = 0; i < lines.length; i += 1) {
+      const match = FACTORY_CALL.exec(lines[i])
+      if (!match) continue
+      let depth = 0
+      let started = false
+      for (let j = i; j < lines.length; j += 1) {
+        const from = j === i ? match.index : 0
+        for (const ch of lines[j].slice(from)) {
+          if (ch === '(') { depth += 1; started = true }
+          else if (ch === ')') depth -= 1
+        }
+        inside.add(j)
+        if (started && depth <= 0) break
+      }
+    }
+    return inside
+  }
   const offenders = []
   for (const file of walk(path.join(ROOT, 'tests'), '.js')) {
     const relative = rel(file)
@@ -480,12 +510,17 @@ const VIEWER_EXEMPT = new Set([
     const lines = read(file)
       .split('\n')
       .map((line) => line.replace(/\/\/.*$/, '').replace(/^\s*\*.*$/, ''))
+    // Factory-call lines are blanked for BOTH halves of the test: they can
+    // neither be the offending `role:` nor supply the resolver-only field that
+    // convicts a neighbouring one.
+    const factory = factorySpan(lines)
+    const evidence = lines.map((line, i) => (factory.has(i) ? '' : line))
     // Proximity, not parsing: a `role:` within ten lines of a resolver-only
     // field is a viewer literal in every real occurrence in this repository.
-    const hit = lines.some((line, i) =>
+    const hit = evidence.some((line, i) =>
       roleLiteral.test(line)
       && !membershipRow.test(line)
-      && viewerField.test(lines.slice(Math.max(0, i - 10), i + 11).join('\n')))
+      && viewerField.test(evidence.slice(Math.max(0, i - 10), i + 11).join('\n')))
     if (hit) offenders.push(relative)
   }
   offenders.sort()
