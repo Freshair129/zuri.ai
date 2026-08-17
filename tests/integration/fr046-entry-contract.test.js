@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
-import { createPortfolio, createTenant, createBusiness } from '@/modules/project-manager/application/scope-service'
+import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { resolveViewer } from '@/modules/identity/resolve-viewer'
 import { buildViewerEntry, zEntryResponse } from '@/modules/identity/entry-read-model'
 

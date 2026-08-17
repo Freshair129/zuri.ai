@@ -11,7 +11,7 @@ import {
   createPortfolio,
   createTenant,
   createWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import { createProject, listProjects, updateProject } from '@/modules/project-manager/application/project-service'
 import { makeViewer } from '../factories/viewer'
 

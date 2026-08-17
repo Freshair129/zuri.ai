@@ -4,12 +4,12 @@
   "scanned": {
     "docs": 136,
     "routes": 61,
-    "test_files": 153
+    "test_files": 155
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 16,
+    "info": 15,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -155,7 +155,7 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 153 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 155 files"
     },
     {
       "id": "I14",
@@ -170,17 +170,6 @@
     },
     {
       "id": "I15",
-      "severity": "info",
-      "check": "route-viewer",
-      "title": "2 mutating route(s) still resolve no viewer (accepted debt)",
-      "details": "baseline: docs/.route-viewer-baseline.json",
-      "files": [
-        "docs/.route-viewer-baseline.json"
-      ],
-      "action": "Each one is a write nobody can attribute; the baseline may only shrink"
-    },
-    {
-      "id": "I16",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",

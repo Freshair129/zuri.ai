@@ -6,7 +6,7 @@ import {
   createTenant,
   createBusiness,
   createWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import {
   createProject,
   updateProject,

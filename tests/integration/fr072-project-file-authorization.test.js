@@ -10,7 +10,7 @@ import {
   createTenant,
   createBusiness,
   createWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import { createProject } from '@/modules/project-manager/application/project-service'
 import { createProjectFile, deleteProjectFile } from '@/modules/project-manager/application/project-file-service'
 

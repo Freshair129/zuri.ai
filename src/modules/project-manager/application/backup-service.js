@@ -1,12 +1,45 @@
 // @req FR-013 - snapshot export/import with preview and confirmation.
 // @req FR-045 - portable FileAsset metadata, optional content and explicit remount gaps.
+// @req FR-075 - restore is an installation-wide operation and requires operator
+// authority. This is what took /api/backup/import off the route-viewer baseline.
+// The route was unrepayable for as long as the only holdable authority was
+// per-Business: importSnapshot deletes and replaces every Portfolio, Tenant,
+// Business, identity and audit row, so owning every Business that exists today
+// still says nothing about the rows a snapshot introduces. The answer was to
+// name the capability, not to compose a bigger loop over ownsBusiness.
 // @spec BR-008, SDD-023, ADR-016 D10
+// @spec SEC-008
 // @tested tests/integration/backup.test.js, tests/unit/fr045-backup-contract.test.js
+// @tested tests/integration/fr075-restore-authorization.test.js
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
+import { requireViewer } from './project-authorization'
+import { isInstallationOperator } from '@/modules/identity/viewer-authority'
+
+/**
+ * Guard for both entry points below.
+ *
+ * The preview is guarded as well as the restore, deliberately: it returns a row
+ * count for every table across every tenant, which is the same disclosure the
+ * restore guard would otherwise hand out for free. FR-065 made the identical
+ * call for the import dry run — "a read-only preview of another scope's contents
+ * is the leak the commit guard would otherwise still allow."
+ */
+function assertRestoreOperator(viewer) {
+  requireViewer(viewer, 'backup restore')
+  if (!isInstallationOperator(viewer)) {
+    const error = new Error(
+      'Restoring a snapshot replaces every tenant in this installation. It requires ' +
+      'operator authority (a platform grant, or the local installation session) — ' +
+      'owning Businesses does not confer it, however many.'
+    )
+    error.status = 403
+    throw error
+  }
+}
 
 export const SNAPSHOT_SCHEMA_VERSION = '1.0'
 
@@ -87,7 +120,8 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   }
 }
 
-export async function previewImport(snapshot, { remounts = [], db = prisma } = {}) {
+export async function previewImport(snapshot, { remounts = [], db = prisma, viewer } = {}) {
+  assertRestoreOperator(viewer)
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) return base
   const current = {}
@@ -99,9 +133,11 @@ export async function importSnapshot(snapshot, {
   confirm = false,
   remounts = [],
   db = prisma,
+  viewer,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
-  const preview = await previewImport(snapshot, { remounts, db })
+  assertRestoreOperator(viewer)
+  const preview = await previewImport(snapshot, { remounts, db, viewer })
   if (!preview.valid) return { restored: false, ...preview }
   if (!confirm) return { restored: false, needsConfirmation: true, ...preview }
   for (const mount of remounts) {
