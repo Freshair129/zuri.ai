@@ -77,7 +77,7 @@
 - **Surface:** `/execution/[mode]` (page) · `/execution` (page) · `/projects/[projectId]/execution/[mode]` (page)
 - **Code:** `src/app/(pm)/execution/[mode]/page.jsx` · `src/app/(pm)/execution/page.jsx` · `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx` · `src/modules/project-manager/views/execution/mode-bodies.jsx`
 - **Follows:** —
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/unit/fr063-board-columns.test.js`
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/unit/card-calculator-agreement.test.js` · `tests/unit/fr063-board-columns.test.js`
 
 ### FR-010 — Progress ต่อ workstream ตาม strategy + evidence + warnings + "Explain" UI
 
@@ -85,7 +85,7 @@
 - **Surface:** `/api/progress/workstream/[id]` (api)
 - **Code:** `src/app/api/progress/workstream/[id]/route.js` · `src/modules/project-manager/progress/strategies.js`
 - **Follows:** BR-005, BR-006, SDD-005
-- **Tests:** `tests/unit/strategies.test.js`
+- **Tests:** `tests/unit/gate-cap-rounding.test.js` · `tests/unit/strategies.test.js`
 
 ### FR-011 — Project roll-up ถ่วงน้ำหนัก Σ(ws%×w)/Σw
 

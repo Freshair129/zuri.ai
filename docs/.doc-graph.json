@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 742,
-    "total_edges": 1987,
+    "total_nodes": 744,
+    "total_edges": 1991,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 96,
       "model": 33,
       "requirement": 142,
-      "test": 136,
+      "test": 138,
       "code_file": 213
     },
     "coverage": {
@@ -39,8 +39,14 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [],
+    "changed": [
+      "code:src/modules/project-manager/progress/strategies.js",
+      "code:src/modules/project-manager/views/execution/mode-bodies.jsx"
+    ],
+    "added": [
+      "test:tests/unit/card-calculator-agreement.test.js",
+      "test:tests/unit/gate-cap-rounding.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -3868,8 +3874,8 @@
       "id": "code:src/modules/project-manager/progress/strategies.js",
       "type": "code_file",
       "path": "src/modules/project-manager/progress/strategies.js",
-      "hash": "56c718c1",
-      "status": "current",
+      "hash": "b3b061b1",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-010"
@@ -3906,8 +3912,8 @@
       "id": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/views/execution/mode-bodies.jsx",
-      "hash": "77085876",
-      "status": "current",
+      "hash": "504fe6e3",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-009"
@@ -7669,6 +7675,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/card-calculator-agreement.test.js",
+      "type": "test",
+      "path": "tests/unit/card-calculator-agreement.test.js",
+      "hash": "1be702ca",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/controlled-line-activation-migration.test.js",
       "type": "test",
       "path": "tests/unit/controlled-line-activation-migration.test.js",
@@ -7911,6 +7924,13 @@
       "type": "test",
       "path": "tests/unit/fr063-board-columns.test.js",
       "hash": "fae50ac5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/gate-cap-rounding.test.js",
+      "type": "test",
+      "path": "tests/unit/gate-cap-rounding.test.js",
+      "hash": "fb34773e",
       "status": "current"
     },
     {
@@ -18451,6 +18471,20 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/card-calculator-agreement.test.js",
+      "to": "req:BR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/card-calculator-agreement.test.js",
+      "to": "req:FR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/controlled-line-activation-migration.test.js",
       "to": "req:FR-055",
       "type": "verifies",
@@ -20392,6 +20426,20 @@
     {
       "from": "test:tests/unit/fr063-board-columns.test.js",
       "to": "req:SDD-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/gate-cap-rounding.test.js",
+      "to": "req:BR-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/gate-cap-rounding.test.js",
+      "to": "req:FR-010",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
