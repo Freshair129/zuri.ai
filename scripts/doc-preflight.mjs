@@ -598,6 +598,131 @@ if (existsSync(ENUM_SOURCE)) {
   }
 }
 
+// ---- Check 10: mutating routes must resolve a viewer (ratchet) ------------
+// On 2026-08-17 a review found `POST /api/projects/{id}/team` resolving no
+// viewer while the service behind it wrote a Membership whose `role` came
+// straight from the request body — one unauthenticated request minted
+// business-owner authority. It was not an oversight in one file: 39 of 61 route
+// files resolved no viewer, and the SEC-001 guard `assertWorkspaceInScope` was
+// called by nothing.
+//
+// Reads are a separate argument. A handler that WRITES and cannot say who is
+// asking is not.
+const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json')
+{
+  const MUTATING = /export\s+async\s+function\s+(POST|PATCH|PUT|DELETE)\b/
+  const RESOLVES = /resolveRequestViewer|resolveViewer/
+  // Structurally exempt, not baselined debt: an endpoint that *creates* the
+  // session cannot require one to already exist. This is the only such case, and
+  // it is an exemption rather than a baseline entry because it will never be
+  // "repaid" — the day it resolves a viewer is the day it is broken.
+  const IS_SESSION_ENDPOINT = (p) => p.split('/').includes('session')
+  const offenders = []
+  for (const file of walk(path.join(ROOT, 'src', 'app', 'api'), '.js')) {
+    if (path.basename(file) !== 'route.js') continue
+    if (IS_SESSION_ENDPOINT(rel(file))) continue
+    const body = read(file)
+    if (!MUTATING.test(body)) continue
+    if (RESOLVES.test(body)) continue
+    offenders.push(rel(file))
+  }
+  offenders.sort()
+  const baseline = existsSync(ROUTE_VIEWER_BASELINE) ? JSON.parse(read(ROUTE_VIEWER_BASELINE)).routes || [] : []
+  const known = new Set(baseline)
+  const introduced = offenders.filter((f) => !known.has(f))
+  if (introduced.length) {
+    add('critical', 'route-viewer', `${introduced.length} mutating route(s) resolve no viewer`, introduced.join(', '), introduced,
+      'Resolve the request viewer and pass it to the service, which must fail closed without one — never widen .route-viewer-baseline.json to silence this. ' +
+      'If this handler genuinely needs no caller identity, say why in a comment on the file and raise it with an owner rather than baselining it')
+  }
+  const repaid = baseline.filter((f) => !offenders.includes(f))
+  if (repaid.length) {
+    add('info', 'route-viewer', `${repaid.length} baseline route(s) now resolve a viewer`, repaid.join(', '), [rel(ROUTE_VIEWER_BASELINE)],
+      'Remove them from .route-viewer-baseline.json so the ratchet keeps its ground')
+  }
+  const remaining = offenders.length - introduced.length
+  if (remaining) {
+    add('info', 'route-viewer', `${remaining} mutating route(s) still resolve no viewer (accepted debt)`, `baseline: ${rel(ROUTE_VIEWER_BASELINE)}`, [rel(ROUTE_VIEWER_BASELINE)],
+      'Each one is a write nobody can attribute; the baseline may only shrink')
+  }
+}
+
+// ---- Check 11: a client mutation must be able to report its own failure ----
+// `PermissionRow.save` had `try { await api(...) } finally { setBusy(false) }`
+// with no `catch`: a refused save un-greyed the button, wrote nothing, and said
+// nothing. Three quarters of that page's rows failed on every click and the page
+// looked fine. It was fixed at one site; a review then found twelve more.
+//
+// This does NOT use a proximity window. Three separate false positives from
+// proximity heuristics in one day — each of which cost real work, one of which
+// changed a progress calculation — were enough. It brace-matches the actual
+// `try` blocks and asks whether the call sits inside one that has a `catch`.
+const API_CATCH_BASELINE = path.join(SPEC_PACK, '.client-mutation-baseline.json')
+
+/** Ranges of `try { … }` blocks that are followed by a `catch`. */
+function guardedTryRanges(source) {
+  const ranges = []
+  const tryRe = /\btry\s*\{/g
+  let m
+  while ((m = tryRe.exec(source))) {
+    const open = m.index + m[0].length - 1
+    let depth = 0
+    let i = open
+    for (; i < source.length; i += 1) {
+      if (source[i] === '{') depth += 1
+      else if (source[i] === '}') {
+        depth -= 1
+        if (depth === 0) break
+      }
+    }
+    if (i >= source.length) continue
+    // A `finally` with no `catch` is the exact defect — it restores the UI to
+    // something that looks like success. Only a `catch` counts as guarded.
+    if (/^\s*catch\b/.test(source.slice(i + 1, i + 40))) ranges.push([open, i])
+  }
+  return ranges
+}
+{
+  const offenders = []
+  for (const file of walk(path.join(ROOT, 'src'), '.jsx')) {
+    const body = read(file)
+    if (!/\bfrom\s+['"][^'"]*useApi['"]/.test(body)) continue
+    const ranges = guardedTryRanges(body)
+    const unguarded = []
+    const callRe = /\bawait\s+api\(/g
+    let m
+    while ((m = callRe.exec(body))) {
+      if (!ranges.some(([a, b]) => m.index > a && m.index < b)) {
+        unguarded.push(body.slice(0, m.index).split('\n').length)
+      }
+    }
+    if (unguarded.length) offenders.push({ key: rel(file), lines: unguarded })
+  }
+  offenders.sort((a, b) => a.key.localeCompare(b.key))
+  const baseline = existsSync(API_CATCH_BASELINE) ? JSON.parse(read(API_CATCH_BASELINE)).files || [] : []
+  const known = new Set(baseline)
+  const introduced = offenders.filter((o) => !known.has(o.key))
+  if (introduced.length) {
+    add('critical', 'client-mutation', `${introduced.length} file(s) call the API with no catch`,
+      introduced.map((o) => `${o.key} (line${o.lines.length > 1 ? 's' : ''} ${o.lines.join(', ')})`).join(' · '),
+      introduced.map((o) => o.key),
+      'Catch the rejection and show it — a mutation that cannot report its own failure reports success by saying nothing. ' +
+      'Never widen .client-mutation-baseline.json to silence this')
+  }
+  const currentKeys = new Set(offenders.map((o) => o.key))
+  const repaid = baseline.filter((f) => !currentKeys.has(f))
+  if (repaid.length) {
+    add('info', 'client-mutation', `${repaid.length} baseline file(s) now report their failures`, repaid.join(', '), [rel(API_CATCH_BASELINE)],
+      'Remove them from .client-mutation-baseline.json so the ratchet keeps its ground')
+  }
+  const remaining = offenders.filter((o) => known.has(o.key))
+  if (remaining.length) {
+    add('info', 'client-mutation', `${remaining.length} file(s) still swallow a failed mutation (accepted debt)`,
+      remaining.map((o) => `${o.key}:${o.lines.join('/')}`).join(' · '), [rel(API_CATCH_BASELINE)],
+      'A silent failure is indistinguishable from success; the baseline may only shrink')
+  }
+}
+
 // ---- Output --------------------------------------------------------------
 const counts = findings.reduce((a, f) => ({ ...a, [f.severity]: (a[f.severity] || 0) + 1 }), {})
 const report = {
