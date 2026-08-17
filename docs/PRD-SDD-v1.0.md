@@ -7,11 +7,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.45.0b |
+| **Version** | 1.49.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-16 |
+| **Last Updated** | 2026-08-17 |
 | **Approved By** | — |
 
 ## Version History
@@ -70,6 +70,10 @@
 | 1.43.0b | 2026-08-15 | ATHER | PR #12 semantic conflict repair: MSP authorization is FR-057/NFR-014/BR-015/SDD-030/SEC-013/ADR-022 while Phase 1 production IDs retain their meanings |
 | 1.44.0b | 2026-08-15 | ATHER | Approved FR-057 API-010 canonical GoVibe/MSP vault resolution; legacy API-009 scopeKey access is explicit compatibility mode only |
 | 1.45.0b | 2026-08-16 | Claude (W0-IDS) | Declared FR-058 (File Manager switchable views) + FR-059 (Business Strategy mutation) + SDD-031/032; FEAT-001 gains FR-058; ids reserved for the parallel development-domain build, not yet implemented |
+| 1.46.0b | 2026-08-17 | Claude | FR-060 (Business Home) delivered — status corrected from 🔜, which had gone stale at merge; SDD-033 unchanged |
+| 1.47.0b | 2026-08-17 | Claude | FR-061 + SDD-034: domain visibility resolved **per Business**. Closes instance 3 of the global-role-as-per-Business-authority incident — a viewer-contract change, not a guard swap. SDD-017 refined in place: "derive from role" is per-Membership |
+| 1.48.0b | 2026-08-17 | Claude | FR-062 + SDD-035: the Users & Permissions list is scoped by the same field the write authorizes on. Closes a cross-tenant read leak (`businessId: null` was a bare OR) and the rows that could only ever 404 |
+| 1.49.0b | 2026-08-17 | Claude | FR-063 (Project Board) + FR-064 (Schedule) + SDD-036 — two sub-views SDD-019 claimed while FR-040 declared only two others; surfaced by repaying the route-anchor baseline to zero. FR-005/006/007 statements sharpened to name their surfaces; SDD-019 now cites FR-063/064 |
 
 ## Referenced Standards
 
@@ -176,8 +180,8 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-060 | Business Home: a shell-level Tier-2 slot whose Dashboard aggregates the selected Business across domains — a briefing line, KPI tiles, per-domain health, and an attention queue ordered by impact. It is a **non-owning read projection**: every figure is recomputed from the owning domain's read model, nothing is stored, and no write path is added. Domains with no module render as **reserved slots, never as zero or as invented figures**; only live domains contribute to any score. FR-041's Business Overview becomes this Dashboard rather than a second surface beside it. | ✅ |
 | FR-061 | Per-Business domain visibility: `resolveViewer()` resolves which domains a principal may see **per Business**, not once per principal. Each Membership's grant applies only to the Businesses that Membership covers — an OWNER Membership confers all domains on the Businesses it owns, and never widens what the same principal sees in a Business where they hold only a MEMBER Membership. The viewer gains `domainsByBusinessId` (per-Business allow-list; absent or `[]` denies), and `domainsForBusiness(viewer, businessId)` is the only way a Business-scoped consumer may ask the question. The existing flat `visibleDomains` is retained and additively redefined as the union across visible Businesses — "may this principal see this domain *anywhere*" — and is never an authorization input for a Business-scoped decision. The route guard and the domain bar both read the per-Business answer. | ✅ |
 | FR-062 | Users & Permissions read scope: `GET /api/platform/users` returns only Memberships the caller may actually administer — those whose Business is in `viewer.ownedBusinessIds` — so the list can no longer disagree with the authority `updateUserPermissions` enforces. Tenant-wide Memberships (`businessId: null`) are returned **only for tenants where the caller owns a Business**, never unconditionally, and each row carries a server-decided `manageable` flag; the client renders a non-manageable row read-only rather than inferring editability itself. The response carries no field the surface does not display — `Person.email` is dropped. | ✅ |
-| FR-063 | Project Board: the project-local Work tab renders that Project's WorkItems as a status board — **one column per value of `WORK_STATUSES`**, derived from `src/lib/validation/enums.js` rather than a hand-written list, so no status can exist that the board silently drops. Opening a card opens the existing Workpackage editor; the board itself persists nothing — no column, order or card position is stored, and every status change goes through the FR-005 services. | 🔜 |
-| FR-064 | Schedule: Project and Milestone dates render as a derived month-grid timeline, available **global and project-scoped** (the same view under a different filter, mirroring FR-009). Bars come from `Project.startAt`/`targetAt`, markers from `Milestone.targetAt`. It is read-only and non-owning: nothing is persisted, no date is editable from this view, and a Project or Milestone with no dates simply does not render a bar. | 🔜 |
+| FR-063 | Project Board: the project-local Work tab renders that Project's WorkItems as a status board — **one column per value of `WORK_STATUSES`**, derived from `src/lib/validation/enums.js` rather than a hand-written list, so no status can exist that the board silently drops. Opening a card opens the existing Workpackage editor; the board itself persists nothing — no column, order or card position is stored, and every status change goes through the FR-005 services. | ✅ |
+| FR-064 | Schedule: Project and Milestone dates render as a derived month-grid timeline, available **global and project-scoped** (the same view under a different filter, mirroring FR-009). Bars come from `Project.startAt`/`targetAt`, markers from `Milestone.targetAt`. It is read-only and non-owning: nothing is persisted, no date is editable from this view, and a Project or Milestone with no dates simply does not render a bar. | ✅ |
 
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
 > superseded for the operational shell. Home may show Organization/Portfolio ancestry

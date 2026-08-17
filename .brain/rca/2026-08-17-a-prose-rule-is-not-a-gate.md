@@ -73,8 +73,12 @@ A shrink-only ratchet, the same shape as the route-anchor and viewer-fixture
 checks:
 
 - Parses every `export const X = [...]` of ≥3 string literals from `enums.js`.
-- Flags any file spelling out ≥3 members of one enum. Three is the threshold
-  because many enums share `DONE`/`ACTIVE`, so two is coincidence.
+- Flags ≥3 distinct members of one enum **inside a five-line window**. Three is
+  the threshold because many enums share `DONE`/`ACTIVE`, so two is coincidence;
+  the window is what separates a copied *list* from a vocabulary used across a
+  file. The first version counted file-wide and produced 16 false positives out
+  of 26, one of which caused a real behaviour change — see
+  [the companion incident](2026-08-17-a-guard-that-teaches-a-workaround.md).
 - New copies are CRITICAL. The 26 existing ones are recorded in
   `docs/.enum-copy-baseline.json`, which may only shrink.
 - The INFO line names which of the remaining copies are **incomplete**, and what

@@ -64,6 +64,46 @@ Proven in both directions, which matters more than usual for a change that makes
 a guard fire *less*: a planted hand-built viewer is still CRITICAL, and the
 Membership rows no longer fire.
 
+## Second instance, same day — and this one changed a number
+
+The `enum-copy` check written *in response to this incident* produced its own
+false positive within the hour, and it did worse than teach a workaround.
+
+Its first version counted enum members anywhere in a file. `progress-service.js`
+contains three unrelated single-value comparisons:
+
+```js
+line  55:  status: { not: 'ARCHIVED' }     // exclusion filter
+line 118:  m.status !== 'DONE'             // next-milestone lookup
+line 135:  p.status === 'ACTIVE'           // a count
+```
+
+Sixty lines apart, three different purposes, no list. The check called it a copy
+of `PROJECT_STATUSES` "missing PLANNED, ON_HOLD". The agent repaying it did the
+literal thing the finding asked for and rewrote the exclusion filter as an
+inclusion filter:
+
+```js
+- status: { not: 'ARCHIVED' }
++ status: { in: ACTIVE_WORKSTREAM_STATUSES }
+```
+
+Those are not equivalent. `not: 'ARCHIVED'` admits any value that is not
+`ARCHIVED`, including one outside the enum; `in: [...]` admits only the listed
+ones. Statuses are plain strings in SQLite with no database-level constraint, so
+an out-of-enum value silently drops out of a progress roll-up — in a repository
+whose own rule is that progress must never report a number a page would
+disagree with.
+
+Reverted. The check now requires three distinct members inside a **five-line
+window**: a hand-copied list is compact by nature — an array, a column map, a
+status→label object — while a vocabulary used across a file is not. That single
+change took the finding count from 26 to 10 and every one of the 16 it dropped
+was a false positive.
+
+Proven in both directions, as a loosening must be: a planted compact list is
+CRITICAL, and three scattered single-value comparisons pass.
+
 ## Prevention
 
 1. **When a check fires on something that is not the thing it names, fix the
@@ -78,3 +118,11 @@ Membership rows no longer fire.
 4. **Say it where the person actually is.** A guard's failure message should tell
    the reader what to do when the finding is wrong — fix the heuristic — because
    that is the moment they are deciding between the fix and the dodge.
+5. **A new guard's first run is a review of the guard, not a list of defects.**
+   Read every finding before acting on any of them. Both false positives here
+   were visible on the first run and both were acted on instead of read; the
+   second one changed behaviour in a progress calculation.
+6. **A finding phrased as "missing X" invites adding X.** When the honest fix
+   might be "this is not a list at all", the message has already pointed the
+   reader at the wrong repair. Prefer a wording that names the *shape* it
+   objects to, not the values it thinks are absent.

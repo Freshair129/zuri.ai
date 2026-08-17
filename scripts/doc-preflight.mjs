@@ -526,15 +526,36 @@ if (existsSync(ENUM_SOURCE)) {
     if (values.length >= 3) enums.set(m[1], values)
   }
 
+  // The members must be CO-LOCATED, not merely present somewhere in the file.
+  // The first version counted literals file-wide, and immediately produced a
+  // false positive with a real cost: progress-service.js uses three unrelated
+  // single-value comparisons — `status: { not: 'ARCHIVED' }` at line 55,
+  // `m.status !== 'DONE'` at 118, `p.status === 'ACTIVE'` at 135 — sixty lines
+  // apart, which is not a copied list by any reading. An agent "repaid" it by
+  // rewriting the exclusion filter into an inclusion filter, silently changing
+  // which rows count toward a progress roll-up.
+  //
+  // A hand-copied list is compact by nature: an array, a column map, a
+  // status→label object. Requiring three distinct members inside a five-line
+  // window is what separates a list from a vocabulary used across a file.
+  const WINDOW = 5
   const offenders = []
   for (const file of walk(path.join(ROOT, 'src'), '.js').concat(walk(path.join(ROOT, 'src'), '.jsx'))) {
     if (path.resolve(file) === path.resolve(ENUM_SOURCE)) continue
-    const body = read(file)
-    const literals = new Set([...body.matchAll(/'([A-Z][A-Z_0-9]{2,})'/g)].map((m) => m[1]))
+    const lines = read(file).split('\n')
+    const perLine = lines.map((line) => new Set([...line.matchAll(/'([A-Z][A-Z_0-9]{2,})'/g)].map((m) => m[1])))
+    const fileLiterals = new Set(perLine.flatMap((s) => [...s]))
     for (const [name, values] of enums) {
-      const present = values.filter((v) => literals.has(v))
-      if (present.length < 3) continue
-      const missing = values.filter((v) => !literals.has(v))
+      let clustered = false
+      for (let i = 0; i < lines.length && !clustered; i += 1) {
+        const window = new Set(perLine.slice(i, i + WINDOW).flatMap((s) => [...s]))
+        if (values.filter((v) => window.has(v)).length >= 3) clustered = true
+      }
+      if (!clustered) continue
+      // `missing` is still reported file-wide: a value mentioned anywhere in the
+      // file is handled somewhere, and the dangerous case is the one that is
+      // mentioned nowhere at all.
+      const missing = values.filter((v) => !fileLiterals.has(v))
       offenders.push({ key: `${rel(file)}::${name}`, missing })
     }
   }

@@ -3,6 +3,7 @@
 import { Card, SectionTitle, StatusPill, EmptyState, ErrorState } from '@/components/ui'
 import { useFetch, LoadingCard } from '../../components/useApi'
 import StatusSelect from '../../components/StatusSelect'
+import { MILESTONE_STATUSES, GATE_STATUSES } from '@/lib/validation/enums'
 
 export default function MilestonesView({ projectId }) {
   const url = projectId ? `/api/milestones?projectId=${projectId}` : '/api/milestones'
@@ -28,7 +29,7 @@ export default function MilestonesView({ projectId }) {
                 <p className="truncate text-xs font-bold">{m.title}</p>
                 {m.targetAt && <p className="text-[9px] text-muted">target {new Date(m.targetAt).toLocaleDateString()}</p>}
               </div>
-              <StatusSelect entity="milestone" id={m.id} value={m.status} statuses={['PLANNED', 'IN_PROGRESS', 'DONE', 'MISSED']} onChanged={reload} />
+              <StatusSelect entity="milestone" id={m.id} value={m.status} statuses={MILESTONE_STATUSES} onChanged={reload} />
             </div>
           ))}
         </div>
@@ -47,7 +48,7 @@ export default function MilestonesView({ projectId }) {
                     {g.workstream ? ` · ${g.workstream.code}` : ''} · {g.required ? 'required' : 'optional'}
                   </small>
                 </div>
-                <StatusSelect entity="gate" id={g.id} value={g.status} statuses={['OPEN', 'PASSED', 'BLOCKED', 'WAIVED']} onChanged={reload} />
+                <StatusSelect entity="gate" id={g.id} value={g.status} statuses={GATE_STATUSES} onChanged={reload} />
               </div>
             </div>
           ))}

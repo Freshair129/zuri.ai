@@ -9,25 +9,9 @@
     "src/components/landing/ZuriLanding.jsx::WORKSPACE_SCOPE_TYPES",
     "src/modules/identity/classify-principal.js::PRINCIPAL_TYPES",
     "src/modules/project-manager/application/dependency-service.js::DEPENDENCY_ENDPOINT_TYPES",
-    "src/modules/project-manager/application/progress-service.js::GOAL_STATUSES",
-    "src/modules/project-manager/application/progress-service.js::PROJECT_STATUSES",
-    "src/modules/project-manager/application/progress-service.js::WORKSTREAM_STATUSES",
     "src/modules/project-manager/application/project-dependency-map.js::DEPENDENCY_ENDPOINT_TYPES",
     "src/modules/project-manager/application/scope-service.js::WORKSPACE_SCOPE_TYPES",
     "src/modules/project-manager/import/external-ref.js::DEPENDENCY_ENDPOINT_TYPES",
-    "src/modules/project-manager/import/plan-import-service.js::DEPENDENCY_ENDPOINT_TYPES",
-    "src/modules/project-manager/progress/strategies.js::GATE_STATUSES",
-    "src/modules/project-manager/progress/strategies.js::PROGRESS_STRATEGIES",
-    "src/modules/project-manager/progress/strategies.js::WORK_STATUSES",
-    "src/modules/project-manager/views/KanbanBoard.jsx::MILESTONE_STATUSES",
-    "src/modules/project-manager/views/KanbanBoard.jsx::WORK_STATUSES",
-    "src/modules/project-manager/views/execution/mode-bodies.jsx::CONTAINER_SUBTYPES",
-    "src/modules/project-manager/views/execution/mode-bodies.jsx::GATE_STATUSES",
-    "src/modules/project-manager/views/execution/mode-bodies.jsx::ITEM_SUBTYPES",
-    "src/modules/project-manager/views/execution/mode-bodies.jsx::MILESTONE_STATUSES",
-    "src/modules/project-manager/views/execution/mode-bodies.jsx::WORK_STATUSES",
-    "src/modules/project-manager/views/universal/MilestonesView.jsx::GATE_STATUSES",
-    "src/modules/project-manager/views/universal/MilestonesView.jsx::MILESTONE_STATUSES",
-    "src/modules/project-manager/views/universal/MilestonesView.jsx::WORK_STATUSES"
+    "src/modules/project-manager/import/plan-import-service.js::DEPENDENCY_ENDPOINT_TYPES"
   ]
 }
