@@ -40,9 +40,7 @@
   },
   "drift": {
     "changed": [],
-    "added": [
-      "test:tests/unit/fr063-board-columns.test.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
