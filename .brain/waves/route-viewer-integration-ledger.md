@@ -42,6 +42,29 @@ Wave 1's five agents shared one tree safely because none of them ran
 tree corrupt each other. So the shared-tree-separated-by-file protocol that Wave 1
 proved is **not** transferable to this wave, independently of C1.
 
+## DONE — 2026-08-18. `route-viewer` 23 → 4, `verify` green.
+
+| Gate | Final |
+|---|---|
+| `npm test` | 1077 passed, 9 skipped / 140 files |
+| `npm run build` | clean |
+| `npm run govern` | critical 0 · warning 0 · info 16 |
+| `npm run test:e2e` | 45 passed, **no flaky** |
+| ratchet | **4 remaining**, each with a named missing decision |
+
+Integration gate **APPROVED** (`59028db`), then found two real gaps in the
+controller's own disclosure test, both repaid in `e5e42ab`. Its strongest
+evidence: planting `ownsBusiness → true` turned **54 of 81** FR-072 tests red.
+The guards are real, not textual.
+
+**Two of three wave families were rejected on first pass.** Neither rejection
+came from reading the diff and disliking it — both came from planting a defect
+and observing what stayed green. That is the thing to copy from this run.
+
+**What the four remaining routes need is an owner decision, not more work.**
+`.brain/waves/route-viewer-plan.md` §BLOCKED and the `blocked_reasons` field in
+the baseline state each one. None is repayable by writing a better guard.
+
 ## C7 — `isolation: "worktree"` branches from `main`, not from the controller's HEAD
 
 Wave 0 was committed to the branch `fr072-route-viewer-wave0`. All three worker
