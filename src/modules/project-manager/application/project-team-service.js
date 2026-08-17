@@ -4,7 +4,34 @@
 import prisma from '@/lib/db'
 import { z } from 'zod'
 import { zMembershipRole } from '@/lib/validation/enums'
+import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
 import { recordAudit } from './audit'
+
+// @req FR-036 — team mutations are authorized per Business.
+// @spec SEC-001, SEC-008, .brain/reviews/pm-triage-2026-08-17.md §S1
+// @tested tests/unit/fr036-team-authorization.test.js
+//
+// These four functions write Membership rows, including the OWNER role that
+// `resolveViewer` turns into `ownedBusinessIds`. Until 2026-08-17 the route in
+// front of them resolved no viewer and took `role` from the request body, so a
+// single unauthenticated POST minted business-owner authority. Both guards fail
+// closed on a missing viewer: a caller that forgets to pass one is refused, not
+// admitted.
+function assertTeamWritable(businessId, viewer) {
+  if (ownsBusiness(viewer, businessId)) return
+  const error = new Error('Project team is outside your owned scope')
+  error.status = 404
+  throw error
+}
+
+function assertTeamReadable(businessId, viewer) {
+  // Reading a team is weaker than changing it, but it still exposes people and
+  // their roles, so it is not open either.
+  if (seesBusiness(viewer, businessId) || ownsBusiness(viewer, businessId)) return
+  const error = new Error('Project team is outside your visible scope')
+  error.status = 404
+  throw error
+}
 
 const zAddMember = z.object({ personId: z.string().min(1), role: zMembershipRole.default('MEMBER') })
 const zChangeRole = z.object({ membershipId: z.string().min(1), role: zMembershipRole })
@@ -33,8 +60,9 @@ async function projectWorkspace(db, projectId) {
   }
 }
 
-export async function listProjectTeam(projectId, { db = prisma } = {}) {
+export async function listProjectTeam(projectId, { db = prisma, viewer } = {}) {
   const workspace = await projectWorkspace(db, projectId)
+  assertTeamReadable(workspace.businessId, viewer)
   const memberships = await db.membership.findMany({
     where: membershipScopeForWorkspace(workspace),
     orderBy: { createdAt: 'asc' },
@@ -50,7 +78,16 @@ export async function listProjectTeam(projectId, { db = prisma } = {}) {
         }),
       })),
     ),
-    db.person.findMany({ orderBy: { displayName: 'asc' }, select: { id: true, code: true, displayName: true, email: true } }),
+    // Scoped to the project's tenant. This was an unfiltered `findMany`, so the
+    // picker handed every Person in the database — name, code and email —
+    // to anyone who could open any project's Team tab. Same shape as the FR-062
+    // read leak (.brain/rca/2026-08-17-read-scope-outran-the-write-scope.md):
+    // a read that was wider than anything it fronted.
+    db.person.findMany({
+      where: { memberships: { some: { tenantId: workspace.tenantId } } },
+      orderBy: { displayName: 'asc' },
+      select: { id: true, code: true, displayName: true, email: true },
+    }),
   ])
   const loadByMembershipId = new Map(loads.map((load) => [load.membershipId, load.activeWorkItems]))
   return {
@@ -65,10 +102,11 @@ export async function listProjectTeam(projectId, { db = prisma } = {}) {
   }
 }
 
-export async function addProjectTeamMember(projectId, input, { db = prisma } = {}) {
+export async function addProjectTeamMember(projectId, input, { db = prisma, viewer } = {}) {
   const { personId, role } = zAddMember.parse(input)
   const workspace = await projectWorkspace(db, projectId)
   if (!workspace.businessId) throw new Error('Group project team memberships are read-only')
+  assertTeamWritable(workspace.businessId, viewer)
   const person = await db.person.findUnique({ where: { id: personId } })
   if (!person) throw new Error('Person not found')
   const existing = await db.membership.findFirst({ where: { personId, ...membershipScopeForWorkspace(workspace) } })
@@ -81,9 +119,10 @@ export async function addProjectTeamMember(projectId, input, { db = prisma } = {
   return membership
 }
 
-export async function changeProjectTeamRole(projectId, input, { db = prisma } = {}) {
+export async function changeProjectTeamRole(projectId, input, { db = prisma, viewer } = {}) {
   const { membershipId, role } = zChangeRole.parse(input)
   const workspace = await projectWorkspace(db, projectId)
+  assertTeamWritable(workspace.businessId, viewer)
   const membership = await db.membership.findFirst({ where: mutableMembershipWhere(workspace, membershipId) })
   if (!membership) throw new Error('Membership is not mutable in this project scope')
   const updated = await db.membership.update({ where: { id: membershipId }, data: { role } })
@@ -91,9 +130,10 @@ export async function changeProjectTeamRole(projectId, input, { db = prisma } = 
   return updated
 }
 
-export async function removeProjectTeamMember(projectId, input, { db = prisma } = {}) {
+export async function removeProjectTeamMember(projectId, input, { db = prisma, viewer } = {}) {
   const { membershipId } = zRemoveMember.parse(input)
   const workspace = await projectWorkspace(db, projectId)
+  assertTeamWritable(workspace.businessId, viewer)
   const membership = await db.membership.findFirst({ where: mutableMembershipWhere(workspace, membershipId) })
   if (!membership) throw new Error('Membership is not mutable in this project scope')
   await db.membership.delete({ where: { id: membershipId } })

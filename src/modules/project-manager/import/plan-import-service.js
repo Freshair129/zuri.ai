@@ -84,9 +84,44 @@ export async function dryRunPlan(rawPlan, { workspaceId } = {}) {
 
   /**
    * Classify one entity: external id first, then code, then insert.
-   * `extraConflictCheck` runs against the record we would write to.
+   *
+   * `scope` is mandatory and names the foreign key(s) a candidate row must
+   * carry — e.g. `{ workstreamId }` for a container/item, `{ projectId,
+   * workstreamId }` for a milestone/gate. This is what makes an out-of-scope
+   * match structurally impossible rather than something each call site has
+   * to remember to check by hand:
+   *
+   *   - The code-matched lookup is never a global `findUnique` followed by a
+   *     judgment call. It is a `findFirst` whose WHERE clause already
+   *     includes `scope`, so a row outside the target scope is never even
+   *     read as a candidate.
+   *   - A `scope` value that is itself unresolved — the plan's own parent
+   *     (project/workstream) is a fresh insert with no id yet — makes an
+   *     in-scope match structurally impossible by definition (nothing in the
+   *     database can already belong to a record that does not exist yet).
+   *     That case is detected explicitly rather than handed to Prisma as
+   *     `undefined`, which would silently drop the filter and defeat the
+   *     whole scope.
+   *   - The external-id match path (FR-019) resolves an id to a record
+   *     independently of `scope`, so it is checked against the same `scope`
+   *     before it may be treated as an update — an external ref cannot be
+   *     used to reach a record `scope` would otherwise exclude.
+   *   - If the code exists but not in scope, that is reported as a
+   *     `conflicts` entry naming the violation, never silently downgraded to
+   *     an insert (which would collide with the column's global-unique
+   *     constraint at commit) and never silently skipped (which would make
+   *     the preview lie about what the plan does).
+   *
+   * A missing `scope` throws immediately — wiring a new entity kind through
+   * `classify` without stating its scope is a bug at declaration time, not a
+   * silent hole discovered later.
    */
-  const classify = async (model, kind, entity, title, extraConflictCheck) => {
+  const classify = async (model, kind, entity, title, scope, extraConflictCheck) => {
+    if (!scope || typeof scope !== 'object') {
+      throw new Error(
+        `classify(): "${kind}" was called without a scope — every import match must be constrained to the plan's target scope`
+      )
+    }
     const code = entity.code
     const decided = await resolveEntityIdentity({ kind, code, externalRefs: entity.externalRefs })
     resolution[code] = decided
@@ -94,9 +129,22 @@ export async function dryRunPlan(rawPlan, { workspaceId } = {}) {
       conflicts.push({ kind, code, reason: decided.conflict })
       return null
     }
+
+    // Reason a row falls outside `scope`, or null when it is inside it. A
+    // scope field with no resolved value means the plan's own parent has no
+    // id yet, so nothing existing can belong to it — always a violation.
+    const scopeViolation = (row) => {
+      for (const [field, value] of Object.entries(scope)) {
+        const parentNoun = field.replace(/Id$/, '')
+        if (!value) return `${kind} "${code}" cannot match an existing record: its ${parentNoun} in this plan has not been created yet`
+        if (row[field] !== value) return `${kind} "${code}" belongs to a different ${parentNoun} than this plan targets`
+      }
+      return null
+    }
+
     if (decided.matchedBy === 'externalRef') {
       const existing = await prisma[model].findUnique({ where: { id: decided.entityId } })
-      const conflict = extraConflictCheck ? extraConflictCheck(existing) : null
+      const conflict = (existing && scopeViolation(existing)) || (extraConflictCheck ? extraConflictCheck(existing) : null)
       if (conflict) conflicts.push({ kind, code, reason: conflict })
       else
         updates.push({
@@ -108,8 +156,23 @@ export async function dryRunPlan(rawPlan, { workspaceId } = {}) {
         })
       return existing
     }
-    const existing = await prisma[model].findUnique({ where: { code } })
+
+    // Every scope value resolved → look for the row inside scope only.
+    // Any unresolved value means the query cannot match anything (see
+    // above), so skip it rather than let Prisma treat `undefined` as "field
+    // not filtered", which would silently widen the search back to global.
+    const scopeResolved = Object.values(scope).every(Boolean)
+    const existing = scopeResolved ? await prisma[model].findFirst({ where: { code, ...scope } }) : null
     if (!existing) {
+      // Not found inside scope. Before calling it an insert, make sure the
+      // code is not already claimed by a row somewhere else — that must
+      // surface as a conflict, not a silent insert that would collide with
+      // the database's global-unique code at commit.
+      const elsewhere = await prisma[model].findUnique({ where: { code } })
+      if (elsewhere) {
+        conflicts.push({ kind, code, reason: scopeViolation(elsewhere) || `${kind} code "${code}" already exists outside the target scope` })
+        return null
+      }
       inserts.push({ kind, code, title, matchedBy: decided.refs.length > 0 ? 'newMapping' : undefined })
       return null
     }
@@ -120,23 +183,26 @@ export async function dryRunPlan(rawPlan, { workspaceId } = {}) {
   }
 
   const targetBusinessId = workspace.businessId || null
-  const existingProject = await classify('project', 'project', plan.project, plan.project.name, (existing) => {
-    if (!existing) return null
-    if (existing.workspaceId !== workspace.id) return `Project exists in a different workspace (${existing.workspaceId})`
-    if ((existing.businessId || null) !== targetBusinessId) return 'Project Business owner does not match the target Space'
-    return null
-  })
+  const existingProject = await classify(
+    'project',
+    'project',
+    plan.project,
+    plan.project.name,
+    { workspaceId: workspace.id },
+    (existing) => {
+      if ((existing.businessId || null) !== targetBusinessId) return 'Project Business owner does not match the target Space'
+      return null
+    }
+  )
 
   for (const ws of plan.workstreams) {
-    await classify('workstream', 'workstream', ws, ws.name, (existing) =>
-      existingProject && existing && existing.projectId !== existingProject.id
-        ? 'Workstream belongs to a different project'
-        : null
-    )
-    for (const c of ws.containers || []) await classify('workContainer', 'container', c, c.title)
-    for (const i of ws.items || []) await classify('workItem', 'item', i, i.title)
-    for (const m of ws.milestones || []) await classify('milestone', 'milestone', m, m.title)
-    for (const g of ws.gates || []) await classify('gate', 'gate', g, g.title)
+    const existingWorkstream = await classify('workstream', 'workstream', ws, ws.name, { projectId: existingProject?.id })
+    const wsScope = { workstreamId: existingWorkstream?.id }
+    const msGateScope = { projectId: existingProject?.id, workstreamId: existingWorkstream?.id }
+    for (const c of ws.containers || []) await classify('workContainer', 'container', c, c.title, wsScope)
+    for (const i of ws.items || []) await classify('workItem', 'item', i, i.title, wsScope)
+    for (const m of ws.milestones || []) await classify('milestone', 'milestone', m, m.title, msGateScope)
+    for (const g of ws.gates || []) await classify('gate', 'gate', g, g.title, msGateScope)
   }
   // Repositories keep code-only identity (they are our own registry, not a
   // customer record), so they are classified without external refs.

@@ -22,6 +22,7 @@ import prisma from '@/lib/db'
 import { z } from 'zod'
 import { uniqueHumanCode } from '@/lib/ids'
 import { zRoadmapStatus, zGoalStatus, zGoalPriority } from '@/lib/validation/enums'
+import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { recordAudit } from './audit'
 
 // ---- authorization ----------------------------------------------------------
@@ -68,13 +69,13 @@ function badRequest(message) {
 }
 
 function assertBusinessOwned(businessId, viewer) {
-  const ownedBusinessIds = viewer?.ownedBusinessIds
-  // Fail closed on a missing/malformed ownedBusinessIds rather than optional-
-  // chaining into `undefined` (which would fail *open* — see resolve-viewer.js's
-  // header comment). resolveViewer always populates this array, but a caller
-  // that builds a viewer object by hand (a test fixture, a future route) must
-  // not get write access just because the field was left off.
-  if (!Array.isArray(ownedBusinessIds) || !ownedBusinessIds.includes(businessId)) {
+  // The decision itself lives in one place now — identity/viewer-authority.js —
+  // because it had been written here, in profile-permission-service.js, and was
+  // about to be written a third time for project teams. It fails closed on a
+  // missing or malformed `ownedBusinessIds` rather than optional-chaining into
+  // `undefined`, which would fail *open*. The status and message stay here:
+  // those are this endpoint's promise to its callers, not part of the decision.
+  if (!ownsBusiness(viewer, businessId)) {
     // Sets status explicitly rather than relying on _helpers.js's message
     // sniffing (the `denied` regex still maps this message to 400, so the
     // observable status stays the same as before this check existed — see
