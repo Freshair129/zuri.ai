@@ -54,7 +54,15 @@ describe('FR-072 project authorization', () => {
     workstream = await createWorkstream({
       projectId: project.id, name: 'Authz Stream', executionMode: 'SOFTWARE_SPRINT', code: 'WST-AUTHZ',
     })
-    milestone = await createMilestone({ projectId: project.id, title: 'Authz MS', code: 'MS-AUTHZ' })
+    // Wave 3 landed a guard on createMilestone after this file's beforeAll was
+    // written; this fixture-building call needs a viewer now. Not one of the
+    // two pre-threaded shared files, so fixed here directly (per the design's
+    // documented fallback for a call site a later wave's guard invalidates —
+    // route-viewer-design.md §5) rather than left broken.
+    milestone = await createMilestone(
+      { projectId: project.id, title: 'Authz MS', code: 'MS-AUTHZ' },
+      { viewer: makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] }) },
+    )
     container = await createContainer({
       workstreamId: workstream.id, subtype: 'SPRINT', title: 'Authz Cont', code: 'WC-AUTHZ',
     })

@@ -11,10 +11,19 @@ import {
 } from '@/lib/validation/entities'
 import { recordAudit } from './audit'
 import { activeWorkstream } from './active-filters'
+import { assertWorkspaceWritable } from './project-authorization'
 
 // @req FR-001 — scope hierarchy CRUD (portfolio/tenant/business/branch/workspace)
+// @req FR-072 — updateWorkspace/archiveWorkspace refuse the write unless the
+// viewer owns the Business governing the Workspace (BUSINESS-scoped) or, for
+// a Workspace scoped above Business (PORTFOLIO/TENANT) or an unrecognised
+// scope type, refuse for every principal. The seven creators are BLOCKED
+// (route-viewer-plan.md §BLOCKED B1 — no holdable authority above Business
+// exists yet) and are deliberately untouched here.
 // @spec BR-001, SEC-001 — tenant = isolation; cross-scope access denied
+// @spec SEC-008
 // @tested tests/integration/scope-and-isolation.test.js
+// @tested tests/integration/fr072-workspace-mutation-authorization.test.js
 // Scope model: Portfolio → Tenant → Business → Workspace.
 // tenant_id = isolation boundary; business_id = operating business; branch_id = location.
 // A branch is NEVER modeled as a tenant.
@@ -185,9 +194,10 @@ export async function createWorkspace(input) {
   return workspace
 }
 
-export async function updateWorkspace(id, patch) {
+export async function updateWorkspace(id, patch, { viewer } = {}) {
   const existing = await prisma.workspace.findUnique({ where: { id } })
   if (!existing) throw new Error('Workspace not found')
+  await assertWorkspaceWritable(viewer, existing)
   const workspace = await prisma.workspace.update({
     where: { id },
     data: {
@@ -200,7 +210,18 @@ export async function updateWorkspace(id, patch) {
   return workspace
 }
 
-export async function archiveWorkspace(id) {
+export async function archiveWorkspace(id, { viewer } = {}) {
+  const existing = await prisma.workspace.findUnique({ where: { id } })
+  if (!existing) {
+    // Today a missing id reaches prisma.update() and crashes on P2025 —
+    // effectively a 500. Loading first and failing closed here is the fix;
+    // explicit status matches the not-found-refusal shape used for a
+    // resolved-but-unauthorized target below.
+    const error = new Error('Workspace not found')
+    error.status = 404
+    throw error
+  }
+  await assertWorkspaceWritable(viewer, existing)
   const workspace = await prisma.workspace.update({
     where: { id },
     data: { status: 'ARCHIVED', version: { increment: 1 } },
