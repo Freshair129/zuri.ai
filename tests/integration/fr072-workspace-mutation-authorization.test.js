@@ -7,7 +7,7 @@ import {
   createWorkspace,
   updateWorkspace,
   archiveWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import prisma from '@/lib/db'
 
 // @req FR-072 — Workspace mutations refuse the write unless the viewer owns

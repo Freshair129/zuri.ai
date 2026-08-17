@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
-import { createPortfolio, createTenant, createBusiness } from '@/modules/project-manager/application/scope-service'
+import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { queryKnowledge } from '@/modules/knowledge'
 

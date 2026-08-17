@@ -4,7 +4,7 @@ import { makeViewer } from '../factories/viewer'
 import {
   createBusinessInGroup,
   listWorkspacesForScope,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import { createProject, createWorkstream } from '@/modules/project-manager/application/project-service'
 import { createMilestone, createGate } from '@/modules/project-manager/application/milestone-gate-service'
 import { computePortfolioProgress } from '@/modules/project-manager/application/progress-service'
@@ -14,16 +14,42 @@ import { deriveShell } from '@/lib/shell-mode'
 // that the multi-business landing renders.
 // @req FR-072 — the Project/Workstream/Milestone/Gate writes below authorize
 // against a resolved viewer, so the roll-up fixtures are built by an owner of
-// both group Businesses. `createBusinessInGroup` is deliberately NOT threaded:
-// who may create top-level scope is undeclared (§BLOCKED B1) and it stays
-// unguarded.
+// both group Businesses.
+// @req FR-074(c) — `createBusinessInGroup` is self-service: any authenticated
+// principal may provision a new Tenant + Business, because nothing exists to own
+// beforehand. It is threaded now, where before FR-074 it was deliberately not.
 
 let first, second, viewer
 
 describe('add a business to the group', () => {
   beforeAll(async () => {
-    first = await createBusinessInGroup({ name: 'Shell Kitchen One', code: 'BUS-SHELL-1' })
-    second = await createBusinessInGroup({ name: 'Shell Kitchen Two', code: 'BUS-SHELL-2' })
+    // Self-service needs only an authenticated principal — but the call now
+    // writes an OWNER Membership for that principal, so the viewer must name a
+    // Person that actually exists.
+    const person = await prisma.person.create({
+      data: { code: 'PER-SHELL', displayName: 'Shell Owner' },
+    })
+    const founder = makeViewer({
+      principal: { id: person.id, code: person.code, displayName: person.displayName },
+      visibleBusinessIds: ['b-none'],
+      ownedBusinessIds: [],
+    })
+    first = await createBusinessInGroup({ name: 'Shell Kitchen One', code: 'BUS-SHELL-1' }, { viewer: founder })
+    second = await createBusinessInGroup({ name: 'Shell Kitchen Two', code: 'BUS-SHELL-2' }, { viewer: founder })
+  })
+
+  it('binds the creator as OWNER of the Tenant they just provisioned', async () => {
+    // Before FR-074 this created a Tenant, Business and Workspace and no
+    // Membership at all: whoever pressed "เพิ่มธุรกิจ" owned none of it, and
+    // every FR-072 guard would then refuse them. It went unnoticed because the
+    // local development viewer owns every Business in the database — the shape
+    // that hides an ownership bug.
+    const membership = await prisma.membership.findFirst({ where: { tenantId: first.tenant.id } })
+    expect(membership).not.toBeNull()
+    expect(membership.role).toBe('OWNER')
+    // Tenant-wide (businessId null), so the founder can go on to add a second
+    // Business to their own Tenant under FR-074(b).
+    expect(membership.businessId).toBeNull()
   })
 
   it('creates its own isolation boundary plus a starter workspace in one call', async () => {

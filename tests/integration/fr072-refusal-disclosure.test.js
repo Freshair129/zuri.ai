@@ -7,7 +7,7 @@ import {
   createTenant,
   createBusiness,
   createWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import {
   createProject,
   updateProject,
@@ -35,7 +35,7 @@ import {
   linkRepository,
   unlinkRepository,
 } from '@/modules/project-manager/application/repository-service'
-import { updateWorkspace } from '@/modules/project-manager/application/scope-service'
+import { updateWorkspace } from '../factories/scope'
 
 // @req FR-072 — clause (a): a Business-governed target that is not owned answers
 // exactly as a nonexistent one.

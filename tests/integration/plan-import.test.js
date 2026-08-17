@@ -5,7 +5,7 @@ import {
   createTenant,
   createBusiness,
   createWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import { dryRunPlan, commitPlan } from '@/modules/project-manager/import/plan-import-service'
 import { makeViewer } from '../factories/viewer'
 

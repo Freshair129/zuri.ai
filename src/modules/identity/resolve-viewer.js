@@ -87,6 +87,14 @@ export async function resolveViewer({
       domainsByBusinessId: allDomainsFor(visibleBusinessIds),
       visibleDomains: [...VIEWER_DOMAINS],
       isPlatform: true,
+      // @req FR-074 — a DEV grant confers no ownership at Tenant scope for the
+      // same reason it confers none at Business scope: it is not derived from
+      // Membership.
+      ownedTenantIds: [],
+      // @req FR-075 — but it IS the installation-wide capability. A different
+      // *scope* of authority, not a larger amount of the ownership above, which
+      // is why these two fields sit side by side and disagree.
+      isOperator: true,
     }
   }
 
@@ -98,6 +106,13 @@ export async function resolveViewer({
     // mutates either today, but sharing one array between visibleBusinessIds
     // and ownedBusinessIds is an invisible coupling — a future mutation of
     // one would silently corrupt the other.
+    // Derived from the Businesses already being read rather than a second query
+    // against `db.tenant`: this branch is exercised with a hand-built `db`
+    // double that implements only what the resolver actually needs, and adding a
+    // model to that surface is a cost paid by every caller of the double.
+    const tenantIds = unique(
+      (await db.business.findMany({ select: { id: true, tenantId: true } })).map((business) => business.tenantId)
+    )
     return {
       principal,
       role: 'OWNER',
@@ -106,6 +121,14 @@ export async function resolveViewer({
       domainsByBusinessId: allDomainsFor(businessIds),
       visibleDomains: [...VIEWER_DOMAINS],
       isPlatform: false,
+      // @req FR-074 — the local owner already owns every Business; owning every
+      // Tenant is the same statement one level up, not a widening.
+      ownedTenantIds: tenantIds,
+      // @req FR-075 — this branch IS the single local installation, so its
+      // session is that installation's operator. ADR-016 designs local backup
+      // around exactly this premise; without it, the shipped restore page would
+      // work for nobody in local mode.
+      isOperator: true,
     }
   }
 
@@ -143,8 +166,20 @@ export async function resolveViewer({
     role: memberships.some((membership) => membership.role === 'OWNER') ? 'OWNER' : 'MEMBER',
     visibleBusinessIds,
     ownedBusinessIds,
+    // @req FR-074 — `ownerTenantWideIds` is the row that already existed and was
+    // only ever read on the way to `ownedBusinessIds`. Naming it here is what
+    // makes a write *at* Tenant scope answerable; it widens nothing, because the
+    // very same memberships already granted every Business beneath each Tenant.
+    // Note this is NOT "owns every Business in the Tenant" — a principal owning
+    // all of today's Businesses individually still does not own the Tenant that
+    // will hold tomorrow's.
+    ownedTenantIds: ownerTenantWideIds,
     domainsByBusinessId,
     visibleDomains: unionOfDomains(domainsByBusinessId),
     isPlatform: false,
+    // @req FR-075 — an ordinary authenticated principal is never the
+    // installation operator, however much of the installation they own. A
+    // restore replaces rows in Tenants they have never seen.
+    isOperator: false,
   }
 }

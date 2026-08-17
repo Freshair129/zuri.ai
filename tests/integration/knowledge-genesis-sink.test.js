@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
-import { createPortfolio, createTenant, createBusiness } from '@/modules/project-manager/application/scope-service'
+import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { projectKnowledgeGraph, writeGraph } from '@/modules/knowledge'
 import { createGenesisBlockDBSink } from '@/modules/knowledge/genesisblockdb-sink'

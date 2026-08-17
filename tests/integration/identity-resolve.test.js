@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
-import { createPortfolio, createTenant } from '@/modules/project-manager/application/scope-service'
+import { createPortfolio, createTenant } from '../factories/scope'
 import { resolveLineIdentity, revokeLineIdentity } from '@/modules/identity/resolve-line-identity'
 
 // @req FR-021 — LINE ↔ Person identity resolution: the guarantees the whole
