@@ -6,7 +6,7 @@ import {
   createTenant,
   createBusiness,
   createWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import { listWork, WORK_LIST_LIMIT } from '@/modules/project-manager/application/work-service'
 import { archiveWorkstream } from '@/modules/project-manager/application/project-service'
 import { computeProjectProgress } from '@/modules/project-manager/application/progress-service'

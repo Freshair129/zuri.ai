@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 794,
-    "total_edges": 2390,
+    "total_nodes": 798,
+    "total_edges": 2447,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,14 +15,14 @@
       "feature": 3,
       "route": 96,
       "model": 33,
-      "requirement": 159,
-      "test": 153,
+      "requirement": 161,
+      "test": 155,
       "code_file": 218
     },
     "coverage": {
-      "requirements": 159,
-      "fr_with_code": "100% (67/67)",
-      "fr_with_tests": "100% (67/67)",
+      "requirements": 161,
+      "fr_with_code": "100% (69/69)",
+      "fr_with_tests": "100% (69/69)",
       "rules_anchored_in_code": "83% (60/72)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 218,
@@ -737,20 +737,24 @@
       "id": "code:src/app/api/backup/import/route.js",
       "type": "code_file",
       "path": "src/app/api/backup/import/route.js",
-      "hash": "d9b2e445",
+      "hash": "74bf73be",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
-          "FR-045"
+          "FR-045",
+          "FR-046",
+          "FR-075"
         ],
         "@spec": [
           "BR-008",
-          "SDD-023"
+          "SDD-023",
+          "SEC-008"
         ],
         "@tested": [
           "tests/integration/backup.test.js",
-          "tests/unit/fr045-backup-contract.test.js"
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/integration/fr075-restore-authorization.test.js"
         ]
       }
     },
@@ -1773,12 +1777,22 @@
       "id": "code:src/app/api/scope/route.js",
       "type": "code_file",
       "path": "src/app/api/scope/route.js",
-      "hash": "3ff1d486",
+      "hash": "5934118d",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-001",
-          "FR-020"
+          "FR-020",
+          "FR-046",
+          "FR-074"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008",
+          "BR-001"
+        ],
+        "@tested": [
+          "tests/integration/fr074-scope-creation-authorization.test.js"
         ]
       }
     },
@@ -3135,14 +3149,16 @@
       "id": "code:src/modules/identity/resolve-viewer.js",
       "type": "code_file",
       "path": "src/modules/identity/resolve-viewer.js",
-      "hash": "67cddb7a",
+      "hash": "4a1734a7",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-031",
           "FR-038",
           "FR-061",
-          "SDD-034"
+          "SDD-034",
+          "FR-074",
+          "FR-075"
         ],
         "@spec": [
           "FR-031",
@@ -3179,13 +3195,15 @@
       "id": "code:src/modules/identity/viewer-authority.js",
       "type": "code_file",
       "path": "src/modules/identity/viewer-authority.js",
-      "hash": "3cf2bdfc",
+      "hash": "e83680ce",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-059",
           "FR-038",
-          "FR-036"
+          "FR-036",
+          "FR-074",
+          "FR-075"
         ],
         "@spec": [
           "SEC-001",
@@ -3535,20 +3553,23 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "c6179c05",
+      "hash": "1a0197d0",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
-          "FR-045"
+          "FR-045",
+          "FR-075"
         ],
         "@spec": [
           "BR-008",
-          "SDD-023"
+          "SDD-023",
+          "SEC-008"
         ],
         "@tested": [
           "tests/integration/backup.test.js",
-          "tests/unit/fr045-backup-contract.test.js"
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/integration/fr075-restore-authorization.test.js"
         ]
       }
     },
@@ -3862,12 +3883,15 @@
       "id": "code:src/modules/project-manager/application/scope-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/scope-service.js",
-      "hash": "ddcfa0af",
+      "hash": "45e7113c",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-001",
           "FR-072",
+          "FR-074",
+          "FR-075",
+          "BR-001",
           "FR-020"
         ],
         "@spec": [
@@ -3877,7 +3901,8 @@
         ],
         "@tested": [
           "tests/integration/scope-and-isolation.test.js",
-          "tests/integration/fr072-workspace-mutation-authorization.test.js"
+          "tests/integration/fr072-workspace-mutation-authorization.test.js",
+          "tests/integration/fr074-scope-creation-authorization.test.js"
         ]
       }
     },
@@ -5004,7 +5029,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.64.0b",
       "doc_status": "Draft",
-      "hash": "4583c75a",
+      "hash": "1be3600a",
       "status": "current"
     },
     {
@@ -6268,6 +6293,24 @@
       "type": "requirement",
       "family": "FR",
       "label": "Repository ownership: a `Repository` is owned by exactly one Business (`Repository.businessId`), which is the decision FR-072 recorded as missing for `/api/repositories` and `/api/repositories/[id]`. Business rather than Tenant or Portfolio is forced, not chosen: the viewer contract carries only Business-keyed grants, so no principal can hold authority above Business (SDD-037) and a higher-scoped Repository would be ungovernable. (a) Creating a Repository requires `ownsBusiness(viewer, businessId)`, and the Business is required at the input boundary so every new Repository is governed. (b) Updating one requires the same authority over its owning Business; an unowned Repository answers exactly as a nonexistent one. (c) Linking a Repository to a Project requires authority over **both** the Project's governing Business and the Repository's Business — the same fail-closed composition FR-072 applies to a Dependency edge. (d) `Repository.businessId` is nullable only for rows predating this requirement; such a Repository is governed by nobody, is refused for every principal with the missing owner named, and is invisible to every reader until backfilled (`scripts/backfill-repository-business.mjs`, which infers an owner only where a Repository's Project links agree and reports the rest rather than guessing). (e) Listing Repositories is scoped by `seesBusiness`, closing a cross-tenant read that previously returned every Repository in the installation with its project links attached.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-074",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Scope-creation authorization: every creator behind `POST /api/scope` resolves a viewer and is authorized at the scope it actually writes, in three tiers. (a) **Business scope** — `branch` and a BUSINESS-scoped `workspace` require `ownsBusiness(viewer, businessId)`. (b) **Tenant scope** — creating a `business` inside an existing Tenant, or a TENANT-scoped `workspace`, requires `ownsTenant(viewer, tenantId)`, surfaced on the viewer contract as `ownedTenantIds` from the tenant-wide OWNER Membership that already existed in the data and was previously only expanded into `ownedBusinessIds`. This names a held row; it grants nobody anything new, and is deliberately not satisfied by owning every Business in a Tenant. (c) **Self-service provisioning** — `businessInGroup` creates a new Tenant + Business + Workspace for any authenticated principal, because nothing exists to own beforehand, and **binds the creator as OWNER in the same transaction**. Without that binding the caller would provision scope they cannot subsequently write to, which is the defect this clause fixes as well as authorizes. `portfolio`, `tenant`, `legalEntity` and a PORTFOLIO-scoped `workspace` are installation primitives above any Tenant and require FR-075 operator authority. Self-service is never unauthenticated: the viewer is resolved, the write is attributed, and an audit event is recorded.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-075",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Installation-operator authority: an installation-wide operation is authorized by a named capability, `isOperator`, carried on the viewer contract and true for a platform grant (FR-031, on a trusted session per SEC-008) or the local single-installation session, and false for every ordinary authenticated principal however much of the installation they own. It governs `POST /api/backup/import` — both the preview and the restore, since a preview of every table across every tenant is the same disclosure the restore guard would otherwise still permit — and the scope primitives above any Tenant (FR-074). This is a distinct *scope* of authority rather than a larger amount of Business ownership: a restore replaces Portfolios, Tenants, identities and audit rows, so no composition of `ownsBusiness` can express it, which is why the route was unrepayable until the capability was named. `isPlatform` remains visibility-only and is never read as authority (RCA 2026-08-16).",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current"
@@ -7981,21 +8024,21 @@
       "id": "test:tests/integration/adaptive-shell.test.js",
       "type": "test",
       "path": "tests/integration/adaptive-shell.test.js",
-      "hash": "ae46766b",
+      "hash": "8492c45b",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-action-gate.test.js",
       "type": "test",
       "path": "tests/integration/agent-action-gate.test.js",
-      "hash": "e5682fc7",
+      "hash": "7f76238d",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-context.test.js",
       "type": "test",
       "path": "tests/integration/agent-context.test.js",
-      "hash": "17425fef",
+      "hash": "2f5c497a",
       "status": "current"
     },
     {
@@ -8009,14 +8052,14 @@
       "id": "test:tests/integration/agent-multi-principal.test.js",
       "type": "test",
       "path": "tests/integration/agent-multi-principal.test.js",
-      "hash": "8578ffb4",
+      "hash": "c0a4e8fe",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-runtime.test.js",
       "type": "test",
       "path": "tests/integration/agent-runtime.test.js",
-      "hash": "577ce1ba",
+      "hash": "c220c4c3",
       "status": "current"
     },
     {
@@ -8030,21 +8073,21 @@
       "id": "test:tests/integration/agent-turn.test.js",
       "type": "test",
       "path": "tests/integration/agent-turn.test.js",
-      "hash": "bc817e49",
+      "hash": "53fc9cb4",
       "status": "current"
     },
     {
       "id": "test:tests/integration/agent-webhook-route.test.js",
       "type": "test",
       "path": "tests/integration/agent-webhook-route.test.js",
-      "hash": "682a940a",
+      "hash": "377ac8f0",
       "status": "current"
     },
     {
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
-      "hash": "97542d57",
+      "hash": "5597cabc",
       "status": "current"
     },
     {
@@ -8058,154 +8101,168 @@
       "id": "test:tests/integration/external-ref-import.test.js",
       "type": "test",
       "path": "tests/integration/external-ref-import.test.js",
-      "hash": "161206ed",
+      "hash": "39ab746f",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr045-managed-files.test.js",
       "type": "test",
       "path": "tests/integration/fr045-managed-files.test.js",
-      "hash": "9a414e43",
+      "hash": "a287eb9f",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr046-entry-contract.test.js",
       "type": "test",
       "path": "tests/integration/fr046-entry-contract.test.js",
-      "hash": "edd85cca",
+      "hash": "e04e6ffc",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr059-business-strategy-mutation.test.js",
       "type": "test",
       "path": "tests/integration/fr059-business-strategy-mutation.test.js",
-      "hash": "197884a6",
+      "hash": "79f3a1fa",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-dependency-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-dependency-authorization.test.js",
-      "hash": "f0f9cc6d",
+      "hash": "a1004176",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-milestone-gate-authorization.test.js",
-      "hash": "96136bca",
+      "hash": "8353ec8f",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-project-file-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-project-file-authorization.test.js",
-      "hash": "e103e9eb",
+      "hash": "7329c8a6",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-project-service-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-project-service-authorization.test.js",
-      "hash": "50c2e489",
+      "hash": "ccd3f289",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-refusal-disclosure.test.js",
       "type": "test",
       "path": "tests/integration/fr072-refusal-disclosure.test.js",
-      "hash": "526c5f48",
+      "hash": "f754fd04",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-repository-link-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-repository-link-authorization.test.js",
-      "hash": "adc6e17f",
+      "hash": "dc5e8a89",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-work-service-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-work-service-authorization.test.js",
-      "hash": "8e6a1091",
+      "hash": "337c1abd",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-workspace-mutation-authorization.test.js",
-      "hash": "c6d3a2f7",
+      "hash": "35c6bbae",
       "status": "current"
     },
     {
       "id": "test:tests/integration/fr073-repository-scope.test.js",
       "type": "test",
       "path": "tests/integration/fr073-repository-scope.test.js",
-      "hash": "43b146a5",
+      "hash": "abb6dde4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/fr074-scope-creation-authorization.test.js",
+      "hash": "bb1a19fc",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr075-restore-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/fr075-restore-authorization.test.js",
+      "hash": "d8ad2d35",
       "status": "current"
     },
     {
       "id": "test:tests/integration/identity-classify.test.js",
       "type": "test",
       "path": "tests/integration/identity-classify.test.js",
-      "hash": "7c78b3d0",
+      "hash": "e89a0477",
       "status": "current"
     },
     {
       "id": "test:tests/integration/identity-erase.test.js",
       "type": "test",
       "path": "tests/integration/identity-erase.test.js",
-      "hash": "31421c6e",
+      "hash": "f9e8efe5",
       "status": "current"
     },
     {
       "id": "test:tests/integration/identity-gate.test.js",
       "type": "test",
       "path": "tests/integration/identity-gate.test.js",
-      "hash": "b2d57b96",
+      "hash": "9ea0cf56",
       "status": "current"
     },
     {
       "id": "test:tests/integration/identity-link.test.js",
       "type": "test",
       "path": "tests/integration/identity-link.test.js",
-      "hash": "feef8680",
+      "hash": "3403087c",
       "status": "current"
     },
     {
       "id": "test:tests/integration/identity-resolve.test.js",
       "type": "test",
       "path": "tests/integration/identity-resolve.test.js",
-      "hash": "64b6340d",
+      "hash": "bd5e80f0",
       "status": "current"
     },
     {
       "id": "test:tests/integration/import-target-authorization.test.js",
       "type": "test",
       "path": "tests/integration/import-target-authorization.test.js",
-      "hash": "8761065e",
+      "hash": "5a589002",
       "status": "current"
     },
     {
       "id": "test:tests/integration/knowledge-genesis-sink.test.js",
       "type": "test",
       "path": "tests/integration/knowledge-genesis-sink.test.js",
-      "hash": "d4ff00a8",
+      "hash": "6781702d",
       "status": "current"
     },
     {
       "id": "test:tests/integration/knowledge-project.test.js",
       "type": "test",
       "path": "tests/integration/knowledge-project.test.js",
-      "hash": "7e9761b1",
+      "hash": "ec42e953",
       "status": "current"
     },
     {
       "id": "test:tests/integration/knowledge-query.test.js",
       "type": "test",
       "path": "tests/integration/knowledge-query.test.js",
-      "hash": "bf0dac7e",
+      "hash": "196a9af4",
       "status": "current"
     },
     {
@@ -8219,7 +8276,7 @@
       "id": "test:tests/integration/line-ingest.test.js",
       "type": "test",
       "path": "tests/integration/line-ingest.test.js",
-      "hash": "9067f426",
+      "hash": "07ff60e4",
       "status": "current"
     },
     {
@@ -8240,35 +8297,35 @@
       "id": "test:tests/integration/plan-import-scope.test.js",
       "type": "test",
       "path": "tests/integration/plan-import-scope.test.js",
-      "hash": "e2076002",
+      "hash": "70b5ccc2",
       "status": "current"
     },
     {
       "id": "test:tests/integration/plan-import.test.js",
       "type": "test",
       "path": "tests/integration/plan-import.test.js",
-      "hash": "936609c6",
+      "hash": "8449fbfd",
       "status": "current"
     },
     {
       "id": "test:tests/integration/project-authorization.test.js",
       "type": "test",
       "path": "tests/integration/project-authorization.test.js",
-      "hash": "cb03d132",
+      "hash": "d6abc994",
       "status": "current"
     },
     {
       "id": "test:tests/integration/project-business-binding.test.js",
       "type": "test",
       "path": "tests/integration/project-business-binding.test.js",
-      "hash": "5b9b10c1",
+      "hash": "15f81033",
       "status": "current"
     },
     {
       "id": "test:tests/integration/project-core.test.js",
       "type": "test",
       "path": "tests/integration/project-core.test.js",
-      "hash": "e6d98d92",
+      "hash": "a0c7ec6b",
       "status": "current"
     },
     {
@@ -8282,21 +8339,21 @@
       "id": "test:tests/integration/scope-and-isolation.test.js",
       "type": "test",
       "path": "tests/integration/scope-and-isolation.test.js",
-      "hash": "514854be",
+      "hash": "11faf04d",
       "status": "current"
     },
     {
       "id": "test:tests/integration/work-listing-scope.test.js",
       "type": "test",
       "path": "tests/integration/work-listing-scope.test.js",
-      "hash": "c64609e4",
+      "hash": "08376414",
       "status": "current"
     },
     {
       "id": "test:tests/integration/xlsx-intake.test.js",
       "type": "test",
       "path": "tests/integration/xlsx-intake.test.js",
-      "hash": "23e8797a",
+      "hash": "fa9d5982",
       "status": "current"
     },
     {
@@ -9703,7 +9760,28 @@
     },
     {
       "from": "code:src/app/api/backup/import/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/import/route.js",
+      "to": "req:FR-075",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/import/route.js",
       "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/import/route.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -11418,6 +11496,13 @@
     },
     {
       "from": "code:src/app/api/scope/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/scope/route.js",
       "to": "req:FR-001",
       "type": "implements",
       "status": "current",
@@ -11427,6 +11512,34 @@
       "from": "code:src/app/api/scope/route.js",
       "to": "req:FR-020",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/scope/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/scope/route.js",
+      "to": "req:FR-074",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/scope/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/scope/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -13168,6 +13281,20 @@
     },
     {
       "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:FR-074",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:FR-075",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
       "to": "req:SDD-017",
       "type": "follows",
       "status": "current",
@@ -13225,6 +13352,20 @@
     {
       "from": "code:src/modules/identity/viewer-authority.js",
       "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/viewer-authority.js",
+      "to": "req:FR-074",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/viewer-authority.js",
+      "to": "req:FR-075",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -13616,7 +13757,21 @@
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-075",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -14149,6 +14304,13 @@
     {
       "from": "code:src/modules/project-manager/application/scope-service.js",
       "to": "req:BR-001",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/scope-service.js",
+      "to": "req:BR-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -14170,6 +14332,20 @@
     {
       "from": "code:src/modules/project-manager/application/scope-service.js",
       "to": "req:FR-072",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/scope-service.js",
+      "to": "req:FR-074",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/scope-service.js",
+      "to": "req:FR-075",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -15625,6 +15801,20 @@
     },
     {
       "from": "req:FR-073",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-074",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-075",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -18536,6 +18726,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/adaptive-shell.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/agent-action-gate.test.js",
       "to": "code:src/modules/agent/action-gate.js",
       "type": "tests",
@@ -19006,7 +19203,28 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -19930,6 +20148,20 @@
     },
     {
       "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -20014,6 +20246,153 @@
     },
     {
       "from": "test:tests/integration/fr073-repository-scope.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "code:src/app/api/scope/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/scope-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "code:src/app/api/backup/import/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "code:src/modules/project-manager/application/backup-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-065",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
@@ -21100,6 +21479,20 @@
     {
       "from": "test:tests/integration/scope-and-isolation.test.js",
       "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/scope-and-isolation.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/scope-and-isolation.test.js",
+      "to": "req:FR-075",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -22401,10 +22794,31 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr045-file-asset-service.test.js",
@@ -23630,6 +24044,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
@@ -25579,6 +26007,20 @@
     },
     {
       "from": "test:tests/unit/viewer-authority.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-authority.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-authority.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -25629,6 +26071,20 @@
     {
       "from": "test:tests/unit/viewer-gate.test.js",
       "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:FR-075",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

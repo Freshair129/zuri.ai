@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
-import { createPortfolio, createTenant, createBusiness } from '@/modules/project-manager/application/scope-service'
+import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { resolveLineIdentity } from '@/modules/identity/resolve-line-identity'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { classifyPrincipal } from '@/modules/identity/classify-principal'

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
-import { createPortfolio, createTenant, createBusiness } from '@/modules/project-manager/application/scope-service'
+import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { POST, createLineWebhookPost } from '@/app/api/agent/line-webhook/route'
 import bindingFixture from '../fixtures/fr052-binding-request-v1.json'
 
