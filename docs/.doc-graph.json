@@ -46,7 +46,8 @@
   },
   "drift": {
     "changed": [
-      "code:src/modules/project-manager/import/import-authorization.js"
+      "doc:FR-067-workspace-invitation-and-scoped-membership",
+      "doc:FR-065-import-target-authorization"
     ],
     "added": [],
     "removed": []
@@ -3789,7 +3790,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/import/import-authorization.js",
       "hash": "87762a36",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-065"
@@ -4486,8 +4487,8 @@
       "title": "Import Target Authorization — who may write into the Workspace a plan names",
       "version": "1.1.0",
       "doc_status": "Implemented (FR-065)",
-      "hash": "7771c045",
-      "status": "current"
+      "hash": "6eac81fc",
+      "status": "changed"
     },
     {
       "id": "doc:FR-066-profile-first-workspace-onboarding",
@@ -4506,8 +4507,8 @@
       "title": "FR-067 — Workspace invitation and scoped membership",
       "version": "0.1.0b",
       "doc_status": "Design approved — implementation pending",
-      "hash": "fdba3af3",
-      "status": "current"
+      "hash": "612ae8b4",
+      "status": "changed"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",

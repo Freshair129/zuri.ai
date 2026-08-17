@@ -61,16 +61,18 @@ label may move freely; the key never does (AGENTS.md §18).
 
 ## Relationship to FR-065 — this creates the authority FR-065 refuses for
 
-FR-065 refuses an import whose target Workspace sits above Business, and SDD-037
-justifies that refusal on a **verified** premise: *no principal can hold portfolio
-or tenant authority today* — `Membership` is created in exactly two code paths and
+FR-065 refuses an import whose target Workspace sits above Business. SDD-037
+justifies that refusal in **two tenses**, precisely because this requirement
+retires the first one. Until FR-067 ships: *no principal can hold portfolio or
+tenant authority at all* — `Membership` is created in exactly two code paths and
 both bind `businessId`, and the viewer contract exposes only Business-keyed
 grants. FR-065's own text names the exit: "a prior FR that makes portfolio/tenant
 authority *holdable*: a viewer-contract change in the manner of FR-061".
 
 **FR-067 is that FR.** The ordering is correct, not contradictory — but the two
 must be read together, because implementing this one falsifies the premise the
-other one's refusal rests on. Two consequences to settle *before* code:
+other one's refusal *used* to rest on. Both consequences are settled, and neither
+requires a change to FR-065's code:
 
 1. **Answered 2026-08-17 — no.** *May a principal holding a WorkspaceMembership
    on Portfolio P import into a Space (schema `Workspace`) whose `scopeType` is

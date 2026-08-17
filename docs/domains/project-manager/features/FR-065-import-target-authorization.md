@@ -131,11 +131,12 @@ accommodate an unguarded route is the one move the ratchet exists to prevent.
 
 ## The premise has an expiry date — FR-067
 
-Clause (b) refuses, and SDD-037 justifies that refusal on a premise that was
-verified rather than assumed: *no principal can hold authority above Business
-today*. **FR-067 (Workspace invitation and scoped membership, design-approved
-2026-08-17) is designed to make exactly that authority holdable** — which is the
-"prior FR of the FR-061 shape" this requirement named as its own exit.
+Clause (b) refuses, and SDD-037 now justifies that refusal in **two tenses**. The
+first was verified rather than assumed — *no principal can hold authority above
+Business at all* — and it is true only until **FR-067** (Workspace invitation and
+scoped membership, design-approved 2026-08-17) ships, because FR-067 is designed
+to make exactly that authority holdable. It is the "prior FR of the FR-061 shape"
+this requirement named as its own exit.
 
 **Resolved 2026-08-17 — clause (b) does not change.** The question that was left
 open (may a WorkspaceMembership on Portfolio *P* import into a Space whose
