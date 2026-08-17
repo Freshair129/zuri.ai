@@ -16,16 +16,36 @@ export async function recordAudit(db, { entityType, entityId, action, payload = 
   })
 }
 
+/** Nothing may ask for more than this, however large a `limit` it passes. */
+export const AUDIT_MAX_LIMIT = 500
+
+/**
+ * @req FR-014 — the audit browser states when it is showing a window rather
+ * than the whole stream.
+ * @returns {Promise<{events: object[], limit: number, truncated: boolean}>}
+ *
+ * An audit log is the one surface where a silently short list is worst: it is
+ * consulted precisely to answer "did this happen?", and an unmarked truncation
+ * turns "not in the visible 200" into "never happened". The cap stays — one
+ * request must not stream the whole table — but it now says so.
+ */
 export async function listAudit(db, { entityType, entityId, limit = 100 } = {}) {
   const where = {}
   if (entityType) where.entityType = entityType
   if (entityId) where.entityId = entityId
-  const events = await db.auditEvent.findMany({
+  const effective = Math.min(limit, AUDIT_MAX_LIMIT)
+  // One more than we will return: enough to know a next row exists, without
+  // counting a table that only grows.
+  const rows = await db.auditEvent.findMany({
     where,
     orderBy: { occurredAt: 'desc' },
-    take: Math.min(limit, 500),
+    take: effective + 1,
   })
-  return events.map((e) => ({ ...e, payload: safeParse(e.payloadJson) }))
+  return {
+    events: rows.slice(0, effective).map((e) => ({ ...e, payload: safeParse(e.payloadJson) })),
+    limit: effective,
+    truncated: rows.length > effective,
+  }
 }
 
 export function safeParse(json, fallback = {}) {

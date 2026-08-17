@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { CircleDashed, CircleDot, Loader, Eye, Ban, CircleCheck, XCircle } from 'lucide-react'
 import { useFetch, LoadingCard } from '../components/useApi'
-import { ErrorState } from '@/components/ui'
+import { ErrorState, TruncationNotice } from '@/components/ui'
 import WorkpackageModal from '../components/WorkpackageModal'
 import { WORK_STATUSES } from '@/lib/validation/enums'
 
@@ -52,7 +52,7 @@ export default function KanbanBoard({ projectId }) {
 
   const byStatus = useMemo(() => {
     const map = Object.fromEntries(COLUMNS.map((c) => [c.key, []]))
-    for (const item of data || []) {
+    for (const item of data?.items || []) {
       if (map[item.status]) map[item.status].push(item)
     }
     return map
@@ -63,6 +63,12 @@ export default function KanbanBoard({ projectId }) {
 
   return (
     <>
+    {/* @req FR-005 — the board is capped by the same listing as the table. A
+        board silently missing cards reads as "there is no such work", which is
+        exactly what FR-063 exists to prevent one level down. */}
+    {data?.truncated && (
+      <TruncationNotice limit={data.limit} noun="work items" hint="Some cards are not on this board." />
+    )}
     <div className="flex gap-4 overflow-x-auto pb-4">
       {COLUMNS.map(({ key, label, color, Icon }) => {
         const items = byStatus[key] || []

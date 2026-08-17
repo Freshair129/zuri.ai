@@ -4,7 +4,7 @@
 // list occurredAt/action/actorType/payload from /api/audit.
 // @tested tests/e2e/smoke.spec.js
 import { useState } from 'react'
-import { PageHeader, DataTable, StatusPill, EmptyState, ErrorState } from '@/components/ui'
+import { PageHeader, DataTable, StatusPill, EmptyState, ErrorState, TruncationNotice } from '@/components/ui'
 import { useFetch, LoadingCard } from '@/modules/project-manager/components/useApi'
 
 const ENTITY_TYPES = [
@@ -34,6 +34,12 @@ export default function AuditPage() {
       </div>
       {loading && <LoadingCard />}
       {error && <ErrorState detail={error} retry={reload} />}
+      {/* @req FR-014 — this page asks for 200 and the service caps at 500; both
+          were silent. An audit log is consulted to answer "did this happen?",
+          so an unmarked window turns "not in the visible 200" into "never". */}
+      {!loading && !error && data?.truncated && (
+        <TruncationNotice limit={data.limit} noun="events" hint="Filter by entity type to narrow the stream." />
+      )}
       {!loading && !error && (
         <DataTable
           columns={[
@@ -49,7 +55,7 @@ export default function AuditPage() {
               ),
             },
           ]}
-          rows={data || []}
+          rows={data?.events || []}
           rowKey={(e) => e.id}
           empty={<EmptyState title="No audit events" hint="Events appear as soon as you create or change anything." />}
         />

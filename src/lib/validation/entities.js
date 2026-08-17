@@ -7,6 +7,7 @@ import {
   zProjectStatus,
   zWorkstreamStatus,
   zWorkStatus,
+  zContainerStatus,
   zMilestoneStatus,
   zGateStatus,
   zWorkspaceScopeType,
@@ -201,7 +202,10 @@ export const zWorkContainerInput = z.object({
   parentId: z.string().nullish(),
   subtype: z.string().min(1),
   title: z.string().min(1),
-  status: z.string().default('PLANNED'),
+  // The API leg of the same rule: this was the only entity input still typing
+  // `status` as a free string, so /api/containers accepted a value the intake
+  // pipeline now rejects. One vocabulary, both doors.
+  status: zContainerStatus.default('PLANNED'),
   startAt: zOptionalDate,
   targetAt: zOptionalDate,
   metadata: zJsonObject.optional(),

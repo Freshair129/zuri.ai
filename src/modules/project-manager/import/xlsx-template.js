@@ -8,6 +8,8 @@ import ExcelJS from 'exceljs'
 import {
   EXECUTION_MODES,
   PROGRESS_STRATEGIES,
+  PROJECT_STATUSES,
+  CONTAINER_STATUSES,
   WORK_STATUSES,
   MILESTONE_STATUSES,
   GATE_STATUSES,
@@ -46,7 +48,7 @@ export const SHEETS = {
       { key: 'name', required: true, width: 40 },
       { key: 'description', width: 46 },
       { key: 'type', width: 16 },
-      { key: 'status', width: 14 },
+      { key: 'status', width: 14, list: PROJECT_STATUSES },
     ],
   },
   workstreams: {
@@ -69,7 +71,7 @@ export const SHEETS = {
       { key: 'parentCode', width: 20 },
       { key: 'subtype', required: true, width: 22, list: CONTAINER_SUBTYPES },
       { key: 'title', required: true, width: 36 },
-      { key: 'status', width: 14 },
+      { key: 'status', width: 14, list: CONTAINER_STATUSES },
     ],
   },
   items: {

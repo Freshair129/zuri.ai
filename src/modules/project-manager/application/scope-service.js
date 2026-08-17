@@ -10,6 +10,7 @@ import {
   zWorkspaceInput,
 } from '@/lib/validation/entities'
 import { recordAudit } from './audit'
+import { activeWorkstream } from './active-filters'
 
 // @req FR-001 — scope hierarchy CRUD (portfolio/tenant/business/branch/workspace)
 // @spec BR-001, SEC-001 — tenant = isolation; cross-scope access denied
@@ -29,7 +30,7 @@ export async function listScope() {
     prisma.workspace.findMany({ orderBy: { code: 'asc' }, where: { status: { not: 'ARCHIVED' } } }),
     prisma.project.findMany({
       orderBy: { code: 'asc' },
-      where: { deletedAt: null, status: { not: 'ARCHIVED' } },
+      where: activeWorkstream(),
       select: { id: true, code: true, name: true, businessId: true, workspaceId: true, status: true },
     }),
   ])

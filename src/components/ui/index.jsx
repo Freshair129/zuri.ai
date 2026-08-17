@@ -110,6 +110,28 @@ export function EmptyState({ title, hint, action }) {
   )
 }
 
+/**
+ * States that a list is a window, not the whole set.
+ *
+ * @req FR-005, FR-014 — a row cap the user cannot see is a wrong answer rather
+ * than a short page: `AllWorkView` searches client-side over the rows it was
+ * given, and an audit log is read to answer "did this happen?". Both were
+ * capped silently (500 and 200). Rendered as a notice above the table rather
+ * than a row inside it, so it survives client-side filtering of the rows.
+ */
+export function TruncationNotice({ shown, limit, noun = 'rows', hint }) {
+  return (
+    <p
+      className="mb-2 rounded-lg px-3 py-2 text-[11px]"
+      style={{ background: 'var(--warn-bg, var(--brand-tint))', color: 'var(--warn, var(--brand-dark))' }}
+      role="status"
+    >
+      Showing the most recent {shown ?? limit} {noun} — there are more than this limit of {limit}.
+      {hint ? ` ${hint}` : ''}
+    </p>
+  )
+}
+
 export function ErrorState({ title = 'Something went wrong', detail, retry }) {
   return (
     <div className="card grid place-items-center gap-2 p-10 text-center" role="alert">

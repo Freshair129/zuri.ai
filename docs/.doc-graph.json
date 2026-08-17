@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 750,
-    "total_edges": 2048,
+    "total_nodes": 754,
+    "total_edges": 2080,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,8 +16,8 @@
       "route": 96,
       "model": 33,
       "requirement": 144,
-      "test": 140,
-      "code_file": 214
+      "test": 142,
+      "code_file": 216
     },
     "coverage": {
       "requirements": 144,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (65/65)",
       "rules_anchored_in_code": "92% (60/65)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 214,
+      "annotated_code_files": 216,
       "fr_planned": [],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -39,7 +39,10 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "test:tests/e2e/smoke.spec.js",
+      "test:tests/integration/work-listing-scope.test.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -93,7 +96,7 @@
       "id": "code:src/app/(pm)/audit/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/audit/page.jsx",
-      "hash": "02d52748",
+      "hash": "1697b9ea",
       "status": "current",
       "annotations": {
         "@req": [
@@ -171,7 +174,7 @@
       "id": "code:src/app/(pm)/files/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/files/page.jsx",
-      "hash": "4baddfdc",
+      "hash": "8b8a4583",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1978,11 +1981,13 @@
       "id": "code:src/components/ui/index.jsx",
       "type": "code_file",
       "path": "src/components/ui/index.jsx",
-      "hash": "adc81aa5",
+      "hash": "d8928f9e",
       "status": "current",
       "annotations": {
         "@req": [
-          "NFR-008"
+          "NFR-008",
+          "FR-005",
+          "FR-014"
         ],
         "@spec": [
           "SDD-010"
@@ -2197,7 +2202,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "44d3629a",
+      "hash": "8ee04eb5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3281,10 +3286,30 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/application/active-filters.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/active-filters.js",
+      "hash": "60cb0a41",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-005",
+          "FR-007"
+        ],
+        "@spec": [
+          "BR-004",
+          "SDD-002"
+        ],
+        "@tested": [
+          "tests/integration/work-listing-scope.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/application/audit.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/audit.js",
-      "hash": "aa5f0f31",
+      "hash": "897d415e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3462,7 +3487,7 @@
       "id": "code:src/modules/project-manager/application/progress-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/progress-service.js",
-      "hash": "aa279b8f",
+      "hash": "64f048d8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3539,7 +3564,7 @@
       "id": "code:src/modules/project-manager/application/project-team-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-team-service.js",
-      "hash": "061218f7",
+      "hash": "fbaeef92",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3582,7 +3607,7 @@
       "id": "code:src/modules/project-manager/application/scope-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/scope-service.js",
-      "hash": "e9b33d8b",
+      "hash": "b2530b13",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3602,14 +3627,19 @@
       "id": "code:src/modules/project-manager/application/work-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/work-service.js",
-      "hash": "d8466e69",
+      "hash": "1e669752",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-005"
+          "FR-005",
+          "FR-007"
+        ],
+        "@spec": [
+          "BR-004"
         ],
         "@tested": [
-          "tests/integration/project-core.test.js"
+          "tests/integration/project-core.test.js",
+          "tests/integration/work-listing-scope.test.js"
         ]
       }
     },
@@ -3808,7 +3838,7 @@
       "id": "code:src/modules/project-manager/import/plan-schema.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-schema.js",
-      "hash": "22375867",
+      "hash": "21cfbc11",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3818,10 +3848,12 @@
         "@spec": [
           "BR-004",
           "BR-007",
-          "SEC-002"
+          "SEC-002",
+          "SDD-002"
         ],
         "@tested": [
-          "tests/unit/plan-schema.test.js"
+          "tests/unit/plan-schema.test.js",
+          "tests/unit/plan-status-vocabulary.test.js"
         ]
       }
     },
@@ -3844,7 +3876,7 @@
       "id": "code:src/modules/project-manager/import/xlsx-template.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/xlsx-template.js",
-      "hash": "81764d29",
+      "hash": "f1fdfcab",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3966,11 +3998,24 @@
       "id": "code:src/modules/project-manager/views/KanbanBoard.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/views/KanbanBoard.jsx",
-      "hash": "411850bc",
+      "hash": "2a19c6e8",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-063"
+          "FR-063",
+          "FR-005"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/views/universal/AllWorkView.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/views/universal/AllWorkView.jsx",
+      "hash": "dc8d032a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-005"
         ]
       }
     },
@@ -7430,8 +7475,8 @@
       "id": "test:tests/e2e/smoke.spec.js",
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
-      "hash": "0a15bde0",
-      "status": "current"
+      "hash": "fbb36e86",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/adaptive-shell.test.js",
@@ -7672,6 +7717,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/work-listing-scope.test.js",
+      "type": "test",
+      "path": "tests/integration/work-listing-scope.test.js",
+      "hash": "4f7e7ff5",
+      "status": "changed"
+    },
+    {
       "id": "test:tests/integration/xlsx-intake.test.js",
       "type": "test",
       "path": "tests/integration/xlsx-intake.test.js",
@@ -7829,7 +7881,7 @@
       "id": "test:tests/unit/fr036-team-authorization.test.js",
       "type": "test",
       "path": "tests/unit/fr036-team-authorization.test.js",
-      "hash": "9371844b",
+      "hash": "401ee2fb",
       "status": "current"
     },
     {
@@ -8152,6 +8204,13 @@
       "type": "test",
       "path": "tests/unit/plan-schema.test.js",
       "hash": "5012b65d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/plan-status-vocabulary.test.js",
+      "type": "test",
+      "path": "tests/unit/plan-status-vocabulary.test.js",
+      "hash": "07b38c80",
       "status": "current"
     },
     {
@@ -10734,6 +10793,20 @@
     },
     {
       "from": "code:src/components/ui/index.jsx",
+      "to": "req:FR-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/ui/index.jsx",
+      "to": "req:FR-014",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/ui/index.jsx",
       "to": "req:NFR-008",
       "type": "implements",
       "status": "current",
@@ -12301,6 +12374,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/application/active-filters.js",
+      "to": "req:BR-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/active-filters.js",
+      "to": "req:FR-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/active-filters.js",
+      "to": "req:FR-007",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/active-filters.js",
+      "to": "req:SDD-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/audit.js",
       "to": "req:FR-014",
       "type": "implements",
@@ -12729,7 +12830,21 @@
     },
     {
       "from": "code:src/modules/project-manager/application/work-service.js",
+      "to": "req:BR-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-service.js",
       "to": "req:FR-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-service.js",
+      "to": "req:FR-007",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -13051,6 +13166,13 @@
     },
     {
       "from": "code:src/modules/project-manager/import/plan-schema.js",
+      "to": "req:SDD-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-schema.js",
       "to": "req:SEC-002",
       "type": "follows",
       "status": "current",
@@ -13177,7 +13299,21 @@
     },
     {
       "from": "code:src/modules/project-manager/views/KanbanBoard.jsx",
+      "to": "req:FR-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/KanbanBoard.jsx",
       "to": "req:FR-063",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/universal/AllWorkView.jsx",
+      "to": "req:FR-005",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -16372,7 +16508,7 @@
       "to": "req:FR-014",
       "type": "verifies",
       "status": "current",
-      "source": "transitive"
+      "source": "test-reference"
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
@@ -18349,6 +18485,55 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "code:src/modules/project-manager/application/active-filters.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "code:src/modules/project-manager/application/work-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:FR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:FR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:FR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:SDD-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "code:src/lib/validation/enums.js",
       "type": "tests",
@@ -18987,6 +19172,20 @@
     },
     {
       "from": "test:tests/unit/design-system.test.js",
+      "to": "req:FR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/design-system.test.js",
+      "to": "req:FR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/design-system.test.js",
       "to": "req:NFR-008",
       "type": "verifies",
       "status": "current",
@@ -19260,10 +19459,24 @@
     },
     {
       "from": "test:tests/unit/fr036-team-authorization.test.js",
+      "to": "req:FR-062",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr036-team-authorization.test.js",
       "to": "req:SDD-015",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr036-team-authorization.test.js",
+      "to": "req:SDD-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/fr036-team-authorization.test.js",
@@ -21612,6 +21825,76 @@
     },
     {
       "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-status-vocabulary.test.js",
+      "to": "code:src/modules/project-manager/import/plan-schema.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/plan-status-vocabulary.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-status-vocabulary.test.js",
+      "to": "req:BR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-status-vocabulary.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-status-vocabulary.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-status-vocabulary.test.js",
+      "to": "req:FR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-status-vocabulary.test.js",
+      "to": "req:FR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-status-vocabulary.test.js",
+      "to": "req:FR-063",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-status-vocabulary.test.js",
+      "to": "req:SDD-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-status-vocabulary.test.js",
       "to": "req:SEC-002",
       "type": "verifies",
       "status": "current",

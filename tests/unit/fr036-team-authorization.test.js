@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { readFileSync } from 'node:fs'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { resolveViewer } from '@/modules/identity/resolve-viewer'
@@ -157,5 +158,33 @@ describe('the team list stops handing out every Person in the database', () => {
     const team = await listProjectTeam(w.project.id, { db: prisma, viewer: owner })
     const offered = team.availablePeople.map((p) => p.id)
     expect(offered).not.toContain(stranger.id)
+  })
+
+  it('offers no email address, because the picker never shows one', () => {
+    // FR-062/SDD-035, applied to the surface next door: a response carries no
+    // field its surface displays. The picker renders `displayName · code`, so an
+    // address for every Person in the tenant was contact data handed to anyone
+    // who could open a Team tab. Scoping the query to the tenant (above) reduced
+    // who was exposed; it did not make the field displayed.
+    //
+    // Asserted against the SELECT rather than a fixture, so seeding a Person
+    // without an email can never make this pass by accident.
+    const source = readFileSync('src/modules/project-manager/application/project-team-service.js', 'utf8')
+    const picker = source.slice(source.indexOf('db.person.findMany'))
+    expect(picker.slice(0, picker.indexOf('}),'))).not.toContain('email')
+  })
+
+  it('still returns email for people already on the team, which the roster does show', async () => {
+    const w = await world()
+    const boss = await prisma.person.create({
+      data: { id: randomUUID(), code: `PER-B3-${tag()}`, displayName: 'Boss3', email: 'boss3@example.test' },
+    })
+    await prisma.membership.create({
+      data: { id: randomUUID(), tenantId: w.tenantId, businessId: w.target.id, personId: boss.id, role: 'OWNER', domainKeysJson: '[]' },
+    })
+    const owner = await resolveViewer({ principalId: boss.id, db: prisma })
+    const team = await listProjectTeam(w.project.id, { db: prisma, viewer: owner })
+    const row = team.members.find((m) => m.personId === boss.id)
+    expect(row.person.email).toBe('boss3@example.test')
   })
 })

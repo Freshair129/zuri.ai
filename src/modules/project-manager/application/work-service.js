@@ -2,9 +2,12 @@ import prisma from '@/lib/db'
 import { uniqueHumanCode } from '@/lib/ids'
 import { zWorkContainerInput, zWorkItemInput, zWorkItemUpdate } from '@/lib/validation/entities'
 import { recordAudit, safeParse } from './audit'
+import { activeWorkstream } from './active-filters'
 
 // @req FR-005 — neutral WorkContainer/WorkItem model behind all execution modes
-// @tested tests/integration/project-core.test.js
+// @req FR-007 — the global browser lists the same population progress counts
+// @spec BR-004
+// @tested tests/integration/project-core.test.js, tests/integration/work-listing-scope.test.js
 
 const codeExists = (model) => async (code) =>
   Boolean(await prisma[model].findUnique({ where: { code } }))
@@ -140,18 +143,37 @@ export async function deleteItem(id) {
   return item
 }
 
+/**
+ * How many work items one listing will return.
+ *
+ * @req FR-005 — the cap is disclosed, not silent. It was a bare `take: 500` and
+ * the caller had no way to learn it had been applied, which matters more here
+ * than in most lists: `AllWorkView` filters its search box **client-side over
+ * the rows it received**, so past 500 items a search returned "no results" for
+ * work that exists. A silent cap turns into a wrong answer, not a short page.
+ */
+export const WORK_LIST_LIMIT = 500
+
+/**
+ * @returns {Promise<{items: object[], limit: number, truncated: boolean}>}
+ *   `truncated` is decided by asking for one row more than we will return —
+ *   the only way to know there is a next row without counting the whole table.
+ */
 export async function listWork({ workstreamId, projectId, subtype, status, q, executionMode } = {}) {
   const where = { deletedAt: null }
   if (workstreamId) where.workstreamId = workstreamId
   if (subtype) where.subtype = subtype
   if (status) where.status = status
   if (q) where.OR = [{ title: { contains: q } }, { code: { contains: q } }]
-  if (projectId || executionMode) {
-    where.workstream = {}
-    if (projectId) where.workstream.projectId = projectId
-    if (executionMode) where.workstream.executionMode = executionMode
-  }
-  const items = await prisma.workItem.findMany({
+  // @req FR-007 — an archived or soft-deleted workstream's items are excluded,
+  // because every progress calculator already excludes them. Listing them here
+  // (with an inline status editor) offered edits that could not move any number
+  // the app displays. `activeWorkstream()` is the one definition of that.
+  where.workstream = { ...activeWorkstream() }
+  if (projectId) where.workstream.projectId = projectId
+  if (executionMode) where.workstream.executionMode = executionMode
+
+  const rows = await prisma.workItem.findMany({
     where,
     orderBy: { updatedAt: 'desc' },
     include: {
@@ -160,7 +182,11 @@ export async function listWork({ workstreamId, projectId, subtype, status, q, ex
       },
       container: { select: { id: true, code: true, title: true, subtype: true } },
     },
-    take: 500,
+    take: WORK_LIST_LIMIT + 1,
   })
-  return items.map(hydrateItem)
+  return {
+    items: rows.slice(0, WORK_LIST_LIMIT).map(hydrateItem),
+    limit: WORK_LIST_LIMIT,
+    truncated: rows.length > WORK_LIST_LIMIT,
+  }
 }
