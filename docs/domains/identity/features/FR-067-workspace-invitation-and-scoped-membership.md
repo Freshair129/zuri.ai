@@ -61,28 +61,68 @@ label may move freely; the key never does (AGENTS.md §18).
 
 ## Relationship to FR-065 — this creates the authority FR-065 refuses for
 
-FR-065 refuses an import whose target Workspace sits above Business, and SDD-037
-justifies that refusal on a **verified** premise: *no principal can hold portfolio
-or tenant authority today* — `Membership` is created in exactly two code paths and
+FR-065 refuses an import whose target Workspace sits above Business. SDD-037
+justifies that refusal in **two tenses**, precisely because this requirement
+retires the first one. Until FR-067 ships: *no principal can hold portfolio or
+tenant authority at all* — `Membership` is created in exactly two code paths and
 both bind `businessId`, and the viewer contract exposes only Business-keyed
 grants. FR-065's own text names the exit: "a prior FR that makes portfolio/tenant
 authority *holdable*: a viewer-contract change in the manner of FR-061".
 
 **FR-067 is that FR.** The ordering is correct, not contradictory — but the two
 must be read together, because implementing this one falsifies the premise the
-other one's refusal rests on. Two consequences to settle *before* code:
+other one's refusal *used* to rest on. Both consequences are settled, and neither
+requires a change to FR-065's code:
 
-1. **The question FR-067 currently leaves open.** A principal holding a
-   WorkspaceMembership on Portfolio *P*: may they import into a Space
-   (schema `Workspace`) whose `scopeType` is `PORTFOLIO` and whose `portfolioId`
-   is *P*? Non-goal 1 rules out using Workspace membership as Business
-   authorization, and AC-067.4 denies hidden Business/Project data — neither
-   speaks to a Space scoped at portfolio level, which is exactly FR-065's case.
-   Until that is answered, FR-065's refusal stands unchanged.
-2. **Revisit FR-065 clause (b) when this lands, deliberately.** Either the
-   refusal keeps its reason and SDD-037's premise is amended to say the authority
-   exists but does not extend to import, or import above Business becomes
-   governed — through the viewer contract, never by relaxing the guard.
+1. **Answered 2026-08-17 — no.** *May a principal holding a WorkspaceMembership
+   on Portfolio P import into a Space (schema `Workspace`) whose `scopeType` is
+   `PORTFOLIO` and whose `portfolioId` is P?* **No**, and this is derived from
+   this requirement rather than invented for it — see the decision below.
+2. **FR-065 clause (b) therefore does not change when this lands.** Its
+   behaviour is identical; only SDD-037's *justification* is amended, from "no
+   such authority can be held" to "the authority exists and does not extend
+   here". Same refusal, different reason.
+
+## Decision — WorkspaceMembership does not authorize import into a Space
+
+**Answer: no.** Three independent grounds, in order of how directly they settle it:
+
+**AC-067.5 already says so.** It makes Tenant/Business/**Space**/Project
+assignment "a separate audited mutation" requiring "the relevant owner
+authority". Space is named explicitly. Membership on the Portfolio therefore does
+not reach a Space belonging to that Portfolio — Space authority is assigned, not
+inherited downward from the container. Nothing new had to be decided here; an
+earlier reading of this file called the question open by overlooking that
+AC-067.5 names Space.
+
+**AC-067.4 forbids the weaker act.** Workspace membership alone "returns no
+hidden Business, Project, file, domain or Tenant data". An import *creates*
+Projects, Workstreams, Containers, Items, Milestones and Gates. A grant that
+cannot read a Project must not be able to write one.
+
+**A portfolio-scoped Space sits above the isolation boundary.** Verified, not
+assumed: `prisma/seed.js` creates `WS-PLATFORM` with `scopeType: 'PORTFOLIO'` and
+`portfolioId` only — **no `tenantId`** — while the same Portfolio spans every
+Tenant beneath it (TNT-001…004 in the seed). BR-001 makes `tenant_id` the
+isolation scope, so authorizing a write there on the strength of portfolio-level
+membership would place a write path *above* the boundary the entire scope chain
+rests on. `classify()`'s mandatory scope bounds the damage to that Space — which
+is precisely the Space that belongs to no tenant.
+
+A fourth observation, not a ground but worth recording: `listProjects` filters
+tenants via `where.workspace.tenantId`, which a portfolio-scoped Space can never
+match. Rows written there are invisible to every tenant-scoped read and visible
+to every unscoped one. Opening a write path into a half-visible region is not
+something to do before the reads are settled.
+
+### What would legitimately unlock it
+
+Not this requirement, and not a looser predicate. It needs a **Space-level owner
+authority** — exactly the separate assignment AC-067.5 describes — carried in the
+viewer contract as a space- or portfolio-keyed grant, in the manner FR-061
+changed the contract for per-Business domains. Only then does
+`AUTHORIZERS` in `src/modules/project-manager/import/import-authorization.js`
+gain an entry. Adding one ahead of the contract turns the refusal into a hole.
 
 The collision above is what makes this easy to miss: FR-065 says "a Workspace
 above Business" (schema `Workspace` = Space) and FR-067 says "Workspace"

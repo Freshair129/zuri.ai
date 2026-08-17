@@ -47,8 +47,7 @@
   "drift": {
     "changed": [
       "doc:FR-067-workspace-invitation-and-scoped-membership",
-      "doc:FR-065-import-target-authorization",
-      "doc:PRD-SDD-v1.0"
+      "doc:FR-065-import-target-authorization"
     ],
     "added": [],
     "removed": []
@@ -3790,7 +3789,7 @@
       "id": "code:src/modules/project-manager/import/import-authorization.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/import-authorization.js",
-      "hash": "bfc32ad5",
+      "hash": "87762a36",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4488,7 +4487,7 @@
       "title": "Import Target Authorization — who may write into the Workspace a plan names",
       "version": "1.1.0",
       "doc_status": "Implemented (FR-065)",
-      "hash": "6301afbf",
+      "hash": "6eac81fc",
       "status": "changed"
     },
     {
@@ -4508,7 +4507,7 @@
       "title": "FR-067 — Workspace invitation and scoped membership",
       "version": "0.1.0b",
       "doc_status": "Design approved — implementation pending",
-      "hash": "00947467",
+      "hash": "612ae8b4",
       "status": "changed"
     },
     {
@@ -4714,10 +4713,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.52.1b",
+      "version": "1.52.2b",
       "doc_status": "Draft",
-      "hash": "b47cc479",
-      "status": "changed"
+      "hash": "5523c909",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -6367,7 +6366,7 @@
       "id": "req:SDD-037",
       "type": "requirement",
       "family": "SDD",
-      "label": "Import authorization is decided **once, on the resolved target Workspace**, in the pipeline that resolves it — not in each of the three route handlers, which is how three copies of a predicate drift. `authorizeImportTarget(viewer, workspace)` is the single entry point, it calls `ownsBusiness` rather than re-deriving ownership, and it is a required argument: a caller that omits the viewer throws at the call, in the manner `classify()` now requires its `scope`, so a fourth intake surface cannot be wired up unauthorized by simply not passing it. A Workspace above Business is refused rather than governed, and the refusal is **evidence-backed, not conservatism**: `Membership` is created in exactly two code paths and both set `businessId`, and the viewer contract exposes only Business-keyed grants (`visibleBusinessIds`, `ownedBusinessIds`, `domainsByBusinessId`) — so no principal can hold portfolio or tenant authority today, and any rule written for it here would be an untestable guess. Inventing one at the end of a security fix is how the fix becomes the next incident. The three routes leave `docs/.route-viewer-baseline.json` when this lands; the baseline shrinks, it is never edited to accommodate them.",
+      "label": "Import authorization is decided **once, on the resolved target Workspace**, in the pipeline that resolves it — not in each of the three route handlers, which is how three copies of a predicate drift. `authorizeImportTarget(viewer, workspace)` is the single entry point, it calls `ownsBusiness` rather than re-deriving ownership, and it is a required argument: a caller that omits the viewer throws at the call, in the manner `classify()` now requires its `scope`, so a fourth intake surface cannot be wired up unauthorized by simply not passing it. A Workspace above Business is refused rather than governed. The refusal is **evidence-backed, not conservatism**, and its justification is deliberately stated in two tenses because the first one expires. **Until FR-067 ships:** `Membership` is created in exactly two code paths and both set `businessId`, and the viewer contract exposes only Business-keyed grants (`visibleBusinessIds`, `ownedBusinessIds`, `domainsByBusinessId`) — so no principal can hold portfolio or tenant authority at all, and any rule written for it would be untestable, satisfiable by nothing and deniable of nothing. **Once FR-067 ships that premise is false and the refusal survives on a different, stronger reason:** a `WorkspaceMembership` is *collaboration* scope on the top-level container (keyed by `portfolioId`), and FR-067 AC-067.5 makes Tenant/Business/**Space**/Project assignment a separate audited mutation requiring the relevant owner authority — so holding it confers no write authority over a Space belonging to that Portfolio. AC-067.4 says the same thing from the read side: membership alone returns no hidden Project data, and import *creates* Project data. Two further facts make this more than a technicality — a portfolio-scoped Space carries **no `tenantId`** (`prisma/seed.js` WS-PLATFORM sets only `portfolioId`), so it sits above the BR-001 isolation boundary, and one Portfolio spans every Tenant beneath it. Opening a write path there on portfolio-level membership would put a write above the boundary the whole scope chain rests on. What would legitimately unlock it is neither FR-067 nor a looser predicate: it is a Space-level owner authority carried in the viewer contract — the FR-061 shape again — after which `AUTHORIZERS` gains an entry, never before. Inventing a rule at the end of a security fix is how the fix becomes the next incident. The three routes leave `docs/.route-viewer-baseline.json` when this lands; the baseline shrinks, it is never edited to accommodate them.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
