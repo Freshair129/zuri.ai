@@ -39,6 +39,16 @@ Who a principal is and what they may see: external identity resolution
   lives in `viewer-domains.js` with no I/O, because both consumers are client
   components.
 
+## Approved next boundary (ADR-027)
+
+Profile completion is an identity step over `Person`, not an authorization grant.
+The Profile-first entry may resolve a Profile-only person into a Waiting Room
+without creating a Tenant, Business or Project. Workspace invitation and
+WorkspaceMembership are a separate collaboration contract from the existing
+Tenant/Business `Membership`; they must not widen `visibleBusinessIds`,
+`ownedBusinessIds`, or per-Business domain grants. This boundary is documented in
+FR-066/067 and remains implementation-pending.
+
 ## Known shared-write exceptions (debt, visible on purpose)
 
 - Writes `Person` (owned by crm) during linking and erasure — recorded in both

@@ -129,9 +129,36 @@ contents — not even whether their envelope was well-formed.
 `docs/.route-viewer-baseline.json` when this lands. Editing that file to
 accommodate an unguarded route is the one move the ratchet exists to prevent.
 
+## The premise has an expiry date — FR-067
+
+Clause (b) refuses, and SDD-037 justifies that refusal on a premise that was
+verified rather than assumed: *no principal can hold authority above Business
+today*. **FR-067 (Workspace invitation and scoped membership, design-approved
+2026-08-17) is designed to make exactly that authority holdable** — which is the
+"prior FR of the FR-061 shape" this requirement named as its own exit.
+
+So the sequence is the intended one, not a conflict. What must not happen is
+FR-067 landing while this file still asserts the premise as current. When it
+does:
+
+- **Re-read SDD-037's justification before touching the guard.** The refusal was
+  never "portfolio import is wrong"; it was "no rule here could be tested,
+  because nothing could satisfy or be denied by it". Once a principal can hold
+  the authority, that argument expires and the case becomes decidable.
+- **Decide it through the viewer contract, not by relaxing
+  `authorizeImportTarget`.** Adding a `PORTFOLIO` entry to `AUTHORIZERS` is
+  correct only once the viewer actually carries a portfolio-keyed grant;
+  loosening the predicate ahead of the contract is how the refusal becomes a
+  hole.
+- **Mind the word.** FR-065 says "a Workspace above Business", meaning the schema
+  `Workspace` model (displayed as **Space**). FR-067 says "Workspace", meaning
+  the top-level container keyed by `portfolioId`. Same word, two levels of the
+  scope chain — see FR-067's "Which Workspace" section.
+
 ## Related
 
 - [[FR-012]] — the PlanEnvelope pipeline this authorizes
 - [[FR-061]] — the precedent: authority that must be *holdable* before it is checkable
 - [[FR-062]] — read scope derived from the field the write authorizes on
+- [[FR-067]] — creates the authority class clause (b) refuses for; read together
 - `.brain/reviews/pm-triage-2026-08-17.md` — where this was deferred, and why

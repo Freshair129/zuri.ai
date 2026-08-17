@@ -3,45 +3,52 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 754,
-    "total_edges": 2080,
+    "total_nodes": 762,
+    "total_edges": 2096,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 65,
-      "adr": 26,
+      "document": 67,
+      "adr": 27,
       "domain": 5,
       "roadmap": 21,
       "feature": 2,
       "route": 96,
       "model": 33,
-      "requirement": 144,
+      "requirement": 149,
       "test": 142,
       "code_file": 216
     },
     "coverage": {
-      "requirements": 144,
+      "requirements": 149,
       "fr_with_code": "100% (65/65)",
       "fr_with_tests": "100% (65/65)",
-      "rules_anchored_in_code": "92% (60/65)",
+      "rules_anchored_in_code": "88% (60/68)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 216,
-      "fr_planned": [],
+      "fr_planned": [
+        "FR-066",
+        "FR-067"
+      ],
       "fr_without_code": [],
       "fr_without_tests": [],
       "rules_without_anchor": [
+        "BR-016",
         "SDD-001",
         "SDD-008",
         "SDD-013",
+        "SDD-038",
         "SEC-004",
-        "SEC-005"
+        "SEC-005",
+        "SEC-014"
       ]
     }
   },
   "drift": {
     "changed": [
-      "test:tests/e2e/smoke.spec.js",
-      "test:tests/integration/work-listing-scope.test.js"
+      "doc:FR-067-workspace-invitation-and-scoped-membership",
+      "doc:FR-065-import-target-authorization",
+      "doc:PRD-SDD-v1.0"
     ],
     "added": [],
     "removed": []
@@ -4319,7 +4326,7 @@
       "path": "docs/domains/identity/features/FR-044-entry-landing-login-business-routing.md",
       "title": "FR-044 — Minimal entry and Business Routing before BusinessShell",
       "doc_status": "Implemented — owner-approved; exit gates verified",
-      "hash": "8a59d2f1",
+      "hash": "2f90ac46",
       "status": "current"
     },
     {
@@ -4481,8 +4488,28 @@
       "title": "Import Target Authorization — who may write into the Workspace a plan names",
       "version": "1.1.0",
       "doc_status": "Implemented (FR-065)",
-      "hash": "69dec937",
+      "hash": "6301afbf",
+      "status": "changed"
+    },
+    {
+      "id": "doc:FR-066-profile-first-workspace-onboarding",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-066-profile-first-workspace-onboarding.md",
+      "title": "FR-066 — Profile-first Workspace onboarding",
+      "version": "0.1.0b",
+      "doc_status": "Design approved — implementation pending",
+      "hash": "8c8f0ac6",
       "status": "current"
+    },
+    {
+      "id": "doc:FR-067-workspace-invitation-and-scoped-membership",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md",
+      "title": "FR-067 — Workspace invitation and scoped membership",
+      "version": "0.1.0b",
+      "doc_status": "Design approved — implementation pending",
+      "hash": "00947467",
+      "status": "changed"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -4511,7 +4538,7 @@
       "title": "Zuri V2 — Interface Inventory and Shell Boundary",
       "version": "0.4.0",
       "doc_status": "FR-044 and FR-046 verified beta",
-      "hash": "cc2ea16e",
+      "hash": "a7000300",
       "status": "current"
     },
     {
@@ -4687,10 +4714,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.51.0b",
+      "version": "1.52.1b",
       "doc_status": "Draft",
-      "hash": "6d6a23a8",
-      "status": "current"
+      "hash": "b47cc479",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -4699,7 +4726,7 @@
       "title": "Zuri V2 — Product Definition",
       "version": "1.1.0",
       "doc_status": "Draft",
-      "hash": "ad9bd6a0",
+      "hash": "7797e6e1",
       "status": "current"
     },
     {
@@ -4743,7 +4770,7 @@
       "title": "Zuri — Route and Shell Sitemap",
       "version": "1.0.0",
       "doc_status": "draft",
-      "hash": "bb90098b",
+      "hash": "65b1f083",
       "status": "current"
     },
     {
@@ -4753,7 +4780,7 @@
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
       "version": "0.4.2",
       "doc_status": "Accepted",
-      "hash": "bfa842a7",
+      "hash": "978384a5",
       "status": "current"
     },
     {
@@ -4899,7 +4926,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "d6e33c70",
+      "hash": "0792abdd",
       "status": "current"
     },
     {
@@ -5270,6 +5297,15 @@
       "type": "requirement",
       "family": "BR",
       "label": "LINE transport authentication proves event origin only. Principal, tenant, business, thread audience, capability, sensitivity and vault access come from server-owned identity and policy; thread membership may attenuate access but never elevate it.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:BR-016",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Profile, WorkspaceMembership, Tenant/Business Membership and Project assignment are distinct authority layers. A lower-level membership never widens a higher-level scope; roles, domains and target identities are server-decided, never accepted as self-asserted client authority.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -5860,6 +5896,24 @@
       "status": "current"
     },
     {
+      "id": "req:FR-066",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
+      "id": "req:FR-067",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Workspace collaboration boundary: an authorized Workspace/Tenant owner can issue a scoped, expiring, single-use invite that creates a separate WorkspaceMembership. Workspace membership grants only Workspace collaboration visibility; Tenant, Business, Space and Project access require separate server-authorized assignment, with audit and fail-closed replay/revocation behavior.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -6319,6 +6373,15 @@
       "status": "current"
     },
     {
+      "id": "req:SDD-038",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Profile-first onboarding is a pre-Business shell contract: `Person/Profile` completion leads to Waiting Room or Workspace Home, while Business Routing and BusinessShell require an independently authorized Business grant. Top-level UI Workspace maps to Portfolio; schema Workspace is displayed as Space. Workspace invites and WorkspaceMembership are separate from Tenant/Business Membership, and no client-selected role or identity can widen scope.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -6431,6 +6494,15 @@
       "type": "requirement",
       "family": "SEC",
       "label": "Private MSP retrieval is deny-by-default and policy-before-retrieval: no client/model/prompt/thread label can select a vault; identity or Membership revocation denies the next turn; Supabase/RLS remains defense in depth and user-editable metadata is not authorization input.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-014",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Provider-neutral multi-user onboarding still requires server-owned identity and trusted session state. Profile, Workspace invite and WorkspaceMembership mutations fail closed without trusted identity; invite tokens are single-use, expiring, hash-bound and audited; production never activates seeded-owner demo fallback.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -7288,7 +7360,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md",
       "title": "ADR-011 — Context bar and Business scope ceiling",
-      "hash": "186cd144",
+      "hash": "67923a67",
       "status": "current"
     },
     {
@@ -7321,7 +7393,7 @@
       "path": "docs/decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md",
       "title": "ADR-015 — Minimal entry, demo login, and Business Routing before BusinessShell",
       "doc_status": "Accepted — implementation complete",
-      "hash": "63556b27",
+      "hash": "41a87e07",
       "status": "current"
     },
     {
@@ -7416,6 +7488,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "adr",
+      "path": "docs/decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md",
+      "title": "ADR-027 — Profile-first and Workspace-first onboarding",
+      "hash": "bcb0c9c5",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -7476,7 +7556,7 @@
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
       "hash": "fbb36e86",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/adaptive-shell.test.js",
@@ -7721,7 +7801,7 @@
       "type": "test",
       "path": "tests/integration/work-listing-scope.test.js",
       "hash": "4f7e7ff5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/xlsx-intake.test.js",
@@ -13704,6 +13784,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:BR-016",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:FR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -14159,6 +14246,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-066",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-067",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -14516,6 +14617,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-038",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -14601,6 +14709,13 @@
     },
     {
       "from": "req:SEC-013",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-014",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -15517,6 +15632,13 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
       "to": "req:FR-005",
       "type": "relates",
@@ -15799,6 +15921,76 @@
     {
       "from": "spec:ADR-026-AGENT-TOPOLOGY-FOR-THE-VISUAL-OFFICE",
       "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "to": "req:BR-016",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "to": "req:FR-038",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "to": "req:FR-044",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "to": "req:FR-046",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "to": "req:FR-066",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "to": "req:FR-067",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "to": "req:SDD-038",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "to": "req:SEC-014",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "to": "spec:ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "to": "spec:ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL",
       "type": "relates",
       "status": "current",
       "source": "control-block"

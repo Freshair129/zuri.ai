@@ -6,7 +6,7 @@
 | **Status** | FR-044 and FR-046 verified beta |
 | **Date** | 2026-08-14 |
 | **Scope** | Entry, Business shell, domains, sub-domains, Project resources, content, indicators, and API contracts |
-| **Authority** | ADR-008, ADR-011, ADR-015; ADR-017 candidate; SITEMAP-V2-DOMAIN-NAV, HANDOFF-SHELL-V2-CODEX |
+| **Authority** | ADR-008, ADR-011, ADR-015, ADR-017, ADR-027; SITEMAP-V2-DOMAIN-NAV, HANDOFF-SHELL-V2-CODEX |
 
 ## Executive finding
 
@@ -29,6 +29,28 @@ The immediate architectural rule for the next change is:
 This inventory is an evidence document and current implementation record. Any
 remaining IA discrepancies are explicitly tracked as follow-up work rather than
 silently treated as delivered by FR-044.
+
+## Approved next onboarding boundary (ADR-027)
+
+The next approved interface starts with Profile rather than Business creation:
+
+```mermaid
+flowchart TD
+  L[Landing /] --> LG[Local identity or demo transition /login]
+  LG --> P[Profile setup /onboarding/profile]
+  P --> W[Waiting Room /waiting-room]
+  P --> WS[Workspace Home /workspaces]
+  WS --> I[Accept or manage Workspace invite]
+  I --> BR[Business Routing /businesses when Business access exists]
+  BR --> B[BusinessShell /overview]
+  W --> BR
+```
+
+This is a design target, not a runtime claim. A Profile-only or Workspace-only
+member remains outside BusinessShell. The top-level collaboration Workspace is
+the UI presentation of `Portfolio`; the existing schema `Workspace` remains
+Project Manager **Space** context. Workspace membership is not Business
+authorization.
 
 ## 1. Canonical interface hierarchy
 
@@ -152,8 +174,9 @@ features. The runtime registry intentionally contains only the 19 current entrie
 
 ## 4. Feature inventory
 
-The Project Manager PRD currently declares **44 functional requirements** (`FR-001` to
-`FR-044`) and the generated graph reports 44/44 with code and 44/44 with tests.
+The Project Manager PRD currently declares **67 functional requirements** (`FR-001` to
+`FR-067`). FR-001…065 are the existing implementation/history set; FR-066/067 are
+design-approved Profile/Workspace requirements and have no runtime anchors yet.
 
 FR-044 now records the implemented interface boundary:
 
@@ -168,6 +191,11 @@ FR-044 now records the implemented interface boundary:
 These are not safe to silently fold into FR-031/032/039 because they change the
 meaning of the shell boundary. They are specified by accepted FR-044/ADR-015/SDD-022
 and covered by route, unit, and browser proof.
+
+FR-066/067 are intentionally separate from FR-044: they add Profile-only and
+Workspace-only states before Business Routing and define a new Workspace
+membership/invite authority. They must not be marked live until the route, session,
+authorization, audit and replay tests exist.
 
 ## 5. Indicator/state inventory
 
