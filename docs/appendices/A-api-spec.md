@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.4.0 |
+| **Version** | 1.5.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-14 |
+| **Last Updated** | 2026-08-18 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; local demo capability เปิดได้เฉพาะ non-production เท่านั้น Error shape คือ
@@ -63,6 +63,27 @@ non-production the Login form posts to an explicit local demo-session capability
 No password, OIDC, LINE login, token, session, or new persisted auth contract is part
 of FR-044. Those belong to the later identity implementation and must not be implied
 by the demo Login button.
+
+## Platform Integrations management surface (FR-075 / ADR-032)
+
+The metadata-only first slice is live in the local route tree. It is owner-only,
+Business-scoped and never returns secret material:
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/platform/integrations` | implemented: trusted Business-scoped provider/connection metadata and redacted Vault status |
+| POST | `/api/platform/integrations` | implemented: create draft metadata with fixed `purpose=PHASE1_LINE_LLM`; accepts only `supabase-vault:<uuid>` |
+| PATCH | `/api/platform/integrations/[id]` | version/CAS guarded non-secret metadata update |
+| POST | `/api/platform/integrations/[id]/secret` | write-only value to an approved external SecretManagerProvisionPort; returns version/expiry only |
+| POST | `/api/platform/integrations/[id]/rotate` | audited rotation command; never returns old/new material |
+| POST | `/api/platform/integrations/[id]/revoke` | external-manager revoke plus runtime-cache purge |
+| POST | `/api/platform/integrations/[id]/promote` | audited connection CAS promotion; cannot enable LINE routing |
+
+PATCH, provision, rotate, revoke and promote remain deferred until their
+separate CAS/provisioner contracts are implemented. There is intentionally no
+read-secret endpoint. The UI is owner-only under the
+trusted viewer/Business ownership boundary and cannot activate a LINE binding or
+replace FR-053/054/055 canary evidence.
 
 ### Production-shaped boundary (FR-046 / ADR-017)
 

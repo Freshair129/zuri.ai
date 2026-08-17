@@ -102,4 +102,7 @@ The generic Postgres artifact carries the additive connection tables and
 `prisma/postgres/0002_phase1_line_primary_connection.sql` adds the active-primary
 unique index. Production Supabase uses the private-schema migration
 `supabase/migrations/20260818040000_phase1_line_runtime_connections.sql`, which
-adds forced RLS and read-only `zuri_line_smartgift_ro` grants.
+adds forced RLS and read-only `zuri_line_smartgift_ro` grants. The follow-up
+`supabase/migrations/20260818050000_phase1_line_supabase_vault_resolver.sql`
+adds a private `SECURITY DEFINER` resolver for `supabase-vault:<uuid>` refs;
+`zuri_line_runtime` receives function execute only and no direct Vault view read.

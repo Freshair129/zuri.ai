@@ -17,7 +17,7 @@ Charter: [docs/domains/agent/CHARTER.md](domains/agent/CHARTER.md)
 | Modules | `src/modules/agent` |
 | Models owned | — (state lives outside the shared schema by design) |
 | Routes owned | 1 (1 api · 0 pages) |
-| FRs implemented in lane | FR-025, FR-026, FR-027, FR-029, FR-047, FR-048, FR-049, FR-051, FR-052, FR-053, FR-054, FR-055, FR-057, FR-074 |
+| FRs implemented in lane | FR-025, FR-026, FR-027, FR-029, FR-047, FR-048, FR-049, FR-051, FR-052, FR-053, FR-054, FR-055, FR-057, FR-074, FR-075 |
 
 ## crm
 
@@ -50,7 +50,7 @@ Charter: [docs/domains/integration/CHARTER.md](domains/integration/CHARTER.md)
 | Modules | `src/modules/integration` |
 | Models owned | IntegrationProvider, IntegrationConnection, IntegrationCredential |
 | Routes owned | 0 (0 api · 0 pages) |
-| FRs implemented in lane | — |
+| FRs implemented in lane | FR-075 |
 
 ## knowledge
 
@@ -71,5 +71,5 @@ Charter: [docs/domains/project-manager/CHARTER.md](domains/project-manager/CHART
 |---|---|
 | Modules | `src/modules/project-manager`, `src/modules/business`, `src/modules/people` |
 | Models owned | Portfolio, Tenant, LegalEntity, LegalEntityIdentifier, Business, Branch, Workspace, Project, BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal, ProjectGoal, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Repository, ProjectRepository, ProjectFile, LocalWorkspaceMount, FileAsset, FileLink, Membership, AuditEvent |
-| Routes owned | 91 (59 api · 32 pages) |
-| FRs implemented in lane | FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-018, FR-019, FR-020, FR-036, FR-037, FR-040, FR-041, FR-042, FR-043, FR-045, FR-058, FR-059, FR-060, FR-063, FR-065, FR-072, SDD-037 |
+| Routes owned | 93 (60 api · 33 pages) |
+| FRs implemented in lane | FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-018, FR-019, FR-020, FR-036, FR-037, FR-040, FR-041, FR-042, FR-043, FR-045, FR-058, FR-059, FR-060, FR-063, FR-064, FR-065, FR-072, SDD-037 |

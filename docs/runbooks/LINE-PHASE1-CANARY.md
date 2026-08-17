@@ -30,6 +30,11 @@ The binding must be `PENDING`, routing must be disabled and destination/credenti
 already be installed. The approved provider credential is represented only by the boolean
 `credentialAvailable`; the secret itself stays in the approved secret manager.
 
+The Platform Integrations page (FR-075 / ADR-032) may prepare connection metadata
+and show redacted Supabase Vault readiness, but it is not an activation control.
+It cannot install binding hashes, enable routing, send LINE or replace this
+runbook's signed canary/operator gates.
+
 For the connection cut-over, the plan must also identify one exact Business-scoped
 `PHASE1_LINE_LLM` connection with `status=ACTIVE` and `role=PRIMARY`. The runtime must resolve it
 from the server-owned binding scope; it must not choose the latest connection or accept a

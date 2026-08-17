@@ -7,15 +7,19 @@ import {
   resolvePhase1PrimaryConnectionByQuery,
 } from '@/platform/integrations/core/integration-registry'
 import { createEnvCredentialVault } from '@/platform/integrations/core/credential-vault'
-import { createSecretManagerPort, createVaultSecretManagerAdapter } from '@/platform/integrations/core/secret-manager'
+import {
+  createSecretManagerPort,
+  createSupabaseVaultSecretManagerAdapter,
+  createVaultSecretManagerAdapter,
+} from '@/platform/integrations/core/secret-manager'
 import {
   parseDedicatedRuntimeDatabaseUrl,
   readRuntimeDatabaseCa,
 } from '../knowledge/runtime-postgres-config.js'
 import pg from 'pg'
 
-// @req FR-047, FR-048, FR-052 — compose Phase 1 ports only from server-owned scope and configuration.
-// @spec SDD-025, SDD-026, SEC-009, SEC-010 — disabled by default; partial configuration fails closed.
+// @req FR-047, FR-048, FR-052, FR-075 — compose Phase 1 ports only from server-owned scope and configuration.
+// @spec SDD-025, SDD-026, SDD-044, SEC-009, SEC-010, SEC-016 — disabled by default; partial configuration fails closed.
 // @tested tests/unit/phase1-business-agent-runtime.test.js
 
 function assertRuntimeDatabaseUrl(value) {
@@ -25,6 +29,11 @@ function assertRuntimeDatabaseUrl(value) {
 
 let sharedPool = null
 let sharedPoolDatabaseUrl = null
+
+const RUNTIME_DB_ROLE_SQL = Object.freeze({
+  zuri_line_smartgift_ro: 'set local role zuri_line_smartgift_ro',
+  zuri_line_runtime: 'set local role zuri_line_runtime',
+})
 
 function runtimePool(databaseUrl, timeoutMs, ssl) {
   if (sharedPool && sharedPoolDatabaseUrl !== databaseUrl) {
@@ -43,13 +52,18 @@ function runtimePool(databaseUrl, timeoutMs, ssl) {
   return sharedPool
 }
 
-export async function executeAsLineReadRole(pool, sql, values) {
+async function executeAsRole(pool, role, sql, values) {
+  const roleSql = Object.prototype.hasOwnProperty.call(RUNTIME_DB_ROLE_SQL, role)
+    ? RUNTIME_DB_ROLE_SQL[role]
+    : null
+  if (!roleSql) throw new Error('PHASE1_DATABASE_ROLE_FORBIDDEN')
+
   const client = await pool.connect()
   let transactionStarted = false
   try {
     await client.query('begin')
     transactionStarted = true
-    await client.query('set local role zuri_line_smartgift_ro')
+    await client.query(roleSql)
     const result = await client.query(sql, values)
     await client.query('commit')
     return result
@@ -59,6 +73,14 @@ export async function executeAsLineReadRole(pool, sql, values) {
   } finally {
     client.release()
   }
+}
+
+export async function executeAsLineReadRole(pool, sql, values) {
+  return executeAsRole(pool, 'zuri_line_smartgift_ro', sql, values)
+}
+
+export async function executeAsLineSecretRole(pool, sql, values) {
+  return executeAsRole(pool, 'zuri_line_runtime', sql, values)
 }
 
 function runtimeSourceFor(env) {
@@ -85,7 +107,7 @@ function parseConnectionMetadata(connection) {
 
 export function createPhase1BusinessAgentPortsFromEnv(
   env = process.env,
-  { fetchFn, queryFn, integrationDb, connectionResolver, secretManager } = {},
+  { fetchFn, queryFn, secretQueryFn, integrationDb, connectionResolver, secretManager } = {},
 ) {
   if (env.ZURI_LINE_BUSINESS_AGENT_ENABLED !== 'true') return null
 
@@ -109,18 +131,6 @@ export function createPhase1BusinessAgentPortsFromEnv(
   const missing = Object.entries(required).filter(([, value]) => !value).map(([name]) => name)
   if (missing.length) throw new Error(`PHASE1_CONFIGURATION_MISSING: ${missing.join(', ')}`)
 
-  const runtimeSecretManager = secretManager ?? (
-    runtimeSource === 'PRODUCTION_LINE' || !env.ZURI_CREDENTIAL_VAULT_MASTER_KEY
-      ? null
-      : createSecretManagerPort({
-        runtimeSource,
-        adapter: createVaultSecretManagerAdapter({ vault: createEnvCredentialVault({ env }) }),
-      })
-  )
-  if (runtimeSource === 'PRODUCTION_LINE' && runtimeSecretManager?.runtimeSource !== 'PRODUCTION_LINE') {
-    throw new Error('PRODUCTION_SECRET_MANAGER_NOT_CONFIGURED: production SecretManagerPort is required')
-  }
-
   const databaseUrl = assertRuntimeDatabaseUrl(required.ZURI_LINE_DB_URL)
   const pool = queryFn ? null : runtimePool(
     databaseUrl,
@@ -128,6 +138,39 @@ export function createPhase1BusinessAgentPortsFromEnv(
     readRuntimeDatabaseCa(env),
   )
   const execute = queryFn ?? ((sql, values) => executeAsLineReadRole(pool, sql, values))
+
+  const secretBackend = env.ZURI_PHASE1_SECRET_BACKEND
+    ?? (runtimeSource === 'PRODUCTION_LINE' ? 'SUPABASE_VAULT' : 'LOCAL_FILE')
+  if (!['SUPABASE_VAULT', 'LOCAL_FILE'].includes(secretBackend)) {
+    throw new Error('PHASE1_SECRET_BACKEND_INVALID')
+  }
+  if (runtimeSource === 'PRODUCTION_LINE' && secretBackend !== 'SUPABASE_VAULT') {
+    throw new Error('PHASE1_PRODUCTION_SECRET_BACKEND_FORBIDDEN')
+  }
+
+  const runtimeSecretManager = secretManager ?? (() => {
+    if (secretBackend === 'SUPABASE_VAULT') {
+      const resolverQuery = runtimeSource === 'PRODUCTION_LINE'
+        ? (secretQueryFn
+          ?? (pool ? ((sql, values) => executeAsLineSecretRole(pool, sql, values)) : null))
+        : (secretQueryFn ?? queryFn)
+      if (typeof resolverQuery !== 'function') {
+        throw new Error('SUPABASE_VAULT_QUERY_NOT_CONFIGURED')
+      }
+      return createSecretManagerPort({
+        runtimeSource,
+        adapter: createSupabaseVaultSecretManagerAdapter({ queryFn: resolverQuery }),
+      })
+    }
+    if (!env.ZURI_CREDENTIAL_VAULT_MASTER_KEY) return null
+    return createSecretManagerPort({
+      runtimeSource,
+      adapter: createVaultSecretManagerAdapter({ vault: createEnvCredentialVault({ env }) }),
+    })
+  })()
+  if (runtimeSource === 'PRODUCTION_LINE' && runtimeSecretManager?.runtimeSource !== 'PRODUCTION_LINE') {
+    throw new Error('PRODUCTION_SECRET_MANAGER_NOT_CONFIGURED: production SecretManagerPort is required')
+  }
 
   const legacyModel = runtimeSource === 'PRODUCTION_LINE'
     ? null

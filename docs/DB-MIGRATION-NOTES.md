@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.2 |
+| **Version** | 1.0.3 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
@@ -67,6 +67,30 @@ provider credentials; those remain in the owner-selected external secret manager
 `prisma/postgres/0002_phase1_line_primary_connection.sql` is the corresponding
 generic Prisma/Postgres lab invariant for the canonical SQLite schema. It is not
 a substitute for the private Supabase migration or its role/RLS grants.
+
+### Phase 1 Supabase Vault resolver (FR-075 / ADR-032)
+
+Apply
+`supabase/migrations/20260818050000_phase1_line_supabase_vault_resolver.sql`
+after the connection metadata migration. It creates the `zuri_line_runtime`
+NOLOGIN role, allows the dedicated login to set it locally, and exposes only the
+`zuri_core.resolve_phase1_line_secret` `SECURITY DEFINER` function. The function
+rechecks active primary connection scope and reads
+`vault.decrypted_secrets.decrypted_secret`; no app/Data API/read-only role gets a
+direct Vault view grant. The application stores only
+`supabase-vault:<uuid>` in `IntegrationCredential.secret_ref`.
+
+The migration has an apply-time guard requiring the migration executor (which
+becomes the function owner) to resolve and `SELECT` the Vault decrypted view. A
+live proof must record `pg_get_userbyid(p.proowner)` for the resolver and confirm
+`has_table_privilege(function_owner, 'vault.decrypted_secrets', 'select')`, plus
+the expected execute/revoke boundary. If this precondition fails, the migration
+stops before creating a non-functional resolver.
+
+The Supabase CLI was not available in this workspace, so the migration is a
+reviewed repository artifact and static contract tests cover it. Applying it to
+a live project, creating the Vault secret, recording its opaque UUID in the
+metadata UI and proving the dedicated role are still production gates.
 
 ## DB boundary — Zuri DB ≠ MSP DB (do not merge)
 

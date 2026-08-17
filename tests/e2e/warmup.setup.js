@@ -26,7 +26,7 @@ const ROUTES = [
   '/operations',
   '/people', '/people/directory',
   '/projects', '/work', '/execution', '/timeline', '/dependencies', '/milestones', '/files', '/repositories',
-  '/settings', '/platform/users', '/audit', '/backup',
+  '/settings', '/platform/users', '/platform/integrations', '/audit', '/backup',
 ]
 
 module.exports = { ROUTES }

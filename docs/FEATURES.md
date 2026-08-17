@@ -21,4 +21,4 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-001 | File Manager — Business/Project files with managed local workspace | FR-037, FR-045, FR-058 | live |
 | FEAT-002 | Business Home — shell-level cross-domain aggregation (Dashboard now; Goals & KPIs, Risks & Alerts, Reports later) | FR-041, FR-060 | building |
 | FEAT-003 | Execution Planning — Human-visible Roadmap, Blueprint intake and stable identity bindings | FR-068, FR-069, FR-070 | proposed |
-| FEAT-004 | Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution and local evaluation providers | FR-048, FR-074 | building |
+| FEAT-004 | Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution, local evaluation providers and secret-safe Platform management | FR-048, FR-074, FR-075 | building |

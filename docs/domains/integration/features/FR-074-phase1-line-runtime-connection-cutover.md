@@ -43,8 +43,9 @@ local vault file alone is not production runtime evidence.
 
 ## Out of scope
 
-- Choosing a production secret-manager vendor without owner input;
-- production credential creation or migration from a local vault;
+- Applying the Supabase Vault migration or provisioning the first live secret;
 - taking LINE Reply API ownership away from `zuri-cli`;
 - automatic provider fallback;
+- the Platform management UI and metadata/Vault-reference contract, which are
+  specified separately by FR-075 / ADR-032;
 - claiming production activation before FR-053/054/055 external gates pass.

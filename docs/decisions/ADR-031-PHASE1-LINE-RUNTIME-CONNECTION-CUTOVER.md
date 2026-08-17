@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.1b"
 created_at: "2026-08-18T03:02:18+07:00,ATHER"
-last_update: "2026-08-18T03:02:18+07:00,ATHER"
+last_update: "2026-08-18T16:35:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -16,12 +16,11 @@ attributes:
 
 ## Context
 
-The Phase 1 runtime currently composes a synchronous model port from
-`ZURI_MODEL_PROVIDER`, `ZURI_MODEL_NAME` and `ZURI_MODEL_CREDENTIAL`. The new
-Integration Platform connection slice stores an opaque `secretRef` in metadata
-and keeps raw credentials in a local encrypted vault, but it does not yet
-provide a production secret-manager adapter, a primary runtime selector or an
-automatic Phase 1 cut-over.
+The Phase 1 runtime previously composed a model port from direct environment
+credentials. The Integration Platform connection slice now stores an opaque
+`secretRef`, and production uses a Supabase Vault adapter behind a private
+resolver. The migration artifact and first live secret still require operator
+evidence before traffic is enabled.
 
 The repository-scope work owns FR-073. This decision therefore registers the
 cut-over as FR-074 and leaves FR-048, FR-073 and NFR-014 meanings unchanged.
@@ -71,16 +70,18 @@ resolve(secretRef, { tenantId, businessId })
 
 The allowed error taxonomy is `NotFound`, `Expired`, `Ambiguous`,
 `Unauthorized` and `Unavailable`; every error stops the turn before model or
-LINE reply work. Runtime resolution is asynchronous, uses a hard-bounded cache,
-keys cache entries by secret version, and immediately purges on rotate/revoke.
-Secret material is never logged, audited, returned to the browser or persisted
-in Prisma.
+LINE reply work. Runtime resolution is asynchronous and uses a hard-bounded,
+scope/version-keyed cache. The port exposes explicit invalidation hooks;
+rotate/revoke must wire those hooks and a cross-instance purge strategy before
+those lifecycle operations are enabled. Secret material is never logged,
+audited, returned to the browser or persisted in Prisma.
 
-The production adapter remains blocked until the owner supplies the manager
-vendor/engine, workload identity/auth method, secret path convention,
-`secretRef` mapping and rotation/version policy. Local file-vault storage is a
+Phase 1 selects Supabase Vault as the manager/engine. `secretRef` is
+`supabase-vault:<uuid>`, resolved by `zuri_core.resolve_phase1_line_secret` and
+executed only under `zuri_line_runtime`; local file-vault storage remains a
 dev/test adapter only. Existing local secrets are never copied into production
-implicitly.
+implicitly. Live migration, Vault provisioning, role verification and rotation
+policy evidence remain deployment gates.
 
 ### D4 — Local Ollama
 
@@ -107,7 +108,7 @@ idempotent and records no raw secret or customer content.
 |---|---|
 | Contract | FR-074/NFR-015/SEC-015/SDD-043 registered; FR-048/FR-073/NFR-014 meanings unchanged |
 | Selection | DB uniqueness, trusted binding scope, RLS, CAS and zero/multiple fail-closed tests |
-| Secret manager | Production adapter is explicitly wired; error taxonomy, version, expiry, rotation and redaction tests pass |
+| Secret manager | Supabase Vault adapter/resolver is explicitly wired; error taxonomy, scoped cache/version, expiry and redaction tests pass; live role/Vault apply remains pending |
 | Local Ollama | Local-only allow-list, loopback/redirect/SSRF tests, missing-model fail-closed tests, no public LINE path |
 | Runtime | Async resolution, no legacy production fallback, bounded cache and real selection/secret path in golden evaluation |
 | External activation | Fresh isolation/backup evidence, real provider 20/20, one signed canary, truthful receipt and routing-first rollback |
@@ -121,8 +122,11 @@ authorize production traffic until the external activation gates pass.
   after trusted binding scope is resolved.
 - Local Ollama remains useful for offline evaluation without becoming a
   production credential or fallback path.
-- A production secret-manager vendor is an explicit deployment dependency;
-  inventing one in code is prohibited.
+- Supabase Vault is the Phase 1 production secret backend; live project apply and
+  first-secret provisioning are explicit deployment dependencies.
+- The human management surface is specified separately in ADR-032; it may show
+  metadata and secret-manager readiness but cannot replace the runtime or
+  activation boundary.
 - The integration-platform branch must be reconciled onto current main while
   restoring the FR-072 authorization code/tests and preserving unrelated work.
 
@@ -131,3 +135,5 @@ authorize production traffic until the external activation gates pass.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-18 | beta | Owner-approved Phase 1 connection cut-over boundary with provider-neutral secrets and local Ollama isolation | working-tree | ATHER |
+| 0.2.0b | 2026-08-18 | beta | Select Supabase Vault, wire the production resolver adapter and preserve live migration/canary gates | working-tree | ATHER |
+| 0.2.1b | 2026-08-18 | beta | Clarify cache invalidation lifecycle gates and add an apply-time Vault owner precondition | working-tree | ATHER |

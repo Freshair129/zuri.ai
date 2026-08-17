@@ -3,6 +3,7 @@ import crypto from 'node:crypto'
 import {
   createPhase1BusinessAgentPortsFromEnv,
   executeAsLineReadRole,
+  executeAsLineSecretRole,
   resolvePhase1RequestScope,
 } from '@/modules/agent/phase1-runtime'
 import { createOpenRouterAuthorization, exchangeOpenRouterCode } from '@/modules/agent/openrouter-oauth'
@@ -85,6 +86,21 @@ describe('Phase 1 business-agent runtime', () => {
       ['commit'],
     ])
     expect(client.release).toHaveBeenCalledOnce()
+  })
+
+  it('executes secret queries under the separate runtime role', async () => {
+    const client = {
+      query: vi.fn()
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({ rows: [{ ok: true }] })
+        .mockResolvedValueOnce(undefined),
+      release: vi.fn(),
+    }
+
+    await expect(executeAsLineSecretRole({ connect: async () => client }, 'select 1', []))
+      .resolves.toEqual({ rows: [{ ok: true }] })
+    expect(client.query.mock.calls[1]).toEqual(['set local role zuri_line_runtime'])
   })
 
   it('rolls back and releases the database connection when a scoped query fails', async () => {

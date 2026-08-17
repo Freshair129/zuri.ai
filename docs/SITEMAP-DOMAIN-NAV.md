@@ -229,7 +229,7 @@ and performance are future HR slices.
 
 ### Platform — ระบบ/ตั้งค่า  *(V1: platform + gaps)*
 1. **Dashboard** — สุขภาพระบบ · integrations status
-2. Integrations — accounting · FlowAccount *(lift)*
+2. Integrations — Phase 1 LINE connection metadata and redacted Supabase Vault status *(FR-075, implemented locally; `/platform/integrations`; raw secrets never shown)*
 3. ธุรกิจ·องค์กร / Business & Tenant config *(rebuild — V1 PATCH is 403 for all roles)*
 4. ผู้ใช้·สิทธิ์ / Users & Roles — Membership *(rebuild — V1 auth is per-tenant Employee)*
 5. Identity / LINE linking *(new — the P3 gate: account linking, staff/customer split)*
@@ -261,6 +261,7 @@ and performance are future HR slices.
  /people/directory        → Business-scoped People Directory
 /{domain}                 → 302 /{domain}/dashboard        (first sub is always the dashboard)
 /{domain}/{subdomain}     → e.g. /projects (Project resource list), /commerce/inventory
+/platform/integrations    → owner-scoped Phase 1 Integration metadata and redacted Vault status (FR-075; local implementation)
 /projects/{id}/...        → existing Project routes stay verbatim (Development work views)
 ```
 

@@ -193,6 +193,15 @@ Tenant, Business, Space and Project access is a **separate audited assignment**
 requiring the relevant owner authority (FR-067 AC-067.5). Authority is assigned,
 never inherited downward from the container.
 
+Product Owner is another separate Business-scoped responsibility assignment,
+not a Workspace/Tenant/Business owner and not a replacement for
+`Membership.role`. One Person may hold Product Owner assignments for multiple
+Businesses, but each assignment grants only the Product capability explicitly
+defined by [FR-076](domains/identity/features/FR-076-product-owner-business-assignment.md)
+and never inherits Resource/Operations, Marketing, Platform, Integration or
+import authority. The decision and customer identity boundary are defined by
+[ADR-033](decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md).
+
 One decided consequence, recorded so it is not re-litigated: a
 `WorkspaceMembership` on a Portfolio does **not** authorize import into a Space
 scoped to that Portfolio. See FR-067's "Decision" section and FR-065.
