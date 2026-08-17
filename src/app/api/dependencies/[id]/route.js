@@ -1,3 +1,4 @@
+// @req FR-007 — delete a dependency
 import { handle } from '../../_helpers'
 import { deleteDependency } from '@/modules/project-manager/application/dependency-service'
 

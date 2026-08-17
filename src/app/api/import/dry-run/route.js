@@ -1,3 +1,4 @@
+// @req FR-012 — validate PlanEnvelope import via dry-run semantic contract check
 import { handle } from '../../_helpers'
 import { dryRunPlan, resolveImportWorkspaceId } from '@/modules/project-manager/import/plan-import-service'
 

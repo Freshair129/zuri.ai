@@ -1,3 +1,4 @@
+// @req FR-005 — update a work container in the neutral WorkContainer/WorkItem model
 import { handle } from '../../_helpers'
 import { updateContainer } from '@/modules/project-manager/application/work-service'
 

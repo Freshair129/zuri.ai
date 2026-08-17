@@ -1,5 +1,7 @@
 'use client'
 
+// @req FR-009 — the global index of the seven execution mode views (no
+// projectId), the unscoped half of "global + project-scoped".
 import Link from 'next/link'
 import { PageHeader, Card } from '@/components/ui'
 import { EXECUTION_NAV } from '@/config/modules'

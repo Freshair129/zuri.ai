@@ -1,3 +1,4 @@
+// @req FR-001, FR-020 — scope hierarchy CRUD (portfolio/tenant/business/workspace); one-step tenant+business+workspace creation
 import { handle } from '../_helpers'
 import {
   listScope,

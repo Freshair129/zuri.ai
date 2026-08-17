@@ -1,5 +1,8 @@
 'use client'
 
+// @req FR-001 — Workspace scope-hierarchy CRUD: list Spaces with their human
+// codes, create/edit/archive via WorkspaceModal.
+// @tested tests/e2e/smoke.spec.js
 import { useState } from 'react'
 import Link from 'next/link'
 import { Plus, Archive } from 'lucide-react'

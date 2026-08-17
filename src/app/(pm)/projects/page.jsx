@@ -1,5 +1,8 @@
 'use client'
 
+// @req FR-003 — Project CRUD + archive (soft delete): list, create link,
+// edit modal and archive action over /api/projects.
+// @tested tests/e2e/smoke.spec.js
 import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'

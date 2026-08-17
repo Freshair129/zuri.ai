@@ -1,3 +1,4 @@
+// @req FR-010 — compute strategy-based progress with evidence and warnings
 import { handle } from '../../../_helpers'
 import { computeWorkstreamProgress } from '@/modules/project-manager/application/progress-service'
 

@@ -1,5 +1,9 @@
 'use client'
 
+// @req FR-008 — the many-to-many side of Repository records: link and
+// unlink an existing repository to this Project with a role, path scope,
+// and branch. Repositories remain local metadata; a Project is never
+// identified by one.
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Plus, Unlink } from 'lucide-react'

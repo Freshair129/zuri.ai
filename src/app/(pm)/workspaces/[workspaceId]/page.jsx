@@ -1,5 +1,7 @@
 'use client'
 
+// @req FR-001 — single-Workspace detail: resolves one Space's identity
+// (code/scopeType/name) from the scope hierarchy and lists its Projects.
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { PageHeader, Card, StatusPill, EmptyState, ErrorState } from '@/components/ui'

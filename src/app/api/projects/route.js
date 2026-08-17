@@ -1,3 +1,4 @@
+// @req FR-003 — project CRUD: list and create
 import { handle, queryParams } from '../_helpers'
 import { listProjects, createProject } from '@/modules/project-manager/application/project-service'
 

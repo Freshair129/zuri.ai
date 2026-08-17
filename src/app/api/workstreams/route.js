@@ -1,3 +1,4 @@
+// @req FR-004 — list or create workstreams with execution mode, progress strategy, and weight
 import { handle, queryParams } from '../_helpers'
 import { listWorkstreams, createWorkstream } from '@/modules/project-manager/application/project-service'
 

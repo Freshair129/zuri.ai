@@ -1,3 +1,4 @@
+// @req FR-007 — list or create dependencies with self/cycle rejection and blocked evaluation
 import { handle, queryParams } from '../_helpers'
 import { listDependencies, createDependency } from '@/modules/project-manager/application/dependency-service'
 

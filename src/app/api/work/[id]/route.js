@@ -1,3 +1,4 @@
+// @req FR-005 — update or delete work items in the neutral WorkContainer/WorkItem model
 import { handle } from '../../_helpers'
 import { updateItem, deleteItem } from '@/modules/project-manager/application/work-service'
 
