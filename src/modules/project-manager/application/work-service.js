@@ -3,11 +3,16 @@ import { uniqueHumanCode } from '@/lib/ids'
 import { zWorkContainerInput, zWorkItemInput, zWorkItemUpdate } from '@/lib/validation/entities'
 import { recordAudit, safeParse } from './audit'
 import { activeWorkstream } from './active-filters'
+import { assertWorkstreamWritable } from './project-authorization'
 
 // @req FR-005 — neutral WorkContainer/WorkItem model behind all execution modes
 // @req FR-007 — the global browser lists the same population progress counts
 // @spec BR-004
 // @tested tests/integration/project-core.test.js, tests/integration/work-listing-scope.test.js
+// @req FR-072 — mutations refuse the write unless the viewer owns the Business
+// governing the target Workstream's Project.
+// @spec SEC-001, SEC-008, BR-001
+// @tested tests/integration/fr072-work-service-authorization.test.js
 
 const codeExists = (model) => async (code) =>
   Boolean(await prisma[model].findUnique({ where: { code } }))
@@ -26,10 +31,11 @@ export function hydrateContainer(container) {
 
 // ---- Containers ------------------------------------------------------------
 
-export async function createContainer(input) {
+export async function createContainer(input, { viewer } = {}) {
   const data = zWorkContainerInput.parse(input)
   const ws = await prisma.workstream.findUnique({ where: { id: data.workstreamId } })
   if (!ws || ws.deletedAt) throw new Error('Workstream not found')
+  await assertWorkstreamWritable(viewer, data.workstreamId)
   if (data.parentId) {
     const parent = await prisma.workContainer.findUnique({ where: { id: data.parentId } })
     if (!parent || parent.workstreamId !== data.workstreamId) {
@@ -54,9 +60,10 @@ export async function createContainer(input) {
   return container
 }
 
-export async function updateContainer(id, patch) {
+export async function updateContainer(id, patch, { viewer } = {}) {
   const existing = await prisma.workContainer.findUnique({ where: { id } })
   if (!existing) throw new Error('Container not found')
+  await assertWorkstreamWritable(viewer, existing.workstreamId, { notFoundMessage: 'Container not found' })
   const container = await prisma.workContainer.update({
     where: { id },
     data: {
@@ -75,10 +82,11 @@ export async function updateContainer(id, patch) {
 
 // ---- Items -----------------------------------------------------------------
 
-export async function createItem(input) {
+export async function createItem(input, { viewer } = {}) {
   const data = zWorkItemInput.parse(input)
   const ws = await prisma.workstream.findUnique({ where: { id: data.workstreamId } })
   if (!ws || ws.deletedAt) throw new Error('Workstream not found')
+  await assertWorkstreamWritable(viewer, data.workstreamId)
   if (data.containerId) {
     const container = await prisma.workContainer.findUnique({ where: { id: data.containerId } })
     if (!container || container.workstreamId !== data.workstreamId) {
@@ -108,10 +116,11 @@ export async function createItem(input) {
   return item
 }
 
-export async function updateItem(id, patch) {
+export async function updateItem(id, patch, { viewer } = {}) {
   const data = zWorkItemUpdate.parse(patch)
   const existing = await prisma.workItem.findUnique({ where: { id } })
   if (!existing || existing.deletedAt) throw new Error('Work item not found')
+  await assertWorkstreamWritable(viewer, existing.workstreamId, { notFoundMessage: 'Work item not found' })
   const item = await prisma.workItem.update({
     where: { id },
     data: {
@@ -134,7 +143,14 @@ export async function updateItem(id, patch) {
   return item
 }
 
-export async function deleteItem(id) {
+export async function deleteItem(id, { viewer } = {}) {
+  const existing = await prisma.workItem.findUnique({ where: { id } })
+  if (!existing || existing.deletedAt) {
+    const error = new Error('Work item not found')
+    error.status = 404
+    throw error
+  }
+  await assertWorkstreamWritable(viewer, existing.workstreamId, { notFoundMessage: 'Work item not found' })
   const item = await prisma.workItem.update({
     where: { id },
     data: { deletedAt: new Date(), status: 'CANCELLED', version: { increment: 1 } },

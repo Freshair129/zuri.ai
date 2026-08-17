@@ -2,12 +2,17 @@ import prisma from '@/lib/db'
 import { zDependencyInput } from '@/lib/validation/entities'
 import { recordAudit } from './audit'
 import { projectDependencyGraph } from './project-dependency-map'
+import { assertEndpointWritable } from './project-authorization'
 
 // @req FR-007 — dependencies with self/cycle rejection + blocked evaluation
 // @req FR-040 - project-local Dependency Map reads are strictly contained.
 // @spec SDD-019, ADR-012
 // @tested tests/integration/project-core.test.js
 // @tested tests/unit/project-dependency-service.test.js
+// @req FR-072 — a write requires the viewer own the governing Business of BOTH
+// endpoints — the fail-closed composition of SEC-001.
+// @spec SEC-001, SEC-008, BR-001
+// @tested tests/integration/fr072-dependency-authorization.test.js
 // Dependencies link domain objects by stable internal IDs.
 // Endpoint types: PROJECT, WORKSTREAM, MILESTONE, GATE, WORK_CONTAINER, WORK_ITEM.
 
@@ -58,13 +63,19 @@ export async function wouldCreateCycle(sourceType, sourceId, targetType, targetI
   return false
 }
 
-export async function createDependency(input) {
+export async function createDependency(input, { viewer } = {}) {
   const data = zDependencyInput.parse(input)
   if (data.sourceType === data.targetType && data.sourceId === data.targetId) {
     throw new Error('Self-dependency is not allowed')
   }
   await assertEndpointExists(data.sourceType, data.sourceId)
   await assertEndpointExists(data.targetType, data.targetId)
+  // Both endpoints' governing Business must be owned — the fail-closed
+  // composition of SEC-001 — and this runs BEFORE wouldCreateCycle: the cycle
+  // scan reads every edge in the table, and an unauthorized caller must not
+  // reach it.
+  await assertEndpointWritable(viewer, { type: data.sourceType, id: data.sourceId })
+  await assertEndpointWritable(viewer, { type: data.targetType, id: data.targetId })
   if (await wouldCreateCycle(data.sourceType, data.sourceId, data.targetType, data.targetId)) {
     throw new Error('Dependency would create a cycle')
   }
@@ -78,10 +89,29 @@ export async function createDependency(input) {
   return dependency
 }
 
-export async function deleteDependency(id) {
-  const dependency = await prisma.dependency.delete({ where: { id } })
+export async function deleteDependency(id, { viewer } = {}) {
+  const dependency = await prisma.dependency.findUnique({ where: { id } })
+  if (!dependency) {
+    const error = new Error('Dependency not found')
+    error.status = 404
+    throw error
+  }
+  // Fails closed, never open: an endpoint that no longer resolves refuses
+  // (via assertEndpointWritable's own 404) rather than letting the edge
+  // become deletable by nobody's decision.
+  await assertEndpointWritable(
+    viewer,
+    { type: dependency.sourceType, id: dependency.sourceId },
+    { notFoundMessage: 'Dependency not found' },
+  )
+  await assertEndpointWritable(
+    viewer,
+    { type: dependency.targetType, id: dependency.targetId },
+    { notFoundMessage: 'Dependency not found' },
+  )
+  const deleted = await prisma.dependency.delete({ where: { id } })
   await recordAudit(prisma, { entityType: 'DEPENDENCY', entityId: id, action: 'DELETED' })
-  return dependency
+  return deleted
 }
 
 async function resolveEndpoint(type, id) {

@@ -47,6 +47,13 @@ describe('FR-072 project authorization', () => {
     business = await createBusiness({ tenantId: tenant.id, name: 'Authz Business', code: 'BUS-AUTHZ' })
     otherBusiness = await createBusiness({ tenantId: tenant.id, name: 'Other Business', code: 'BUS-AUTHZ-2' })
 
+    // Built here (rather than with the other viewers below) because Wave 2
+    // guarded createContainer/createItem after this file was written — its own
+    // fixture-building calls to them below now need a viewer. Narrow fix, per
+    // the design's residual-risk fallback (route-viewer-design.md §5): the
+    // wave that broke a call site fixes exactly that call site and reports it.
+    owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+
     workspace = await createWorkspace({
       name: 'Authz WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-AUTHZ',
     })
@@ -57,10 +64,10 @@ describe('FR-072 project authorization', () => {
     milestone = await createMilestone({ projectId: project.id, title: 'Authz MS', code: 'MS-AUTHZ' })
     container = await createContainer({
       workstreamId: workstream.id, subtype: 'SPRINT', title: 'Authz Cont', code: 'WC-AUTHZ',
-    })
+    }, { viewer: owner })
     item = await createItem({
       workstreamId: workstream.id, subtype: 'TASK', title: 'Authz Item', code: 'WI-AUTHZ',
-    })
+    }, { viewer: owner })
 
     // A Project in a PORTFOLIO-scoped Space: businessId is null all the way
     // down, so no Business governs it — the Tier B / FR-072(b) case.
@@ -71,7 +78,6 @@ describe('FR-072 project authorization', () => {
       workspaceId: sharedWorkspace.id, name: 'Shared Project', code: 'PRJ-AUTHZ-SHARED',
     })
 
-    owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
     // The attacker shape from the RCAs: global role OWNER, target Business
     // visible, owned elsewhere.
     attacker = ownsElsewhere({ owns: otherBusiness.id, sees: business.id })
