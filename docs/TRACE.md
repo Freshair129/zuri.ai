@@ -521,3 +521,19 @@
 - **Code:** —
 - **Follows:** —
 - **Tests:** —
+
+### FR-068 — Human-visible Project Execution Roadmap: an authorized Human sees the same Project execution structure as Agents — current mode-specific phase/stage/period, sprint/batch/wave, backlog, tags, Human/Agent assignees, dependencies/blocker owners, gates, evidence and closure — as a composed Work view over the existing Project/Workstream/WorkContainer/WorkItem model.
+
+- **Feature:** FEAT-003 — Execution Planning — Human-visible Roadmap and Blueprint intake
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
+
+### FR-069 — Plan Blueprint and Human/Agent intake: after the user states an objective, Zuri may recommend an editable mode-specific Blueprint; Human forms and external Agent plans normalize to the same PlanEnvelope validation, dry-run, preview, authorization, transactional commit and audit path. No first-step template picker, fake execution state or new execution mode.
+
+- **Feature:** FEAT-003 — Execution Planning — Human-visible Roadmap and Blueprint intake
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —

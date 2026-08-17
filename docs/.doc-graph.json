@@ -3,32 +3,34 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 762,
-    "total_edges": 2096,
+    "total_nodes": 770,
+    "total_edges": 2115,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 67,
-      "adr": 27,
+      "document": 70,
+      "adr": 28,
       "domain": 5,
       "roadmap": 21,
-      "feature": 2,
+      "feature": 3,
       "route": 96,
       "model": 33,
-      "requirement": 149,
+      "requirement": 152,
       "test": 142,
       "code_file": 216
     },
     "coverage": {
-      "requirements": 149,
+      "requirements": 152,
       "fr_with_code": "100% (65/65)",
       "fr_with_tests": "100% (65/65)",
-      "rules_anchored_in_code": "88% (60/68)",
+      "rules_anchored_in_code": "87% (60/69)",
       "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 216,
       "fr_planned": [
         "FR-066",
-        "FR-067"
+        "FR-067",
+        "FR-068",
+        "FR-069"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -38,6 +40,7 @@
         "SDD-008",
         "SDD-013",
         "SDD-038",
+        "SDD-039",
         "SEC-004",
         "SEC-005",
         "SEC-014"
@@ -45,10 +48,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:FR-067-workspace-invitation-and-scoped-membership",
-      "doc:FR-065-import-target-authorization"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -4170,7 +4170,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.0.0",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "743852e9",
+      "hash": "0611bd50",
       "status": "current"
     },
     {
@@ -4488,7 +4488,7 @@
       "version": "1.1.0",
       "doc_status": "Implemented (FR-065)",
       "hash": "6eac81fc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-066-profile-first-workspace-onboarding",
@@ -4497,7 +4497,7 @@
       "title": "FR-066 — Profile-first Workspace onboarding",
       "version": "0.1.0b",
       "doc_status": "Design approved — implementation pending",
-      "hash": "8c8f0ac6",
+      "hash": "704b2b85",
       "status": "current"
     },
     {
@@ -4508,7 +4508,23 @@
       "version": "0.1.0b",
       "doc_status": "Design approved — implementation pending",
       "hash": "612ae8b4",
-      "status": "changed"
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-068-human-visible-execution-roadmap",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-068-human-visible-execution-roadmap.md",
+      "title": "FR-068 — Human-visible Project Execution Roadmap",
+      "hash": "0bc8d68b",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-069-plan-blueprint-and-intake",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
+      "title": "FR-069 — Plan Blueprint and Human/Agent intake",
+      "hash": "8a96d163",
+      "status": "current"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -4713,9 +4729,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.52.2b",
+      "version": "1.54.0b",
       "doc_status": "Draft",
-      "hash": "5523c909",
+      "hash": "f7782071",
       "status": "current"
     },
     {
@@ -4725,7 +4741,7 @@
       "title": "Zuri V2 — Product Definition",
       "version": "1.1.0",
       "doc_status": "Draft",
-      "hash": "7797e6e1",
+      "hash": "850b32aa",
       "status": "current"
     },
     {
@@ -4790,6 +4806,16 @@
       "version": "2.0.0",
       "doc_status": "Accepted",
       "hash": "6f15ca8e",
+      "status": "current"
+    },
+    {
+      "id": "doc:zuri_workspace_system",
+      "type": "document",
+      "path": "docs/zuri_workspace_system.md",
+      "title": "Zuri Workspace System — the scope model, stated once",
+      "version": "1.0.0",
+      "doc_status": "Design approved — implementation pending",
+      "hash": "8d9f3853",
       "status": "current"
     },
     {
@@ -4998,6 +5024,13 @@
       "type": "feature",
       "label": "Business Home — shell-level cross-domain aggregation (Dashboard now; Goals & KPIs, Risks & Alerts, Reports later)",
       "declared": "building",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-003",
+      "type": "feature",
+      "label": "Execution Planning — Human-visible Roadmap and Blueprint intake",
+      "declared": "proposed",
       "status": "current"
     },
     {
@@ -5913,6 +5946,24 @@
       "status": "planned"
     },
     {
+      "id": "req:FR-068",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Human-visible Project Execution Roadmap: an authorized Human sees the same Project execution structure as Agents — current mode-specific phase/stage/period, sprint/batch/wave, backlog, tags, Human/Agent assignees, dependencies/blocker owners, gates, evidence and closure — as a composed Work view over the existing Project/Workstream/WorkContainer/WorkItem model.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
+      "id": "req:FR-069",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Plan Blueprint and Human/Agent intake: after the user states an objective, Zuri may recommend an editable mode-specific Blueprint; Human forms and external Agent plans normalize to the same PlanEnvelope validation, dry-run, preview, authorization, transactional commit and audit path. No first-step template picker, fake execution state or new execution mode.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -6376,6 +6427,15 @@
       "type": "requirement",
       "family": "SDD",
       "label": "Profile-first onboarding is a pre-Business shell contract: `Person/Profile` completion leads to Waiting Room or Workspace Home, while Business Routing and BusinessShell require an independently authorized Business grant. Top-level UI Workspace maps to Portfolio; schema Workspace is displayed as Space. Workspace invites and WorkspaceMembership are separate from Tenant/Business Membership, and no client-selected role or identity can widen scope.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-039",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Execution Roadmap is a composed Human/Agent read contract over existing Project, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Membership and approved Agent-subject data. It maps the seven canonical execution modes to truthful phase/stage/period and sprint/batch/wave labels; derives progress from each Workstream's declared strategy/evidence; exposes tags, assignment, blocker owner, criteria and closure; and never creates a second aggregate or write path. Human UI and Agent input converge on PlanEnvelope validation → dry-run/conflict check → preview → authorized transaction → AuditEvent. Unavailable data is explicit; imported plans are data only.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -7491,7 +7551,15 @@
       "type": "adr",
       "path": "docs/decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md",
       "title": "ADR-027 — Profile-first and Workspace-first onboarding",
-      "hash": "bcb0c9c5",
+      "hash": "2c48f59d",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "type": "adr",
+      "path": "docs/decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md",
+      "title": "ADR-028 — Human-visible execution roadmap and shared plan intake",
+      "hash": "9d1305d5",
       "status": "current"
     },
     {
@@ -13447,6 +13515,20 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-003",
+      "to": "req:FR-068",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-003",
+      "to": "req:FR-069",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:AuditEvent",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -14259,6 +14341,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-068",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-069",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -14617,6 +14713,13 @@
     },
     {
       "from": "req:SDD-038",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-039",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -15990,6 +16093,104 @@
     {
       "from": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
       "to": "spec:ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "doc:FR-040-project-work-views",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "doc:FR-063-project-board",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "doc:FR-064-schedule-timeline",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "doc:FR-068-human-visible-execution-roadmap",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "doc:FR-069-plan-blueprint-and-intake",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "req:FR-040",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "req:FR-063",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "req:FR-064",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "req:FR-068",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "req:FR-069",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "req:SDD-039",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
       "type": "relates",
       "status": "current",
       "source": "control-block"

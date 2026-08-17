@@ -43,22 +43,52 @@ The UI label is **ตั้งค่าโปรไฟล์** / **Set up profil
 The existing authenticated `/profile` page remains the edit surface; the new
 onboarding step is the completion state before a user has an operating scope.
 
-### D2 — Workspace and Space keep separate meanings
+### D2 — Product hierarchy and technical grouping are two different lists
+
+The word *Workspace* was carrying two jobs, and Space was being described as a
+level of the hierarchy when it is not one. Separating the two lists removes the
+ambiguity without renaming anything in the schema.
+
+**The product hierarchy** — what a user navigates, and what owns what:
+
+```text
+Workspace          the shared top-level collaboration container (schema Portfolio)
+  └─ Organization  the isolation boundary (schema Tenant)
+       └─ Business the operating business — owns the work and reports on it
+            └─ Project    a goal that has to be finished
+                 └─ Workstream
+                      └─ Work Item
+```
+
+**Technical grouping** — not a level, and not on that path:
+
+```text
+Business
+  ├─ Space: Internal      →  Project A
+  └─ Space: Client Work   →  Project B
+```
+
+A **Space** (schema `Workspace`) is a box for organising Projects inside one
+Business. It is not a business entity, it owns nothing, and it never appears
+between Business and Project as a step the user must take. ADR-014 already
+settled the ownership question in the same direction: `Project.businessId` is the
+real owner and `Project.workspaceId` is grouping context.
 
 The user-facing top-level **Workspace** continues to map to schema `Portfolio`
-and keeps `portfolioId` as its internal identity. The schema `Workspace` used by
-Project Manager is displayed as **Space** and remains a lower-level grouping
-context for Projects.
-
-`Organization` remains the UI label for schema `Tenant`; no second
-`organizationId` is introduced. Profile is not added to the context bar:
+and keeps `portfolioId` as its internal identity. `Organization` remains the UI
+label for schema `Tenant`; no second `organizationId` is introduced. Profile is
+not added to the context bar:
 
 ```text
 Workspace > Organization > Business
 ```
 
 is still the maximum ambient operating context after the user has access to a
-Business.
+Business. **Space is deliberately absent from that bar** — a grouping box is not
+ambient context.
+
+Full statement of the model, including what each level may and may not do:
+[`zuri_workspace_system.md`](../zuri_workspace_system.md).
 
 ### D3 — Profile-only members are a valid state
 
@@ -108,7 +138,10 @@ contract rather than overloading `Membership`:
 
 ```text
 WorkspaceMembership
-- workspaceId       // internal Portfolio/Workspace id
+- portfolioId       // the top-level Workspace. NOT `workspaceId` — that column
+                    // name already means a Space, one level below Business, and
+                    // a membership bound to it would grant a different scope
+                    // than this contract describes.
 - personId
 - role              // OWNER | ADMIN | MEMBER
 - status            // ACTIVE | PENDING | REMOVED
@@ -187,6 +220,47 @@ hidden Business or Person exists from an authorization error.
 This ADR does not implement authentication, add Prisma models, change Project
 ownership, or move the current FR-044 routes. Those are downstream implementation
 tasks governed by FR-066/067 and SDD-038.
+
+### D8 — Space is hidden from the product, never absent from the model
+
+D2 removes Space from the hierarchy a user walks. It does **not** make Space
+optional in the database, and three facts in the current code decide how the
+implementation must handle that. Each is stated with where it can be checked,
+because "hide it in the UX" fails silently in a different way for each one.
+
+**1. `Project.workspaceId` is required.** `prisma/schema.prisma` declares
+`workspaceId String` — not `String?` — and `zWorkItemInput`'s sibling
+`zProjectInput` requires `workspaceId: z.string().min(1)`. A Project cannot exist
+without a Space. So an automatically created **Default Space is infrastructure,
+not a convenience**: it ships in the same change that hides Space from
+onboarding, or Project creation throws for every user who was told they did not
+need one.
+
+**2. The Default Space must be BUSINESS-scoped.** Authorization for Project work
+is read off the Space, not off the Project:
+
+| Site | Reads |
+|---|---|
+| `project-team-service.js` | `assertTeamReadable(workspace.businessId, viewer)`; a Space with no `businessId` makes team management read-only by design |
+| `import-authorization.js` (FR-065) | `ownsBusiness(viewer, workspace.businessId)` |
+| `project-service.js` | `resolveProjectBusinessId` throws on `scopeType: 'BUSINESS'` without a `businessId`, and on a `businessId` outside a BUSINESS Space |
+
+A Default Space created per Business with `scopeType: 'BUSINESS'` and its
+`businessId` set keeps all of that working. One created per Workspace or
+Portfolio — with a null `businessId` — silently turns the product read-only:
+team edits refused, imports refused, Business-owned Projects rejected. **Hiding
+Space is safe; giving it no Business is not.**
+
+**3. The UX may skip Organization; the model may not.** `Business.tenantId` is
+`String`, required. A Business always lives inside a Tenant, which is the BR-001
+isolation boundary. Onboarding may create the Organization implicitly so the user
+never sees the step — it may never attach a Business directly to a Workspace,
+because that is the boundary tenant isolation is made of.
+
+The general rule these three share: **a level may disappear from the interface
+only after something else guarantees it in the data.** An interface that omits a
+required structure without creating it has not simplified the product; it has
+moved the failure to first use.
 
 ## Consequences
 

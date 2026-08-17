@@ -58,6 +58,14 @@ In V1 a "tenant" *is* one shop, so an owner with two shops has two logins, two
 customer sets and no way to see across them. V2 keeps the full chain in the schema
 and shows only the levels that offer a real choice (FR-020).
 
+> **Read the diagram above as the schema, not as the product hierarchy.** The
+> `Workspace` in it is what the product calls a **Space** — an optional box for
+> grouping Projects inside a Business, not a level the user walks through, and
+> not the top-level Workspace of FR-066/067 (which is `Portfolio`). The two lists
+> and the full name→key table are in
+> [`zuri_workspace_system.md`](zuri_workspace_system.md); ADR-027 §D2 decides the
+> split.
+
 This chain is the **schema truth**. How it is *presented* — Business-centric root, the
 dual **ERP ⇄ PM** lens over the same entities, and the `Landing → Login stub → Business
 Routing → Business Overview` operational flow — is defined by [ADR-015](decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md).
