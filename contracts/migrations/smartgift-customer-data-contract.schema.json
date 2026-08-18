@@ -17,6 +17,7 @@
     "identityResolution",
     "fieldPolicy",
     "target",
+    "targetSchema",
     "writePlan",
     "rollbackPlan",
     "gates"
@@ -172,6 +173,21 @@
         "personPolicy": { "const": "EXPLICIT_MATCH_OR_APPROVED_CREATE_ONLY" },
         "linePolicy": { "const": "DO_NOT_CREATE_OR_ACTIVATE_LINE_BINDING" },
         "schemaGate": { "const": "REQUIRED_BEFORE_IMPORT" }
+      }
+    },
+    "targetSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["migrationRef", "schema", "tables", "publishFields", "rawPiiStored", "state"],
+      "properties": {
+        "migrationRef": { "const": "supabase/migrations/20260818070000_customer_profile_backfill_schema.sql" },
+        "schema": { "const": "zuri_core" },
+        "tables": {
+          "const": ["person", "customer", "customer_import_batch", "customer_import_provenance"]
+        },
+        "publishFields": { "const": ["Person.display_name", "Customer.display_name"] },
+        "rawPiiStored": { "const": false },
+        "state": { "enum": ["PROPOSED", "READY_FOR_DRY_RUN", "READY_FOR_IMPORT", "BLOCKED"] }
       }
     },
     "writePlan": {

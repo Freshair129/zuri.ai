@@ -213,12 +213,15 @@ historical backfill channel and must not be promoted as the Production import pa
 **Goal:** Define what historical customer data may enter Production before writing
 any customer row.
 
-This phase is documentation and approval work. It does not import data and does not
-reuse the product-knowledge record contract.
+This phase is contract, target-boundary and approval work. It does not import
+customer data and does not reuse the product-knowledge record contract. A
+fail-closed importer may be prepared after the target and contract decisions are
+explicit, but it must refuse while any approval gate is incomplete.
 
 The draft contract is [FR-078 — Customer data backfill contract](../domains/crm/features/FR-078-customer-data-backfill-contract.md).
-Its machine-readable manifest fixes the current SmartGift Tenant/Business scope,
-but leaves customer-data owner, Security/PDPA and target-schema approvals pending.
+Its machine-readable manifest fixes the current SmartGift Tenant/Business scope;
+the target schema/scope proof is complete, while customer-data owner,
+Security/PDPA, review-queue and historical-window approvals remain pending.
 
 **Required contract sections:**
 
@@ -244,7 +247,8 @@ but leaves customer-data owner, Security/PDPA and target-schema approvals pendin
 - Destination tables/migrations and classification are approved separately from
   `business_knowledge`.
 - The backfill path, live-delta path and rollback owner are named.
-- No customer importer code is written before this gate.
+- No customer row is written before this gate; any prepared importer must fail
+  closed while the gate is incomplete.
 
 ### P4 — Customer importer implementation and test
 
@@ -309,7 +313,7 @@ data before the P3/P4 gates.
 | M1 | Product artifact reconciled | P1 | 74 rows, UUID scope, current artifact hash approved | complete |
 | M2 | Product knowledge usable by runtime | P2 | Fresh RLS/read/mutation-denial/post-apply evidence | complete for data/RLS; LINE remains pending |
 | M3 | Customer backfill contract approved | P3 | Scope, identity, PII, provenance, rollback and owner approval | draft created; approval pending |
-| M4 | Customer importer non-production proof | P4 | Fixture, idempotency, isolation, failure and rollback tests pass | not started |
+| M4 | Customer importer non-production proof | P4 | Fixture, idempotency, isolation, failure and rollback tests pass | scaffold/tests ready; apply blocked by approval gates |
 | M5 | Customer cutover decision | P4 | Live-delta, backup and signed operator receipt | separately gated |
 
 ## 8. Progress and reporting contract
@@ -369,6 +373,11 @@ Risk score is Probability × Impact, on a 1–5 scale.
 - [Business knowledge record schema](../../contracts/business-knowledge-record.schema.json)
 - [Customer data contract](../../contracts/migrations/smartgift-customer-data-contract.json)
 - [Customer record schema](../../contracts/migrations/smartgift-customer-record.schema.json)
+- [Customer dry-run builder](../../scripts/build_smartgift_customer_backfill.py)
+- [Fail-closed customer importer](../../scripts/apply_smartgift_customer_backfill.py)
+- [Customer target verification](../../scripts/verify-smartgift-customer-profile-target.mjs)
+- [Customer dry-run receipt](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-dry-run.json)
+- [Customer target verification artifact](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-verification.json)
 - [DuckDB exporter](../../scripts/export_smartgift_business_knowledge.py)
 - [Import SQL builder](../../scripts/build_business_knowledge_import.py)
 - [Production post-apply inventory](../../supabase/tests/production_import_post_apply_inventory.sql)
@@ -376,17 +385,22 @@ Risk score is Probability × Impact, on a 1–5 scale.
 
 ## Current state
 
-This is a candidate roadmap. The human approver profile and local customer
-identity map are complete. P1 product backfill and P2 destination/isolation
-verification are complete for the approved 74-row SmartGift product projection.
-The historical customer/contact contract (P3) is drafted but not approved; the
-customer importer (P4) is not started and no customer/contact data was imported.
+This is a candidate roadmap. The global `PER-BOSS` platform-approver profile,
+private Person/Customer/provenance target schema, live target verification and
+redacted DuckDB dry-run are complete. P1 product backfill and P2
+destination/isolation verification are complete for the approved 74-row
+SmartGift product projection. The historical customer contract (P3) remains a
+candidate: 3,569 source rows yield 3,439 new candidates and 130 review rows,
+with Customer Data Owner/Security/PDPA and historical-window decisions still
+pending. The P4 importer scaffold and fixture tests are ready but its `--apply`
+path refuses closed, so no customer/contact rows have been imported.
 LINE activation remains a separate pending gate.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.5.0b | 2026-08-18 | candidate | Add private Customer target verification, platform approver profile, redacted dry-run and fail-closed importer scaffold | working-tree | ATHER |
 | 0.4.0b | 2026-08-18 | candidate | Add FR-078 Customer Profile contract, read-only source inventory and explicit approval/PII/entity-resolution gates | working-tree | ATHER |
 | 0.3.0b | 2026-08-18 | candidate | Record remote identity reconciliation, transactional Supabase apply and postflight verification for the 74-row SmartGift projection | working-tree | ATHER |
 | 0.2.0b | 2026-08-18 | candidate | Add mission/version/approver identity, local Wannapa/TNT-EtohGroup bootstrap IDs and explicit remote reconciliation gate | working-tree | ATHER |

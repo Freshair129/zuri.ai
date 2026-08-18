@@ -3,10 +3,10 @@ domain: crm
 feature: FR-078
 module: crm
 source: v2-native
-version: "0.1.0b"
+version: "0.3.0b"
 created_at: "2026-08-18T06:35:00+07:00,ATHER"
-last_update: "2026-08-18T06:35:00+07:00,ATHER"
-status: "draft"
+last_update: "2026-08-18T08:05:00+07:00,ATHER"
+status: "candidate"
 ---
 
 # FR-078 — Customer data backfill contract
@@ -17,25 +17,32 @@ status: "draft"
 CRM ของ Zuri อย่างมีขอบเขตและตรวจสอบย้อนกลับได้ โดยรอบแรกครอบคลุมเฉพาะ
 Customer Profile ของ `BUS-SMARTGIFT` เท่านั้น
 
-เอกสารนี้ยังไม่อนุมัติการเขียนข้อมูล ไม่สร้าง importer และไม่เปลี่ยนข้อมูลใน
-Supabase การอนุมัติของ contract นี้เป็นคนละ gate กับ mission ที่ migrate
-product knowledge 74 แถวเสร็จแล้ว
+เอกสารนี้ยังไม่อนุมัติการเขียนข้อมูล Customer ใน Supabase แม้จะเตรียม target
+schema, สร้าง profile ผู้อนุมัติ, ทำ dry-run และมี importer แบบ fail-closed แล้ว
+การอนุมัติของ contract นี้เป็นคนละ gate กับ mission ที่ migrate product knowledge
+74 แถวเสร็จแล้ว
 
 Machine-readable contracts:
 
 - [Contract manifest](../../../../contracts/migrations/smartgift-customer-data-contract.json)
 - [Contract schema](../../../../contracts/migrations/smartgift-customer-data-contract.schema.json)
 - [Staging record schema](../../../../contracts/migrations/smartgift-customer-record.schema.json)
+- [Target schema migration](../../../../supabase/migrations/20260818070000_customer_profile_backfill_schema.sql)
+- [Platform approver profile migration](../../../../supabase/migrations/20260818071000_platform_approver_profile.sql)
+- [Current contract receipt migration](../../../../supabase/migrations/20260818072000_customer_profile_contract_receipt.sql)
+- [Target verification script](../../../../scripts/verify-smartgift-customer-profile-target.mjs)
+- [Redacted target verification](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-verification.json)
+- [Redacted dry-run receipt](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-dry-run.json)
 
 ## Identity and approval
 
 | Identity | Value |
 |---|---|
 | `customerDataContractId` | `CDC-SG-CUSTOMER-DATA-001` |
-| `versionId` | `VER-SG-CUSTOMER-DATA-CONTRACT-0.1.0B` |
+| `versionId` | `VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B` |
 | `missionId` | `MIS-SG-CUSTOMER-DATA-BACKFILL-001` |
 | Requested by / Platform approver | Boss (`PER-BOSS`, `c82690eb-84e8-48a8-8a28-fe3d839c2276`) |
-| Contract status | `DRAFT` |
+| Contract status | `CANDIDATE` — target schema/profile are verified and dry-run is complete; customer write remains blocked |
 | Customer Data Owner | ยังไม่ระบุ — required before import |
 | Security/PDPA approver | ยังไม่ระบุ — required before import |
 
@@ -209,7 +216,7 @@ historical row cannot be written until the target mapping is approved because:
 - `Customer` requires a `personId`;
 - `Person` is global while `Customer` is tenant-scoped;
 - source `customer_key` is external/source identity, not a Zuri primary key;
-- the current target does not yet provide a dedicated customer provenance table;
+- the target migration adds a private customer provenance/idempotency table;
 - contact phone/tax ID fields do not have an approved target mapping; and
 - `Customer.businessId` must remain SmartGift-scoped for this contract.
 
@@ -223,6 +230,22 @@ Target rules once the schema gate is approved:
 - no LINE `ExternalIdentity` or channel binding is synthesized from historical
   contact data; and
 - no cross-Business customer sharing is inferred.
+
+The target schema migration creates the following private `zuri_core` tables and
+stores no raw source PII in the provenance boundary:
+
+| Table | Purpose |
+|---|---|
+| `person` | Global Zuri Person identity; initial publish field is `display_name` only |
+| `customer` | Tenant/Business-scoped Customer projection linked to `person` |
+| `customer_import_batch` | Batch receipt, approval, counts and rollback boundary |
+| `customer_import_provenance` | Source key/hash, resolution/disposition and idempotency ledger |
+
+The target-schema migration is schema-only. The follow-up profile and contract
+receipt migrations create no Customer rows. Live verification confirms the
+Tenant/Business scope, forced RLS, no Data API grants, one `PER-BOSS` platform
+profile, and zero Customer/import-ledger rows. CDC-G5 is complete; the customer
+write gates remain separate and pending.
 
 ## Write, rollback and channel boundary
 
@@ -261,8 +284,8 @@ Rollback is batch-scoped and append-audited:
 | CDC-G2 Record/forbidden-field validation | pending | valid artifact, rejection report, redaction scan |
 | CDC-G3 Entity resolution | pending | duplicate/collision/unresolved reports and decisions |
 | CDC-G4 Customer data owner + Security/PDPA | pending | named approvers, legal basis, retention decision |
-| CDC-G5 Target schema/scope | pending | Person/Customer/provenance mapping, RLS and authorization proof |
-| CDC-G6 Dry-run/backup/rollback | pending | dry-run receipt, backup, rollback rehearsal, post-apply checks |
+| CDC-G5 Target schema/scope | complete | target/profile/receipt migrations and live verification artifact; forced RLS and no Data API grants |
+| CDC-G6 Dry-run/backup/rollback | pending | redacted dry-run receipt exists; verified backup and rollback rehearsal remain |
 
 No customer row may be written while any gate above is `pending` or `blocked`.
 
@@ -290,7 +313,7 @@ No customer row may be written while any gate above is `pending` or `blocked`.
 
 ## Non-goals
 
-- Importing customer data in this documentation change.
+- Authorizing the Customer row import in this documentation change.
 - Importing invoices, quotations, payments, costs, margin, orders or documents.
 - Importing interactions or consent/erasure history without their own contract.
 - Creating LINE identities, memberships, Product Owner bindings or marketing
@@ -309,4 +332,6 @@ No customer row may be written while any gate above is `pending` or `blocked`.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.0b | 2026-08-18 | candidate | Verify target scope/RLS, create PER-BOSS profile and append current contract receipt; dry-run/import remain gated | working-tree | ATHER |
+| 0.2.0b | 2026-08-18 | candidate | Add private Person/Customer/provenance target schema boundary; live apply and customer write remain gated | working-tree | ATHER |
 | 0.1.0b | 2026-08-18 | draft | Define scoped Customer Profile contract, resolution rules, PII boundary and approval gates | working-tree | ATHER |

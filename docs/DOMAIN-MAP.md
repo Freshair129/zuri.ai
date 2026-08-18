@@ -26,7 +26,7 @@ Charter: [docs/domains/crm/CHARTER.md](domains/crm/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/crm` |
-| Models owned | Person, Customer, Conversation, Message |
+| Models owned | Person, Customer, CustomerImportBatch, CustomerImportProvenance, Conversation, Message |
 | Routes owned | 0 (0 api · 0 pages) |
 | FRs implemented in lane | FR-023 |
 

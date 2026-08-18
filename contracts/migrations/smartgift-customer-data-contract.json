@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0.0",
   "customerDataContractId": "CDC-SG-CUSTOMER-DATA-001",
-  "versionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.1.0B",
-  "status": "DRAFT",
+  "versionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B",
+  "status": "CANDIDATE",
   "missionId": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
   "approvals": {
     "requestedBy": {
@@ -210,6 +210,14 @@
     "linePolicy": "DO_NOT_CREATE_OR_ACTIVATE_LINE_BINDING",
     "schemaGate": "REQUIRED_BEFORE_IMPORT"
   },
+  "targetSchema": {
+    "migrationRef": "supabase/migrations/20260818070000_customer_profile_backfill_schema.sql",
+    "schema": "zuri_core",
+    "tables": ["person", "customer", "customer_import_batch", "customer_import_provenance"],
+    "publishFields": ["Person.display_name", "Customer.display_name"],
+    "rawPiiStored": false,
+    "state": "READY_FOR_IMPORT"
+  },
   "writePlan": {
     "ingress": "SERVER_OWNED_BATCH_IMPORT",
     "dryRunRequired": true,
@@ -255,7 +263,7 @@
     {
       "id": "CDC-G5",
       "name": "Target schema and scope authorization",
-      "status": "PENDING",
+      "status": "COMPLETE",
       "evidenceRequired": ["Person/Customer target mapping", "Tenant/Business authorization", "RLS/read boundary"]
     },
     {

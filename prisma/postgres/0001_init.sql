@@ -501,6 +501,49 @@ CREATE TABLE "Customer" (
 );
 
 -- CreateTable
+CREATE TABLE "CustomerImportBatch" (
+    "id" TEXT NOT NULL,
+    "contractId" TEXT NOT NULL,
+    "missionId" TEXT NOT NULL,
+    "versionId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "sourceRef" TEXT NOT NULL,
+    "snapshotSha256" TEXT NOT NULL,
+    "sourceRowCount" INTEGER NOT NULL,
+    "publishRowCount" INTEGER NOT NULL DEFAULT 0,
+    "heldRowCount" INTEGER NOT NULL DEFAULT 0,
+    "status" TEXT NOT NULL,
+    "approvedByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CustomerImportBatch_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CustomerImportProvenance" (
+    "id" TEXT NOT NULL,
+    "batchId" TEXT NOT NULL,
+    "sourceSystem" TEXT NOT NULL,
+    "sourceTable" TEXT NOT NULL,
+    "sourceRecordKey" TEXT NOT NULL,
+    "sourceRow" INTEGER,
+    "sourceSha256" TEXT NOT NULL,
+    "snapshotSha256" TEXT NOT NULL,
+    "idempotencyKey" TEXT NOT NULL,
+    "resolutionStatus" TEXT NOT NULL,
+    "matchMethod" TEXT NOT NULL,
+    "disposition" TEXT NOT NULL,
+    "personId" TEXT,
+    "customerId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CustomerImportProvenance_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Conversation" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -967,6 +1010,24 @@ CREATE INDEX "Customer_businessId_idx" ON "Customer"("businessId");
 CREATE UNIQUE INDEX "Customer_tenantId_personId_key" ON "Customer"("tenantId", "personId");
 
 -- CreateIndex
+CREATE INDEX "CustomerImportBatch_tenantId_businessId_status_idx" ON "CustomerImportBatch"("tenantId", "businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CustomerImportBatch_contractId_missionId_versionId_snapshot_key" ON "CustomerImportBatch"("contractId", "missionId", "versionId", "snapshotSha256");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CustomerImportProvenance_idempotencyKey_key" ON "CustomerImportProvenance"("idempotencyKey");
+
+-- CreateIndex
+CREATE INDEX "CustomerImportProvenance_batchId_resolutionStatus_dispositi_idx" ON "CustomerImportProvenance"("batchId", "resolutionStatus", "disposition");
+
+-- CreateIndex
+CREATE INDEX "CustomerImportProvenance_personId_customerId_idx" ON "CustomerImportProvenance"("personId", "customerId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CustomerImportProvenance_sourceSystem_sourceTable_sourceRec_key" ON "CustomerImportProvenance"("sourceSystem", "sourceTable", "sourceRecordKey", "snapshotSha256");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Conversation_externalThreadId_key" ON "Conversation"("externalThreadId");
 
 -- CreateIndex
@@ -1223,6 +1284,24 @@ ALTER TABLE "Customer" ADD CONSTRAINT "Customer_businessId_fkey" FOREIGN KEY ("b
 
 -- AddForeignKey
 ALTER TABLE "Customer" ADD CONSTRAINT "Customer_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportBatch" ADD CONSTRAINT "CustomerImportBatch_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportBatch" ADD CONSTRAINT "CustomerImportBatch_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportBatch" ADD CONSTRAINT "CustomerImportBatch_approvedByPersonId_fkey" FOREIGN KEY ("approvedByPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportProvenance" ADD CONSTRAINT "CustomerImportProvenance_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "CustomerImportBatch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportProvenance" ADD CONSTRAINT "CustomerImportProvenance_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportProvenance" ADD CONSTRAINT "CustomerImportProvenance_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Conversation" ADD CONSTRAINT "Conversation_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE CASCADE ON UPDATE CASCADE;

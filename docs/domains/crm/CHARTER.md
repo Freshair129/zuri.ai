@@ -4,6 +4,8 @@ module: src/modules/crm
 owns_models:
   - Person
   - Customer
+  - CustomerImportBatch
+  - CustomerImportProvenance
   - Conversation
   - Message
 ---
