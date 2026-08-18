@@ -17,7 +17,7 @@ attributes:
 ## Context
 
 The repository has the Integration Platform runtime contracts and persistence
-metadata for FR-074. The approved implementation adds a user-facing Integration
+metadata for FR-079. The approved implementation adds a user-facing Integration
 page, a metadata-only `GET`/`POST` route and a production runtime adapter, while
 the Supabase migration and first secret provisioning remain operator gates. The
 existing Platform Settings page is a local demo utility surface and must not
@@ -109,7 +109,7 @@ browser do not receive Vault plaintext. The production login role may
 rechecks the exact Tenant/Business, active primary connection and active
 credential before reading the Vault view.
 
-## Acceptance gates for FR-075
+## Acceptance gates for FR-080
 
 | Gate | Required proof |
 |---|---|
@@ -134,9 +134,9 @@ credential before reading the Vault view.
 ## Related documents
 
 - [ADR-031 — Phase 1 runtime connection cut-over](ADR-031-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER.md)
-- [FR-075 — Integration and Secret Manager management UI](../domains/integration/features/FR-075-integration-secret-management-ui.md)
-- [FR-074 implementation plan](../roadmap/PLAN-FR-074-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER.md)
-- [FR-075 implementation plan](../roadmap/PLAN-FR-075-INTEGRATION-SECRET-MANAGEMENT-UI.md)
+- [FR-080 — Integration and Secret Manager management UI](../domains/integration/features/FR-080-integration-secret-management-ui.md)
+- [FR-079 implementation plan](../roadmap/PLAN-FR-079-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER.md)
+- [FR-080 implementation plan](../roadmap/PLAN-FR-080-INTEGRATION-SECRET-MANAGEMENT-UI.md)
 
 ## CHANGELOG
 

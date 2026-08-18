@@ -1,7 +1,7 @@
--- @req FR-074 — binding-scoped Phase 1 LINE connection selection.
+-- @req FR-079 — binding-scoped Phase 1 LINE connection selection.
 -- @spec ADR-031 §D2/D3, SDD-043, SEC-015 — opaque secret refs, forced RLS,
 -- database-enforced active-primary uniqueness and read-only runtime access.
--- @tested tests/unit/fr074-supabase-migration.test.js
+-- @tested tests/unit/fr079-supabase-migration.test.js
 
 begin;
 set local lock_timeout = '5s';
@@ -136,9 +136,9 @@ grant select on zuri_core.integration_provider, zuri_core.integration_connection
   to zuri_line_smartgift_ro;
 
 comment on table zuri_core.integration_provider is
-  'FR-074 provider metadata; production runtime reads only the selected binding-scoped provider.';
+  'FR-079 provider metadata; production runtime reads only the selected binding-scoped provider.';
 comment on table zuri_core.integration_connection is
-  'FR-074 Business-scoped connection metadata; active-primary uniqueness is database-enforced.';
+  'FR-079 Business-scoped connection metadata; active-primary uniqueness is database-enforced.';
 comment on column zuri_core.integration_credential.secret_ref is
   'Opaque external secret-manager reference only; never raw credential material.';
 

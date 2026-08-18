@@ -2,9 +2,9 @@ import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'node:
 import { chmod, mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-// @req FR-074 — local/test secret adapter for opaque IntegrationCredential refs.
+// @req FR-079 — local/test secret adapter for opaque IntegrationCredential refs.
 // @spec ADR-031 §D3 — file-vault storage is never a production runtime source.
-// @tested tests/unit/fr074-credential-vault.test.js
+// @tested tests/unit/fr079-credential-vault.test.js
 
 const VERSION = 1
 const KEY_LENGTH = 32

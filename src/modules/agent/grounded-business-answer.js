@@ -87,7 +87,7 @@ export async function answerBusinessQuestion({ tenantId, businessId, question },
       verification,
     }
   } catch {
-    // @req FR-074 — local Ollama is an explicit evaluation provider; an unavailable
+    // @req FR-079 — local Ollama is an explicit evaluation provider; an unavailable
     // server/model must fail closed and never turn into an implicit provider fallback.
     if (model.provider === 'ollama') throw new Error('OLLAMA_PROVIDER_NOT_READY')
     return {

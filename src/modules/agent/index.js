@@ -27,7 +27,7 @@ export {
 } from './phase1-runtime'
 export { createOpenRouterAuthorization, exchangeOpenRouterCode } from './openrouter-oauth'
 export { createPostgresLineBindingResolver, hashBindingSecret } from './line-binding-resolver'
-// @req FR-074 — explicit runtime source and connection-selection contracts.
+// @req FR-079 — explicit runtime source and connection-selection contracts.
 export {
   RUNTIME_SOURCES,
   SecretManagerError,

@@ -7,10 +7,10 @@ import { PUBLIC_LINE_PROVIDERS } from '@/modules/agent/model-provider'
 import { isSupabaseVaultSecretRef } from '@/platform/integrations/core/secret-manager'
 import { PHASE1_LINE_LLM_PURPOSE } from '@/platform/integrations/core/integration-registry'
 
-// @req FR-075 — owner-scoped Platform metadata management for the Phase 1
+// @req FR-080 — owner-scoped Platform metadata management for the Phase 1
 // connection; raw secret values never cross this service boundary.
 // @spec ADR-032 D1-D4, SEC-016, SDD-044
-// @tested tests/unit/fr075-integration-management.test.js
+// @tested tests/unit/fr080-integration-management.test.js
 
 const PROVIDER_NAMES = Object.freeze({
   openrouter: 'OpenRouter',

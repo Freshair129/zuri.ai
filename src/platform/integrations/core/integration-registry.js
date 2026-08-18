@@ -1,8 +1,8 @@
 import prisma from '@/lib/db'
 
-// @req FR-074 — select the single binding-scoped active primary Phase 1 connection.
+// @req FR-079 — select the single binding-scoped active primary Phase 1 connection.
 // @spec ADR-031 §D2, SDD-043, SEC-015 — trusted scope, DB uniqueness and fail-closed selection.
-// @tested tests/unit/fr074-runtime-cutover.test.js
+// @tested tests/unit/fr079-runtime-cutover.test.js
 
 export const PHASE1_LINE_LLM_PURPOSE = 'PHASE1_LINE_LLM'
 

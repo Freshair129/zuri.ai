@@ -23,7 +23,7 @@ resolver. The migration artifact and first live secret still require operator
 evidence before traffic is enabled.
 
 The repository-scope work owns FR-073. This decision therefore registers the
-cut-over as FR-074 and leaves FR-048, FR-073 and NFR-014 meanings unchanged.
+cut-over as FR-079 and leaves FR-048, FR-073 and NFR-014 meanings unchanged.
 
 ## Decision
 
@@ -106,7 +106,7 @@ idempotent and records no raw secret or customer content.
 
 | Gate | Required proof |
 |---|---|
-| Contract | FR-074/NFR-015/SEC-015/SDD-043 registered; FR-048/FR-073/NFR-014 meanings unchanged |
+| Contract | FR-079/NFR-015/SEC-015/SDD-043 registered; FR-048/FR-073/NFR-014 meanings unchanged |
 | Selection | DB uniqueness, trusted binding scope, RLS, CAS and zero/multiple fail-closed tests |
 | Secret manager | Supabase Vault adapter/resolver is explicitly wired; error taxonomy, scoped cache/version, expiry and redaction tests pass; live role/Vault apply remains pending |
 | Local Ollama | Local-only allow-list, loopback/redirect/SSRF tests, missing-model fail-closed tests, no public LINE path |

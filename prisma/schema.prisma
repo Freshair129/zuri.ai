@@ -734,10 +734,10 @@ model AuditEvent {
   @@index([occurredAt])
 }
 
-// @req FR-074 — provider-neutral Business-scoped runtime connection metadata.
+// @req FR-079 — provider-neutral Business-scoped runtime connection metadata.
 // @spec ADR-031 §D2/D3, SDD-043, SEC-015 — opaque secret references only;
 // the production partial active-primary invariant is an additive Postgres DDL gate.
-// @tested tests/unit/fr074-schema-contract.test.js
+// @tested tests/unit/fr079-schema-contract.test.js
 model IntegrationProvider {
   id             String   @id @default(uuid())
   code           String   @unique

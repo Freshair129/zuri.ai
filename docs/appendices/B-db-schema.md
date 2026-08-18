@@ -100,7 +100,7 @@ These models are additive. `ProjectFile` remains for compatibility and is not
 removed by ZV2-CR-001. SQLite is canonical for MVP; the generated Postgres schema
 preserves metadata semantics while device root paths remain local configuration.
 
-## Integration runtime connections (FR-074 / ADR-031)
+## Integration runtime connections (FR-079 / ADR-031)
 
 `IntegrationProvider { code, name, status, capabilitiesJson }` is provider
 metadata. `IntegrationConnection { tenantId, businessId?, providerId, name,

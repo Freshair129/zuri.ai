@@ -1,13 +1,13 @@
 ---
 domain: integration
-feature: FR-074
+feature: FR-079
 module: integration/agent
 source: v2-native
 version: "0.1.0b"
 status: beta
 ---
 
-# FR-074 — Phase 1 LINE runtime connection cut-over
+# FR-079 — Phase 1 LINE runtime connection cut-over
 
 ## Rationale
 
@@ -47,5 +47,5 @@ local vault file alone is not production runtime evidence.
 - taking LINE Reply API ownership away from `zuri-cli`;
 - automatic provider fallback;
 - the Platform management UI and metadata/Vault-reference contract, which are
-  specified separately by FR-075 / ADR-032;
+  specified separately by FR-080 / ADR-032;
 - claiming production activation before FR-053/054/055 external gates pass.

@@ -5,10 +5,10 @@ import {
   listPhase1Integrations,
 } from '@/modules/integration/application/integration-management-service'
 
-// @req FR-075 — Platform Integration metadata is served through the trusted
+// @req FR-080 — Platform Integration metadata is served through the trusted
 // viewer boundary and never returns raw secret material.
 // @spec ADR-032 D1-D3, SEC-016, SDD-044
-// @tested tests/unit/fr075-ui-contract.test.js, tests/unit/fr075-integration-management.test.js
+// @tested tests/unit/fr080-ui-contract.test.js, tests/unit/fr080-integration-management.test.js
 
 export const dynamic = 'force-dynamic'
 

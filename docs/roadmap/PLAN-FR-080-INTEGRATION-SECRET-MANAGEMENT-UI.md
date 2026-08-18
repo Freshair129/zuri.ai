@@ -7,16 +7,16 @@ superseded_by: null
 attributes:
   domain: "integration"
   doc_type: "implementation-plan"
-  scope: "FR-075"
+  scope: "FR-080"
 ---
 
-# Implementation plan — FR-075 Integration and Secret Manager management UI
+# Implementation plan — FR-080 Integration and Secret Manager management UI
 
 ## Work order
 
 | Work | Deliverable | Exit |
 |---|---|---|
-| W0 | ADR-032, FR-075, PRD/SDD/NFR/SEC and sitemap contract | governance pass |
+| W0 | ADR-032, FR-080, PRD/SDD/NFR/SEC and sitemap contract | governance pass |
 | W1 | Platform Integrations page, read model and owner/business scope guard | route/UI contract tests |
 | W2 | Connection metadata create/list with fixed Phase 1 purpose | API/service/redaction tests |
 | W3 | Supabase Vault resolver, runtime adapter and scoped versioned cache | migration/adapter/runtime tests |

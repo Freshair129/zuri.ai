@@ -9,7 +9,7 @@ import {
   createPortfolio,
   createTenant,
   createWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import { createProject, createWorkstream } from '@/modules/project-manager/application/project-service'
 import { createContainer, createItem } from '@/modules/project-manager/application/work-service'
 import { createGate, createMilestone } from '@/modules/project-manager/application/milestone-gate-service'
@@ -109,7 +109,13 @@ describe('FR-077 Project Inventory', () => {
 
     await createMilestone({ projectId: projectA.id, title: 'Milestone A', code: `MS-INV-A-${suffix}`, workstreamId: workstreamA.id }, { viewer: viewerA })
     await createGate({ projectId: projectA.id, title: 'Gate A', code: `GATE-INV-A-${suffix}`, workstreamId: workstreamA.id }, { viewer: viewerA })
-    const repo = await createRepository({ provider: 'github', fullName: `org/inventory-${suffix}`, code: `REP-INV-${suffix}` })
+    // FR-073 — a Repository is owned by a Business, and creating one takes that
+    // Business's authority. The link below is authorized against the Project's
+    // Business, so the repo belongs to the same one.
+    const repo = await createRepository(
+      { businessId: businessA.id, provider: 'github', fullName: `org/inventory-${suffix}`, code: `REP-INV-${suffix}` },
+      { viewer: viewerA },
+    )
     await linkRepository({ projectId: projectA.id, repoId: repo.id, role: 'PRIMARY', pathScope: 'src', branch: 'main' }, { viewer: viewerA })
     await createProjectFile(projectA.id, {
       name: 'legacy-plan.pdf',

@@ -19,11 +19,11 @@ import { createPhase1BusinessAgentPortsFromEnv } from '@/modules/agent/phase1-ru
 import { createLineWebhookPost } from '@/app/api/agent/line-webhook/route'
 import { answerBusinessQuestion } from '@/modules/agent/grounded-business-answer'
 
-// @req FR-074 — binding-scoped connection selection, production secret resolution and local Ollama boundary.
+// @req FR-079 — binding-scoped connection selection, production secret resolution and local Ollama boundary.
 // @spec ADR-031, NFR-015, SEC-015, SDD-043
-// @tested tests/unit/fr074-runtime-cutover.test.js
+// @tested tests/unit/fr079-runtime-cutover.test.js
 
-describe('FR-074 runtime source and SecretManagerPort', () => {
+describe('FR-079 runtime source and SecretManagerPort', () => {
   it('keeps production on the external adapter and rejects a missing production manager', () => {
     expect(RUNTIME_SOURCES).toEqual(['PRODUCTION_LINE', 'LOCAL_DEV', 'TEST', 'EVAL'])
     expect(() => createSecretManagerPort({ runtimeSource: 'PRODUCTION_LINE' })).toThrow(/production.*secret manager/i)
@@ -57,7 +57,7 @@ describe('FR-074 runtime source and SecretManagerPort', () => {
   })
 })
 
-describe('FR-074 Phase 1 primary connection selection', () => {
+describe('FR-079 Phase 1 primary connection selection', () => {
   const base = { tenantId: 'tenant-a', businessId: 'business-a', purpose: 'PHASE1_LINE_LLM' }
 
   it('selects only the exact active primary connection in the trusted scope', () => {
@@ -115,7 +115,7 @@ describe('FR-074 Phase 1 primary connection selection', () => {
   })
 })
 
-describe('FR-074 local Ollama provider', () => {
+describe('FR-079 local Ollama provider', () => {
   it('does not add Ollama to the public provider list', () => {
     expect(PUBLIC_LINE_PROVIDERS).not.toContain('ollama')
     expect(LOCAL_EVAL_PROVIDERS).toEqual(['ollama'])
@@ -156,7 +156,7 @@ describe('FR-074 local Ollama provider', () => {
   })
 })
 
-describe('FR-074 real runtime selection path', () => {
+describe('FR-079 real runtime selection path', () => {
   it('resolves the selected connection and secret before composing the model port', async () => {
     const queryFn = vi.fn()
     const connectionResolver = vi.fn(async () => ({

@@ -18,7 +18,7 @@ import {
 } from '../knowledge/runtime-postgres-config.js'
 import pg from 'pg'
 
-// @req FR-047, FR-048, FR-052, FR-075 — compose Phase 1 ports only from server-owned scope and configuration.
+// @req FR-047, FR-048, FR-052, FR-080 — compose Phase 1 ports only from server-owned scope and configuration.
 // @spec SDD-025, SDD-026, SDD-044, SEC-009, SEC-010, SEC-016 — disabled by default; partial configuration fails closed.
 // @tested tests/unit/phase1-business-agent-runtime.test.js
 

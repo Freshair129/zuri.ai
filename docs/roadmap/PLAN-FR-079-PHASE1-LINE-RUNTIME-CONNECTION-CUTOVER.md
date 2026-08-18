@@ -6,10 +6,10 @@ status: "beta"
 attributes:
   domain: "line-ai"
   doc_type: "implementation-plan"
-  scope: "FR-074"
+  scope: "FR-079"
 ---
 
-# Implementation plan — FR-074 Phase 1 LINE runtime connection cut-over
+# Implementation plan — FR-079 Phase 1 LINE runtime connection cut-over
 
 ## Work order
 
@@ -27,7 +27,7 @@ W6 is blocked until the owner provides the production secret-manager vendor,
 service identity, secret path convention and rotation/version policy. No local
 success promotes this phase to production readiness.
 
-FR-075 is the separate Platform management surface for connection metadata and
+FR-080 is the separate Platform management surface for connection metadata and
 secret-manager readiness. It does not shorten W6 or become an activation path.
 
 ## Current implementation status
@@ -63,4 +63,4 @@ secret, preserve source/imported data, and append a redacted idempotent receipt.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-18 | beta | Initial Phase 1 runtime connection cut-over plan | working-tree | ATHER |
-| 0.2.0b | 2026-08-18 | beta | Truth-sync local Opus/gates and record FR-075 UI as a separate non-activation workstream | working-tree | ATHER |
+| 0.2.0b | 2026-08-18 | beta | Truth-sync local Opus/gates and record FR-080 UI as a separate non-activation workstream | working-tree | ATHER |

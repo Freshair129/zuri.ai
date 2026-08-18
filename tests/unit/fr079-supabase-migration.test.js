@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 
-// @req FR-074 — production connection metadata is private, RLS-protected and unique.
+// @req FR-079 — production connection metadata is private, RLS-protected and unique.
 // @spec ADR-018, ADR-031, SDD-043, SEC-015
-// @tested tests/unit/fr074-supabase-migration.test.js
+// @tested tests/unit/fr079-supabase-migration.test.js
 
-describe('FR-074 production connection migration', () => {
+describe('FR-079 production connection migration', () => {
   it('creates opaque connection metadata with forced RLS and no raw credential column', () => {
     const sql = readFileSync('supabase/migrations/20260818040000_phase1_line_runtime_connections.sql', 'utf8')
     expect(sql).toContain('create table if not exists zuri_core.integration_provider')

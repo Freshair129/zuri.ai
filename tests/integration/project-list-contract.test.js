@@ -10,7 +10,7 @@ import {
   createPortfolio,
   createTenant,
   createWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import { archiveProject, createProject, listProjects } from '@/modules/project-manager/application/project-service'
 import { PROJECT_LIST_LIMIT } from '@/modules/project-manager/application/project-list-read-model'
 import { makeViewer } from '../factories/viewer'

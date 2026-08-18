@@ -53,7 +53,7 @@ The lab stays SQLite (`prisma/schema.prisma`); production is generated, not hand
    non-empty target). `importSnapshot` recreates each row with its original id.
 5. Re-run the suite against Postgres; integration tests are provider-independent.
 
-### Phase 1 runtime connection metadata (FR-074 / ADR-031)
+### Phase 1 runtime connection metadata (FR-079 / ADR-031)
 
 Production Phase 1 connection metadata belongs to the private `zuri_core` schema,
 not the exposed Data API. Apply
@@ -68,7 +68,7 @@ provider credentials; those remain in the owner-selected external secret manager
 generic Prisma/Postgres lab invariant for the canonical SQLite schema. It is not
 a substitute for the private Supabase migration or its role/RLS grants.
 
-### Phase 1 Supabase Vault resolver (FR-075 / ADR-032)
+### Phase 1 Supabase Vault resolver (FR-080 / ADR-032)
 
 Apply
 `supabase/migrations/20260818050000_phase1_line_supabase_vault_resolver.sql`

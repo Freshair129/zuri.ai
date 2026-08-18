@@ -44,8 +44,8 @@ Business domain.
 
 ## Related requirements
 
-FR-048 remains the provider port and credential-mode contract. FR-074 adds the
+FR-048 remains the provider port and credential-mode contract. FR-079 adds the
 runtime connection-selection and secret-resolution cut-over without changing
-FR-048 or the existing FR-073 repository-scope contract. FR-075 adds the
+FR-048 or the existing FR-073 repository-scope contract. FR-080 adds the
 secret-safe Platform management surface and Supabase Vault reference mapping
 without making UI state an activation authority.

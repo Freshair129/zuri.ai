@@ -1,7 +1,7 @@
-// @req FR-074, FR-075 — resolve opaque connection secrets through an explicit runtime source.
+// @req FR-079, FR-080 — resolve opaque connection secrets through an explicit runtime source.
 // @spec ADR-031 §D1/D3, ADR-032 D2/D3, NFR-015, SEC-015/016 — production is Vault-backed,
 // errors fail closed, and secret material is non-enumerable at the runtime boundary.
-// @tested tests/unit/fr074-runtime-cutover.test.js
+// @tested tests/unit/fr079-runtime-cutover.test.js
 
 export const RUNTIME_SOURCES = Object.freeze(['PRODUCTION_LINE', 'LOCAL_DEV', 'TEST', 'EVAL'])
 const SECRET_ERROR_CODES = new Set(['NotFound', 'Expired', 'Ambiguous', 'Unauthorized', 'Unavailable'])

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 
-// @req FR-074 — connection metadata and the database active-primary invariant.
+// @req FR-079 — connection metadata and the database active-primary invariant.
 // @spec ADR-031 §D2, SDD-043, SEC-015
-// @tested tests/unit/fr074-schema-contract.test.js
+// @tested tests/unit/fr079-schema-contract.test.js
 
-describe('FR-074 schema contract', () => {
+describe('FR-079 schema contract', () => {
   it('declares provider, connection and opaque credential metadata in both schema paths', () => {
     const sqlite = readFileSync('prisma/schema.prisma', 'utf8')
     const postgres = readFileSync('prisma/schema.postgres.prisma', 'utf8')

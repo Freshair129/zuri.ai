@@ -7,10 +7,10 @@ import { Card, ErrorState, Field, PageHeader, SectionTitle, StatusPill } from '@
 import { useScope } from '@/context/ScopeContext'
 import { api, LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
 
-// @req FR-075 — Platform Integrations accepts only connection metadata and an
+// @req FR-080 — Platform Integrations accepts only connection metadata and an
 // opaque Supabase Vault reference; raw credentials stay in the Vault dashboard.
 // @spec ADR-032 D1-D4, SEC-016, SDD-044
-// @tested tests/unit/fr075-ui-contract.test.js
+// @tested tests/unit/fr080-ui-contract.test.js
 
 const PROVIDERS = [
   ['openrouter', 'OpenRouter'],

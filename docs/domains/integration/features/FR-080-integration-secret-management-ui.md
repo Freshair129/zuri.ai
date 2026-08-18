@@ -1,6 +1,6 @@
 ---
 domain: integration
-feature: FR-075
+feature: FR-080
 module: integration
 source: v2-native
 version: "0.2.0b"
@@ -9,11 +9,11 @@ last_update: "2026-08-18T16:00:00+07:00,ATHER"
 status: "candidate"
 ---
 
-# FR-075 — Integration and Secret Manager management UI
+# FR-080 — Integration and Secret Manager management UI
 
 ## Rationale
 
-FR-074 has a runtime connection selector and provider-neutral secret resolution.
+FR-079 has a runtime connection selector and provider-neutral secret resolution.
 The approved slice adds a safe Platform surface for Business-scoped metadata,
 while Supabase Vault remains the only production plaintext store.
 
@@ -62,7 +62,7 @@ closed. Write/rotate/revoke operations remain a separate follow-up port.
 
 ### AC-075.5 — Connection lifecycle safety
 
-Metadata writes are audited and idempotent. Promotion uses the FR-074 CAS path
+Metadata writes are audited and idempotent. Promotion uses the FR-079 CAS path
 and database uniqueness invariant. The UI exposes ambiguity, expiry, stale
 version and manager errors without guessing or silently falling back.
 
@@ -95,7 +95,7 @@ The first two operations are implemented; lifecycle operations remain deferred:
 ## Dependencies
 
 - FR-038/FR-061/FR-062 for trusted Platform visibility and Business ownership;
-- FR-074, NFR-015, SEC-015 and ADR-031 for connection and secret runtime boundaries;
+- FR-079, NFR-015, SEC-015 and ADR-031 for connection and secret runtime boundaries;
 - SEC-003/SEC-008 for audit and trusted viewer/session authorization;
 - ADR-032 for the UI and provisioning decision;
 - Supabase production migration application, Vault secret provisioning and live

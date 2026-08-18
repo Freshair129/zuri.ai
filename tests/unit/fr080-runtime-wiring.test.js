@@ -2,12 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { createPhase1BusinessAgentPortsFromEnv } from '@/modules/agent/phase1-runtime'
 
-// @req FR-075 — production Phase 1 composes Supabase Vault automatically from
+// @req FR-080 — production Phase 1 composes Supabase Vault automatically from
 // server-side resolver transport; no raw model credential is needed.
 // @spec ADR-031 D1/D3, ADR-032 D2/D3, SDD-044, SEC-016
-// @tested tests/unit/fr075-runtime-wiring.test.js
+// @tested tests/unit/fr080-runtime-wiring.test.js
 
-describe('FR-075 production runtime wiring', () => {
+describe('FR-080 production runtime wiring', () => {
   it('creates the Supabase Vault manager automatically for PRODUCTION_LINE', async () => {
     const connectionResolver = vi.fn(async () => ({
       tenantId: 'tenant-a', businessId: 'business-a', purpose: 'PHASE1_LINE_LLM',

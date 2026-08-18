@@ -1,7 +1,7 @@
--- @req FR-075 — production Phase 1 secrets resolve from Supabase Vault through
+-- @req FR-080 — production Phase 1 secrets resolve from Supabase Vault through
 -- a private server-side function, never through a Data API table grant.
 -- @spec ADR-032 D2/D3, ADR-031 D3, SEC-016, SDD-044
--- @tested tests/unit/fr075-supabase-vault.test.js
+-- @tested tests/unit/fr080-supabase-vault.test.js
 
 begin;
 set local lock_timeout = '5s';
@@ -110,6 +110,6 @@ grant execute on function zuri_core.resolve_phase1_line_secret(text, text, text)
   to zuri_line_runtime;
 
 comment on function zuri_core.resolve_phase1_line_secret(text, text, text) is
-  'FR-075 private resolver: only zuri_line_runtime may resolve an active primary opaque Supabase Vault reference for the binding scope.';
+  'FR-080 private resolver: only zuri_line_runtime may resolve an active primary opaque Supabase Vault reference for the binding scope.';
 
 commit;

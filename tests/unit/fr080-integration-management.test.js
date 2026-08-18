@@ -6,10 +6,10 @@ import {
 } from '@/modules/integration/application/integration-management-service'
 import { makeViewer, ownsElsewhere } from '../factories/viewer'
 
-// @req FR-075 — Platform Integrations manages only Business-scoped metadata;
+// @req FR-080 — Platform Integrations manages only Business-scoped metadata;
 // secret material is never accepted, returned or audited.
 // @spec ADR-032 D1-D4, SEC-016, SDD-044
-// @tested tests/unit/fr075-integration-management.test.js
+// @tested tests/unit/fr080-integration-management.test.js
 
 const ref = 'supabase-vault:123e4567-e89b-12d3-a456-426614174000'
 const owner = async () => makeViewer({
@@ -18,7 +18,7 @@ const owner = async () => makeViewer({
   ownedBusinessIds: ['business-a'],
 })
 
-describe('FR-075 Integration metadata management', () => {
+describe('FR-080 Integration metadata management', () => {
   it('returns masked credential metadata only inside the owned Business scope', async () => {
     const db = {
       integrationConnection: {

@@ -6,15 +6,15 @@ import {
   createSupabaseVaultSecretManagerAdapter,
 } from '@/platform/integrations/core/secret-manager'
 
-// @req FR-075 — Supabase Vault is the selected production secret backend and
+// @req FR-080 — Supabase Vault is the selected production secret backend and
 // the application sees only opaque references and version/expiry metadata.
 // @spec ADR-032 D2/D3, ADR-031 D3, SEC-016, SDD-044
-// @tested tests/unit/fr075-supabase-vault.test.js
+// @tested tests/unit/fr080-supabase-vault.test.js
 
 const secretRef = 'supabase-vault:123e4567-e89b-12d3-a456-426614174000'
 const scope = { tenantId: 'tenant-a', businessId: 'business-a' }
 
-describe('FR-075 Supabase Vault runtime adapter', () => {
+describe('FR-080 Supabase Vault runtime adapter', () => {
   it('resolves through the private resolver and keeps material non-enumerable', async () => {
     const queryFn = vi.fn(async () => ({ rows: [{
       secret_material: 'provider-secret',
@@ -82,7 +82,7 @@ describe('FR-075 Supabase Vault runtime adapter', () => {
   })
 })
 
-describe('FR-075 Supabase Vault migration contract', () => {
+describe('FR-080 Supabase Vault migration contract', () => {
   const sql = () => readFileSync('supabase/migrations/20260818050000_phase1_line_supabase_vault_resolver.sql', 'utf8')
 
   it('keeps Vault plaintext behind a security-definer resolver role', () => {

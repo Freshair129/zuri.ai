@@ -93,7 +93,7 @@ No password, OIDC, LINE login, token, session, or new persisted auth contract is
 of FR-044. Those belong to the later identity implementation and must not be implied
 by the demo Login button.
 
-## Platform Integrations management surface (FR-075 / ADR-032)
+## Platform Integrations management surface (FR-080 / ADR-032)
 
 The metadata-only first slice is live in the local route tree. It is owner-only,
 Business-scoped and never returns secret material:
