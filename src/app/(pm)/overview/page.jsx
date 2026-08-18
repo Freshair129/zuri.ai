@@ -286,6 +286,11 @@ function StrategyCard({ strategy, loading, error, reload, businessId, isOwner, p
 }
 
 function BusinessOverview({ scope }) {
+  // BusinessShellGuard resolves BUSINESS_REQUIRED/FORBIDDEN and redirects to
+  // `/businesses` before this page mounts, so an authorized `activeBusinessId`
+  // is a precondition here (FR-044; ADR-015 Consequences). The page owning a
+  // second "choose a Business" empty state was a pre-FR-044 leftover that no
+  // route could reach.
   const businessId = scope.shell.activeBusinessId
   const params = new URLSearchParams()
   // Overview is the Business strategy surface. A module-local Workspace
@@ -322,21 +327,6 @@ function BusinessOverview({ scope }) {
     businessId ? `/api/people?businessId=${encodeURIComponent(businessId)}` : null,
     [businessId],
   )
-
-  if (!businessId) {
-    // @req FR-044 — `/businesses` is the Business Routing surface. This CTA
-    // pointed at `/`, which since FR-056 is the marketing Landing: the one
-    // control offered for "choose a Business" ejected the user out of the shell
-    // entirely, and the Business they were asked to choose was two more clicks
-    // away through Login.
-    return (
-      <EmptyState
-        title="Choose a Business to open Overview"
-        hint="Organization and Business Group remain ancestry context. Daily work starts inside one operating Business."
-        action={<Link href="/businesses" className="btn btn-primary">Choose Business</Link>}
-      />
-    )
-  }
 
   const workstreamCount = (projects || []).reduce((s, p) => s + (p.workstreams?.length || 0), 0)
   const openGates = (projects || []).reduce((s, p) => s + (p.gates || []).filter((g) => g.required && !['PASSED', 'WAIVED'].includes(g.status)).length, 0)

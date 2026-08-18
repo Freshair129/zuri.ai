@@ -4,7 +4,6 @@
 // @spec ADR-013, SDD-020 - People is Business-scoped; Project Team stays in Development.
 // @tested tests/unit/people-directory.test.js
 
-import Link from 'next/link'
 import { Users, UserRound } from 'lucide-react'
 import { Card, EmptyState, ErrorState, Kpi, PageHeader, SectionTitle } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
@@ -12,24 +11,16 @@ import { LoadingCard, useFetch } from '@/modules/project-manager/components/useA
 
 export default function PeopleDirectory({ directoryOnly = false }) {
   const scope = useScope()
+  // BusinessShellGuard resolves BUSINESS_REQUIRED/FORBIDDEN and redirects to
+  // `/businesses` before this component mounts, so an authorized
+  // `activeBusinessId` is a precondition here (FR-044; ADR-015 Consequences).
+  // The component owning a second "choose a Business" empty state was a
+  // pre-FR-044 leftover that no route could reach.
   const businessId = scope.shell.activeBusinessId
   const { data, loading, error, reload } = useFetch(
     businessId ? `/api/people?businessId=${encodeURIComponent(businessId)}` : null,
     [businessId],
   )
-
-  if (!businessId) {
-    // @req FR-044 — Business Routing is `/businesses`; `/` is the marketing
-    // Landing (FR-056). This CTA sent the user out of the shell instead of to
-    // the selector it names.
-    return (
-      <EmptyState
-        title="Choose a business first"
-        hint="HR / People is always scoped to one operating Business."
-        action={<Link href="/businesses" className="btn btn-primary">Choose Business</Link>}
-      />
-    )
-  }
 
   return (
     <div>

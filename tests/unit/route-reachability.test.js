@@ -102,19 +102,30 @@ describe('Space list reachability', () => {
   })
 })
 
-describe('in-shell CTAs stay in the shell', () => {
-  // `/` is the marketing Landing (FR-056), not Business Routing. Two empty-state
-  // CTAs labelled "Choose Business" pointed at it, ejecting the user out of the
-  // shell to reach a selector that lives at `/businesses` (FR-044).
-  const CTA_PAGES = [
+describe('one component decides "no Business"', () => {
+  // Three pages carried their own "choose a Business" empty state, two of them
+  // with a CTA pointing at `/`, the marketing Landing (FR-056) rather than
+  // Business Routing (FR-044). Repointing those CTAs was not enough:
+  // BusinessShellGuard resolves BUSINESS_REQUIRED/FORBIDDEN and redirects to
+  // `/businesses` before the `(pm)` layout mounts a page at all, so none of the
+  // three empty states had a route that could reach it. ADR-015 already said so
+  // - "BusinessShell can assume an authorized activeBusinessId; it no longer
+  // owns a Business selection empty state" - and these were pre-FR-044
+  // leftovers. A dead CTA is worse than no CTA: it reads as covered ground and
+  // nothing exercises it. The proof that the branch cannot be taken lives in
+  // tests/unit/business-shell-guard.test.js.
+  const SHELL_PAGES = [
     'src/app/(pm)/overview/page.jsx',
     'src/modules/people/components/PeopleDirectory.jsx',
+    // Same dead branch, without a CTA to repoint - so the `/` link audit that
+    // found the other two walked straight past it.
+    'src/app/(pm)/files/page.jsx',
   ]
 
-  it.each(CTA_PAGES)('%s sends "Choose Business" to Business Routing', (page) => {
+  it.each(SHELL_PAGES)('%s leaves the no-Business outcome to the guard', (page) => {
     const body = src(page)
-    expect(body).toContain('Choose Business')
-    expect(body).toContain('href="/businesses"')
-    expect(body).not.toContain('href="/" className="btn btn-primary">Choose Business')
+    expect(body).not.toContain('Choose Business')
+    expect(body).not.toContain('title="Choose a Business"')
+    expect(body).not.toMatch(/if \(!businessId\)/)
   })
 })

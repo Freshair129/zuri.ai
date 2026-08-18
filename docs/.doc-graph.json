@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 938,
-    "total_edges": 2998,
+    "total_edges": 2990,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -51,7 +51,13 @@
   },
   "drift": {
     "changed": [
+      "test:tests/unit/business-shell-guard.test.js",
+      "test:tests/unit/overview-split.test.js",
       "test:tests/unit/project-work-route.test.js",
+      "test:tests/unit/route-reachability.test.js",
+      "code:src/app/(pm)/files/page.jsx",
+      "code:src/app/(pm)/overview/page.jsx",
+      "code:src/modules/people/components/PeopleDirectory.jsx",
       "code:src/modules/project-manager/components/WorkViewTabs.jsx"
     ],
     "added": [],
@@ -186,8 +192,8 @@
       "id": "code:src/app/(pm)/files/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/files/page.jsx",
-      "hash": "8b8a4583",
-      "status": "current",
+      "hash": "72e8a829",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-045"
@@ -239,16 +245,15 @@
       "id": "code:src/app/(pm)/overview/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/overview/page.jsx",
-      "hash": "3ca17ed4",
-      "status": "current",
+      "hash": "93963df1",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-035",
           "FR-041",
           "FR-060",
           "FR-059",
-          "FR-042",
-          "FR-044"
+          "FR-042"
         ],
         "@spec": [
           "SDD-033",
@@ -3881,12 +3886,11 @@
       "id": "code:src/modules/people/components/PeopleDirectory.jsx",
       "type": "code_file",
       "path": "src/modules/people/components/PeopleDirectory.jsx",
-      "hash": "a23e9d34",
-      "status": "current",
+      "hash": "e68b5fb0",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-042",
-          "FR-044"
+          "FR-042"
         ],
         "@spec": [
           "SDD-020"
@@ -4539,7 +4543,7 @@
       "id": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/WorkViewTabs.jsx",
-      "hash": "9c9a95b0",
+      "hash": "bf9aa7a5",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -9854,8 +9858,8 @@
       "id": "test:tests/unit/business-shell-guard.test.js",
       "type": "test",
       "path": "tests/unit/business-shell-guard.test.js",
-      "hash": "ba772ba9",
-      "status": "current"
+      "hash": "b93b15fe",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/business-strategy-route.test.js",
@@ -10428,8 +10432,8 @@
       "id": "test:tests/unit/overview-split.test.js",
       "type": "test",
       "path": "tests/unit/overview-split.test.js",
-      "hash": "551c727e",
-      "status": "current"
+      "hash": "9ffbc608",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/people-directory.test.js",
@@ -10624,7 +10628,7 @@
       "id": "test:tests/unit/project-work-route.test.js",
       "type": "test",
       "path": "tests/unit/project-work-route.test.js",
-      "hash": "c34647e0",
+      "hash": "fbfcd7a7",
       "status": "changed"
     },
     {
@@ -10645,8 +10649,8 @@
       "id": "test:tests/unit/route-reachability.test.js",
       "type": "test",
       "path": "tests/unit/route-reachability.test.js",
-      "hash": "eb20509a",
-      "status": "current"
+      "hash": "2530b5bf",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/run-bat-database-bootstrap.test.js",
@@ -10954,13 +10958,6 @@
     {
       "from": "code:src/app/(pm)/overview/page.jsx",
       "to": "req:FR-042",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/overview/page.jsx",
-      "to": "req:FR-044",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -15896,13 +15893,6 @@
     {
       "from": "code:src/modules/people/components/PeopleDirectory.jsx",
       "to": "req:FR-042",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/people/components/PeopleDirectory.jsx",
-      "to": "req:FR-044",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -21201,13 +21191,6 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
-      "to": "req:FR-044",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-045",
       "type": "verifies",
       "status": "current",
@@ -21587,13 +21570,6 @@
     {
       "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
       "to": "req:FR-042",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
-      "to": "req:FR-044",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -26269,6 +26245,13 @@
     },
     {
       "from": "test:tests/unit/business-shell-guard.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/business-shell-guard.test.js",
       "to": "req:FR-044",
       "type": "verifies",
       "status": "current",
@@ -28222,13 +28205,6 @@
     },
     {
       "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
-      "to": "req:FR-044",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
       "to": "req:FR-059",
       "type": "verifies",
       "status": "current",
@@ -28376,13 +28352,6 @@
     },
     {
       "from": "test:tests/unit/fr060-business-home-read-model.test.js",
-      "to": "req:FR-044",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
       "to": "req:FR-059",
       "type": "verifies",
       "status": "current",
@@ -28454,13 +28423,6 @@
     {
       "from": "test:tests/unit/fr060-business-home-visibility.test.js",
       "to": "req:FR-042",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
-      "to": "req:FR-044",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -29573,13 +29535,6 @@
     },
     {
       "from": "test:tests/unit/overview-split.test.js",
-      "to": "req:FR-044",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/overview-split.test.js",
       "to": "req:FR-059",
       "type": "verifies",
       "status": "current",
@@ -29630,13 +29585,6 @@
     {
       "from": "test:tests/unit/people-directory.test.js",
       "to": "req:FR-042",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/people-directory.test.js",
-      "to": "req:FR-044",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
