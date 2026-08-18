@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 865,
-    "total_edges": 2662,
+    "total_edges": 2663,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -55,109 +55,10 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "doc:ARCHITECTURE-DIAGRAMS",
-      "doc:ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION",
-      "doc:DB-MIGRATION-NOTES",
-      "domain:crm",
-      "domain:identity",
-      "doc:FEATURES",
-      "doc:INTERFACE-INVENTORY",
-      "doc:PRD-SDD-v1.0",
-      "doc:PHASE-01-MINIMUM-LINE-KNOWLEDGE",
-      "doc:ROADMAP",
-      "doc:ROUTES-SITEMAP",
-      "doc:LINE-PHASE1-CANARY",
-      "doc:SITEMAP-DOMAIN-NAV",
-      "doc:zuri_workspace_system",
-      "test:tests/integration/project-business-binding.test.js",
-      "test:tests/integration/scope-and-isolation.test.js",
-      "test:tests/unit/phase1-business-agent-runtime.test.js",
-      "code:src/app/(pm)/overview/page.jsx",
-      "code:src/app/(pm)/projects/page.jsx",
-      "code:src/app/(pm)/projects/[projectId]/layout.jsx",
-      "code:src/app/(pm)/workspaces/[workspaceId]/page.jsx",
-      "code:src/app/api/agent/line-webhook/route.js",
-      "code:src/app/api/projects/route.js",
-      "code:src/config/domains.js",
-      "code:src/modules/agent/grounded-business-answer.js",
-      "code:src/modules/agent/index.js",
-      "code:src/modules/agent/model-provider.js",
-      "code:src/modules/agent/phase1-runtime.js",
-      "code:src/modules/identity/resolve-viewer.js",
-      "code:src/modules/project-manager/application/project-service.js",
-      "code:src/modules/project-manager/components/ProjectTabs.jsx"
-    ],
-    "added": [
-      "spec:ADR-031-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER",
-      "spec:ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI",
-      "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
-      "spec:ADR-034-PROJECT-INVENTORY-READ-MODEL",
-      "doc:FR-078-customer-data-backfill-contract",
-      "doc:FR-076-product-owner-business-assignment",
-      "domain:integration",
-      "doc:FR-079-phase1-line-runtime-connection-cutover",
-      "doc:FR-080-integration-secret-management-ui",
-      "doc:FR-003-project-list-contract",
-      "doc:FR-077-project-inventory-mvp",
-      "doc:PLAN-FR-077-PROJECT-INVENTORY-MVP",
-      "doc:PLAN-FR-079-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER",
-      "doc:PLAN-FR-080-INTEGRATION-SECRET-MANAGEMENT-UI",
-      "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
-      "feat:FEAT-004",
-      "feat:FEAT-005",
-      "feat:FEAT-006",
-      "route:page:/platform/integrations",
-      "route:page:/projects/[projectId]/inventory",
-      "route:api:/api/platform/integrations",
-      "route:api:/api/projects/[id]/inventory",
-      "model:RoleBinding",
-      "model:IntegrationProvider",
-      "model:IntegrationConnection",
-      "model:IntegrationCredential",
-      "req:FR-076",
-      "req:FR-077",
-      "req:FR-078",
-      "req:FR-079",
-      "req:FR-080",
-      "req:NFR-015",
-      "req:NFR-016",
-      "req:SDD-043",
-      "req:SDD-044",
-      "req:SDD-045",
-      "req:SEC-015",
-      "req:SEC-016",
-      "test:tests/e2e/fr077-project-inventory.spec.js",
       "test:tests/integration/project-inventory.test.js",
-      "test:tests/integration/project-list-contract.test.js",
-      "test:tests/unit/fr076-product-owner-business-assignment.test.js",
-      "test:tests/unit/fr079-credential-vault.test.js",
-      "test:tests/unit/fr079-runtime-cutover.test.js",
-      "test:tests/unit/fr079-schema-contract.test.js",
-      "test:tests/unit/fr079-supabase-migration.test.js",
-      "test:tests/unit/fr080-integration-management.test.js",
-      "test:tests/unit/fr080-runtime-wiring.test.js",
-      "test:tests/unit/fr080-supabase-vault.test.js",
-      "test:tests/unit/fr080-ui-contract.test.js",
-      "test:tests/unit/project-inventory-read-model.test.js",
-      "test:tests/unit/project-list-contract.test.js",
-      "code:src/app/(pm)/platform/integrations/page.jsx",
-      "code:src/app/(pm)/projects/[projectId]/inventory/page.jsx",
-      "code:src/app/api/platform/integrations/route.js",
-      "code:src/app/api/projects/[id]/inventory/route.js",
-      "code:src/modules/identity/product-owner-authority.js",
-      "code:src/modules/identity/product-owner-service.js",
-      "code:src/modules/identity/rbac-service.js",
-      "code:src/modules/identity/rbac.js",
-      "code:src/modules/integration/application/integration-management-service.js",
-      "code:src/modules/project-manager/application/project-inventory-read-model.js",
-      "code:src/modules/project-manager/application/project-list-read-model.js",
-      "code:src/modules/project-manager/views/universal/TimelineView.jsx",
-      "code:src/platform/integrations/core/credential-vault.js",
-      "code:src/platform/integrations/core/integration-registry.js",
-      "code:src/platform/integrations/core/secret-manager.js"
+      "test:tests/integration/project-list-contract.test.js"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -343,7 +244,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/overview/page.jsx",
       "hash": "8c82fe12",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-035",
@@ -583,7 +484,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/layout.jsx",
       "hash": "16476245",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-040"
@@ -717,7 +618,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/projects/page.jsx",
       "hash": "ea5cb885",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-003"
@@ -794,7 +695,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/workspaces/[workspaceId]/page.jsx",
       "hash": "bea97823",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-001"
@@ -825,7 +726,7 @@
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
       "hash": "60311564",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-050",
@@ -1839,7 +1740,7 @@
       "type": "code_file",
       "path": "src/app/api/projects/route.js",
       "hash": "4cbf239b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-003",
@@ -2393,7 +2294,7 @@
       "type": "code_file",
       "path": "src/config/domains.js",
       "hash": "47c0e666",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -2744,7 +2645,7 @@
       "type": "code_file",
       "path": "src/modules/agent/grounded-business-answer.js",
       "hash": "50261e19",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-049",
@@ -2764,7 +2665,7 @@
       "type": "code_file",
       "path": "src/modules/agent/index.js",
       "hash": "40e3f8dd",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-025",
@@ -2912,7 +2813,7 @@
       "type": "code_file",
       "path": "src/modules/agent/model-provider.js",
       "hash": "8b34758f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-048"
@@ -2986,7 +2887,7 @@
       "type": "code_file",
       "path": "src/modules/agent/phase1-runtime.js",
       "hash": "0b1550f9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-047",
@@ -3397,7 +3298,7 @@
       "type": "code_file",
       "path": "src/modules/identity/resolve-viewer.js",
       "hash": "132ae4f9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-031",
@@ -4117,7 +4018,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-service.js",
       "hash": "444cf6eb",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-003",
@@ -4299,7 +4200,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/components/ProjectTabs.jsx",
       "hash": "7140f635",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-040"
@@ -4726,7 +4627,7 @@
       "version": "1.8.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "80cdeb78",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -4744,7 +4645,7 @@
       "version": "1.1.0",
       "doc_status": "Draft",
       "hash": "d81f905f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE-NOTES",
@@ -4772,7 +4673,7 @@
       "version": "1.6.0",
       "doc_status": "Draft",
       "hash": "cbfe6986",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -4782,7 +4683,7 @@
       "version": "1.0.3",
       "doc_status": "Approved",
       "hash": "fbfdb7c4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DOMAIN-MODEL",
@@ -4846,7 +4747,7 @@
       "version": "1.2.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "52052338",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -5295,7 +5196,7 @@
       "version": "1.0.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "d57eb811",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:LINE-PHASE1-CANARY",
@@ -5303,7 +5204,7 @@
       "path": "docs/runbooks/LINE-PHASE1-CANARY.md",
       "title": "LINE Phase 1 canary runbook",
       "hash": "c54195c9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:model-lifecycle",
@@ -5321,7 +5222,7 @@
       "path": "docs/roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md",
       "title": "Phase 1: Minimum LINE OA Business Knowledge Answer",
       "hash": "564af13d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PHASE-02-CLOUD-RUNTIME-OPERATIONS",
@@ -5505,7 +5406,7 @@
       "version": "1.71.0b",
       "doc_status": "Draft",
       "hash": "22194c94",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -5541,7 +5442,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
       "hash": "b2c54d79",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -5559,7 +5460,7 @@
       "version": "1.0.0",
       "doc_status": "draft",
       "hash": "27c58178",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:SITEMAP-DOMAIN-NAV",
@@ -5569,7 +5470,7 @@
       "version": "0.5.0",
       "doc_status": "Accepted",
       "hash": "91644e98",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:UI-DESIGN-SYSTEM",
@@ -5589,7 +5490,7 @@
       "version": "1.0.0",
       "doc_status": "Design approved — implementation pending",
       "hash": "26ace737",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ZV2-CR-001-MANAGED-LOCAL-FILES-AND-CACHE",
@@ -5663,7 +5564,7 @@
       "path": "docs/changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md",
       "title": "ZV2-CR-007 — Interface Inventory normalization and responsibility split",
       "hash": "b31d0898",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY",
@@ -5704,7 +5605,7 @@
         "crm"
       ],
       "hash": "0ee53304",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:identity",
@@ -5726,7 +5627,7 @@
         "identity"
       ],
       "hash": "4bda536d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:integration",
@@ -9032,7 +8933,7 @@
       "type": "test",
       "path": "tests/integration/project-business-binding.test.js",
       "hash": "4e249e90",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/project-core.test.js",
@@ -9045,15 +8946,15 @@
       "id": "test:tests/integration/project-inventory.test.js",
       "type": "test",
       "path": "tests/integration/project-inventory.test.js",
-      "hash": "05fa2d28",
-      "status": "current"
+      "hash": "f5967648",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/project-list-contract.test.js",
       "type": "test",
       "path": "tests/integration/project-list-contract.test.js",
-      "hash": "a2efdfcf",
-      "status": "current"
+      "hash": "74e1aec0",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
@@ -9067,7 +8968,7 @@
       "type": "test",
       "path": "tests/integration/scope-and-isolation.test.js",
       "hash": "831f4b6e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/work-listing-scope.test.js",
@@ -9613,7 +9514,7 @@
       "type": "test",
       "path": "tests/unit/phase1-business-agent-runtime.test.js",
       "hash": "e07bb232",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/phase1-runtime-login-probe.test.js",
@@ -23126,6 +23027,13 @@
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-inventory.test.js",
+      "to": "req:FR-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/project-inventory.test.js",
