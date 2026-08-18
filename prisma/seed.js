@@ -367,9 +367,12 @@ async function main() {
   // ---- Repository metadata (local only, no GitHub API) ---------------------
   const repo = await prisma.repository.upsert({
     where: { code: 'REP-ZURI' },
-    update: {},
+    // @req FR-073 — set on update too, so re-seeding an existing database gives
+    // this row an owner instead of leaving it ungoverned and unwritable.
+    update: { businessId: businesses['BUS-001'].id },
     create: {
       code: 'REP-ZURI',
+      businessId: businesses['BUS-001'].id,
       provider: 'github',
       fullName: 'Freshair129/zuri',
       ownerName: 'Freshair129',
@@ -414,6 +417,23 @@ async function main() {
   for (const legacy of legacyProjects) {
     if (legacy.workspace?.businessId) {
       await prisma.project.update({ where: { id: legacy.id }, data: { businessId: legacy.workspace.businessId } })
+    }
+  }
+
+  // @req FR-073 - additive backfill for Repositories that predate the owning
+  // Business. Derived from links, and only where they agree: a Repository whose
+  // Projects span two Businesses has no single owner to infer, so it is left
+  // ownerless rather than assigned by guess. Ownerless means refused for every
+  // principal, which is the honest outcome — scripts/backfill-repository-business.mjs
+  // reports those so an owner can decide.
+  const legacyRepos = await prisma.repository.findMany({
+    where: { businessId: null },
+    select: { id: true, projects: { select: { project: { select: { businessId: true } } } } },
+  })
+  for (const legacy of legacyRepos) {
+    const owners = [...new Set(legacy.projects.map((l) => l.project?.businessId).filter(Boolean))]
+    if (owners.length === 1) {
+      await prisma.repository.update({ where: { id: legacy.id }, data: { businessId: owners[0] } })
     }
   }
 

@@ -6,7 +6,7 @@ import {
   createTenant,
   createBusiness,
   createWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import {
   createProject,
   updateProject,
@@ -31,13 +31,14 @@ import { computeProjectProgress, computeWorkstreamProgress } from '@/modules/pro
 // authority yet (`.brain/waves/route-viewer-plan.md` §BLOCKED B1/B3) and stay
 // unguarded; passing them a viewer would imply a contract nobody has declared.
 
-let workspace, project, wsDev, wsMig, viewer
+let workspace, project, wsDev, wsMig, viewer, businessId
 
 describe('project core', () => {
   beforeAll(async () => {
     const portfolio = await createPortfolio({ name: 'Core Group', code: 'PF-CORE' })
     const tenant = await createTenant({ portfolioId: portfolio.id, name: 'Core Tenant', code: 'TNT-CORE' })
     const business = await createBusiness({ tenantId: tenant.id, name: 'Core Business', code: 'BUS-CORE' })
+    businessId = business.id
     workspace = await createWorkspace({ name: 'Core WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-CORE' })
     viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
     project = await createProject({ workspaceId: workspace.id, name: 'Core Project', code: 'PRJ-CORE' }, { viewer })
@@ -105,8 +106,11 @@ describe('project core', () => {
   })
 
   it('repository links are many-to-many', async () => {
-    const repoA = await createRepository({ provider: 'github', fullName: 'org/repo-a', code: 'REP-CORE-A' })
-    const repoB = await createRepository({ provider: 'gitlab', fullName: 'org/repo-b', code: 'REP-CORE-B' })
+    // @req FR-073 — a Repository now carries its owning Business, so these are
+    // threaded like every other guarded create. Before FR-073 they were not,
+    // because nothing could govern them.
+    const repoA = await createRepository({ businessId, provider: 'github', fullName: 'org/repo-a', code: 'REP-CORE-A' }, { viewer })
+    const repoB = await createRepository({ businessId, provider: 'gitlab', fullName: 'org/repo-b', code: 'REP-CORE-B' }, { viewer })
     await linkRepository({ projectId: project.id, repoId: repoA.id, role: 'PRIMARY' }, { viewer })
     await linkRepository({ projectId: project.id, repoId: repoB.id, role: 'REFERENCE' }, { viewer })
     // Same repo can link to another project too.

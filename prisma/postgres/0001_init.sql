@@ -318,6 +318,7 @@ CREATE TABLE "Dependency" (
 CREATE TABLE "Repository" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
+    "businessId" TEXT,
     "provider" TEXT NOT NULL,
     "externalRepoId" TEXT,
     "ownerName" TEXT,
@@ -742,6 +743,9 @@ CREATE UNIQUE INDEX "Repository_code_key" ON "Repository"("code");
 CREATE INDEX "Repository_provider_fullName_idx" ON "Repository"("provider", "fullName");
 
 -- CreateIndex
+CREATE INDEX "Repository_businessId_idx" ON "Repository"("businessId");
+
+-- CreateIndex
 CREATE INDEX "ProjectRepository_repoId_idx" ON "ProjectRepository"("repoId");
 
 -- CreateIndex
@@ -938,6 +942,9 @@ ALTER TABLE "Gate" ADD CONSTRAINT "Gate_projectId_fkey" FOREIGN KEY ("projectId"
 
 -- AddForeignKey
 ALTER TABLE "Gate" ADD CONSTRAINT "Gate_workstreamId_fkey" FOREIGN KEY ("workstreamId") REFERENCES "Workstream"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Repository" ADD CONSTRAINT "Repository_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ProjectRepository" ADD CONSTRAINT "ProjectRepository_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;

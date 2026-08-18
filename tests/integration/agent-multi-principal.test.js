@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
-import { createPortfolio, createTenant, createBusiness, createWorkspace } from '@/modules/project-manager/application/scope-service'
+import { createPortfolio, createTenant, createBusiness, createWorkspace } from '../factories/scope'
 import { createProject } from '@/modules/project-manager/application/project-service'
 import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 import { assembleAgentContext, createInMemoryMemory, createMspMemoryPort } from '@/modules/agent'

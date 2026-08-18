@@ -8,7 +8,7 @@ import {
   createWorkspace,
   listWorkspacesForScope,
   assertWorkspaceInScope,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import { createProject, listProjects } from '@/modules/project-manager/application/project-service'
 import { makeViewer } from '../factories/viewer'
 

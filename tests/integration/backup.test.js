@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
+// @req FR-075 — restore is an installation-wide operation; these cases arrange
+// as the operator, and fr075-restore-authorization.test.js is where the refusal
+// side is proven.
+import { makeOperatorViewer } from '../factories/viewer'
 import {
   exportSnapshot,
   previewImport,
@@ -10,7 +14,7 @@ import {
   createTenant,
   createBusiness,
   createWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import { createProject } from '@/modules/project-manager/application/project-service'
 import { makeViewer } from '../factories/viewer'
 
@@ -35,14 +39,14 @@ describe('snapshot backup round trip', () => {
   })
 
   it('rejects invalid snapshot on preview', async () => {
-    const preview = await previewImport({ schemaVersion: '9.9', tables: {} })
+    const preview = await previewImport({ schemaVersion: '9.9', tables: {} }, { viewer: makeOperatorViewer() })
     expect(preview.valid).toBe(false)
   })
 
   it('import without confirm only previews (no writes)', async () => {
     const snapshot = await exportSnapshot()
     const before = await prisma.project.count()
-    const result = await importSnapshot(snapshot, { confirm: false })
+    const result = await importSnapshot(snapshot, { confirm: false, viewer: makeOperatorViewer() })
     expect(result.restored).toBe(false)
     expect(result.needsConfirmation).toBe(true)
     expect(result.wouldReplace).toBe(true)
@@ -59,7 +63,7 @@ describe('snapshot backup round trip', () => {
     expect(await prisma.project.count()).toBe(projectCountAtExport + 1)
 
     // Restore with confirmation.
-    const result = await importSnapshot(snapshot, { confirm: true })
+    const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
     expect(result.restored).toBe(true)
     expect(await prisma.project.count()).toBe(projectCountAtExport)
     expect(await prisma.project.findUnique({ where: { code: 'PRJ-BAK-EXTRA' } })).toBeNull()

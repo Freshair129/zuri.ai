@@ -5,7 +5,7 @@ import {
   createTenant,
   createBusiness,
   createWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import { createProject } from '@/modules/project-manager/application/project-service'
 import {
   createRepository,
@@ -60,9 +60,14 @@ describe('FR-072 repository link authorization', () => {
     })
     project = await createProject({ workspaceId: workspace.id, name: 'Repo Authz Project', code: 'PRJ-REPOAUTHZ' }, { viewer: owner })
 
-    // Repository records carry no scope at all — createRepository is BLOCKED
-    // and stays unguarded; a repo is a plain fixture here.
-    repo = await createRepository({ provider: 'github', repoName: 'authz-repo', code: 'REP-AUTHZ' })
+    // @req FR-073 — a Repository now has an owning Business, so this fixture is
+    // created by an owner like any other. It belongs to the same Business as the
+    // Project below, so the link composition this file exercises turns on the
+    // Project half, which is what these cases are about.
+    repo = await createRepository(
+      { businessId: business.id, provider: 'github', repoName: 'authz-repo', code: 'REP-AUTHZ' },
+      { viewer: owner },
+    )
 
     // A Project in a PORTFOLIO-scoped Space: businessId is null all the way
     // down, so no Business governs it — the Tier B / FR-072(b) case.

@@ -188,6 +188,17 @@ repository already constructs that state.
 4. `npm test` and `npm run build` only. Never `test:e2e`, `govern` or `verify` —
    all three are singletons owned by the integrator.
 
+**Update 2026-08-18 — `test:e2e` is no longer a singleton.** The port and the e2e
+database were two hard-coded literals (`3100`, `file:./e2e.db`) in two files, so a
+second tree could not run e2e at all, and the two literals had to agree with
+nothing making them agree (the failure in
+[the bootstrap RCA](../rca/2026-08-14-e2e-database-bootstrap-gap.md)). Both now
+come from one decision in `tests/e2e/e2e-target.js`: the primary checkout keeps
+:3100, a git worktree derives its own port *and* its own database from its path —
+deterministically, so two trees never race — and `E2E_PORT` pins it explicitly.
+Proven with a blocker verifiably serving on :3100: the worktree ran the suite on
+:3147 against `prisma/e2e-3147.db`. `govern` and `verify` remain integrator-only.
+
 ## C3 — the ratchet is textual, so it cannot detect a fake repayment
 
 `scripts/doc-preflight.mjs` check 10 greps each route file for

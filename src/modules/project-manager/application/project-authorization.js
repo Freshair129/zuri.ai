@@ -192,6 +192,43 @@ export async function assertProjectWritable(
 }
 
 /**
+ * May this viewer write to this Repository?
+ *
+ * @req FR-073 — a Repository is owned by one Business, so the same predicate
+ * that governs every other write governs this one too.
+ *
+ * Returns the loaded Repository. A Repository whose `businessId` is null is
+ * governed by nobody: refused for every principal, with the reason naming what
+ * is missing rather than inventing an owner. That is the FR-072(b) shape applied
+ * to a row that predates the column.
+ */
+export async function assertRepositoryWritable(
+  viewer,
+  repositoryId,
+  { db = prisma, notFoundMessage = 'Repository not found' } = {}
+) {
+  requireViewer(viewer, 'assertRepositoryWritable')
+
+  const repository = await db.repository.findUnique({ where: { id: repositoryId } })
+  if (!repository) throw refusal(404, notFoundMessage)
+
+  if (repository.businessId === null || repository.businessId === undefined) {
+    throw refusal(403, ungovernedRepositoryRefusal(repository))
+  }
+
+  if (!ownsBusiness(viewer, repository.businessId)) throw refusal(404, notFoundMessage)
+  return repository
+}
+
+function ungovernedRepositoryRefusal(repository) {
+  return (
+    `Repository "${repository.code}" has no owning Business, so no principal can be ` +
+    'authorized to change it. It predates FR-073; run the repository Business backfill ' +
+    '(scripts/backfill-repository-business.mjs) to give it an owner.'
+  )
+}
+
+/**
  * May this viewer write within the Business governing this Workstream's Project?
  *
  * `notFoundMessage` propagates down the whole chain on purpose: a refusal at any

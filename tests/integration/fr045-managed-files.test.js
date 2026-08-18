@@ -6,7 +6,7 @@ import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
-import { createPortfolio, createTenant, createBusiness, createWorkspace } from '@/modules/project-manager/application/scope-service'
+import { createPortfolio, createTenant, createBusiness, createWorkspace } from '../factories/scope'
 import { createProject } from '@/modules/project-manager/application/project-service'
 import { makeViewer } from '../factories/viewer'
 import {

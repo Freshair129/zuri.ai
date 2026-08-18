@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 150,
-    "routes": 63,
-    "test_files": 166
+    "docs": 136,
+    "routes": 61,
+    "test_files": 155
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 18,
+    "info": 15,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -98,7 +98,7 @@
       "title": "Missing control fields: Version, Status",
       "details": "CHARTER.md",
       "files": [
-        "docs/domains/integration/CHARTER.md"
+        "docs/domains/knowledge/CHARTER.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
@@ -109,23 +109,12 @@
       "title": "Missing control fields: Version, Status",
       "details": "CHARTER.md",
       "files": [
-        "docs/domains/knowledge/CHARTER.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I10",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
-      "files": [
         "docs/domains/project-manager/CHARTER.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I11",
+      "id": "I10",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -136,7 +125,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I12",
+      "id": "I11",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -147,7 +136,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I13",
+      "id": "I12",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version",
@@ -158,16 +147,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I14",
-      "severity": "info",
-      "check": "requirement-coverage",
-      "title": "Gaps in FR numbering",
-      "details": "FR-073",
-      "files": [],
-      "action": "Intentional gaps are fine — confirm nothing was lost"
-    },
-    {
-      "id": "I15",
+      "id": "I13",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
@@ -175,10 +155,10 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 166 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 155 files"
     },
     {
-      "id": "I16",
+      "id": "I14",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 hand-copied enum list(s) remain (accepted debt)",
@@ -189,22 +169,11 @@
       "action": "Derive from enums.js; the baseline may only shrink"
     },
     {
-      "id": "I17",
-      "severity": "info",
-      "check": "route-viewer",
-      "title": "4 mutating route(s) still resolve no viewer (accepted debt)",
-      "details": "baseline: docs/.route-viewer-baseline.json",
-      "files": [
-        "docs/.route-viewer-baseline.json"
-      ],
-      "action": "Each one is a write nobody can attribute; the baseline may only shrink"
-    },
-    {
-      "id": "I18",
+      "id": "I15",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
-      "details": "src/app/(pm)/projects/[projectId]/page.jsx:51 · src/app/(pm)/projects/[projectId]/repositories/page.jsx:107 · src/app/(pm)/projects/[projectId]/team/page.jsx:111 · src/app/(pm)/projects/page.jsx:116 · src/app/(pm)/workspaces/page.jsx:141 · src/modules/project-manager/components/ManagedFilesPanel.jsx:108 · src/modules/project-manager/views/universal/DependenciesView.jsx:127",
+      "details": "src/app/(pm)/projects/[projectId]/page.jsx:51 · src/app/(pm)/projects/[projectId]/repositories/page.jsx:107 · src/app/(pm)/projects/[projectId]/team/page.jsx:111 · src/app/(pm)/projects/page.jsx:106 · src/app/(pm)/workspaces/page.jsx:141 · src/modules/project-manager/components/ManagedFilesPanel.jsx:108 · src/modules/project-manager/views/universal/DependenciesView.jsx:127",
       "files": [
         "docs/.client-mutation-baseline.json"
       ],

@@ -262,6 +262,10 @@ export const zDependencyInput = z.object({
 
 export const zRepositoryInput = z.object({
   code: z.string().min(1).optional(),
+  // @req FR-073 — required on the way in, though the column is nullable: the
+  // nullability exists only for rows that predate the field, and every new
+  // Repository must have an owner or nobody can ever change it.
+  businessId: z.string().min(1),
   provider: z.string().min(1),
   externalRepoId: z.string().nullish(),
   ownerName: z.string().nullish(),

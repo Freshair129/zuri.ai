@@ -8,7 +8,7 @@ import {
   createTenant,
   createBusiness,
   createWorkspace,
-} from '@/modules/project-manager/application/scope-service'
+} from '../factories/scope'
 import prisma from '@/lib/db'
 import { makeViewer } from '../factories/viewer'
 

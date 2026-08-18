@@ -62,7 +62,10 @@ npm run dev            # dev server (use the preview tool, not a raw shell, when
 npm run verify         # the definition of done in one command: test → build → govern → e2e
 npm run build          # production build — must stay clean
 npm test               # Vitest: unit + integration (own SQLite db per run, prisma/.test-dbs/)
-npm run test:e2e       # Playwright against the dev server on :3100
+npm run test:e2e       # Playwright against its own dev server + its own seeded db.
+                       # :3100 in the primary checkout; a git worktree derives its
+                       # own port and db from its path, so two trees can run e2e
+                       # concurrently. E2E_PORT pins it explicitly.
 npm run db:seed        # idempotent demo data   |  db:reset = drop + reseed
 npm run govern         # the whole chain in the order the checks require — use this
 npm run docs:graph     # rebuild docs/.doc-graph.json + Appendix D from the filesystem
