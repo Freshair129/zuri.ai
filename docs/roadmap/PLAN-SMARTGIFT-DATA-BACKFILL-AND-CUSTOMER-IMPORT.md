@@ -390,8 +390,8 @@ private Person/Customer/provenance target schema, live target verification and
 redacted DuckDB dry-run are complete. P1 product backfill and P2
 destination/isolation verification are complete for the approved 74-row
 SmartGift product projection. The historical customer contract (P3) remains a
-candidate: 3,569 source rows yield 3,439 new candidates and 130 review rows,
-with Customer Data Owner/Security/PDPA and historical-window decisions still
+candidate: 3,569 source rows yield 3,439 new candidates and 130 review rows;
+Boss has approved the Platform Owner role, but Customer Data Owner/Security/PDPA and historical-window decisions still
 pending. The P4 importer scaffold and fixture tests are ready but its `--apply`
 path refuses closed, so no customer/contact rows have been imported.
 LINE activation remains a separate pending gate.

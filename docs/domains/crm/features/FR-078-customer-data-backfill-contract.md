@@ -3,9 +3,9 @@ domain: crm
 feature: FR-078
 module: crm
 source: v2-native
-version: "0.3.0b"
+version: "0.3.1b"
 created_at: "2026-08-18T06:35:00+07:00,ATHER"
-last_update: "2026-08-18T08:05:00+07:00,ATHER"
+last_update: "2026-08-18T08:20:00+07:00,ATHER"
 status: "candidate"
 ---
 
@@ -33,6 +33,7 @@ Machine-readable contracts:
 - [Target verification script](../../../../scripts/verify-smartgift-customer-profile-target.mjs)
 - [Redacted target verification](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-verification.json)
 - [Redacted dry-run receipt](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-dry-run.json)
+- [Platform-owner approval](../../../../contracts/approvals/smartgift-customer-data-platform-owner-20260818.json)
 
 ## Identity and approval
 
@@ -42,7 +43,7 @@ Machine-readable contracts:
 | `versionId` | `VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B` |
 | `missionId` | `MIS-SG-CUSTOMER-DATA-BACKFILL-001` |
 | Requested by / Platform approver | Boss (`PER-BOSS`, `c82690eb-84e8-48a8-8a28-fe3d839c2276`) |
-| Contract status | `CANDIDATE` — target schema/profile are verified and dry-run is complete; customer write remains blocked |
+| Contract status | `CANDIDATE` — Platform Owner approval recorded; target schema/profile are verified and dry-run is complete; customer write remains blocked |
 | Customer Data Owner | ยังไม่ระบุ — required before import |
 | Security/PDPA approver | ยังไม่ระบุ — required before import |
 
@@ -332,6 +333,7 @@ No customer row may be written while any gate above is `pending` or `blocked`.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.1b | 2026-08-18 | candidate | Record Boss Platform Owner approval; Customer Data Owner, Security/PDPA and import gates remain pending | working-tree | ATHER |
 | 0.3.0b | 2026-08-18 | candidate | Verify target scope/RLS, create PER-BOSS profile and append current contract receipt; dry-run/import remain gated | working-tree | ATHER |
 | 0.2.0b | 2026-08-18 | candidate | Add private Person/Customer/provenance target schema boundary; live apply and customer write remain gated | working-tree | ATHER |
 | 0.1.0b | 2026-08-18 | draft | Define scoped Customer Profile contract, resolution rules, PII boundary and approval gates | working-tree | ATHER |

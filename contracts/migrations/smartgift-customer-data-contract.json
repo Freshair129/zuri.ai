@@ -13,11 +13,11 @@
     "requiredApprovals": [
       {
         "role": "PLATFORM_OWNER",
-        "status": "PENDING",
+        "status": "APPROVED",
         "personId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
         "code": "PER-BOSS",
         "displayName": "Boss (บอส)",
-        "evidenceRef": null
+        "evidenceRef": "contracts/approvals/smartgift-customer-data-platform-owner-20260818.json"
       },
       {
         "role": "CUSTOMER_DATA_OWNER",
