@@ -45,7 +45,13 @@ export const SNAPSHOT_SCHEMA_VERSION = '1.0'
 
 // Parents precede children for restore; reverse order is used for deletion.
 const SNAPSHOT_MODELS = [
-  'portfolio', 'tenant', 'legalEntity', 'legalEntityIdentifier', 'business', 'branch',
+  'portfolio', 'integrationProvider', 'tenant', 'legalEntity', 'legalEntityIdentifier', 'business', 'branch',
+  // @req FR-081 — the ingestion tables hang off a connection, so they restore after
+  // it and delete before the Tenant/Business they reference. The three integration
+  // metadata models were absent from this list entirely; a restore silently dropped
+  // them, which the new foreign keys turn from invisible data loss into a hard error.
+  'integrationConnection', 'integrationCredential', 'ingestionRun', 'rawExternalRecord',
+  'syncCursor', 'externalEntityRef', 'deadLetterRecord',
   'person', 'membership', 'workspace', 'project', 'workstream', 'workContainer', 'workItem',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',

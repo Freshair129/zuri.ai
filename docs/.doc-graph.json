@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 865,
-    "total_edges": 2663,
+    "total_nodes": 881,
+    "total_edges": 2712,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 78,
+      "document": 79,
       "adr": 34,
       "domain": 6,
       "roadmap": 25,
       "feature": 6,
       "route": 100,
-      "model": 37,
-      "requirement": 173,
-      "test": 169,
-      "code_file": 233
+      "model": 42,
+      "requirement": 174,
+      "test": 173,
+      "code_file": 238
     },
     "coverage": {
-      "requirements": 173,
-      "fr_with_code": "100% (73/73)",
-      "fr_with_tests": "100% (73/73)",
+      "requirements": 174,
+      "fr_with_code": "100% (74/74)",
+      "fr_with_tests": "100% (74/74)",
       "rules_anchored_in_code": "84% (65/77)",
       "nfr_evidence_based": "16 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 233,
+      "annotated_code_files": 238,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -55,8 +55,7 @@
   },
   "drift": {
     "changed": [
-      "test:tests/integration/project-inventory.test.js",
-      "test:tests/integration/project-list-contract.test.js"
+      "doc:B-db-schema"
     ],
     "added": [],
     "removed": []
@@ -3722,13 +3721,14 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "1a0197d0",
+      "hash": "7048dfd7",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
           "FR-045",
-          "FR-075"
+          "FR-075",
+          "FR-081"
         ],
         "@spec": [
           "BR-008",
@@ -4566,6 +4566,27 @@
       }
     },
     {
+      "id": "code:src/platform/integrations/core/contracts.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/contracts.js",
+      "hash": "16db55c0",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-081"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-002",
+          "FR-081",
+          "docs/domains/integration/features/FR-081-raw-external-ingestion.md"
+        ],
+        "@tested": [
+          "tests/unit/platform/integration-contracts.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/platform/integrations/core/credential-vault.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/credential-vault.js",
@@ -4581,14 +4602,35 @@
       }
     },
     {
-      "id": "code:src/platform/integrations/core/integration-registry.js",
+      "id": "code:src/platform/integrations/core/idempotency.js",
       "type": "code_file",
-      "path": "src/platform/integrations/core/integration-registry.js",
-      "hash": "105a4e8c",
+      "path": "src/platform/integrations/core/idempotency.js",
+      "hash": "9af5a714",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-079"
+          "FR-081"
+        ],
+        "@spec": [
+          "BR-002",
+          "FR-081",
+          "docs/domains/integration/features/FR-081-raw-external-ingestion.md"
+        ],
+        "@tested": [
+          "tests/unit/platform/integration-contracts.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/core/integration-registry.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/integration-registry.js",
+      "hash": "bb29da5a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-079",
+          "FR-081"
         ],
         "@spec": [
           "SDD-043",
@@ -4596,6 +4638,46 @@
         ],
         "@tested": [
           "tests/unit/fr079-runtime-cutover.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/core/raw-ingest-service.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/raw-ingest-service.js",
+      "hash": "a3c6dc4f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-081"
+        ],
+        "@spec": [
+          "BR-002",
+          "FR-081",
+          "docs/domains/integration/features/FR-081-raw-external-ingestion.md"
+        ],
+        "@tested": [
+          "tests/unit/platform/raw-ingest-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/core/raw-record-repository.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/raw-record-repository.js",
+      "hash": "c9fc53c4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-081"
+        ],
+        "@spec": [
+          "SEC-001",
+          "FR-081",
+          "docs/domains/integration/features/FR-081-raw-external-ingestion.md"
+        ],
+        "@tested": [
+          "tests/integration/platform/integration-persistence.test.js"
         ]
       }
     },
@@ -4616,6 +4698,27 @@
         ],
         "@tested": [
           "tests/unit/fr079-runtime-cutover.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/providers/line/line-oa-webhook.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/providers/line/line-oa-webhook.js",
+      "hash": "c10a3081",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-052",
+          "FR-081"
+        ],
+        "@spec": [
+          "SEC-009",
+          "FR-081",
+          "docs/domains/integration/features/FR-081-raw-external-ingestion.md"
+        ],
+        "@tested": [
+          "tests/unit/platform/line-oa-webhook.test.js"
         ]
       }
     },
@@ -4672,8 +4775,8 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.6.0",
       "doc_status": "Draft",
-      "hash": "cbfe6986",
-      "status": "current"
+      "hash": "d325906b",
+      "status": "changed"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -5169,6 +5272,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-081-raw-external-ingestion",
+      "type": "document",
+      "path": "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
+      "title": "FR-081 — Raw external ingestion boundary",
+      "hash": "5c62ebc8",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -5405,7 +5516,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "22194c94",
+      "hash": "06e78d36",
       "status": "current"
     },
     {
@@ -5637,13 +5748,18 @@
       "owns_models": [
         "IntegrationProvider",
         "IntegrationConnection",
-        "IntegrationCredential"
+        "IntegrationCredential",
+        "IngestionRun",
+        "RawExternalRecord",
+        "SyncCursor",
+        "ExternalEntityRef",
+        "DeadLetterRecord"
       ],
       "owns_routes": [],
       "modules": [
         "integration"
       ],
-      "hash": "8dd3015b",
+      "hash": "a0b44183",
       "status": "current"
     },
     {
@@ -5787,7 +5903,17 @@
       "status": "current"
     },
     {
+      "id": "model:DeadLetterRecord",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:Dependency",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ExternalEntityRef",
       "type": "model",
       "status": "current"
     },
@@ -5818,6 +5944,11 @@
     },
     {
       "id": "model:IdentityLinkToken",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:IngestionRun",
       "type": "model",
       "status": "current"
     },
@@ -5897,12 +6028,22 @@
       "status": "current"
     },
     {
+      "id": "model:RawExternalRecord",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:Repository",
       "type": "model",
       "status": "current"
     },
     {
       "id": "model:RoleBinding",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:SyncCursor",
       "type": "model",
       "status": "current"
     },
@@ -6791,6 +6932,15 @@
       "type": "requirement",
       "family": "FR",
       "label": "Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-081",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Raw external ingestion boundary: every acquisition channel (webhook, pull, file, manual) converges on one normalized ingestion envelope carrying tenant, Business, connection, provider, lane, entity type, external id, source type and schema version, and a channel is added as an adapter rather than a second raw-write path. (a) Ingestion identity is `sha256(tenantId, connectionId, entityType, externalId, payloadHash)` over a canonically serialized payload, so a re-delivered event resolves to `UNCHANGED` instead of a duplicate row; the external id contributes to that identity and is never itself a key (BR-002). (b) Raw records are read and written only through a repository bound to one tenant/connection scope, which refuses a row outside it rather than filtering afterwards (SEC-001), and a referenced Business or IngestionRun must itself resolve inside that scope. (c) Raw ingestion persists the source payload verbatim and never writes domain truth: translation into business entities is a separate later path, so a failed translation cannot corrupt the evidence it was derived from. (d) A run records its own counts and terminal state, and a failure is preserved as a DeadLetterRecord naming the failing stage and owner rather than being retried silently. This requirement declares the ingestion substrate only; no scheduler, no translation ACL and no reader surface is in scope.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -8701,7 +8851,7 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
-      "hash": "5597cabc",
+      "hash": "d8faf0f7",
       "status": "current"
     },
     {
@@ -8922,6 +9072,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/platform/integration-persistence.test.js",
+      "type": "test",
+      "path": "tests/integration/platform/integration-persistence.test.js",
+      "hash": "f6954054",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/project-authorization.test.js",
       "type": "test",
       "path": "tests/integration/project-authorization.test.js",
@@ -8947,14 +9104,14 @@
       "type": "test",
       "path": "tests/integration/project-inventory.test.js",
       "hash": "f5967648",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/project-list-contract.test.js",
       "type": "test",
       "path": "tests/integration/project-list-contract.test.js",
       "hash": "74e1aec0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
@@ -9535,6 +9692,27 @@
       "type": "test",
       "path": "tests/unit/plan-status-vocabulary.test.js",
       "hash": "07b38c80",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform/integration-contracts.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/integration-contracts.test.js",
+      "hash": "4d4e29ca",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform/line-oa-webhook.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/line-oa-webhook.test.js",
+      "hash": "66aadc34",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform/raw-ingest-service.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/raw-ingest-service.test.js",
+      "hash": "f426e0fa",
       "status": "current"
     },
     {
@@ -14630,6 +14808,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-081",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:SDD-023",
       "type": "follows",
       "status": "current",
@@ -15882,6 +16067,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/platform/integrations/core/contracts.js",
+      "to": "doc:FR-081-raw-external-ingestion",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/contracts.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/contracts.js",
+      "to": "req:FR-081",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/contracts.js",
+      "to": "req:FR-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/contracts.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/platform/integrations/core/credential-vault.js",
       "to": "req:FR-079",
       "type": "implements",
@@ -15889,8 +16109,43 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/platform/integrations/core/idempotency.js",
+      "to": "doc:FR-081-raw-external-ingestion",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/idempotency.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/idempotency.js",
+      "to": "req:FR-081",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/idempotency.js",
+      "to": "req:FR-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/platform/integrations/core/integration-registry.js",
       "to": "req:FR-079",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/integration-registry.js",
+      "to": "req:FR-081",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -15905,6 +16160,62 @@
     {
       "from": "code:src/platform/integrations/core/integration-registry.js",
       "to": "req:SEC-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/raw-ingest-service.js",
+      "to": "doc:FR-081-raw-external-ingestion",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/raw-ingest-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/raw-ingest-service.js",
+      "to": "req:FR-081",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/raw-ingest-service.js",
+      "to": "req:FR-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/raw-record-repository.js",
+      "to": "doc:FR-081-raw-external-ingestion",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/raw-record-repository.js",
+      "to": "req:FR-081",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/raw-record-repository.js",
+      "to": "req:FR-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/raw-record-repository.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -15933,6 +16244,41 @@
     {
       "from": "code:src/platform/integrations/core/secret-manager.js",
       "to": "req:SEC-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-webhook.js",
+      "to": "doc:FR-081-raw-external-ingestion",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-webhook.js",
+      "to": "req:FR-052",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-webhook.js",
+      "to": "req:FR-081",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-webhook.js",
+      "to": "req:FR-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-webhook.js",
+      "to": "req:SEC-009",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -16085,8 +16431,22 @@
       "source": "charter"
     },
     {
+      "from": "model:DeadLetterRecord",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Dependency",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ExternalEntityRef",
+      "to": "domain:integration",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -16129,6 +16489,13 @@
     {
       "from": "model:IdentityLinkToken",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:IngestionRun",
+      "to": "domain:integration",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -16239,6 +16606,13 @@
       "source": "charter"
     },
     {
+      "from": "model:RawExternalRecord",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Repository",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -16248,6 +16622,13 @@
     {
       "from": "model:RoleBinding",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:SyncCursor",
+      "to": "domain:integration",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -16954,6 +17335,13 @@
     },
     {
       "from": "req:FR-080",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-081",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -20685,6 +21073,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -21896,6 +22291,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -22548,6 +22950,27 @@
     {
       "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/platform/integration-persistence.test.js",
+      "to": "code:src/platform/integrations/core/raw-record-repository.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/platform/integration-persistence.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/platform/integration-persistence.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -24500,6 +24923,13 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -26005,6 +26435,13 @@
     },
     {
       "from": "test:tests/unit/fr079-runtime-cutover.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr079-runtime-cutover.test.js",
       "to": "req:NFR-015",
       "type": "verifies",
       "status": "current",
@@ -27049,6 +27486,90 @@
     {
       "from": "test:tests/unit/plan-status-vocabulary.test.js",
       "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/integration-contracts.test.js",
+      "to": "code:src/platform/integrations/core/contracts.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/integration-contracts.test.js",
+      "to": "code:src/platform/integrations/core/idempotency.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/integration-contracts.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/integration-contracts.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/integration-contracts.test.js",
+      "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/line-oa-webhook.test.js",
+      "to": "code:src/platform/integrations/providers/line/line-oa-webhook.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/line-oa-webhook.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/line-oa-webhook.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/line-oa-webhook.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/raw-ingest-service.test.js",
+      "to": "code:src/platform/integrations/core/raw-ingest-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/raw-ingest-service.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/raw-ingest-service.test.js",
+      "to": "req:FR-081",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

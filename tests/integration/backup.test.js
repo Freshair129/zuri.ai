@@ -36,6 +36,10 @@ describe('snapshot backup round trip', () => {
     expect(snapshot.exportedAt).toBeTruthy()
     expect(snapshot.tables.project.length).toBeGreaterThan(0)
     expect(snapshot.tables.portfolio.length).toBeGreaterThan(0)
+    // @req FR-081 — a snapshot that omits a table restores an installation missing it.
+    expect(snapshot.tables.integrationProvider).toBeInstanceOf(Array)
+    expect(snapshot.tables.integrationConnection).toBeInstanceOf(Array)
+    expect(snapshot.tables.rawExternalRecord).toBeInstanceOf(Array)
   })
 
   it('rejects invalid snapshot on preview', async () => {

@@ -30,6 +30,12 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Gate | projectId, workstreamId?, required, evidenceJson, status | cap progress (BR-006) |
 | Dependency | (sourceType,sourceId,targetType,targetId,dependencyType) unique | cycle-checked ที่ service |
 | Repository / ProjectRepository | provider, externalRepoId?, fullName; (projectId,repoId,role) unique | local metadata, m2m |
+| IntegrationProvider / IntegrationConnection / IntegrationCredential | code unique; (tenantId,providerId,externalAccountId) unique; connectionId unique | provider + Business-scoped connection registry, opaque secret ref (FR-079/FR-080) |
+| IngestionRun | connectionId, lane, resourceType, status, counts | one acquisition pass; inherits the connection's scope (FR-081) |
+| RawExternalRecord | idempotencyKey unique; (connectionId,entityType,externalId) | verbatim source payload as replayable evidence (FR-081) |
+| SyncCursor | (connectionId,resourceType) unique | incremental watermark per resource (FR-081) |
+| ExternalEntityRef | (connectionId,entityType,externalId) unique | external → internal mapping; external id is never a PK (BR-002) |
+| DeadLetterRecord | connectionId, failureStage, failureOwner, status | preserved failure with a named owner (FR-081) |
 | ProjectFile | projectId, workItemId?, name, mime, size, url/blobRef, version, uploadedBy | metadata/reference only; optional WorkItem must belong to Project (FR-037) |
 | BusinessRoadmap | businessId, code, title, status, startAt/targetAt | Business-level direction container (FR-041) |
 | BusinessRoadmapHorizon | roadmapId, key, label, position, targetAt | ordered short/medium/long horizon; service allows 2 or 3 |
@@ -100,6 +106,40 @@ These models are additive. `ProjectFile` remains for compatibility and is not
 removed by ZV2-CR-001. SQLite is canonical for MVP; the generated Postgres schema
 preserves metadata semantics while device root paths remain local configuration.
 
+## Raw external ingestion (FR-081)
+
+Five additive tables sit beneath the connection registry and hold what arrived
+through a connection, before anything translates it into business truth.
+
+`IngestionRun { tenantId, businessId?, connectionId, lane, resourceType, runType,
+status, startedAt, finishedAt?, fetched/created/updated/unchanged/failedCount,
+errorCode?, errorMessage? }` is one acquisition pass. It inherits tenant and
+Business from the connection rather than from the caller.
+
+`RawExternalRecord { ..., provider, lane, entityType, externalId, sourceType,
+sourceUri?, schemaVersion, payloadJson, payloadHash, idempotencyKey@unique,
+receivedAt, processingStatus, processingError?, processedAt? }` is the verbatim
+payload. `idempotencyKey = sha256(tenantId, connectionId, entityType, externalId,
+payloadHash)` over a canonically serialized payload, so a re-delivered event is
+recognised instead of duplicated.
+
+`SyncCursor { (connectionId,resourceType) unique, strategy, cursorValue?,
+watermarkAt?, lastSuccessAt? }` is the incremental watermark per resource.
+
+`ExternalEntityRef { (connectionId,entityType,externalId) unique,
+internalEntityType?, internalEntityId?, externalCode?, documentNumber?,
+payloadHash?, firstSeenAt, lastSeenAt, lastSyncedAt? }` maps an external
+identifier to an internal one. The external id lives here and never becomes a
+primary key (BR-002).
+
+`DeadLetterRecord { ..., ingestionRunId?, rawRecordId?, failureStage,
+failureOwner, errorCode, errorMessage, retryCount, status, nextRetryAt?,
+resolvedAt? }` preserves a failure with the stage and the owner responsible for
+it, rather than retrying it silently.
+
+All five are covered by the backup snapshot, ordered so they restore after the
+connection they hang off and delete before the Tenant/Business they reference.
+
 ## Integration runtime connections (FR-079 / ADR-031)
 
 `IntegrationProvider { code, name, status, capabilitiesJson }` is provider
@@ -108,7 +148,8 @@ authorizationType, externalAccountId?, purpose, role, status, metadataJson,
 version }` is the Business-scoped connection registry; Phase 1 selection requires
 `purpose=PHASE1_LINE_LLM`, `status=ACTIVE`, and `role=PRIMARY` under the
 server-resolved binding scope. `IntegrationCredential { connectionId@unique,
-secretRef, status, expiresAt?, rotatedAt?, version }` stores only an opaque
+secretRef, status, expiresAt?, accessTokenExpiresAt?, refreshTokenExpiresAt?,
+rotatedAt?, version }` stores only an opaque
 external secret-manager reference; raw credential material is never persisted in
 Prisma or returned to the browser.
 
