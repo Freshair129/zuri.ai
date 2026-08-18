@@ -139,6 +139,29 @@ test.describe('seven execution views', () => {
 
 test.describe('plan import', () => {
   test.beforeEach(async ({ page }) => enterBusiness(page))
+  test('human form builds PlanEnvelope JSON and sends it through dry-run', async ({ page }) => {
+    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    await page.goto(`/projects/${resolved.id}/import`)
+    await page.getByRole('button', { name: /สร้างแผนด้วยฟอร์ม/i }).first().click()
+
+    const dialog = page.getByRole('dialog', { name: 'Create plan from UI' })
+    await expect(dialog).toBeVisible()
+    await dialog.getByLabel('ชื่อหรือเป้าหมายโปรเจกต์').fill('E2E Human Plan Builder')
+    await dialog.getByLabel('รายละเอียดแผน').fill('สร้างจาก popup แล้วส่งเข้า shared PlanEnvelope pipeline')
+    await dialog.getByLabel('ชื่อสายงานที่ 1').fill('เตรียมเปิดสาขา')
+    await dialog.getByLabel('ลักษณะงานของสายงานที่ 1').selectOption('BUSINESS_EXPANSION')
+    await dialog.getByLabel('งานเริ่มต้นของสายงานที่ 1').fill('สำรวจทำเล\nสรุปข้อเสนอ')
+    await dialog.getByRole('button', { name: 'สร้าง Plan และตรวจสอบ' }).click()
+
+    await expect(dialog).not.toBeVisible()
+    await expect(page.getByLabel('Plan envelope JSON')).toHaveValue(/zuri-v2 UI plan builder/)
+    await expect(page.getByLabel('Plan envelope JSON')).toHaveValue(/เตรียมเปิดสาขา/)
+    await expect(page.getByText('Dry-run preview')).toBeVisible()
+    await page.getByRole('button', { name: 'Confirm import' }).click()
+    await expect(page.getByText('Imported ✓')).toBeVisible()
+    await expect(page.getByText('E2E Human Plan Builder')).toBeVisible()
+  })
+
   test('dry run previews and rejects bad plans', async ({ page }) => {
     const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
     await page.goto(`/projects/${resolved.id}/import`)
