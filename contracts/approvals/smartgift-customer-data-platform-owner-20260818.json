@@ -1,0 +1,24 @@
+{
+  "approvalId": "APR-SG-CUSTOMER-DATA-PLATFORM-OWNER-001",
+  "customerDataContractId": "CDC-SG-CUSTOMER-DATA-001",
+  "versionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B",
+  "missionId": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
+  "role": "PLATFORM_OWNER",
+  "status": "APPROVED",
+  "approvedBy": {
+    "personId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+    "code": "PER-BOSS",
+    "displayName": "Boss (บอส)"
+  },
+  "approvedAt": "2026-08-18T08:19:52+07:00",
+  "approvalSource": "Codex user approval message",
+  "scope": {
+    "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+    "businessId": "834fa869-62f3-431c-a287-e9a95e91175b"
+  },
+  "limitations": [
+    "Does not assign CUSTOMER_DATA_OWNER",
+    "Does not assign SECURITY_PDPA",
+    "Does not authorize customer-row import while CDC-G2, CDC-G3, CDC-G4 or CDC-G6 is pending"
+  ]
+}

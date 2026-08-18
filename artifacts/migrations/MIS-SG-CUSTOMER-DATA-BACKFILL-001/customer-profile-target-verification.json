@@ -1,0 +1,140 @@
+{
+  "mode": "READ_ONLY_TARGET_VERIFICATION",
+  "generatedAt": "2026-08-18T02:14:48.012Z",
+  "expected": {
+    "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+    "tenantCode": "TNT-ETOHGROUP",
+    "businessId": "834fa869-62f3-431c-a287-e9a95e91175b",
+    "businessCode": "BUS-SMARTGIFT",
+    "approverPersonId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+    "approverCode": "PER-BOSS",
+    "targetSchemaMigration": "20260818070000",
+    "profileMigration": "20260818071000",
+    "contractReceiptMigration": "20260818072000",
+    "tables": [
+      "person",
+      "customer",
+      "customer_import_batch",
+      "customer_import_provenance"
+    ]
+  },
+  "checks": {
+    "connection": [
+      {
+        "database": "postgres",
+        "user": "postgres"
+      }
+    ],
+    "scope": [
+      {
+        "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+        "tenant_code": "TNT-ETOHGROUP",
+        "business_id": "834fa869-62f3-431c-a287-e9a95e91175b",
+        "business_code": "BUS-SMARTGIFT"
+      }
+    ],
+    "migrationHistory": [
+      {
+        "version": "20260818070000",
+        "name": "customer_profile_backfill_schema"
+      },
+      {
+        "version": "20260818071000",
+        "name": "platform_approver_profile"
+      },
+      {
+        "version": "20260818072000",
+        "name": "customer_profile_contract_receipt"
+      }
+    ],
+    "table:person": [
+      {
+        "table": "person",
+        "row_security": true,
+        "force_row_security": true,
+        "row_count": 1
+      }
+    ],
+    "table:customer": [
+      {
+        "table": "customer",
+        "row_security": true,
+        "force_row_security": true,
+        "row_count": 0
+      }
+    ],
+    "table:customer_import_batch": [
+      {
+        "table": "customer_import_batch",
+        "row_security": true,
+        "force_row_security": true,
+        "row_count": 0
+      }
+    ],
+    "table:customer_import_provenance": [
+      {
+        "table": "customer_import_provenance",
+        "row_security": true,
+        "force_row_security": true,
+        "row_count": 0
+      }
+    ],
+    "forbiddenGrants": [],
+    "approverProfile": [
+      {
+        "id": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+        "code": "PER-BOSS",
+        "display_name": "Boss (บอส)",
+        "email_present": false
+      }
+    ],
+    "customerCounts": [
+      {
+        "customer_rows": 0,
+        "batch_rows": 0,
+        "provenance_rows": 0
+      }
+    ],
+    "contractReceipt": [
+      {
+        "code": "CUSTOMER-TARGET-SCHEMA-CONTRACT-RECEIPT-CDC-SG-CUSTOMER-DATA-001",
+        "row_count": 0,
+        "details": {
+          "containsRawPii": false,
+          "contractVersion": "VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B",
+          "approverPersonId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+          "customerRowsWritten": 0,
+          "appendOnlyCorrectionOf": "CUSTOMER-TARGET-SCHEMA-CDC-SG-CUSTOMER-DATA-001",
+          "targetSchemaMigrationVersion": "20260818070000"
+        }
+      }
+    ],
+    "tables": [
+      {
+        "table": "person",
+        "rowCount": 1,
+        "rowSecurity": true,
+        "forceRowSecurity": true
+      },
+      {
+        "table": "customer",
+        "rowCount": 0,
+        "rowSecurity": true,
+        "forceRowSecurity": true
+      },
+      {
+        "table": "customer_import_batch",
+        "rowCount": 0,
+        "rowSecurity": true,
+        "forceRowSecurity": true
+      },
+      {
+        "table": "customer_import_provenance",
+        "rowCount": 0,
+        "rowSecurity": true,
+        "forceRowSecurity": true
+      }
+    ]
+  },
+  "status": "VERIFIED"
+}

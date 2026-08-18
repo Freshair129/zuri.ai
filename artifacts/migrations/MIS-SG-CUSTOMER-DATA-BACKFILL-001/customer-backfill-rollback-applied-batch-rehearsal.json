@@ -1,0 +1,35 @@
+{
+  "status": "ROLLBACK_REHEARSAL_PASSED",
+  "batch": {
+    "id": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+    "contract_id": "CDC-SG-CUSTOMER-DATA-001",
+    "mission_id": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
+    "version_id": "VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B",
+    "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+    "business_id": "834fa869-62f3-431c-a287-e9a95e91175b",
+    "snapshot_sha256": "a8da233228cb80a088f11ff98fdef5773d0890bc158bcc40752c6d7a5e4bd5d7",
+    "status": "APPLIED",
+    "publish_row_count": 3439,
+    "held_row_count": 130
+  },
+  "result": {
+    "before": {
+      "provenanceRows": 3569,
+      "customerTargetRows": 3439,
+      "personTargetRows": 3439,
+      "batchRows": 1
+    },
+    "provenanceDeleted": 3569,
+    "customerDeleted": 3439,
+    "personDeleted": 3439,
+    "batchUpdated": 1
+  },
+  "restoredCounts": {
+    "provenanceRows": 3569,
+    "customerTargetRows": 3439,
+    "personTargetRows": 3439,
+    "batchRows": 1
+  },
+  "generatedAt": "2026-08-18T02:20:34.900714+00:00",
+  "receiptSha256": "bd627a7a00bace580175b44295d9ff67c40ada4521d7f0b4632248a62e286580"
+}

@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 883,
-    "total_edges": 2721,
+    "total_nodes": 890,
+    "total_edges": 2732,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -14,9 +14,9 @@
       "roadmap": 25,
       "feature": 6,
       "route": 100,
-      "model": 42,
+      "model": 44,
       "requirement": 174,
-      "test": 174,
+      "test": 179,
       "code_file": 239
     },
     "coverage": {
@@ -55,9 +55,23 @@
   },
   "drift": {
     "changed": [
+      "doc:B-db-schema",
+      "domain:crm",
+      "doc:FR-078-customer-data-backfill-contract",
+      "doc:PRD-SDD-v1.0",
+      "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
+      "test:tests/integration/backup.test.js",
       "code:src/modules/project-manager/application/backup-service.js"
     ],
-    "added": [],
+    "added": [
+      "model:CustomerImportBatch",
+      "model:CustomerImportProvenance",
+      "test:tests/unit/customer-data-contract.test.js",
+      "test:tests/unit/customer-profile-backfill-migration.test.js",
+      "test:tests/unit/customer-profile-contract-receipt.test.js",
+      "test:tests/unit/customer-profile-target-verification.test.js",
+      "test:tests/unit/platform-approver-profile-migration.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -3722,11 +3736,12 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "22186b03",
+      "hash": "5b664df3",
       "status": "changed",
       "annotations": {
         "@req": [
           "FR-013",
+          "FR-078",
           "FR-045",
           "FR-075",
           "FR-081"
@@ -4793,10 +4808,10 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.6.0",
+      "version": "1.7.0",
       "doc_status": "Draft",
-      "hash": "856107d0",
-      "status": "current"
+      "hash": "73230227",
+      "status": "changed"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -5272,8 +5287,8 @@
       "type": "document",
       "path": "docs/domains/crm/features/FR-078-customer-data-backfill-contract.md",
       "title": "FR-078 — Customer data backfill contract",
-      "hash": "dac1946f",
-      "status": "current"
+      "hash": "620850ed",
+      "status": "changed"
     },
     {
       "id": "doc:FR-079-phase1-line-runtime-connection-cutover",
@@ -5526,8 +5541,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT.md",
       "title": "Roadmap — SmartGift data backfill and customer import",
-      "hash": "4e06c12c",
-      "status": "current"
+      "hash": "72991c44",
+      "status": "changed"
     },
     {
       "id": "doc:PRD-SDD-v1.0",
@@ -5536,8 +5551,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "06e78d36",
-      "status": "current"
+      "hash": "6cde8eb7",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -5728,6 +5743,8 @@
       "owns_models": [
         "Person",
         "Customer",
+        "CustomerImportBatch",
+        "CustomerImportProvenance",
         "Conversation",
         "Message"
       ],
@@ -5735,8 +5752,8 @@
       "modules": [
         "crm"
       ],
-      "hash": "0ee53304",
-      "status": "current"
+      "hash": "ab9486f4",
+      "status": "changed"
     },
     {
       "id": "domain:identity",
@@ -5919,6 +5936,16 @@
     },
     {
       "id": "model:Customer",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:CustomerImportBatch",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:CustomerImportProvenance",
       "type": "model",
       "status": "current"
     },
@@ -6933,7 +6960,7 @@
       "id": "req:FR-078",
       "type": "requirement",
       "family": "FR",
-      "label": "Customer Profile backfill contract: the SmartGift historical customer pipeline has a fixed Tenant/Business scope, read-only source snapshot, machine-validated record/provenance envelope, explicit tax/name/corroboration resolution rules, duplicate/unresolved review queue, PII/financial/LINE exclusions, target Person/Customer schema gate, server-owned idempotent transaction and batch rollback; drafting the contract does not import customer data.",
+      "label": "Customer Profile backfill contract: the SmartGift historical customer pipeline has a fixed Tenant/Business scope, read-only source snapshot, machine-validated record/provenance envelope, explicit tax/name/corroboration resolution rules, duplicate/unresolved review queue, PII/financial/LINE exclusions, target Person/Customer schema gate, server-owned idempotent transaction and batch rollback; target verification and redacted dry-run are complete but Customer writes remain approval-gated.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
       "status": "planned"
@@ -8871,8 +8898,8 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
-      "hash": "a2ecae97",
-      "status": "current"
+      "hash": "33c6a842",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/controlled-line-activation.postgres.test.js",
@@ -9243,6 +9270,34 @@
       "type": "test",
       "path": "tests/unit/controlled-line-activation-migration.test.js",
       "hash": "9f653d5e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-data-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-data-contract.test.js",
+      "hash": "f9d074f5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-profile-backfill-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-profile-backfill-migration.test.js",
+      "hash": "c4bdd3e1",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-profile-contract-receipt.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-profile-contract-receipt.test.js",
+      "hash": "bc2d6d1c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-profile-target-verification.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-profile-target-verification.test.js",
+      "hash": "f2f8aa42",
       "status": "current"
     },
     {
@@ -9719,6 +9774,13 @@
       "type": "test",
       "path": "tests/unit/plan-status-vocabulary.test.js",
       "hash": "07b38c80",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform-approver-profile-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/platform-approver-profile-migration.test.js",
+      "hash": "cd704916",
       "status": "current"
     },
     {
@@ -14842,6 +14904,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-078",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-081",
       "type": "implements",
       "status": "current",
@@ -16480,6 +16549,20 @@
     },
     {
       "from": "model:Customer",
+      "to": "domain:crm",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:CustomerImportBatch",
+      "to": "domain:crm",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:CustomerImportProvenance",
       "to": "domain:crm",
       "type": "owned_by",
       "status": "current",
@@ -21128,6 +21211,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:FR-081",
       "type": "verifies",
       "status": "current",
@@ -22343,6 +22433,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
@@ -24354,6 +24451,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/customer-data-contract.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-profile-backfill-migration.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-profile-contract-receipt.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-profile-target-verification.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/db-boundary.test.js",
       "to": "code:src/lib/db-boundary.js",
       "type": "tests",
@@ -24972,6 +25097,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-078",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -27579,6 +27711,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-approver-profile-migration.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/platform/integration-contracts.test.js",

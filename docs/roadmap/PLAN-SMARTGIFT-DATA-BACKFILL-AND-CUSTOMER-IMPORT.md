@@ -1,8 +1,8 @@
 ---
-version: "0.4.0b"
+version: "0.6.0"
 created_at: "2026-08-18T04:37:44+07:00,ATHER"
-last_update: "2026-08-18T06:35:00+07:00,ATHER"
-status: "candidate"
+last_update: "2026-08-18T09:25:08+07:00,ATHER"
+status: "beta"
 superseded_by: null
 attributes:
   domain: "knowledge"
@@ -16,7 +16,8 @@ attributes:
 เอกสารนี้กำหนดลำดับการทำงาน 4 ระยะเพื่อให้ SmartGift ใช้งานข้อมูลสินค้าใน
 Production ได้ก่อน แล้วจึงออกแบบและนำเข้าข้อมูลลูกค้าเก่าผ่าน backfill path ที่
 ควบคุมได้ แผนนี้เป็น roadmap/implementation boundary และมี current evidence
-แนบไว้เพื่อแยกสิ่งที่ migrate แล้วออกจากงาน customer backfill ที่ยังไม่ได้อนุมัติ
+แนบไว้เพื่อแยกสิ่งที่ migrate แล้วออกจากงาน customer backfill ที่ได้รับอนุมัติ
+และ apply แล้ว ออกจาก live-delta/LINE activation ที่ยังเป็น gate แยกต่างหาก
 
 ## 1. Mission identity and approval
 
@@ -42,6 +43,10 @@ run, batch or audit event ID.
 | Pre-migration backup | `BKP-SG-MIGRATION-20260818-001`; SHA-256 `33c76f7e3c761a13b73caf9fd8b3f6ae1e037c388e559049d978c478a9885178` |
 | Current write state | Applied and postflight verified; migration `20260818060000`, LINE binding remains `PENDING` |
 | Applied migration hash | `aa9975f27610456c359c59ac4fc3ce2734ab74f328deea4c7270a439dcd144fb` |
+| Customer contract mission | `MIS-SG-CUSTOMER-DATA-BACKFILL-001` |
+| Customer contract version | `VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B` |
+| Customer batch | `3a7a45b1-1785-55dd-af41-d225a4afb45c` (`APPLIED`) |
+| Customer batch result | 3,569 source rows; 3,439 published; 130 held for review; raw PII not stored |
 
 Post-apply evidence is recorded at
 [`supabase-post-migration-verification.json`](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-MIGRATION-001/supabase-post-migration-verification.json).
@@ -83,8 +88,8 @@ Progress must be evidence-based. ห้ามใช้ `tasks_done / tasks_total
 
 - Approved SmartGift public product projection: 74 records, price-disabled.
 - Production read-path verification after the controlled product backfill.
-- A separate contract for historical customer/contact data.
-- A server-owned, idempotent customer importer after the customer contract is approved.
+- A separate approved contract for historical customer/contact data.
+- A server-owned, idempotent customer importer for the approved snapshot.
 
 ### Out of scope
 
@@ -208,17 +213,19 @@ historical backfill channel and must not be promoted as the Production import pa
 - Product knowledge is usable by the read path without claiming that customer data
   has been migrated.
 
-### P3 — Customer backfill contract
+### P3 — Customer backfill contract (complete for the approved snapshot)
 
-**Goal:** Define what historical customer data may enter Production before writing
-any customer row.
+**Goal:** Define what historical customer data may enter Production before the
+bounded batch write.
 
-This phase is documentation and approval work. It does not import data and does not
-reuse the product-knowledge record contract.
+This phase defined the contract, target boundary, approvals and resolution
+disposition. It does not reuse the product-knowledge record contract. All six
+gates were complete before the approved batch was applied.
 
-The draft contract is [FR-078 — Customer data backfill contract](../domains/crm/features/FR-078-customer-data-backfill-contract.md).
-Its machine-readable manifest fixes the current SmartGift Tenant/Business scope,
-but leaves customer-data owner, Security/PDPA and target-schema approvals pending.
+The approved contract is [FR-078 — Customer data backfill contract](../domains/crm/features/FR-078-customer-data-backfill-contract.md).
+Its machine-readable manifest fixes the current SmartGift Tenant/Business scope;
+the owner/security approval, privacy/retention decision, review disposition and
+historical window are recorded in the approval evidence.
 
 **Required contract sections:**
 
@@ -244,9 +251,10 @@ but leaves customer-data owner, Security/PDPA and target-schema approvals pendin
 - Destination tables/migrations and classification are approved separately from
   `business_knowledge`.
 - The backfill path, live-delta path and rollback owner are named.
-- No customer importer code is written before this gate.
+- No additional customer row is written outside the approved snapshot, scope,
+  field allowlist and batch identity.
 
-### P4 — Customer importer implementation and test
+### P4 — Customer importer implementation, apply and verification (complete for the approved snapshot)
 
 **Goal:** Build a bounded, repeatable customer backfill job that can be audited,
 rerun safely and rolled back without sending historical data through LINE.
@@ -285,6 +293,17 @@ DuckDB read-only
 - Production execution uses the approved migration role/job, never the LINE read role.
 - Post-apply counts, scope, provenance and audit receipt reconcile exactly.
 
+**Applied evidence:**
+
+- Batch `3a7a45b1-1785-55dd-af41-d225a4afb45c` is `APPLIED` in
+  `zuri_core.customer_import_batch`.
+- `customer=3,439`, `customer_import_provenance=3,569`, with 3,439 linked
+  publish rows and 130 held review rows.
+- Pre-apply backup, post-apply verification and rollback rehearsal receipts are
+  committed as redacted artifacts.
+- The importer uses bounded batched inserts inside one transaction; a timeout
+  RCA and regression test protect this path.
+
 ## 6. Critical path and dependencies
 
 ```mermaid
@@ -308,9 +327,9 @@ data before the P3/P4 gates.
 |---|---|---|---|---|
 | M1 | Product artifact reconciled | P1 | 74 rows, UUID scope, current artifact hash approved | complete |
 | M2 | Product knowledge usable by runtime | P2 | Fresh RLS/read/mutation-denial/post-apply evidence | complete for data/RLS; LINE remains pending |
-| M3 | Customer backfill contract approved | P3 | Scope, identity, PII, provenance, rollback and owner approval | draft created; approval pending |
-| M4 | Customer importer non-production proof | P4 | Fixture, idempotency, isolation, failure and rollback tests pass | not started |
-| M5 | Customer cutover decision | P4 | Live-delta, backup and signed operator receipt | separately gated |
+| M3 | Customer backfill contract approved | P3 | Scope, identity, PII, provenance, rollback and owner approval | complete for approved snapshot |
+| M4 | Customer importer apply and proof | P4 | Fixture, idempotency, isolation, failure, reconciliation and rollback tests pass | complete; batch applied and verified |
+| M5 | Customer live-delta/cutover decision | P4 | New-snapshot/live-delta strategy and explicit enablement approval | pending; separate from historical batch |
 
 ## 8. Progress and reporting contract
 
@@ -348,10 +367,12 @@ Risk score is Probability × Impact, on a 1–5 scale.
   forbidden-field checks.
 - [x] P2 fresh Production read/isolation evidence passes; LINE activation remains a
   separate decision.
-- [ ] P3 customer contract is approved with bounded scope, identity, PII,
-  provenance, rollback and cutover rules.
-- [ ] P4 customer importer passes fixture, idempotency, isolation, failure,
-  reconciliation and rollback tests.
+- [x] P3 customer contract is approved with bounded scope, identity, PII,
+  provenance, rollback and historical-window rules.
+- [x] P4 customer importer passes fixture, idempotency, isolation, failure,
+  reconciliation and rollback tests for the approved batch.
+- [x] Customer batch post-apply counts and scope reconcile to the contract;
+  review-required rows remain held and LINE is not replayed.
 - [ ] No phase claims `done` from code/doc presence alone.
 - [ ] `npm run govern`, `npm run docs:check`, strict preflight, relevant tests and
   build pass after implementation changes.
@@ -369,6 +390,16 @@ Risk score is Probability × Impact, on a 1–5 scale.
 - [Business knowledge record schema](../../contracts/business-knowledge-record.schema.json)
 - [Customer data contract](../../contracts/migrations/smartgift-customer-data-contract.json)
 - [Customer record schema](../../contracts/migrations/smartgift-customer-record.schema.json)
+- [Customer dry-run builder](../../scripts/build_smartgift_customer_backfill.py)
+- [Fail-closed customer importer](../../scripts/apply_smartgift_customer_backfill.py)
+- [Customer target verification](../../scripts/verify-smartgift-customer-profile-target.mjs)
+- [Customer dry-run receipt](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-dry-run.json)
+- [Customer target verification artifact](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-verification.json)
+- [Customer post-apply verification artifact](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-post-apply-verification.json)
+- [Customer target backup](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-target-backup-before-apply.json)
+- [Customer applied-batch rollback rehearsal](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-rollback-applied-batch-rehearsal.json)
+- [Owner/security approval](../../contracts/approvals/smartgift-customer-data-owner-security-20260818.json)
+- [Apply timeout RCA](../../.brain/rca/2026-08-18-smartgift-backfill-apply-timeout.md)
 - [DuckDB exporter](../../scripts/export_smartgift_business_knowledge.py)
 - [Import SQL builder](../../scripts/build_business_knowledge_import.py)
 - [Production post-apply inventory](../../supabase/tests/production_import_post_apply_inventory.sql)
@@ -376,17 +407,23 @@ Risk score is Probability × Impact, on a 1–5 scale.
 
 ## Current state
 
-This is a candidate roadmap. The human approver profile and local customer
-identity map are complete. P1 product backfill and P2 destination/isolation
-verification are complete for the approved 74-row SmartGift product projection.
-The historical customer/contact contract (P3) is drafted but not approved; the
-customer importer (P4) is not started and no customer/contact data was imported.
-LINE activation remains a separate pending gate.
+This is a beta roadmap with a completed bounded snapshot batch. The global
+`PER-BOSS` platform-approver profile, private Person/Customer/provenance target
+schema, live target verification, redacted DuckDB dry-run, pre-apply backup,
+applied batch and rollback rehearsal are evidenced. P1 product backfill and P2
+destination/isolation verification are complete for the approved 74-row
+SmartGift product projection. P3 and P4 are complete for
+`MIS-SG-CUSTOMER-DATA-BACKFILL-001`; 3,439 Customer rows were published under
+`TNT-ETOHGROUP` / `BUS-SMARTGIFT`, while 130 rows remain held for explicit
+review. LINE activation, new snapshots and live-delta/cutover are separate
+pending gates.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.6.0 | 2026-08-18 | beta | Approve and apply the bounded SmartGift customer snapshot; add post-apply, backup, rollback and timeout evidence | pending | ATHER |
+| 0.5.0b | 2026-08-18 | candidate | Add private Customer target verification, platform approver profile, redacted dry-run and fail-closed importer scaffold | working-tree | ATHER |
 | 0.4.0b | 2026-08-18 | candidate | Add FR-078 Customer Profile contract, read-only source inventory and explicit approval/PII/entity-resolution gates | working-tree | ATHER |
 | 0.3.0b | 2026-08-18 | candidate | Record remote identity reconciliation, transactional Supabase apply and postflight verification for the 74-row SmartGift projection | working-tree | ATHER |
 | 0.2.0b | 2026-08-18 | candidate | Add mission/version/approver identity, local Wannapa/TNT-EtohGroup bootstrap IDs and explicit remote reconciliation gate | working-tree | ATHER |

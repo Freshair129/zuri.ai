@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.6.0 |
+| **Version** | 1.7.0 |
 | **Status** | Draft |
 | **Last Updated** | 2026-08-18 |
 
@@ -48,6 +48,8 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | BusinessGoal | businessId, roadmapId?, horizonId?, code, title, status, progress | Business goal displayed in Strategy Overview |
 | ProjectGoal | projectId, goalId | optional many-to-many link; Project remains a Development resource |
 | AuditEvent | entityType, entityId, action, payloadJson, actorType | append-only (SEC-003) |
+| CustomerImportBatch | contractId, missionId, versionId, tenantId, businessId, snapshotSha256, counts, status, approvedByPersonId | private batch receipt and rollback boundary for FR-078; no raw PII |
+| CustomerImportProvenance | batchId, sourceSystem/table/key, sourceRow, sourceSha256, snapshotSha256, idempotencyKey, resolutionStatus, disposition, optional target ids | private source identity/idempotency ledger for FR-078; no raw PII |
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 
@@ -81,6 +83,13 @@ tenant's businesses).
 `Message { conversationId→Conversation, direction, body, externalMessageId@unique?, createdAt }`
 The LINE gateway `ingestLineMessage` resolves through FR-021 then upserts customer →
 conversation → message in one transaction; idempotent on externalMessageId.
+
+The FR-078 historical backfill uses a separate private `zuri_core` target boundary
+(`person`, `customer`, `customer_import_batch`, `customer_import_provenance`) so
+the Supabase migration can enforce forced RLS and deny Data API roles before any
+Customer row is approved. The contract's initial publish allowlist is
+`display_name` only; source keys and hashes remain in the private provenance
+ledger.
 
 ## Identity P3 gate (FR-022, ADR-007 P3)
 

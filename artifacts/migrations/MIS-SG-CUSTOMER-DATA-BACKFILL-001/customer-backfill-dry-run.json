@@ -1,0 +1,70 @@
+{
+  "mode": "READ_ONLY_DRY_RUN",
+  "contractId": "CDC-SG-CUSTOMER-DATA-001",
+  "versionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B",
+  "missionId": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
+  "contractStatus": "APPROVED",
+  "scope": {
+    "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+    "businessId": "834fa869-62f3-431c-a287-e9a95e91175b",
+    "businessCode": "BUS-SMARTGIFT",
+    "crossBusinessMerge": false
+  },
+  "source": {
+    "sourceRef": "SMARTGIFT_DUCKDB_PATH",
+    "sourcePath": "redacted-local-path",
+    "snapshotSha256": "a8da233228cb80a088f11ff98fdef5773d0890bc158bcc40752c6d7a5e4bd5d7",
+    "sourceAsOf": "2026-08-12T12:13:43+07:00",
+    "accessMode": "READ_ONLY",
+    "rowCounts": {
+      "customer": 3569,
+      "stg_contact": 4679,
+      "stg_doc": 8285,
+      "interaction": 0
+    }
+  },
+  "resolution": {
+    "policyVersion": "1.0.0",
+    "nameOnlyAutoMerge": false,
+    "statusCounts": {
+      "NEW_CANDIDATE": 3439,
+      "REVIEW_REQUIRED": 130,
+      "UNRESOLVED": 0,
+      "REJECTED": 0,
+      "AUTO_MATCH": 0
+    },
+    "duplicateCustomerKeyGroups": 0,
+    "duplicateNormalizedNameGroups": 65,
+    "duplicateTaxIdGroups": 0,
+    "duplicateContactCodeGroups": 2,
+    "reviewRequiredRows": 130,
+    "missingDisplayNameRows": 0,
+    "missingCustomerKeyRows": 0,
+    "missingContactSourceHashRows": 0,
+    "rowHashCount": 3569,
+    "uniqueRowHashCount": 3569,
+    "rowHashAlgorithm": "sha256-canonical-allowed-fields-v1"
+  },
+  "fieldPolicy": {
+    "publishFields": [
+      "displayName"
+    ],
+    "rawPiiStored": false,
+    "financialAndDocumentFieldsPublished": false,
+    "lineIdentifiersPublished": false
+  },
+  "disposition": {
+    "writeAuthorized": true,
+    "reason": "READY_FOR_APPROVED_IMPORT",
+    "allRowsHeldUntilApproval": false
+  },
+  "gates": {
+    "CDC-G1": "COMPLETE",
+    "CDC-G2": "COMPLETE",
+    "CDC-G3": "COMPLETE",
+    "CDC-G4": "COMPLETE",
+    "CDC-G5": "COMPLETE",
+    "CDC-G6": "COMPLETE"
+  },
+  "generatedAt": "2026-08-18T02:16:53.707831+00:00"
+}
