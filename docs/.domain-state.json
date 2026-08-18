@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-18T19:32:04.821Z",
+  "generatedAt": "2026-08-18T21:25:08.404Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -489,14 +489,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 13
+          "testCount": 21
         },
         {
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 38
+          "testCount": 41
         },
         {
           "id": "FR-059",
@@ -510,7 +510,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-062",
@@ -538,14 +538,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-076",
@@ -1047,8 +1047,8 @@
           "id": "FR-001",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 9
+          "codeCount": 7,
+          "testCount": 12
         },
         {
           "id": "FR-002",
@@ -1062,35 +1062,35 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-004",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 6
+          "testCount": 8
         },
         {
           "id": "FR-005",
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 5
+          "testCount": 7
         },
         {
           "id": "FR-006",
           "declared": "done",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 3
+          "codeCount": 8,
+          "testCount": 9
         },
         {
           "id": "FR-007",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 6
+          "testCount": 8
         },
         {
           "id": "FR-008",
@@ -1111,70 +1111,70 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 2
+          "testCount": 3
         },
         {
           "id": "FR-011",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 1
+          "testCount": 2
         },
         {
           "id": "FR-012",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 9
+          "codeCount": 6,
+          "testCount": 11
         },
         {
           "id": "FR-013",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-014",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-015",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 1
+          "testCount": 2
         },
         {
           "id": "FR-017",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-018",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 4
+          "codeCount": 5,
+          "testCount": 6
         },
         {
           "id": "FR-019",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-020",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-031",
@@ -1202,7 +1202,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 2
+          "testCount": 3
         },
         {
           "id": "FR-035",
@@ -1223,7 +1223,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 4
+          "testCount": 6
         },
         {
           "id": "FR-038",
@@ -1243,8 +1243,8 @@
           "id": "FR-040",
           "declared": "done",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 10
+          "codeCount": 11,
+          "testCount": 11
         },
         {
           "id": "FR-041",
@@ -1271,22 +1271,22 @@
           "id": "FR-044",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 13
+          "codeCount": 7,
+          "testCount": 21
         },
         {
           "id": "FR-045",
           "declared": "done",
           "status": "verified",
           "codeCount": 26,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
-          "codeCount": 46,
-          "testCount": 38
+          "codeCount": 52,
+          "testCount": 41
         },
         {
           "id": "FR-048",
@@ -1300,7 +1300,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 2
+          "testCount": 3
         },
         {
           "id": "FR-058",
@@ -1327,8 +1327,8 @@
           "id": "FR-061",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 8
+          "codeCount": 2,
+          "testCount": 10
         },
         {
           "id": "FR-062",
@@ -1349,7 +1349,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-065",
@@ -1384,7 +1384,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-073",
@@ -1398,14 +1398,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 10
+          "codeCount": 4,
+          "testCount": 11
         },
         {
           "id": "FR-077",
