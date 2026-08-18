@@ -149,7 +149,9 @@ describe('FR-078 duplicate customer review queue', () => {
       viewer: reviewer(),
       store: adapter,
     })
-    expect(result.applied).toBe(true)
+    expect(result.decisionRecorded).toBe(true)
+    expect(result).not.toHaveProperty('applied')
+    expect(result.applyRequired).toBe(true)
     expect(result.publishesCustomers).toBe(false)
     expect(result.lineReplay).toBe(false)
     expect(adapter.appendDecisions).toHaveBeenCalledWith(expect.objectContaining({

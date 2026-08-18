@@ -9,6 +9,7 @@ import { createPhase1BusinessAgentPortsFromEnv } from '@/modules/agent/phase1-ru
 
 describe('FR-080 production runtime wiring', () => {
   it('creates the Supabase Vault manager automatically for PRODUCTION_LINE', async () => {
+    const expiresAt = new Date(Date.now() + 5 * 60_000).toISOString()
     const connectionResolver = vi.fn(async () => ({
       tenantId: 'tenant-a', businessId: 'business-a', purpose: 'PHASE1_LINE_LLM',
       status: 'ACTIVE', role: 'PRIMARY', provider: { code: 'openai' },
@@ -16,7 +17,7 @@ describe('FR-080 production runtime wiring', () => {
       credential: { secretRef: 'supabase-vault:123e4567-e89b-12d3-a456-426614174000' },
     }))
     const secretQueryFn = vi.fn(async () => ({ rows: [{
-      secret_material: 'provider-secret', version: 'credential-v1', expires_at: '2026-08-18T13:00:00.000Z',
+      secret_material: 'provider-secret', version: 'credential-v1', expires_at: expiresAt,
     }] }))
 
     const ports = createPhase1BusinessAgentPortsFromEnv({
