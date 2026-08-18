@@ -6,19 +6,14 @@ import { KeyRound, ShieldCheck } from 'lucide-react'
 import { Card, ErrorState, Field, PageHeader, SectionTitle, StatusPill } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { api, LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
+import { LLM_PROVIDER_CATALOG, providerByKey } from '@/platform/integrations/llm/provider-catalog'
 
 // @req FR-080 — Platform Integrations accepts only connection metadata and an
 // opaque Supabase Vault reference; raw credentials stay in the Vault dashboard.
+// @req FR-048 — the provider choices are derived from the port's allow-list,
+// never hand-copied, so the form cannot offer what the port would reject.
 // @spec ADR-032 D1-D4, SEC-016, SDD-044
 // @tested tests/unit/fr080-ui-contract.test.js
-
-const PROVIDERS = [
-  ['openrouter', 'OpenRouter'],
-  ['openai', 'OpenAI'],
-  ['anthropic', 'Anthropic'],
-  ['gemini', 'Gemini'],
-  ['groq', 'Groq'],
-]
 
 function IntegrationRow({ row }) {
   return (
@@ -101,14 +96,14 @@ export default function IntegrationsPage() {
           <form onSubmit={submit}>
             <Field label="Provider">
               <select className="input" value={provider} onChange={(event) => setProvider(event.target.value)} aria-label="Provider">
-                {PROVIDERS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                {LLM_PROVIDER_CATALOG.map(({ key, name }) => <option key={key} value={key}>{name}</option>)}
               </select>
             </Field>
             <Field label="ชื่อ connection">
               <input className="input" value={name} onChange={(event) => setName(event.target.value)} required aria-label="ชื่อ connection" />
             </Field>
             <Field label="Model">
-              <input className="input" value={model} onChange={(event) => setModel(event.target.value)} placeholder="เช่น openai/gpt-4o-mini" required aria-label="Model" />
+              <input className="input" value={model} onChange={(event) => setModel(event.target.value)} placeholder={`เช่น ${providerByKey(provider)?.modelHint ?? ''}`} required aria-label="Model" />
             </Field>
             <Field label="Supabase Vault reference" hint="ไม่ใช่ API key — ใส่เฉพาะ supabase-vault:<uuid> เท่านั้น">
               <input className="input font-mono" value={secretRef} onChange={(event) => setSecretRef(event.target.value)} placeholder="supabase-vault:…" aria-label="Supabase Vault reference" />

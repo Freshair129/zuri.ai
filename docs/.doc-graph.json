@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 881,
-    "total_edges": 2712,
+    "total_nodes": 883,
+    "total_edges": 2721,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,8 +16,8 @@
       "route": 100,
       "model": 42,
       "requirement": 174,
-      "test": 173,
-      "code_file": 238
+      "test": 174,
+      "code_file": 239
     },
     "coverage": {
       "requirements": 174,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (74/74)",
       "rules_anchored_in_code": "84% (65/77)",
       "nfr_evidence_based": "16 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 238,
+      "annotated_code_files": 239,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -55,9 +55,12 @@
   },
   "drift": {
     "changed": [
-      "doc:B-db-schema"
+      "code:src/app/(pm)/platform/integrations/page.jsx"
     ],
-    "added": [],
+    "added": [
+      "test:tests/unit/fr048-provider-catalog.test.js",
+      "code:src/platform/integrations/llm/provider-catalog.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -303,11 +306,12 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "08b27025",
-      "status": "current",
+      "hash": "97a0f798",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-080"
+          "FR-080",
+          "FR-048"
         ],
         "@spec": [
           "SEC-016",
@@ -4702,6 +4706,25 @@
       }
     },
     {
+      "id": "code:src/platform/integrations/llm/provider-catalog.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/llm/provider-catalog.js",
+      "hash": "1e869bae",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-048"
+        ],
+        "@spec": [
+          "SDD-025",
+          "SEC-009"
+        ],
+        "@tested": [
+          "tests/unit/fr048-provider-catalog.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/platform/integrations/providers/line/line-oa-webhook.js",
       "type": "code_file",
       "path": "src/platform/integrations/providers/line/line-oa-webhook.js",
@@ -4776,7 +4799,7 @@
       "version": "1.6.0",
       "doc_status": "Draft",
       "hash": "d325906b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -9387,6 +9410,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/fr048-provider-catalog.test.js",
+      "type": "test",
+      "path": "tests/unit/fr048-provider-catalog.test.js",
+      "hash": "e5d1bf83",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/fr055-postgres-target-guard.test.js",
       "type": "test",
       "path": "tests/unit/fr055-postgres-target-guard.test.js",
@@ -10175,6 +10205,13 @@
     {
       "from": "code:src/app/(pm)/people/page.jsx",
       "to": "req:FR-042",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/integrations/page.jsx",
+      "to": "req:FR-048",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -16244,6 +16281,27 @@
     {
       "from": "code:src/platform/integrations/core/secret-manager.js",
       "to": "req:SEC-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/llm/provider-catalog.js",
+      "to": "req:FR-048",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/llm/provider-catalog.js",
+      "to": "req:SDD-025",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/llm/provider-catalog.js",
+      "to": "req:SEC-009",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -25615,6 +25673,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/fr048-provider-catalog.test.js",
+      "to": "code:src/platform/integrations/llm/provider-catalog.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr048-provider-catalog.test.js",
+      "to": "req:FR-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr048-provider-catalog.test.js",
+      "to": "req:SDD-025",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr048-provider-catalog.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/fr055-postgres-target-guard.test.js",
       "to": "req:BR-014",
       "type": "verifies",
@@ -26593,6 +26679,13 @@
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr080-ui-contract.test.js",
+      "to": "req:FR-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr080-ui-contract.test.js",
