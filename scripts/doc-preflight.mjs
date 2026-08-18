@@ -730,6 +730,85 @@ if (existsSync(ENUM_SOURCE)) {
   }
 }
 
+// ---- Check 9b: every Prisma model is covered by the backup snapshot -------
+// SNAPSHOT_MODELS is a hand-maintained mirror of prisma/schema.prisma, and until
+// now nothing related the two. A model added to the schema and forgotten here
+// fails in one of two ways, and which one you get is luck: with a foreign key
+// into the swept graph the restore crashes, without one it silently succeeds
+// while never exporting, deleting or restoring that table — so a "restored"
+// installation keeps rows from before the restore, pointing at ids that no
+// longer mean the same thing.
+//
+// That second branch is data corruption during disaster recovery, which is why
+// this is a CRITICAL rather than a warning. It ran latent through two shipped
+// requirements: FR-079/FR-080 added three integration models that were never
+// listed, and stayed green only because no test ever created a row in them.
+// Full account: .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
+//
+// Membership is checkable; ORDER is not. Parent-before-child is a property of
+// the relation graph, not of this list, and the restore integration test is what
+// proves it. Both incidents so far came from membership.
+const BACKUP_SERVICE = path.join(ROOT, 'src', 'modules', 'project-manager', 'application', 'backup-service.js')
+const PRISMA_SCHEMA = path.join(ROOT, 'prisma', 'schema.prisma')
+if (existsSync(BACKUP_SERVICE) && existsSync(PRISMA_SCHEMA)) {
+  // Prisma client accessors are the model name with a lower-cased first letter.
+  const accessor = (model) => model[0].toLowerCase() + model.slice(1)
+  const schemaModels = [...read(PRISMA_SCHEMA).matchAll(/^model\s+(\w+)\s*\{/gm)].map((m) => accessor(m[1]))
+
+  const source = read(BACKUP_SERVICE)
+  // Strip line comments first: the list carries prose naming models it does not
+  // list, and a comment must never be able to satisfy this check.
+  const uncommented = (block) => block.replace(/\/\/.*$/gm, '')
+  const listBlock = source.match(/const SNAPSHOT_MODELS = \[([\s\S]*?)\]/)
+  const exclBlock = source.match(/export const SNAPSHOT_EXCLUDED_MODELS = \{([\s\S]*?)\n\}/)
+  const listed = listBlock ? [...uncommented(listBlock[1]).matchAll(/'([a-zA-Z]+)'/g)].map((m) => m[1]) : []
+  // Keys only. Each value is the reason, and a key with an empty reason is not
+  // an exclusion — it is the omission this pair exists to stop.
+  const excluded = exclBlock
+    ? [...uncommented(exclBlock[1]).matchAll(/^\s{2}(\w+):\s*([\s\S]*?)(?=^\s{2}\w+:|$)/gm)]
+      .map((m) => ({ name: m[1], reason: m[2].replace(/[\s'+,]/g, '') }))
+    : []
+
+  if (!listBlock) {
+    add('critical', 'snapshot-coverage', 'SNAPSHOT_MODELS could not be parsed', rel(BACKUP_SERVICE), [rel(BACKUP_SERVICE)],
+      'This check derives snapshot coverage from that array. If it was renamed or reshaped, update this check with it')
+  } else {
+    const covered = new Set([...listed, ...excluded.map((e) => e.name)])
+    const uncovered = schemaModels.filter((m) => !covered.has(m))
+    if (uncovered.length) {
+      add('critical', 'snapshot-coverage', `${uncovered.length} Prisma model(s) absent from the backup snapshot`,
+        uncovered.join(', '), [rel(BACKUP_SERVICE), rel(PRISMA_SCHEMA)],
+        'Add each to SNAPSHOT_MODELS in restore order (parents first), or to SNAPSHOT_EXCLUDED_MODELS with the reason it ' +
+        'cannot be restored. Then create a real row for it in tests/integration/backup.test.js — a model listed but never ' +
+        'written by any fixture is exactly how the last three stayed hidden')
+    }
+
+    // A listed name with no model behind it crashes at `tx[model].deleteMany()`
+    // during a restore — the one code path nobody exercises until they need it.
+    const known = new Set(schemaModels)
+    const phantom = listed.filter((m) => !known.has(m))
+    if (phantom.length) {
+      add('critical', 'snapshot-coverage', `${phantom.length} snapshot entr(ies) name no Prisma model`,
+        phantom.join(', '), [rel(BACKUP_SERVICE)],
+        'A renamed or removed model leaves an entry that throws mid-restore. Remove it, or rename it to match the schema')
+    }
+
+    const reasonless = excluded.filter((e) => e.reason.length < 20)
+    if (reasonless.length) {
+      add('critical', 'snapshot-coverage', `${reasonless.length} exclusion(s) carry no reason`,
+        reasonless.map((e) => e.name).join(', '), [rel(BACKUP_SERVICE)],
+        'An exclusion without a stated reason is indistinguishable from having forgotten the model. Write why it is not restorable')
+    }
+
+    const staleExclusions = excluded.filter((e) => !known.has(e.name))
+    if (staleExclusions.length) {
+      add('info', 'snapshot-coverage', `${staleExclusions.length} exclusion(s) name no Prisma model`,
+        staleExclusions.map((e) => e.name).join(', '), [rel(BACKUP_SERVICE)],
+        'Drop them from SNAPSHOT_EXCLUDED_MODELS so the list keeps meaning what it says')
+    }
+  }
+}
+
 // ---- Check 10: mutating routes must resolve a viewer (ratchet) ------------
 // On 2026-08-17 a review found `POST /api/projects/{id}/team` resolving no
 // viewer while the service behind it wrote a Membership whose `role` came

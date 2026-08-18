@@ -52,12 +52,34 @@ const SNAPSHOT_MODELS = [
   // them, which the new foreign keys turn from invisible data loss into a hard error.
   'integrationConnection', 'integrationCredential', 'ingestionRun', 'rawExternalRecord',
   'syncCursor', 'externalEntityRef', 'deadLetterRecord',
-  'person', 'membership', 'workspace', 'project', 'workstream', 'workContainer', 'workItem',
+  // A roadmap hangs off a Business, a horizon off the roadmap, and a goal off
+  // both — so they restore in that order and delete in the reverse. All three,
+  // plus projectGoal and roleBinding below, were absent from this list until the
+  // coverage check below started deriving it from the schema.
+  'businessRoadmap', 'businessRoadmapHorizon', 'businessGoal',
+  'person', 'membership', 'roleBinding',
+  'workspace', 'project', 'projectGoal', 'workstream', 'workContainer', 'workItem',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',
   'externalRef', 'externalIdentity', 'identityLinkToken',
   'customer', 'conversation', 'message', 'auditEvent',
 ]
+
+/**
+ * Models deliberately outside the snapshot, each with the reason it is not
+ * restorable. `scripts/doc-preflight.mjs` derives the expected set from
+ * `prisma/schema.prisma` and accepts a model only if it appears in
+ * SNAPSHOT_MODELS or here — a name with no reason is not an exclusion, it is
+ * the omission this pair exists to stop.
+ *
+ * RCA: .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
+ */
+export const SNAPSHOT_EXCLUDED_MODELS = {
+  localWorkspaceMount:
+    'Device-local mount paths. Deleted explicitly before the sweep and never restored: a mount names a ' +
+    'filesystem on one machine, so carrying it into another installation would point at a path that does ' +
+    'not exist there (SEC-007).',
+}
 
 function localAssets(snapshot) {
   return (snapshot?.tables?.fileAsset || []).filter((asset) => asset.storageKind === 'LOCAL_FILE' && asset.relativePath)

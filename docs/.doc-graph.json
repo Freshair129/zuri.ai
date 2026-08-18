@@ -55,12 +55,9 @@
   },
   "drift": {
     "changed": [
-      "code:src/app/(pm)/platform/integrations/page.jsx"
+      "code:src/modules/project-manager/application/backup-service.js"
     ],
-    "added": [
-      "test:tests/unit/fr048-provider-catalog.test.js",
-      "code:src/platform/integrations/llm/provider-catalog.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -307,7 +304,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
       "hash": "97a0f798",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080",
@@ -3725,8 +3722,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "7048dfd7",
-      "status": "current",
+      "hash": "22186b03",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-013",
@@ -4798,7 +4795,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.6.0",
       "doc_status": "Draft",
-      "hash": "d325906b",
+      "hash": "856107d0",
       "status": "current"
     },
     {
@@ -8874,7 +8871,7 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
-      "hash": "d8faf0f7",
+      "hash": "a2ecae97",
       "status": "current"
     },
     {

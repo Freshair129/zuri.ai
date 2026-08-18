@@ -110,8 +110,9 @@ in the same latent state the integration models were in: every one of them
 references `Business`, `Tenant` or `Project`, none has ever had a real row in a
 test, and the first fixture that creates one will fail the restore.
 
-This RCA does not fix them. Adding five names to a list without a test that
-would have caught their absence repeats the mistake at a smaller scale.
+This RCA did not fix them on its own. Adding five names to a list without a
+test that would have caught their absence repeats the mistake at a smaller
+scale — so the check came first, and the five were repaid under it.
 
 ## Prevention
 
@@ -144,3 +145,28 @@ across two shipped requirements and a full green suite, because no test ever
 made one exist. A guard that can only fail when a row is present is not proven
 by tests that never write one — the same reason this repository builds viewers
 through `tests/factories/viewer.js` rather than by hand.
+
+## Resolution
+
+Landed as `snapshot-coverage` in `scripts/doc-preflight.mjs`, together with the
+five repayments it then required.
+
+The check derives the expected set from `prisma/schema.prisma` and accepts a
+model only if it appears in `SNAPSHOT_MODELS` or in `SNAPSHOT_EXCLUDED_MODELS`,
+where each exclusion carries the reason it is not restorable. Three arms, all
+CRITICAL:
+
+- a model in the schema that neither list covers;
+- an entry naming no model, which throws mid-restore at `tx[model].deleteMany()`;
+- an exclusion with no stated reason, because a bare name is indistinguishable
+  from having forgotten the model.
+
+Membership is all a static check can prove. Order is proven where it actually
+lives — `tests/integration/backup.test.js` now creates a real row in every model
+that had none, including the roadmap → horizon → goal → projectGoal chain, and
+asserts the child edge survives a round trip. Restoring a child before its
+parents fails that test with the same foreign-key violation this RCA opened with.
+
+`LocalWorkspaceMount` remains the only exclusion, and is the reason the exclusion
+list needs prose rather than a bare allow-list: it is deleted on purpose and
+never restored, because a mount names a filesystem on one machine.
