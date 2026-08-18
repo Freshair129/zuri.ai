@@ -1,11 +1,12 @@
 // @req FR-006, FR-012, FR-040, FR-068 — Project Work owns the Execution
-// Roadmap and its Structure Plan, Board, Schedule, Milestones & Gates, and
+// Roadmap and its Structure Plan, Board, Schedule, Milestones, and
 // Dependency Map views; Project Import is a first-class Project resource.
 // @spec SDD-019, SDD-039, ADR-012, ADR-028
 // @tested tests/unit/project-work-route.test.js
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { DOMAINS } from '@/config/domains'
 
 const workTabs = readFileSync(resolve(process.cwd(), 'src/modules/project-manager/components/WorkViewTabs.jsx'), 'utf8')
 const dependencyMapRoute = readFileSync(resolve(process.cwd(), 'src/app/(pm)/projects/[projectId]/dependencies/page.jsx'), 'utf8')
@@ -21,11 +22,40 @@ describe('Project Work navigation boundary', () => {
     expect(workTabs).toContain("label: 'Structure Plan'")
     expect(workTabs).toContain("label: 'Board'")
     expect(workTabs).toContain("label: 'Schedule'")
-    expect(workTabs).toContain("label: 'Milestones & Gates'")
+    expect(workTabs).toContain("label: 'Milestones'")
     expect(workTabs).toContain("/projects/${projectId}/milestones")
     expect(workTabs).toContain("label: 'Dependency Map'")
     expect(workTabs).toContain("/projects/${projectId}/dependencies")
     expect(workTabs).toContain("aria-current={active ? 'page' : undefined}")
+  })
+
+  // This bar and the Development sidebar render on the same screen. A label
+  // shared between them names two different routes — the project-scoped view and
+  // the Business-wide one — which is ambiguous to a reader and to a screen
+  // reader, and Playwright strict mode fails outright on it. Every project-scoped
+  // label is therefore a different word from its Business-wide half: Schedule vs
+  // Timeline, Dependency Map vs Dependencies, Milestones vs Milestones & Gates.
+  //
+  // Derived from the live registry rather than a hard-coded list, so a new
+  // Development sidebar entry that collides with a Work sub-view fails here
+  // instead of shipping.
+  it('never reuses a Development sidebar label for a project-scoped route', () => {
+    const sidebarLabels = DOMAINS.find((domain) => domain.key === 'projects').sub.map((item) => item.label)
+    const workViewLabels = [...workTabs.matchAll(/label: '([^']+)'/g)].map((match) => match[1])
+
+    expect(workViewLabels).toHaveLength(6)
+    for (const label of workViewLabels) {
+      expect(sidebarLabels, `"${label}" is also a Development sidebar entry`).not.toContain(label)
+    }
+  })
+
+  // The landmark is what makes those links addressable as a group at all — it is
+  // how a screen-reader user, or a test, scopes to this bar rather than the
+  // sidebar. `ProjectTabs` already carries "Project sections"; this is its peer.
+  it('exposes the Work sub-view bar as a named navigation landmark', () => {
+    expect(workTabs).toContain('<nav')
+    expect(workTabs).toContain('aria-label="Project work views"')
+    expect(workTabs).not.toContain('<div className="mb-4 inline-flex')
   })
 
   it('keeps Schedule and Milestones inside the same project Work shell', () => {
