@@ -1,6 +1,12 @@
 const { defineConfig } = require('@playwright/test')
 const fs = require('fs')
 const path = require('path')
+// @req FR-046 — the port and the isolated database are one decision made in one
+// place, so the web server and the seeder cannot disagree, and a second worktree
+// does not collide with the first. The primary checkout still runs on :3100.
+const { e2eTarget } = require('./tests/e2e/e2e-target')
+
+const target = e2eTarget()
 
 // Prefer the Playwright-managed chromium for this version; if its download is
 // unavailable (offline machine), fall back to any locally installed
@@ -75,19 +81,24 @@ module.exports = defineConfig({
     { name: 'e2e', dependencies: ['warmup'], testMatch: /.*\.spec\.js/ },
   ],
   use: {
-    baseURL: 'http://localhost:3100',
+    baseURL: target.baseURL,
     headless: true,
     screenshot: 'only-on-failure',
     launchOptions: executablePath ? { executablePath } : {},
   },
   webServer: {
-    command: 'npm run dev -- -p 3100',
-    url: 'http://localhost:3100/overview',
+    command: `npm run dev -- -p ${target.port}`,
+    url: `${target.baseURL}/overview`,
+    // Still false: this run owns its server and its database, and reusing a
+    // server someone else started would mean testing against their data.
     reuseExistingServer: false,
     timeout: 120000,
     env: {
       ...process.env,
-      DATABASE_URL: 'file:./e2e.db',
+      // Same `target` object global setup reads, so the server and the seeded
+      // database are the same database by construction rather than by two
+      // literals that happen to match.
+      DATABASE_URL: target.databaseUrl,
       ZURI_LOCAL_DEMO_AUTH: '1',
     },
   },

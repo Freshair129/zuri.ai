@@ -54,59 +54,9 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0",
-      "test:tests/integration/adaptive-shell.test.js",
-      "test:tests/integration/agent-action-gate.test.js",
-      "test:tests/integration/agent-context.test.js",
-      "test:tests/integration/agent-multi-principal.test.js",
-      "test:tests/integration/agent-runtime.test.js",
-      "test:tests/integration/agent-turn.test.js",
-      "test:tests/integration/agent-webhook-route.test.js",
-      "test:tests/integration/backup.test.js",
-      "test:tests/integration/external-ref-import.test.js",
-      "test:tests/integration/fr045-managed-files.test.js",
-      "test:tests/integration/fr046-entry-contract.test.js",
-      "test:tests/integration/fr059-business-strategy-mutation.test.js",
-      "test:tests/integration/fr072-dependency-authorization.test.js",
-      "test:tests/integration/fr072-milestone-gate-authorization.test.js",
-      "test:tests/integration/fr072-project-file-authorization.test.js",
-      "test:tests/integration/fr072-project-service-authorization.test.js",
-      "test:tests/integration/fr072-refusal-disclosure.test.js",
-      "test:tests/integration/fr072-repository-link-authorization.test.js",
-      "test:tests/integration/fr072-work-service-authorization.test.js",
-      "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
-      "test:tests/integration/fr073-repository-scope.test.js",
-      "test:tests/integration/identity-classify.test.js",
-      "test:tests/integration/identity-erase.test.js",
-      "test:tests/integration/identity-gate.test.js",
-      "test:tests/integration/identity-link.test.js",
-      "test:tests/integration/identity-resolve.test.js",
-      "test:tests/integration/import-target-authorization.test.js",
-      "test:tests/integration/knowledge-genesis-sink.test.js",
-      "test:tests/integration/knowledge-project.test.js",
-      "test:tests/integration/knowledge-query.test.js",
-      "test:tests/integration/line-ingest.test.js",
-      "test:tests/integration/plan-import-scope.test.js",
-      "test:tests/integration/plan-import.test.js",
-      "test:tests/integration/project-authorization.test.js",
-      "test:tests/integration/project-business-binding.test.js",
-      "test:tests/integration/project-core.test.js",
-      "test:tests/integration/scope-and-isolation.test.js",
-      "test:tests/integration/work-listing-scope.test.js",
-      "test:tests/integration/xlsx-intake.test.js",
-      "code:src/app/api/backup/import/route.js",
-      "code:src/app/api/scope/route.js",
-      "code:src/modules/identity/resolve-viewer.js",
-      "code:src/modules/identity/viewer-authority.js",
-      "code:src/modules/project-manager/application/backup-service.js",
-      "code:src/modules/project-manager/application/scope-service.js"
+      "test:tests/unit/playwright-database-bootstrap.test.js"
     ],
-    "added": [
-      "req:FR-074",
-      "req:FR-075",
-      "test:tests/integration/fr074-scope-creation-authorization.test.js",
-      "test:tests/integration/fr075-restore-authorization.test.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -788,7 +738,7 @@
       "type": "code_file",
       "path": "src/app/api/backup/import/route.js",
       "hash": "74bf73be",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -1828,7 +1778,7 @@
       "type": "code_file",
       "path": "src/app/api/scope/route.js",
       "hash": "5934118d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-001",
@@ -3200,7 +3150,7 @@
       "type": "code_file",
       "path": "src/modules/identity/resolve-viewer.js",
       "hash": "4a1734a7",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-031",
@@ -3246,7 +3196,7 @@
       "type": "code_file",
       "path": "src/modules/identity/viewer-authority.js",
       "hash": "e83680ce",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-059",
@@ -3604,7 +3554,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "1a0197d0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -3934,7 +3884,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/scope-service.js",
       "hash": "45e7113c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-001",
@@ -5080,7 +5030,7 @@
       "version": "1.64.0b",
       "doc_status": "Draft",
       "hash": "1be3600a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8075,21 +8025,21 @@
       "type": "test",
       "path": "tests/integration/adaptive-shell.test.js",
       "hash": "8492c45b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/agent-action-gate.test.js",
       "type": "test",
       "path": "tests/integration/agent-action-gate.test.js",
       "hash": "7f76238d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/agent-context.test.js",
       "type": "test",
       "path": "tests/integration/agent-context.test.js",
       "hash": "2f5c497a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/agent-msp-port.test.js",
@@ -8103,14 +8053,14 @@
       "type": "test",
       "path": "tests/integration/agent-multi-principal.test.js",
       "hash": "c0a4e8fe",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/agent-runtime.test.js",
       "type": "test",
       "path": "tests/integration/agent-runtime.test.js",
       "hash": "c220c4c3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/agent-tools.test.js",
@@ -8124,21 +8074,21 @@
       "type": "test",
       "path": "tests/integration/agent-turn.test.js",
       "hash": "53fc9cb4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/agent-webhook-route.test.js",
       "type": "test",
       "path": "tests/integration/agent-webhook-route.test.js",
       "hash": "377ac8f0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
       "hash": "5597cabc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/controlled-line-activation.postgres.test.js",
@@ -8152,91 +8102,91 @@
       "type": "test",
       "path": "tests/integration/external-ref-import.test.js",
       "hash": "39ab746f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr045-managed-files.test.js",
       "type": "test",
       "path": "tests/integration/fr045-managed-files.test.js",
       "hash": "a287eb9f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr046-entry-contract.test.js",
       "type": "test",
       "path": "tests/integration/fr046-entry-contract.test.js",
       "hash": "e04e6ffc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr059-business-strategy-mutation.test.js",
       "type": "test",
       "path": "tests/integration/fr059-business-strategy-mutation.test.js",
       "hash": "79f3a1fa",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-dependency-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-dependency-authorization.test.js",
       "hash": "a1004176",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-milestone-gate-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-milestone-gate-authorization.test.js",
       "hash": "8353ec8f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-project-file-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-project-file-authorization.test.js",
       "hash": "7329c8a6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-project-service-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-project-service-authorization.test.js",
       "hash": "ccd3f289",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-refusal-disclosure.test.js",
       "type": "test",
       "path": "tests/integration/fr072-refusal-disclosure.test.js",
       "hash": "f754fd04",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-repository-link-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-repository-link-authorization.test.js",
       "hash": "dc5e8a89",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-work-service-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-work-service-authorization.test.js",
       "hash": "337c1abd",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-workspace-mutation-authorization.test.js",
       "hash": "35c6bbae",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr073-repository-scope.test.js",
       "type": "test",
       "path": "tests/integration/fr073-repository-scope.test.js",
       "hash": "abb6dde4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr074-scope-creation-authorization.test.js",
@@ -8257,63 +8207,63 @@
       "type": "test",
       "path": "tests/integration/identity-classify.test.js",
       "hash": "e89a0477",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/identity-erase.test.js",
       "type": "test",
       "path": "tests/integration/identity-erase.test.js",
       "hash": "f9e8efe5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/identity-gate.test.js",
       "type": "test",
       "path": "tests/integration/identity-gate.test.js",
       "hash": "9ea0cf56",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/identity-link.test.js",
       "type": "test",
       "path": "tests/integration/identity-link.test.js",
       "hash": "3403087c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/identity-resolve.test.js",
       "type": "test",
       "path": "tests/integration/identity-resolve.test.js",
       "hash": "bd5e80f0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/import-target-authorization.test.js",
       "type": "test",
       "path": "tests/integration/import-target-authorization.test.js",
       "hash": "5a589002",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/knowledge-genesis-sink.test.js",
       "type": "test",
       "path": "tests/integration/knowledge-genesis-sink.test.js",
       "hash": "6781702d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/knowledge-project.test.js",
       "type": "test",
       "path": "tests/integration/knowledge-project.test.js",
       "hash": "ec42e953",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/knowledge-query.test.js",
       "type": "test",
       "path": "tests/integration/knowledge-query.test.js",
       "hash": "196a9af4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/line-binding-activation.postgres.test.js",
@@ -8327,7 +8277,7 @@
       "type": "test",
       "path": "tests/integration/line-ingest.test.js",
       "hash": "07ff60e4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/msp-vault-memory-port.test.js",
@@ -8348,35 +8298,35 @@
       "type": "test",
       "path": "tests/integration/plan-import-scope.test.js",
       "hash": "70b5ccc2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/plan-import.test.js",
       "type": "test",
       "path": "tests/integration/plan-import.test.js",
       "hash": "8449fbfd",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/project-authorization.test.js",
       "type": "test",
       "path": "tests/integration/project-authorization.test.js",
       "hash": "d6abc994",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/project-business-binding.test.js",
       "type": "test",
       "path": "tests/integration/project-business-binding.test.js",
       "hash": "15f81033",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/project-core.test.js",
       "type": "test",
       "path": "tests/integration/project-core.test.js",
       "hash": "a0c7ec6b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
@@ -8390,21 +8340,21 @@
       "type": "test",
       "path": "tests/integration/scope-and-isolation.test.js",
       "hash": "11faf04d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/work-listing-scope.test.js",
       "type": "test",
       "path": "tests/integration/work-listing-scope.test.js",
       "hash": "08376414",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/xlsx-intake.test.js",
       "type": "test",
       "path": "tests/integration/xlsx-intake.test.js",
       "hash": "fa9d5982",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/activation-readiness-contract.test.js",
@@ -8900,8 +8850,8 @@
       "id": "test:tests/unit/playwright-database-bootstrap.test.js",
       "type": "test",
       "path": "tests/unit/playwright-database-bootstrap.test.js",
-      "hash": "5a9dfc60",
-      "status": "current"
+      "hash": "97f43c83",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/postgres-business-knowledge.test.js",
