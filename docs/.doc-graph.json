@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 923,
-    "total_edges": 2822,
+    "total_nodes": 925,
+    "total_edges": 2869,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 106,
       "model": 46,
       "requirement": 174,
-      "test": 194,
+      "test": 196,
       "code_file": 249
     },
     "coverage": {
@@ -239,7 +239,7 @@
       "id": "code:src/app/(pm)/overview/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/overview/page.jsx",
-      "hash": "8c82fe12",
+      "hash": "3ca17ed4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -247,7 +247,8 @@
           "FR-041",
           "FR-060",
           "FR-059",
-          "FR-042"
+          "FR-042",
+          "FR-044"
         ],
         "@spec": [
           "SDD-033",
@@ -495,11 +496,13 @@
       "id": "code:src/app/(pm)/projects/[projectId]/layout.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/layout.jsx",
-      "hash": "e6f5df5e",
+      "hash": "82f4d0b0",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-040"
+          "FR-040",
+          "FR-006",
+          "FR-012"
         ],
         "@spec": [
           "SDD-019"
@@ -513,11 +516,18 @@
       "id": "code:src/app/(pm)/projects/[projectId]/milestones/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/milestones/page.jsx",
-      "hash": "f4efd6df",
+      "hash": "183e1395",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-006"
+          "FR-006",
+          "FR-040"
+        ],
+        "@spec": [
+          "SDD-019"
+        ],
+        "@tested": [
+          "tests/unit/project-work-route.test.js"
         ]
       }
     },
@@ -615,14 +625,19 @@
       "id": "code:src/app/(pm)/projects/[projectId]/timeline/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/timeline/page.jsx",
-      "hash": "9ffe027d",
+      "hash": "8b378a1c",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-064"
+          "FR-064",
+          "FR-040"
         ],
         "@spec": [
-          "SDD-036"
+          "SDD-036",
+          "SDD-019"
+        ],
+        "@tested": [
+          "tests/unit/project-work-route.test.js"
         ]
       }
     },
@@ -648,11 +663,12 @@
       "id": "code:src/app/(pm)/projects/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/page.jsx",
-      "hash": "ea5cb885",
+      "hash": "2f343bb2",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-003"
+          "FR-003",
+          "FR-001"
         ],
         "@tested": [
           "tests/e2e/smoke.spec.js",
@@ -2266,14 +2282,20 @@
       "id": "code:src/components/layouts/CommandPalette.jsx",
       "type": "code_file",
       "path": "src/components/layouts/CommandPalette.jsx",
-      "hash": "507e82f3",
+      "hash": "dc81c2cd",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-015"
+          "FR-015",
+          "FR-061"
+        ],
+        "@spec": [
+          "SDD-034",
+          "SDD-018"
         ],
         "@tested": [
-          "tests/e2e/smoke.spec.js"
+          "tests/e2e/smoke.spec.js",
+          "tests/unit/command-palette-index.test.js"
         ]
       }
     },
@@ -2412,7 +2434,7 @@
       "id": "code:src/config/modules.js",
       "type": "code_file",
       "path": "src/config/modules.js",
-      "hash": "e628ff12",
+      "hash": "efbb4fc7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3788,11 +3810,12 @@
       "id": "code:src/modules/people/components/PeopleDirectory.jsx",
       "type": "code_file",
       "path": "src/modules/people/components/PeopleDirectory.jsx",
-      "hash": "c9bf4f75",
+      "hash": "a23e9d34",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-042"
+          "FR-042",
+          "FR-044"
         ],
         "@spec": [
           "SDD-020"
@@ -4363,14 +4386,17 @@
       "id": "code:src/modules/project-manager/components/ProjectTabs.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/ProjectTabs.jsx",
-      "hash": "7140f635",
+      "hash": "fc072d7f",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-040"
+          "FR-040",
+          "FR-012",
+          "FR-018"
         ],
         "@spec": [
-          "SDD-019"
+          "SDD-019",
+          "BR-009"
         ],
         "@tested": [
           "tests/unit/project-work-route.test.js"
@@ -4419,12 +4445,13 @@
       "id": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/WorkViewTabs.jsx",
-      "hash": "c9af0885",
+      "hash": "bf9aa7a5",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-040",
-          "FR-068"
+          "FR-068",
+          "FR-006"
         ],
         "@spec": [
           "SDD-019",
@@ -9674,6 +9701,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/command-palette-index.test.js",
+      "type": "test",
+      "path": "tests/unit/command-palette-index.test.js",
+      "hash": "200c987a",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/controlled-line-activation-migration.test.js",
       "type": "test",
       "path": "tests/unit/controlled-line-activation-migration.test.js",
@@ -10384,7 +10418,7 @@
       "id": "test:tests/unit/project-work-route.test.js",
       "type": "test",
       "path": "tests/unit/project-work-route.test.js",
-      "hash": "aba2aa5b",
+      "hash": "fbfcd7a7",
       "status": "current"
     },
     {
@@ -10392,6 +10426,13 @@
       "type": "test",
       "path": "tests/unit/rollup.test.js",
       "hash": "57641a11",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/route-reachability.test.js",
+      "type": "test",
+      "path": "tests/unit/route-reachability.test.js",
+      "hash": "eb20509a",
       "status": "current"
     },
     {
@@ -10706,6 +10747,13 @@
     },
     {
       "from": "code:src/app/(pm)/overview/page.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/overview/page.jsx",
       "to": "req:FR-059",
       "type": "implements",
       "status": "current",
@@ -10986,6 +11034,20 @@
     },
     {
       "from": "code:src/app/(pm)/projects/[projectId]/layout.jsx",
+      "to": "req:FR-006",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/layout.jsx",
+      "to": "req:FR-012",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/layout.jsx",
       "to": "req:FR-040",
       "type": "implements",
       "status": "current",
@@ -11002,6 +11064,20 @@
       "from": "code:src/app/(pm)/projects/[projectId]/milestones/page.jsx",
       "to": "req:FR-006",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/milestones/page.jsx",
+      "to": "req:FR-040",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/milestones/page.jsx",
+      "to": "req:SDD-019",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -11105,8 +11181,22 @@
     },
     {
       "from": "code:src/app/(pm)/projects/[projectId]/timeline/page.jsx",
+      "to": "req:FR-040",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/timeline/page.jsx",
       "to": "req:FR-064",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/timeline/page.jsx",
+      "to": "req:SDD-019",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -11127,6 +11217,13 @@
     {
       "from": "code:src/app/(pm)/projects/new/page.jsx",
       "to": "req:FR-017",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/page.jsx",
+      "to": "req:FR-001",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -13561,6 +13658,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/components/layouts/CommandPalette.jsx",
+      "to": "req:FR-061",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/CommandPalette.jsx",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/CommandPalette.jsx",
+      "to": "req:SDD-034",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/components/layouts/DomainBar.jsx",
       "to": "doc:FR-038-profile-and-permissions",
       "type": "references",
@@ -15417,6 +15535,13 @@
     },
     {
       "from": "code:src/modules/people/components/PeopleDirectory.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/components/PeopleDirectory.jsx",
       "to": "req:SDD-020",
       "type": "follows",
       "status": "current",
@@ -16369,6 +16494,27 @@
     },
     {
       "from": "code:src/modules/project-manager/components/ProjectTabs.jsx",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/ProjectTabs.jsx",
+      "to": "req:FR-012",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/ProjectTabs.jsx",
+      "to": "req:FR-018",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/ProjectTabs.jsx",
       "to": "req:FR-040",
       "type": "implements",
       "status": "current",
@@ -16413,6 +16559,13 @@
       "from": "code:src/modules/project-manager/components/useApi.js",
       "to": "req:SDD-007",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
+      "to": "req:FR-006",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -20541,6 +20694,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-045",
       "type": "verifies",
       "status": "current",
@@ -20920,6 +21080,13 @@
     {
       "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
       "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr059-strategy-edit.spec.js",
+      "to": "req:FR-044",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -21332,6 +21499,13 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:FR-064",
       "type": "verifies",
       "status": "current",
@@ -21403,6 +21577,13 @@
     {
       "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:SDD-034",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -25286,6 +25467,41 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/command-palette-index.test.js",
+      "to": "code:src/components/layouts/CommandPalette.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/command-palette-index.test.js",
+      "to": "req:FR-015",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/command-palette-index.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/command-palette-index.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/command-palette-index.test.js",
+      "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/controlled-line-activation-migration.test.js",
       "to": "req:FR-055",
       "type": "verifies",
@@ -27037,6 +27253,13 @@
     },
     {
       "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr059-strategy-edit-ui.test.js",
       "to": "req:FR-059",
       "type": "verifies",
       "status": "current",
@@ -27184,6 +27407,13 @@
     },
     {
       "from": "test:tests/unit/fr060-business-home-read-model.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-read-model.test.js",
       "to": "req:FR-059",
       "type": "verifies",
       "status": "current",
@@ -27255,6 +27485,13 @@
     {
       "from": "test:tests/unit/fr060-business-home-visibility.test.js",
       "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr060-business-home-visibility.test.js",
+      "to": "req:FR-044",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -28318,6 +28555,13 @@
     },
     {
       "from": "test:tests/unit/overview-split.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/overview-split.test.js",
       "to": "req:FR-059",
       "type": "verifies",
       "status": "current",
@@ -28368,6 +28612,13 @@
     {
       "from": "test:tests/unit/people-directory.test.js",
       "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/people-directory.test.js",
+      "to": "req:FR-044",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -29445,6 +29696,13 @@
     },
     {
       "from": "test:tests/unit/project-roadmap-ui.test.js",
+      "to": "req:FR-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-roadmap-ui.test.js",
       "to": "req:FR-040",
       "type": "verifies",
       "status": "current",
@@ -29564,7 +29822,21 @@
     },
     {
       "from": "test:tests/unit/project-work-route.test.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/milestones/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
       "to": "code:src/app/(pm)/projects/[projectId]/structure/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/timeline/page.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
@@ -29585,10 +29857,45 @@
     },
     {
       "from": "test:tests/unit/project-work-route.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "req:FR-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "req:FR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
       "to": "req:FR-040",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "req:FR-064",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/project-work-route.test.js",
@@ -29603,6 +29910,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "req:SDD-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/project-work-route.test.js",
@@ -29628,6 +29942,62 @@
     {
       "from": "test:tests/unit/rollup.test.js",
       "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/route-reachability.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/route-reachability.test.js",
+      "to": "req:FR-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/route-reachability.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/route-reachability.test.js",
+      "to": "req:FR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/route-reachability.test.js",
+      "to": "req:FR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/route-reachability.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/route-reachability.test.js",
+      "to": "req:FR-056",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/route-reachability.test.js",
+      "to": "req:SDD-019",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

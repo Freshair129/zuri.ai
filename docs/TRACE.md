@@ -11,10 +11,10 @@
 ### FR-001 — จัดการ scope hierarchy: Portfolio / Tenant / Business / Branch / LegalEntity / Workspace (CRUD + human codes)
 
 - **Status:** done
-- **Surface:** `/workspaces/[workspaceId]` (page) · `/workspaces` (page) · `/api/scope` (api) · `/api/workspaces/[id]` (api)
-- **Code:** `src/app/(pm)/workspaces/[workspaceId]/page.jsx` · `src/app/(pm)/workspaces/page.jsx` · `src/app/api/scope/route.js` · `src/app/api/workspaces/[id]/route.js` · `src/modules/project-manager/application/project-service.js` · `src/modules/project-manager/application/scope-service.js`
+- **Surface:** `/projects` (page) · `/workspaces/[workspaceId]` (page) · `/workspaces` (page) · `/api/scope` (api) · `/api/workspaces/[id]` (api)
+- **Code:** `src/app/(pm)/projects/page.jsx` · `src/app/(pm)/workspaces/[workspaceId]/page.jsx` · `src/app/(pm)/workspaces/page.jsx` · `src/app/api/scope/route.js` · `src/app/api/workspaces/[id]/route.js` · `src/modules/project-manager/application/project-service.js` · `src/modules/project-manager/application/scope-service.js`
 - **Follows:** BR-001, BR-004, SDD-004, SDD-021, SDD-033, SDD-036, SEC-001, SEC-008
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/fr072-workspace-mutation-authorization.test.js` · `tests/integration/fr074-scope-creation-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/integration/scope-and-isolation.test.js` · `tests/unit/project-list-contract.test.js`
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/fr072-workspace-mutation-authorization.test.js` · `tests/integration/fr074-scope-creation-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/integration/scope-and-isolation.test.js` · `tests/unit/project-list-contract.test.js` · `tests/unit/route-reachability.test.js`
 
 ### FR-002 — Scope selectors (Portfolio·Business·Workspace·Project) + จำ selection ล่าสุด
 
@@ -51,9 +51,9 @@
 
 - **Status:** done
 - **Surface:** `/milestones` (page) · `/projects/[projectId]/milestones` (page) · `/api/gates/[id]` (api) · `/api/gates` (api) · `/api/milestones/[id]` (api) · `/api/milestones` (api)
-- **Code:** `src/app/(pm)/milestones/page.jsx` · `src/app/(pm)/projects/[projectId]/milestones/page.jsx` · `src/app/api/gates/[id]/route.js` · `src/app/api/gates/route.js` · `src/app/api/milestones/[id]/route.js` · `src/app/api/milestones/route.js` · `src/modules/project-manager/application/milestone-gate-service.js`
-- **Follows:** BR-001, SEC-001, SEC-008
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/fr072-milestone-gate-authorization.test.js` · `tests/integration/project-core.test.js`
+- **Code:** `src/app/(pm)/milestones/page.jsx` · `src/app/(pm)/projects/[projectId]/layout.jsx` · `src/app/(pm)/projects/[projectId]/milestones/page.jsx` · `src/app/api/gates/[id]/route.js` · `src/app/api/gates/route.js` · `src/app/api/milestones/[id]/route.js` · `src/app/api/milestones/route.js` · `src/modules/project-manager/application/milestone-gate-service.js` · `src/modules/project-manager/components/WorkViewTabs.jsx`
+- **Follows:** BR-001, SDD-019, SDD-039, SEC-001, SEC-008
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/fr072-milestone-gate-authorization.test.js` · `tests/integration/project-core.test.js` · `tests/unit/project-roadmap-ui.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/route-reachability.test.js`
 
 ### FR-007 — Dependencies 5 ชนิด, กัน self/cycle, ประเมิน blocked/ready — created, listed and deleted at the cross-project register Development → Dependencies. (The project-local Dependency **Map** is a separate read view, FR-040.)
 
@@ -99,9 +99,9 @@
 
 - **Status:** done
 - **Surface:** `/projects/[projectId]/import` (page) · `/api/import/commit` (api) · `/api/import/dry-run` (api)
-- **Code:** `src/app/(pm)/projects/[projectId]/import/page.jsx` · `src/app/api/import/commit/route.js` · `src/app/api/import/dry-run/route.js` · `src/lib/validation/enums.js` · `src/modules/project-manager/import/plan-import-service.js` · `src/modules/project-manager/import/plan-schema.js`
-- **Follows:** BR-001, BR-004, BR-007, BR-009, FR-069, SDD-002, SDD-006, SDD-009, SDD-021, SDD-032, SDD-037, SEC-001, SEC-002, SEC-008
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import-scope.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/plan-schema.test.js` · `tests/unit/plan-status-vocabulary.test.js`
+- **Code:** `src/app/(pm)/projects/[projectId]/import/page.jsx` · `src/app/(pm)/projects/[projectId]/layout.jsx` · `src/app/api/import/commit/route.js` · `src/app/api/import/dry-run/route.js` · `src/lib/validation/enums.js` · `src/modules/project-manager/components/ProjectTabs.jsx` · `src/modules/project-manager/import/plan-import-service.js` · `src/modules/project-manager/import/plan-schema.js`
+- **Follows:** BR-001, BR-004, BR-007, BR-009, FR-069, SDD-002, SDD-006, SDD-009, SDD-019, SDD-021, SDD-032, SDD-037, SEC-001, SEC-002, SEC-008
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import-scope.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/plan-schema.test.js` · `tests/unit/plan-status-vocabulary.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/route-reachability.test.js`
 
 ### FR-013 — Snapshot backup: export + import แบบ preview-then-confirm
 
@@ -123,8 +123,8 @@
 
 - **Status:** done
 - **Code:** `src/components/layouts/CommandPalette.jsx`
-- **Follows:** —
-- **Tests:** `tests/e2e/smoke.spec.js`
+- **Follows:** SDD-018, SDD-034
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/unit/command-palette-index.test.js`
 
 ### FR-016 — Seed/demo dataset idempotent ครบ 7 โหมด
 
@@ -145,9 +145,9 @@
 
 - **Status:** done
 - **Surface:** `/api/import/template` (api) · `/api/import/xlsx` (api)
-- **Code:** `src/app/api/import/template/route.js` · `src/app/api/import/xlsx/route.js` · `src/modules/project-manager/import/xlsx-convert.js` · `src/modules/project-manager/import/xlsx-template.js`
-- **Follows:** SDD-037, SEC-001, SEC-008
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/plan-status-vocabulary.test.js`
+- **Code:** `src/app/api/import/template/route.js` · `src/app/api/import/xlsx/route.js` · `src/modules/project-manager/components/ProjectTabs.jsx` · `src/modules/project-manager/import/xlsx-convert.js` · `src/modules/project-manager/import/xlsx-template.js`
+- **Follows:** BR-009, SDD-019, SDD-037, SEC-001, SEC-008
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/plan-status-vocabulary.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/route-reachability.test.js`
 
 ### FR-019 — Enterprise API: ExternalRef mapping + upsert-by-external-id + OpenAPI docs
 
@@ -264,7 +264,7 @@
 - **Status:** done
 - **Code:** `src/components/layouts/Breadcrumb.jsx`
 - **Follows:** SDD-013, SDD-018, SDD-021
-- **Tests:** `tests/unit/breadcrumb-switcher.test.js` · `tests/unit/scope-view-context.test.js`
+- **Tests:** `tests/unit/breadcrumb-switcher.test.js` · `tests/unit/route-reachability.test.js` · `tests/unit/scope-view-context.test.js`
 
 ### FR-035 — Overview is the selected Business's operational home: scoped execution KPIs, project health, strategy, and shortcuts to enabled V2 domains. A missing Business selection is an actionable Home state, never a Group card roll-up.
 
@@ -309,9 +309,9 @@
 ### FR-040 — Project Work views: every Project provides a Structure Plan (WBS) and a project-local Dependency Map. Structure Plan renders the existing Project → Workstream → WorkContainer → WorkItem hierarchy. Dependency Map renders only dependency edges whose two endpoints both belong to the opened Project. The cross-project register remains Development → Dependencies. No new persistence model is introduced.
 
 - **Status:** done
-- **Surface:** `/projects/[projectId]/dependencies` (page) · `/projects/[projectId]/structure` (page) · `/api/projects/[id]/dependencies` (api)
-- **Code:** `src/app/(pm)/projects/[projectId]/dependencies/page.jsx` · `src/app/(pm)/projects/[projectId]/layout.jsx` · `src/app/(pm)/projects/[projectId]/structure/page.jsx` · `src/app/api/projects/[id]/dependencies/route.js` · `src/modules/project-manager/application/dependency-service.js` · `src/modules/project-manager/application/project-dependency-map.js` · `src/modules/project-manager/components/ProjectTabs.jsx` · `src/modules/project-manager/components/WorkViewTabs.jsx` · `src/modules/project-manager/views/DependencyMap.jsx` · `src/modules/project-manager/views/WbsCanvas.jsx`
-- **Follows:** BR-001, SDD-019, SDD-039, SEC-001, SEC-008
+- **Surface:** `/projects/[projectId]/dependencies` (page) · `/projects/[projectId]/milestones` (page) · `/projects/[projectId]/structure` (page) · `/projects/[projectId]/timeline` (page) · `/api/projects/[id]/dependencies` (api)
+- **Code:** `src/app/(pm)/projects/[projectId]/dependencies/page.jsx` · `src/app/(pm)/projects/[projectId]/layout.jsx` · `src/app/(pm)/projects/[projectId]/milestones/page.jsx` · `src/app/(pm)/projects/[projectId]/structure/page.jsx` · `src/app/(pm)/projects/[projectId]/timeline/page.jsx` · `src/app/api/projects/[id]/dependencies/route.js` · `src/modules/project-manager/application/dependency-service.js` · `src/modules/project-manager/application/project-dependency-map.js` · `src/modules/project-manager/components/ProjectTabs.jsx` · `src/modules/project-manager/components/WorkViewTabs.jsx` · `src/modules/project-manager/views/DependencyMap.jsx` · `src/modules/project-manager/views/WbsCanvas.jsx`
+- **Follows:** BR-001, BR-009, SDD-019, SDD-036, SDD-039, SEC-001, SEC-008
 - **Tests:** `tests/e2e/fr040-project-work.spec.js` · `tests/integration/fr072-dependency-authorization.test.js` · `tests/integration/project-core.test.js` · `tests/unit/dependency-map-view.test.js` · `tests/unit/project-dependency-map.test.js` · `tests/unit/project-dependency-route.test.js` · `tests/unit/project-dependency-service.test.js` · `tests/unit/project-roadmap-ui.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/wbs-structure.test.js`
 
 ### FR-041 — Business Overview renders the selected Business's Projects plus a Business Strategy read model: Roadmap and two or three ordered goal horizons. The service enforces horizon cardinality and viewer/business isolation; roadmap editing and Project links are a follow-up mutation slice.
@@ -342,10 +342,10 @@
 ### FR-044 — Entry routing is split into a minimal Landing (`/`), a demo Login stub (`/login`), a Business Routing page (`/businesses`) that shows only viewer-visible Businesses, and the final BusinessShell (`/overview`) mounted only after a Business is selected. No real auth or new design tokens are included in this slice.
 
 - **Status:** done
-- **Surface:** `/businesses` (page) · `/login` (page) · `/` (page)
-- **Code:** `src/app/(entry)/businesses/page.jsx` · `src/app/(pm)/layout.jsx` · `src/app/layout.jsx` · `src/app/login/page.jsx` · `src/app/page.jsx` · `src/components/layouts/Breadcrumb.jsx` · `src/components/layouts/BusinessRoutingShell.jsx` · `src/components/layouts/BusinessShellGuard.jsx` · `src/components/layouts/EntryShell.jsx` · `src/components/layouts/Topbar.jsx` · `src/lib/business-routing.js` · `src/lib/business-shell-guard.js`
-- **Follows:** SDD-012, SDD-013, SDD-018, SDD-021, SDD-022, SDD-024, SDD-029, SEC-008
-- **Tests:** `tests/e2e/fr044-entry-routing.spec.js` · `tests/e2e/fr046-entry-contract.spec.js` · `tests/e2e/smoke.spec.js` · `tests/unit/breadcrumb-switcher.test.js` · `tests/unit/business-routing-page.test.js` · `tests/unit/business-routing.test.js` · `tests/unit/business-shell-guard.test.js` · `tests/unit/entry-routing-boundary.test.js` · `tests/unit/entry-surfaces.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr056-landing.test.js` · `tests/unit/scope-view-context.test.js` · `tests/unit/topbar-no-dropdown.test.js`
+- **Surface:** `/businesses` (page) · `/overview` (page) · `/login` (page) · `/` (page)
+- **Code:** `src/app/(entry)/businesses/page.jsx` · `src/app/(pm)/layout.jsx` · `src/app/(pm)/overview/page.jsx` · `src/app/layout.jsx` · `src/app/login/page.jsx` · `src/app/page.jsx` · `src/components/layouts/Breadcrumb.jsx` · `src/components/layouts/BusinessRoutingShell.jsx` · `src/components/layouts/BusinessShellGuard.jsx` · `src/components/layouts/EntryShell.jsx` · `src/components/layouts/Topbar.jsx` · `src/lib/business-routing.js` · `src/lib/business-shell-guard.js` · `src/modules/people/components/PeopleDirectory.jsx`
+- **Follows:** BR-001, SDD-012, SDD-013, SDD-014, SDD-018, SDD-020, SDD-021, SDD-022, SDD-024, SDD-029, SDD-032, SDD-033, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr044-entry-routing.spec.js` · `tests/e2e/fr046-entry-contract.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/e2e/smoke.spec.js` · `tests/unit/breadcrumb-switcher.test.js` · `tests/unit/business-routing-page.test.js` · `tests/unit/business-routing.test.js` · `tests/unit/business-shell-guard.test.js` · `tests/unit/entry-routing-boundary.test.js` · `tests/unit/entry-surfaces.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr056-landing.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr060-business-home-read-model.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/overview-split.test.js` · `tests/unit/people-directory.test.js` · `tests/unit/route-reachability.test.js` · `tests/unit/scope-view-context.test.js` · `tests/unit/topbar-no-dropdown.test.js`
 
 ### FR-045 — Managed local file workspace: SQLite is authoritative for FileAsset identity, Business/Project ownership, links, version, status and audit; the filesystem stores real content plus disposable cache. Business File Manager aggregates Business-owned and child Project assets without copying content. Existing FR-037 ProjectFile rows/routes migrate through a compatibility boundary; local OS reveal is capability-gated and hosted mode denies it.
 
@@ -437,7 +437,7 @@
 - **Surface:** `/` (page)
 - **Code:** `src/app/page.jsx` · `src/components/landing/ZuriLanding.jsx` · `src/components/layouts/EntryShell.jsx`
 - **Follows:** SDD-022, SDD-029
-- **Tests:** `tests/unit/entry-surfaces.test.js` · `tests/unit/fr056-landing.test.js`
+- **Tests:** `tests/unit/entry-surfaces.test.js` · `tests/unit/fr056-landing.test.js` · `tests/unit/route-reachability.test.js`
 
 ### FR-057 — Authorized agent context: every LINE turn resolves ExternalIdentity, Person, Membership, thread/session assurance and server-owned agent/workspace/project scope, then calls GoVibe/MSP API-010 `msp_vault_resolve` before API-009 retrieval; the model, prompt, client payload and stale session cannot widen the canonical authorized vault set.
 
@@ -474,9 +474,9 @@
 ### FR-061 — Per-Business domain visibility: `resolveViewer()` resolves which domains a principal may see **per Business**, not once per principal. Each Membership's grant applies only to the Businesses that Membership covers — an OWNER Membership confers all domains on the Businesses it owns, and never widens what the same principal sees in a Business where they hold only a MEMBER Membership. The viewer gains `domainsByBusinessId` (per-Business allow-list; absent or `[]` denies), and `domainsForBusiness(viewer, businessId)` is the only way a Business-scoped consumer may ask the question. The existing flat `visibleDomains` is retained and additively redefined as the union across visible Businesses — "may this principal see this domain *anywhere*" — and is never an authorization input for a Business-scoped decision. The route guard and the domain bar both read the per-Business answer.
 
 - **Status:** done
-- **Code:** `src/components/layouts/DomainBar.jsx` · `src/lib/business-shell-guard.js` · `src/modules/identity/resolve-viewer.js` · `src/modules/identity/viewer-domains.js`
-- **Follows:** ADR-008 §D4, docs/features/FR-031-viewer-gate.md, FR-031, FR-038, SDD-017, SDD-017, docs/features/FR-038-profile-and-permissions.md, SDD-022, SDD-034, SEC-008
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/unit/business-shell-guard.test.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/fr076-product-owner-business-assignment.test.js` · `tests/unit/profile-permission-service.test.js` · `tests/unit/viewer-gate.test.js`
+- **Code:** `src/components/layouts/CommandPalette.jsx` · `src/components/layouts/DomainBar.jsx` · `src/lib/business-shell-guard.js` · `src/modules/identity/resolve-viewer.js` · `src/modules/identity/viewer-domains.js`
+- **Follows:** ADR-008 §D4, docs/features/FR-031-viewer-gate.md, FR-031, FR-038, SDD-017, SDD-017, docs/features/FR-038-profile-and-permissions.md, SDD-018, SDD-022, SDD-034, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/unit/business-shell-guard.test.js` · `tests/unit/command-palette-index.test.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/fr076-product-owner-business-assignment.test.js` · `tests/unit/profile-permission-service.test.js` · `tests/unit/viewer-gate.test.js`
 
 ### FR-062 — Users & Permissions read scope: `GET /api/platform/users` returns only Memberships the caller may actually administer — those whose Business is in `viewer.ownedBusinessIds` — so the list can no longer disagree with the authority `updateUserPermissions` enforces. Tenant-wide Memberships (`businessId: null`) are returned **only for tenants where the caller owns a Business**, never unconditionally, and each row carries a server-decided `manageable` flag; the client renders a non-manageable row read-only rather than inferring editability itself. The response carries no field the surface does not display — `Person.email` is dropped.
 
@@ -499,8 +499,8 @@
 - **Status:** done
 - **Surface:** `/projects/[projectId]/timeline` (page) · `/timeline` (page)
 - **Code:** `src/app/(pm)/projects/[projectId]/timeline/page.jsx` · `src/app/(pm)/timeline/page.jsx` · `src/modules/project-manager/application/project-service.js` · `src/modules/project-manager/views/universal/TimelineView.jsx`
-- **Follows:** BR-001, BR-004, SDD-004, SDD-021, SDD-033, SDD-036, SEC-001, SEC-008
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/unit/project-list-contract.test.js`
+- **Follows:** BR-001, BR-004, SDD-004, SDD-019, SDD-021, SDD-033, SDD-036, SEC-001, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/unit/project-list-contract.test.js` · `tests/unit/project-work-route.test.js`
 
 ### FR-065 — Import target authorization: the FR-012 pipeline authorizes the Workspace it is about to write to, instead of accepting whichever `workspaceId` the request body names. All three intake routes (`/api/import/dry-run`, `/api/import/commit`, `/api/import/xlsx`) resolve a viewer, and the target Workspace is resolved **before** validation so an unauthorized target is refused without the caller learning anything about the plan. (a) A **Business-scoped** Workspace requires `ownsBusiness(viewer, workspace.businessId)` — the same predicate the other write paths use, not a second reading of it; a caller who may see the Business but does not own it is refused. (b) A Workspace **above Business** (`scopeType` PORTFOLIO or TENANT) is refused with an explicit reason stating that no authority above Business is declared — this requirement deliberately does **not** invent one. Enabling such an import requires a prior FR that makes portfolio/tenant authority *holdable*: a viewer-contract change in the manner of FR-061, since today no principal can hold it. The dry run is authorized identically to the commit — a read-only preview of another scope's contents is the leak the commit guard would otherwise still allow.
 

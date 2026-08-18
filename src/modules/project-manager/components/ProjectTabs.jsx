@@ -1,10 +1,15 @@
 'use client'
 
 // @req FR-040 — Project Work owns Structure Plan, Board, Schedule, and Dependency Map.
-// @spec SDD-019, ADR-012
+// @req FR-012, FR-018 — Project Plan Import is a Project resource surface of its
+// own (INTERFACE-INVENTORY §3.5, "ProjectResourceShell → Import"), so it gets a
+// tab here rather than hiding under Work. Nothing in the application linked to
+// `/projects/{id}/import`: the whole paste/Excel/form intake path was reachable
+// only by typing the URL, and only the e2e suite ever did.
+// @spec SDD-019, ADR-012, BR-009
 // @tested tests/unit/project-work-route.test.js
 import Link from 'next/link'
-import { CircleDot, Flag, Users, ListTree, TriangleAlert, ChartPie, Folder, ClipboardList } from 'lucide-react'
+import { CircleDot, Flag, Users, ListTree, TriangleAlert, ChartPie, Folder, ClipboardList, Upload } from 'lucide-react'
 
 // Indest-style per-project domain tab bar. Built tabs link; the rest are visible but
 // marked "soon" so the shape is complete while the sections land one by one.
@@ -17,6 +22,7 @@ const TABS = [
   { key: 'risks', label: 'Risks', icon: TriangleAlert, soon: true },
   { key: 'resources', label: 'Resources', icon: ChartPie, soon: true },
   { key: 'files', label: 'Files', icon: Folder, href: (id) => `/projects/${id}/files` },
+  { key: 'import', label: 'Import', icon: Upload, href: (id) => `/projects/${id}/import` },
 ]
 
 export default function ProjectTabs({ projectId, active }) {

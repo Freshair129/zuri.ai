@@ -2,11 +2,20 @@
 
 // @req FR-003 — Project CRUD + archive (soft delete): list, create link,
 // edit modal and archive action over /api/projects.
+// @req FR-001 — this page is the one browse entry point into the Space list.
+// `/workspaces` had no inbound link anywhere in the application: ADR-008 §D6
+// keeps Space out of the Development sidebar ("a resource, not a Development
+// capability") and FR-034 keeps it out of the breadcrumb, which between them
+// left the Space CRUD surface reachable only by typing the URL. Linking from
+// here treats it as what it is — a sibling resource list, reached from the
+// resource whose rows already carry a Space column — without promoting it to a
+// shell capability either decision rejected.
+// @spec ADR-008 §D6, SITEMAP-DOMAIN-NAV §6
 // @tested tests/e2e/smoke.spec.js, tests/unit/project-list-contract.test.js
 import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Plus, Archive } from 'lucide-react'
+import { Plus, Archive, LayoutGrid } from 'lucide-react'
 import { PageHeader, DataTable, StatusPill, EmptyState, ErrorState, TruncationNotice } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { useFetch, api, LoadingCard } from '@/modules/project-manager/components/useApi'
@@ -52,9 +61,14 @@ function ProjectsPageInner() {
         title="Projects"
         subtitle="Outcome-oriented projects. Each project may mix execution modes across its workstreams."
         actions={
-          <Link href="/projects/new" className="btn btn-primary flex items-center gap-1">
-            <Plus size={13} aria-hidden /> New project
-          </Link>
+          <>
+            <Link href="/workspaces" className="btn flex items-center gap-1">
+              <LayoutGrid size={13} aria-hidden /> Spaces
+            </Link>
+            <Link href="/projects/new" className="btn btn-primary flex items-center gap-1">
+              <Plus size={13} aria-hidden /> New project
+            </Link>
+          </>
         }
       />
       <div className="mb-3">

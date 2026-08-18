@@ -324,11 +324,16 @@ function BusinessOverview({ scope }) {
   )
 
   if (!businessId) {
+    // @req FR-044 — `/businesses` is the Business Routing surface. This CTA
+    // pointed at `/`, which since FR-056 is the marketing Landing: the one
+    // control offered for "choose a Business" ejected the user out of the shell
+    // entirely, and the Business they were asked to choose was two more clicks
+    // away through Login.
     return (
       <EmptyState
         title="Choose a Business to open Overview"
         hint="Organization and Business Group remain ancestry context. Daily work starts inside one operating Business."
-        action={<Link href="/" className="btn btn-primary">Choose Business</Link>}
+        action={<Link href="/businesses" className="btn btn-primary">Choose Business</Link>}
       />
     )
   }

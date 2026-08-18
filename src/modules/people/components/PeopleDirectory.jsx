@@ -19,11 +19,14 @@ export default function PeopleDirectory({ directoryOnly = false }) {
   )
 
   if (!businessId) {
+    // @req FR-044 — Business Routing is `/businesses`; `/` is the marketing
+    // Landing (FR-056). This CTA sent the user out of the shell instead of to
+    // the selector it names.
     return (
       <EmptyState
         title="Choose a business first"
         hint="HR / People is always scoped to one operating Business."
-        action={<Link href="/" className="btn btn-primary">Choose Business</Link>}
+        action={<Link href="/businesses" className="btn btn-primary">Choose Business</Link>}
       />
     )
   }
