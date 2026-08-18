@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 922,
-    "total_edges": 2813,
+    "total_nodes": 923,
+    "total_edges": 2822,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,14 +16,14 @@
       "route": 106,
       "model": 46,
       "requirement": 174,
-      "test": 193,
+      "test": 194,
       "code_file": 249
     },
     "coverage": {
       "requirements": 174,
       "fr_with_code": "100% (75/75)",
       "fr_with_tests": "100% (75/75)",
-      "rules_anchored_in_code": "86% (66/77)",
+      "rules_anchored_in_code": "89% (67/75)",
       "nfr_evidence_based": "16 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 249,
       "fr_planned": [
@@ -38,21 +38,24 @@
       "fr_without_tests": [],
       "rules_without_anchor": [
         "BR-016",
-        "SDD-001",
         "SDD-008",
-        "SDD-013",
         "SDD-038",
         "SDD-040",
         "SDD-041",
         "SDD-042",
-        "SEC-004",
         "SEC-005",
         "SEC-014"
+      ],
+      "rules_superseded": [
+        "SDD-001",
+        "SEC-004"
       ]
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "test:tests/unit/doc-graph-retired-rules.test.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -2203,7 +2206,7 @@
       "id": "code:src/components/layouts/Breadcrumb.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Breadcrumb.jsx",
-      "hash": "b6a489c3",
+      "hash": "3a8d8a5b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2213,6 +2216,7 @@
           "FR-044"
         ],
         "@spec": [
+          "SDD-013",
           "SDD-018",
           "SDD-021"
         ],
@@ -5702,7 +5706,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "d14ca42a",
+      "hash": "923162e8",
       "status": "current"
     },
     {
@@ -6289,7 +6293,8 @@
       "label": "`tenant_id` = ขอบเขต isolation และการแชร์ข้อมูล — branch ไม่มีวันเป็น tenant; ธุรกิจใน tenant เดียวกันแชร์ CRM ได้, ต่าง tenant แชร์ไม่ได้",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "`tenant_id` = ขอบเขต isolation และการแชร์ข้อมูล — branch ไม่มีวันเป็น tenant; ธุรกิจใน tenant เดียวกันแชร์ CRM ได้, ต่าง tenant แชร์ไม่ได้ "
     },
     {
       "id": "req:BR-002",
@@ -6298,7 +6303,8 @@
       "label": "External ID (tax id, GitHub id, LINE id, SAP id) ไม่มีวันเป็น primary key — UUID ภายใน + human code + ExternalRef",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "External ID (tax id, GitHub id, LINE id, SAP id) ไม่มีวันเป็น primary key — UUID ภายใน + human code + ExternalRef "
     },
     {
       "id": "req:BR-003",
@@ -6307,7 +6313,8 @@
       "label": "ไม่มี template picker — โปรเจกต์เริ่มจากเป้าหมาย, execution mode เป็นของ workstream",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "ไม่มี template picker — โปรเจกต์เริ่มจากเป้าหมาย, execution mode เป็นของ workstream "
     },
     {
       "id": "req:BR-004",
@@ -6316,7 +6323,8 @@
       "label": "Execution mode มีเพียง 7 โหมด canonical ห้ามเพิ่มใน v1",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Execution mode มีเพียง 7 โหมด canonical ห้ามเพิ่มใน v1 "
     },
     {
       "id": "req:BR-005",
@@ -6325,7 +6333,8 @@
       "label": "ห้ามใช้ tasks_done/tasks_total เป็น progress สากล — ต้อง strategy-based + weighted roll-up",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "ห้ามใช้ tasks_done/tasks_total เป็น progress สากล — ต้อง strategy-based + weighted roll-up "
     },
     {
       "id": "req:BR-006",
@@ -6334,7 +6343,8 @@
       "label": "Required gate ที่ยังไม่ผ่าน cap progress ที่ 99% พร้อม warning",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Required gate ที่ยังไม่ผ่าน cap progress ที่ 99% พร้อม warning "
     },
     {
       "id": "req:BR-007",
@@ -6343,7 +6353,8 @@
       "label": "แผนที่ import เป็นข้อมูลเท่านั้น — ไม่มีการ execute code จาก plan",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "แผนที่ import เป็นข้อมูลเท่านั้น — ไม่มีการ execute code จาก plan "
     },
     {
       "id": "req:BR-008",
@@ -6352,7 +6363,8 @@
       "label": "Restore snapshot ต้อง preview + confirm เสมอ — ไม่มี silent overwrite",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Restore snapshot ต้อง preview + confirm เสมอ — ไม่มี silent overwrite "
     },
     {
       "id": "req:BR-009",
@@ -6361,7 +6373,8 @@
       "label": "ทุก intake surface (UI/Excel/agent/API) ต้องจบที่ pipeline validate→dry-run→commit เดียวกัน",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "ทุก intake surface (UI/Excel/agent/API) ต้องจบที่ pipeline validate→dry-run→commit เดียวกัน "
     },
     {
       "id": "req:BR-010",
@@ -6370,7 +6383,8 @@
       "label": "SQLite is the sole transactional authority for file identity and relations. Filesystem content and `.zuri/cache` are projections/storage, never a second writable relationship database; Business aggregation must query IDs/links and never duplicate a file merely to show it in another view.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "SQLite is the sole transactional authority for file identity and relations. Filesystem content and `.zuri/cache` are projections/storage, never a second writable relationship database; Business aggregation must query IDs/links and never duplicate a file merely to show it in another view. "
     },
     {
       "id": "req:BR-011",
@@ -6379,7 +6393,8 @@
       "label": "A LINE event has exactly one reply owner. When stack answering is enabled, `zuri-cli` owns signature verification and Reply API transport while `zuri-ai` owns knowledge/provider/answer policy; the legacy local answer path must not also consume the same `replyToken`.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "A LINE event has exactly one reply owner. When stack answering is enabled, `zuri-cli` owns signature verification and Reply API transport while `zuri-ai` owns knowledge/provider/answer policy; the legacy local answer path must not also consume the same `replyToken`. "
     },
     {
       "id": "req:BR-012",
@@ -6388,7 +6403,8 @@
       "label": "Tenant and Business scope are server authority. In production a caller may present only binding identity, destination and binding-scoped credential; inbound `tenantId`/`businessId` never authorize access. A missing, mismatched, inactive, expired or database-unavailable binding fails closed before model or persistence work.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Tenant and Business scope are server authority. In production a caller may present only binding identity, destination and binding-scoped credential; inbound `tenantId`/`businessId` never authorize access. A missing, mismatched, inactive, expired or database-unavailable binding fails closed before model or persistence work. "
     },
     {
       "id": "req:BR-013",
@@ -6397,7 +6413,8 @@
       "label": "Readiness is not activation. Golden evaluation, database probes and canary planning may run while the binding remains `PENDING`; only a separately approved operator action may install hashes or enable one canary. `ACCEPTED_BY_LINE` never proves display or read.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Readiness is not activation. Golden evaluation, database probes and canary planning may run while the binding remains `PENDING`; only a separately approved operator action may install hashes or enable one canary. `ACCEPTED_BY_LINE` never proves display or read. "
     },
     {
       "id": "req:BR-014",
@@ -6406,7 +6423,8 @@
       "label": "An activation correlation owns at most one binding mutation and one LINE canary. Replays return the existing redacted result or fail closed; they never create a second send.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "An activation correlation owns at most one binding mutation and one LINE canary. Replays return the existing redacted result or fail closed; they never create a second send. "
     },
     {
       "id": "req:BR-015",
@@ -6415,7 +6433,8 @@
       "label": "LINE transport authentication proves event origin only. Principal, tenant, business, thread audience, capability, sensitivity and vault access come from server-owned identity and policy; thread membership may attenuate access but never elevate it.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "LINE transport authentication proves event origin only. Principal, tenant, business, thread audience, capability, sensitivity and vault access come from server-owned identity and policy; thread membership may attenuate access but never elevate it. "
     },
     {
       "id": "req:BR-016",
@@ -6424,7 +6443,8 @@
       "label": "Profile, WorkspaceMembership, Tenant/Business Membership and Project assignment are distinct authority layers. A lower-level membership never widens a higher-level scope; roles, domains and target identities are server-decided, never accepted as self-asserted client authority.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Profile, WorkspaceMembership, Tenant/Business Membership and Project assignment are distinct authority layers. A lower-level membership never widens a higher-level scope; roles, domains and target identities are server-decided, never accepted as self-asserted client authority. "
     },
     {
       "id": "req:FR-001",
@@ -6433,7 +6453,8 @@
       "label": "จัดการ scope hierarchy: Portfolio / Tenant / Business / Branch / LegalEntity / Workspace (CRUD + human codes)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "จัดการ scope hierarchy: Portfolio / Tenant / Business / Branch / LegalEntity / Workspace (CRUD + human codes) ✅ "
     },
     {
       "id": "req:FR-002",
@@ -6442,7 +6463,8 @@
       "label": "Scope selectors (Portfolio·Business·Workspace·Project) + จำ selection ล่าสุด",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Scope selectors (Portfolio·Business·Workspace·Project) + จำ selection ล่าสุด ✅ "
     },
     {
       "id": "req:FR-003",
@@ -6451,7 +6473,8 @@
       "label": "Project CRUD + archive (soft delete) + mixed execution modes",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Project CRUD + archive (soft delete) + mixed execution modes ✅ "
     },
     {
       "id": "req:FR-004",
@@ -6460,7 +6483,8 @@
       "label": "Workstream CRUD: executionMode + progressStrategy + progressWeight",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Workstream CRUD: executionMode + progressStrategy + progressWeight ✅ "
     },
     {
       "id": "req:FR-005",
@@ -6469,7 +6493,8 @@
       "label": "Neutral work model: WorkContainer (ลำดับชั้น) + WorkItem (weight/value/probability/metrics), browsed and status-edited at Development → All Work, both **global and project-scoped** (same view, different filter)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Neutral work model: WorkContainer (ลำดับชั้น) + WorkItem (weight/value/probability/metrics), browsed and status-edited at Development → All Work, both **global and project-scoped** (same view, different filter) ✅ "
     },
     {
       "id": "req:FR-006",
@@ -6478,7 +6503,8 @@
       "label": "Milestones + Gates (weighted, required flag, evidence JSON), browsed and status-edited at Development → Milestones & Gates, both **global and project-scoped**",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Milestones + Gates (weighted, required flag, evidence JSON), browsed and status-edited at Development → Milestones & Gates, both **global and project-scoped** ✅ "
     },
     {
       "id": "req:FR-007",
@@ -6487,7 +6513,8 @@
       "label": "Dependencies 5 ชนิด, กัน self/cycle, ประเมิน blocked/ready — created, listed and deleted at the cross-project register Development → Dependencies. (The project-local Dependency **Map** is a separate read view, FR-040.)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Dependencies 5 ชนิด, กัน self/cycle, ประเมิน blocked/ready — created, listed and deleted at the cross-project register Development → Dependencies. (The project-local Dependency **Map** is a separate read view, FR-040.) ✅ "
     },
     {
       "id": "req:FR-008",
@@ -6496,7 +6523,8 @@
       "label": "Repository records (local metadata) + ผูกโปรเจกต์แบบ many-to-many",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Repository records (local metadata) + ผูกโปรเจกต์แบบ many-to-many ✅ "
     },
     {
       "id": "req:FR-009",
@@ -6505,7 +6533,8 @@
       "label": "Execution views 7 โหมดบนโมเดลกลาง (global + project-scoped)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Execution views 7 โหมดบนโมเดลกลาง (global + project-scoped) ✅ "
     },
     {
       "id": "req:FR-010",
@@ -6514,7 +6543,8 @@
       "label": "Progress ต่อ workstream ตาม strategy + evidence + warnings + \"Explain\" UI",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Progress ต่อ workstream ตาม strategy + evidence + warnings + \"Explain\" UI ✅ "
     },
     {
       "id": "req:FR-011",
@@ -6523,7 +6553,8 @@
       "label": "Project roll-up ถ่วงน้ำหนัก Σ(ws%×w)/Σw",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Project roll-up ถ่วงน้ำหนัก Σ(ws%×w)/Σw ✅ "
     },
     {
       "id": "req:FR-012",
@@ -6532,7 +6563,8 @@
       "label": "PlanEnvelope import: validate → seven-mode semantic contract check → dry run → transactional commit → audit",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "PlanEnvelope import: validate → seven-mode semantic contract check → dry run → transactional commit → audit ✅ "
     },
     {
       "id": "req:FR-013",
@@ -6541,7 +6573,8 @@
       "label": "Snapshot backup: export + import แบบ preview-then-confirm",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Snapshot backup: export + import แบบ preview-then-confirm ✅ "
     },
     {
       "id": "req:FR-014",
@@ -6550,7 +6583,8 @@
       "label": "Audit log (immutable) + UI browser",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Audit log (immutable) + UI browser ✅ "
     },
     {
       "id": "req:FR-015",
@@ -6559,7 +6593,8 @@
       "label": "Command palette (Ctrl+K), filters, search",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Command palette (Ctrl+K), filters, search ✅ "
     },
     {
       "id": "req:FR-016",
@@ -6568,7 +6603,8 @@
       "label": "Seed/demo dataset idempotent ครบ 7 โหมด",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Seed/demo dataset idempotent ครบ 7 โหมด ✅ "
     },
     {
       "id": "req:FR-017",
@@ -6577,7 +6613,8 @@
       "label": "UI wizard intake (\"เริ่มจากเป้าหมาย\") → สร้าง envelope เข้า pipeline เดิม; direct modal creation is edit-only",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "UI wizard intake (\"เริ่มจากเป้าหมาย\") → สร้าง envelope เข้า pipeline เดิม; direct modal creation is edit-only ✅ "
     },
     {
       "id": "req:FR-018",
@@ -6586,7 +6623,8 @@
       "label": "Excel template intake: generator จาก Zod schema + xlsx→envelope converter + error รายแถว",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Excel template intake: generator จาก Zod schema + xlsx→envelope converter + error รายแถว ✅ "
     },
     {
       "id": "req:FR-019",
@@ -6595,7 +6633,8 @@
       "label": "Enterprise API: ExternalRef mapping + upsert-by-external-id + OpenAPI docs",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Enterprise API: ExternalRef mapping + upsert-by-external-id + OpenAPI docs ✅ "
     },
     {
       "id": "req:FR-020",
@@ -6604,7 +6643,8 @@
       "label": "Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing) ✅ "
     },
     {
       "id": "req:FR-021",
@@ -6613,7 +6653,8 @@
       "label": "Identity resolution: `ExternalIdentity` (LINE→Person, tenant-scoped) + `resolveLineIdentity` — idempotent, tenant-required, audited, revoke-aware (ADR-007 P3 foundation primitive)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Identity resolution: `ExternalIdentity` (LINE→Person, tenant-scoped) + `resolveLineIdentity` — idempotent, tenant-required, audited, revoke-aware (ADR-007 P3 foundation primitive) ✅ "
     },
     {
       "id": "req:FR-022",
@@ -6622,7 +6663,8 @@
       "label": "LINE as an identity provider end-to-end: account linking (single-use token → bind to existing Person, idempotent, merge-aware), PDPA erase-revoke, staff/customer split, and `resolveLinePrincipal` (the single P3 seam) — the full P3 gate on top of FR-021",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "LINE as an identity provider end-to-end: account linking (single-use token → bind to existing Person, idempotent, merge-aware), PDPA erase-revoke, staff/customer split, and `resolveLinePrincipal` (the single P3 seam) — the full P3 gate on top of FR-021 ✅ "
     },
     {
       "id": "req:FR-023",
@@ -6631,7 +6673,8 @@
       "label": "Zuri Backend Slice CRM core (ADR-007 P2): Customer (per-tenant, linked to Person) + Conversation + Message + LINE gateway `ingestLineMessage` (resolves through FR-021, idempotent)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Zuri Backend Slice CRM core (ADR-007 P2): Customer (per-tenant, linked to Person) + Conversation + Message + LINE gateway `ingestLineMessage` (resolves through FR-021, idempotent) ✅ "
     },
     {
       "id": "req:FR-024",
@@ -6640,7 +6683,8 @@
       "label": "Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes ✅ "
     },
     {
       "id": "req:FR-025",
@@ -6649,7 +6693,8 @@
       "label": "Agent read-only context contract (ADR-007 P6, Gate E): `assembleAgentContext` binds a resolved principal (via the P3 gate) to Identity + MSP memory (**principal-keyed, not channel-keyed**) + GKS knowledge (FR-024) + Zuri **read-only** tools; a write-classified tool is refused at registration (Gate E→F boundary)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Agent read-only context contract (ADR-007 P6, Gate E): `assembleAgentContext` binds a resolved principal (via the P3 gate) to Identity + MSP memory (**principal-keyed, not channel-keyed**) + GKS knowledge (FR-024) + Zuri **read-only** tools; a write-classified tool is refused at registration (Gate E→F boundary) ✅ "
     },
     {
       "id": "req:FR-026",
@@ -6658,7 +6703,8 @@
       "label": "Agent write/action gate (ADR-007 P7, Gate F): write tools in a **separate** registry (effect WRITE + executor); `authorizeAgentAction` decides by RBAC (Membership role) + resource ownership + sensitivity; **HIGH-sensitivity actions require a single-use step-up token**; `executeAgentAction` resolves the principal → authorizes → enforces step-up → runs the write in one transaction with an append-only audit. Read stays Gate E",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Agent write/action gate (ADR-007 P7, Gate F): write tools in a **separate** registry (effect WRITE + executor); `authorizeAgentAction` decides by RBAC (Membership role) + resource ownership + sensitivity; **HIGH-sensitivity actions require a single-use step-up token**; `executeAgentAction` resolves the principal → authorizes → enforces step-up → runs the write in one transaction with an append-only audit. Read stays Gate E ✅ "
     },
     {
       "id": "req:FR-027",
@@ -6667,7 +6713,8 @@
       "label": "End-to-end agent turn (ADR-007 P7): `handleAgentTurn` composes the full path — LINE ingest (FR-023) → read context (FR-025) → optional Gate F action (FR-026) → response — over injectable memory/knowledge/tool ports; unauthorized/step-up-needed actions degrade to a graceful response, never a crash",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "End-to-end agent turn (ADR-007 P7): `handleAgentTurn` composes the full path — LINE ingest (FR-023) → read context (FR-025) → optional Gate F action (FR-026) → response — over injectable memory/knowledge/tool ports; unauthorized/step-up-needed actions degrade to a graceful response, never a crash ✅ "
     },
     {
       "id": "req:FR-028",
@@ -6676,7 +6723,8 @@
       "label": "LINE webhook API route (ADR-007 P7 wiring): `POST /api/agent/line-webhook` normalizes LINE message events → `handleAgentTurn` (Gate E read/answer), tenant-scoped (refuses an unresolved tenant — no minting under a DEFAULT tenant); the zuri-cli LINE bot forwards webhook events here (two runtimes, HTTP seam, real E2E)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "LINE webhook API route (ADR-007 P7 wiring): `POST /api/agent/line-webhook` normalizes LINE message events → `handleAgentTurn` (Gate E read/answer), tenant-scoped (refuses an unresolved tenant — no minting under a DEFAULT tenant); the zuri-cli LINE bot forwards webhook events here (two runtimes, HTTP seam, real E2E) ✅ "
     },
     {
       "id": "req:FR-029",
@@ -6685,7 +6733,8 @@
       "label": "Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent ✅ "
     },
     {
       "id": "req:FR-030",
@@ -6694,7 +6743,8 @@
       "label": "Persistence: Postgres/Supabase readiness (ADR-007 P4): generated `schema.postgres.prisma` + init DDL (provider swap only, models identical); `assertDbBoundary` enforces **Zuri DB ≠ MSP DB**; UUID-preserving cutover via the provider-agnostic backup snapshot (`db:pg:export`/`import`). DuckDB stays a cache/analytics tier, not the transactional store",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Persistence: Postgres/Supabase readiness (ADR-007 P4): generated `schema.postgres.prisma` + init DDL (provider swap only, models identical); `assertDbBoundary` enforces **Zuri DB ≠ MSP DB**; UUID-preserving cutover via the provider-agnostic backup snapshot (`db:pg:export`/`import`). DuckDB stays a cache/analytics tier, not the transactional store ✅ "
     },
     {
       "id": "req:FR-031",
@@ -6703,7 +6753,8 @@
       "label": "Viewer gate: `resolveViewer()` resolves the current principal into one role (`OWNER`, `MEMBER`, or platform `DEV`), `visibleBusinessIds`, and `visibleDomains` before the ADR-008 Home journey. DEV is an explicit platform grant, never a widened Membership; development fallback is OWNER-of-all only when no real principal exists.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Viewer gate: `resolveViewer()` resolves the current principal into one role (`OWNER`, `MEMBER`, or platform `DEV`), `visibleBusinessIds`, and `visibleDomains` before the ADR-008 Home journey. DEV is an explicit platform grant, never a widened Membership; development fallback is OWNER-of-all only when no real principal exists. ✅ "
     },
     {
       "id": "req:FR-032",
@@ -6712,7 +6763,8 @@
       "label": "Home (`/`) is the ADR-008 entry journey: it shows only groups and businesses permitted by `resolveViewer()`, lets the user enter the Group (“all businesses”) or one Business scope, and then navigates to Overview. A single visible group skips the group choice. Creating a business remains the existing Settings flow.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Home (`/`) is the ADR-008 entry journey: it shows only groups and businesses permitted by `resolveViewer()`, lets the user enter the Group (“all businesses”) or one Business scope, and then navigates to Overview. A single visible group skips the group choice. Creating a business remains the existing Settings flow. ✅ "
     },
     {
       "id": "req:FR-033",
@@ -6721,7 +6773,8 @@
       "label": "Topbar contains Zuri identity, the viewed-domain chip, ERP/PM lens toggle, command palette, New Project, and profile cluster—but no scope dropdown or selector. Scope choice begins at Home and moves to breadcrumb switching in the following slice.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Topbar contains Zuri identity, the viewed-domain chip, ERP/PM lens toggle, command palette, New Project, and profile cluster—but no scope dropdown or selector. Scope choice begins at Home and moves to breadcrumb switching in the following slice. ✅ "
     },
     {
       "id": "req:FR-034",
@@ -6730,7 +6783,8 @@
       "label": "Breadcrumb is the scope switcher: its Group/Business crumb returns to Home (`/`), Workspace crumb opens `/workspaces`, and Project crumb opens `/projects`. It labels Group versus Business correctly and uses the active ERP/PM lens; a single workspace omits its crumb.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Breadcrumb is the scope switcher: its Group/Business crumb returns to Home (`/`), Workspace crumb opens `/workspaces`, and Project crumb opens `/projects`. It labels Group versus Business correctly and uses the active ERP/PM lens; a single workspace omits its crumb. ✅ "
     },
     {
       "id": "req:FR-035",
@@ -6739,7 +6793,8 @@
       "label": "Overview is the selected Business's operational home: scoped execution KPIs, project health, strategy, and shortcuts to enabled V2 domains. A missing Business selection is an actionable Home state, never a Group card roll-up.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Overview is the selected Business's operational home: scoped execution KPIs, project health, strategy, and shortcuts to enabled V2 domains. A missing Business selection is an actionable Home state, never a Group card roll-up. ✅ "
     },
     {
       "id": "req:FR-036",
@@ -6748,7 +6803,8 @@
       "label": "Project Team (`/projects/{id}/team`) lists Memberships in the project’s business scope, adds/removes business-scoped members, changes Owner/Member role, and shows each member’s active WorkItem assignee load. Group-workspace memberships remain read-only because they are tenant-wide.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Project Team (`/projects/{id}/team`) lists Memberships in the project’s business scope, adds/removes business-scoped members, changes Owner/Member role, and shows each member’s active WorkItem assignee load. Group-workspace memberships remain read-only because they are tenant-wide. ✅ "
     },
     {
       "id": "req:FR-037",
@@ -6757,7 +6813,8 @@
       "label": "Project Files (`/projects/{id}/files`) manages metadata references for documents and attachments linked to a Project and optionally a WorkItem. `ProjectFile` uses UUID + human code, validates a non-empty `url` or `blobRef`, and records every create/delete in audit. Binary upload/storage is outside the local MVP.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Project Files (`/projects/{id}/files`) manages metadata references for documents and attachments linked to a Project and optionally a WorkItem. `ProjectFile` uses UUID + human code, validates a non-empty `url` or `blobRef`, and records every create/delete in audit. Binary upload/storage is outside the local MVP. ✅ "
     },
     {
       "id": "req:FR-038",
@@ -6766,7 +6823,8 @@
       "label": "My Profile (`/profile`) shows the resolved local account, language preference, LINE-link state, and local session. Users & Permissions (`/platform/users`) is OWNER-only and edits Membership role plus per-domain visibility; MEMBER receives no domain visibility unless explicitly granted, while OWNER/DEV retain role-bound all-domain access.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "My Profile (`/profile`) shows the resolved local account, language preference, LINE-link state, and local session. Users & Permissions (`/platform/users`) is OWNER-only and edits Membership role plus per-domain visibility; MEMBER receives no domain visibility unless explicitly granted, while OWNER/DEV retain role-bound all-domain access. ✅ "
     },
     {
       "id": "req:FR-039",
@@ -6775,7 +6833,8 @@
       "label": "The Base Context Bar maps `Portfolio > Tenant > Business` to `Workspace > Organization > Business` and stops global shell scope at Business. Schema Workspace and Project are Development resources, not shell or sidebar parents; Organization is a UI label for Tenant, whose UUID and isolation semantics remain unchanged.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "The Base Context Bar maps `Portfolio > Tenant > Business` to `Workspace > Organization > Business` and stops global shell scope at Business. Schema Workspace and Project are Development resources, not shell or sidebar parents; Organization is a UI label for Tenant, whose UUID and isolation semantics remain unchanged. ✅ "
     },
     {
       "id": "req:FR-040",
@@ -6784,7 +6843,8 @@
       "label": "Project Work views: every Project provides a Structure Plan (WBS) and a project-local Dependency Map. Structure Plan renders the existing Project → Workstream → WorkContainer → WorkItem hierarchy. Dependency Map renders only dependency edges whose two endpoints both belong to the opened Project. The cross-project register remains Development → Dependencies. No new persistence model is introduced.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Project Work views: every Project provides a Structure Plan (WBS) and a project-local Dependency Map. Structure Plan renders the existing Project → Workstream → WorkContainer → WorkItem hierarchy. Dependency Map renders only dependency edges whose two endpoints both belong to the opened Project. The cross-project register remains Development → Dependencies. No new persistence model is introduced. ✅ implemented; G5 passed "
     },
     {
       "id": "req:FR-041",
@@ -6793,7 +6853,8 @@
       "label": "Business Overview renders the selected Business's Projects plus a Business Strategy read model: Roadmap and two or three ordered goal horizons. The service enforces horizon cardinality and viewer/business isolation; roadmap editing and Project links are a follow-up mutation slice.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Business Overview renders the selected Business's Projects plus a Business Strategy read model: Roadmap and two or three ordered goal horizons. The service enforces horizon cardinality and viewer/business isolation; roadmap editing and Project links are a follow-up mutation slice. ✅ "
     },
     {
       "id": "req:FR-042",
@@ -6802,7 +6863,8 @@
       "label": "HR / People is a peer ERP domain (route key `people`) with a Business-scoped People Directory over Person/Membership. It is not nested under Development; Project Team remains Project-local. Attendance, leave, payroll, and performance are out of scope for this slice.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "HR / People is a peer ERP domain (route key `people`) with a Business-scoped People Directory over Person/Membership. It is not nested under Development; Project Team remains Project-local. Attendance, leave, payroll, and performance are out of scope for this slice. ✅ "
     },
     {
       "id": "req:FR-043",
@@ -6811,7 +6873,8 @@
       "label": "Project stores a direct nullable `businessId` owner plus `workspaceId` as Development Space context. Business-scoped projects must match their Space owner; explicit portfolio/tenant shared projects remain null-owner and are never attributed to a Business Overview.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Project stores a direct nullable `businessId` owner plus `workspaceId` as Development Space context. Business-scoped projects must match their Space owner; explicit portfolio/tenant shared projects remain null-owner and are never attributed to a Business Overview. ✅ "
     },
     {
       "id": "req:FR-044",
@@ -6820,7 +6883,8 @@
       "label": "Entry routing is split into a minimal Landing (`/`), a demo Login stub (`/login`), a Business Routing page (`/businesses`) that shows only viewer-visible Businesses, and the final BusinessShell (`/overview`) mounted only after a Business is selected. No real auth or new design tokens are included in this slice.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Entry routing is split into a minimal Landing (`/`), a demo Login stub (`/login`), a Business Routing page (`/businesses`) that shows only viewer-visible Businesses, and the final BusinessShell (`/overview`) mounted only after a Business is selected. No real auth or new design tokens are included in this slice. ✅ implemented "
     },
     {
       "id": "req:FR-045",
@@ -6829,7 +6893,8 @@
       "label": "Managed local file workspace: SQLite is authoritative for FileAsset identity, Business/Project ownership, links, version, status and audit; the filesystem stores real content plus disposable cache. Business File Manager aggregates Business-owned and child Project assets without copying content. Existing FR-037 ProjectFile rows/routes migrate through a compatibility boundary; local OS reveal is capability-gated and hosted mode denies it.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Managed local file workspace: SQLite is authoritative for FileAsset identity, Business/Project ownership, links, version, status and audit; the filesystem stores real content plus disposable cache. Business File Manager aggregates Business-owned and child Project assets without copying content. Existing FR-037 ProjectFile rows/routes migrate through a compatibility boundary; local OS reveal is capability-gated and hosted mode denies it. ✅ implemented (beta); W0-W9 and AC-045-01..12 complete "
     },
     {
       "id": "req:FR-046",
@@ -6838,7 +6903,8 @@
       "label": "Production viewer entry contract: Business Routing consumes one atomic, server-filtered `/api/entry` response derived from a trusted request session and `resolveViewer()`. Hidden Businesses and unrelated ancestry are never returned; missing sessions fail closed; client-supplied identity/role/platform claims are never authorization input.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Production viewer entry contract: Business Routing consumes one atomic, server-filtered `/api/entry` response derived from a trusted request session and `resolveViewer()`. Hidden Businesses and unrelated ancestry are never returned; missing sessions fail closed; client-supplied identity/role/platform claims are never authorization input. ✅ implemented (beta); provider selection remains separately gated "
     },
     {
       "id": "req:FR-047",
@@ -6847,7 +6913,8 @@
       "label": "Curated business-knowledge read contract: the SmartGift pilot exposes only an allow-listed, versioned public product projection through `BusinessKnowledgeReadPort`; DuckDB and Supabase are adapters. PII, cost, margin, invoice, unrestricted SQL and local paths are excluded.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Curated business-knowledge read contract: the SmartGift pilot exposes only an allow-listed, versioned public product projection through `BusinessKnowledgeReadPort`; DuckDB and Supabase are adapters. PII, cost, margin, invoice, unrestricted SQL and local paths are excluded. Phase 1 active - owner-approved 2026-08-14 "
     },
     {
       "id": "req:FR-048",
@@ -6856,7 +6923,8 @@
       "label": "Provider selection contract: `ModelProviderPort` normalizes OpenRouter OAuth credential references and API-key adapters for OpenAI, Anthropic, Gemini and Groq. Public LINE cannot select consumer-plan CLI credentials, and automatic fallback is disabled.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Provider selection contract: `ModelProviderPort` normalizes OpenRouter OAuth credential references and API-key adapters for OpenAI, Anthropic, Gemini and Groq. Public LINE cannot select consumer-plan CLI credentials, and automatic fallback is disabled. Phase 1 active - owner-approved 2026-08-14 "
     },
     {
       "id": "req:FR-049",
@@ -6865,7 +6933,8 @@
       "label": "Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient. Phase 1 active - owner-approved 2026-08-14 "
     },
     {
       "id": "req:FR-050",
@@ -6874,7 +6943,8 @@
       "label": "Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics. Phase 1 active - owner-approved 2026-08-14 "
     },
     {
       "id": "req:FR-051",
@@ -6883,7 +6953,8 @@
       "label": "Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event. Production migration and verified 74-row price-disabled import complete "
     },
     {
       "id": "req:FR-052",
@@ -6892,7 +6963,8 @@
       "label": "Server-owned LINE scope binding: the webhook rejects client-selected Tenant/Business IDs and resolves scope only from an active, destination-bound, hash-verified LINE binding. Runtime connects through an unprivileged login and executes each read with `SET LOCAL ROLE zuri_line_smartgift_ro`.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Server-owned LINE scope binding: the webhook rejects client-selected Tenant/Business IDs and resolves scope only from an active, destination-bound, hash-verified LINE binding. Runtime connects through an unprivileged login and executes each read with `SET LOCAL ROLE zuri_line_smartgift_ro`. Binding reserved remotely as PENDING; live role isolation passes, activation destination/canary gates remain "
     },
     {
       "id": "req:FR-053",
@@ -6901,7 +6973,8 @@
       "label": "Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers. Implemented (beta): deterministic fake evaluation PASS 20/20; owner-approved real corpus mapping and real-provider execution remain external NOT_RUN gates "
     },
     {
       "id": "req:FR-054",
@@ -6910,7 +6983,8 @@
       "label": "Controlled LINE canary readiness: produce a secret-safe runtime-role isolation report and dry-run canary plan that validates exact project/Tenant/Business/binding/provider/evaluation prerequisites. Readiness code never activates a binding or calls LINE; receipt states distinguish accepted from display/read unknown.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Controlled LINE canary readiness: produce a secret-safe runtime-role isolation report and dry-run canary plan that validates exact project/Tenant/Business/binding/provider/evaluation prerequisites. Readiness code never activates a binding or calls LINE; receipt states distinguish accepted from display/read unknown. Implemented (beta): secret-redacted live probe passes exact 74-row scope; approved provider evaluation and signed LINE canary remain external NOT_RUN gates "
     },
     {
       "id": "req:FR-055",
@@ -6919,7 +6993,8 @@
       "label": "Controlled LINE activation and receipt: a dry-run-default operator command may install HMAC hashes and activate exactly one expiring binding only through a versioned compare-and-swap transaction and dedicated least-privilege role. Routing-first rollback and append-only redacted receipt events preserve truthful `ACCEPTED_BY_LINE` versus display/read unknown semantics.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Controlled LINE activation and receipt: a dry-run-default operator command may install HMAC hashes and activate exactly one expiring binding only through a versioned compare-and-swap transaction and dedicated least-privilege role. Routing-first rollback and append-only redacted receipt events preserve truthful `ACCEPTED_BY_LINE` versus display/read unknown semantics. Owner-approved for local implementation; production mutation remains gated "
     },
     {
       "id": "req:FR-056",
@@ -6928,7 +7003,8 @@
       "label": "Zuri-branded entry landing: `/` presents a full-viewport, responsive Zuri Heritage composition with one route-bearing action to `/login`, code-native/local visuals, reduced-motion support, and no third-party fashion or commerce semantics. FR-044/046 routing and identity boundaries remain unchanged.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Zuri-branded entry landing: `/` presents a full-viewport, responsive Zuri Heritage composition with one route-bearing action to `/login`, code-native/local visuals, reduced-motion support, and no third-party fashion or commerce semantics. FR-044/046 routing and identity boundaries remain unchanged. Owner-approved beta 2026-08-14 "
     },
     {
       "id": "req:FR-057",
@@ -6937,7 +7013,8 @@
       "label": "Authorized agent context: every LINE turn resolves ExternalIdentity, Person, Membership, thread/session assurance and server-owned agent/workspace/project scope, then calls GoVibe/MSP API-010 `msp_vault_resolve` before API-009 retrieval; the model, prompt, client payload and stale session cannot widen the canonical authorized vault set.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Authorized agent context: every LINE turn resolves ExternalIdentity, Person, Membership, thread/session assurance and server-owned agent/workspace/project scope, then calls GoVibe/MSP API-010 `msp_vault_resolve` before API-009 retrieval; the model, prompt, client payload and stale session cannot widen the canonical authorized vault set. Owner-approved beta; API-010 integration in progress "
     },
     {
       "id": "req:FR-058",
@@ -6946,7 +7023,8 @@
       "label": "File Manager views: the Business and Project File Manager render the existing FR-045 asset set in four switchable read views — grid (current behaviour), timeline (ordered by `FileAsset.updatedAt`/`createdAt`), by-project (the read model's existing BUSINESS/PROJECT `groups`), and preview (inline for authorized `LOCAL_FILE` content via `/api/files/{id}/content`, mime-gated; link-out for `EXTERNAL_URL`). View choice is client state only — no new persistence, route or write path; the read-model `assetDto` gains `createdAt`/`updatedAt` additively.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "File Manager views: the Business and Project File Manager render the existing FR-045 asset set in four switchable read views — grid (current behaviour), timeline (ordered by `FileAsset.updatedAt`/`createdAt`), by-project (the read model's existing BUSINESS/PROJECT `groups`), and preview (inline for authorized `LOCAL_FILE` content via `/api/files/{id}/content`, mime-gated; link-out for `EXTERNAL_URL`). View choice is client state only — no new persistence, route or write path; the read-model `assetDto` gains `createdAt`/`updatedAt` additively. ✅ "
     },
     {
       "id": "req:FR-059",
@@ -6955,7 +7033,8 @@
       "label": "Business Strategy mutation: create/update of `BusinessRoadmap` and its 2–3 ordered horizons, `BusinessGoal` (status/priority/progress/dates), and `ProjectGoal` link/unlink, through audited services in `project-manager/application`, authorized **per Business** — the caller must hold OWNER authority over the target Business (`viewer.ownedBusinessIds`), never merely the global OWNER label. The FR-041 read model remains the only read contract; horizon cardinality and Business isolation are enforced by the service.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Business Strategy mutation: create/update of `BusinessRoadmap` and its 2–3 ordered horizons, `BusinessGoal` (status/priority/progress/dates), and `ProjectGoal` link/unlink, through audited services in `project-manager/application`, authorized **per Business** — the caller must hold OWNER authority over the target Business (`viewer.ownedBusinessIds`), never merely the global OWNER label. The FR-041 read model remains the only read contract; horizon cardinality and Business isolation are enforced by the service. ✅ "
     },
     {
       "id": "req:FR-060",
@@ -6964,7 +7043,8 @@
       "label": "Business Home: a shell-level Tier-2 slot whose Dashboard aggregates the selected Business across domains — a briefing line, KPI tiles, per-domain health, and an attention queue ordered by impact. It is a **non-owning read projection**: every figure is recomputed from the owning domain's read model, nothing is stored, and no write path is added. Domains with no module render as **reserved slots, never as zero or as invented figures**; only live domains contribute to any score. FR-041's Business Overview becomes this Dashboard rather than a second surface beside it.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Business Home: a shell-level Tier-2 slot whose Dashboard aggregates the selected Business across domains — a briefing line, KPI tiles, per-domain health, and an attention queue ordered by impact. It is a **non-owning read projection**: every figure is recomputed from the owning domain's read model, nothing is stored, and no write path is added. Domains with no module render as **reserved slots, never as zero or as invented figures**; only live domains contribute to any score. FR-041's Business Overview becomes this Dashboard rather than a second surface beside it. ✅ "
     },
     {
       "id": "req:FR-061",
@@ -6973,7 +7053,8 @@
       "label": "Per-Business domain visibility: `resolveViewer()` resolves which domains a principal may see **per Business**, not once per principal. Each Membership's grant applies only to the Businesses that Membership covers — an OWNER Membership confers all domains on the Businesses it owns, and never widens what the same principal sees in a Business where they hold only a MEMBER Membership. The viewer gains `domainsByBusinessId` (per-Business allow-list; absent or `[]` denies), and `domainsForBusiness(viewer, businessId)` is the only way a Business-scoped consumer may ask the question. The existing flat `visibleDomains` is retained and additively redefined as the union across visible Businesses — \"may this principal see this domain *anywhere*\" — and is never an authorization input for a Business-scoped decision. The route guard and the domain bar both read the per-Business answer.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Per-Business domain visibility: `resolveViewer()` resolves which domains a principal may see **per Business**, not once per principal. Each Membership's grant applies only to the Businesses that Membership covers — an OWNER Membership confers all domains on the Businesses it owns, and never widens what the same principal sees in a Business where they hold only a MEMBER Membership. The viewer gains `domainsByBusinessId` (per-Business allow-list; absent or `[]` denies), and `domainsForBusiness(viewer, businessId)` is the only way a Business-scoped consumer may ask the question. The existing flat `visibleDomains` is retained and additively redefined as the union across visible Businesses — \"may this principal see this domain *anywhere*\" — and is never an authorization input for a Business-scoped decision. The route guard and the domain bar both read the per-Business answer. ✅ "
     },
     {
       "id": "req:FR-062",
@@ -6982,7 +7063,8 @@
       "label": "Users & Permissions read scope: `GET /api/platform/users` returns only Memberships the caller may actually administer — those whose Business is in `viewer.ownedBusinessIds` — so the list can no longer disagree with the authority `updateUserPermissions` enforces. Tenant-wide Memberships (`businessId: null`) are returned **only for tenants where the caller owns a Business**, never unconditionally, and each row carries a server-decided `manageable` flag; the client renders a non-manageable row read-only rather than inferring editability itself. The response carries no field the surface does not display — `Person.email` is dropped.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Users & Permissions read scope: `GET /api/platform/users` returns only Memberships the caller may actually administer — those whose Business is in `viewer.ownedBusinessIds` — so the list can no longer disagree with the authority `updateUserPermissions` enforces. Tenant-wide Memberships (`businessId: null`) are returned **only for tenants where the caller owns a Business**, never unconditionally, and each row carries a server-decided `manageable` flag; the client renders a non-manageable row read-only rather than inferring editability itself. The response carries no field the surface does not display — `Person.email` is dropped. ✅ "
     },
     {
       "id": "req:FR-063",
@@ -6991,7 +7073,8 @@
       "label": "Project Board: the project-local Work tab renders that Project's WorkItems as a status board — **one column per value of `WORK_STATUSES`**, derived from `src/lib/validation/enums.js` rather than a hand-written list, so no status can exist that the board silently drops. Opening a card opens the existing Workpackage editor; the board itself persists nothing — no column, order or card position is stored, and every status change goes through the FR-005 services.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Project Board: the project-local Work tab renders that Project's WorkItems as a status board — **one column per value of `WORK_STATUSES`**, derived from `src/lib/validation/enums.js` rather than a hand-written list, so no status can exist that the board silently drops. Opening a card opens the existing Workpackage editor; the board itself persists nothing — no column, order or card position is stored, and every status change goes through the FR-005 services. ✅ "
     },
     {
       "id": "req:FR-064",
@@ -7000,7 +7083,8 @@
       "label": "Schedule: Project and Milestone dates render as a derived month-grid timeline, available **global and project-scoped** (the same view under a different filter, mirroring FR-009). Bars come from `Project.startAt`/`targetAt`, markers from `Milestone.targetAt`. It is read-only and non-owning: nothing is persisted, no date is editable from this view, and a Project or Milestone with no dates simply does not render a bar.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Schedule: Project and Milestone dates render as a derived month-grid timeline, available **global and project-scoped** (the same view under a different filter, mirroring FR-009). Bars come from `Project.startAt`/`targetAt`, markers from `Milestone.targetAt`. It is read-only and non-owning: nothing is persisted, no date is editable from this view, and a Project or Milestone with no dates simply does not render a bar. ✅ "
     },
     {
       "id": "req:FR-065",
@@ -7009,7 +7093,8 @@
       "label": "Import target authorization: the FR-012 pipeline authorizes the Workspace it is about to write to, instead of accepting whichever `workspaceId` the request body names. All three intake routes (`/api/import/dry-run`, `/api/import/commit`, `/api/import/xlsx`) resolve a viewer, and the target Workspace is resolved **before** validation so an unauthorized target is refused without the caller learning anything about the plan. (a) A **Business-scoped** Workspace requires `ownsBusiness(viewer, workspace.businessId)` — the same predicate the other write paths use, not a second reading of it; a caller who may see the Business but does not own it is refused. (b) A Workspace **above Business** (`scopeType` PORTFOLIO or TENANT) is refused with an explicit reason stating that no authority above Business is declared — this requirement deliberately does **not** invent one. Enabling such an import requires a prior FR that makes portfolio/tenant authority *holdable*: a viewer-contract change in the manner of FR-061, since today no principal can hold it. The dry run is authorized identically to the commit — a read-only preview of another scope's contents is the leak the commit guard would otherwise still allow.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Import target authorization: the FR-012 pipeline authorizes the Workspace it is about to write to, instead of accepting whichever `workspaceId` the request body names. All three intake routes (`/api/import/dry-run`, `/api/import/commit`, `/api/import/xlsx`) resolve a viewer, and the target Workspace is resolved **before** validation so an unauthorized target is refused without the caller learning anything about the plan. (a) A **Business-scoped** Workspace requires `ownsBusiness(viewer, workspace.businessId)` — the same predicate the other write paths use, not a second reading of it; a caller who may see the Business but does not own it is refused. (b) A Workspace **above Business** (`scopeType` PORTFOLIO or TENANT) is refused with an explicit reason stating that no authority above Business is declared — this requirement deliberately does **not** invent one. Enabling such an import requires a prior FR that makes portfolio/tenant authority *holdable*: a viewer-contract change in the manner of FR-061, since today no principal can hold it. The dry run is authorized identically to the commit — a read-only preview of another scope's contents is the leak the commit guard would otherwise still allow. ✅ "
     },
     {
       "id": "req:FR-066",
@@ -7018,7 +7103,8 @@
       "label": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
-      "status": "planned"
+      "status": "planned",
+      "row_text": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant. 🔜 design approved; implementation pending "
     },
     {
       "id": "req:FR-067",
@@ -7027,7 +7113,8 @@
       "label": "Workspace collaboration boundary: an authorized Workspace/Tenant owner can issue a scoped, expiring, single-use invite that creates a separate WorkspaceMembership. Workspace membership grants only Workspace collaboration visibility; Tenant, Business, Space and Project access require separate server-authorized assignment, with audit and fail-closed replay/revocation behavior.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
-      "status": "planned"
+      "status": "planned",
+      "row_text": "Workspace collaboration boundary: an authorized Workspace/Tenant owner can issue a scoped, expiring, single-use invite that creates a separate WorkspaceMembership. Workspace membership grants only Workspace collaboration visibility; Tenant, Business, Space and Project access require separate server-authorized assignment, with audit and fail-closed replay/revocation behavior. 🔜 design approved; implementation pending "
     },
     {
       "id": "req:FR-068",
@@ -7036,7 +7123,8 @@
       "label": "Human-visible Project Execution Roadmap: an authorized Human sees the same Project execution structure as Agents — current mode-specific phase/stage/period, sprint/batch/wave, backlog, linked `goal_id`/`risk_id` references when available, tags, Human/Agent assignees, dependencies/blocker owners, `gate_id`, evidence and closure, plus applicable supporting identity references — as a composed Work view over the existing Project/Workstream/WorkContainer/WorkItem model.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
-      "status": "planned"
+      "status": "planned",
+      "row_text": "Human-visible Project Execution Roadmap: an authorized Human sees the same Project execution structure as Agents — current mode-specific phase/stage/period, sprint/batch/wave, backlog, linked `goal_id`/`risk_id` references when available, tags, Human/Agent assignees, dependencies/blocker owners, `gate_id`, evidence and closure, plus applicable supporting identity references — as a composed Work view over the existing Project/Workstream/WorkContainer/WorkItem model. 🔜 design approved; implementation pending "
     },
     {
       "id": "req:FR-069",
@@ -7045,7 +7133,8 @@
       "label": "Plan Blueprint and Human/Agent intake: after the user states an objective, Zuri may recommend an editable mode-specific Blueprint; Human forms and external Agent plans normalize to the same PlanEnvelope validation, dry-run, preview, authorization, transactional commit and audit path. Each mode has an `executionContractId`; every lifecycle/evidence step has run, step, attempt and replay IDs for tags, failure localization and append-only replay, with applicable `goal_id`/`risk_id` and supporting identity references. No first-step template picker, fake execution state or new execution mode.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
-      "status": "planned"
+      "status": "planned",
+      "row_text": "Plan Blueprint and Human/Agent intake: after the user states an objective, Zuri may recommend an editable mode-specific Blueprint; Human forms and external Agent plans normalize to the same PlanEnvelope validation, dry-run, preview, authorization, transactional commit and audit path. Each mode has an `executionContractId`; every lifecycle/evidence step has run, step, attempt and replay IDs for tags, failure localization and append-only replay, with applicable `goal_id`/`risk_id` and supporting identity references. No first-step template picker, fake execution state or new execution mode. 🔜 design approved; implementation pending "
     },
     {
       "id": "req:FR-070",
@@ -7054,7 +7143,8 @@
       "label": "Stable execution, domain, goal, risk, tag, trace and supporting identities: every committed Execution Plan exposes canonical `executionModeId`, `executionContractId`, `planId` (= Workstream UUID), domain bindings, authorized `goal_id`/`goalIds[]`, resolved `risk_id`/`riskIds[]` when available, `containerId` plus a mode-valid period alias, `workItemId` plus a mode-valid item alias and `tagId` references; applicable `node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id` references are owner-resolved and remain distinct from execution trace IDs.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
-      "status": "planned"
+      "status": "planned",
+      "row_text": "Stable execution, domain, goal, risk, tag, trace and supporting identities: every committed Execution Plan exposes canonical `executionModeId`, `executionContractId`, `planId` (= Workstream UUID), domain bindings, authorized `goal_id`/`goalIds[]`, resolved `risk_id`/`riskIds[]` when available, `containerId` plus a mode-valid period alias, `workItemId` plus a mode-valid item alias and `tagId` references; applicable `node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id` references are owner-resolved and remain distinct from execution trace IDs. 🔜 design approved; implementation pending "
     },
     {
       "id": "req:FR-071",
@@ -7063,7 +7153,8 @@
       "label": "Supabase data pipeline monitor and replay: the governed SmartGift DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
-      "status": "planned"
+      "status": "planned",
+      "row_text": "Supabase data pipeline monitor and replay: the governed SmartGift DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes. 🔜 design proposed; implementation pending "
     },
     {
       "id": "req:FR-072",
@@ -7072,7 +7163,8 @@
       "label": "Project-Manager mutation authorization: every mutating route repaid from `docs/.route-viewer-baseline.json` resolves a request viewer and the service behind it refuses the write unless `ownsBusiness(viewer, <governing Business>)`, where the governing Business is derived from the target's Space (`workspace.businessId`; for Project-scoped targets via the Project's Space per FR-043; for a Dependency, the governing Business of **both** endpoints; for a Project moved between Spaces, the authority of **both** the current governing Business and the destination Space). (a) A Business-governed target that is not owned answers exactly as a nonexistent one, so a refusal is never an enumeration oracle over another tenant's ids. (b) A target governed above Business (a Project in a PORTFOLIO/TENANT Space, a non-BUSINESS-scoped Workspace) is refused for **every** principal with a reason naming the missing authority — this requirement deliberately does **not** invent authority above Business; enabling such writes requires a prior FR that makes that authority holdable (FR-066/FR-067 direction), per the FR-065 precedent. Routes whose authorization question no declared rule answers (`/api/scope`, `/api/backup/import`) are out of scope and remain recorded debt in `docs/.route-viewer-baseline.json`, each with the missing decision named. (`/api/repositories` and `/api/repositories/[id]` were answered by FR-073 and repaid.)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Project-Manager mutation authorization: every mutating route repaid from `docs/.route-viewer-baseline.json` resolves a request viewer and the service behind it refuses the write unless `ownsBusiness(viewer, <governing Business>)`, where the governing Business is derived from the target's Space (`workspace.businessId`; for Project-scoped targets via the Project's Space per FR-043; for a Dependency, the governing Business of **both** endpoints; for a Project moved between Spaces, the authority of **both** the current governing Business and the destination Space). (a) A Business-governed target that is not owned answers exactly as a nonexistent one, so a refusal is never an enumeration oracle over another tenant's ids. (b) A target governed above Business (a Project in a PORTFOLIO/TENANT Space, a non-BUSINESS-scoped Workspace) is refused for **every** principal with a reason naming the missing authority — this requirement deliberately does **not** invent authority above Business; enabling such writes requires a prior FR that makes that authority holdable (FR-066/FR-067 direction), per the FR-065 precedent. Routes whose authorization question no declared rule answers (`/api/scope`, `/api/backup/import`) are out of scope and remain recorded debt in `docs/.route-viewer-baseline.json`, each with the missing decision named. (`/api/repositories` and `/api/repositories/[id]` were answered by FR-073 and repaid.) ✅ "
     },
     {
       "id": "req:FR-073",
@@ -7081,7 +7173,8 @@
       "label": "Repository ownership: a `Repository` is owned by exactly one Business (`Repository.businessId`), which is the decision FR-072 recorded as missing for `/api/repositories` and `/api/repositories/[id]`. Business rather than Tenant or Portfolio is forced, not chosen: the viewer contract carries only Business-keyed grants, so no principal can hold authority above Business (SDD-037) and a higher-scoped Repository would be ungovernable. (a) Creating a Repository requires `ownsBusiness(viewer, businessId)`, and the Business is required at the input boundary so every new Repository is governed. (b) Updating one requires the same authority over its owning Business; an unowned Repository answers exactly as a nonexistent one. (c) Linking a Repository to a Project requires authority over **both** the Project's governing Business and the Repository's Business — the same fail-closed composition FR-072 applies to a Dependency edge. (d) `Repository.businessId` is nullable only for rows predating this requirement; such a Repository is governed by nobody, is refused for every principal with the missing owner named, and is invisible to every reader until backfilled (`scripts/backfill-repository-business.mjs`, which infers an owner only where a Repository's Project links agree and reports the rest rather than guessing). (e) Listing Repositories is scoped by `seesBusiness`, closing a cross-tenant read that previously returned every Repository in the installation with its project links attached.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Repository ownership: a `Repository` is owned by exactly one Business (`Repository.businessId`), which is the decision FR-072 recorded as missing for `/api/repositories` and `/api/repositories/[id]`. Business rather than Tenant or Portfolio is forced, not chosen: the viewer contract carries only Business-keyed grants, so no principal can hold authority above Business (SDD-037) and a higher-scoped Repository would be ungovernable. (a) Creating a Repository requires `ownsBusiness(viewer, businessId)`, and the Business is required at the input boundary so every new Repository is governed. (b) Updating one requires the same authority over its owning Business; an unowned Repository answers exactly as a nonexistent one. (c) Linking a Repository to a Project requires authority over **both** the Project's governing Business and the Repository's Business — the same fail-closed composition FR-072 applies to a Dependency edge. (d) `Repository.businessId` is nullable only for rows predating this requirement; such a Repository is governed by nobody, is refused for every principal with the missing owner named, and is invisible to every reader until backfilled (`scripts/backfill-repository-business.mjs`, which infers an owner only where a Repository's Project links agree and reports the rest rather than guessing). (e) Listing Repositories is scoped by `seesBusiness`, closing a cross-tenant read that previously returned every Repository in the installation with its project links attached. ✅ "
     },
     {
       "id": "req:FR-074",
@@ -7090,7 +7183,8 @@
       "label": "Scope-creation authorization: every creator behind `POST /api/scope` resolves a viewer and is authorized at the scope it actually writes, in three tiers. (a) **Business scope** — `branch` and a BUSINESS-scoped `workspace` require `ownsBusiness(viewer, businessId)`. (b) **Tenant scope** — creating a `business` inside an existing Tenant, or a TENANT-scoped `workspace`, requires `ownsTenant(viewer, tenantId)`, surfaced on the viewer contract as `ownedTenantIds` from the tenant-wide OWNER Membership that already existed in the data and was previously only expanded into `ownedBusinessIds`. This names a held row; it grants nobody anything new, and is deliberately not satisfied by owning every Business in a Tenant. (c) **Self-service provisioning** — `businessInGroup` creates a new Tenant + Business + Workspace for any authenticated principal, because nothing exists to own beforehand, and **binds the creator as OWNER in the same transaction**. Without that binding the caller would provision scope they cannot subsequently write to, which is the defect this clause fixes as well as authorizes. `portfolio`, `tenant`, `legalEntity` and a PORTFOLIO-scoped `workspace` are installation primitives above any Tenant and require FR-075 operator authority. Self-service is never unauthenticated: the viewer is resolved, the write is attributed, and an audit event is recorded.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Scope-creation authorization: every creator behind `POST /api/scope` resolves a viewer and is authorized at the scope it actually writes, in three tiers. (a) **Business scope** — `branch` and a BUSINESS-scoped `workspace` require `ownsBusiness(viewer, businessId)`. (b) **Tenant scope** — creating a `business` inside an existing Tenant, or a TENANT-scoped `workspace`, requires `ownsTenant(viewer, tenantId)`, surfaced on the viewer contract as `ownedTenantIds` from the tenant-wide OWNER Membership that already existed in the data and was previously only expanded into `ownedBusinessIds`. This names a held row; it grants nobody anything new, and is deliberately not satisfied by owning every Business in a Tenant. (c) **Self-service provisioning** — `businessInGroup` creates a new Tenant + Business + Workspace for any authenticated principal, because nothing exists to own beforehand, and **binds the creator as OWNER in the same transaction**. Without that binding the caller would provision scope they cannot subsequently write to, which is the defect this clause fixes as well as authorizes. `portfolio`, `tenant`, `legalEntity` and a PORTFOLIO-scoped `workspace` are installation primitives above any Tenant and require FR-075 operator authority. Self-service is never unauthenticated: the viewer is resolved, the write is attributed, and an audit event is recorded. ✅ "
     },
     {
       "id": "req:FR-075",
@@ -7099,7 +7193,8 @@
       "label": "Installation-operator authority: an installation-wide operation is authorized by a named capability, `isOperator`, carried on the viewer contract and true for a platform grant (FR-031, on a trusted session per SEC-008) or the local single-installation session, and false for every ordinary authenticated principal however much of the installation they own. It governs `POST /api/backup/import` — both the preview and the restore, since a preview of every table across every tenant is the same disclosure the restore guard would otherwise still permit — and the scope primitives above any Tenant (FR-074). This is a distinct *scope* of authority rather than a larger amount of Business ownership: a restore replaces Portfolios, Tenants, identities and audit rows, so no composition of `ownsBusiness` can express it, which is why the route was unrepayable until the capability was named. `isPlatform` remains visibility-only and is never read as authority (RCA 2026-08-16).",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Installation-operator authority: an installation-wide operation is authorized by a named capability, `isOperator`, carried on the viewer contract and true for a platform grant (FR-031, on a trusted session per SEC-008) or the local single-installation session, and false for every ordinary authenticated principal however much of the installation they own. It governs `POST /api/backup/import` — both the preview and the restore, since a preview of every table across every tenant is the same disclosure the restore guard would otherwise still permit — and the scope primitives above any Tenant (FR-074). This is a distinct *scope* of authority rather than a larger amount of Business ownership: a restore replaces Portfolios, Tenants, identities and audit rows, so no composition of `ownsBusiness` can express it, which is why the route was unrepayable until the capability was named. `isPlatform` remains visibility-only and is never read as authority (RCA 2026-08-16). ✅ "
     },
     {
       "id": "req:FR-076",
@@ -7108,7 +7203,8 @@
       "label": "Product Owner Business role binding: a Person may hold one active generic `RoleBinding` with `roleKey=PRODUCT_OWNER` per assigned Business inside a customer Tenant; the registry expands it only to Product permissions for that Business, never Business/Tenant/Workspace ownership, Resource/Operations, Marketing, Platform, Integration, secret, LINE or import authority. Bindings are trusted, Business-scoped, revocable, audited and fail closed.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Product Owner Business role binding: a Person may hold one active generic `RoleBinding` with `roleKey=PRODUCT_OWNER` per assigned Business inside a customer Tenant; the registry expands it only to Product permissions for that Business, never Business/Tenant/Workspace ownership, Resource/Operations, Marketing, Platform, Integration, secret, LINE or import authority. Bindings are trusted, Business-scoped, revocable, audited and fail closed. 🟠 local contract implemented; remote identity and migration pending "
     },
     {
       "id": "req:FR-077",
@@ -7117,7 +7213,8 @@
       "label": "Project Inventory MVP: an authorized viewer can open one Project and receive a stable, read-only `PROJECT_INVENTORY` DTO covering Project identity/Business/Space context, Workstreams/Containers/Items, Milestones/Gates, Project-contained Dependencies, legacy and managed file metadata, linked Repositories, visible Team/Memberships, strategy-based progress/evidence and redacted recent activity. The route uses trusted viewer scope, independent pagination/truncation metadata, no raw Prisma graph, no mutation, no external sync and does not change the Project List or `overview`/`timeline`/`workspace` compatibility views.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Project Inventory MVP: an authorized viewer can open one Project and receive a stable, read-only `PROJECT_INVENTORY` DTO covering Project identity/Business/Space context, Workstreams/Containers/Items, Milestones/Gates, Project-contained Dependencies, legacy and managed file metadata, linked Repositories, visible Team/Memberships, strategy-based progress/evidence and redacted recent activity. The route uses trusted viewer scope, independent pagination/truncation metadata, no raw Prisma graph, no mutation, no external sync and does not change the Project List or `overview`/`timeline`/`workspace` compatibility views. ✅ implemented beta "
     },
     {
       "id": "req:FR-078",
@@ -7126,7 +7223,8 @@
       "label": "Customer Profile backfill contract: the SmartGift historical customer pipeline has a fixed Tenant/Business scope, read-only source snapshot, machine-validated record/provenance envelope, explicit tax/name/corroboration resolution rules, duplicate/unresolved review queue, PII/financial/LINE exclusions, target Person/Customer schema gate, server-owned idempotent transaction and batch rollback; the first batch is applied with 3,439 Customer rows and 130 held review rows. The v0.3.0B review extension adds deterministic review IDs, redacted evidence, append-only Business-scoped decisions and a separate no-publish apply gate.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Customer Profile backfill contract: the SmartGift historical customer pipeline has a fixed Tenant/Business scope, read-only source snapshot, machine-validated record/provenance envelope, explicit tax/name/corroboration resolution rules, duplicate/unresolved review queue, PII/financial/LINE exclusions, target Person/Customer schema gate, server-owned idempotent transaction and batch rollback; the first batch is applied with 3,439 Customer rows and 130 held review rows. The v0.3.0B review extension adds deterministic review IDs, redacted evidence, append-only Business-scoped decisions and a separate no-publish apply gate. 🟢 production queue, application schema/identity projection and `CUSTOMER_DATA_REVIEWER` binding verified; hosted review-store secret remains an explicit deployment configuration "
     },
     {
       "id": "req:FR-079",
@@ -7135,7 +7233,8 @@
       "label": "Phase 1 LINE runtime connection cut-over: after the server-owned LINE binding resolves the trusted Tenant/Business scope, the runtime selects exactly one `ACTIVE` `PRIMARY` `PHASE1_LINE_LLM` IntegrationConnection under that scope, resolves its opaque `secretRef` through the environment-selected provider-neutral SecretManagerPort, then composes the existing ModelProviderPort. Zero/multiple candidates, untrusted scope, secret-manager failure/expiry/version mismatch, production local-vault/raw-credential access and production/public-LINE Ollama selection fail closed before knowledge/model/reply work. Promotion uses compare-and-swap and a database uniqueness invariant; local Ollama is explicit local/dev/test/eval only and never automatic fallback. Production now selects Supabase Vault through the private resolver; live apply/provisioning/canary remain pending.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Phase 1 LINE runtime connection cut-over: after the server-owned LINE binding resolves the trusted Tenant/Business scope, the runtime selects exactly one `ACTIVE` `PRIMARY` `PHASE1_LINE_LLM` IntegrationConnection under that scope, resolves its opaque `secretRef` through the environment-selected provider-neutral SecretManagerPort, then composes the existing ModelProviderPort. Zero/multiple candidates, untrusted scope, secret-manager failure/expiry/version mismatch, production local-vault/raw-credential access and production/public-LINE Ollama selection fail closed before knowledge/model/reply work. Promotion uses compare-and-swap and a database uniqueness invariant; local Ollama is explicit local/dev/test/eval only and never automatic fallback. Production now selects Supabase Vault through the private resolver; live apply/provisioning/canary remain pending. 🟠 local runtime/adapter implemented; production evidence pending "
     },
     {
       "id": "req:FR-080",
@@ -7144,7 +7243,8 @@
       "label": "Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts. 🟠 local page/API/service/adapter implemented; live Supabase and activation evidence pending "
     },
     {
       "id": "req:FR-081",
@@ -7153,7 +7253,8 @@
       "label": "Raw external ingestion boundary: every acquisition channel (webhook, pull, file, manual) converges on one normalized ingestion envelope carrying tenant, Business, connection, provider, lane, entity type, external id, source type and schema version, and a channel is added as an adapter rather than a second raw-write path. (a) Ingestion identity is `sha256(tenantId, connectionId, entityType, externalId, payloadHash)` over a canonically serialized payload, so a re-delivered event resolves to `UNCHANGED` instead of a duplicate row; the external id contributes to that identity and is never itself a key (BR-002). (b) Raw records are read and written only through a repository bound to one tenant/connection scope, which refuses a row outside it rather than filtering afterwards (SEC-001), and a referenced Business or IngestionRun must itself resolve inside that scope. (c) Raw ingestion persists the source payload verbatim and never writes domain truth: translation into business entities is a separate later path, so a failed translation cannot corrupt the evidence it was derived from. (d) A run records its own counts and terminal state, and a failure is preserved as a DeadLetterRecord naming the failing stage and owner rather than being retried silently. This requirement declares the ingestion substrate only; no scheduler, no translation ACL and no reader surface is in scope.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Raw external ingestion boundary: every acquisition channel (webhook, pull, file, manual) converges on one normalized ingestion envelope carrying tenant, Business, connection, provider, lane, entity type, external id, source type and schema version, and a channel is added as an adapter rather than a second raw-write path. (a) Ingestion identity is `sha256(tenantId, connectionId, entityType, externalId, payloadHash)` over a canonically serialized payload, so a re-delivered event resolves to `UNCHANGED` instead of a duplicate row; the external id contributes to that identity and is never itself a key (BR-002). (b) Raw records are read and written only through a repository bound to one tenant/connection scope, which refuses a row outside it rather than filtering afterwards (SEC-001), and a referenced Business or IngestionRun must itself resolve inside that scope. (c) Raw ingestion persists the source payload verbatim and never writes domain truth: translation into business entities is a separate later path, so a failed translation cannot corrupt the evidence it was derived from. (d) A run records its own counts and terminal state, and a failure is preserved as a DeadLetterRecord naming the failing stage and owner rather than being retried silently. This requirement declares the ingestion substrate only; no scheduler, no translation ACL and no reader surface is in scope. 🟠 substrate and LINE OA webhook adapter implemented; scheduler, translation and replay surface not started "
     },
     {
       "id": "req:NFR-001",
@@ -7162,7 +7263,8 @@
       "label": "Runtime offline สมบูรณ์หลัง `npm install` (SQLite, ไม่มี cloud/CDN/font ภายนอก)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Runtime offline สมบูรณ์หลัง `npm install` (SQLite, ไม่มี cloud/CDN/font ภายนอก) FINAL.md matrix "
     },
     {
       "id": "req:NFR-002",
@@ -7171,7 +7273,8 @@
       "label": "`npm run build` ผ่านโดยไม่มี error",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "`npm run build` ผ่านโดยไม่มี error build clean; 32 API routes + 24 pages "
     },
     {
       "id": "req:NFR-003",
@@ -7180,7 +7283,8 @@
       "label": "Responsive ถึง 375px โดยไม่มี horizontal scroll",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Responsive ถึง 375px โดยไม่มี horizontal scroll e2e test "
     },
     {
       "id": "req:NFR-004",
@@ -7189,7 +7293,8 @@
       "label": "Keyboard: palette เต็มรูปแบบ, aria labels, progressbar roles",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Keyboard: palette เต็มรูปแบบ, aria labels, progressbar roles e2e + code "
     },
     {
       "id": "req:NFR-005",
@@ -7198,7 +7303,8 @@
       "label": "Progress calculators deterministic (pure, no clock/random)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Progress calculators deterministic (pure, no clock/random) 31 unit tests "
     },
     {
       "id": "req:NFR-006",
@@ -7207,7 +7313,8 @@
       "label": "Persistence ย้ายไป Postgres ได้โดยไม่แก้ semantics (string enums, UUID, JSON strings)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Persistence ย้ายไป Postgres ได้โดยไม่แก้ semantics (string enums, UUID, JSON strings) DB-MIGRATION-NOTES.md "
     },
     {
       "id": "req:NFR-007",
@@ -7216,7 +7323,8 @@
       "label": "Seed idempotent / reset ได้ (`db:seed`, `db:reset`)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Seed idempotent / reset ได้ (`db:seed`, `db:reset`) verified double-run "
     },
     {
       "id": "req:NFR-008",
@@ -7225,7 +7333,8 @@
       "label": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity boundary จนกว่าจะ cutover",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity boundary จนกว่าจะ cutover ADR-010 + design-system test + visual route check "
     },
     {
       "id": "req:NFR-009",
@@ -7234,7 +7343,8 @@
       "label": "Local file operations are crash-recoverable and portable: authoritative metadata survives restart/remount, cache is fully rebuildable, absolute device paths never become identity, and canonical results are available when cache is stale or absent.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Local file operations are crash-recoverable and portable: authoritative metadata survives restart/remount, cache is fully rebuildable, absolute device paths never become identity, and canonical results are available when cache is stale or absent. FR-045 unit/integration/remount/cache parity gates "
     },
     {
       "id": "req:NFR-010",
@@ -7243,7 +7353,8 @@
       "label": "LINE business answers fail closed within a bounded request deadline: network calls use explicit timeouts/cancellation, duplicate delivery is idempotent, provider failure cannot expose secrets or raw data, and offline/local evaluation remains possible through an injected adapter.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "LINE business answers fail closed within a bounded request deadline: network calls use explicit timeouts/cancellation, duplicate delivery is idempotent, provider failure cannot expose secrets or raw data, and offline/local evaluation remains possible through an injected adapter. FR-047..050 contract, timeout and redelivery tests "
     },
     {
       "id": "req:NFR-011",
@@ -7252,7 +7363,8 @@
       "label": "Production tenancy changes are migration-first, idempotent and reversible: advisory/lock timeouts bound deployment, reserved code/UUID collisions abort, schema history and backups are inspected before apply, and no runtime secret or service-role key is stored in source, migration SQL, logs or browser code.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Production tenancy changes are migration-first, idempotent and reversible: advisory/lock timeouts bound deployment, reserved code/UUID collisions abort, schema history and backups are inspected before apply, and no runtime secret or service-role key is stored in source, migration SQL, logs or browser code. Production migration/import/isolation evidence captured; activation gates pending "
     },
     {
       "id": "req:NFR-012",
@@ -7261,7 +7373,8 @@
       "label": "Activation evidence is deterministic, versioned and redacted: credentials come only from process environment/approved secret stores; reports contain hashes and assertion results rather than raw authorization material, database URLs, reply tokens or PII.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Activation evidence is deterministic, versioned and redacted: credentials come only from process environment/approved secret stores; reports contain hashes and assertion results rather than raw authorization material, database URLs, reply tokens or PII. FR-053/054 contract and secret-scan gates "
     },
     {
       "id": "req:NFR-013",
@@ -7270,7 +7383,8 @@
       "label": "Binding activation and rollback are atomic, idempotent and bounded: exact row/version/evidence hashes are locked and compared, one correlation ID produces at most one state change, activation expires, and rollback disables routing before any secondary remediation.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Binding activation and rollback are atomic, idempotent and bounded: exact row/version/evidence hashes are locked and compared, one correlation ID produces at most one state change, activation expires, and rollback disables routing before any secondary remediation. FR-055 / ADR-020 "
     },
     {
       "id": "req:NFR-014",
@@ -7279,7 +7393,8 @@
       "label": "Authorization decisions are recomputed per turn and remain bounded, auditable and fail-closed across restart, horizontal instances, identity revocation and Membership revocation.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Authorization decisions are recomputed per turn and remain bounded, auditable and fail-closed across restart, horizontal instances, identity revocation and Membership revocation. FR-057 / ADR-022 contract and security tests "
     },
     {
       "id": "req:NFR-015",
@@ -7288,7 +7403,8 @@
       "label": "Phase 1 runtime source and secret resolution are explicit, asynchronous, bounded and redacted: production accepts only the Supabase Vault-backed SecretManagerPort, never constructs the local file vault or consumes raw model credentials; selection is binding-scoped, cache entries are versioned and scoped by Tenant/Business with hard expiry, rotation/revocation purges immediately, and provider failures never trigger implicit fallback.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Phase 1 runtime source and secret resolution are explicit, asynchronous, bounded and redacted: production accepts only the Supabase Vault-backed SecretManagerPort, never constructs the local file vault or consumes raw model credentials; selection is binding-scoped, cache entries are versioned and scoped by Tenant/Business with hard expiry, rotation/revocation purges immediately, and provider failures never trigger implicit fallback. FR-074 / ADR-031 contract, failure and security tests "
     },
     {
       "id": "req:NFR-016",
@@ -7297,7 +7413,8 @@
       "label": "Platform Integration management is bounded and secret-safe: UI/API actions use trusted Business scope, explicit async loading/error states, idempotency/version checks and redacted responses; raw secret material never crosses browser responses, Prisma, logs or audit events, and manager-unavailable states cannot report success.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Platform Integration management is bounded and secret-safe: UI/API actions use trusted Business scope, explicit async loading/error states, idempotency/version checks and redacted responses; raw secret material never crosses browser responses, Prisma, logs or audit events, and manager-unavailable states cannot report success. FR-075 / ADR-032 UI, API, redaction and accessibility gates "
     },
     {
       "id": "req:SDD-001",
@@ -7306,7 +7423,8 @@
       "label": "~~Standalone repo ก่อน integrate (ADR-001)~~ **superseded by ADR-003** — V2 แทน V1 ด้วยการ reuse (ยก UI ทีละโมดูลตอน cutover)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "superseded",
+      "row_text": "~~Standalone repo ก่อน integrate (ADR-001)~~ **superseded by ADR-003** — V2 แทน V1 ด้วยการ reuse (ยก UI ทีละโมดูลตอน cutover) เหตุผลเดิม (กัน regression, ทดลอง schema อิสระ) ทำหน้าที่จบแล้ว "
     },
     {
       "id": "req:SDD-002",
@@ -7315,7 +7433,8 @@
       "label": "Persisted enums เป็น string, Zod (`src/lib/validation/enums.js`) เป็น source of truth เดียว",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Persisted enums เป็น string, Zod (`src/lib/validation/enums.js`) เป็น source of truth เดียว Postgres migration ไร้ connector coupling "
     },
     {
       "id": "req:SDD-003",
@@ -7324,7 +7443,8 @@
       "label": "UUID PK + human code (unique) พร้อม collision retry",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "UUID PK + human code (unique) พร้อม collision retry BR-002; code ใช้อ้างใน Excel/envelope ได้ "
     },
     {
       "id": "req:SDD-004",
@@ -7333,7 +7453,8 @@
       "label": "Soft delete (`deletedAt`) + `version` counter บน aggregate roots",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Soft delete (`deletedAt`) + `version` counter บน aggregate roots audit-friendly, กู้คืนได้ "
     },
     {
       "id": "req:SDD-005",
@@ -7342,7 +7463,8 @@
       "label": "Progress calculators เป็น pure function; `progressCache` เป็น advisory เท่านั้น",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Progress calculators เป็น pure function; `progressCache` เป็น advisory เท่านั้น deterministic tests, คำนวณซ้ำได้เสมอ "
     },
     {
       "id": "req:SDD-006",
@@ -7351,7 +7473,8 @@
       "label": "Import commit ใน `prisma.$transaction` เดียว, upsert by code",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Import commit ใน `prisma.$transaction` เดียว, upsert by code atomicity + idempotent re-import "
     },
     {
       "id": "req:SDD-007",
@@ -7360,7 +7483,8 @@
       "label": "UI เป็น client fetch (`useFetch`) เรียก API handlers ซึ่ง delegate ให้ services",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "UI เป็น client fetch (`useFetch`) เรียก API handlers ซึ่ง delegate ให้ services MVP-simple; server-component read path เป็นงานอนาคต "
     },
     {
       "id": "req:SDD-008",
@@ -7369,7 +7493,8 @@
       "label": "JavaScript + Zod ที่ boundary (ไม่ใช่ TypeScript) — **ยึดกับไฟล์ใดไฟล์หนึ่งไม่ได้โดยธรรมชาติ**",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "JavaScript + Zod ที่ boundary (ไม่ใช่ TypeScript) — **ยึดกับไฟล์ใดไฟล์หนึ่งไม่ได้โดยธรรมชาติ** mandate จาก MASTER-PROMPT tree · ความเสี่ยงที่ตามมา: ไม่มี compiler บังคับสัญญา จึงต้องมี contract test ก่อนเขียนไส้ endpoint ใหม่ (ADR-003 §D6) "
     },
     {
       "id": "req:SDD-009",
@@ -7378,7 +7503,8 @@
       "label": "Unified intake: ทุก surface แปลงเป็น envelope เดียว",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Unified intake: ทุก surface แปลงเป็น envelope เดียว BR-009; เทสต์ pipeline ชุดเดียวคุ้มทุกทาง "
     },
     {
       "id": "req:SDD-010",
@@ -7387,7 +7513,8 @@
       "label": "Zuri Heritage UI ใช้ CSS token 3 ชั้น (primitive → semantic → component); legacy aliases ช่วย migrate, shared V2 primitives มาก่อน, V1 lift เปลี่ยนเฉพาะ cutover ที่ parity-tested",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Zuri Heritage UI ใช้ CSS token 3 ชั้น (primitive → semantic → component); legacy aliases ช่วย migrate, shared V2 primitives มาก่อน, V1 lift เปลี่ยนเฉพาะ cutover ที่ parity-tested ADR-010; NFR-008; ลด global restyle risk "
     },
     {
       "id": "req:SDD-011",
@@ -7396,7 +7523,8 @@
       "label": "Home derives its cards from the viewer gate plus the already-loaded scope inventory. The viewer decides visibility; the client never infers authorization from the full scope list. A group selection persists Portfolio scope, a business selection persists Portfolio + Business scope, then Home navigates to Overview.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Home derives its cards from the viewer gate plus the already-loaded scope inventory. The viewer decides visibility; the client never infers authorization from the full scope list. A group selection persists Portfolio scope, a business selection persists Portfolio + Business scope, then Home navigates to Overview. FR-031, FR-032; ADR-008 "
     },
     {
       "id": "req:SDD-012",
@@ -7405,7 +7533,8 @@
       "label": "Topbar is navigation chrome, not a scope-editor. Removing its selectors avoids a second scope-control surface; its remaining controls do not alter the ambient Portfolio/Business/Workspace/Project selection.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Topbar is navigation chrome, not a scope-editor. Removing its selectors avoids a second scope-control surface; its remaining controls do not alter the ambient Portfolio/Business/Workspace/Project selection. FR-033; ADR-008, SITEMAP-V2 §5 "
     },
     {
       "id": "req:SDD-013",
@@ -7414,7 +7543,8 @@
       "label": "Breadcrumb scope links are deterministic page routes, not menus: Home owns Group/Business, Workspaces owns Workspace, and Projects owns Project. The current lens provides display labels only; it never changes the underlying scope identity.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Breadcrumb scope links are deterministic page routes, not menus: Home owns Group/Business, Workspaces owns Workspace, and Projects owns Project. The current lens provides display labels only; it never changes the underlying scope identity. FR-034; SITEMAP-V2 §2b "
     },
     {
       "id": "req:SDD-014",
@@ -7423,7 +7553,8 @@
       "label": "Overview is Business-first. A selected Business renders only its scoped project aggregates and links to active V2 domain entry points; an unselected Business renders a Home-required state. Portfolio progress remains a reporting API, not an operational landing.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Overview is Business-first. A selected Business renders only its scoped project aggregates and links to active V2 domain entry points; an unselected Business renders a Home-required state. Portfolio progress remains a reporting API, not an operational landing. FR-035; ADR-013 "
     },
     {
       "id": "req:SDD-015",
@@ -7432,7 +7563,8 @@
       "label": "Project Team reuses Membership rather than inventing a ProjectMember model. For a business workspace, mutation is limited to memberships whose `businessId` equals the project workspace; tenant-wide memberships are visible but immutable in this view. Assignee load counts non-deleted WorkItems in the project where `assigneeRef` equals the member’s person id.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Project Team reuses Membership rather than inventing a ProjectMember model. For a business workspace, mutation is limited to memberships whose `businessId` equals the project workspace; tenant-wide memberships are visible but immutable in this view. Assignee load counts non-deleted WorkItems in the project where `assigneeRef` equals the member’s person id. FR-036; BR-001, SEC-003 "
     },
     {
       "id": "req:SDD-016",
@@ -7441,7 +7573,8 @@
       "label": "`ProjectFile` is an additive SQLite schema change with an equivalent generated Postgres schema. It stores only file metadata plus a local/remote reference (`url` or `blobRef`); a service confirms an optional WorkItem belongs to the Project before persisting. The repo has no Prisma migration baseline, so the additive SQL is recorded as an artifact while the established `db:push` workflow applies local schema.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "`ProjectFile` is an additive SQLite schema change with an equivalent generated Postgres schema. It stores only file metadata plus a local/remote reference (`url` or `blobRef`); a service confirms an optional WorkItem belongs to the Project before persisting. The repo has no Prisma migration baseline, so the additive SQL is recorded as an artifact while the established `db:push` workflow applies local schema. FR-037; BR-002, SEC-003 "
     },
     {
       "id": "req:SDD-017",
@@ -7450,7 +7583,8 @@
       "label": "`Membership.domainKeysJson` persists an allow-list of DOMAINS keys for MEMBER. Empty is deny-by-default. Owner and DEV derive all current domains from their role, not from checkbox state. The resolver is the only interpreter; DomainBar reads its `visibleDomains`, and owner-only API mutations audit the resulting role/domain grant. **Refined by FR-061/SDD-034**: \"derive from their role\" is a *per-Membership* rule, so an OWNER Membership grants all domains on the Businesses that Membership covers and nowhere else; DomainBar now reads the per-Business answer, not the flat field.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "`Membership.domainKeysJson` persists an allow-list of DOMAINS keys for MEMBER. Empty is deny-by-default. Owner and DEV derive all current domains from their role, not from checkbox state. The resolver is the only interpreter; DomainBar reads its `visibleDomains`, and owner-only API mutations audit the resulting role/domain grant. **Refined by FR-061/SDD-034**: \"derive from their role\" is a *per-Membership* rule, so an OWNER Membership grants all domains on the Businesses that Membership covers and nowhere else; DomainBar now reads the per-Business answer, not the flat field. FR-038; FR-031, FR-061, SDD-034, SEC-003 "
     },
     {
       "id": "req:SDD-018",
@@ -7459,7 +7593,8 @@
       "label": "`ScopeContext` keeps the existing identity fields but exposes only Portfolio, Tenant, and Business to shell context. `scope-views` supplies their ERP/PM vocabulary. Domain configuration renders the existing `projects` key as Development; schema Workspace/Project stay module-local and never drive shell navigation.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "`ScopeContext` keeps the existing identity fields but exposes only Portfolio, Tenant, and Business to shell context. `scope-views` supplies their ERP/PM vocabulary. Domain configuration renders the existing `projects` key as Development; schema Workspace/Project stay module-local and never drive shell navigation. FR-039; ADR-011, BR-001 "
     },
     {
       "id": "req:SDD-019",
@@ -7468,7 +7603,8 @@
       "label": "`ProjectTabs` is the project-local boundary. Its `Work` tab owns `Structure Plan`, `Board`, `Schedule`, and `Dependency Map`. The map is a read model built from existing Dependency records and project-owned endpoints only; it never becomes a Development sidebar item, a shell scope, or a new persisted aggregate. **`Board` and `Schedule` are declared by FR-063 and FR-064**: this design decision asserted the tab owned four sub-views while its FR-040 stated only two, so two of the four shipped with no requirement behind them.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "`ProjectTabs` is the project-local boundary. Its `Work` tab owns `Structure Plan`, `Board`, `Schedule`, and `Dependency Map`. The map is a read model built from existing Dependency records and project-owned endpoints only; it never becomes a Development sidebar item, a shell scope, or a new persisted aggregate. **`Board` and `Schedule` are declared by FR-063 and FR-064**: this design decision asserted the tab owned four sub-views while its FR-040 stated only two, so two of the four shipped with no requirement behind them. FR-040, FR-063, FR-064; ADR-012, FR-005, FR-007, NFR-008 "
     },
     {
       "id": "req:SDD-020",
@@ -7477,7 +7613,8 @@
       "label": "Business Strategy is a read model over `BusinessRoadmap`, `BusinessRoadmapHorizon`, `BusinessGoal`, and `ProjectGoal`. The service returns two or three ordered horizons and filters by the selected Business; no Project or Organization is promoted to shell scope.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Business Strategy is a read model over `BusinessRoadmap`, `BusinessRoadmapHorizon`, `BusinessGoal`, and `ProjectGoal`. The service returns two or three ordered horizons and filters by the selected Business; no Project or Organization is promoted to shell scope. FR-041; ADR-013, BR-001 "
     },
     {
       "id": "req:SDD-021",
@@ -7486,7 +7623,8 @@
       "label": "Project ownership is direct through nullable `businessId`; `workspaceId` is a Development Space context. Services derive and validate the owner against the Space, allow null only for explicit portfolio/tenant shared work, and render Business before Space in Project context.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Project ownership is direct through nullable `businessId`; `workspaceId` is a Development Space context. Services derive and validate the owner against the Space, allow null only for explicit portfolio/tenant shared work, and render Business before Space in Project context. FR-043; ADR-014, BR-001, SEC-001 "
     },
     {
       "id": "req:SDD-022",
@@ -7495,7 +7633,8 @@
       "label": "Route groups enforce the interface boundary: EntryShell owns `/` and `/login`, BusinessRoutingShell owns `/businesses`, BusinessShell owns `/overview` and Business-bound domains, and ProjectResourceShell remains nested below BusinessShell. Missing viewer/business context redirects before shell render. Existing Zuri tokens are reused; token redesign is deferred.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Route groups enforce the interface boundary: EntryShell owns `/` and `/login`, BusinessRoutingShell owns `/businesses`, BusinessShell owns `/overview` and Business-bound domains, and ProjectResourceShell remains nested below BusinessShell. Missing viewer/business context redirects before shell render. Existing Zuri tokens are reused; token redesign is deferred. FR-044; ADR-015, SDD-011, SDD-014 "
     },
     {
       "id": "req:SDD-023",
@@ -7504,7 +7643,8 @@
       "label": "`FileAsset` + validated `FileLink` form the portable file metadata graph; `LocalWorkspaceMount` maps one device-local absolute root to stable relative paths. Managed ingest is staged and audited, missing files require explicit reconcile/relink, cache entries carry source revision and are disposable, and the legacy ProjectFile API remains behind a migration adapter until ZV2-CR-001 parity/rollback gates pass. **Containment is Windows-path-based**: `local-files/` resolves through `path.win32` so it can reason about drive letters, UNC roots and junction/reparse escape (SEC-007), which makes the managed local workspace a Windows-only capability — the rest of the product is portable.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "`FileAsset` + validated `FileLink` form the portable file metadata graph; `LocalWorkspaceMount` maps one device-local absolute root to stable relative paths. Managed ingest is staged and audited, missing files require explicit reconcile/relink, cache entries carry source revision and are disposable, and the legacy ProjectFile API remains behind a migration adapter until ZV2-CR-001 parity/rollback gates pass. **Containment is Windows-path-based**: `local-files/` resolves through `path.win32` so it can reason about drive letters, UNC roots and junction/reparse escape (SEC-007), which makes the managed local workspace a Windows-only capability — the rest of the product is portable. FR-045; ADR-016, BR-010, NFR-009, SEC-007 "
     },
     {
       "id": "req:SDD-024",
@@ -7513,7 +7653,8 @@
       "label": "A provider-neutral `SessionPort` resolves trusted request identity before `resolveViewer()`. `GET /api/entry` queries outward only from viewer-visible Business IDs and returns minimal Business plus Portfolio/Tenant ancestry in one response. `/businesses` stops consuming broad `/api/scope`; `/api/viewer` remains compatibility-only and uses the same trusted seam.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "A provider-neutral `SessionPort` resolves trusted request identity before `resolveViewer()`. `GET /api/entry` queries outward only from viewer-visible Business IDs and returns minimal Business plus Portfolio/Tenant ancestry in one response. `/businesses` stops consuming broad `/api/scope`; `/api/viewer` remains compatibility-only and uses the same trusted seam. Implemented beta; FR-046, ADR-017, SEC-008, ZV2-CR-002 "
     },
     {
       "id": "req:SDD-025",
@@ -7522,7 +7663,8 @@
       "label": "The Phase 1 LINE pilot is a ports-and-adapters vertical slice. `BusinessKnowledgeReadPort` owns registered bounded reads, `ModelProviderPort` owns normalized generation, and the grounded-answer service verifies evidence before returning reply text. `zuri-cli` remains the only LINE signature/reply transport. Supabase is operational relational storage; GenesisBlockDB/MSP/GKS are not Phase 1 dependencies.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "The Phase 1 LINE pilot is a ports-and-adapters vertical slice. `BusinessKnowledgeReadPort` owns registered bounded reads, `ModelProviderPort` owns normalized generation, and the grounded-answer service verifies evidence before returning reply text. `zuri-cli` remains the only LINE signature/reply transport. Supabase is operational relational storage; GenesisBlockDB/MSP/GKS are not Phase 1 dependencies. FR-047..050; ADR-007 amendment; ZV2-CR-003 "
     },
     {
       "id": "req:SDD-026",
@@ -7531,7 +7673,8 @@
       "label": "Supabase production authority uses a private `zuri_core` schema with stable internal UUIDs, composite Tenant/Business foreign keys and forced RLS. A `NOLOGIN` scope role owns the policies; a separate unprivileged login has no direct grants and every query uses a short transaction plus `SET LOCAL ROLE`. Curated DuckDB data is imported through a reconciled, hash-bound transaction and does not make GenesisBlockDB a Supabase replacement.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Supabase production authority uses a private `zuri_core` schema with stable internal UUIDs, composite Tenant/Business foreign keys and forced RLS. A `NOLOGIN` scope role owns the policies; a separate unprivileged login has no direct grants and every query uses a short transaction plus `SET LOCAL ROLE`. Curated DuckDB data is imported through a reconciled, hash-bound transaction and does not make GenesisBlockDB a Supabase replacement. FR-051..052; ADR-018; ZV2-CR-004 "
     },
     {
       "id": "req:SDD-027",
@@ -7540,7 +7683,8 @@
       "label": "Phase 1 activation uses three independent evidence ports: a deterministic GoldenEvaluation runner over injected knowledge/provider ports, a transaction-scoped RuntimeIsolationProbe, and a mutation-free CanaryPreflight. W4 combines their redacted artifacts; no readiness component owns secret persistence, binding mutation or LINE transport.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Phase 1 activation uses three independent evidence ports: a deterministic GoldenEvaluation runner over injected knowledge/provider ports, a transaction-scoped RuntimeIsolationProbe, and a mutation-free CanaryPreflight. W4 combines their redacted artifacts; no readiness component owns secret persistence, binding mutation or LINE transport. FR-053..054; ADR-019; ZV2-CR-005 "
     },
     {
       "id": "req:SDD-028",
@@ -7549,7 +7693,8 @@
       "label": "FR-055 adds a separate operator port: strict schemas feed a dry-run-default CLI, a dedicated database role performs one versioned CAS mutation plus append-only event, and a `zuri-cli` adapter imports only redacted hash-pinned transport evidence. Readiness, mutation and transport remain separate owners.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "FR-055 adds a separate operator port: strict schemas feed a dry-run-default CLI, a dedicated database role performs one versioned CAS mutation plus append-only event, and a `zuri-cli` adapter imports only redacted hash-pinned transport evidence. Readiness, mutation and transport remain separate owners. FR-055; ADR-020 / ZV2-CR-006 "
     },
     {
       "id": "req:SDD-029",
@@ -7558,7 +7703,8 @@
       "label": "EntryShell exposes a landing-only full-viewport variant while keeping Login compact. The landing presentation owns its inert operational signal field, applies pointer motion only on fine-pointer non-reduced-motion devices, and keeps exactly one `/login` link. Metadata and raster assets are Zuri-owned and local.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "EntryShell exposes a landing-only full-viewport variant while keeping Login compact. The landing presentation owns its inert operational signal field, applies pointer motion only on fine-pointer non-reduced-motion devices, and keeps exactly one `/login` link. Metadata and raster assets are Zuri-owned and local. FR-056; ADR-021, ADR-010, ADR-015 "
     },
     {
       "id": "req:SDD-030",
@@ -7567,7 +7713,8 @@
       "label": "Agent turns construct an immutable AuthContext and resolve an explicit authorized vault set before MSP retrieval. Private memory ownership is Tenant × Principal × Agent × Workspace; thread/session/instance/event are provenance and lifecycle. Legacy principal-only keys remain explicit compatibility mode only.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Agent turns construct an immutable AuthContext and resolve an explicit authorized vault set before MSP retrieval. Private memory ownership is Tenant × Principal × Agent × Workspace; thread/session/instance/event are provenance and lifecycle. Legacy principal-only keys remain explicit compatibility mode only. FR-057; ADR-022; BR-015; SEC-013 "
     },
     {
       "id": "req:SDD-031",
@@ -7576,7 +7723,8 @@
       "label": "File Manager views are pure projections over the FR-045 read model: the switcher derives orderings and groupings client-side from one canonical `assetDto` list; secondary `FileLink` rows still never multiply a DTO, and preview never accepts a filesystem path directly.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "File Manager views are pure projections over the FR-045 read model: the switcher derives orderings and groupings client-side from one canonical `assetDto` list; secondary `FileLink` rows still never multiply a DTO, and preview never accepts a filesystem path directly. FR-058; ADR-016, SDD-023, SEC-007 "
     },
     {
       "id": "req:SDD-032",
@@ -7585,7 +7733,8 @@
       "label": "Business Strategy writes live only in `src/modules/project-manager/application/` — the charter's sole writing lane; `src/modules/business` remains a read slice. Every mutation records an `AuditEvent`; Goal/roadmap status and priority vocabularies are the single Zod source in `src/lib/validation/enums.js`.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Business Strategy writes live only in `src/modules/project-manager/application/` — the charter's sole writing lane; `src/modules/business` remains a read slice. Every mutation records an `AuditEvent`; Goal/roadmap status and priority vocabularies are the single Zod source in `src/lib/validation/enums.js`. FR-059; SDD-002, SDD-020 "
     },
     {
       "id": "req:SDD-033",
@@ -7594,7 +7743,8 @@
       "label": "Business Home is a **non-owning cross-domain projection** (architecture invariant 8): it lives in the `business` read slice, owns no model, writes nothing, and calls each domain's read model rather than querying another domain's tables. A figure it cannot source from a live domain is not rendered — reserved domains show as reserved, and any composite score states which domains it covers. This keeps the surface from becoming a second, drifting copy of numbers the domains already own.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Business Home is a **non-owning cross-domain projection** (architecture invariant 8): it lives in the `business` read slice, owns no model, writes nothing, and calls each domain's read model rather than querying another domain's tables. A figure it cannot source from a live domain is not rendered — reserved domains show as reserved, and any composite score states which domains it covers. This keeps the surface from becoming a second, drifting copy of numbers the domains already own. FR-060; ADR-025, BR-004, NFR-006 "
     },
     {
       "id": "req:SDD-034",
@@ -7603,7 +7753,8 @@
       "label": "The per-Business domain map is derived from the same Membership rows and the same tenant-wide expansion that already produce `visibleBusinessIds` and `ownedBusinessIds`, and it is populated in **every** `resolveViewer` branch: the platform DEV and local-development branches fill it from their own visible-Business set rather than carrying a \"sees everything\" flag, so no consumer can answer the per-Business question by reading a shortcut. `domainsForBusiness` fails closed on an unknown Business and falls back to the flat `visibleDomains` only for a viewer that predates the map (a hand-built fixture), never for one a real resolver emitted. Cost is O(visible Businesses × domains) in the viewer payload — accepted at current scale; the exit if it stops being acceptable is a Business-scoped resolution (`resolveViewer({ businessId })`), not a flag.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "The per-Business domain map is derived from the same Membership rows and the same tenant-wide expansion that already produce `visibleBusinessIds` and `ownedBusinessIds`, and it is populated in **every** `resolveViewer` branch: the platform DEV and local-development branches fill it from their own visible-Business set rather than carrying a \"sees everything\" flag, so no consumer can answer the per-Business question by reading a shortcut. `domainsForBusiness` fails closed on an unknown Business and falls back to the flat `visibleDomains` only for a viewer that predates the map (a hand-built fixture), never for one a real resolver emitted. Cost is O(visible Businesses × domains) in the viewer payload — accepted at current scale; the exit if it stops being acceptable is a Business-scoped resolution (`resolveViewer({ businessId })`), not a flag. FR-061; FR-031, FR-038, SDD-017, SEC-008 "
     },
     {
       "id": "req:SDD-035",
@@ -7612,7 +7763,8 @@
       "label": "An administration surface derives its read scope from the **same** field its write path authorizes on. `listUserPermissions` filters on `ownedBusinessIds`, which is exactly what `assertMembershipBusinessOwned` checks, so a row that would 404 on save cannot be listed as editable in the first place. Tenant-wide rows are the one deliberate exception — unmanageable here by design, yet shown because a hidden tenant-wide grant is worse than a read-only one — so the server, not the client, states `manageable` per row. Cross-scope inclusion is never a bare `OR` on a nullable column: `businessId: null` is scoped by the caller's owned tenant ids.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "An administration surface derives its read scope from the **same** field its write path authorizes on. `listUserPermissions` filters on `ownedBusinessIds`, which is exactly what `assertMembershipBusinessOwned` checks, so a row that would 404 on save cannot be listed as editable in the first place. Tenant-wide rows are the one deliberate exception — unmanageable here by design, yet shown because a hidden tenant-wide grant is worse than a read-only one — so the server, not the client, states `manageable` per row. Cross-scope inclusion is never a bare `OR` on a nullable column: `businessId: null` is scoped by the caller's owned tenant ids. FR-062; FR-038, FR-059, BR-001, SEC-001, SEC-003 "
     },
     {
       "id": "req:SDD-036",
@@ -7621,7 +7773,8 @@
       "label": "Board and Schedule are **derived views over models other requirements already own** — WorkItem (FR-005), Project (FR-003), Milestone (FR-006). Neither introduces a persisted aggregate, an ordering column, or a second write path: a card opens the existing editor, and a bar is computed from dates the owning model already stores. Where such a view enumerates a vocabulary it does not own, it derives that vocabulary from `src/lib/validation/enums.js` — a hand-copied list is how a status ends up with nowhere to render.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Board and Schedule are **derived views over models other requirements already own** — WorkItem (FR-005), Project (FR-003), Milestone (FR-006). Neither introduces a persisted aggregate, an ordering column, or a second write path: a card opens the existing editor, and a bar is computed from dates the owning model already stores. Where such a view enumerates a vocabulary it does not own, it derives that vocabulary from `src/lib/validation/enums.js` — a hand-copied list is how a status ends up with nowhere to render. FR-063, FR-064; SDD-019, FR-005, NFR-008 "
     },
     {
       "id": "req:SDD-037",
@@ -7630,7 +7783,8 @@
       "label": "Import authorization is decided **once, on the resolved target Workspace**, in the pipeline that resolves it — not in each of the three route handlers, which is how three copies of a predicate drift. `authorizeImportTarget(viewer, workspace)` is the single entry point, it calls `ownsBusiness` rather than re-deriving ownership, and it is a required argument: a caller that omits the viewer throws at the call, in the manner `classify()` now requires its `scope`, so a fourth intake surface cannot be wired up unauthorized by simply not passing it. A Workspace above Business is refused rather than governed. The refusal is **evidence-backed, not conservatism**, and its justification is deliberately stated in two tenses because the first one expires. **Until FR-067 ships:** `Membership` is created in exactly two code paths and both set `businessId`, and the viewer contract exposes only Business-keyed grants (`visibleBusinessIds`, `ownedBusinessIds`, `domainsByBusinessId`) — so no principal can hold portfolio or tenant authority at all, and any rule written for it would be untestable, satisfiable by nothing and deniable of nothing. **Once FR-067 ships that premise is false and the refusal survives on a different, stronger reason:** a `WorkspaceMembership` is *collaboration* scope on the top-level container (keyed by `portfolioId`), and FR-067 AC-067.5 makes Tenant/Business/**Space**/Project assignment a separate audited mutation requiring the relevant owner authority — so holding it confers no write authority over a Space belonging to that Portfolio. AC-067.4 says the same thing from the read side: membership alone returns no hidden Project data, and import *creates* Project data. Two further facts make this more than a technicality — a portfolio-scoped Space carries **no `tenantId`** (`prisma/seed.js` WS-PLATFORM sets only `portfolioId`), so it sits above the BR-001 isolation boundary, and one Portfolio spans every Tenant beneath it. Opening a write path there on portfolio-level membership would put a write above the boundary the whole scope chain rests on. What would legitimately unlock it is neither FR-067 nor a looser predicate: it is a Space-level owner authority carried in the viewer contract — the FR-061 shape again — after which `AUTHORIZERS` gains an entry, never before. Inventing a rule at the end of a security fix is how the fix becomes the next incident. The three routes leave `docs/.route-viewer-baseline.json` when this lands; the baseline shrinks, it is never edited to accommodate them.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Import authorization is decided **once, on the resolved target Workspace**, in the pipeline that resolves it — not in each of the three route handlers, which is how three copies of a predicate drift. `authorizeImportTarget(viewer, workspace)` is the single entry point, it calls `ownsBusiness` rather than re-deriving ownership, and it is a required argument: a caller that omits the viewer throws at the call, in the manner `classify()` now requires its `scope`, so a fourth intake surface cannot be wired up unauthorized by simply not passing it. A Workspace above Business is refused rather than governed. The refusal is **evidence-backed, not conservatism**, and its justification is deliberately stated in two tenses because the first one expires. **Until FR-067 ships:** `Membership` is created in exactly two code paths and both set `businessId`, and the viewer contract exposes only Business-keyed grants (`visibleBusinessIds`, `ownedBusinessIds`, `domainsByBusinessId`) — so no principal can hold portfolio or tenant authority at all, and any rule written for it would be untestable, satisfiable by nothing and deniable of nothing. **Once FR-067 ships that premise is false and the refusal survives on a different, stronger reason:** a `WorkspaceMembership` is *collaboration* scope on the top-level container (keyed by `portfolioId`), and FR-067 AC-067.5 makes Tenant/Business/**Space**/Project assignment a separate audited mutation requiring the relevant owner authority — so holding it confers no write authority over a Space belonging to that Portfolio. AC-067.4 says the same thing from the read side: membership alone returns no hidden Project data, and import *creates* Project data. Two further facts make this more than a technicality — a portfolio-scoped Space carries **no `tenantId`** (`prisma/seed.js` WS-PLATFORM sets only `portfolioId`), so it sits above the BR-001 isolation boundary, and one Portfolio spans every Tenant beneath it. Opening a write path there on portfolio-level membership would put a write above the boundary the whole scope chain rests on. What would legitimately unlock it is neither FR-067 nor a looser predicate: it is a Space-level owner authority carried in the viewer contract — the FR-061 shape again — after which `AUTHORIZERS` gains an entry, never before. Inventing a rule at the end of a security fix is how the fix becomes the next incident. The three routes leave `docs/.route-viewer-baseline.json` when this lands; the baseline shrinks, it is never edited to accommodate them. FR-065; FR-012, FR-019, FR-043, BR-001, BR-009, SEC-001, SEC-002, SEC-008, SDD-009 "
     },
     {
       "id": "req:SDD-038",
@@ -7639,7 +7793,8 @@
       "label": "Profile-first onboarding is a pre-Business shell contract: `Person/Profile` completion leads to Waiting Room or Workspace Home, while Business Routing and BusinessShell require an independently authorized Business grant. Top-level UI Workspace maps to Portfolio; schema Workspace is displayed as Space. Workspace invites and WorkspaceMembership are separate from Tenant/Business Membership, and no client-selected role or identity can widen scope.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Profile-first onboarding is a pre-Business shell contract: `Person/Profile` completion leads to Waiting Room or Workspace Home, while Business Routing and BusinessShell require an independently authorized Business grant. Top-level UI Workspace maps to Portfolio; schema Workspace is displayed as Space. Workspace invites and WorkspaceMembership are separate from Tenant/Business Membership, and no client-selected role or identity can widen scope. FR-066, FR-067; ADR-011, ADR-015, ADR-017, ADR-027, BR-016, SEC-014 "
     },
     {
       "id": "req:SDD-039",
@@ -7648,7 +7803,8 @@
       "label": "Execution Roadmap is a composed Human/Agent read contract over existing Project, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Membership and approved Agent-subject data. It maps the seven canonical execution modes to seven explicit intake/closure contracts in FR-069, each bound to its machine allowlist for hierarchy, subtypes, strategy and evidence; derives progress from each Workstream's declared strategy/evidence; exposes authorized `goal_id`/`risk_id` links, tags, assignment, blocker owner, criteria, closure and applicable FR-070 supporting identity references; and never creates a second aggregate or write path. Human UI and Agent input converge on PlanEnvelope validation → dry-run/conflict check → preview → authorized transaction → AuditEvent. Unavailable data is explicit; imported plans are data only.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Execution Roadmap is a composed Human/Agent read contract over existing Project, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Membership and approved Agent-subject data. It maps the seven canonical execution modes to seven explicit intake/closure contracts in FR-069, each bound to its machine allowlist for hierarchy, subtypes, strategy and evidence; derives progress from each Workstream's declared strategy/evidence; exposes authorized `goal_id`/`risk_id` links, tags, assignment, blocker owner, criteria, closure and applicable FR-070 supporting identity references; and never creates a second aggregate or write path. Human UI and Agent input converge on PlanEnvelope validation → dry-run/conflict check → preview → authorized transaction → AuditEvent. Unavailable data is explicit; imported plans are data only. FR-068, FR-069; ADR-028, ADR-012, FR-040, FR-063, FR-064, SDD-019, SDD-036, BR-003, BR-005, BR-006, BR-009, SEC-003, SEC-008 "
     },
     {
       "id": "req:SDD-040",
@@ -7657,7 +7813,8 @@
       "label": "Identity binding is explicit at every axis: product domain catalog IDs map to route keys/labels, technical owner IDs map to charters, `executionModeId` resolves the seven mode contracts, `planId` aliases the committed Workstream UUID, `goal_id` aliases `BusinessGoal.id` through `ProjectGoal`, `risk_id` aliases an authorized Project Manager Risk record when available, every mode-specific period alias (`phaseId`, `sprintId`, `stageId`, `batchId`, `waveId`, `periodId`, etc.) aliases `WorkContainer.id`, every item alias aliases `WorkItem.id`, and WorkItem tag attachments use `tagId`. Supporting owner-resolved references are explicit: `node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id`. `contract_id` is CRM Contact context, `execution_contract_id` is the seven-mode Execution contract, and `workflow_contract_id` is the multi-agent workflow contract. `req_id` resolves to a declared requirement key; `runbook_id` is the concrete procedure under `workflow_id`; and `promotion_id` is the governed knowledge-promotion occurrence. `B2B_SALES` binds to Commerce primary + CRM supporting; `B2C_CAMPAIGN` to Marketing primary + CRM supporting; `OPERATIONS` to Operations primary; all seven execution records remain technically owned by Project Manager. Legacy labels are normalized before authorization, unresolved IDs fail closed, and the same IDs appear in Roadmap, specialized views, Agent import and AuditEvent.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Identity binding is explicit at every axis: product domain catalog IDs map to route keys/labels, technical owner IDs map to charters, `executionModeId` resolves the seven mode contracts, `planId` aliases the committed Workstream UUID, `goal_id` aliases `BusinessGoal.id` through `ProjectGoal`, `risk_id` aliases an authorized Project Manager Risk record when available, every mode-specific period alias (`phaseId`, `sprintId`, `stageId`, `batchId`, `waveId`, `periodId`, etc.) aliases `WorkContainer.id`, every item alias aliases `WorkItem.id`, and WorkItem tag attachments use `tagId`. Supporting owner-resolved references are explicit: `node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id`. `contract_id` is CRM Contact context, `execution_contract_id` is the seven-mode Execution contract, and `workflow_contract_id` is the multi-agent workflow contract. `req_id` resolves to a declared requirement key; `runbook_id` is the concrete procedure under `workflow_id`; and `promotion_id` is the governed knowledge-promotion occurrence. `B2B_SALES` binds to Commerce primary + CRM supporting; `B2C_CAMPAIGN` to Marketing primary + CRM supporting; `OPERATIONS` to Operations primary; all seven execution records remain technically owned by Project Manager. Legacy labels are normalized before authorization, unresolved IDs fail closed, and the same IDs appear in Roadmap, specialized views, Agent import and AuditEvent. FR-070; ADR-029, FR-069, SDD-039, BR-004, BR-007, BR-009, SEC-002, SEC-003, SEC-008 "
     },
     {
       "id": "req:SDD-041",
@@ -7666,7 +7823,8 @@
       "label": "Execution trace identity is separate from business work identity: each mode has a versioned `executionContractId`; each run emits `executionRunId`, `executionStepId`, `stepKey`, `attemptId`, correlation/idempotency IDs, applicable project/plan/container/item/`goal_id`/`risk_id` business context, supporting `gate_id`/`artifact_id`/`verify_id`/`graph_id`/`node_id`/`edge_id`/`contract_id`/`meeting_id`/`call_id`/`followup_id`/`req_id`/`integration_id`/`workflow_contract_id`/`workflow_id`/`runbook_id`/`promotion_id`/`skill_id`/`tool_id` references, tag IDs, hashes, failure code and audit event linkage. Replay is append-only with source-run/source-step references, retains applicable goal/risk/supporting context and revalidates before commit.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Execution trace identity is separate from business work identity: each mode has a versioned `executionContractId`; each run emits `executionRunId`, `executionStepId`, `stepKey`, `attemptId`, correlation/idempotency IDs, applicable project/plan/container/item/`goal_id`/`risk_id` business context, supporting `gate_id`/`artifact_id`/`verify_id`/`graph_id`/`node_id`/`edge_id`/`contract_id`/`meeting_id`/`call_id`/`followup_id`/`req_id`/`integration_id`/`workflow_contract_id`/`workflow_id`/`runbook_id`/`promotion_id`/`skill_id`/`tool_id` references, tag IDs, hashes, failure code and audit event linkage. Replay is append-only with source-run/source-step references, retains applicable goal/risk/supporting context and revalidates before commit. FR-069, FR-070; ADR-029, SDD-040, FR-014, SEC-003, SEC-008 "
     },
     {
       "id": "req:SDD-042",
@@ -7675,7 +7833,8 @@
       "label": "The SmartGift source-to-Supabase data pipeline is a server-owned, scope-filtered, append-only stage/record ledger around the existing `bootstrap_audit_event`; `dataPipelineDefinitionId`, `pipelineStageId`, `executionRunId`, `executionStepId`, `attemptId`, `pipelineRecordId`, `doc_id`, `pic_id`, `fact_id`, hashes, `tagId`, the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id`), failure code and replay lineage identify every point. `knowledge_id` remains the destination projection of `fact_id`. Every event carries the same keys with `null`/`[]` when not applicable. Replay creates new trace IDs, preserves same-fact provenance, revalidates the approved artifact and Tenant/Business/RLS boundary, and applies idempotently to Supabase.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "The SmartGift source-to-Supabase data pipeline is a server-owned, scope-filtered, append-only stage/record ledger around the existing `bootstrap_audit_event`; `dataPipelineDefinitionId`, `pipelineStageId`, `executionRunId`, `executionStepId`, `attemptId`, `pipelineRecordId`, `doc_id`, `pic_id`, `fact_id`, hashes, `tagId`, the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id`), failure code and replay lineage identify every point. `knowledge_id` remains the destination projection of `fact_id`. Every event carries the same keys with `null`/`[]` when not applicable. Replay creates new trace IDs, preserves same-fact provenance, revalidates the approved artifact and Tenant/Business/RLS boundary, and applies idempotently to Supabase. FR-071; ADR-030, ADR-018, FR-051, FR-047, SDD-041, SEC-003, SEC-008 "
     },
     {
       "id": "req:SDD-043",
@@ -7684,7 +7843,8 @@
       "label": "The Phase 1 runtime is composed in two stages: resolve the server-owned LINE binding and trusted Tenant/Business scope, then select one database-enforced active primary IntegrationConnection for `PHASE1_LINE_LLM` and resolve its opaque secret through an explicit runtime-source SecretManagerPort before constructing ModelProviderPort. Production and public LINE reject local vault/raw credentials/Ollama; local Ollama is exact-loopback only, no redirects or fallback; provider connection selection and secret material never cross the browser or LINE event contract.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "The Phase 1 runtime is composed in two stages: resolve the server-owned LINE binding and trusted Tenant/Business scope, then select one database-enforced active primary IntegrationConnection for `PHASE1_LINE_LLM` and resolve its opaque secret through an explicit runtime-source SecretManagerPort before constructing ModelProviderPort. Production and public LINE reject local vault/raw credentials/Ollama; local Ollama is exact-loopback only, no redirects or fallback; provider connection selection and secret material never cross the browser or LINE event contract. FR-074; ADR-018, ADR-019, ADR-020, ADR-031, NFR-015, SEC-015 "
     },
     {
       "id": "req:SDD-044",
@@ -7693,7 +7853,8 @@
       "label": "The Integration management surface is a Platform sub-domain at `/platform/integrations`, composed from a trusted Business-scoped metadata read model and an implemented metadata create/list API. Runtime secret resolution is read-only through the Supabase Vault private resolver; the browser accepts only an opaque Vault UUID reference and returns redacted status. Provisioning/rotation and lifecycle promotion remain separate deferred contracts, and the UI cannot activate LINE routing.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "The Integration management surface is a Platform sub-domain at `/platform/integrations`, composed from a trusted Business-scoped metadata read model and an implemented metadata create/list API. Runtime secret resolution is read-only through the Supabase Vault private resolver; the browser accepts only an opaque Vault UUID reference and returns redacted status. Provisioning/rotation and lifecycle promotion remain separate deferred contracts, and the UI cannot activate LINE routing. FR-075; ADR-031, ADR-032, FR-038, FR-061, FR-062, SEC-003, SEC-008, SEC-016, NFR-016 "
     },
     {
       "id": "req:SDD-045",
@@ -7702,7 +7863,8 @@
       "label": "Project Inventory is one additive, read-only outer DTO with independently bounded sections over existing Project Manager models. The route authorizes the Project before composing child rows; direct Business ownership uses visibility, ownerless Tenant/Portfolio Projects require an explicit visible-Business scope, Dependencies are strictly Project-contained, files are metadata-only, AuditEvent payloads are redacted, and progress uses pure calculators without cache mutation.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Project Inventory is one additive, read-only outer DTO with independently bounded sections over existing Project Manager models. The route authorizes the Project before composing child rows; direct Business ownership uses visibility, ownerless Tenant/Portfolio Projects require an explicit visible-Business scope, Dependencies are strictly Project-contained, files are metadata-only, AuditEvent payloads are redacted, and progress uses pure calculators without cache mutation. FR-077; ADR-034, FR-003, FR-040, FR-043, FR-072, ADR-012, ADR-014, ADR-016, ADR-017 "
     },
     {
       "id": "req:SEC-001",
@@ -7711,7 +7873,8 @@
       "label": "Cross-tenant/business guard (`assertWorkspaceInScope`) — ปฏิเสธข้าม scope",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Cross-tenant/business guard (`assertWorkspaceInScope`) — ปฏิเสธข้าม scope ✅ tested "
     },
     {
       "id": "req:SEC-002",
@@ -7720,7 +7883,8 @@
       "label": "ไม่ execute code จาก imported plans (strict Zod, additionalProperties rejected)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "ไม่ execute code จาก imported plans (strict Zod, additionalProperties rejected) ✅ tested "
     },
     {
       "id": "req:SEC-003",
@@ -7729,16 +7893,18 @@
       "label": "AuditEvent append-only สำหรับทุก mutation สำคัญ",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "AuditEvent append-only สำหรับทุก mutation สำคัญ ✅ "
     },
     {
       "id": "req:SEC-004",
       "type": "requirement",
       "family": "SEC",
-      "label": "MVP ไม่มี customer PII ในระบบ",
+      "label": "~~MVP ไม่มี customer PII ในระบบ~~",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "superseded",
+      "row_text": "~~MVP ไม่มี customer PII ในระบบ~~ **retired 2026-08-18 — ข้อความนี้ไม่เป็นจริงอีกแล้ว** เงื่อนไขที่แถวนี้ระบุไว้เองว่า \"ต้องรื้อข้อนี้ก่อนงาน LINE เริ่ม\" เกิดขึ้นไปแล้วโดยไม่มีใครรื้อ: FR-047/052/053/079 ship แล้ว และ schema มี `Customer`/`Conversation`/`Message` — ข้อความลูกค้าคือ PII และอยู่ในระบบตั้งแต่นั้น กฎที่ขึ้น ✅ ทั้งที่เป็นเท็จ อันตรายกว่ากฎที่ขึ้น 🔜 เพราะคนอ่านจะข้ามมันไป id ถูกเผาทิ้งตามสัญญา id (AGENTS.md §18) ไม่นำกลับมาใช้กับข้อความอื่น สิ่งที่กำกับ customer PII แทน: **SEC-005** (consent ต่อธุรกิจ — ยังไม่ได้ทำ), **SEC-009** (LINE knowledge access server-only, deny-by-default), **FR-022** (PDPA erasure) "
     },
     {
       "id": "req:SEC-005",
@@ -7747,7 +7913,8 @@
       "label": "PDPA: consent ต่อธุรกิจใน `CustomerBusinessProfile` เมื่อทำ CRM sharing",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
-      "status": "planned"
+      "status": "planned",
+      "row_text": "PDPA: consent ต่อธุรกิจใน `CustomerBusinessProfile` เมื่อทำ CRM sharing 🔜 **เลื่อนขึ้นเป็น P0 ของ PHASE-V2-REPLACE** — ไม่ใช่ \"เฟส CRM ทีหลัง\" อีกแล้ว เพราะ LINE-first แปลว่าข้อมูลลูกค้าเข้าระบบตั้งแต่วันแรก "
     },
     {
       "id": "req:SEC-006",
@@ -7756,7 +7923,8 @@
       "label": "Enterprise API ต้องมี token auth ต่อ tenant ก่อนเปิดใช้จริง",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
-      "status": "planned"
+      "status": "planned",
+      "row_text": "Enterprise API ต้องมี token auth ต่อ tenant ก่อนเปิดใช้จริง 🔜 "
     },
     {
       "id": "req:SEC-007",
@@ -7765,7 +7933,8 @@
       "label": "Every local file operation must authorize Tenant/Business/Project scope and enforce mounted-root containment, rejecting absolute/traversal and symlink/junction/reparse escape. OS reveal is local-capability-only; hosted requests can never launch a server process.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
-      "status": "current"
+      "status": "current",
+      "row_text": "Every local file operation must authorize Tenant/Business/Project scope and enforce mounted-root containment, rejecting absolute/traversal and symlink/junction/reparse escape. OS reveal is local-capability-only; hosted requests can never launch a server process. ✅ tested; ADR-016 / FR-045 security gates "
     },
     {
       "id": "req:SEC-008",
@@ -7774,7 +7943,8 @@
       "label": "Pre-shell identity and authorization fail closed: principal, role, platform grant, visible Business IDs and domains come only from a trusted server session plus persisted authority. Missing/invalid sessions return 401 before scope queries; adapter failure returns 503; production can never activate the seeded-owner demo fallback.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Pre-shell identity and authorization fail closed: principal, role, platform grant, visible Business IDs and domains come only from a trusted server session plus persisted authority. Missing/invalid sessions return 401 before scope queries; adapter failure returns 503; production can never activate the seeded-owner demo fallback. Implemented beta; ADR-017 / FR-046 security gate "
     },
     {
       "id": "req:SEC-009",
@@ -7783,7 +7953,8 @@
       "label": "Public LINE knowledge access is server-only and deny-by-default: server-owned tenant/business binding, no public service-role key, explicit Supabase grants plus RLS for exposed tables, allow-listed fields/queries, prompt-data treated as untrusted, and secrets/PII/cost/margin/invoice data excluded from prompts, logs and responses.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Public LINE knowledge access is server-only and deny-by-default: server-owned tenant/business binding, no public service-role key, explicit Supabase grants plus RLS for exposed tables, allow-listed fields/queries, prompt-data treated as untrusted, and secrets/PII/cost/margin/invoice data excluded from prompts, logs and responses. Phase 1 security gate; FR-047..050 / ZV2-CR-003 "
     },
     {
       "id": "req:SEC-010",
@@ -7792,7 +7963,8 @@
       "label": "Production LINE reads require both database-enforced scope and verified server binding: private-schema base grants are revoked from `public`, `anon`, `authenticated` and `service_role`; the runtime rejects privileged credentials and client-selected scope; credential/destination hashes are compared in constant time; inactive or expired bindings return no data.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Production LINE reads require both database-enforced scope and verified server binding: private-schema base grants are revoked from `public`, `anon`, `authenticated` and `service_role`; the runtime rejects privileged credentials and client-selected scope; credential/destination hashes are compared in constant time; inactive or expired bindings return no data. Remote policy/grant proof complete; live runtime-login and LINE canary pending / ADR-018 "
     },
     {
       "id": "req:SEC-011",
@@ -7801,7 +7973,8 @@
       "label": "Activation tooling fails closed and never persists or echoes credentials, full connection URLs, authorization headers, reply tokens or raw customer data. Database mutation assertions always roll back; canary readiness defaults to dry-run and has no binding-update or LINE-send capability.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Activation tooling fails closed and never persists or echoes credentials, full connection URLs, authorization headers, reply tokens or raw customer data. Database mutation assertions always roll back; canary readiness defaults to dry-run and has no binding-update or LINE-send capability. FR-053/054 security gate; ADR-019 "
     },
     {
       "id": "req:SEC-012",
@@ -7810,7 +7983,8 @@
       "label": "Activation secrets are environment/secret-store only; a dedicated operator role can update only the exact binding and append events. Runtime/Data API/service roles cannot activate. Receipt ingestion rejects raw destination, authorization, reply token, message content and PII.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Activation secrets are environment/secret-store only; a dedicated operator role can update only the exact binding and append events. Runtime/Data API/service roles cannot activate. Receipt ingestion rejects raw destination, authorization, reply token, message content and PII. FR-055 security gate; ADR-020 "
     },
     {
       "id": "req:SEC-013",
@@ -7819,7 +7993,8 @@
       "label": "Private MSP retrieval is deny-by-default and policy-before-retrieval: no client/model/prompt/thread label can select a vault; identity or Membership revocation denies the next turn; Supabase/RLS remains defense in depth and user-editable metadata is not authorization input.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Private MSP retrieval is deny-by-default and policy-before-retrieval: no client/model/prompt/thread label can select a vault; identity or Membership revocation denies the next turn; Supabase/RLS remains defense in depth and user-editable metadata is not authorization input. FR-057 / ADR-022 security gate "
     },
     {
       "id": "req:SEC-014",
@@ -7828,7 +8003,8 @@
       "label": "Provider-neutral multi-user onboarding still requires server-owned identity and trusted session state. Profile, Workspace invite and WorkspaceMembership mutations fail closed without trusted identity; invite tokens are single-use, expiring, hash-bound and audited; production never activates seeded-owner demo fallback.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Provider-neutral multi-user onboarding still requires server-owned identity and trusted session state. Profile, Workspace invite and WorkspaceMembership mutations fail closed without trusted identity; invite tokens are single-use, expiring, hash-bound and audited; production never activates seeded-owner demo fallback. FR-066/067, ADR-017 / ADR-027 security gate "
     },
     {
       "id": "req:SEC-015",
@@ -7837,7 +8013,8 @@
       "label": "Production Phase 1 runtime refuses local file-vault construction, raw `ZURI_MODEL_CREDENTIAL`, untrusted/client-selected Tenant/Business or connection ids, ambiguous/missing/expired/unauthorized/unavailable secrets, and Ollama/public-LINE selection. A database invariant permits at most one active primary `PHASE1_LINE_LLM` connection per Tenant/Business; rotation/revocation and rollback are audited without raw secret or PII.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Production Phase 1 runtime refuses local file-vault construction, raw `ZURI_MODEL_CREDENTIAL`, untrusted/client-selected Tenant/Business or connection ids, ambiguous/missing/expired/unauthorized/unavailable secrets, and Ollama/public-LINE selection. A database invariant permits at most one active primary `PHASE1_LINE_LLM` connection per Tenant/Business; rotation/revocation and rollback are audited without raw secret or PII. FR-074 / ADR-031 security gate "
     },
     {
       "id": "req:SEC-016",
@@ -7846,7 +8023,8 @@
       "label": "Platform Integration management refuses client-selected scope/authority and never exposes or persists raw secret material. The implemented create/list path requires trusted owner authority, stores only an opaque Supabase Vault reference, and audits a redacted summary; resolver failure, ambiguous connection and unauthorized scope fail closed. Future write/rotate/revoke operations require a separate audited manager port. The UI cannot activate LINE routing or send a canary.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
-      "status": "current"
+      "status": "current",
+      "row_text": "Platform Integration management refuses client-selected scope/authority and never exposes or persists raw secret material. The implemented create/list path requires trusted owner authority, stores only an opaque Supabase Vault reference, and audits a redacted summary; resolver failure, ambiguous connection and unauthorized scope fail closed. Future write/rotate/revoke operations require a separate audited manager port. The UI cannot activate LINE routing or send a canary. FR-075 / ADR-032 security gate "
     },
     {
       "id": "route:api:/api/agent/line-webhook",
@@ -9615,6 +9793,13 @@
       "path": "tests/unit/doc-graph-canonical-text.test.js",
       "hash": "20a34b65",
       "status": "current"
+    },
+    {
+      "id": "test:tests/unit/doc-graph-retired-rules.test.js",
+      "type": "test",
+      "path": "tests/unit/doc-graph-retired-rules.test.js",
+      "hash": "cca07812",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/doc-views.test.js",
@@ -13318,6 +13503,13 @@
       "from": "code:src/components/layouts/Breadcrumb.jsx",
       "to": "req:FR-044",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/Breadcrumb.jsx",
+      "to": "req:SDD-013",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -17557,6 +17749,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-022",
+      "to": "req:SEC-004",
+      "type": "supersedes",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:FR-023",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -17728,6 +17927,13 @@
       "from": "req:FR-047",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-047",
+      "to": "req:SEC-004",
+      "type": "supersedes",
       "status": "current",
       "source": "prd-registry"
     },
@@ -18432,6 +18638,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SEC-005",
+      "to": "req:SEC-004",
+      "type": "supersedes",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-006",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -18456,6 +18669,13 @@
       "from": "req:SEC-009",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-009",
+      "to": "req:SEC-004",
+      "type": "supersedes",
       "status": "current",
       "source": "prd-registry"
     },
@@ -19244,11 +19464,25 @@
       "source": "charter-glob"
     },
     {
+      "from": "spec:ADR-001-STANDALONE-ZURI-V2",
+      "to": "req:SDD-001",
+      "type": "supersedes",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "spec:ADR-002-INTEGRATION-DIRECTION",
       "to": "spec:ADR-001-STANDALONE-ZURI-V2",
       "type": "supersedes",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
+      "to": "req:SDD-001",
+      "type": "supersedes",
+      "status": "current",
+      "source": "prd-registry"
     },
     {
       "from": "spec:ADR-003-V2-REPLACES-V1-BY-REUSE",
@@ -24761,6 +24995,13 @@
     },
     {
       "from": "test:tests/unit/breadcrumb-switcher.test.js",
+      "to": "req:SDD-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/breadcrumb-switcher.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -29592,6 +29833,13 @@
     {
       "from": "test:tests/unit/scope-view-context.test.js",
       "to": "req:SDD-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:SDD-013",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
