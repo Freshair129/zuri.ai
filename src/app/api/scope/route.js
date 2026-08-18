@@ -5,8 +5,13 @@
 // authority for the primitives above any Tenant.
 // @spec SEC-001, SEC-008, BR-001
 // @tested tests/integration/fr074-scope-creation-authorization.test.js
+// @req FR-046 — the compatibility scope inventory is filtered to the trusted
+// viewer's visible Businesses before it reaches the shell.
+// @spec SEC-001, SEC-008
+// @tested tests/unit/authorization-seam-routes.test.js
 import { handle } from '../_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
+import { isInstallationOperator, seesBusiness } from '@/modules/identity/viewer-authority'
 import {
   listScope,
   createPortfolio,
@@ -20,8 +25,39 @@ import {
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
-  return handle(() => listScope())
+function visibleScope(scope, viewer) {
+  if (isInstallationOperator(viewer)) return scope
+
+  const businesses = scope.businesses.filter((business) => seesBusiness(viewer, business.id))
+  const businessIds = new Set(businesses.map((business) => business.id))
+  const tenantIds = new Set(businesses.map((business) => business.tenantId))
+  const portfolioIds = new Set(
+    scope.tenants.filter((tenant) => tenantIds.has(tenant.id)).map((tenant) => tenant.portfolioId)
+  )
+  const workspaces = scope.workspaces.filter((workspace) =>
+    (workspace.businessId && businessIds.has(workspace.businessId))
+    || (workspace.scopeType === 'PORTFOLIO' && portfolioIds.has(workspace.portfolioId))
+    || (workspace.scopeType === 'TENANT' && tenantIds.has(workspace.tenantId))
+  )
+  const workspaceIds = new Set(workspaces.map((workspace) => workspace.id))
+
+  return {
+    portfolios: scope.portfolios.filter((portfolio) => portfolioIds.has(portfolio.id)),
+    tenants: scope.tenants.filter((tenant) => tenantIds.has(tenant.id)),
+    businesses,
+    workspaces,
+    projects: scope.projects.filter((project) =>
+      (project.businessId && businessIds.has(project.businessId))
+      || (!project.businessId && workspaceIds.has(project.workspaceId))
+    ),
+  }
+}
+
+export async function GET(request) {
+  return handle(async () => {
+    const viewer = await resolveRequestViewer(request)
+    return visibleScope(await listScope(), viewer)
+  })
 }
 
 const CREATORS = {

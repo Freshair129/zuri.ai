@@ -5,7 +5,8 @@
 
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { makeOperatorViewer } from '../factories/viewer'
 
 const { listProjects, listProjectsForOverview, listProjectsForTimeline, listProjectsForWorkspace } = vi.hoisted(() => ({
   listProjects: vi.fn(),
@@ -14,12 +15,15 @@ const { listProjects, listProjectsForOverview, listProjectsForTimeline, listProj
   listProjectsForWorkspace: vi.fn(),
 }))
 
+const { resolveRequestViewer } = vi.hoisted(() => ({ resolveRequestViewer: vi.fn() }))
+
 vi.mock('@/modules/project-manager/application/project-service', () => ({
   listProjects,
   listProjectsForOverview,
   listProjectsForTimeline,
   listProjectsForWorkspace,
 }))
+vi.mock('@/modules/identity/request-viewer', () => ({ resolveRequestViewer }))
 
 const {
   PROJECT_LIST_LIMIT,
@@ -33,6 +37,11 @@ const projectsPage = readFileSync(resolve(process.cwd(), 'src/app/(pm)/projects/
 const overviewPage = readFileSync(resolve(process.cwd(), 'src/app/(pm)/overview/page.jsx'), 'utf8')
 const timelineView = readFileSync(resolve(process.cwd(), 'src/modules/project-manager/views/universal/TimelineView.jsx'), 'utf8')
 const workspacePage = readFileSync(resolve(process.cwd(), 'src/app/(pm)/workspaces/[workspaceId]/page.jsx'), 'utf8')
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  resolveRequestViewer.mockResolvedValue(makeOperatorViewer())
+})
 
 describe('Project list read contract', () => {
   it('serializes only stable list fields and normalizes dates/counts', () => {

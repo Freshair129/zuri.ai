@@ -11,9 +11,10 @@ async function chooseBusiness(page, name = 'Business 01') {
 }
 
 test.describe('FR-077 Project Inventory', () => {
-  test('happy path renders the additive Inventory entry and operational sections', async ({ page, request }) => {
-    const resolved = await (await request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+  test('happy path renders the additive Inventory entry and operational sections', async ({ page }) => {
     await chooseBusiness(page)
+    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+
     await page.goto(`/projects/${resolved.id}/inventory`)
 
     await expect(page.getByRole('heading', { name: resolved.name || /Transformation Program/ })).toBeVisible()
@@ -46,9 +47,10 @@ test.describe('FR-077 Project Inventory', () => {
     await expect(errorAlert).toContainText('not present in the current scope')
   })
 
-  test('limit=1 exposes partial/truncated metadata instead of silently shortening the response', async ({ page, request }) => {
-    const resolved = await (await request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+  test('limit=1 exposes partial/truncated metadata instead of silently shortening the response', async ({ page }) => {
     await chooseBusiness(page)
+    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+
     const response = await page.request.get(`/api/projects/${resolved.id}/inventory?limit=1`)
     expect(response.ok()).toBe(true)
     const body = await response.json()
@@ -57,8 +59,7 @@ test.describe('FR-077 Project Inventory', () => {
   })
 
   test('unauthenticated Inventory reads fail closed', async ({ request }) => {
-    const resolved = await (await request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
-    const response = await request.get(`/api/projects/${resolved.id}/inventory`)
+    const response = await request.get('/api/projects/00000000-0000-0000-0000-000000000000/inventory')
     expect(response.status()).toBe(401)
   })
 })

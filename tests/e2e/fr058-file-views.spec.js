@@ -113,13 +113,14 @@ test.describe('FR-058 File Manager view switcher', () => {
     await expect(byProjectButton).toHaveAttribute('aria-pressed', 'false')
   })
 
-  test('By project labels a PROJECT group with the project\'s real code, never a raw uuid', async ({ page, request }) => {
-    const resolved = await (await request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
-    const projectId = resolved.id
+  test('By project labels a PROJECT group with the project\'s real code, never a raw uuid', async ({ page }) => {
     // T4 — unique per attempt, same reasoning as the sibling test above.
     const fileName = `fr058-project-scoped-${uniqueSuffix()}.pdf`
 
     await chooseBusiness(page)
+    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const projectId = resolved.id
+
     // A file added from the Project's own File Manager is project-scoped —
     // this is what previously produced a PROJECT group in the by-project view.
     await page.goto(`/projects/${projectId}/files`)

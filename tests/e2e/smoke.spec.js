@@ -139,8 +139,8 @@ test.describe('seven execution views', () => {
 
 test.describe('plan import', () => {
   test.beforeEach(async ({ page }) => enterBusiness(page))
-  test('dry run previews and rejects bad plans', async ({ page, request }) => {
-    const resolved = await (await request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+  test('dry run previews and rejects bad plans', async ({ page }) => {
+    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
     await page.goto(`/projects/${resolved.id}/import`)
     const textarea = page.getByLabel('Plan envelope JSON')
     await textarea.fill(JSON.stringify({ schemaVersion: '1.0', project: { code: 'X', name: 'X' }, workstreams: [{ code: 'W', name: 'W', executionMode: 'NOT_A_MODE', progressStrategy: 'TASK_WEIGHT' }] }))
@@ -180,12 +180,12 @@ test.describe('FR-017 project wizard', () => {
 
 test.describe('FR-018 excel intake', () => {
   test.beforeEach(async ({ page }) => enterBusiness(page))
-  test('download template, fill, upload through UI, confirm import', async ({ page, request }) => {
+  test('download template, fill, upload through UI, confirm import', async ({ page }) => {
     const ExcelJS = require('exceljs')
     const xlsxProjectCode = `PRJ-E2E-XLSX-${Date.now()}`
 
     // Template endpoint serves a real workbook.
-    const res = await request.get('/api/import/template')
+    const res = await page.request.get('/api/import/template')
     expect(res.status()).toBe(200)
     expect(res.headers()['content-type']).toContain('spreadsheetml')
 
@@ -199,7 +199,7 @@ test.describe('FR-018 excel intake', () => {
 
     // Upload via the Import page inside a project context (direct URL —
     // the projects list reorders by updatedAt, so click-chaining races).
-    const resolved = await (await request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
     await page.goto(`/projects/${resolved.id}/import`)
     await expect(page.getByText('Excel template')).toBeVisible()
     await page.getByLabel('อัปโหลดไฟล์ Excel ที่กรอกแล้ว').setInputFiles({
@@ -391,6 +391,7 @@ test.describe('FR-019 enterprise API', () => {
   })
 
   test('rejects an unmapped external id instead of inventing one', async ({ request }) => {
+    await request.post('/api/session/demo', { maxRedirects: 0 })
     const res = await request.get('/api/resolve?system=E2E_SAP&value=DOES-NOT-EXIST')
     expect(res.status()).toBe(404)
     expect((await res.json()).error).toMatch(/not mapped/)
