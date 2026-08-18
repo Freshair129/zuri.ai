@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 890,
-    "total_edges": 2732,
+    "total_nodes": 898,
+    "total_edges": 2772,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,19 +13,19 @@
       "domain": 6,
       "roadmap": 25,
       "feature": 6,
-      "route": 100,
+      "route": 102,
       "model": 44,
       "requirement": 174,
-      "test": 179,
-      "code_file": 239
+      "test": 182,
+      "code_file": 242
     },
     "coverage": {
       "requirements": 174,
       "fr_with_code": "100% (74/74)",
       "fr_with_tests": "100% (74/74)",
-      "rules_anchored_in_code": "84% (65/77)",
+      "rules_anchored_in_code": "86% (66/77)",
       "nfr_evidence_based": "16 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 239,
+      "annotated_code_files": 242,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -43,7 +43,6 @@
         "SDD-008",
         "SDD-013",
         "SDD-038",
-        "SDD-039",
         "SDD-040",
         "SDD-041",
         "SDD-042",
@@ -55,22 +54,30 @@
   },
   "drift": {
     "changed": [
-      "doc:B-db-schema",
-      "domain:crm",
-      "doc:FR-078-customer-data-backfill-contract",
-      "doc:PRD-SDD-v1.0",
-      "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
-      "test:tests/integration/backup.test.js",
-      "code:src/modules/project-manager/application/backup-service.js"
+      "doc:A-api-spec",
+      "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "doc:FR-068-human-visible-execution-roadmap",
+      "doc:FR-069-plan-blueprint-and-intake",
+      "doc:INTERFACE-INVENTORY",
+      "doc:ROUTES-SITEMAP",
+      "test:tests/e2e/fr040-project-work.spec.js",
+      "test:tests/integration/plan-import.test.js",
+      "test:tests/unit/plan-schema.test.js",
+      "test:tests/unit/project-work-route.test.js",
+      "code:src/app/(pm)/projects/[projectId]/layout.jsx",
+      "code:src/modules/project-manager/components/WorkViewTabs.jsx",
+      "code:src/modules/project-manager/import/plan-import-service.js",
+      "code:src/modules/project-manager/import/plan-schema.js"
     ],
     "added": [
-      "model:CustomerImportBatch",
-      "model:CustomerImportProvenance",
-      "test:tests/unit/customer-data-contract.test.js",
-      "test:tests/unit/customer-profile-backfill-migration.test.js",
-      "test:tests/unit/customer-profile-contract-receipt.test.js",
-      "test:tests/unit/customer-profile-target-verification.test.js",
-      "test:tests/unit/platform-approver-profile-migration.test.js"
+      "route:page:/projects/[projectId]/roadmap",
+      "route:api:/api/projects/[id]/roadmap",
+      "test:tests/integration/project-roadmap.test.js",
+      "test:tests/unit/project-roadmap-read-model.test.js",
+      "test:tests/unit/project-roadmap-ui.test.js",
+      "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+      "code:src/app/api/projects/[id]/roadmap/route.js",
+      "code:src/modules/project-manager/application/project-roadmap-read-model.js"
     ],
     "removed": []
   },
@@ -497,8 +504,8 @@
       "id": "code:src/app/(pm)/projects/[projectId]/layout.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/layout.jsx",
-      "hash": "16476245",
-      "status": "current",
+      "hash": "e6f5df5e",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-040"
@@ -550,6 +557,25 @@
       "annotations": {
         "@req": [
           "FR-008"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+      "hash": "97dd5d63",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-068"
+        ],
+        "@spec": [
+          "SDD-039",
+          "FR-070"
+        ],
+        "@tested": [
+          "tests/unit/project-roadmap-ui.test.js"
         ]
       }
     },
@@ -1685,6 +1711,25 @@
         "@tested": [
           "tests/integration/project-inventory.test.js",
           "tests/e2e/fr077-project-inventory.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/projects/[id]/roadmap/route.js",
+      "type": "code_file",
+      "path": "src/app/api/projects/[id]/roadmap/route.js",
+      "hash": "5ff08be4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-068"
+        ],
+        "@spec": [
+          "SDD-039",
+          "FR-070"
+        ],
+        "@tested": [
+          "tests/integration/project-roadmap.test.js"
         ]
       }
     },
@@ -3737,7 +3782,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "5b664df3",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -4030,6 +4075,26 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/project-roadmap-read-model.js",
+      "hash": "af501581",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-068"
+        ],
+        "@spec": [
+          "SDD-039",
+          "FR-070"
+        ],
+        "@tested": [
+          "tests/unit/project-roadmap-read-model.test.js",
+          "tests/integration/project-roadmap.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/application/project-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-service.js",
@@ -4271,17 +4336,20 @@
       "id": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/WorkViewTabs.jsx",
-      "hash": "521730fb",
-      "status": "current",
+      "hash": "c9af0885",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-040"
+          "FR-040",
+          "FR-068"
         ],
         "@spec": [
-          "SDD-019"
+          "SDD-019",
+          "SDD-039"
         ],
         "@tested": [
-          "tests/unit/project-work-route.test.js"
+          "tests/unit/project-work-route.test.js",
+          "tests/unit/project-roadmap-ui.test.js"
         ]
       }
     },
@@ -4330,8 +4398,8 @@
       "id": "code:src/modules/project-manager/import/plan-import-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
-      "hash": "fa000beb",
-      "status": "current",
+      "hash": "7a33d7d3",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-012",
@@ -4341,6 +4409,7 @@
           "SDD-037"
         ],
         "@spec": [
+          "FR-069",
           "SDD-006",
           "SDD-009",
           "SEC-002",
@@ -4363,14 +4432,15 @@
       "id": "code:src/modules/project-manager/import/plan-schema.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-schema.js",
-      "hash": "21cfbc11",
-      "status": "current",
+      "hash": "aab849d3",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-012",
           "FR-019"
         ],
         "@spec": [
+          "FR-069",
           "BR-004",
           "BR-007",
           "SEC-002",
@@ -4764,8 +4834,8 @@
       "title": "Appendix A — API Specification",
       "version": "1.8.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "80cdeb78",
-      "status": "current"
+      "hash": "1f85f8b3",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -4811,7 +4881,7 @@
       "version": "1.7.0",
       "doc_status": "Draft",
       "hash": "73230227",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -5239,16 +5309,16 @@
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-068-human-visible-execution-roadmap.md",
       "title": "FR-068 — Human-visible Project Execution Roadmap and identity references",
-      "hash": "154e416a",
-      "status": "current"
+      "hash": "dbe07895",
+      "status": "changed"
     },
     {
       "id": "doc:FR-069-plan-blueprint-and-intake",
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
       "title": "FR-069 — Plan Blueprint and Human/Agent intake with stable references",
-      "hash": "76973cae",
-      "status": "current"
+      "hash": "e549bbb6",
+      "status": "changed"
     },
     {
       "id": "doc:FR-070-stable-execution-domain-and-tag-identities",
@@ -5288,7 +5358,7 @@
       "path": "docs/domains/crm/features/FR-078-customer-data-backfill-contract.md",
       "title": "FR-078 — Customer data backfill contract",
       "hash": "620850ed",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-079-phase1-line-runtime-connection-cutover",
@@ -5341,8 +5411,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.0.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "d57eb811",
-      "status": "current"
+      "hash": "effea566",
+      "status": "changed"
     },
     {
       "id": "doc:LINE-PHASE1-CANARY",
@@ -5542,7 +5612,7 @@
       "path": "docs/roadmap/PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT.md",
       "title": "Roadmap — SmartGift data backfill and customer import",
       "hash": "72991c44",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRD-SDD-v1.0",
@@ -5552,7 +5622,7 @@
       "version": "1.71.0b",
       "doc_status": "Draft",
       "hash": "6cde8eb7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -5605,8 +5675,8 @@
       "title": "Zuri — Route and Shell Sitemap",
       "version": "1.0.0",
       "doc_status": "draft",
-      "hash": "27c58178",
-      "status": "current"
+      "hash": "0f30fe67",
+      "status": "changed"
     },
     {
       "id": "doc:SITEMAP-DOMAIN-NAV",
@@ -5753,7 +5823,7 @@
         "crm"
       ],
       "hash": "ab9486f4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:identity",
@@ -8070,6 +8140,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/projects/[id]/roadmap",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/projects/[id]/roadmap",
+      "path": "src/app/api/projects/[id]/roadmap/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/projects/[id]/team",
       "type": "route",
       "kind": "api",
@@ -8406,6 +8484,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/projects/[projectId]/roadmap",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/roadmap",
+      "path": "src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/projects/[projectId]/structure",
       "type": "route",
       "kind": "page",
@@ -8710,8 +8796,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md",
       "title": "ADR-028 — Human-visible execution roadmap and shared plan intake",
-      "hash": "ca8a2764",
-      "status": "current"
+      "hash": "a83551c6",
+      "status": "changed"
     },
     {
       "id": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
@@ -8765,8 +8851,8 @@
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
-      "hash": "e2fa8827",
-      "status": "current"
+      "hash": "7408b623",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr041-business-first.spec.js",
@@ -8899,7 +8985,7 @@
       "type": "test",
       "path": "tests/integration/backup.test.js",
       "hash": "33c6a842",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/controlled-line-activation.postgres.test.js",
@@ -9115,8 +9201,8 @@
       "id": "test:tests/integration/plan-import.test.js",
       "type": "test",
       "path": "tests/integration/plan-import.test.js",
-      "hash": "8449fbfd",
-      "status": "current"
+      "hash": "7fc4cd0b",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/platform/integration-persistence.test.js",
@@ -9158,6 +9244,13 @@
       "type": "test",
       "path": "tests/integration/project-list-contract.test.js",
       "hash": "74e1aec0",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/project-roadmap.test.js",
+      "type": "test",
+      "path": "tests/integration/project-roadmap.test.js",
+      "hash": "11ebed37",
       "status": "current"
     },
     {
@@ -9766,8 +9859,8 @@
       "id": "test:tests/unit/plan-schema.test.js",
       "type": "test",
       "path": "tests/unit/plan-schema.test.js",
-      "hash": "5012b65d",
-      "status": "current"
+      "hash": "baeffcf1",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/plan-status-vocabulary.test.js",
@@ -9882,6 +9975,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/project-roadmap-read-model.test.js",
+      "type": "test",
+      "path": "tests/unit/project-roadmap-read-model.test.js",
+      "hash": "76799745",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-roadmap-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/project-roadmap-ui.test.js",
+      "hash": "7a95e054",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/project-team-service.test.js",
       "type": "test",
       "path": "tests/unit/project-team-service.test.js",
@@ -9892,8 +9999,8 @@
       "id": "test:tests/unit/project-work-route.test.js",
       "type": "test",
       "path": "tests/unit/project-work-route.test.js",
-      "hash": "c63d342e",
-      "status": "current"
+      "hash": "aba2aa5b",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/rollup.test.js",
@@ -10524,6 +10631,27 @@
       "from": "code:src/app/(pm)/projects/[projectId]/repositories/page.jsx",
       "to": "req:FR-008",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+      "to": "req:FR-068",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+      "to": "req:FR-070",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+      "to": "req:SDD-039",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -12245,6 +12373,27 @@
     {
       "from": "code:src/app/api/projects/[id]/inventory/route.js",
       "to": "req:SDD-045",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/roadmap/route.js",
+      "to": "req:FR-068",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/roadmap/route.js",
+      "to": "req:FR-070",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/roadmap/route.js",
+      "to": "req:SDD-039",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -15344,6 +15493,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
+      "to": "req:FR-068",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
+      "to": "req:FR-070",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
+      "to": "req:SDD-039",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/project-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -15793,7 +15963,21 @@
     },
     {
       "from": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
+      "to": "req:FR-068",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
       "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
+      "to": "req:SDD-039",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -15905,6 +16089,13 @@
     },
     {
       "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:FR-069",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
       "to": "req:SDD-006",
       "type": "follows",
       "status": "current",
@@ -15984,6 +16175,13 @@
       "from": "code:src/modules/project-manager/import/plan-schema.js",
       "to": "req:FR-019",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-schema.js",
+      "to": "req:FR-069",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -18347,6 +18545,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/projects/[id]/roadmap",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/projects/[id]/team",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -18628,6 +18833,13 @@
     },
     {
       "from": "route:page:/projects/[projectId]/repositories",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/roadmap",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -19616,6 +19828,13 @@
     {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr040-project-work.spec.js",
+      "to": "req:FR-068",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -21323,6 +21542,13 @@
     },
     {
       "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -22632,6 +22858,13 @@
     },
     {
       "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -23052,6 +23285,13 @@
     },
     {
       "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -23270,6 +23510,13 @@
     {
       "from": "test:tests/integration/project-business-binding.test.js",
       "to": "req:FR-065",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-069",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -23676,6 +23923,41 @@
     {
       "from": "test:tests/integration/project-list-contract.test.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap.test.js",
+      "to": "code:src/app/api/projects/[id]/roadmap/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap.test.js",
+      "to": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap.test.js",
+      "to": "req:FR-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap.test.js",
+      "to": "req:SDD-039",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -27623,6 +27905,13 @@
     },
     {
       "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
       "to": "req:SDD-002",
       "type": "verifies",
       "status": "current",
@@ -27697,6 +27986,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/plan-status-vocabulary.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/plan-status-vocabulary.test.js",
@@ -28378,6 +28674,83 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/project-roadmap-read-model.test.js",
+      "to": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-roadmap-read-model.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-roadmap-read-model.test.js",
+      "to": "req:FR-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-roadmap-read-model.test.js",
+      "to": "req:SDD-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-roadmap-ui.test.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-roadmap-ui.test.js",
+      "to": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-roadmap-ui.test.js",
+      "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-roadmap-ui.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-roadmap-ui.test.js",
+      "to": "req:FR-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-roadmap-ui.test.js",
+      "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-roadmap-ui.test.js",
+      "to": "req:SDD-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/project-team-service.test.js",
       "to": "code:src/app/(pm)/projects/[projectId]/team/page.jsx",
       "type": "tests",
@@ -28491,7 +28864,21 @@
     },
     {
       "from": "test:tests/unit/project-work-route.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
       "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-work-route.test.js",
+      "to": "req:SDD-039",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

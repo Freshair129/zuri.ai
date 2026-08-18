@@ -1,5 +1,6 @@
-// @req FR-040 — Project Work owns Structure Plan, Board, Schedule, and Dependency Map.
-// @spec SDD-019, ADR-012
+// @req FR-040, FR-068 — Project Work owns the Execution Roadmap and its
+// existing Structure Plan, Board, Schedule, and Dependency Map views.
+// @spec SDD-019, SDD-039, ADR-012, ADR-028
 // @tested tests/unit/project-work-route.test.js
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -11,6 +12,8 @@ const projectLayout = readFileSync(resolve(process.cwd(), 'src/app/(pm)/projects
 
 describe('Project Work navigation boundary', () => {
   it('exposes all Work sub-views without promoting Dependency Map to a sidebar domain', () => {
+    expect(workTabs).toContain("label: 'Execution Roadmap'")
+    expect(workTabs).toContain("/projects/${projectId}/roadmap")
     expect(workTabs).toContain("label: 'Structure Plan'")
     expect(workTabs).toContain("label: 'Board'")
     expect(workTabs).toContain("label: 'Schedule'")

@@ -19,7 +19,7 @@ export default function ProjectLayout({ children }) {
       ? 'team'
       : pathname.includes('/files')
         ? 'files'
-        : ['/structure', '/board', '/timeline', '/dependencies', '/all-work', '/execution'].some((suffix) => pathname.includes(suffix))
+        : ['/roadmap', '/structure', '/board', '/timeline', '/dependencies', '/all-work', '/execution'].some((suffix) => pathname.includes(suffix))
           ? 'work'
           : undefined
 

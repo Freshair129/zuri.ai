@@ -14,7 +14,7 @@ import {
 } from '@/lib/validation/enums'
 
 // @req FR-012, FR-019 — PlanEnvelope validation (shape + semantics)
-// @spec BR-004, BR-007, SEC-002 — unknown modes rejected; plans are data, never executed
+// @spec FR-069, BR-004, BR-007, SEC-002 — unknown modes rejected; plans are data, never executed
 // @spec SDD-002 — every status here is the Zod enum from the single source of
 // truth, never `z.string()`
 // @tested tests/unit/plan-schema.test.js, tests/unit/plan-status-vocabulary.test.js
@@ -140,6 +140,13 @@ export const zPlanEnvelope = z
         type: z.string().optional(),
         status: zProjectStatus.optional(),
         targetAt: z.union([z.string().datetime(), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).optional(),
+        // Optional links to existing BusinessGoal rows. The import service
+        // resolves them inside the target Business and creates ProjectGoal
+        // links transactionally; it never creates or copies a Goal.
+        goalIds: z.array(z.string().min(1)).max(100).refine(
+          (ids) => new Set(ids).size === ids.length,
+          { message: 'goalIds must contain unique Business Goal ids' },
+        ).optional(),
         externalRefs,
       })
       .strict(),

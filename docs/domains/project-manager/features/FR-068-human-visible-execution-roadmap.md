@@ -3,8 +3,8 @@ domain: project-manager
 feature: FR-068
 module: project-manager
 source: v2-native
-version: 0.5.0
-status: proposed
+version: 0.6.0
+status: candidate
 ---
 
 # FR-068 — Human-visible Project Execution Roadmap and identity references
@@ -152,6 +152,26 @@ not a permission to hide those gaps in arbitrary JSON or free text. Any schema,
 migration or ownership change needed to make those fields durable must be
 specified and approved before implementation; until then the UI renders the
 field as unavailable rather than inventing it.
+
+## Implementation status (2026-08-18)
+
+The approved candidate slice is implemented without a new Project/Work
+aggregate or schema migration:
+
+- `GET /api/projects/:id/roadmap` returns an authorized, strict read model over
+  the existing Project, Workstream, WorkContainer, WorkItem, Gate, Membership
+  and ProjectGoal records.
+- `Work > Execution Roadmap` renders the Project outcome, authorized Business
+  Goals, strategy-based progress, seven-mode vocabulary, execution hierarchy,
+  dependencies, roster and closure gates.
+- Project-level gates are included even when they have no `workstreamId`.
+- Accountable owner, risks, sources, tags, criteria, item evidence, blocker
+  owner, closure decision and supporting identity references remain explicit
+  `UNAVAILABLE` fields until their owning contracts are available.
+
+This is a usable read-only candidate, not a declaration that every AC-068
+field is live. The remaining fields and full acceptance closure stay governed
+by this contract and must not be inferred from the candidate UI.
 
 ## Related documents
 

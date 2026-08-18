@@ -11,6 +11,7 @@ import { makeViewer } from '../factories/viewer'
 
 let workspace
 let viewer
+let businessGoal
 
 // @req FR-065 — import authorizes its target, so the pipeline now takes a viewer.
 // This suite is about validation, diffing and transactional commit, not about
@@ -71,6 +72,17 @@ describe('plan envelope import', () => {
     const business = await createBusiness({ tenantId: tenant.id, name: 'Import Business', code: 'BUS-IMP' })
     workspace = await createWorkspace({ name: 'Import WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-IMP' })
     viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    businessGoal = await prisma.businessGoal.create({
+      data: {
+        businessId: business.id,
+        code: 'GOAL-IMP',
+        title: 'Imported Business Goal',
+        status: 'ACTIVE',
+        priority: 'HIGH',
+        progress: 25,
+      },
+    })
+    plan.project.goalIds = [businessGoal.id]
   })
 
   it('rejects unknown execution mode at validation', async () => {
@@ -105,12 +117,13 @@ describe('plan envelope import', () => {
     expect(result.committed).toBe(true)
     const project = await prisma.project.findUnique({
       where: { code: 'PRJ-IMP' },
-      include: { workstreams: true, milestones: true, gates: true, repositories: true },
+      include: { workstreams: true, milestones: true, gates: true, repositories: true, goalLinks: { include: { goal: true } } },
     })
     expect(project.workstreams.length).toBe(2)
     expect(project.milestones.length).toBe(1)
     expect(project.gates.length).toBe(1)
     expect(project.repositories.length).toBe(1)
+    expect(project.goalLinks.map((link) => link.goal.code)).toEqual(['GOAL-IMP'])
     expect(project.businessId).toBe(workspace.businessId)
     const dep = await prisma.dependency.findFirst({ where: { dependencyType: 'RELATES_TO' } })
     expect(dep).toBeTruthy()

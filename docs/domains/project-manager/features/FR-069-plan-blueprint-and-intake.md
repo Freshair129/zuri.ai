@@ -3,8 +3,8 @@ domain: project-manager
 feature: FR-069
 module: project-manager
 source: v2-native
-version: 0.8.0
-status: proposed
+version: 0.9.0
+status: candidate
 ---
 
 # FR-069 — Plan Blueprint and Human/Agent intake with stable references
@@ -242,13 +242,23 @@ Every mode-specific contract inherits these rules:
 | Closure | Open/blocked/carry-over work, required gates/criteria and dependency blockers must be summarized before an owner can close the plan container |
 | Import safety | Strict schema + semantic validation, dry-run, conflict check, Human preview, authorized transaction and AuditEvent; imported content is data only |
 
-The current PlanEnvelope 1.0/1.1 carries the neutral identity, legacy mode alias, subtype,
-status, metrics, milestones, gates and dependencies. It does not yet carry every
-Human field above (notably goal, success criteria, accountable owner and
-first-class tags, canonical `executionModeId` and domain binding IDs). Those
-fields are part of this product contract and require an approved additive
-envelope/schema change before FR-069 can be marked live; they must not be
-silently discarded or stored as unvalidated free text.
+The current PlanEnvelope 1.0/1.1 carries the neutral identity, legacy mode alias,
+subtype, status, metrics, milestones, gates, dependencies and optional
+`project.goalIds[]`. It does not yet carry every Human field above (notably
+goal success criteria, accountable owner, first-class tags, canonical
+`executionModeId` and domain binding IDs). Those fields are part of this
+product contract and require an approved additive envelope/schema change before
+FR-069 can be marked live; they must not be silently discarded or stored as
+unvalidated free text.
+
+### Candidate implementation status (2026-08-18)
+
+The optional `project.goalIds[]` field is now validated as a unique bounded
+list. During dry-run, each ID is resolved inside the target Business; missing
+or cross-Business goals produce a conflict. During commit, valid links are
+upserted into the existing `ProjectGoal` relation in the same transaction as
+the Project import, and no BusinessGoal is copied or re-owned by Project
+Manager. This additive slice feeds the FR-068 Roadmap projection.
 
 ### Contract 1 — `SOFTWARE_SPRINT`
 

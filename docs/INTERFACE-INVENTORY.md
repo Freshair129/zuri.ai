@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=37; operational_domain_keys=7; operational_subdomain_entries=21; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=38; operational_domain_keys=7; operational_subdomain_entries=21; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -137,6 +137,7 @@ not new global domains or new persistence aggregates.
 | `/projects/[projectId]/all-work` | Project All Work | ProjectResourceShell → Work | Project-filtered WorkItems and status actions | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/all-work/page.jsx`, FR-005 |
 | `/projects/[projectId]/board` | Project Board | ProjectResourceShell → Work | board view over Project work | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/board/page.jsx`, FR-063 |
 | `/projects/[projectId]/dependencies` | Project Dependency Map | ProjectResourceShell → Work | contained dependency graph; both endpoints must belong to Project | empty, loading, error, forbidden, graph error | implemented; `src/app/(pm)/projects/[projectId]/dependencies/page.jsx`, FR-040 |
+| `/projects/[projectId]/roadmap` | Execution Roadmap | ProjectResourceShell → Work | read-only Project outcome, Business Goals, execution hierarchy, progress, dependencies and closure gates | empty, loading, error, forbidden, unavailable fields | candidate; `src/app/(pm)/projects/[projectId]/roadmap/page.jsx`, FR-068 |
 | `/projects/[projectId]/execution/[mode]` | Project Execution Mode | ProjectResourceShell → Work | mode view scoped to opened Project | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx`, FR-009 |
 | `/projects/[projectId]/files` | Project Files | ProjectResourceShell → Files | Project file references and metadata actions | empty, loading, error, forbidden, capability-disabled | implemented; `src/app/(pm)/projects/[projectId]/files/page.jsx`, FR-045 |
 | `/projects/[projectId]/import` | Project Plan Import | ProjectResourceShell → Import | validate, dry-run, conflict preview and commit plan | validation, conflict, loading, error, forbidden, success | implemented; `src/app/(pm)/projects/[projectId]/import/page.jsx`, FR-012 |

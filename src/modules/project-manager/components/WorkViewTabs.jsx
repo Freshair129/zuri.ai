@@ -1,16 +1,18 @@
 'use client'
 
-// @req FR-040 — Project Work owns the project-local Dependency Map sub-view.
-// @spec SDD-019, ADR-012
-// @tested tests/unit/project-work-route.test.js
+// @req FR-040, FR-068 — Project Work owns the composed Execution Roadmap and
+// the existing Structure/Board/Schedule/Dependency sub-views.
+// @spec SDD-019, SDD-039, ADR-012, ADR-028
+// @tested tests/unit/project-work-route.test.js, tests/unit/project-roadmap-ui.test.js
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Network, Columns3, GanttChartSquare, Share2 } from 'lucide-react'
+import { Network, Columns3, GanttChartSquare, Share2, Map } from 'lucide-react'
 
-// Sub-views of the project "Work" tab (Structure Plan · Board · Schedule · Dependency Map).
+// Sub-views of the project "Work" tab (Execution Roadmap · Structure Plan · Board · Schedule · Dependency Map).
 export default function WorkViewTabs({ projectId }) {
   const pathname = usePathname()
   const views = [
+    { key: 'roadmap', label: 'Execution Roadmap', icon: Map, href: `/projects/${projectId}/roadmap` },
     { key: 'structure', label: 'Structure Plan', icon: Network, href: `/projects/${projectId}/structure` },
     { key: 'board', label: 'Board', icon: Columns3, href: `/projects/${projectId}/board` },
     { key: 'timeline', label: 'Schedule', icon: GanttChartSquare, href: `/projects/${projectId}/timeline` },

@@ -1,5 +1,6 @@
-// @req FR-040 — Project Work views expose Structure Plan and Dependency Map.
-// @spec SDD-019, ADR-012
+// @req FR-040, FR-068 — Project Work views expose Structure Plan, Dependency
+// Map and the Human-visible Execution Roadmap.
+// @spec SDD-019, ADR-012, ADR-028
 
 const { test, expect } = require('@playwright/test')
 
@@ -27,6 +28,19 @@ test.describe('FR-040 Project Work views', () => {
     await expect(page.getByRole('heading', { name: 'Dependency Map' })).toBeVisible()
     await expect(page.getByRole('region', { name: 'Dependency edge list' })).toBeVisible()
     await expect(page.getByRole('navigation', { name: 'Project sections' })).toBeVisible()
+  })
+
+  test('renders the read-only Execution Roadmap over the same Project graph', async ({ page, request }) => {
+    const resolved = await (await request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+
+    await chooseBusiness(page)
+    await page.goto(`/projects/${resolved.id}/roadmap`)
+    await expect(page.getByRole('heading', { name: 'Project outcome' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Business Goals' })).toBeVisible()
+    await expect(page.getByText('Execution Plans')).toBeVisible()
+    await expect(page.getByText('Dependencies and blockers')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Closure' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Execution Roadmap' })).toBeVisible()
   })
 
   test('keeps the graph inside a scrollable canvas on a narrow viewport', async ({ page, request }) => {
