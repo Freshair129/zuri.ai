@@ -1,6 +1,6 @@
 @echo off
 REM ============================================================
-REM  Zuri V2 - Project Manager  (server + UI, one Next.js app)
+REM  Zuri V2 - Project Manager  (server + UI, PostgreSQL runtime)
 REM  Double-click to run, or:  run.bat
 REM  Serves API + UI on http://localhost:3100
 REM ============================================================
@@ -8,7 +8,7 @@ setlocal
 cd /d "%~dp0"
 
 REM @req FR-054 - inject the dedicated Supabase URL into this process tree only.
-REM @spec SDD-027, SEC-011 - credential remains in Windows Credential Manager.
+REM @spec ADR-035, SDD-027, SEC-011 - credentials remain process-local.
 REM @tested tests/unit/run-bat-database-bootstrap.test.js
 if not defined ZURI_SUPABASE_RUNTIME_BOOTSTRAPPED (
   powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\run-with-supabase-runtime.ps1" -BatchPath "%~f0"
@@ -18,12 +18,14 @@ if not defined ZURI_SUPABASE_RUNTIME_BOOTSTRAPPED (
 REM Prisma 5.22's Windows schema engine needs a supported Rust log mode
 REM under the repository's Node 24 toolchain (warn can terminate bootstrap).
 set "RUST_LOG=info"
-REM Explicit local-only demo session capability (ADR-017 / FR-046).
-set "ZURI_LOCAL_DEMO_AUTH=1"
-REM @req FR-046 - clean-checkout local demo startup owns a SQLite datasource.
-REM @spec ADR-017, SDD-024, SEC-008 - caller-provided database authority remains authoritative.
+REM PostgreSQL runtime never enables the local demo session implicitly.
+REM Use ZURI_ALLOW_POSTGRES_LOCAL_DEMO=1 only for an approved non-production target.
+set "ZURI_LOCAL_DEMO_AUTH="
+if "%ZURI_ALLOW_POSTGRES_LOCAL_DEMO%"=="1" set "ZURI_LOCAL_DEMO_AUTH=1"
+REM @req FR-030 - normal app startup uses the PostgreSQL application client.
+REM @spec ADR-018, ADR-035, SEC-011 - no SQLite fallback and no implicit remote mutation.
 REM @tested tests/unit/run-bat-database-bootstrap.test.js
-if not defined DATABASE_URL set "DATABASE_URL=file:./dev.db"
+REM If PostgreSQL is not configured, use run-local.bat for the offline SQLite demo.
 
 if not exist "node_modules" (
   echo [zuri] Installing dependencies ^(first run only^)...
@@ -37,12 +39,17 @@ if defined ZURI_LINE_DB_URL (
   if errorlevel 1 goto :fail
 )
 
-echo [zuri] Syncing database schema ^(non-destructive^)...
-call npm run db:push
+echo [zuri] Verifying PostgreSQL application runtime ^(read-only^)...
+call npm run db:pg:verify
 if errorlevel 1 goto :fail
 
-echo [zuri] Seeding demo data ^(idempotent^)...
-call npm run db:seed
+if "%ZURI_ALLOW_POSTGRES_SEED%"=="1" (
+  echo [zuri] Seeding PostgreSQL demo data ^(explicit opt-in^)...
+  call npm run db:seed
+  if errorlevel 1 goto :fail
+) else (
+  echo [zuri] Skipping PostgreSQL demo seed ^(set ZURI_ALLOW_POSTGRES_SEED=1 only for an approved non-production target^).
+)
 
 echo [zuri] Opening http://localhost:3100/overview
 start "" "http://localhost:3100/overview"
@@ -53,6 +60,6 @@ goto :eof
 
 :fail
 echo.
-echo [zuri] Startup failed - see the errors above.
+echo [zuri] PostgreSQL startup failed - see the errors above.
 pause
 exit /b 1

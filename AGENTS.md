@@ -134,7 +134,9 @@ Project roll-up is weighted.
 
 ### 9. Offline-first, sync-ready
 
-MVP uses local SQLite only.
+SQLite remains the authoritative local/test adapter. The primary application runner may use the
+generated PostgreSQL adapter when `run.bat` receives an explicit server-side `.env`; `run-local.bat`
+retains the offline SQLite workflow. This is a provider boundary, not network sync.
 
 All domain services must go through repository interfaces so a future Postgres adapter
 can replace local persistence.

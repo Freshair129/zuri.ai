@@ -232,9 +232,9 @@
 ### FR-030 — Persistence: Postgres/Supabase readiness (ADR-007 P4): generated `schema.postgres.prisma` + init DDL (provider swap only, models identical); `assertDbBoundary` enforces **Zuri DB ≠ MSP DB**; UUID-preserving cutover via the provider-agnostic backup snapshot (`db:pg:export`/`import`). DuckDB stays a cache/analytics tier, not the transactional store
 
 - **Status:** done
-- **Code:** `src/lib/db-boundary.js` · `src/lib/db.js`
-- **Follows:** —
-- **Tests:** `tests/unit/db-boundary.test.js` · `tests/unit/postgres-runtime-client.test.js`
+- **Code:** `prisma/seed.js` · `src/lib/db-boundary.js` · `src/lib/db.js`
+- **Follows:** NFR-007
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/unit/db-boundary.test.js` · `tests/unit/postgres-runtime-bootstrap.test.js` · `tests/unit/postgres-runtime-client.test.js`
 
 ### FR-031 — Viewer gate: `resolveViewer()` resolves the current principal into one role (`OWNER`, `MEMBER`, or platform `DEV`), `visibleBusinessIds`, and `visibleDomains` before the ADR-008 Home journey. DEV is an explicit platform grant, never a widened Membership; development fallback is OWNER-of-all only when no real principal exists.
 

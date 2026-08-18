@@ -5,7 +5,7 @@ param(
 )
 
 # @req FR-054 — Windows startup injects the dedicated Supabase URL without persisting it in files.
-# @spec SDD-027, SEC-011 — validate the exact target and keep the credential process-local.
+# @spec ADR-035, SDD-027, SEC-011 — validate the exact target and keep credentials process-local.
 # @tested tests/unit/run-bat-database-bootstrap.test.js
 
 $ErrorActionPreference = 'Stop'
@@ -19,12 +19,16 @@ $expectedPoolerHost = 'aws-0-ap-northeast-2.pooler.supabase.com'
 $resolvedBatch = [IO.Path]::GetFullPath($BatchPath)
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $caFile = [IO.Path]::GetFullPath((Join-Path $repoRoot 'certs\supabase-prod-ca-2021.crt'))
+$runtimeLauncher = [IO.Path]::GetFullPath((Join-Path $repoRoot 'scripts\run-with-env-file.mjs'))
 
 if (-not $resolvedBatch.StartsWith($repoRoot, [StringComparison]::OrdinalIgnoreCase)) {
     throw 'ZURI_RUNTIME_BATCH_OUTSIDE_REPOSITORY'
 }
 if (-not (Test-Path -LiteralPath $caFile -PathType Leaf)) {
     throw 'ZURI_RUNTIME_CA_MISSING'
+}
+if (-not (Test-Path -LiteralPath $runtimeLauncher -PathType Leaf)) {
+    throw 'ZURI_RUNTIME_ENV_LAUNCHER_MISSING'
 }
 
 if (-not ('ZuriRuntimeCredentialReader' -as [type])) {
@@ -107,7 +111,9 @@ else {
 
 $env:ZURI_SUPABASE_RUNTIME_BOOTSTRAPPED = '1'
 try {
-    & $env:ComSpec '/d' '/c' ('"' + $resolvedBatch + '"')
+    # The Node launcher parses .env without echoing values and spawns the batch
+    # with the resulting process-local environment.
+    & node $runtimeLauncher '--batch-path' $resolvedBatch
     exit $LASTEXITCODE
 }
 finally {

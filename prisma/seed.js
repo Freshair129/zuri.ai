@@ -1,7 +1,16 @@
-// @req FR-016 — idempotent demo seed (4 tenants, 7-mode demo project)
-// @spec NFR-007 — safe to re-run: every record is upserted by its unique human code.
+// @req FR-016, FR-030 — idempotent demo seed with provider-specific Prisma client.
+// @spec ADR-035, NFR-007 — safe to re-run; PostgreSQL requires explicit non-production opt-in.
 // @tested tests/e2e/smoke.spec.js — the whole e2e suite asserts against this data
-const { PrismaClient } = require('@prisma/client')
+const usePostgres = /^(postgres|postgresql):/i.test(process.env.DATABASE_URL || '')
+if (usePostgres && process.env.ZURI_ALLOW_POSTGRES_SEED !== '1') {
+  console.error('[zuri] POSTGRES_SEED_REQUIRES_EXPLICIT_OPT_IN')
+  console.error('[zuri] Set ZURI_ALLOW_POSTGRES_SEED=1 only for an approved non-production target.')
+  process.exit(1)
+}
+
+const { PrismaClient } = usePostgres
+  ? require('@zuri/prisma-postgres')
+  : require('@prisma/client')
 
 // @req FR-041 - seed Business Strategy horizons for the Business-first Overview.
 // @spec ADR-013

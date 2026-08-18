@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.5 |
+| **Version** | 1.1.0 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-18 |
+| **Last Updated** | 2026-08-19 |
 
 The MVP schema was designed to move to Postgres without semantic changes.
 
@@ -57,6 +57,30 @@ The lab stays SQLite (`prisma/schema.prisma`); production is generated, not hand
    selects the Postgres client when `DATABASE_URL` is `postgres:`/`postgresql:` and
    keeps SQLite when the URL is `file:`. Re-run the suite against the selected
    provider; integration tests remain provider-independent.
+
+## Runtime bootstrap contract — ZV2-CR-009 / ADR-035
+
+The Windows runners now make provider choice explicit:
+
+- `run.bat` is the PostgreSQL/Supabase application runner. It loads the ignored `.env` into the
+  child process, requires a PostgreSQL `DATABASE_URL`, performs a read-only application-schema
+  check and starts Next.js. It never runs `db:push`, `db:reset`, `db:clean` or a demo seed against
+  PostgreSQL.
+- `run-local.bat` is the offline SQLite runner. It owns `file:./dev.db`, local `db:push` and the
+  idempotent demo seed.
+- `npm run db:push`, `npm run db:clean` and `npm run db:reset` are SQLite-only and fail closed when
+  a PostgreSQL URL is present.
+- `npm run db:seed` selects `@zuri/prisma-postgres` for a PostgreSQL URL, but requires the explicit
+  `ZURI_ALLOW_POSTGRES_SEED=1` opt-in. Normal PostgreSQL startup skips demo seed because the target
+  may be production.
+- `run.bat` also leaves `ZURI_LOCAL_DEMO_AUTH` disabled for PostgreSQL. A separate
+  `ZURI_ALLOW_POSTGRES_LOCAL_DEMO=1` opt-in is required for an approved non-production target.
+
+The runtime URL should use the Supabase session pooler for a long-lived IPv4-only Windows process;
+`DIRECT_URL` is reserved for migration/operator commands. Neither URL is printed or sent to the
+browser. A missing application table is a bootstrap failure; apply the reviewed Supabase migration
+history through the operator/deployment process before retrying the runner. This startup contract
+does not apply migrations, import snapshots or enable LINE traffic.
 
 ### Application identity and review queue deployment (FR-076 / FR-078)
 

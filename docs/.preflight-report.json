@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 152,
+    "docs": 154,
     "routes": 68,
-    "test_files": 203
+    "test_files": 204
   },
   "summary": {
     "critical": 0,
@@ -166,7 +166,7 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 203 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 204 files"
     },
     {
       "id": "I15",

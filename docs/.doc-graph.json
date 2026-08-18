@@ -3,20 +3,20 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 938,
-    "total_edges": 2991,
+    "total_nodes": 941,
+    "total_edges": 3003,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 79,
-      "adr": 34,
+      "document": 80,
+      "adr": 35,
       "domain": 6,
       "roadmap": 25,
       "feature": 6,
       "route": 107,
       "model": 47,
       "requirement": 174,
-      "test": 203,
+      "test": 204,
       "code_file": 253
     },
     "coverage": {
@@ -51,9 +51,8 @@
   },
   "drift": {
     "changed": [
-      "test:tests/e2e/fr040-project-work.spec.js",
-      "test:tests/unit/project-work-route.test.js",
-      "code:src/modules/project-manager/components/WorkViewTabs.jsx"
+      "test:tests/unit/entry-surfaces.test.js",
+      "code:src/app/login/page.jsx"
     ],
     "added": [],
     "removed": []
@@ -63,11 +62,12 @@
       "id": "code:prisma/seed.js",
       "type": "code_file",
       "path": "prisma/seed.js",
-      "hash": "168b6e7c",
+      "hash": "6a5631cd",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-016",
+          "FR-030",
           "FR-041",
           "FR-073",
           "FR-043"
@@ -2229,8 +2229,8 @@
       "id": "code:src/app/login/page.jsx",
       "type": "code_file",
       "path": "src/app/login/page.jsx",
-      "hash": "dc776fd8",
-      "status": "current",
+      "hash": "8e644dd1",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-044",
@@ -4539,7 +4539,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/components/WorkViewTabs.jsx",
       "hash": "9c9a95b0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-040",
@@ -5135,9 +5135,9 @@
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
       "title": "Database Migration Notes — SQLite → PostgreSQL",
-      "version": "1.0.5",
+      "version": "1.1.0",
       "doc_status": "Approved",
-      "hash": "34293a39",
+      "hash": "1f7f6bfd",
       "status": "current"
     },
     {
@@ -6035,6 +6035,14 @@
       "path": "docs/changes/ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY.md",
       "title": "ZV2-CR-008 — Agent vault for private epistemic memory",
       "hash": "05ed0ab2",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-009-POSTGRES-PRIMARY-RUNTIME",
+      "type": "document",
+      "path": "docs/changes/ZV2-CR-009-POSTGRES-PRIMARY-RUNTIME.md",
+      "title": "ZV2-CR-009 — PostgreSQL primary application runtime",
+      "hash": "b8c14904",
       "status": "current"
     },
     {
@@ -9339,11 +9347,19 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-035-POSTGRES-PRIMARY-RUNTIME-AND-EXPLICIT-SQLITE-RUNNER",
+      "type": "adr",
+      "path": "docs/decisions/ADR-035-POSTGRES-PRIMARY-RUNTIME-AND-EXPLICIT-SQLITE-RUNNER.md",
+      "title": "ADR-035 — PostgreSQL primary runtime and explicit SQLite runner",
+      "hash": "b237348f",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
       "hash": "f812f658",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr041-business-first.spec.js",
@@ -10049,8 +10065,8 @@
       "id": "test:tests/unit/entry-surfaces.test.js",
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
-      "hash": "f3e76b36",
-      "status": "current"
+      "hash": "9493552e",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr036-team-authorization.test.js",
@@ -10522,6 +10538,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/postgres-runtime-bootstrap.test.js",
+      "type": "test",
+      "path": "tests/unit/postgres-runtime-bootstrap.test.js",
+      "hash": "fd0c2194",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/postgres-runtime-client.test.js",
       "type": "test",
       "path": "tests/unit/postgres-runtime-client.test.js",
@@ -10624,7 +10647,7 @@
       "type": "test",
       "path": "tests/unit/project-work-route.test.js",
       "hash": "c34647e0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/public-read-route-auth.test.js",
@@ -10651,7 +10674,7 @@
       "id": "test:tests/unit/run-bat-database-bootstrap.test.js",
       "type": "test",
       "path": "tests/unit/run-bat-database-bootstrap.test.js",
-      "hash": "d83982cc",
+      "hash": "91e4eb42",
       "status": "current"
     },
     {
@@ -10764,6 +10787,13 @@
     {
       "from": "code:prisma/seed.js",
       "to": "req:FR-016",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:prisma/seed.js",
+      "to": "req:FR-030",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -21017,6 +21047,55 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-035-POSTGRES-PRIMARY-RUNTIME-AND-EXPLICIT-SQLITE-RUNNER",
+      "to": "req:FR-030",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-035-POSTGRES-PRIMARY-RUNTIME-AND-EXPLICIT-SQLITE-RUNNER",
+      "to": "req:FR-046",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-035-POSTGRES-PRIMARY-RUNTIME-AND-EXPLICIT-SQLITE-RUNNER",
+      "to": "req:NFR-007",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-035-POSTGRES-PRIMARY-RUNTIME-AND-EXPLICIT-SQLITE-RUNNER",
+      "to": "req:SEC-008",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-035-POSTGRES-PRIMARY-RUNTIME-AND-EXPLICIT-SQLITE-RUNNER",
+      "to": "req:SEC-011",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-035-POSTGRES-PRIMARY-RUNTIME-AND-EXPLICIT-SQLITE-RUNNER",
+      "to": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-035-POSTGRES-PRIMARY-RUNTIME-AND-EXPLICIT-SQLITE-RUNNER",
+      "to": "spec:ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -21145,6 +21224,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-030",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -21946,6 +22032,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
@@ -30084,6 +30177,20 @@
     {
       "from": "test:tests/unit/postgres-business-knowledge.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/postgres-runtime-bootstrap.test.js",
+      "to": "req:FR-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/postgres-runtime-bootstrap.test.js",
+      "to": "req:SEC-011",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
