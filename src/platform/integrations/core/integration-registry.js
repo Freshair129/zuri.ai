@@ -11,6 +11,17 @@ function required(value, label) {
   return value
 }
 
+async function loadConnectionInScope(db, { tenantId, businessId, connectionId }) {
+  required(tenantId, 'TENANT_ID')
+  required(connectionId, 'CONNECTION_ID')
+  const connection = await db.integrationConnection.findUnique({ where: { id: connectionId } })
+  if (!connection || connection.tenantId !== tenantId) throw new Error('CONNECTION_OUTSIDE_TENANT')
+  if (businessId !== undefined && (connection.businessId ?? null) !== (businessId ?? null)) {
+    throw new Error('CONNECTION_OUTSIDE_BUSINESS')
+  }
+  return connection
+}
+
 export function selectPhase1PrimaryConnection(connections, {
   tenantId,
   businessId,
@@ -139,16 +150,21 @@ export async function upsertIntegrationCredentialMetadata({
   secretRef,
   status = 'ACTIVE',
   expiresAt = null,
+  accessTokenExpiresAt = null,
+  refreshTokenExpiresAt = null,
 }, { db = prisma } = {}) {
   required(tenantId, 'TENANT_ID')
   required(connectionId, 'CONNECTION_ID')
   required(secretRef, 'SECRET_REF')
-  const connection = await db.integrationConnection.findUnique({ where: { id: connectionId } })
-  if (!connection || connection.tenantId !== tenantId) throw new Error('CONNECTION_OUTSIDE_TENANT')
+  await loadConnectionInScope(db, { tenantId, connectionId })
+  // `expiresAt` is the secret-manager reference expiry FR-079 fails closed on.
+  // The token-pair columns describe an OAuth grant held *by* the provider and are
+  // deliberately separate: a rotated access token does not invalidate the reference.
+  const fields = { secretRef, status, expiresAt, accessTokenExpiresAt, refreshTokenExpiresAt }
   return db.integrationCredential.upsert({
     where: { connectionId },
-    create: { connectionId, secretRef, status, expiresAt },
-    update: { secretRef, status, expiresAt, rotatedAt: new Date(), version: { increment: 1 } },
+    create: { connectionId, ...fields },
+    update: { ...fields, rotatedAt: new Date(), version: { increment: 1 } },
   })
 }
 
@@ -192,5 +208,48 @@ export async function promotePhase1PrimaryConnection({
       demotedCount: demoted.count,
       version: expectedVersion + 1,
     }
+  })
+}
+
+// @req FR-081 — a provider row is the addressable identity an ingestion channel
+// binds to; registering one is idempotent on its code.
+export async function registerIntegrationProvider({
+  code,
+  name,
+  status = 'ACTIVE',
+  capabilities = {},
+}, { db = prisma } = {}) {
+  required(code, 'PROVIDER_CODE')
+  required(name, 'PROVIDER_NAME')
+  const capabilitiesJson = JSON.stringify(capabilities ?? {})
+  return db.integrationProvider.upsert({
+    where: { code },
+    create: { code, name, status, capabilitiesJson },
+    update: { name, status, capabilitiesJson },
+  })
+}
+
+// @req FR-081 — a run is opened against a connection already proven in scope, and
+// inherits that connection's tenant/business rather than trusting the caller's.
+export async function createIngestionRun({
+  tenantId,
+  businessId = null,
+  connectionId,
+  lane,
+  resourceType,
+  runType = 'INCREMENTAL',
+}, { db = prisma } = {}) {
+  required(lane, 'INGESTION_LANE')
+  required(resourceType, 'RESOURCE_TYPE')
+  const connection = await loadConnectionInScope(db, { tenantId, businessId, connectionId })
+  return db.ingestionRun.create({
+    data: {
+      tenantId: connection.tenantId,
+      businessId: connection.businessId,
+      connectionId: connection.id,
+      lane,
+      resourceType,
+      runType,
+    },
   })
 }

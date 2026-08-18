@@ -106,6 +106,24 @@ CREATE TABLE "Membership" (
 );
 
 -- CreateTable
+CREATE TABLE "RoleBinding" (
+    "id" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "roleKey" TEXT NOT NULL,
+    "scopeType" TEXT NOT NULL DEFAULT 'BUSINESS',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "assignedBy" TEXT,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "revokedAt" TIMESTAMP(3),
+
+    CONSTRAINT "RoleBinding_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Workspace" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
@@ -566,12 +584,131 @@ CREATE TABLE "IntegrationCredential" (
     "secretRef" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "expiresAt" TIMESTAMP(3),
+    "accessTokenExpiresAt" TIMESTAMP(3),
+    "refreshTokenExpiresAt" TIMESTAMP(3),
     "rotatedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "IntegrationCredential_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "IngestionRun" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT,
+    "connectionId" TEXT NOT NULL,
+    "lane" TEXT NOT NULL,
+    "resourceType" TEXT NOT NULL,
+    "runType" TEXT NOT NULL DEFAULT 'INCREMENTAL',
+    "status" TEXT NOT NULL DEFAULT 'RUNNING',
+    "startedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "finishedAt" TIMESTAMP(3),
+    "fetchedCount" INTEGER NOT NULL DEFAULT 0,
+    "createdCount" INTEGER NOT NULL DEFAULT 0,
+    "updatedCount" INTEGER NOT NULL DEFAULT 0,
+    "unchangedCount" INTEGER NOT NULL DEFAULT 0,
+    "failedCount" INTEGER NOT NULL DEFAULT 0,
+    "errorCode" TEXT,
+    "errorMessage" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "IngestionRun_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "RawExternalRecord" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT,
+    "connectionId" TEXT NOT NULL,
+    "ingestionRunId" TEXT,
+    "provider" TEXT NOT NULL,
+    "lane" TEXT NOT NULL,
+    "entityType" TEXT NOT NULL,
+    "externalId" TEXT NOT NULL,
+    "sourceType" TEXT NOT NULL,
+    "sourceUri" TEXT,
+    "schemaVersion" TEXT NOT NULL,
+    "payloadJson" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "idempotencyKey" TEXT NOT NULL,
+    "receivedAt" TIMESTAMP(3) NOT NULL,
+    "processingStatus" TEXT NOT NULL DEFAULT 'RECEIVED',
+    "processingError" TEXT,
+    "processedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "RawExternalRecord_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SyncCursor" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT,
+    "connectionId" TEXT NOT NULL,
+    "resourceType" TEXT NOT NULL,
+    "strategy" TEXT NOT NULL,
+    "cursorValue" TEXT,
+    "watermarkAt" TIMESTAMP(3),
+    "lastSuccessAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "SyncCursor_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ExternalEntityRef" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT,
+    "connectionId" TEXT NOT NULL,
+    "provider" TEXT NOT NULL,
+    "entityType" TEXT NOT NULL,
+    "externalId" TEXT NOT NULL,
+    "internalEntityType" TEXT,
+    "internalEntityId" TEXT,
+    "externalCode" TEXT,
+    "documentNumber" TEXT,
+    "payloadHash" TEXT,
+    "firstSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lastSyncedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ExternalEntityRef_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "DeadLetterRecord" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT,
+    "connectionId" TEXT NOT NULL,
+    "ingestionRunId" TEXT,
+    "rawRecordId" TEXT,
+    "lane" TEXT NOT NULL,
+    "entityType" TEXT NOT NULL,
+    "externalId" TEXT NOT NULL,
+    "failureStage" TEXT NOT NULL,
+    "failureOwner" TEXT NOT NULL,
+    "errorCode" TEXT NOT NULL,
+    "errorMessage" TEXT NOT NULL,
+    "retryCount" INTEGER NOT NULL DEFAULT 0,
+    "status" TEXT NOT NULL DEFAULT 'OPEN',
+    "nextRetryAt" TIMESTAMP(3),
+    "resolvedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "DeadLetterRecord_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -618,6 +755,18 @@ CREATE INDEX "Membership_personId_idx" ON "Membership"("personId");
 
 -- CreateIndex
 CREATE INDEX "Membership_tenantId_idx" ON "Membership"("tenantId");
+
+-- CreateIndex
+CREATE INDEX "RoleBinding_tenantId_businessId_status_idx" ON "RoleBinding"("tenantId", "businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "RoleBinding_personId_status_idx" ON "RoleBinding"("personId", "status");
+
+-- CreateIndex
+CREATE INDEX "RoleBinding_roleKey_status_idx" ON "RoleBinding"("roleKey", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RoleBinding_personId_businessId_roleKey_key" ON "RoleBinding"("personId", "businessId", "roleKey");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Workspace_code_key" ON "Workspace"("code");
@@ -850,6 +999,72 @@ CREATE UNIQUE INDEX "IntegrationConnection_tenantId_providerId_externalAccountId
 -- CreateIndex
 CREATE UNIQUE INDEX "IntegrationCredential_connectionId_key" ON "IntegrationCredential"("connectionId");
 
+-- CreateIndex
+CREATE INDEX "IngestionRun_tenantId_status_idx" ON "IngestionRun"("tenantId", "status");
+
+-- CreateIndex
+CREATE INDEX "IngestionRun_businessId_idx" ON "IngestionRun"("businessId");
+
+-- CreateIndex
+CREATE INDEX "IngestionRun_connectionId_resourceType_idx" ON "IngestionRun"("connectionId", "resourceType");
+
+-- CreateIndex
+CREATE INDEX "IngestionRun_startedAt_idx" ON "IngestionRun"("startedAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RawExternalRecord_idempotencyKey_key" ON "RawExternalRecord"("idempotencyKey");
+
+-- CreateIndex
+CREATE INDEX "RawExternalRecord_tenantId_entityType_idx" ON "RawExternalRecord"("tenantId", "entityType");
+
+-- CreateIndex
+CREATE INDEX "RawExternalRecord_businessId_idx" ON "RawExternalRecord"("businessId");
+
+-- CreateIndex
+CREATE INDEX "RawExternalRecord_connectionId_entityType_externalId_idx" ON "RawExternalRecord"("connectionId", "entityType", "externalId");
+
+-- CreateIndex
+CREATE INDEX "RawExternalRecord_ingestionRunId_idx" ON "RawExternalRecord"("ingestionRunId");
+
+-- CreateIndex
+CREATE INDEX "RawExternalRecord_processingStatus_idx" ON "RawExternalRecord"("processingStatus");
+
+-- CreateIndex
+CREATE INDEX "SyncCursor_tenantId_resourceType_idx" ON "SyncCursor"("tenantId", "resourceType");
+
+-- CreateIndex
+CREATE INDEX "SyncCursor_businessId_idx" ON "SyncCursor"("businessId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SyncCursor_connectionId_resourceType_key" ON "SyncCursor"("connectionId", "resourceType");
+
+-- CreateIndex
+CREATE INDEX "ExternalEntityRef_tenantId_entityType_idx" ON "ExternalEntityRef"("tenantId", "entityType");
+
+-- CreateIndex
+CREATE INDEX "ExternalEntityRef_businessId_idx" ON "ExternalEntityRef"("businessId");
+
+-- CreateIndex
+CREATE INDEX "ExternalEntityRef_internalEntityType_internalEntityId_idx" ON "ExternalEntityRef"("internalEntityType", "internalEntityId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ExternalEntityRef_connectionId_entityType_externalId_key" ON "ExternalEntityRef"("connectionId", "entityType", "externalId");
+
+-- CreateIndex
+CREATE INDEX "DeadLetterRecord_tenantId_status_idx" ON "DeadLetterRecord"("tenantId", "status");
+
+-- CreateIndex
+CREATE INDEX "DeadLetterRecord_businessId_idx" ON "DeadLetterRecord"("businessId");
+
+-- CreateIndex
+CREATE INDEX "DeadLetterRecord_connectionId_status_idx" ON "DeadLetterRecord"("connectionId", "status");
+
+-- CreateIndex
+CREATE INDEX "DeadLetterRecord_ingestionRunId_idx" ON "DeadLetterRecord"("ingestionRunId");
+
+-- CreateIndex
+CREATE INDEX "DeadLetterRecord_rawRecordId_idx" ON "DeadLetterRecord"("rawRecordId");
+
 -- AddForeignKey
 ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -879,6 +1094,15 @@ ALTER TABLE "Membership" ADD CONSTRAINT "Membership_businessId_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "Membership" ADD CONSTRAINT "Membership_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branch"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RoleBinding" ADD CONSTRAINT "RoleBinding_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RoleBinding" ADD CONSTRAINT "RoleBinding_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RoleBinding" ADD CONSTRAINT "RoleBinding_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Workspace" ADD CONSTRAINT "Workspace_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -1017,4 +1241,58 @@ ALTER TABLE "IntegrationConnection" ADD CONSTRAINT "IntegrationConnection_provid
 
 -- AddForeignKey
 ALTER TABLE "IntegrationCredential" ADD CONSTRAINT "IntegrationCredential_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "IntegrationConnection"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "IngestionRun" ADD CONSTRAINT "IngestionRun_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "IngestionRun" ADD CONSTRAINT "IngestionRun_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "IngestionRun" ADD CONSTRAINT "IngestionRun_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "IntegrationConnection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RawExternalRecord" ADD CONSTRAINT "RawExternalRecord_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RawExternalRecord" ADD CONSTRAINT "RawExternalRecord_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RawExternalRecord" ADD CONSTRAINT "RawExternalRecord_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "IntegrationConnection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "RawExternalRecord" ADD CONSTRAINT "RawExternalRecord_ingestionRunId_fkey" FOREIGN KEY ("ingestionRunId") REFERENCES "IngestionRun"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SyncCursor" ADD CONSTRAINT "SyncCursor_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SyncCursor" ADD CONSTRAINT "SyncCursor_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SyncCursor" ADD CONSTRAINT "SyncCursor_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "IntegrationConnection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ExternalEntityRef" ADD CONSTRAINT "ExternalEntityRef_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ExternalEntityRef" ADD CONSTRAINT "ExternalEntityRef_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ExternalEntityRef" ADD CONSTRAINT "ExternalEntityRef_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "IntegrationConnection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DeadLetterRecord" ADD CONSTRAINT "DeadLetterRecord_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DeadLetterRecord" ADD CONSTRAINT "DeadLetterRecord_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DeadLetterRecord" ADD CONSTRAINT "DeadLetterRecord_connectionId_fkey" FOREIGN KEY ("connectionId") REFERENCES "IntegrationConnection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DeadLetterRecord" ADD CONSTRAINT "DeadLetterRecord_ingestionRunId_fkey" FOREIGN KEY ("ingestionRunId") REFERENCES "IngestionRun"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DeadLetterRecord" ADD CONSTRAINT "DeadLetterRecord_rawRecordId_fkey" FOREIGN KEY ("rawRecordId") REFERENCES "RawExternalRecord"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
