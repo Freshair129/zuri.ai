@@ -10,6 +10,12 @@ Source of truth: `prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIG
 Conventions: UUID PK · unique human `code` · `createdAt/updatedAt` · `version` บน aggregate
 roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · JSON เก็บเป็น string
 
+ทุก model ต้องอยู่ใน `SNAPSHOT_MODELS` (เรียงพ่อก่อนลูก) หรืออยู่ใน
+`SNAPSHOT_EXCLUDED_MODELS` พร้อมเหตุผลว่าทำไมกู้คืนไม่ได้ — ทั้งคู่อยู่ใน
+`src/modules/project-manager/application/backup-service.js` และ preflight
+(`snapshot-coverage`) ตรวจจาก `prisma/schema.prisma` โดยตรง model ที่ไม่อยู่ในลิสต์ไหนเลย
+คือ CRITICAL เพราะ restore จะไม่ export ไม่ลบ และไม่คืนตารางนั้น
+
 ## Models
 
 | Model | Key fields | หมายเหตุ |
