@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 925,
-    "total_edges": 2869,
+    "total_nodes": 927,
+    "total_edges": 2942,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 106,
       "model": 46,
       "requirement": 174,
-      "test": 196,
+      "test": 198,
       "code_file": 249
     },
     "coverage": {
@@ -53,8 +53,30 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [],
+    "changed": [
+      "test:tests/unit/project-dependency-route.test.js",
+      "test:tests/unit/project-list-contract.test.js",
+      "code:src/app/api/audit/route.js",
+      "code:src/app/api/backup/export/route.js",
+      "code:src/app/api/dependencies/route.js",
+      "code:src/app/api/milestones/route.js",
+      "code:src/app/api/progress/portfolio/route.js",
+      "code:src/app/api/progress/project/[id]/route.js",
+      "code:src/app/api/progress/workstream/[id]/route.js",
+      "code:src/app/api/projects/route.js",
+      "code:src/app/api/projects/[id]/dependencies/route.js",
+      "code:src/app/api/projects/[id]/files/route.js",
+      "code:src/app/api/projects/[id]/route.js",
+      "code:src/app/api/projects/[id]/tree/route.js",
+      "code:src/app/api/resolve/route.js",
+      "code:src/app/api/scope/route.js",
+      "code:src/app/api/work/route.js",
+      "code:src/app/api/workstreams/route.js"
+    ],
+    "added": [
+      "test:tests/unit/authorization-seam-list-routes.test.js",
+      "test:tests/unit/authorization-seam-routes.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -795,11 +817,19 @@
       "id": "code:src/app/api/audit/route.js",
       "type": "code_file",
       "path": "src/app/api/audit/route.js",
-      "hash": "4fbcd07f",
-      "status": "current",
+      "hash": "cedfc448",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-014"
+          "FR-014",
+          "FR-046"
+        ],
+        "@spec": [
+          "SEC-008",
+          "FR-075"
+        ],
+        "@tested": [
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -807,12 +837,14 @@
       "id": "code:src/app/api/backup/export/route.js",
       "type": "code_file",
       "path": "src/app/api/backup/export/route.js",
-      "hash": "06b3a91e",
-      "status": "current",
+      "hash": "408b25af",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-013",
-          "FR-045"
+          "FR-045",
+          "FR-046",
+          "FR-075"
         ],
         "@spec": [
           "BR-008",
@@ -820,7 +852,8 @@
         ],
         "@tested": [
           "tests/integration/backup.test.js",
-          "tests/unit/fr045-backup-contract.test.js"
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -1094,8 +1127,8 @@
       "id": "code:src/app/api/dependencies/route.js",
       "type": "code_file",
       "path": "src/app/api/dependencies/route.js",
-      "hash": "64c8d6d9",
-      "status": "current",
+      "hash": "9dc890da",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-007",
@@ -1107,7 +1140,8 @@
           "SEC-008"
         ],
         "@tested": [
-          "tests/integration/fr072-dependency-authorization.test.js"
+          "tests/integration/fr072-dependency-authorization.test.js",
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -1485,8 +1519,8 @@
       "id": "code:src/app/api/milestones/route.js",
       "type": "code_file",
       "path": "src/app/api/milestones/route.js",
-      "hash": "e9f345d8",
-      "status": "current",
+      "hash": "013c89f6",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-006",
@@ -1498,7 +1532,8 @@
           "SEC-008"
         ],
         "@tested": [
-          "tests/integration/fr072-milestone-gate-authorization.test.js"
+          "tests/integration/fr072-milestone-gate-authorization.test.js",
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -1642,14 +1677,15 @@
       "id": "code:src/app/api/progress/portfolio/route.js",
       "type": "code_file",
       "path": "src/app/api/progress/portfolio/route.js",
-      "hash": "99116f28",
-      "status": "current",
+      "hash": "735b31bb",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-020"
         ],
         "@tested": [
-          "tests/integration/adaptive-shell.test.js"
+          "tests/integration/adaptive-shell.test.js",
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -1657,11 +1693,19 @@
       "id": "code:src/app/api/progress/project/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/progress/project/[id]/route.js",
-      "hash": "5f7adb5d",
-      "status": "current",
+      "hash": "8ed8ec1f",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-011"
+          "FR-011",
+          "FR-046"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -1669,11 +1713,19 @@
       "id": "code:src/app/api/progress/workstream/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/progress/workstream/[id]/route.js",
-      "hash": "347d027a",
-      "status": "current",
+      "hash": "537d5e00",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-010"
+          "FR-010",
+          "FR-046"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -1681,16 +1733,20 @@
       "id": "code:src/app/api/projects/[id]/dependencies/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/[id]/dependencies/route.js",
-      "hash": "303f2cb4",
-      "status": "current",
+      "hash": "f434c912",
+      "status": "changed",
       "annotations": {
         "@req": [
+          "FR-046",
           "FR-040"
         ],
         "@spec": [
+          "SEC-001",
+          "SEC-008",
           "SDD-019"
         ],
         "@tested": [
+          "tests/unit/authorization-seam-routes.test.js",
           "tests/unit/project-dependency-route.test.js"
         ]
       }
@@ -1725,8 +1781,8 @@
       "id": "code:src/app/api/projects/[id]/files/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/[id]/files/route.js",
-      "hash": "1122d264",
-      "status": "current",
+      "hash": "354b2853",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-037",
@@ -1743,7 +1799,8 @@
         ],
         "@tested": [
           "tests/unit/project-file-service.test.js",
-          "tests/integration/fr072-project-file-authorization.test.js"
+          "tests/integration/fr072-project-file-authorization.test.js",
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -1789,8 +1846,8 @@
       "id": "code:src/app/api/projects/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/[id]/route.js",
-      "hash": "53722eb3",
-      "status": "current",
+      "hash": "38826b40",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-003",
@@ -1802,7 +1859,8 @@
           "SEC-008"
         ],
         "@tested": [
-          "tests/integration/fr072-project-service-authorization.test.js"
+          "tests/integration/fr072-project-service-authorization.test.js",
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -1835,14 +1893,20 @@
       "id": "code:src/app/api/projects/[id]/tree/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/[id]/tree/route.js",
-      "hash": "aec38373",
-      "status": "current",
+      "hash": "b7656bae",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-017"
+          "FR-017",
+          "FR-046"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
         ],
         "@tested": [
-          "tests/integration/project-core.test.js"
+          "tests/integration/project-core.test.js",
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -1850,8 +1914,8 @@
       "id": "code:src/app/api/projects/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/route.js",
-      "hash": "4cbf239b",
-      "status": "current",
+      "hash": "31224681",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-003",
@@ -1955,8 +2019,8 @@
       "id": "code:src/app/api/resolve/route.js",
       "type": "code_file",
       "path": "src/app/api/resolve/route.js",
-      "hash": "b76dc45e",
-      "status": "current",
+      "hash": "9dd7322c",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019"
@@ -1971,8 +2035,8 @@
       "id": "code:src/app/api/scope/route.js",
       "type": "code_file",
       "path": "src/app/api/scope/route.js",
-      "hash": "5934118d",
-      "status": "current",
+      "hash": "83ef3646",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-001",
@@ -1986,7 +2050,8 @@
           "BR-001"
         ],
         "@tested": [
-          "tests/integration/fr074-scope-creation-authorization.test.js"
+          "tests/integration/fr074-scope-creation-authorization.test.js",
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -2056,8 +2121,8 @@
       "id": "code:src/app/api/work/route.js",
       "type": "code_file",
       "path": "src/app/api/work/route.js",
-      "hash": "5c6d145b",
-      "status": "current",
+      "hash": "297d7874",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-005",
@@ -2069,7 +2134,8 @@
           "SEC-008"
         ],
         "@tested": [
-          "tests/integration/fr072-work-service-authorization.test.js"
+          "tests/integration/fr072-work-service-authorization.test.js",
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -2119,8 +2185,8 @@
       "id": "code:src/app/api/workstreams/route.js",
       "type": "code_file",
       "path": "src/app/api/workstreams/route.js",
-      "hash": "32e27a5f",
-      "status": "current",
+      "hash": "a0a62338",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-004",
@@ -2132,7 +2198,8 @@
           "SEC-008"
         ],
         "@tested": [
-          "tests/integration/fr072-project-service-authorization.test.js"
+          "tests/integration/fr072-project-service-authorization.test.js",
+          "tests/unit/authorization-seam-routes.test.js"
         ]
       }
     },
@@ -9645,6 +9712,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/authorization-seam-list-routes.test.js",
+      "hash": "f7579cc8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/authorization-seam-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/authorization-seam-routes.test.js",
+      "hash": "74ab67be",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/breadcrumb-switcher.test.js",
       "type": "test",
       "path": "tests/unit/breadcrumb-switcher.test.js",
@@ -10362,8 +10443,8 @@
       "id": "test:tests/unit/project-dependency-route.test.js",
       "type": "test",
       "path": "tests/unit/project-dependency-route.test.js",
-      "hash": "0b75b91f",
-      "status": "current"
+      "hash": "1313c74e",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/project-dependency-service.test.js",
@@ -10390,8 +10471,8 @@
       "id": "test:tests/unit/project-list-contract.test.js",
       "type": "test",
       "path": "tests/unit/project-list-contract.test.js",
-      "hash": "64db8e74",
-      "status": "current"
+      "hash": "a0ae313d",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/project-roadmap-read-model.test.js",
@@ -11341,6 +11422,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/audit/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/audit/route.js",
+      "to": "req:FR-075",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/audit/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/backup/export/route.js",
       "to": "req:BR-008",
       "type": "follows",
@@ -11357,6 +11459,20 @@
     {
       "from": "code:src/app/api/backup/export/route.js",
       "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/export/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/export/route.js",
+      "to": "req:FR-075",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -12727,9 +12843,51 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/progress/project/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/progress/project/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/progress/project/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/progress/workstream/[id]/route.js",
       "to": "req:FR-010",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/progress/workstream/[id]/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/progress/workstream/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/progress/workstream/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -12742,7 +12900,28 @@
     },
     {
       "from": "code:src/app/api/projects/[id]/dependencies/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/dependencies/route.js",
       "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/dependencies/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/dependencies/route.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -13003,6 +13182,27 @@
       "from": "code:src/app/api/projects/[id]/tree/route.js",
       "to": "req:FR-017",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/tree/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/tree/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/tree/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -24481,6 +24681,13 @@
     },
     {
       "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
       "to": "req:FR-060",
       "type": "verifies",
       "status": "current",
@@ -25133,6 +25340,370 @@
     {
       "from": "test:tests/unit/application-schema-migration.test.js",
       "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "req:FR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "req:FR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "req:FR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "req:FR-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "req:FR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "req:FR-037",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/audit/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/backup/export/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/dependencies/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/milestones/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/progress/portfolio/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/progress/project/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/progress/workstream/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/projects/[id]/dependencies/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/projects/[id]/files/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/projects/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/projects/[id]/tree/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/scope/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/work/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "code:src/app/api/workstreams/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-037",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:SDD-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -29311,10 +29882,31 @@
     },
     {
       "from": "test:tests/unit/project-dependency-route.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-route.test.js",
       "to": "req:SDD-019",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-route.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-dependency-route.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/project-dependency-service.test.js",
