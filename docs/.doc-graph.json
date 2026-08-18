@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 938,
-    "total_edges": 2999,
+    "total_edges": 2998,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -51,14 +51,11 @@
   },
   "drift": {
     "changed": [
-      "test:tests/e2e/fr040-project-work.spec.js",
       "test:tests/unit/project-work-route.test.js",
       "code:src/modules/project-manager/components/WorkViewTabs.jsx"
     ],
     "added": [],
-    "removed": [
-      "test:tests/unit/project-read-authorization.test.js"
-    ]
+    "removed": []
   },
   "nodes": [
     {
@@ -9346,8 +9343,8 @@
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
-      "hash": "209877a7",
-      "status": "changed"
+      "hash": "86ce8cc8",
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr041-business-first.spec.js",
@@ -10627,7 +10624,7 @@
       "id": "test:tests/unit/project-work-route.test.js",
       "type": "test",
       "path": "tests/unit/project-work-route.test.js",
-      "hash": "529c9777",
+      "hash": "c34647e0",
       "status": "changed"
     },
     {
@@ -21033,13 +21030,6 @@
       "type": "relates",
       "status": "current",
       "source": "control-block"
-    },
-    {
-      "from": "test:tests/e2e/fr040-project-work.spec.js",
-      "to": "req:FR-006",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
     },
     {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
