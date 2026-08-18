@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 921,
-    "total_edges": 2812,
+    "total_nodes": 922,
+    "total_edges": 2813,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 106,
       "model": 46,
       "requirement": 174,
-      "test": 192,
+      "test": 193,
       "code_file": 249
     },
     "coverage": {
@@ -3172,7 +3172,7 @@
       "id": "code:src/modules/crm/customer-import-review-service.js",
       "type": "code_file",
       "path": "src/modules/crm/customer-import-review-service.js",
-      "hash": "2dbac991",
+      "hash": "434e9b04",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3187,7 +3187,7 @@
       "id": "code:src/modules/crm/customer-import-review-store.js",
       "type": "code_file",
       "path": "src/modules/crm/customer-import-review-store.js",
-      "hash": "140226ff",
+      "hash": "69c2ad3c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5438,7 +5438,7 @@
       "type": "document",
       "path": "docs/domains/crm/features/FR-078-customer-data-backfill-contract.md",
       "title": "FR-078 — Customer data backfill contract",
-      "hash": "c00fd921",
+      "hash": "84b3d206",
       "status": "current"
     },
     {
@@ -9536,7 +9536,14 @@
       "id": "test:tests/unit/customer-import-review-service.test.js",
       "type": "test",
       "path": "tests/unit/customer-import-review-service.test.js",
-      "hash": "5771043e",
+      "hash": "4924ee8e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-import-review-store-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-import-review-store-contract.test.js",
+      "hash": "e6408931",
       "status": "current"
     },
     {
@@ -9872,7 +9879,7 @@
       "id": "test:tests/unit/fr080-runtime-wiring.test.js",
       "type": "test",
       "path": "tests/unit/fr080-runtime-wiring.test.js",
-      "hash": "a9fd3dcc",
+      "hash": "49bc0ba0",
       "status": "current"
     },
     {
@@ -25146,6 +25153,13 @@
     },
     {
       "from": "test:tests/unit/customer-import-review-service.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-store-contract.test.js",
       "to": "req:FR-078",
       "type": "verifies",
       "status": "current",

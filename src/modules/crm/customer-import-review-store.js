@@ -116,6 +116,18 @@ function validateExpectedVersion(expectedVersion) {
   return expectedVersion
 }
 
+function nextDecisionVersion(previous) {
+  const current = previous?.decisionVersion ?? previous?.decision_version ?? 0
+  return Number(current) + 1
+}
+
+function mapTargetCustomer(row) {
+  return {
+    id: row.id,
+    displayName: row.displayName ?? row.display_name,
+  }
+}
+
 function targetSelect() {
   return { id: true, tenantId: true, businessId: true, deletedAt: true }
 }
@@ -194,7 +206,7 @@ export function createPrismaCustomerReviewStore({ db = prisma } = {}) {
             }
           }
           const previous = latest.get(item.id)
-          const decisionVersion = (previous?.decisionVersion || 0) + 1
+          const decisionVersion = nextDecisionVersion(previous)
           const created = await tx.customerImportReviewDecision.create({
             data: {
               reviewCaseId: reviewCase.id,
@@ -355,7 +367,7 @@ export function createZuriCoreCustomerReviewStore({ pool, setRole = true } = {})
           order by c.display_name asc, c.id asc
           limit $${values.length}
         `, values)
-        return result.rows
+        return result.rows.map(mapTargetCustomer)
       })
     },
 
@@ -408,7 +420,7 @@ export function createZuriCoreCustomerReviewStore({ pool, setRole = true } = {})
             }
           }
           const previous = latest.get(item.id)
-          const decisionVersion = Number(previous?.decision_version || 0) + 1
+          const decisionVersion = nextDecisionVersion(previous)
           const created = (await client.query(`
             insert into zuri_core.customer_import_review_decision (
               id, review_case_id, provenance_id, decision_version, action,
@@ -478,4 +490,13 @@ export function createDefaultCustomerReviewStore({ env = process.env } = {}) {
   throw storeError('Customer review target is not configured', 503)
 }
 
-export { caseStatus, latestByProvenance, mapCase, parseJson, storeError, validateDecisionInput }
+export {
+  caseStatus,
+  latestByProvenance,
+  mapCase,
+  mapTargetCustomer,
+  nextDecisionVersion,
+  parseJson,
+  storeError,
+  validateDecisionInput,
+}

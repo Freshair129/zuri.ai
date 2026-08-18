@@ -3,9 +3,9 @@ domain: crm
 feature: FR-078
 module: crm
 source: v2-native
-version: "0.8.0b"
+version: "0.8.1b"
 created_at: "2026-08-18T06:35:00+07:00,ATHER"
-last_update: "2026-08-18T16:15:00+07:00,ATHER"
+last_update: "2026-08-18T20:00:18+07:00,ATHER"
 status: "beta"
 ---
 
@@ -273,6 +273,13 @@ duplicate `normalized_name` groups. The queue is an approval workspace for
 those rows; it is not a second customer-import path and it does not publish a
 customer by itself.
 
+The version boundary is intentional: `VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B`
+remains the approved base customer-data contract, while
+`VER-SG-CUSTOMER-DATA-CONTRACT-0.3.0B` is the separate candidate review-queue
+extension that supersedes neither the base contract nor its approval record.
+Queue API responses use `decisionRecorded: true` and `applyRequired: true`;
+they do not claim that a Customer was applied or published.
+
 Identity is deliberately split into three layers:
 
 | Identity | Storage | Meaning |
@@ -303,7 +310,10 @@ backup and transactional reconciliation.
 
 The UI capability is a Business-scoped `CUSTOMER_DATA_REVIEWER` RoleBinding.
 `PRODUCT_OWNER`, `isPlatform`, `isOperator`, visibility and Organization/Tenant
-ownership do not imply this permission.
+ownership do not imply this permission. `PER-BOSS` is the current holder of
+that binding for `BUS-SMARTGIFT`; the service intentionally authorizes the
+Business-scoped capability rather than hard-coding one Person UUID, so any
+future holder must pass the same role, Business and Tenant boundaries.
 
 ## Production deployment evidence
 
@@ -446,6 +456,7 @@ itself is applied.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.8.1b | 2026-08-18 | beta | Clarify the approved base versus candidate review extension and make the decision response explicitly no-publish | working-tree | ATHER |
 | 0.8.0b | 2026-08-18 | beta | Add the dedicated customer-review login and close the live SET ROLE runtime gate without using the migration/admin identity | working-tree | ATHER |
 | 0.7.0b | 2026-08-18 | beta | Provision application Postgres/RBAC schema, apply the verified SmartGift reviewer binding and select the production Prisma client by URL | working-tree | ATHER |
 | 0.6.0b | 2026-08-18 | candidate | Apply the private review-queue migration and redacted 65-case/130-item metadata manifest; keep application reviewer assignment and decisions gated | working-tree | ATHER |
