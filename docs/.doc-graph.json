@@ -53,9 +53,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/unit/doc-graph-retired-rules.test.js"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -9799,7 +9797,7 @@
       "type": "test",
       "path": "tests/unit/doc-graph-retired-rules.test.js",
       "hash": "cca07812",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/doc-views.test.js",
