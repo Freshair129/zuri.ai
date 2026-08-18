@@ -8,6 +8,8 @@
 > One section per domain: the lane, what it owns, and what lives in it — generated from the charters and the graph (ADR-025).
 > Never hand-edit — regenerate with `npm run docs:graph`.
 
+> Machine-readable implementation readiness: [docs/.domain-state.json](.domain-state.json). It is generated with the graph and is not a runtime domain state.
+
 ## agent
 
 Charter: [docs/domains/agent/CHARTER.md](domains/agent/CHARTER.md)

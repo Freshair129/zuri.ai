@@ -1,0 +1,2138 @@
+{
+  "schemaVersion": "1.0",
+  "generatedBy": "scripts/domain-state.mjs",
+  "generatedAt": "2026-08-18T15:23:30.225Z",
+  "generatedFrom": [
+    "docs/PRD-SDD-v1.0.md",
+    "docs/FEATURES.md",
+    "docs/domains/*/CHARTER.md",
+    "docs/domains/*/features/*.md",
+    "docs/INTERFACE-INVENTORY.md",
+    "docs/appendices/A-api-spec.md",
+    "prisma/schema.prisma",
+    "contracts/plan-envelope.schema.json",
+    "src/app/**/route.js",
+    "src/app/**/page.jsx",
+    "src/modules/**/*.js",
+    "tests/**/*.{test,spec}.js"
+  ],
+  "statusVocabulary": [
+    "verified",
+    "partial",
+    "planned",
+    "blocked",
+    "not_implemented",
+    "not_applicable",
+    "unknown"
+  ],
+  "overall": {
+    "status": "partial",
+    "domainCount": 6,
+    "gapCount": 27,
+    "gaps": [
+      {
+        "domain": "agent",
+        "id": "API-OPENAPI-001",
+        "severity": "high",
+        "check": "httpApi",
+        "summary": "API route is not represented in the machine-readable OpenAPI generator",
+        "evidence": [
+          "/api/agent/line-webhook"
+        ]
+      },
+      {
+        "domain": "identity",
+        "id": "API-OPENAPI-001",
+        "severity": "high",
+        "check": "httpApi",
+        "summary": "API route is not represented in the machine-readable OpenAPI generator",
+        "evidence": [
+          "/api/entry"
+        ]
+      },
+      {
+        "domain": "identity",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "identity",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "identity",
+        "id": "REQ-FR-066",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-066 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "identity",
+        "id": "REQ-FR-067",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-067 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "integration",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "integration",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-079",
+        "severity": "high",
+        "check": "requirements",
+        "summary": "FR-079 is not_implemented",
+        "evidence": [
+          "tests/integration/agent-action-gate.test.js",
+          "tests/integration/agent-context.test.js",
+          "tests/unit/activation-readiness-integration.test.js",
+          "tests/unit/fr079-credential-vault.test.js",
+          "tests/unit/fr079-runtime-cutover.test.js",
+          "tests/unit/fr079-schema-contract.test.js",
+          "tests/unit/fr079-supabase-migration.test.js",
+          "tests/unit/grounded-business-answer.test.js"
+        ]
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-081",
+        "severity": "high",
+        "check": "requirements",
+        "summary": "FR-081 is not_implemented",
+        "evidence": [
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/integration/platform/integration-persistence.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/fr079-runtime-cutover.test.js",
+          "tests/unit/platform/integration-contracts.test.js",
+          "tests/unit/platform/line-oa-webhook.test.js",
+          "tests/unit/platform/raw-ingest-service.test.js"
+        ]
+      },
+      {
+        "domain": "knowledge",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "knowledge",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "knowledge",
+        "id": "REQ-FR-071",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-071 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "project-manager",
+        "id": "UI-STATUS-001",
+        "severity": "medium",
+        "check": "ui",
+        "summary": "At least one owned UI surface is not marked implemented",
+        "evidence": [
+          "/projects/[projectId]/roadmap"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "API-OPENAPI-001",
+        "severity": "high",
+        "check": "httpApi",
+        "summary": "API route is not represented in the machine-readable OpenAPI generator",
+        "evidence": [
+          "/api/audit",
+          "/api/backup/export",
+          "/api/backup/import",
+          "/api/business/files",
+          "/api/business/goals",
+          "/api/business/goals/[id]",
+          "/api/business/goals/[id]/projects",
+          "/api/business/goals/[id]/projects/[projectId]",
+          "/api/business/roadmaps",
+          "/api/business/roadmaps/[id]",
+          "/api/business/strategy",
+          "/api/containers",
+          "/api/containers/[id]",
+          "/api/dependencies",
+          "/api/dependencies/[id]",
+          "/api/docs",
+          "/api/files",
+          "/api/files/[id]",
+          "/api/files/[id]/content",
+          "/api/files/[id]/relink",
+          "/api/files/[id]/reveal",
+          "/api/files/cache/rebuild",
+          "/api/files/migrate",
+          "/api/files/mounts",
+          "/api/files/reconcile",
+          "/api/gates",
+          "/api/gates/[id]",
+          "/api/import/xlsx",
+          "/api/milestones",
+          "/api/milestones/[id]",
+          "/api/people",
+          "/api/platform/customer-import-reviews",
+          "/api/platform/customer-import-reviews/[caseId]/decisions",
+          "/api/platform/customer-import-reviews/targets",
+          "/api/platform/integrations",
+          "/api/platform/users",
+          "/api/profile",
+          "/api/progress/portfolio",
+          "/api/progress/project/[id]",
+          "/api/progress/workstream/[id]",
+          "/api/projects",
+          "/api/projects/[id]",
+          "/api/projects/[id]/dependencies",
+          "/api/projects/[id]/files",
+          "/api/projects/[id]/files/[fileId]",
+          "/api/projects/[id]/inventory",
+          "/api/projects/[id]/roadmap",
+          "/api/projects/[id]/team",
+          "/api/projects/[id]/tree",
+          "/api/repositories",
+          "/api/repositories/[id]",
+          "/api/repositories/link",
+          "/api/repositories/link/[id]",
+          "/api/scope",
+          "/api/session/demo",
+          "/api/viewer",
+          "/api/work",
+          "/api/work/[id]",
+          "/api/workspaces/[id]",
+          "/api/workstreams",
+          "/api/workstreams/[id]"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "MCP-TRANSPORT-001",
+        "severity": "medium",
+        "check": "mcp",
+        "summary": "MCP is referenced but no domain MCP adapter is implemented",
+        "evidence": [
+          "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "project-manager",
+        "id": "AUTH-001",
+        "severity": "high",
+        "check": "authorization",
+        "summary": "At least one mutating route lacks a recognizable request viewer seam"
+      },
+      {
+        "domain": "project-manager",
+        "id": "AUTH-002",
+        "severity": "medium",
+        "check": "authorization",
+        "summary": "At least one read route lacks a recognizable request viewer seam"
+      },
+      {
+        "domain": "project-manager",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-033",
+        "severity": "high",
+        "check": "requirements",
+        "summary": "FR-033 is not_implemented",
+        "evidence": [
+          "tests/unit/scope-view-context.test.js",
+          "tests/unit/topbar-no-dropdown.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-034",
+        "severity": "high",
+        "check": "requirements",
+        "summary": "FR-034 is not_implemented",
+        "evidence": [
+          "tests/unit/breadcrumb-switcher.test.js",
+          "tests/unit/scope-view-context.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-039",
+        "severity": "high",
+        "check": "requirements",
+        "summary": "FR-039 is not_implemented",
+        "evidence": [
+          "tests/e2e/fr041-business-first.spec.js",
+          "tests/e2e/fr046-entry-contract.spec.js",
+          "tests/e2e/smoke.spec.js",
+          "tests/unit/breadcrumb-switcher.test.js",
+          "tests/unit/domain-navigation.test.js",
+          "tests/unit/fr045-api-ui-contract.test.js",
+          "tests/unit/fr046-api-ui-contract.test.js",
+          "tests/unit/scope-view-context.test.js",
+          "tests/unit/sidebar-visible-subdomains.test.js",
+          "tests/unit/topbar-no-dropdown.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-056",
+        "severity": "high",
+        "check": "requirements",
+        "summary": "FR-056 is not_implemented",
+        "evidence": [
+          "tests/unit/entry-surfaces.test.js",
+          "tests/unit/fr056-landing.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-068",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-068 is partial",
+        "evidence": [
+          "src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+          "src/app/api/projects/[id]/roadmap/route.js",
+          "src/modules/project-manager/application/project-roadmap-read-model.js",
+          "src/modules/project-manager/components/WorkViewTabs.jsx",
+          "tests/e2e/fr040-project-work.spec.js",
+          "tests/integration/project-roadmap.test.js",
+          "tests/unit/project-roadmap-read-model.test.js",
+          "tests/unit/project-roadmap-ui.test.js",
+          "tests/unit/project-work-route.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-069",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-069 is planned",
+        "evidence": [
+          "tests/integration/external-ref-import.test.js",
+          "tests/integration/import-target-authorization.test.js",
+          "tests/integration/plan-import.test.js",
+          "tests/integration/project-business-binding.test.js",
+          "tests/unit/domain-state.test.js",
+          "tests/unit/plan-schema.test.js",
+          "tests/unit/plan-status-vocabulary.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-070",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-070 is planned",
+        "evidence": [
+          "tests/integration/project-roadmap.test.js",
+          "tests/unit/project-roadmap-read-model.test.js",
+          "tests/unit/project-roadmap-ui.test.js"
+        ]
+      }
+    ]
+  },
+  "domains": {
+    "agent": {
+      "status": "partial",
+      "requirements": [
+        {
+          "id": "FR-025",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 7
+        },
+        {
+          "id": "FR-026",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 3
+        },
+        {
+          "id": "FR-027",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 4
+        },
+        {
+          "id": "FR-028",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 2
+        },
+        {
+          "id": "FR-029",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 4
+        },
+        {
+          "id": "FR-047",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
+        },
+        {
+          "id": "FR-048",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 7
+        },
+        {
+          "id": "FR-049",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 4
+        },
+        {
+          "id": "FR-050",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 1
+        },
+        {
+          "id": "FR-051",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 5
+        },
+        {
+          "id": "FR-052",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 6
+        },
+        {
+          "id": "FR-053",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 5
+        },
+        {
+          "id": "FR-054",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 10
+        },
+        {
+          "id": "FR-055",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 9
+        },
+        {
+          "id": "FR-057",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 6
+        },
+        {
+          "id": "FR-079",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 8
+        },
+        {
+          "id": "FR-080",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 6
+        }
+      ],
+      "checks": {
+        "ui": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "httpApi": {
+          "status": "partial",
+          "evidence": [
+            "docs/appendices/A-api-spec.md",
+            "src/modules/project-manager/api-docs/openapi.js"
+          ],
+          "gaps": [
+            {
+              "id": "API-OPENAPI-001",
+              "severity": "high",
+              "summary": "API route is not represented in the machine-readable OpenAPI generator",
+              "evidence": [
+                "/api/agent/line-webhook"
+              ]
+            }
+          ],
+          "details": {
+            "routes": 1,
+            "inventoried": 1,
+            "openApiPaths": 4,
+            "missingFromOpenApi": 1
+          }
+        },
+        "mcp": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "runtimeContract": {
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md",
+            "src/modules/project-manager/import/plan-schema.js"
+          ],
+          "gaps": []
+        },
+        "jsonSchema": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "database": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "authorization": {
+          "status": "unknown",
+          "evidence": [
+            "docs/appendices/A-api-spec.md"
+          ],
+          "gaps": [],
+          "details": {
+            "mutations": 0,
+            "guardedMutations": 0,
+            "reads": 0,
+            "unguardedReads": 0
+          }
+        },
+        "tests": {
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md"
+          ],
+          "gaps": []
+        }
+      },
+      "evidence": [
+        "docs/TRACE.md",
+        "docs/appendices/A-api-spec.md",
+        "docs/domains/agent/CHARTER.md",
+        "docs/domains/agent/features/FR-051-production-supabase-tenant-isolation.md",
+        "docs/domains/agent/features/FR-052-server-owned-line-scope-binding.md",
+        "docs/domains/agent/features/FR-053-phase1-golden-question-evaluation.md",
+        "docs/domains/agent/features/FR-054-controlled-line-canary.md",
+        "docs/domains/agent/features/FR-055-controlled-line-activation-receipt.md",
+        "docs/domains/agent/features/FR-057-authorized-agent-context-and-vault-resolution.md",
+        "src/modules/project-manager/api-docs/openapi.js",
+        "src/modules/project-manager/import/plan-schema.js"
+      ],
+      "gaps": [
+        {
+          "id": "API-OPENAPI-001",
+          "severity": "high",
+          "check": "httpApi",
+          "summary": "API route is not represented in the machine-readable OpenAPI generator",
+          "evidence": [
+            "/api/agent/line-webhook"
+          ]
+        }
+      ],
+      "details": {
+        "routes": 1,
+        "apiRoutes": 1,
+        "pageRoutes": 0,
+        "ownedModels": 0,
+        "featureNotes": 6
+      }
+    },
+    "crm": {
+      "status": "verified",
+      "requirements": [
+        {
+          "id": "FR-023",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 2
+        },
+        {
+          "id": "FR-078",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 20
+        }
+      ],
+      "checks": {
+        "ui": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "httpApi": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "mcp": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "runtimeContract": {
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md",
+            "src/modules/project-manager/import/plan-schema.js"
+          ],
+          "gaps": []
+        },
+        "jsonSchema": {
+          "status": "verified",
+          "evidence": [
+            "contracts/plan-envelope.schema.json"
+          ],
+          "gaps": []
+        },
+        "database": {
+          "status": "verified",
+          "evidence": [
+            "prisma/schema.prisma"
+          ],
+          "gaps": [],
+          "details": {
+            "models": 8,
+            "present": 8
+          }
+        },
+        "authorization": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "tests": {
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md"
+          ],
+          "gaps": []
+        }
+      },
+      "evidence": [
+        "contracts/plan-envelope.schema.json",
+        "docs/TRACE.md",
+        "docs/domains/crm/CHARTER.md",
+        "docs/domains/crm/features/FR-078-customer-data-backfill-contract.md",
+        "prisma/schema.prisma",
+        "src/modules/project-manager/import/plan-schema.js"
+      ],
+      "gaps": [],
+      "details": {
+        "routes": 0,
+        "apiRoutes": 0,
+        "pageRoutes": 0,
+        "ownedModels": 8,
+        "featureNotes": 1
+      }
+    },
+    "identity": {
+      "status": "partial",
+      "requirements": [
+        {
+          "id": "FR-021",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
+        },
+        {
+          "id": "FR-022",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 4
+        },
+        {
+          "id": "FR-031",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
+        },
+        {
+          "id": "FR-036",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
+        },
+        {
+          "id": "FR-038",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 10
+        },
+        {
+          "id": "FR-044",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 13
+        },
+        {
+          "id": "FR-046",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 36
+        },
+        {
+          "id": "FR-059",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 10
+        },
+        {
+          "id": "FR-061",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 8
+        },
+        {
+          "id": "FR-062",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
+        },
+        {
+          "id": "FR-066",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-067",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-074",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 8
+        },
+        {
+          "id": "FR-075",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 10
+        },
+        {
+          "id": "FR-076",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 7
+        },
+        {
+          "id": "FR-078",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 20
+        }
+      ],
+      "checks": {
+        "ui": {
+          "status": "verified",
+          "evidence": [
+            "docs/INTERFACE-INVENTORY.md"
+          ],
+          "gaps": [],
+          "details": {
+            "routes": 2,
+            "inventoried": 2,
+            "missing": 0
+          }
+        },
+        "httpApi": {
+          "status": "partial",
+          "evidence": [
+            "docs/appendices/A-api-spec.md",
+            "src/modules/project-manager/api-docs/openapi.js"
+          ],
+          "gaps": [
+            {
+              "id": "API-OPENAPI-001",
+              "severity": "high",
+              "summary": "API route is not represented in the machine-readable OpenAPI generator",
+              "evidence": [
+                "/api/entry"
+              ]
+            }
+          ],
+          "details": {
+            "routes": 1,
+            "inventoried": 1,
+            "openApiPaths": 4,
+            "missingFromOpenApi": 1
+          }
+        },
+        "mcp": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "runtimeContract": {
+          "status": "partial",
+          "evidence": [
+            "docs/TRACE.md",
+            "src/modules/project-manager/import/plan-schema.js"
+          ],
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
+        },
+        "jsonSchema": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "database": {
+          "status": "verified",
+          "evidence": [
+            "prisma/schema.prisma"
+          ],
+          "gaps": [],
+          "details": {
+            "models": 4,
+            "present": 4
+          }
+        },
+        "authorization": {
+          "status": "unknown",
+          "evidence": [
+            "docs/appendices/A-api-spec.md"
+          ],
+          "gaps": [],
+          "details": {
+            "mutations": 0,
+            "guardedMutations": 0,
+            "reads": 1,
+            "unguardedReads": 0
+          }
+        },
+        "tests": {
+          "status": "partial",
+          "evidence": [
+            "docs/TRACE.md"
+          ],
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
+        }
+      },
+      "evidence": [
+        "docs/INTERFACE-INVENTORY.md",
+        "docs/TRACE.md",
+        "docs/appendices/A-api-spec.md",
+        "docs/domains/identity/CHARTER.md",
+        "docs/domains/identity/features/FR-031-viewer-gate.md",
+        "docs/domains/identity/features/FR-038-profile-and-permissions.md",
+        "docs/domains/identity/features/FR-044-entry-landing-login-business-routing.md",
+        "docs/domains/identity/features/FR-046-production-viewer-entry-contract.md",
+        "docs/domains/identity/features/FR-061-per-business-domain-visibility.md",
+        "docs/domains/identity/features/FR-062-permissions-read-scope.md",
+        "docs/domains/identity/features/FR-066-profile-first-workspace-onboarding.md",
+        "docs/domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md",
+        "docs/domains/identity/features/FR-076-product-owner-business-assignment.md",
+        "prisma/schema.prisma",
+        "src/modules/project-manager/api-docs/openapi.js",
+        "src/modules/project-manager/import/plan-schema.js"
+      ],
+      "gaps": [
+        {
+          "id": "API-OPENAPI-001",
+          "severity": "high",
+          "check": "httpApi",
+          "summary": "API route is not represented in the machine-readable OpenAPI generator",
+          "evidence": [
+            "/api/entry"
+          ]
+        },
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-066",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-066 is planned",
+          "evidence": []
+        },
+        {
+          "id": "REQ-FR-067",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-067 is planned",
+          "evidence": []
+        }
+      ],
+      "details": {
+        "routes": 3,
+        "apiRoutes": 1,
+        "pageRoutes": 2,
+        "ownedModels": 4,
+        "featureNotes": 9
+      }
+    },
+    "integration": {
+      "status": "partial",
+      "requirements": [
+        {
+          "id": "FR-079",
+          "declared": "n/a",
+          "status": "not_implemented",
+          "codeCount": 0,
+          "testCount": 8,
+          "evidence": [
+            "tests/integration/agent-action-gate.test.js",
+            "tests/integration/agent-context.test.js",
+            "tests/unit/activation-readiness-integration.test.js",
+            "tests/unit/fr079-credential-vault.test.js",
+            "tests/unit/fr079-runtime-cutover.test.js",
+            "tests/unit/fr079-schema-contract.test.js",
+            "tests/unit/fr079-supabase-migration.test.js",
+            "tests/unit/grounded-business-answer.test.js"
+          ]
+        },
+        {
+          "id": "FR-080",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 6
+        },
+        {
+          "id": "FR-081",
+          "declared": "n/a",
+          "status": "not_implemented",
+          "codeCount": 0,
+          "testCount": 8,
+          "evidence": [
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/platform/integration-persistence.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/fr079-runtime-cutover.test.js",
+            "tests/unit/platform/integration-contracts.test.js",
+            "tests/unit/platform/line-oa-webhook.test.js",
+            "tests/unit/platform/raw-ingest-service.test.js"
+          ]
+        }
+      ],
+      "checks": {
+        "ui": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "httpApi": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "mcp": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "runtimeContract": {
+          "status": "partial",
+          "evidence": [
+            "docs/TRACE.md",
+            "src/modules/project-manager/import/plan-schema.js"
+          ],
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
+        },
+        "jsonSchema": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "database": {
+          "status": "verified",
+          "evidence": [
+            "prisma/schema.prisma"
+          ],
+          "gaps": [],
+          "details": {
+            "models": 8,
+            "present": 8
+          }
+        },
+        "authorization": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "tests": {
+          "status": "partial",
+          "evidence": [
+            "docs/TRACE.md"
+          ],
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
+        }
+      },
+      "evidence": [
+        "docs/TRACE.md",
+        "docs/domains/integration/CHARTER.md",
+        "docs/domains/integration/features/FR-079-phase1-line-runtime-connection-cutover.md",
+        "docs/domains/integration/features/FR-080-integration-secret-management-ui.md",
+        "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
+        "prisma/schema.prisma",
+        "src/modules/project-manager/import/plan-schema.js"
+      ],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-079",
+          "severity": "high",
+          "check": "requirements",
+          "summary": "FR-079 is not_implemented",
+          "evidence": [
+            "tests/integration/agent-action-gate.test.js",
+            "tests/integration/agent-context.test.js",
+            "tests/unit/activation-readiness-integration.test.js",
+            "tests/unit/fr079-credential-vault.test.js",
+            "tests/unit/fr079-runtime-cutover.test.js",
+            "tests/unit/fr079-schema-contract.test.js",
+            "tests/unit/fr079-supabase-migration.test.js",
+            "tests/unit/grounded-business-answer.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-081",
+          "severity": "high",
+          "check": "requirements",
+          "summary": "FR-081 is not_implemented",
+          "evidence": [
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/platform/integration-persistence.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/fr079-runtime-cutover.test.js",
+            "tests/unit/platform/integration-contracts.test.js",
+            "tests/unit/platform/line-oa-webhook.test.js",
+            "tests/unit/platform/raw-ingest-service.test.js"
+          ]
+        }
+      ],
+      "details": {
+        "routes": 0,
+        "apiRoutes": 0,
+        "pageRoutes": 0,
+        "ownedModels": 8,
+        "featureNotes": 3
+      }
+    },
+    "knowledge": {
+      "status": "partial",
+      "requirements": [
+        {
+          "id": "FR-024",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 6
+        },
+        {
+          "id": "FR-047",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 3
+        },
+        {
+          "id": "FR-051",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 5
+        },
+        {
+          "id": "FR-052",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 6
+        },
+        {
+          "id": "FR-054",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 10
+        },
+        {
+          "id": "FR-071",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "checks": {
+        "ui": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "httpApi": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "mcp": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "runtimeContract": {
+          "status": "partial",
+          "evidence": [
+            "docs/TRACE.md",
+            "src/modules/project-manager/import/plan-schema.js"
+          ],
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
+        },
+        "jsonSchema": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "database": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "authorization": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "tests": {
+          "status": "partial",
+          "evidence": [
+            "docs/TRACE.md"
+          ],
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
+        }
+      },
+      "evidence": [
+        "docs/TRACE.md",
+        "docs/domains/knowledge/CHARTER.md",
+        "docs/domains/knowledge/features/FR-047-line-business-knowledge-pilot.md",
+        "docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md",
+        "src/modules/project-manager/import/plan-schema.js"
+      ],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-071",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-071 is planned",
+          "evidence": []
+        }
+      ],
+      "details": {
+        "routes": 0,
+        "apiRoutes": 0,
+        "pageRoutes": 0,
+        "ownedModels": 0,
+        "featureNotes": 2
+      }
+    },
+    "project-manager": {
+      "status": "partial",
+      "requirements": [
+        {
+          "id": "FR-001",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 9
+        },
+        {
+          "id": "FR-003",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 8
+        },
+        {
+          "id": "FR-004",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 6
+        },
+        {
+          "id": "FR-005",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 10,
+          "testCount": 5
+        },
+        {
+          "id": "FR-006",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 3
+        },
+        {
+          "id": "FR-007",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 6
+        },
+        {
+          "id": "FR-008",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 3
+        },
+        {
+          "id": "FR-009",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 3
+        },
+        {
+          "id": "FR-010",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 2
+        },
+        {
+          "id": "FR-011",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 1
+        },
+        {
+          "id": "FR-012",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 9
+        },
+        {
+          "id": "FR-013",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 3
+        },
+        {
+          "id": "FR-014",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 5
+        },
+        {
+          "id": "FR-017",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 3
+        },
+        {
+          "id": "FR-018",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 3
+        },
+        {
+          "id": "FR-019",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 9
+        },
+        {
+          "id": "FR-020",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 11
+        },
+        {
+          "id": "FR-031",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
+        },
+        {
+          "id": "FR-032",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 2
+        },
+        {
+          "id": "FR-033",
+          "declared": "done",
+          "status": "not_implemented",
+          "codeCount": 0,
+          "testCount": 2,
+          "evidence": [
+            "tests/unit/scope-view-context.test.js",
+            "tests/unit/topbar-no-dropdown.test.js"
+          ]
+        },
+        {
+          "id": "FR-034",
+          "declared": "done",
+          "status": "not_implemented",
+          "codeCount": 0,
+          "testCount": 2,
+          "evidence": [
+            "tests/unit/breadcrumb-switcher.test.js",
+            "tests/unit/scope-view-context.test.js"
+          ]
+        },
+        {
+          "id": "FR-035",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 6
+        },
+        {
+          "id": "FR-036",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 3
+        },
+        {
+          "id": "FR-037",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 4
+        },
+        {
+          "id": "FR-038",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 10
+        },
+        {
+          "id": "FR-039",
+          "declared": "done",
+          "status": "not_implemented",
+          "codeCount": 0,
+          "testCount": 10,
+          "evidence": [
+            "tests/e2e/fr041-business-first.spec.js",
+            "tests/e2e/fr046-entry-contract.spec.js",
+            "tests/e2e/smoke.spec.js",
+            "tests/unit/breadcrumb-switcher.test.js",
+            "tests/unit/domain-navigation.test.js",
+            "tests/unit/fr045-api-ui-contract.test.js",
+            "tests/unit/fr046-api-ui-contract.test.js",
+            "tests/unit/scope-view-context.test.js",
+            "tests/unit/sidebar-visible-subdomains.test.js",
+            "tests/unit/topbar-no-dropdown.test.js"
+          ]
+        },
+        {
+          "id": "FR-040",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 9,
+          "testCount": 10
+        },
+        {
+          "id": "FR-041",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 18
+        },
+        {
+          "id": "FR-042",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 12
+        },
+        {
+          "id": "FR-043",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 18
+        },
+        {
+          "id": "FR-045",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 25,
+          "testCount": 21
+        },
+        {
+          "id": "FR-046",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 45,
+          "testCount": 36
+        },
+        {
+          "id": "FR-048",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 7
+        },
+        {
+          "id": "FR-056",
+          "declared": "n/a",
+          "status": "not_implemented",
+          "codeCount": 0,
+          "testCount": 2,
+          "evidence": [
+            "tests/unit/entry-surfaces.test.js",
+            "tests/unit/fr056-landing.test.js"
+          ]
+        },
+        {
+          "id": "FR-058",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 5
+        },
+        {
+          "id": "FR-059",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 9,
+          "testCount": 10
+        },
+        {
+          "id": "FR-060",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 20
+        },
+        {
+          "id": "FR-062",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
+        },
+        {
+          "id": "FR-063",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 2
+        },
+        {
+          "id": "FR-064",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 6
+        },
+        {
+          "id": "FR-065",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 9
+        },
+        {
+          "id": "FR-068",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 4,
+          "testCount": 5,
+          "evidence": [
+            "src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+            "src/app/api/projects/[id]/roadmap/route.js",
+            "src/modules/project-manager/application/project-roadmap-read-model.js",
+            "src/modules/project-manager/components/WorkViewTabs.jsx",
+            "tests/e2e/fr040-project-work.spec.js",
+            "tests/integration/project-roadmap.test.js",
+            "tests/unit/project-roadmap-read-model.test.js",
+            "tests/unit/project-roadmap-ui.test.js",
+            "tests/unit/project-work-route.test.js"
+          ]
+        },
+        {
+          "id": "FR-069",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 7,
+          "evidence": [
+            "tests/integration/external-ref-import.test.js",
+            "tests/integration/import-target-authorization.test.js",
+            "tests/integration/plan-import.test.js",
+            "tests/integration/project-business-binding.test.js",
+            "tests/unit/domain-state.test.js",
+            "tests/unit/plan-schema.test.js",
+            "tests/unit/plan-status-vocabulary.test.js"
+          ]
+        },
+        {
+          "id": "FR-070",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 3,
+          "evidence": [
+            "tests/integration/project-roadmap.test.js",
+            "tests/unit/project-roadmap-read-model.test.js",
+            "tests/unit/project-roadmap-ui.test.js"
+          ]
+        },
+        {
+          "id": "FR-072",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 27,
+          "testCount": 22
+        },
+        {
+          "id": "FR-073",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 8
+        },
+        {
+          "id": "FR-074",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 8
+        },
+        {
+          "id": "FR-075",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 10
+        },
+        {
+          "id": "FR-077",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 3
+        },
+        {
+          "id": "FR-078",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 20
+        },
+        {
+          "id": "FR-080",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 6
+        },
+        {
+          "id": "FR-081",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 8
+        }
+      ],
+      "checks": {
+        "ui": {
+          "status": "partial",
+          "evidence": [
+            "docs/INTERFACE-INVENTORY.md"
+          ],
+          "gaps": [
+            {
+              "id": "UI-STATUS-001",
+              "severity": "medium",
+              "summary": "At least one owned UI surface is not marked implemented",
+              "evidence": [
+                "/projects/[projectId]/roadmap"
+              ]
+            }
+          ],
+          "details": {
+            "routes": 36,
+            "inventoried": 36,
+            "missing": 0
+          }
+        },
+        "httpApi": {
+          "status": "partial",
+          "evidence": [
+            "docs/appendices/A-api-spec.md",
+            "src/modules/project-manager/api-docs/openapi.js"
+          ],
+          "gaps": [
+            {
+              "id": "API-OPENAPI-001",
+              "severity": "high",
+              "summary": "API route is not represented in the machine-readable OpenAPI generator",
+              "evidence": [
+                "/api/audit",
+                "/api/backup/export",
+                "/api/backup/import",
+                "/api/business/files",
+                "/api/business/goals",
+                "/api/business/goals/[id]",
+                "/api/business/goals/[id]/projects",
+                "/api/business/goals/[id]/projects/[projectId]",
+                "/api/business/roadmaps",
+                "/api/business/roadmaps/[id]",
+                "/api/business/strategy",
+                "/api/containers",
+                "/api/containers/[id]",
+                "/api/dependencies",
+                "/api/dependencies/[id]",
+                "/api/docs",
+                "/api/files",
+                "/api/files/[id]",
+                "/api/files/[id]/content",
+                "/api/files/[id]/relink",
+                "/api/files/[id]/reveal",
+                "/api/files/cache/rebuild",
+                "/api/files/migrate",
+                "/api/files/mounts",
+                "/api/files/reconcile",
+                "/api/gates",
+                "/api/gates/[id]",
+                "/api/import/xlsx",
+                "/api/milestones",
+                "/api/milestones/[id]",
+                "/api/people",
+                "/api/platform/customer-import-reviews",
+                "/api/platform/customer-import-reviews/[caseId]/decisions",
+                "/api/platform/customer-import-reviews/targets",
+                "/api/platform/integrations",
+                "/api/platform/users",
+                "/api/profile",
+                "/api/progress/portfolio",
+                "/api/progress/project/[id]",
+                "/api/progress/workstream/[id]",
+                "/api/projects",
+                "/api/projects/[id]",
+                "/api/projects/[id]/dependencies",
+                "/api/projects/[id]/files",
+                "/api/projects/[id]/files/[fileId]",
+                "/api/projects/[id]/inventory",
+                "/api/projects/[id]/roadmap",
+                "/api/projects/[id]/team",
+                "/api/projects/[id]/tree",
+                "/api/repositories",
+                "/api/repositories/[id]",
+                "/api/repositories/link",
+                "/api/repositories/link/[id]",
+                "/api/scope",
+                "/api/session/demo",
+                "/api/viewer",
+                "/api/work",
+                "/api/work/[id]",
+                "/api/workspaces/[id]",
+                "/api/workstreams",
+                "/api/workstreams/[id]"
+              ]
+            }
+          ],
+          "details": {
+            "routes": 65,
+            "inventoried": 65,
+            "openApiPaths": 4,
+            "missingFromOpenApi": 61
+          }
+        },
+        "mcp": {
+          "status": "planned",
+          "evidence": [
+            "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md"
+          ],
+          "gaps": [
+            {
+              "id": "MCP-TRANSPORT-001",
+              "severity": "medium",
+              "summary": "MCP is referenced but no domain MCP adapter is implemented",
+              "evidence": [
+                "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md"
+              ]
+            }
+          ]
+        },
+        "runtimeContract": {
+          "status": "partial",
+          "evidence": [
+            "docs/TRACE.md",
+            "src/modules/project-manager/import/plan-schema.js"
+          ],
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
+        },
+        "jsonSchema": {
+          "status": "verified",
+          "evidence": [
+            "contracts/plan-envelope.schema.json"
+          ],
+          "gaps": []
+        },
+        "database": {
+          "status": "verified",
+          "evidence": [
+            "prisma/schema.prisma"
+          ],
+          "gaps": [],
+          "details": {
+            "models": 26,
+            "present": 26
+          }
+        },
+        "authorization": {
+          "status": "partial",
+          "evidence": [
+            "docs/appendices/A-api-spec.md"
+          ],
+          "gaps": [
+            {
+              "id": "AUTH-001",
+              "severity": "high",
+              "summary": "At least one mutating route lacks a recognizable request viewer seam"
+            },
+            {
+              "id": "AUTH-002",
+              "severity": "medium",
+              "summary": "At least one read route lacks a recognizable request viewer seam"
+            }
+          ],
+          "details": {
+            "mutations": 51,
+            "guardedMutations": 50,
+            "reads": 34,
+            "unguardedReads": 10
+          }
+        },
+        "tests": {
+          "status": "partial",
+          "evidence": [
+            "docs/TRACE.md"
+          ],
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
+        }
+      },
+      "evidence": [
+        "contracts/plan-envelope.schema.json",
+        "docs/INTERFACE-INVENTORY.md",
+        "docs/TRACE.md",
+        "docs/appendices/A-api-spec.md",
+        "docs/domains/project-manager/CHARTER.md",
+        "docs/domains/project-manager/features/FR-003-project-list-contract.md",
+        "docs/domains/project-manager/features/FR-019-enterprise-api.md",
+        "docs/domains/project-manager/features/FR-020-adaptive-shell.md",
+        "docs/domains/project-manager/features/FR-032-home-entry.md",
+        "docs/domains/project-manager/features/FR-033-topbar-without-scope-dropdowns.md",
+        "docs/domains/project-manager/features/FR-034-breadcrumb-scope-switcher.md",
+        "docs/domains/project-manager/features/FR-035-business-and-group-overview.md",
+        "docs/domains/project-manager/features/FR-036-project-team.md",
+        "docs/domains/project-manager/features/FR-037-project-files.md",
+        "docs/domains/project-manager/features/FR-039-business-scope-ceiling.md",
+        "docs/domains/project-manager/features/FR-040-project-work-views.md",
+        "docs/domains/project-manager/features/FR-041-business-strategy-overview.md",
+        "docs/domains/project-manager/features/FR-042-hr-people-peer-domain.md",
+        "docs/domains/project-manager/features/FR-043-project-business-ownership.md",
+        "docs/domains/project-manager/features/FR-045-managed-local-file-workspace.md",
+        "docs/domains/project-manager/features/FR-056-zuri-branded-entry-landing.md",
+        "docs/domains/project-manager/features/FR-058-file-manager-views.md",
+        "docs/domains/project-manager/features/FR-059-business-strategy-mutation.md",
+        "docs/domains/project-manager/features/FR-060-business-home.md",
+        "docs/domains/project-manager/features/FR-063-project-board.md",
+        "docs/domains/project-manager/features/FR-064-schedule-timeline.md",
+        "docs/domains/project-manager/features/FR-065-import-target-authorization.md",
+        "docs/domains/project-manager/features/FR-068-human-visible-execution-roadmap.md",
+        "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
+        "docs/domains/project-manager/features/FR-070-stable-execution-domain-and-tag-identities.md",
+        "docs/domains/project-manager/features/FR-077-project-inventory-mvp.md",
+        "prisma/schema.prisma",
+        "src/modules/project-manager/api-docs/openapi.js",
+        "src/modules/project-manager/import/plan-schema.js"
+      ],
+      "gaps": [
+        {
+          "id": "UI-STATUS-001",
+          "severity": "medium",
+          "check": "ui",
+          "summary": "At least one owned UI surface is not marked implemented",
+          "evidence": [
+            "/projects/[projectId]/roadmap"
+          ]
+        },
+        {
+          "id": "API-OPENAPI-001",
+          "severity": "high",
+          "check": "httpApi",
+          "summary": "API route is not represented in the machine-readable OpenAPI generator",
+          "evidence": [
+            "/api/audit",
+            "/api/backup/export",
+            "/api/backup/import",
+            "/api/business/files",
+            "/api/business/goals",
+            "/api/business/goals/[id]",
+            "/api/business/goals/[id]/projects",
+            "/api/business/goals/[id]/projects/[projectId]",
+            "/api/business/roadmaps",
+            "/api/business/roadmaps/[id]",
+            "/api/business/strategy",
+            "/api/containers",
+            "/api/containers/[id]",
+            "/api/dependencies",
+            "/api/dependencies/[id]",
+            "/api/docs",
+            "/api/files",
+            "/api/files/[id]",
+            "/api/files/[id]/content",
+            "/api/files/[id]/relink",
+            "/api/files/[id]/reveal",
+            "/api/files/cache/rebuild",
+            "/api/files/migrate",
+            "/api/files/mounts",
+            "/api/files/reconcile",
+            "/api/gates",
+            "/api/gates/[id]",
+            "/api/import/xlsx",
+            "/api/milestones",
+            "/api/milestones/[id]",
+            "/api/people",
+            "/api/platform/customer-import-reviews",
+            "/api/platform/customer-import-reviews/[caseId]/decisions",
+            "/api/platform/customer-import-reviews/targets",
+            "/api/platform/integrations",
+            "/api/platform/users",
+            "/api/profile",
+            "/api/progress/portfolio",
+            "/api/progress/project/[id]",
+            "/api/progress/workstream/[id]",
+            "/api/projects",
+            "/api/projects/[id]",
+            "/api/projects/[id]/dependencies",
+            "/api/projects/[id]/files",
+            "/api/projects/[id]/files/[fileId]",
+            "/api/projects/[id]/inventory",
+            "/api/projects/[id]/roadmap",
+            "/api/projects/[id]/team",
+            "/api/projects/[id]/tree",
+            "/api/repositories",
+            "/api/repositories/[id]",
+            "/api/repositories/link",
+            "/api/repositories/link/[id]",
+            "/api/scope",
+            "/api/session/demo",
+            "/api/viewer",
+            "/api/work",
+            "/api/work/[id]",
+            "/api/workspaces/[id]",
+            "/api/workstreams",
+            "/api/workstreams/[id]"
+          ]
+        },
+        {
+          "id": "MCP-TRANSPORT-001",
+          "severity": "medium",
+          "check": "mcp",
+          "summary": "MCP is referenced but no domain MCP adapter is implemented",
+          "evidence": [
+            "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md"
+          ]
+        },
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "AUTH-001",
+          "severity": "high",
+          "check": "authorization",
+          "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        },
+        {
+          "id": "AUTH-002",
+          "severity": "medium",
+          "check": "authorization",
+          "summary": "At least one read route lacks a recognizable request viewer seam"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-033",
+          "severity": "high",
+          "check": "requirements",
+          "summary": "FR-033 is not_implemented",
+          "evidence": [
+            "tests/unit/scope-view-context.test.js",
+            "tests/unit/topbar-no-dropdown.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-034",
+          "severity": "high",
+          "check": "requirements",
+          "summary": "FR-034 is not_implemented",
+          "evidence": [
+            "tests/unit/breadcrumb-switcher.test.js",
+            "tests/unit/scope-view-context.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-039",
+          "severity": "high",
+          "check": "requirements",
+          "summary": "FR-039 is not_implemented",
+          "evidence": [
+            "tests/e2e/fr041-business-first.spec.js",
+            "tests/e2e/fr046-entry-contract.spec.js",
+            "tests/e2e/smoke.spec.js",
+            "tests/unit/breadcrumb-switcher.test.js",
+            "tests/unit/domain-navigation.test.js",
+            "tests/unit/fr045-api-ui-contract.test.js",
+            "tests/unit/fr046-api-ui-contract.test.js",
+            "tests/unit/scope-view-context.test.js",
+            "tests/unit/sidebar-visible-subdomains.test.js",
+            "tests/unit/topbar-no-dropdown.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-056",
+          "severity": "high",
+          "check": "requirements",
+          "summary": "FR-056 is not_implemented",
+          "evidence": [
+            "tests/unit/entry-surfaces.test.js",
+            "tests/unit/fr056-landing.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-068",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-068 is partial",
+          "evidence": [
+            "src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+            "src/app/api/projects/[id]/roadmap/route.js",
+            "src/modules/project-manager/application/project-roadmap-read-model.js",
+            "src/modules/project-manager/components/WorkViewTabs.jsx",
+            "tests/e2e/fr040-project-work.spec.js",
+            "tests/integration/project-roadmap.test.js",
+            "tests/unit/project-roadmap-read-model.test.js",
+            "tests/unit/project-roadmap-ui.test.js",
+            "tests/unit/project-work-route.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-069",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-069 is planned",
+          "evidence": [
+            "tests/integration/external-ref-import.test.js",
+            "tests/integration/import-target-authorization.test.js",
+            "tests/integration/plan-import.test.js",
+            "tests/integration/project-business-binding.test.js",
+            "tests/unit/domain-state.test.js",
+            "tests/unit/plan-schema.test.js",
+            "tests/unit/plan-status-vocabulary.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-070",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-070 is planned",
+          "evidence": [
+            "tests/integration/project-roadmap.test.js",
+            "tests/unit/project-roadmap-read-model.test.js",
+            "tests/unit/project-roadmap-ui.test.js"
+          ]
+        }
+      ],
+      "details": {
+        "routes": 101,
+        "apiRoutes": 65,
+        "pageRoutes": 36,
+        "ownedModels": 26,
+        "featureNotes": 26
+      }
+    }
+  }
+}

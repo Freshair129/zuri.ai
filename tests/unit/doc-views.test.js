@@ -45,6 +45,7 @@ describe('domainMap', () => {
   it('declares itself generated', () => {
     expect(out).toContain('Auto-generated')
     expect(out).toContain('Never hand-edit')
+    expect(out).toContain('.domain-state.json')
   })
 })
 
