@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 924,
-    "total_edges": 2845,
+    "total_nodes": 922,
+    "total_edges": 2813,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -17,7 +17,7 @@
       "model": 46,
       "requirement": 174,
       "test": 193,
-      "code_file": 251
+      "code_file": 249
     },
     "coverage": {
       "requirements": 174,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (75/75)",
       "rules_anchored_in_code": "86% (66/77)",
       "nfr_evidence_based": "16 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 251,
+      "annotated_code_files": 249,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -2469,60 +2469,6 @@
           "tests/unit/scope-view-context.test.js",
           "tests/unit/fr046-api-ui-contract.test.js",
           "tests/e2e/fr046-entry-contract.spec.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/generated/prisma-postgres/edge.js",
-      "type": "code_file",
-      "path": "src/generated/prisma-postgres/edge.js",
-      "hash": "0d6493fa",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-043",
-          "SDD-021",
-          "BR-001",
-          "FR-073",
-          "SDD-037",
-          "FR-037",
-          "FR-045",
-          "SDD-023",
-          "FR-019",
-          "FR-021",
-          "BR-002",
-          "FR-022",
-          "FR-023",
-          "FR-079",
-          "SDD-043",
-          "SEC-015"
-        ]
-      }
-    },
-    {
-      "id": "code:src/generated/prisma-postgres/index.js",
-      "type": "code_file",
-      "path": "src/generated/prisma-postgres/index.js",
-      "hash": "bf099f31",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-043",
-          "SDD-021",
-          "BR-001",
-          "FR-073",
-          "SDD-037",
-          "FR-037",
-          "FR-045",
-          "SDD-023",
-          "FR-019",
-          "FR-021",
-          "BR-002",
-          "FR-022",
-          "FR-023",
-          "FR-079",
-          "SDD-043",
-          "SEC-015"
         ]
       }
     },
@@ -13715,230 +13661,6 @@
       "from": "code:src/context/ScopeContext.jsx",
       "to": "req:SEC-008",
       "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:BR-001",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:BR-002",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:FR-019",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:FR-021",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:FR-022",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:FR-023",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:FR-037",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:FR-043",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:FR-045",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:FR-073",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:FR-079",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:SDD-021",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:SDD-023",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:SDD-037",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:SDD-043",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/edge.js",
-      "to": "req:SEC-015",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:BR-001",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:BR-002",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:FR-019",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:FR-021",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:FR-022",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:FR-023",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:FR-037",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:FR-043",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:FR-045",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:FR-073",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:FR-079",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:SDD-021",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:SDD-023",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:SDD-037",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:SDD-043",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/generated/prisma-postgres/index.js",
-      "to": "req:SEC-015",
-      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
