@@ -1,302 +1,225 @@
-# Zuri V2 — Interface Inventory and Shell Boundary
+---
+version: "1.0.0b"
+created_at: "2026-08-18T00:00:00+07:00,ATHER"
+last_update: "2026-08-18T00:00:00+07:00,ATHER"
+status: "candidate"
+superseded_by: null
+attributes:
+  domain: "documentation-architecture"
+  doc_type: "interface-inventory"
+  scope: "current user-visible route registry and shell boundary"
+---
+
+# Zuri V2 — Interface Inventory
 
 | Field | Value |
 |---|---|
-| **Version** | 0.4.0 |
-| **Status** | FR-044 and FR-046 verified beta |
-| **Date** | 2026-08-14 |
-| **Scope** | Entry, Business shell, domains, sub-domains, Project resources, content, indicators, and API contracts |
-| **Authority** | ADR-008, ADR-011, ADR-015, ADR-017, ADR-027; SITEMAP-V2-DOMAIN-NAV, HANDOFF-SHELL-V2-CODEX |
+| **Version** | 1.0.0b |
+| **Status** | Candidate — normalized registry; runtime status is per interface |
+| **Last Updated** | 2026-08-18 |
+| **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
+| **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
+| **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-## Executive finding
+<!-- interface-inventory-counts: page_routes=37; operational_domain_keys=7; operational_subdomain_entries=21; business_home_shell_slots=1 -->
 
-The approved direction for this slice is:
+## 1. Responsibility and authority boundary
+
+This document answers one question:
+
+> What user-visible interfaces exist, where are they mounted, what do they do,
+> what states and access boundary do they require, and what is their current status?
+
+It does not own facts that already have a stronger source of truth:
+
+| Concern | Authority | This document does |
+|---|---|---|
+| Route tree, layouts and URL topology | [ROUTES-SITEMAP.md](ROUTES-SITEMAP.md) | records the route that exposes an interface and links to the route map |
+| Domain bar and sub-domain navigation | [SITEMAP-DOMAIN-NAV.md](SITEMAP-DOMAIN-NAV.md), `src/config/domains.js` | records the interface's domain context; does not redefine navigation |
+| API endpoint catalog and DTO contracts | [Appendix A](appendices/A-api-spec.md), live `GET /api/docs` | records only the API dependency needed to understand a UI surface |
+| Feature, requirement and test traceability | generated [FEATURE-MAP.md](FEATURE-MAP.md), [TRACE.md](TRACE.md) | references FR/SDD ids; does not duplicate global counts |
+| Tokens, components and accessibility rules | [UI-DESIGN-SYSTEM.md](UI-DESIGN-SYSTEM.md) | names relevant patterns; does not restate token rules |
+| Durable decisions and changes | ADRs, CRs and [RCA](../.brain/rca/2026-08-18-document-graph-did-not-govern-semantic-inventory.md) | links to rationale; does not contain a change ledger |
+
+Generated views are projections, not authorities. Regenerate them with
+`npm run govern`; never hand-edit `FEATURE-MAP.md`, `DOMAIN-MAP.md`, `TRACE.md`,
+or `appendices/D-traceability.md`.
+
+## 2. Shell boundary
+
+The current entry journey is:
 
 ```text
-Landing → Login stub → RBAC/viewer resolution → Business Routing → Business shell → domain → sub-domain → resource
+Landing → Login/demo boundary → trusted viewer resolution → Business Routing
+→ Business Home/BusinessShell → domain → sub-domain → Project resource
 ```
 
-The FR-044 runtime boundary is now implemented. `src/app/layout.jsx` is provider-only;
-`src/app/(pm)/layout.jsx` mounts the guarded BusinessShell, while `/`, `/login`, and
-`/businesses` remain outside final shell chrome. The guard resolves viewer, Business,
-domain, and Project ownership decisions before AppShell renders.
-
-The immediate architectural rule for the next change is:
-
-> Business is selected before `BusinessShell` mounts. `BusinessShell` never renders a
-> Business picker and never operates as an unscoped group overview.
-
-This inventory is an evidence document and current implementation record. Any
-remaining IA discrepancies are explicitly tracked as follow-up work rather than
-silently treated as delivered by FR-044.
-
-## Approved next onboarding boundary (ADR-027)
-
-The next approved interface starts with Profile rather than Business creation:
-
-```mermaid
-flowchart TD
-  L[Landing /] --> LG[Local identity or demo transition /login]
-  LG --> P[Profile setup /onboarding/profile]
-  P --> W[Waiting Room /waiting-room]
-  P --> WS[Workspace Home /workspaces]
-  WS --> I[Accept or manage Workspace invite]
-  I --> BR[Business Routing /businesses when Business access exists]
-  BR --> B[BusinessShell /overview]
-  W --> BR
-```
-
-This is a design target, not a runtime claim. A Profile-only or Workspace-only
-member remains outside BusinessShell. The top-level collaboration Workspace is
-the UI presentation of `Portfolio`; the existing schema `Workspace` remains
-Project Manager **Space** context. Workspace membership is not Business
-authorization.
-
-## 1. Canonical interface hierarchy
-
-```mermaid
-flowchart TD
-  L[Landing /]
-  L --> LG[Login stub /login]
-  LG --> R[RBAC + resolveViewer]
-  R --> H[Business Routing /businesses]
-  H --> B[BusinessShell: one selected Business]
-  B --> O[Business Overview]
-  B --> D[Domain]
-  D --> S[Sub-domain]
-  S --> P[Resource page]
-  P --> PR[ProjectResourceShell: Project tabs]
-```
-
-### 1.1 Logical shells (target)
-
-| Shell | Entry condition | Chrome | Owns | Status |
+| Shell | Entry condition | Owns | Current implementation | Required boundary |
 |---|---|---|---|---|
-| **EntryShell** | no authenticated viewer or no Business selected | minimal Zuri identity and entry content; no domain bar, sidebar, or Business context | `/`, `/login` | **implemented** (`EntryShell.jsx`) |
-| **BusinessRoutingShell** | demo login complete; Business not selected | viewer-visible Business list; Portfolio/Tenant ancestry labels; no final domain/sidebar chrome | `/businesses` | **implemented** (route surface) |
-| **BusinessShell** | viewer resolved and `activeBusinessId` is present | Topbar, Business context, domain bar, active-domain sidebar, breadcrumb, content | `/overview`, all Business domains and sub-domains | **implemented** as guarded PM layout |
-| **ProjectResourceShell** | BusinessShell + opened `projectId` | BusinessShell plus Project tabs; Space is secondary metadata | `/projects/[projectId]/**` | **implemented** as nested Project layout |
+| **EntryShell** | no authenticated viewer or pre-shell entry | `/`, `/login` | `src/components/layouts/EntryShell.jsx` | no domain bar, sidebar or Business context |
+| **BusinessRoutingShell** | viewer exists but Business is not selected | `/businesses` | `src/app/(entry)/businesses/page.jsx` | displays only authorized Business choices |
+| **BusinessShell** | trusted viewer plus authorized `activeBusinessId` | `/overview` and Business domains | `src/app/(pm)/layout.jsx`, `BusinessShellGuard.jsx` | selection occurs before final chrome mounts |
+| **ProjectResourceShell** | BusinessShell plus opened `projectId` | `/projects/[projectId]/**` | `src/app/(pm)/projects/[projectId]/layout.jsx` | Project tabs remain inside the selected Business |
 
-`EntryShell` and `BusinessShell` are separate interface contracts even if they reuse
-tokens and small primitives. A route must not use BusinessShell merely because it is
-inside the same Next.js root layout.
+`/overview` is Business Home's Dashboard and the BusinessShell root. It is not a
+Development sub-domain. Development starts at `/projects`.
 
-### 1.2 Layout files versus logical layouts
+## 3. Current interface registry
 
-| Layer | Target | Current evidence |
-|---|---|---|
-| Provider/root layout | one provider-only root layout | `src/app/layout.jsx` ✅ |
-| Entry surface | one no-chrome EntryShell surface | `src/components/layouts/EntryShell.jsx`, `/`, `/login` ✅ |
-| Business routing surface | one minimal BusinessRoutingShell surface | `/(entry)/businesses/page.jsx` ✅ |
-| Business layout | one guarded BusinessShell layout | `src/app/(pm)/layout.jsx`, `BusinessShellGuard.jsx` ✅ |
-| Project resource layout | one nested ProjectResourceShell layout | `src/app/(pm)/projects/[projectId]/layout.jsx` ✅ |
+Each row represents one current routable page. Dynamic route parameters preserve
+their source names so the registry can be checked mechanically against the route
+tree. `implemented beta` means the route exists and has local proof; it does not
+mean production identity, external providers or cutover gates are complete.
 
-Logical interface layers: **5** (provider, entry, business routing, business, project resource). Actual
-route layout files: **3** (root, guarded PM, project resource). Actual reusable chrome files:
-**6** (`AppShell`, `Topbar`, `DomainBar`, `Sidebar`, `Breadcrumb`,
-`CommandPalette`).
+### 3.1 Entry and Business Home
 
-## 2. Current page/view/content inventory
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/` | Landing | EntryShell | product entry, continue to login/demo boundary | initial, loading, local/offline-safe | implemented; `src/app/(entry)/page.jsx` |
+| `/login` | Login stub | EntryShell | explicit local demo transition; no real credential provider | ready, disabled-in-production, error | implemented beta; `src/app/(entry)/login/page.jsx`, FR-044/046 |
+| `/businesses` | Business Routing | BusinessRoutingShell | list authorized Businesses and select one | auth required, empty Business scope, loading, error | implemented beta; `src/app/(entry)/businesses/page.jsx`, `GET /api/entry` |
+| `/overview` | Business Home Dashboard | BusinessShell; shell-level cross-domain projection | Business briefing, KPI/health, strategy and attention links | Business required, ready, forbidden, loading, empty, error, offline | implemented beta; `src/app/(pm)/overview/page.jsx`, FR-060 |
 
-### 2.1 Page routes (35 page files)
+### 3.2 Development domain — global surfaces
 
-| Surface | Count | Current routes |
+The runtime registry has eight Development sub-domain entries, including Files;
+the Business Home slot is excluded from this count.
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/projects` | Projects | BusinessShell → Development / Projects | Business-scoped Project list, filters, open Project, create through objective intake | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/page.jsx`, FR-003 |
+| `/projects/new` | Objective intake | BusinessShell → Development / Projects | create a structured plan from an objective; preview and submit | validation, conflict, loading, error, success | implemented; `src/app/(pm)/projects/new/page.jsx`, FR-017 |
+| `/work` | All Work | BusinessShell → Development / All Work | global WorkItem browse/filter/status editing | empty, loading, error, forbidden, offline | implemented; `src/app/(pm)/work/page.jsx`, FR-005 |
+| `/execution` | Execution overview | BusinessShell → Development / Execution | choose or summarize the seven canonical execution modes | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/execution/page.jsx`, FR-009 |
+| `/execution/[mode]` | Execution mode view | BusinessShell → Development / Execution | mode-specific view over the neutral work model | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/execution/[mode]/page.jsx`, FR-009 |
+| `/timeline` | Global Timeline | BusinessShell → Development / Timeline | cross-Project schedule and date-bound work | empty, loading, error, forbidden | implemented; `src/app/(pm)/timeline/page.jsx`, FR-064 |
+| `/dependencies` | Dependency register | BusinessShell → Development / Dependencies | cross-Project dependency list, create, inspect and delete | empty, loading, error, forbidden, cycle/domain validation | implemented; `src/app/(pm)/dependencies/page.jsx`, FR-007 |
+| `/milestones` | Milestones and Gates | BusinessShell → Development / Milestones & Gates | global milestones/gates, status and evidence updates | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/milestones/page.jsx`, FR-006 |
+| `/files` | Managed Files | BusinessShell → Development / Files | Business/Project file metadata, reconcile, mount and safe content actions | empty, loading, error, capability-disabled, forbidden | implemented beta; `src/app/(pm)/files/page.jsx`, FR-045 |
+| `/repositories` | Repositories | BusinessShell → Development / Repositories | local repository metadata and Project links | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/repositories/page.jsx`, FR-008 |
+
+### 3.3 People and Platform domains
+
+The operational registry has seven domain keys. Platform currently exposes six
+page routes because its Dashboard and Settings navigation entries share
+`/settings`; one route is one interface row here.
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/people` | People Dashboard | BusinessShell → HR / People | People domain landing and directory entry | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/people/page.jsx`, FR-042 |
+| `/people/directory` | People Directory | BusinessShell → HR / People / Directory | Business-scoped people search and view | empty, loading, error, forbidden | implemented; `src/app/(pm)/people/directory/page.jsx`, FR-042 |
+| `/platform/users` | Users and Permissions | BusinessShell → Platform / Users | OWNER-scoped membership role and domain grants | owner-only, empty, loading, error, forbidden | implemented; `src/app/(pm)/platform/users/page.jsx`, FR-038/062 |
+| `/platform/integrations` | Platform Integrations | BusinessShell → Platform / Integrations | owner-only provider/connection metadata and redacted Vault readiness | owner-only, empty, loading, error, manager unavailable; no raw secret state | implemented beta; `src/app/(pm)/platform/integrations/page.jsx`, FR-080 |
+| `/profile` | My Profile | BusinessShell → Platform/identity | resolved local account, language and LINE-link state | auth required, loading, error, empty | implemented beta; `src/app/(pm)/profile/page.jsx`, FR-038 |
+| `/settings` | Settings | BusinessShell → Platform / Settings | local preferences and shell/runtime settings | loading, error, ready, forbidden | implemented; `src/app/(pm)/settings/page.jsx`, FR-020 |
+| `/audit` | Audit Log | BusinessShell → Platform / Audit | immutable audit event browser and filters | empty, loading, error, forbidden | implemented; `src/app/(pm)/audit/page.jsx`, FR-014 |
+| `/backup` | Backup | BusinessShell → Platform / Backup | snapshot export and preview-then-confirm restore | loading, validation, confirmation, error, forbidden | implemented; `src/app/(pm)/backup/page.jsx`, FR-013 |
+
+### 3.4 Workspace compatibility surfaces
+
+These pages remain routable Project Manager Space surfaces. They are not a second
+global collaboration Workspace authority; ADR-027's future onboarding surface is
+separately documented.
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/workspaces` | Workspace list | BusinessShell → Development/Space compatibility | list and open Spaces | empty, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/page.jsx` |
+| `/workspaces/[workspaceId]` | Workspace detail | BusinessShell → Development/Space compatibility | Space metadata and related Projects | not found, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/[workspaceId]/page.jsx` |
+
+### 3.5 Project resource surfaces
+
+All rows below are nested in ProjectResourceShell. Project-local work views are
+not new global domains or new persistence aggregates.
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/projects/[projectId]` | Project Overview | ProjectResourceShell | Project identity, health, summary and tab entry | not found, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/page.jsx`, FR-043 |
+| `/projects/[projectId]/all-work` | Project All Work | ProjectResourceShell → Work | Project-filtered WorkItems and status actions | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/all-work/page.jsx`, FR-005 |
+| `/projects/[projectId]/board` | Project Board | ProjectResourceShell → Work | board view over Project work | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/board/page.jsx`, FR-063 |
+| `/projects/[projectId]/dependencies` | Project Dependency Map | ProjectResourceShell → Work | contained dependency graph; both endpoints must belong to Project | empty, loading, error, forbidden, graph error | implemented; `src/app/(pm)/projects/[projectId]/dependencies/page.jsx`, FR-040 |
+| `/projects/[projectId]/execution/[mode]` | Project Execution Mode | ProjectResourceShell → Work | mode view scoped to opened Project | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx`, FR-009 |
+| `/projects/[projectId]/files` | Project Files | ProjectResourceShell → Files | Project file references and metadata actions | empty, loading, error, forbidden, capability-disabled | implemented; `src/app/(pm)/projects/[projectId]/files/page.jsx`, FR-045 |
+| `/projects/[projectId]/import` | Project Plan Import | ProjectResourceShell → Import | validate, dry-run, conflict preview and commit plan | validation, conflict, loading, error, forbidden, success | implemented; `src/app/(pm)/projects/[projectId]/import/page.jsx`, FR-012 |
+| `/projects/[projectId]/inventory` | Project Inventory | ProjectResourceShell → Overview | bounded read-only snapshot of work, gates, files, repos, team, progress and activity | not found, loading, error, forbidden, empty/partial/truncated/unavailable | implemented beta; working tree/pending commit for FR-077; `src/app/(pm)/projects/[projectId]/inventory/page.jsx` |
+| `/projects/[projectId]/milestones` | Project Milestones and Gates | ProjectResourceShell → Milestones & Gates | Project-local milestone/gate browsing and evidence updates | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/milestones/page.jsx`, FR-006 |
+| `/projects/[projectId]/repositories` | Project Repositories | ProjectResourceShell → Repositories | linked repository metadata and link/unlink actions | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/repositories/page.jsx`, FR-008 |
+| `/projects/[projectId]/structure` | Structure Plan | ProjectResourceShell → Work | Project → Workstream → Container → WorkItem WBS | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/structure/page.jsx`, FR-040 |
+| `/projects/[projectId]/team` | Project Team | ProjectResourceShell → Team | Project team membership view and actions | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/team/page.jsx`, FR-036 |
+| `/projects/[projectId]/timeline` | Project Schedule | ProjectResourceShell → Work | Project-local schedule and dates | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/timeline/page.jsx`, FR-064 |
+
+## 4. Runtime registry reconciliation
+
+The source registry has a shell slot plus operational domains. Counts are stated
+explicitly so “domain count” cannot silently mix the two concepts:
+
+| Count | Current value | Source interpretation |
 |---|---:|---|
-| Entry/routing | 3 | `/` Landing, `/login` demo stub, `/businesses` Business Routing |
-| BusinessShell root | 1 | `/overview` Business Overview |
-| Development top-level | 9 | `/projects`, `/projects/new`, `/work`, `/execution`, `/execution/[mode]`, `/timeline`, `/dependencies`, `/milestones`, `/repositories` |
-| HR / People | 2 | `/people`, `/people/directory` |
-| Platform / identity | 5 | `/platform/users`, `/profile`, `/settings`, `/audit`, `/backup` |
-| Workspace compatibility pages | 2 | `/workspaces`, `/workspaces/[workspaceId]` |
-| Project resource pages | 12 | `/projects/[projectId]` plus `all-work`, `board`, `dependencies`, `execution/[mode]`, `files`, `import`, `milestones`, `repositories`, `structure`, `team`, `timeline` |
-| **Total** | **34** | `Get-ChildItem -Recurse src/app -Filter page.jsx` |
+| Source `DOMAINS` entries | 8 | `business-home` plus seven operational domains |
+| Operational domain keys | 7 | `commerce`, `customer`, `growth`, `operations`, `people`, `projects`, `platform` |
+| Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
+| Source sub-domain entries | 22 | includes Business Home Dashboard |
+| Operational sub-domain entries | 21 | excludes Business Home Dashboard |
+| Development sub-domain entries | 8 | includes Files and excludes Business Home |
+| Platform navigation entries | 6 | Dashboard and Settings intentionally share `/settings` |
 
-`/login` and `/businesses` are implemented as pre-shell surfaces. The PM route-group
-guard redirects missing viewer/business context before BusinessShell renders; the
-login action remains deliberately non-authenticated for this slice.
+The marker at the top of this document is the published operational count. The
+preflight check derives it from `src/config/domains.js` and fails if it drifts.
+Reserved `soon` entries are navigation slots, not delivered product modules.
 
-### 2.2 View and content building blocks
+## 5. Shared interface-state contract
 
-| Category | Count | Evidence |
+The registry uses these states consistently; individual rows identify the states
+that materially apply to that surface.
+
+| State | Meaning | Required behavior |
+|---|---|---|
+| `AUTH_REQUIRED` | trusted viewer/session is absent | route to EntryShell `/login`; do not query protected scope first |
+| `BUSINESS_REQUIRED` | viewer has no selected authorized Business | route to BusinessRoutingShell `/businesses` |
+| `READY` | scope and resource authorization succeeded | mount the declared shell and render content |
+| `FORBIDDEN` | viewer lacks the required Business/domain/resource authority | fail closed; do not disclose cross-scope existence |
+| `NOT_FOUND` | route/resource does not exist or is intentionally indistinguishable from unauthorized | render a non-enumerating not-found state |
+| `LOADING` | async read is in flight | use the shared loading primitive; preserve shell boundary |
+| `EMPTY` | authorized read returned no records | explain the empty state and expose the valid next action |
+| `ERROR` | known read/write failure | show safe error, retry where possible, never report success on manager failure |
+| `OFFLINE` | local-first runtime has no network | retain local behavior; label unavailable external capabilities explicitly |
+| `PARTIAL` / `TRUNCATED` | bounded read cannot show the complete window | disclose section and limit; link to the owning detailed surface |
+
+Presentation tokens and component accessibility rules remain in
+[UI-DESIGN-SYSTEM.md](UI-DESIGN-SYSTEM.md); this table defines only interface-level
+state obligations.
+
+## 6. Verification and maintenance contract
+
+Before adding or changing a page route:
+
+1. declare the requirement/spec/test anchors in the source file;
+2. add or update exactly one interface row here, including status and states;
+3. update the owning route/domain/feature authority when its meaning changes;
+4. run `npm run govern`, which regenerates graph projections and checks semantic
+   route/API/interface parity;
+5. run the relevant tests and `npm run verify` before calling the surface complete.
+
+The current route evidence is:
+
+| Evidence | Current value | Check |
 |---|---:|---|
-| Project Manager view modules | 12 files | `src/modules/project-manager/views/` (WBS, board, execution, universal views, dependency map, import) |
-| Shared UI primitives | 11 exports | `src/components/ui/index.jsx` (`PageHeader`, `Card`, `SectionTitle`, `StatusPill`, `ProgressBar`, `Kpi`, `EmptyState`, `ErrorState`, `Modal`, `Field`, `DataTable`) |
-| Chrome/layout components | 6 files | `src/components/layouts/` |
-| Tests | Vitest + Playwright suites | `tests/` (full unit/integration suite plus E2E route proof) |
+| `src/app/**/page.jsx` | 37 page routes | preflight compares every derived URL to this registry |
+| `src/config/domains.js` | 7 operational domains, 21 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
+| UI status | per-row, not a global completion claim | local implementation does not imply production provider/cutover readiness |
 
-“View” is used here for a reusable content renderer; “page” is a routable interface.
-The PM content and entry surfaces now share a route-state contract through
-`resolveBusinessShellDecision`; loading, error, empty, and offline indicators still
-reuse existing primitives.
+## 7. Out of scope
 
-## 3. Domain and sub-domain inventory
+- API endpoint definitions, request/response schemas and secret-management
+  lifecycle contracts (see [Appendix A](appendices/A-api-spec.md)).
+- global FR/code/test coverage counts (see generated [FEATURE-MAP.md](FEATURE-MAP.md)
+  and [TRACE.md](TRACE.md)).
+- navigation redesign, new execution modes, new persistence aggregates or
+  production identity/provider activation.
+- historical change DAGs and owner follow-up ledgers; use CR/ADR/RCA documents.
 
-### 3.1 Domain count
+## CHANGELOG
 
-The runtime registry `src/config/domains.js` contains **7 domain keys**:
-
-```text
-commerce · customer · growth · operations · people · projects · platform
-```
-
-Display labels are Commerce, CRM, Marketing, Operations, HR / People, Development,
-and Platform. **Business Overview is not a domain**; it is the BusinessShell root.
-
-`domains.js` now keeps `/overview` as the explicit BusinessShell root (`basePath`) and
-excludes it from the Development sidebar. `DomainBar`, the sidebar header, and the
-Business Overview links all preserve that root path while Development sub-domains
-remain project capabilities.
-
-### 3.2 Current sub-domain count
-
-The registry currently declares **19 sub-domain entries**:
-
-| Runtime domain | Current entries | Count | Status |
-|---|---|---:|---|
-| Commerce | Dashboard | 1 | reserved/soon |
-| CRM (`customer`) | Dashboard | 1 | reserved/soon |
-| Marketing (`growth`) | Dashboard, Campaigns | 2 | reserved/soon |
-| Operations | Dashboard | 1 | reserved/soon |
-| HR / People | Dashboard, People Directory | 2 | active |
-| Development (`projects`) | Projects, All Work, Execution, Timeline, Dependencies, Milestones & Gates, Repositories | 7 | active; Business Overview is the shell root |
-| Platform | Dashboard, Users, Audit, Backup, Settings | 5 | active |
-| **Total** |  | **19** |  |
-
-The Business domain registry has **19** current sub-domain entries; `/overview` is
-counted once as the BusinessShell root and is not a sub-domain entry.
-
-### 3.3 Documented future sub-domain inventory
-
-SITEMAP-V2 defines the future lifted domain surface as **48 sub-domain entries** (excluding
-the Business Overview root): Commerce 9, Customer 7, Growth 7, Operations 7,
-Development 7, HR / People 2, Platform 9. Most are reserved lift slots, not shipped
-features. The runtime registry intentionally contains only the 19 current entries above.
-
-## 4. Feature inventory
-
-The Project Manager PRD currently declares **67 functional requirements** (`FR-001` to
-`FR-067`). FR-001…065 are the existing implementation/history set; FR-066/067 are
-design-approved Profile/Workspace requirements and have no runtime anchors yet.
-
-FR-044 now records the implemented interface boundary:
-
-- login page and demo transition (without real authentication);
-- pre-shell route guard / redirect state;
-- Landing and Business Routing as no-final-chrome entry surfaces;
-- Business selection as a prerequisite rather than a shell control;
-- Business Overview as the first Development sidebar entry;
-- route-state indicators for `AUTH_REQUIRED`, `BUSINESS_REQUIRED`, `READY`, `FORBIDDEN`,
-  `NOT_FOUND`, `LOADING`, `ERROR`, `EMPTY`, and `OFFLINE`.
-
-These are not safe to silently fold into FR-031/032/039 because they change the
-meaning of the shell boundary. They are specified by accepted FR-044/ADR-015/SDD-022
-and covered by route, unit, and browser proof.
-
-FR-066/067 are intentionally separate from FR-044: they add Profile-only and
-Workspace-only states before Business Routing and define a new Workspace
-membership/invite authority. They must not be marked live until the route, session,
-authorization, audit and replay tests exist.
-
-## 5. Indicator/state inventory
-
-### 5.1 Required route states
-
-| State | Meaning | Correct surface | Current support |
-|---|---|---|---|
-| `AUTH_REQUIRED` | viewer/session is absent | EntryShell → `/login` | `BusinessShellGuard` decision + redirect ✅ |
-| `BUSINESS_REQUIRED` | viewer has one or more Businesses but none selected | BusinessRoutingShell → `/businesses` | explicit selection required, including one Business ✅ |
-| `READY` | Business is selected and authorized | BusinessShell | guarded PM layout mounts AppShell ✅ |
-| `FORBIDDEN` | viewer lacks domain/business grant | guarded content state | viewer/domain/business decision + redirect ✅ |
-| `NOT_FOUND` | resource or route does not exist | route error boundary | unknown Project decision returns error state ✅ |
-| `LOADING` / `ERROR` / `EMPTY` | async content states | page content | local `LoadingCard`, `ErrorState`, `EmptyState` primitives exist |
-| `OFFLINE` | local-first runtime has no network | shell/footer and content | footer says local; no centralized indicator contract |
-
-### 5.2 Current failure observed
-
-When no Business is selected, `/overview` now redirects to `/businesses` before the
-Topbar/DomainBar/Sidebar mount. If viewer resolution fails, the guard redirects to
-`/login`; a selected authorized Business mounts the final shell.
-
-## 6. API/interface inventory
-
-### 6.1 Route coverage
-
-There are **55 API route handlers** under `src/app/api`. Appendix A lists their route
-families, including the FR-046 entry and demo-session endpoints.
-
-Key existing interfaces:
-
-| Interface | Role | Status |
-|---|---|---|
-| `GET /api/viewer` | request-session compatibility seam: principal, role, visible Business IDs, visible domain keys | present; fail-closed without trusted request session |
-| `GET /api/scope` | portfolio/tenant/business/workspace/project inventory | present; currently returns the full scope inventory and relies on client filtering |
-| `GET /api/business/strategy?businessId=` | Business roadmap and goal read model | present |
-| `GET /api/people?businessId=` | Business-scoped people directory | present |
-| `GET /api/projects?businessId=` | Business-owned Project list | present |
-| `GET /api/projects/[id]` | Project detail with Business + Space context | present |
-| `GET /api/entry` | minimized viewer plus authorized Business ancestry for Business Routing | present; implemented beta |
-| `POST /api/session/demo` | explicit non-production demo-session capability | present; production returns 404 |
-| remaining handlers | PM, import, audit, backup, agent, repository, work, and progress contracts | present and listed by family in Appendix A |
-
-### 6.2 Implemented production-shaped entry contract
-
-FR-046 / ADR-017 implements the first four boundaries below:
-
-1. a trusted request-session consumer seam (the concrete login provider remains undecided);
-2. a server-side entry decision (`AUTH_REQUIRED` vs an authenticated empty/ready response);
-3. protected routes resolving the same trusted viewer before authorization;
-4. one minimal `GET /api/entry` response replacing client intersection of broad `/api/scope`; and
-5. per-Business enabled-domain resolution (the BusinessModule registry is documented as
-   deferred, while `visibleDomains` is currently role/domain-grant based).
-
-Appendix A records the implemented entry endpoints. Credential-provider selection and
-session persistence remain future owner decisions.
-
-## 7. Documentation coverage audit
-
-| Document | Covers | Finding |
-|---|---|---|
-| ADR-008 | Business-centric shell, dual lens, entry journey | FR-044 supplies the accepted pre-shell boundary; legacy entry wording is retained for traceability |
-| ADR-011 | three context labels and Business ceiling | says the shell may select context; must be clarified as selection-before-shell for this request |
-| SITEMAP-V2 §2b/§3/§5 | journey, domain/sub-domain map, URL intent | aligned; Business Overview is the root and Development contains capabilities only |
-| HANDOFF §4 | screen inventory and status | aligned to FR-044; historical Group Overview rows remain traceability only |
-| `docs/ROUTES-SITEMAP.md` | route/shell tree | aligned to 34 page files and FR-044 shell boundaries |
-| Appendix A | API path families | path coverage is 43/43; no login API by deliberate FR-044 scope |
-| UI-DESIGN-SYSTEM / ADR-010 | tokens, primitives, accessibility states | visual system is documented; shell-state and route-gate indicators are not centralized |
-| PRD-SDD | FR-031…043 and SDD-011…021 | feature traceability is green; no separate accepted contract for login/pre-shell routing |
-
-Current generated governance checks remain green: `docs:graph` has 0 dangling edges and
-`docs:preflight` reports 0 critical / 0 warning (22 pre-existing info findings). Green
-graph health does not mean the interface boundary is conceptually complete; it only means
-the currently declared requirements are linked.
-
-## 8. Proposed change DAG (documentation/design gate before code)
-
-```mermaid
-flowchart LR
-  W0[Approve shell boundary] --> W1[Define EntryShell + BusinessShell + ResourceShell]
-  W1 --> W2[Define route-state indicator contract]
-  W2 --> W3[Define viewer/session/entry API contract: ADR-017 candidate]
-  W3 --> W4[Reconcile ADR-011, SITEMAP, HANDOFF, ROUTES-SITEMAP, Appendix A]
-  W4 --> W5[Add fresh FR/SDD + acceptance/exit gates]
-  W5 --> W6[Implement route groups and guard]
-  W6 --> W7[Browser + unit/integration + docs graph/preflight]
-```
-
-No code should be changed at W6 until W0–W5 are approved. The existing Project
-Business ownership (`businessId` + `workspaceId`) remains valid and is downstream of
-this shell boundary; it should not be undone.
-
-## 9. Owner decisions and follow-up
-
-1. **Implemented:** `/` and `/login` are EntryShell routes, `/businesses` is
-   BusinessRoutingShell, and none has final BusinessShell chrome.
-2. **Implemented:** `/overview` is Business Overview and the first Development sidebar
-   entry; the registry and navigation proof enforce the boundary.
-3. **Implemented:** no selected Business redirects to `/businesses`; no viewer redirects
-   to `/login`; unauthorized domain returns `FORBIDDEN`/Business Overview.
-4. **Implemented beta:** `/api/scope` stays outside pre-shell routing; atomic,
-   viewer-scoped `GET /api/entry` is active (ADR-017 / FR-046).
-
-FR-044, N1/N2 and N4 are implemented and verified. A concrete login provider and
-persisted session remain separately gated.
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 1.0.0b | 2026-08-18 | candidate | Executed CR-007: bounded the document to a canonical UI registry, reconciled 37 routes and explicit Business Home/domain counts, and added machine-checkable evidence | working-tree | ATHER |
+| 0.4.0 | 2026-08-14 | beta | FR-044/FR-046 shell boundary inventory before normalization | historical | ATHER |

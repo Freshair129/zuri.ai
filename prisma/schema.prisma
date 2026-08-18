@@ -40,8 +40,10 @@ model Tenant {
   externalIdentities ExternalIdentity[]
   identityLinkTokens IdentityLinkToken[]
   customers          Customer[]
+  roleBindings         RoleBinding[]
   localWorkspaceMounts LocalWorkspaceMount[]
   fileAssets           FileAsset[]
+  integrationConnections IntegrationConnection[]
 
   @@index([portfolioId])
 }
@@ -93,11 +95,13 @@ model Business {
   workspaces  Workspace[]
   memberships Membership[]
   customers   Customer[]
+  roleBindings         RoleBinding[]
   roadmaps    BusinessRoadmap[]
   goals       BusinessGoal[]
   projects    Project[]
   localWorkspaceMounts LocalWorkspaceMount[]
   fileAssets           FileAsset[]
+  integrationConnections IntegrationConnection[]
   repositories         Repository[]
 
   @@index([tenantId])
@@ -132,6 +136,7 @@ model Person {
   externalIdentities ExternalIdentity[]
   identityLinkTokens IdentityLinkToken[]
   customers          Customer[]
+  roleBindings         RoleBinding[]
 }
 
 model Membership {
@@ -152,6 +157,30 @@ model Membership {
 
   @@index([personId])
   @@index([tenantId])
+}
+
+model RoleBinding {
+  id         String   @id @default(uuid())
+  personId   String
+  tenantId   String
+  businessId String
+  roleKey    String
+  scopeType  String   @default("BUSINESS")
+  status     String   @default("ACTIVE")
+  assignedBy String?
+  version    Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  revokedAt  DateTime?
+
+  person   Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  business Business @relation(fields: [businessId], references: [id])
+
+  @@unique([personId, businessId, roleKey])
+  @@index([tenantId, businessId, status])
+  @@index([personId, status])
+  @@index([roleKey, status])
 }
 
 model Workspace {
@@ -703,4 +732,62 @@ model AuditEvent {
 
   @@index([entityType, entityId])
   @@index([occurredAt])
+}
+
+// @req FR-079 — provider-neutral Business-scoped runtime connection metadata.
+// @spec ADR-031 §D2/D3, SDD-043, SEC-015 — opaque secret references only;
+// the production partial active-primary invariant is an additive Postgres DDL gate.
+// @tested tests/unit/fr079-schema-contract.test.js
+model IntegrationProvider {
+  id             String   @id @default(uuid())
+  code           String   @unique
+  name           String
+  status         String   @default("ACTIVE")
+  capabilitiesJson String @default("{}")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  version        Int      @default(1)
+
+  connections IntegrationConnection[]
+}
+
+model IntegrationConnection {
+  id                String   @id @default(uuid())
+  tenantId          String
+  businessId        String?
+  providerId        String
+  name              String
+  authorizationType String   @default("SECRET_MANAGER")
+  externalAccountId String?
+  purpose           String   @default("GENERAL")
+  role              String   @default("SECONDARY")
+  status            String   @default("DRAFT")
+  metadataJson      String   @default("{}")
+  lastSyncAt        DateTime?
+  lastSuccessAt     DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  version           Int      @default(1)
+
+  tenant     Tenant              @relation(fields: [tenantId], references: [id])
+  business   Business?           @relation(fields: [businessId], references: [id])
+  provider   IntegrationProvider @relation(fields: [providerId], references: [id])
+  credential IntegrationCredential?
+
+  @@unique([tenantId, providerId, externalAccountId])
+  @@index([tenantId, businessId, purpose, status, role])
+}
+
+model IntegrationCredential {
+  id         String   @id @default(uuid())
+  connectionId String @unique
+  secretRef  String
+  status     String   @default("ACTIVE")
+  expiresAt  DateTime?
+  rotatedAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  version    Int      @default(1)
+
+  connection IntegrationConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
 }

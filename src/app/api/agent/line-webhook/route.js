@@ -47,12 +47,14 @@ export function createLineWebhookPost({
   return handle(async () => {
     const body = zBody.parse(await request.json())
     const results = []
-    const phase1Ports = runtimeFactory()
+    const phase1Ports = await runtimeFactory()
     const scope = await resolvePhase1RequestScope({
       runtime: phase1Ports,
       headers: request.headers,
       body,
     })
+    let resolvedModel = phase1Ports?.model
+    let modelResolved = !phase1Ports?.resolveModel
 
     for (const ev of body.events) {
       if (ev.type !== 'message' || ev.message?.type !== 'text') {
@@ -66,6 +68,10 @@ export function createLineWebhookPost({
         continue
       }
       try {
+        if (!modelResolved) {
+          resolvedModel = await phase1Ports.resolveModel(scope)
+          modelResolved = true
+        }
         const eventId = ev.webhookEventId || ev.message.id
         const turn = await turnHandler({
           tenantId: scope.tenantId,
@@ -77,6 +83,7 @@ export function createLineWebhookPost({
           externalMessageId: ev.message.id,
         }, {
           ...(phase1Ports ?? {}),
+          model: resolvedModel,
           serverScope: {
             transportVerified: Boolean(phase1Ports),
             bindingId: scope.id ?? null,

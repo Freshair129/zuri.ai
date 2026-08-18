@@ -3,36 +3,37 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 798,
-    "total_edges": 2447,
+    "total_nodes": 865,
+    "total_edges": 2663,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 72,
-      "adr": 30,
-      "domain": 5,
-      "roadmap": 21,
-      "feature": 3,
-      "route": 96,
-      "model": 33,
-      "requirement": 161,
-      "test": 155,
-      "code_file": 218
+      "document": 78,
+      "adr": 34,
+      "domain": 6,
+      "roadmap": 25,
+      "feature": 6,
+      "route": 100,
+      "model": 37,
+      "requirement": 173,
+      "test": 169,
+      "code_file": 233
     },
     "coverage": {
-      "requirements": 161,
-      "fr_with_code": "100% (69/69)",
-      "fr_with_tests": "100% (69/69)",
-      "rules_anchored_in_code": "83% (60/72)",
-      "nfr_evidence_based": "14 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 218,
+      "requirements": 173,
+      "fr_with_code": "100% (73/73)",
+      "fr_with_tests": "100% (73/73)",
+      "rules_anchored_in_code": "84% (65/77)",
+      "nfr_evidence_based": "16 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 233,
       "fr_planned": [
         "FR-066",
         "FR-067",
         "FR-068",
         "FR-069",
         "FR-070",
-        "FR-071"
+        "FR-071",
+        "FR-078"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -54,7 +55,8 @@
   },
   "drift": {
     "changed": [
-      "test:tests/unit/playwright-database-bootstrap.test.js"
+      "test:tests/integration/project-inventory.test.js",
+      "test:tests/integration/project-list-contract.test.js"
     ],
     "added": [],
     "removed": []
@@ -241,7 +243,7 @@
       "id": "code:src/app/(pm)/overview/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/overview/page.jsx",
-      "hash": "c92075cf",
+      "hash": "8c82fe12",
       "status": "current",
       "annotations": {
         "@req": [
@@ -295,6 +297,25 @@
         ],
         "@tested": [
           "tests/e2e/fr041-business-first.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/platform/integrations/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/platform/integrations/page.jsx",
+      "hash": "08b27025",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-080"
+        ],
+        "@spec": [
+          "SEC-016",
+          "SDD-044"
+        ],
+        "@tested": [
+          "tests/unit/fr080-ui-contract.test.js"
         ]
       }
     },
@@ -441,10 +462,28 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/projects/[projectId]/inventory/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/projects/[projectId]/inventory/page.jsx",
+      "hash": "c11d411e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-077"
+        ],
+        "@spec": [
+          "SDD-045"
+        ],
+        "@tested": [
+          "tests/e2e/fr077-project-inventory.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/projects/[projectId]/layout.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/layout.jsx",
-      "hash": "74bcf017",
+      "hash": "16476245",
       "status": "current",
       "annotations": {
         "@req": [
@@ -578,14 +617,15 @@
       "id": "code:src/app/(pm)/projects/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/page.jsx",
-      "hash": "53d0aa75",
+      "hash": "ea5cb885",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-003"
         ],
         "@tested": [
-          "tests/e2e/smoke.spec.js"
+          "tests/e2e/smoke.spec.js",
+          "tests/unit/project-list-contract.test.js"
         ]
       }
     },
@@ -654,11 +694,15 @@
       "id": "code:src/app/(pm)/workspaces/[workspaceId]/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/workspaces/[workspaceId]/page.jsx",
-      "hash": "743d20dd",
+      "hash": "bea97823",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-001"
+        ],
+        "@tested": [
+          "tests/unit/project-list-contract.test.js",
+          "tests/e2e/smoke.spec.js"
         ]
       }
     },
@@ -681,7 +725,7 @@
       "id": "code:src/app/api/agent/line-webhook/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
-      "hash": "48b5c25e",
+      "hash": "60311564",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1434,6 +1478,26 @@
       }
     },
     {
+      "id": "code:src/app/api/platform/integrations/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/integrations/route.js",
+      "hash": "c62de99b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-080"
+        ],
+        "@spec": [
+          "SEC-016",
+          "SDD-044"
+        ],
+        "@tested": [
+          "tests/unit/fr080-ui-contract.test.js",
+          "tests/unit/fr080-integration-management.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/platform/users/route.js",
       "type": "code_file",
       "path": "src/app/api/platform/users/route.js",
@@ -1592,6 +1656,25 @@
       }
     },
     {
+      "id": "code:src/app/api/projects/[id]/inventory/route.js",
+      "type": "code_file",
+      "path": "src/app/api/projects/[id]/inventory/route.js",
+      "hash": "47504a26",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-077"
+        ],
+        "@spec": [
+          "SDD-045"
+        ],
+        "@tested": [
+          "tests/integration/project-inventory.test.js",
+          "tests/e2e/fr077-project-inventory.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/projects/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/[id]/route.js",
@@ -1656,7 +1739,7 @@
       "id": "code:src/app/api/projects/route.js",
       "type": "code_file",
       "path": "src/app/api/projects/route.js",
-      "hash": "e88e5e62",
+      "hash": "4cbf239b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2210,7 +2293,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "e41f05fc",
+      "hash": "47c0e666",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2561,11 +2644,12 @@
       "id": "code:src/modules/agent/grounded-business-answer.js",
       "type": "code_file",
       "path": "src/modules/agent/grounded-business-answer.js",
-      "hash": "24b36617",
+      "hash": "50261e19",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-049"
+          "FR-049",
+          "FR-079"
         ],
         "@spec": [
           "SDD-025",
@@ -2580,7 +2664,7 @@
       "id": "code:src/modules/agent/index.js",
       "type": "code_file",
       "path": "src/modules/agent/index.js",
-      "hash": "09c50180",
+      "hash": "40e3f8dd",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2590,6 +2674,7 @@
           "FR-029",
           "FR-048",
           "FR-049",
+          "FR-079",
           "FR-053",
           "FR-054"
         ],
@@ -2727,7 +2812,7 @@
       "id": "code:src/modules/agent/model-provider.js",
       "type": "code_file",
       "path": "src/modules/agent/model-provider.js",
-      "hash": "7b9f3ce5",
+      "hash": "8b34758f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2801,19 +2886,22 @@
       "id": "code:src/modules/agent/phase1-runtime.js",
       "type": "code_file",
       "path": "src/modules/agent/phase1-runtime.js",
-      "hash": "b81ca210",
+      "hash": "0b1550f9",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-047",
           "FR-048",
-          "FR-052"
+          "FR-052",
+          "FR-080"
         ],
         "@spec": [
           "SDD-025",
           "SDD-026",
+          "SDD-044",
           "SEC-009",
-          "SEC-010"
+          "SEC-010",
+          "SEC-016"
         ],
         "@tested": [
           "tests/unit/phase1-business-agent-runtime.test.js"
@@ -3082,6 +3170,36 @@
       }
     },
     {
+      "id": "code:src/modules/identity/product-owner-authority.js",
+      "type": "code_file",
+      "path": "src/modules/identity/product-owner-authority.js",
+      "hash": "ad3458a4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-076"
+        ],
+        "@tested": [
+          "tests/unit/fr076-product-owner-business-assignment.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/product-owner-service.js",
+      "type": "code_file",
+      "path": "src/modules/identity/product-owner-service.js",
+      "hash": "8331efea",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-076"
+        ],
+        "@tested": [
+          "tests/unit/fr076-product-owner-business-assignment.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/profile-permission-service.js",
       "type": "code_file",
       "path": "src/modules/identity/profile-permission-service.js",
@@ -3104,6 +3222,36 @@
         "@tested": [
           "tests/unit/profile-permission-service.test.js",
           "tests/unit/fr062-permissions-read-scope.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/rbac-service.js",
+      "type": "code_file",
+      "path": "src/modules/identity/rbac-service.js",
+      "hash": "a209f04a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-076"
+        ],
+        "@tested": [
+          "tests/unit/fr076-product-owner-business-assignment.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/rbac.js",
+      "type": "code_file",
+      "path": "src/modules/identity/rbac.js",
+      "hash": "0531871f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-076"
+        ],
+        "@tested": [
+          "tests/unit/fr076-product-owner-business-assignment.test.js"
         ]
       }
     },
@@ -3149,13 +3297,14 @@
       "id": "code:src/modules/identity/resolve-viewer.js",
       "type": "code_file",
       "path": "src/modules/identity/resolve-viewer.js",
-      "hash": "4a1734a7",
+      "hash": "132ae4f9",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-031",
           "FR-038",
           "FR-061",
+          "FR-076",
           "SDD-034",
           "FR-074",
           "FR-075"
@@ -3168,7 +3317,8 @@
         ],
         "@tested": [
           "tests/unit/viewer-gate.test.js",
-          "tests/unit/fr061-per-business-domain-visibility.test.js"
+          "tests/unit/fr061-per-business-domain-visibility.test.js",
+          "tests/unit/fr076-product-owner-business-assignment.test.js"
         ]
       }
     },
@@ -3231,6 +3381,25 @@
         ],
         "@tested": [
           "tests/unit/fr061-per-business-domain-visibility.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/integration/application/integration-management-service.js",
+      "type": "code_file",
+      "path": "src/modules/integration/application/integration-management-service.js",
+      "hash": "34484977",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-080"
+        ],
+        "@spec": [
+          "SEC-016",
+          "SDD-044"
+        ],
+        "@tested": [
+          "tests/unit/fr080-integration-management.test.js"
         ]
       }
     },
@@ -3802,17 +3971,64 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/application/project-inventory-read-model.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/project-inventory-read-model.js",
+      "hash": "3fc7a037",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-077"
+        ],
+        "@spec": [
+          "SDD-045"
+        ],
+        "@tested": [
+          "tests/unit/project-inventory-read-model.test.js",
+          "tests/integration/project-inventory.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/project-list-read-model.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/project-list-read-model.js",
+      "hash": "5d856925",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-003",
+          "FR-043"
+        ],
+        "@spec": [
+          "BR-001",
+          "BR-004",
+          "SDD-021",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/project-list-contract.test.js",
+          "tests/integration/project-list-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/application/project-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-service.js",
-      "hash": "677191a1",
+      "hash": "444cf6eb",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-003",
           "FR-004",
           "FR-043",
-          "FR-072"
+          "FR-072",
+          "FR-001",
+          "FR-041",
+          "FR-060",
+          "FR-064"
         ],
         "@spec": [
           "BR-004",
@@ -3820,12 +4036,17 @@
           "SDD-021",
           "BR-001",
           "SEC-001",
-          "SEC-008"
+          "SEC-008",
+          "SDD-033",
+          "SDD-036"
         ],
         "@tested": [
           "tests/integration/project-core.test.js",
           "tests/integration/project-business-binding.test.js",
-          "tests/integration/fr072-project-service-authorization.test.js"
+          "tests/integration/fr072-project-service-authorization.test.js",
+          "tests/unit/project-list-contract.test.js",
+          "tests/e2e/fr041-business-first.spec.js",
+          "tests/e2e/smoke.spec.js"
         ]
       }
     },
@@ -3978,7 +4199,7 @@
       "id": "code:src/modules/project-manager/components/ProjectTabs.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/ProjectTabs.jsx",
-      "hash": "343b7535",
+      "hash": "7140f635",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4308,6 +4529,25 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/views/universal/TimelineView.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/views/universal/TimelineView.jsx",
+      "hash": "62ea4e82",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-064"
+        ],
+        "@spec": [
+          "SDD-036"
+        ],
+        "@tested": [
+          "tests/unit/project-list-contract.test.js",
+          "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/views/WbsCanvas.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/views/WbsCanvas.jsx",
@@ -4326,13 +4566,67 @@
       }
     },
     {
+      "id": "code:src/platform/integrations/core/credential-vault.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/credential-vault.js",
+      "hash": "9f1cb8a6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-079"
+        ],
+        "@tested": [
+          "tests/unit/fr079-credential-vault.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/core/integration-registry.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/integration-registry.js",
+      "hash": "105a4e8c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-079"
+        ],
+        "@spec": [
+          "SDD-043",
+          "SEC-015"
+        ],
+        "@tested": [
+          "tests/unit/fr079-runtime-cutover.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/core/secret-manager.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/secret-manager.js",
+      "hash": "2a20a20a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-079",
+          "FR-080"
+        ],
+        "@spec": [
+          "NFR-015",
+          "SEC-015"
+        ],
+        "@tested": [
+          "tests/unit/fr079-runtime-cutover.test.js"
+        ]
+      }
+    },
+    {
       "id": "doc:A-api-spec",
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.4.0",
-      "doc_status": "Draft",
-      "hash": "db60ab62",
+      "version": "1.8.0b",
+      "doc_status": "Candidate — current route inventory with explicit deferred contracts",
+      "hash": "80cdeb78",
       "status": "current"
     },
     {
@@ -4350,7 +4644,7 @@
       "title": "Architecture Diagrams — Zuri V2",
       "version": "1.1.0",
       "doc_status": "Draft",
-      "hash": "f4db0dc8",
+      "hash": "d81f905f",
       "status": "current"
     },
     {
@@ -4376,9 +4670,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.3.0",
+      "version": "1.6.0",
       "doc_status": "Draft",
-      "hash": "f81a33ad",
+      "hash": "cbfe6986",
       "status": "current"
     },
     {
@@ -4386,9 +4680,9 @@
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
       "title": "Database Migration Notes — SQLite → PostgreSQL",
-      "version": "1.0.1",
+      "version": "1.0.3",
       "doc_status": "Approved",
-      "hash": "55c2e4fb",
+      "hash": "fbfdb7c4",
       "status": "current"
     },
     {
@@ -4450,9 +4744,19 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.0.0",
+      "version": "1.2.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "f2e13d7a",
+      "hash": "52052338",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-003-project-list-contract",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-003-project-list-contract.md",
+      "title": "FR-003 — Project list response contract",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "07d5ea12",
       "status": "current"
     },
     {
@@ -4825,6 +5129,46 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-076-product-owner-business-assignment",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-076-product-owner-business-assignment.md",
+      "title": "FR-076 — Product Owner Business role binding",
+      "hash": "bc53fbf3",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-077-project-inventory-mvp",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-077-project-inventory-mvp.md",
+      "title": "FR-077 — Project Inventory MVP",
+      "hash": "fe85070d",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-078-customer-data-backfill-contract",
+      "type": "document",
+      "path": "docs/domains/crm/features/FR-078-customer-data-backfill-contract.md",
+      "title": "FR-078 — Customer data backfill contract",
+      "hash": "dac1946f",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-079-phase1-line-runtime-connection-cutover",
+      "type": "document",
+      "path": "docs/domains/integration/features/FR-079-phase1-line-runtime-connection-cutover.md",
+      "title": "FR-079 — Phase 1 LINE runtime connection cut-over",
+      "hash": "f148602c",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-080-integration-secret-management-ui",
+      "type": "document",
+      "path": "docs/domains/integration/features/FR-080-integration-secret-management-ui.md",
+      "title": "FR-080 — Integration and Secret Manager management UI",
+      "hash": "f7bef9d9",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -4848,10 +5192,10 @@
       "id": "doc:INTERFACE-INVENTORY",
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
-      "title": "Zuri V2 — Interface Inventory and Shell Boundary",
-      "version": "0.4.0",
-      "doc_status": "FR-044 and FR-046 verified beta",
-      "hash": "a7000300",
+      "title": "Zuri V2 — Interface Inventory",
+      "version": "1.0.0b",
+      "doc_status": "Candidate — normalized registry; runtime status is per interface",
+      "hash": "d57eb811",
       "status": "current"
     },
     {
@@ -4859,7 +5203,7 @@
       "type": "document",
       "path": "docs/runbooks/LINE-PHASE1-CANARY.md",
       "title": "LINE Phase 1 canary runbook",
-      "hash": "7ac88bec",
+      "hash": "c54195c9",
       "status": "current"
     },
     {
@@ -4877,7 +5221,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/line-oa-business-agent/PHASE-01-MINIMUM-LINE-KNOWLEDGE.md",
       "title": "Phase 1: Minimum LINE OA Business Knowledge Answer",
-      "hash": "ab1582a2",
+      "hash": "564af13d",
       "status": "current"
     },
     {
@@ -5005,6 +5349,30 @@
       "status": "current"
     },
     {
+      "id": "doc:PLAN-FR-077-PROJECT-INVENTORY-MVP",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-FR-077-PROJECT-INVENTORY-MVP.md",
+      "title": "Implementation plan — FR-077 Project Inventory MVP",
+      "hash": "9589367a",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-FR-079-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-FR-079-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER.md",
+      "title": "Implementation plan — FR-079 Phase 1 LINE runtime connection cut-over",
+      "hash": "8297ebc8",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-FR-080-INTEGRATION-SECRET-MANAGEMENT-UI",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-FR-080-INTEGRATION-SECRET-MANAGEMENT-UI.md",
+      "title": "Implementation plan — FR-080 Integration and Secret Manager management UI",
+      "hash": "4135d772",
+      "status": "current"
+    },
+    {
       "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT.md",
@@ -5023,13 +5391,21 @@
       "status": "current"
     },
     {
+      "id": "doc:PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT.md",
+      "title": "Roadmap — SmartGift data backfill and customer import",
+      "hash": "4e06c12c",
+      "status": "current"
+    },
+    {
       "id": "doc:PRD-SDD-v1.0",
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.64.0b",
+      "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "1be3600a",
+      "hash": "22194c94",
       "status": "current"
     },
     {
@@ -5065,7 +5441,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
-      "hash": "9235f1db",
+      "hash": "b2c54d79",
       "status": "current"
     },
     {
@@ -5083,7 +5459,7 @@
       "title": "Zuri — Route and Shell Sitemap",
       "version": "1.0.0",
       "doc_status": "draft",
-      "hash": "65b1f083",
+      "hash": "27c58178",
       "status": "current"
     },
     {
@@ -5093,7 +5469,7 @@
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
       "version": "0.5.0",
       "doc_status": "Accepted",
-      "hash": "e0c37778",
+      "hash": "91644e98",
       "status": "current"
     },
     {
@@ -5113,7 +5489,7 @@
       "title": "Zuri Workspace System — the scope model, stated once",
       "version": "1.0.0",
       "doc_status": "Design approved — implementation pending",
-      "hash": "8d9f3853",
+      "hash": "26ace737",
       "status": "current"
     },
     {
@@ -5187,7 +5563,7 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md",
       "title": "ZV2-CR-007 — Interface Inventory normalization and responsibility split",
-      "hash": "25be0eaf",
+      "hash": "b31d0898",
       "status": "current"
     },
     {
@@ -5228,7 +5604,7 @@
       "modules": [
         "crm"
       ],
-      "hash": "5f2d499f",
+      "hash": "0ee53304",
       "status": "current"
     },
     {
@@ -5239,7 +5615,8 @@
       "owns_models": [
         "ExternalIdentity",
         "IdentityLinkToken",
-        "ExternalRef"
+        "ExternalRef",
+        "RoleBinding"
       ],
       "owns_routes": [
         "src/app/(entry)/**",
@@ -5249,7 +5626,24 @@
       "modules": [
         "identity"
       ],
-      "hash": "0792abdd",
+      "hash": "4bda536d",
+      "status": "current"
+    },
+    {
+      "id": "domain:integration",
+      "type": "domain",
+      "path": "docs/domains/integration/CHARTER.md",
+      "title": "Domain — integration",
+      "owns_models": [
+        "IntegrationProvider",
+        "IntegrationConnection",
+        "IntegrationCredential"
+      ],
+      "owns_routes": [],
+      "modules": [
+        "integration"
+      ],
+      "hash": "8dd3015b",
       "status": "current"
     },
     {
@@ -5332,6 +5726,27 @@
       "status": "current"
     },
     {
+      "id": "feat:FEAT-004",
+      "type": "feature",
+      "label": "Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution, local evaluation providers and secret-safe Platform management",
+      "declared": "building",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-005",
+      "type": "feature",
+      "label": "Project Inventory — authorized, read-only Project-wide operational snapshot",
+      "declared": "live",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-006",
+      "type": "feature",
+      "label": "Customer Data Backfill — scoped, provenance-preserving Customer Profile contract with entity resolution and PDPA gates",
+      "declared": "proposed",
+      "status": "current"
+    },
+    {
       "id": "model:AuditEvent",
       "type": "model",
       "status": "current"
@@ -5407,6 +5822,21 @@
       "status": "current"
     },
     {
+      "id": "model:IntegrationConnection",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:IntegrationCredential",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:IntegrationProvider",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:LegalEntity",
       "type": "model",
       "status": "current"
@@ -5468,6 +5898,11 @@
     },
     {
       "id": "model:Repository",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:RoleBinding",
       "type": "model",
       "status": "current"
     },
@@ -6316,6 +6751,51 @@
       "status": "current"
     },
     {
+      "id": "req:FR-076",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Product Owner Business role binding: a Person may hold one active generic `RoleBinding` with `roleKey=PRODUCT_OWNER` per assigned Business inside a customer Tenant; the registry expands it only to Product permissions for that Business, never Business/Tenant/Workspace ownership, Resource/Operations, Marketing, Platform, Integration, secret, LINE or import authority. Bindings are trusted, Business-scoped, revocable, audited and fail closed.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-077",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Project Inventory MVP: an authorized viewer can open one Project and receive a stable, read-only `PROJECT_INVENTORY` DTO covering Project identity/Business/Space context, Workstreams/Containers/Items, Milestones/Gates, Project-contained Dependencies, legacy and managed file metadata, linked Repositories, visible Team/Memberships, strategy-based progress/evidence and redacted recent activity. The route uses trusted viewer scope, independent pagination/truncation metadata, no raw Prisma graph, no mutation, no external sync and does not change the Project List or `overview`/`timeline`/`workspace` compatibility views.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-078",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Customer Profile backfill contract: the SmartGift historical customer pipeline has a fixed Tenant/Business scope, read-only source snapshot, machine-validated record/provenance envelope, explicit tax/name/corroboration resolution rules, duplicate/unresolved review queue, PII/financial/LINE exclusions, target Person/Customer schema gate, server-owned idempotent transaction and batch rollback; drafting the contract does not import customer data.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned"
+    },
+    {
+      "id": "req:FR-079",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Phase 1 LINE runtime connection cut-over: after the server-owned LINE binding resolves the trusted Tenant/Business scope, the runtime selects exactly one `ACTIVE` `PRIMARY` `PHASE1_LINE_LLM` IntegrationConnection under that scope, resolves its opaque `secretRef` through the environment-selected provider-neutral SecretManagerPort, then composes the existing ModelProviderPort. Zero/multiple candidates, untrusted scope, secret-manager failure/expiry/version mismatch, production local-vault/raw-credential access and production/public-LINE Ollama selection fail closed before knowledge/model/reply work. Promotion uses compare-and-swap and a database uniqueness invariant; local Ollama is explicit local/dev/test/eval only and never automatic fallback. Production now selects Supabase Vault through the private resolver; live apply/provisioning/canary remain pending.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:FR-080",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -6437,6 +6917,24 @@
       "type": "requirement",
       "family": "NFR",
       "label": "Authorization decisions are recomputed per turn and remain bounded, auditable and fail-closed across restart, horizontal instances, identity revocation and Membership revocation.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-015",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Phase 1 runtime source and secret resolution are explicit, asynchronous, bounded and redacted: production accepts only the Supabase Vault-backed SecretManagerPort, never constructs the local file vault or consumes raw model credentials; selection is binding-scoped, cache entries are versioned and scoped by Tenant/Business with hard expiry, rotation/revocation purges immediately, and provider failures never trigger implicit fallback.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:NFR-016",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Platform Integration management is bounded and secret-safe: UI/API actions use trusted Business scope, explicit async loading/error states, idempotency/version checks and redacted responses; raw secret material never crosses browser responses, Prisma, logs or audit events, and manager-unavailable states cannot report success.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -6820,6 +7318,33 @@
       "status": "current"
     },
     {
+      "id": "req:SDD-043",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "The Phase 1 runtime is composed in two stages: resolve the server-owned LINE binding and trusted Tenant/Business scope, then select one database-enforced active primary IntegrationConnection for `PHASE1_LINE_LLM` and resolve its opaque secret through an explicit runtime-source SecretManagerPort before constructing ModelProviderPort. Production and public LINE reject local vault/raw credentials/Ollama; local Ollama is exact-loopback only, no redirects or fallback; provider connection selection and secret material never cross the browser or LINE event contract.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-044",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "The Integration management surface is a Platform sub-domain at `/platform/integrations`, composed from a trusted Business-scoped metadata read model and an implemented metadata create/list API. Runtime secret resolution is read-only through the Supabase Vault private resolver; the browser accepts only an opaque Vault UUID reference and returns redacted status. Provisioning/rotation and lifecycle promotion remain separate deferred contracts, and the UI cannot activate LINE routing.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SDD-045",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Project Inventory is one additive, read-only outer DTO with independently bounded sections over existing Project Manager models. The route authorizes the Project before composing child rows; direct Business ownership uses visibility, ownerless Tenant/Portfolio Projects require an explicit visible-Business scope, Dependencies are strictly Project-contained, files are metadata-only, AuditEvent payloads are redacted, and progress uses pure calculators without cache mutation.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -6941,6 +7466,24 @@
       "type": "requirement",
       "family": "SEC",
       "label": "Provider-neutral multi-user onboarding still requires server-owned identity and trusted session state. Profile, Workspace invite and WorkspaceMembership mutations fail closed without trusted identity; invite tokens are single-use, expiring, hash-bound and audited; production never activates seeded-owner demo fallback.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-015",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Production Phase 1 runtime refuses local file-vault construction, raw `ZURI_MODEL_CREDENTIAL`, untrusted/client-selected Tenant/Business or connection ids, ambiguous/missing/expired/unauthorized/unavailable secrets, and Ollama/public-LINE selection. A database invariant permits at most one active primary `PHASE1_LINE_LLM` connection per Tenant/Business; rotation/revocation and rollback are audited without raw secret or PII.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current"
+    },
+    {
+      "id": "req:SEC-016",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Platform Integration management refuses client-selected scope/authority and never exposes or persists raw secret material. The implemented create/list path requires trusted owner authority, stores only an opaque Supabase Vault reference, and audits a redacted summary; resolver failure, ambiguous connection and unauthorized scope fail closed. Future write/rotate/revoke operations require a separate audited manager port. The UI cannot activate LINE routing or send a canary.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current"
@@ -7234,6 +7777,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/platform/integrations",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/integrations",
+      "path": "src/app/api/platform/integrations/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/platform/users",
       "type": "route",
       "kind": "api",
@@ -7311,6 +7862,14 @@
       "kind": "api",
       "route": "/api/projects/[id]/files/[fileId]",
       "path": "src/app/api/projects/[id]/files/[fileId]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/projects/[id]/inventory",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/projects/[id]/inventory",
+      "path": "src/app/api/projects/[id]/inventory/route.js",
       "status": "current"
     },
     {
@@ -7538,6 +8097,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/platform/integrations",
+      "type": "route",
+      "kind": "page",
+      "route": "/platform/integrations",
+      "path": "src/app/(pm)/platform/integrations/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/platform/users",
       "type": "route",
       "kind": "page",
@@ -7615,6 +8182,14 @@
       "kind": "page",
       "route": "/projects/[projectId]/import",
       "path": "src/app/(pm)/projects/[projectId]/import/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/projects/[projectId]/inventory",
+      "type": "route",
+      "kind": "page",
+      "route": "/projects/[projectId]/inventory",
+      "path": "src/app/(pm)/projects/[projectId]/inventory/page.jsx",
       "status": "current"
     },
     {
@@ -7958,6 +8533,38 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-031-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER",
+      "type": "adr",
+      "path": "docs/decisions/ADR-031-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER.md",
+      "title": "ADR-031 — Phase 1 LINE runtime connection cut-over",
+      "hash": "de015981",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI",
+      "type": "adr",
+      "path": "docs/decisions/ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI.md",
+      "title": "ADR-032 — Integration and Secret Manager management UI",
+      "hash": "5ad1b8f1",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "type": "adr",
+      "path": "docs/decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md",
+      "title": "ADR-033 — Customer scope and Product Owner authority",
+      "hash": "74ca81d1",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-034-PROJECT-INVENTORY-READ-MODEL",
+      "type": "adr",
+      "path": "docs/decisions/ADR-034-PROJECT-INVENTORY-READ-MODEL.md",
+      "title": "ADR-034 — Project Inventory read model boundary",
+      "hash": "a652dc38",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -8011,6 +8618,13 @@
       "type": "test",
       "path": "tests/e2e/fr060-business-home.spec.js",
       "hash": "d528904e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr077-project-inventory.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr077-project-inventory.spec.js",
+      "hash": "e6ee71a2",
       "status": "current"
     },
     {
@@ -8318,7 +8932,7 @@
       "id": "test:tests/integration/project-business-binding.test.js",
       "type": "test",
       "path": "tests/integration/project-business-binding.test.js",
-      "hash": "15f81033",
+      "hash": "4e249e90",
       "status": "current"
     },
     {
@@ -8327,6 +8941,20 @@
       "path": "tests/integration/project-core.test.js",
       "hash": "a0c7ec6b",
       "status": "current"
+    },
+    {
+      "id": "test:tests/integration/project-inventory.test.js",
+      "type": "test",
+      "path": "tests/integration/project-inventory.test.js",
+      "hash": "f5967648",
+      "status": "changed"
+    },
+    {
+      "id": "test:tests/integration/project-list-contract.test.js",
+      "type": "test",
+      "path": "tests/integration/project-list-contract.test.js",
+      "hash": "74e1aec0",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
@@ -8339,7 +8967,7 @@
       "id": "test:tests/integration/scope-and-isolation.test.js",
       "type": "test",
       "path": "tests/integration/scope-and-isolation.test.js",
-      "hash": "11faf04d",
+      "hash": "831f4b6e",
       "status": "current"
     },
     {
@@ -8679,6 +9307,69 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "type": "test",
+      "path": "tests/unit/fr076-product-owner-business-assignment.test.js",
+      "hash": "0f2e463a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr079-credential-vault.test.js",
+      "type": "test",
+      "path": "tests/unit/fr079-credential-vault.test.js",
+      "hash": "701a234d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr079-runtime-cutover.test.js",
+      "type": "test",
+      "path": "tests/unit/fr079-runtime-cutover.test.js",
+      "hash": "d4668669",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr079-schema-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/fr079-schema-contract.test.js",
+      "hash": "f925a47a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr079-supabase-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/fr079-supabase-migration.test.js",
+      "hash": "28eb8c1e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr080-integration-management.test.js",
+      "type": "test",
+      "path": "tests/unit/fr080-integration-management.test.js",
+      "hash": "32901d3f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr080-runtime-wiring.test.js",
+      "type": "test",
+      "path": "tests/unit/fr080-runtime-wiring.test.js",
+      "hash": "a9fd3dcc",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr080-supabase-vault.test.js",
+      "type": "test",
+      "path": "tests/unit/fr080-supabase-vault.test.js",
+      "hash": "3402d2de",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr080-ui-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/fr080-ui-contract.test.js",
+      "hash": "c22b2cba",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/gate-cap-rounding.test.js",
       "type": "test",
       "path": "tests/unit/gate-cap-rounding.test.js",
@@ -8822,7 +9513,7 @@
       "id": "test:tests/unit/phase1-business-agent-runtime.test.js",
       "type": "test",
       "path": "tests/unit/phase1-business-agent-runtime.test.js",
-      "hash": "a101a3d8",
+      "hash": "e07bb232",
       "status": "current"
     },
     {
@@ -8851,7 +9542,7 @@
       "type": "test",
       "path": "tests/unit/playwright-database-bootstrap.test.js",
       "hash": "97f43c83",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/postgres-business-knowledge.test.js",
@@ -8907,6 +9598,20 @@
       "type": "test",
       "path": "tests/unit/project-file-service.test.js",
       "hash": "407cec67",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-inventory-read-model.test.js",
+      "type": "test",
+      "path": "tests/unit/project-inventory-read-model.test.js",
+      "hash": "10e68aac",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-list-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/project-list-contract.test.js",
+      "hash": "64db8e74",
       "status": "current"
     },
     {
@@ -9297,6 +10002,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/platform/integrations/page.jsx",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/integrations/page.jsx",
+      "to": "req:SDD-044",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/integrations/page.jsx",
+      "to": "req:SEC-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/platform/users/page.jsx",
       "to": "doc:FR-038-profile-and-permissions",
       "type": "references",
@@ -9468,6 +10194,20 @@
       "from": "code:src/app/(pm)/projects/[projectId]/import/page.jsx",
       "to": "req:FR-012",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/inventory/page.jsx",
+      "to": "req:FR-077",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/[projectId]/inventory/page.jsx",
+      "to": "req:SDD-045",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -10935,6 +11675,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/platform/integrations/route.js",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/integrations/route.js",
+      "to": "req:SDD-044",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/integrations/route.js",
+      "to": "req:SEC-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/platform/users/route.js",
       "to": "doc:FR-038-profile-and-permissions",
       "type": "references",
@@ -11196,6 +11957,20 @@
     {
       "from": "code:src/app/api/projects/[id]/files/route.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/inventory/route.js",
+      "to": "req:FR-077",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/projects/[id]/inventory/route.js",
+      "to": "req:SDD-045",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -12553,6 +13328,13 @@
     },
     {
       "from": "code:src/modules/agent/grounded-business-answer.js",
+      "to": "req:FR-079",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/grounded-business-answer.js",
       "to": "req:SDD-025",
       "type": "follows",
       "status": "current",
@@ -12617,6 +13399,13 @@
     {
       "from": "code:src/modules/agent/index.js",
       "to": "req:FR-054",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/index.js",
+      "to": "req:FR-079",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -12889,6 +13678,13 @@
     },
     {
       "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
       "to": "req:SDD-025",
       "type": "follows",
       "status": "current",
@@ -12903,6 +13699,13 @@
     },
     {
       "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:SDD-044",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
       "to": "req:SEC-009",
       "type": "follows",
       "status": "current",
@@ -12911,6 +13714,13 @@
     {
       "from": "code:src/modules/agent/phase1-runtime.js",
       "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/phase1-runtime.js",
+      "to": "req:SEC-016",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -13140,6 +13950,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/product-owner-authority.js",
+      "to": "req:FR-076",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/product-owner-service.js",
+      "to": "req:FR-076",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/profile-permission-service.js",
       "to": "doc:FR-038-profile-and-permissions",
       "type": "references",
@@ -13199,6 +14023,20 @@
       "from": "code:src/modules/identity/profile-permission-service.js",
       "to": "req:SEC-003",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/rbac-service.js",
+      "to": "req:FR-076",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/rbac.js",
+      "to": "req:FR-076",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -13289,6 +14127,13 @@
     {
       "from": "code:src/modules/identity/resolve-viewer.js",
       "to": "req:FR-075",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:FR-076",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -13408,6 +14253,27 @@
     {
       "from": "code:src/modules/identity/viewer-domains.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/integration-management-service.js",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/integration-management-service.js",
+      "to": "req:SDD-044",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/integration-management-service.js",
+      "to": "req:SEC-016",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -14127,6 +14993,69 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/application/project-inventory-read-model.js",
+      "to": "req:FR-077",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-inventory-read-model.js",
+      "to": "req:SDD-045",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-list-read-model.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-list-read-model.js",
+      "to": "req:BR-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-list-read-model.js",
+      "to": "req:FR-003",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-list-read-model.js",
+      "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-list-read-model.js",
+      "to": "req:SDD-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-list-read-model.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-list-read-model.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/project-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -14137,6 +15066,13 @@
       "from": "code:src/modules/project-manager/application/project-service.js",
       "to": "req:BR-004",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:FR-001",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -14156,7 +15092,28 @@
     },
     {
       "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:FR-041",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
       "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:FR-060",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:FR-064",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -14178,6 +15135,20 @@
     {
       "from": "code:src/modules/project-manager/application/project-service.js",
       "to": "req:SDD-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:SDD-033",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:SDD-036",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -14883,6 +15854,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/views/universal/TimelineView.jsx",
+      "to": "req:FR-064",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/universal/TimelineView.jsx",
+      "to": "req:SDD-036",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/views/WbsCanvas.jsx",
       "to": "req:FR-040",
       "type": "implements",
@@ -14892,6 +15877,62 @@
     {
       "from": "code:src/modules/project-manager/views/WbsCanvas.jsx",
       "to": "req:SDD-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/credential-vault.js",
+      "to": "req:FR-079",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/integration-registry.js",
+      "to": "req:FR-079",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/integration-registry.js",
+      "to": "req:SDD-043",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/integration-registry.js",
+      "to": "req:SEC-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/secret-manager.js",
+      "to": "req:FR-079",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/secret-manager.js",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/secret-manager.js",
+      "to": "req:NFR-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/secret-manager.js",
+      "to": "req:SEC-015",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -14948,6 +15989,41 @@
     {
       "from": "feat:FEAT-003",
       "to": "req:FR-070",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-004",
+      "to": "req:FR-048",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-004",
+      "to": "req:FR-079",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-004",
+      "to": "req:FR-080",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-005",
+      "to": "req:FR-077",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-006",
+      "to": "req:FR-078",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
@@ -15058,6 +16134,27 @@
       "source": "charter"
     },
     {
+      "from": "model:IntegrationConnection",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:IntegrationCredential",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:IntegrationProvider",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:LegalEntity",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -15144,6 +16241,13 @@
     {
       "from": "model:Repository",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:RoleBinding",
+      "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -15821,6 +16925,41 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-076",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-077",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-078",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-079",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-080",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -15913,6 +17052,20 @@
     },
     {
       "from": "req:NFR-014",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-015",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-016",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -16213,6 +17366,27 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-043",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-044",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-045",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -16305,6 +17479,20 @@
     },
     {
       "from": "req:SEC-014",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-015",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-016",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -16563,6 +17751,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/platform/integrations",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/platform/users",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -16613,6 +17808,13 @@
     },
     {
       "from": "route:api:/api/projects/[id]/files",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/projects/[id]/inventory",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -16822,6 +18024,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/platform/integrations",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/platform/users",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -16872,6 +18081,13 @@
     },
     {
       "from": "route:page:/projects/[projectId]/import",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/projects/[projectId]/inventory",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -17830,6 +19046,48 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-034-PROJECT-INVENTORY-READ-MODEL",
+      "to": "req:FR-003",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-034-PROJECT-INVENTORY-READ-MODEL",
+      "to": "req:FR-040",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-034-PROJECT-INVENTORY-READ-MODEL",
+      "to": "req:FR-043",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-034-PROJECT-INVENTORY-READ-MODEL",
+      "to": "req:FR-072",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-034-PROJECT-INVENTORY-READ-MODEL",
+      "to": "req:FR-077",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-034-PROJECT-INVENTORY-READ-MODEL",
+      "to": "spec:ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-040",
       "type": "verifies",
@@ -17894,7 +19152,42 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "code:src/modules/project-manager/application/project-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-004",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -17985,6 +19278,20 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-064",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-073",
       "type": "verifies",
       "status": "current",
@@ -17993,6 +19300,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SDD-004",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -18027,6 +19341,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:SDD-032",
       "type": "verifies",
       "status": "current",
@@ -18042,6 +19363,27 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SDD-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -18355,6 +19697,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/e2e/fr077-project-inventory.spec.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/inventory/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr077-project-inventory.spec.js",
+      "to": "code:src/app/api/projects/[id]/inventory/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr077-project-inventory.spec.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr077-project-inventory.spec.js",
+      "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/e2e/smoke.spec.js",
       "to": "code:prisma/seed.js",
       "type": "tests",
@@ -18433,6 +19803,13 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:src/app/(pm)/workspaces/[workspaceId]/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "code:src/app/(pm)/workspaces/page.jsx",
       "type": "tests",
       "status": "current",
@@ -18461,6 +19838,13 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:src/modules/project-manager/application/project-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
       "type": "tests",
       "status": "current",
@@ -18468,7 +19852,28 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:src/modules/project-manager/views/universal/TimelineView.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:BR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:BR-004",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -18497,6 +19902,13 @@
     {
       "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:FR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-004",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -18622,6 +20034,13 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:FR-064",
       "type": "verifies",
       "status": "current",
@@ -18633,6 +20052,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
@@ -18650,7 +20076,21 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:SDD-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:SDD-021",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -18671,7 +20111,21 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:SDD-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -18825,6 +20279,13 @@
     },
     {
       "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
       "to": "req:SDD-009",
       "type": "verifies",
       "status": "current",
@@ -18924,6 +20385,13 @@
     {
       "from": "test:tests/integration/agent-context.test.js",
       "to": "req:FR-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-079",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -19840,6 +21308,13 @@
     },
     {
       "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
       "to": "req:FR-003",
       "type": "verifies",
       "status": "current",
@@ -19854,6 +21329,13 @@
     },
     {
       "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
       "to": "req:FR-043",
       "type": "verifies",
       "status": "current",
@@ -19862,6 +21344,20 @@
     {
       "from": "test:tests/integration/fr072-project-service-authorization.test.js",
       "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:FR-064",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -19883,6 +21379,20 @@
     {
       "from": "test:tests/integration/fr072-project-service-authorization.test.js",
       "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:SDD-036",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -21121,6 +22631,13 @@
     },
     {
       "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
       "to": "req:FR-003",
       "type": "verifies",
       "status": "current",
@@ -21149,10 +22666,31 @@
     },
     {
       "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
       "to": "req:FR-043",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-064",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/project-business-binding.test.js",
@@ -21195,6 +22733,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:SDD-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/project-business-binding.test.js",
@@ -21296,6 +22848,13 @@
     },
     {
       "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
       "to": "req:FR-003",
       "type": "verifies",
       "status": "current",
@@ -21359,7 +22918,28 @@
     },
     {
       "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
       "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-064",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -21401,6 +22981,20 @@
     },
     {
       "from": "test:tests/integration/project-core.test.js",
+      "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:SDD-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -21419,6 +23013,97 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-inventory.test.js",
+      "to": "code:src/app/api/projects/[id]/inventory/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-inventory.test.js",
+      "to": "code:src/modules/project-manager/application/project-inventory-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-inventory.test.js",
+      "to": "req:FR-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-inventory.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-inventory.test.js",
+      "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-list-contract.test.js",
+      "to": "code:src/modules/project-manager/application/project-list-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-list-contract.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-list-contract.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-list-contract.test.js",
+      "to": "req:FR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-list-contract.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-list-contract.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-list-contract.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-list-contract.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/runtime-isolation-probe.postgres.test.js",
@@ -21797,6 +23482,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/activation-readiness-integration.test.js",
+      "to": "req:FR-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/activation-readiness-integration.test.js",
@@ -24061,6 +25753,13 @@
     },
     {
       "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -24165,6 +25864,321 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "code:src/modules/identity/product-owner-authority.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "code:src/modules/identity/product-owner-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "code:src/modules/identity/rbac-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "code:src/modules/identity/rbac.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "code:src/modules/identity/resolve-viewer.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-031",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:SDD-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr079-credential-vault.test.js",
+      "to": "code:src/platform/integrations/core/credential-vault.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr079-credential-vault.test.js",
+      "to": "req:FR-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr079-credential-vault.test.js",
+      "to": "req:SEC-015",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr079-runtime-cutover.test.js",
+      "to": "code:src/platform/integrations/core/integration-registry.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr079-runtime-cutover.test.js",
+      "to": "code:src/platform/integrations/core/secret-manager.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr079-runtime-cutover.test.js",
+      "to": "req:FR-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr079-runtime-cutover.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr079-runtime-cutover.test.js",
+      "to": "req:NFR-015",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr079-runtime-cutover.test.js",
+      "to": "req:SDD-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr079-runtime-cutover.test.js",
+      "to": "req:SEC-015",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr079-schema-contract.test.js",
+      "to": "req:FR-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr079-schema-contract.test.js",
+      "to": "req:SDD-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr079-schema-contract.test.js",
+      "to": "req:SEC-015",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr079-supabase-migration.test.js",
+      "to": "req:FR-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr079-supabase-migration.test.js",
+      "to": "req:SDD-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr079-supabase-migration.test.js",
+      "to": "req:SEC-015",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-integration-management.test.js",
+      "to": "code:src/app/api/platform/integrations/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr080-integration-management.test.js",
+      "to": "code:src/modules/integration/application/integration-management-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr080-integration-management.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-integration-management.test.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-integration-management.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-runtime-wiring.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-runtime-wiring.test.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-runtime-wiring.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-supabase-vault.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-supabase-vault.test.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-supabase-vault.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-ui-contract.test.js",
+      "to": "code:src/app/(pm)/platform/integrations/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr080-ui-contract.test.js",
+      "to": "code:src/app/api/platform/integrations/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr080-ui-contract.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-ui-contract.test.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-ui-contract.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/gate-cap-rounding.test.js",
       "to": "req:BR-006",
       "type": "verifies",
@@ -24219,6 +26233,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/grounded-business-answer.test.js",
+      "to": "req:FR-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/grounded-business-answer.test.js",
@@ -24817,6 +26838,13 @@
     },
     {
       "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
       "to": "req:SDD-025",
       "type": "verifies",
       "status": "current",
@@ -24831,6 +26859,13 @@
     },
     {
       "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
       "to": "req:SEC-009",
       "type": "verifies",
       "status": "current",
@@ -24839,6 +26874,13 @@
     {
       "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/phase1-business-agent-runtime.test.js",
+      "to": "req:SEC-016",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -25416,6 +27458,174 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-inventory-read-model.test.js",
+      "to": "code:src/modules/project-manager/application/project-inventory-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-inventory-read-model.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-inventory-read-model.test.js",
+      "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "code:src/app/(pm)/projects/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "code:src/app/(pm)/workspaces/[workspaceId]/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "code:src/modules/project-manager/application/project-list-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "code:src/modules/project-manager/application/project-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "code:src/modules/project-manager/views/universal/TimelineView.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:FR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:FR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:FR-041",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:FR-064",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:SDD-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:SDD-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/project-team-service.test.js",
@@ -26085,6 +28295,13 @@
     {
       "from": "test:tests/unit/viewer-gate.test.js",
       "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:FR-076",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

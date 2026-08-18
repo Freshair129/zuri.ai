@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0.0",
+  "recordType": "CUSTOMER_PROFILE",
+  "scope": {
+    "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+    "businessId": "834fa869-62f3-431c-a287-e9a95e91175b"
+  },
+  "source": {
+    "sourceSystem": "SMARTGIFT_DUCKDB",
+    "sourceTable": "customer",
+    "sourceRecordKey": "customer-key-demo",
+    "sourceRow": 1,
+    "sourceSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "snapshotSha256": "a8da233228cb80a088f11ff98fdef5773d0890bc158bcc40752c6d7a5e4bd5d7",
+    "sourceAsOf": null
+  },
+  "identity": {
+    "taxId": null,
+    "normalizedName": null,
+    "email": null,
+    "phoneE164": null
+  },
+  "profile": {
+    "displayName": "Example Customer",
+    "postcode": null,
+    "contactType": null
+  },
+  "resolution": {
+    "status": "NEW_CANDIDATE",
+    "matchMethod": "NONE",
+    "matchedPersonId": null,
+    "matchedCustomerId": null,
+    "reasonCode": "NEW_SOURCE_PROFILE"
+  },
+  "privacy": {
+    "basis": "PENDING_APPROVAL",
+    "evidenceRef": null,
+    "approvedByPersonId": null,
+    "retentionUntil": null
+  },
+  "disposition": {
+    "action": "HOLD",
+    "reasonCode": "CONTRACT_NOT_APPROVED"
+  },
+  "idempotencyKey": "SMARTGIFT_DUCKDB|customer|customer-key-demo|a8da233228cb80a088f11ff98fdef5773d0890bc158bcc40752c6d7a5e4bd5d7"
+}

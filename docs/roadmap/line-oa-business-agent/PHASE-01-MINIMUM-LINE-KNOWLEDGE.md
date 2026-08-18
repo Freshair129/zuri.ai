@@ -36,7 +36,7 @@ answer grounded only in approved SmartGift product knowledge stored in Supabase.
   bounded comparison;
 - provider selection through `ModelProviderPort`;
 - Phase 1 providers: OpenRouter OAuth PKCE, OpenAI API key, Anthropic API key, Gemini API key, and
-  Groq API key;
+  Groq API key; local Ollama is evaluation-only and never a public LINE provider;
 - deterministic fallback and evidence/number verification;
 - idempotent single reply and kill switch;
 - minimal privacy-safe audit metadata.
@@ -81,7 +81,7 @@ sequenceDiagram
 | P1-W0 | Implemented | FR-047..050, NFR-010, BR-011, SDD-025 and SEC-009 registered; ADR-007 amended; doc graph/preflight pass |
 | P1-W1 | Implemented | Strict public projection and registered-query contract; PII/cost/margin/invoice fields rejected |
 | P1-W2 | Runtime isolation verified | Project `qcnmhyglarzcpudjorzc` contains the private forced-RLS schema and 74 price-disabled rows. The pinned-CA runtime login proves direct-read denial, exact scope, zero foreign rows and mutation denial. Binding remains credential-free and PENDING; provider and LINE canaries remain |
-| P1-W3 | Implemented, configuration pending | Five provider adapters, bounded fetch, OpenRouter OAuth PKCE helper and server-only environment boundary pass tests; no real credential has been installed |
+| P1-W3 | Implemented, configuration pending | Five public provider adapters plus explicit local Ollama evaluation guard, bounded fetch, OpenRouter OAuth PKCE helper and server-only environment boundary pass tests; no real credential has been installed |
 | P1-W4 | Implemented | Evidence packet, deterministic fallback, unsupported-number/code rejection and provider-failure fallback pass tests |
 | P1-W5 | Implemented locally | Internal bearer, event correlation, one reply owner and hashed dedupe across restart pass; real LINE canary is pending |
 | P1-W6 | Partially complete | Full automated suites/build/docs pass; provider-backed 20-question golden evaluation and real canary remain blocked by provider/binding credentials |
@@ -163,6 +163,7 @@ receive only a bounded evidence packet.
 | Anthropic | Claude API key | allowed |
 | Google Gemini | Gemini Developer API key | allowed |
 | Groq | Groq API key | allowed |
+| Ollama | no credential; exact `http://127.0.0.1:<port>` loopback | denied; `LOCAL_DEV`/`TEST`/`EVAL` evaluation only |
 | Codex/Claude Code/Gemini CLI | official local login | denied; developer evaluation only |
 
 Store only encrypted secret material in an approved secret store. Operational configuration keeps
@@ -212,7 +213,7 @@ rotation metadata. Provider changes are audited. Automatic fallback is disabled 
 5. Missing evidence produces a truthful unavailable/clarification response.
 6. The public runtime cannot access PII, cost, margin, invoices, or unrestricted SQL.
 7. Provider selection changes no knowledge query behavior.
-8. Public LINE cannot select a local subscription-backed CLI provider.
+8. Public LINE cannot select Ollama or a local subscription-backed CLI provider.
 9. No credential or raw sensitive row is written to logs, Git, or responses.
 
 ## Success criteria

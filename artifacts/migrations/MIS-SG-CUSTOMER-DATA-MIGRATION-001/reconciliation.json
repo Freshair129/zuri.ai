@@ -1,0 +1,26 @@
+{
+  "contractVersion": "1.0.0",
+  "status": "READY",
+  "approvedSourceCount": 1,
+  "publishableRowCount": 74,
+  "outputSha256": "760f6a371f385bf87cd0ffac2aa368791b77d17ab3f539d77dbc539614bae883",
+  "sourceChecks": {
+    "catalog_sku": 2295,
+    "stg_product": 1319,
+    "price_staging": 2837,
+    "price_staging_with_approved_at": 0,
+    "price_staging_with_approved_by": 0
+  },
+  "excludedTables": [
+    "customer",
+    "stg_contact",
+    "stg_doc",
+    "interaction"
+  ],
+  "excludedFields": [
+    "buy_price",
+    "buy_price_vat",
+    "margin_thb",
+    "margin_pct"
+  ]
+}

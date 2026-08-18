@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.local/contracts/migrations/smartgift-customer-record.schema.json",
+  "title": "SmartGift customer profile staging record",
+  "description": "A PII-bearing, server-controlled staging record. It is not a Supabase write authorization.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "recordType",
+    "scope",
+    "source",
+    "identity",
+    "profile",
+    "resolution",
+    "privacy",
+    "disposition",
+    "idempotencyKey"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "recordType": { "const": "CUSTOMER_PROFILE" },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tenantId", "businessId"],
+      "properties": {
+        "tenantId": { "type": "string", "format": "uuid" },
+        "businessId": { "type": "string", "format": "uuid" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceSystem",
+        "sourceTable",
+        "sourceRecordKey",
+        "sourceRow",
+        "sourceSha256",
+        "snapshotSha256"
+      ],
+      "properties": {
+        "sourceSystem": { "const": "SMARTGIFT_DUCKDB" },
+        "sourceTable": { "enum": ["customer", "stg_contact"] },
+        "sourceRecordKey": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "sourceRow": { "type": "integer", "minimum": 1 },
+        "sourceSha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+        "snapshotSha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+        "sourceAsOf": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["taxId", "normalizedName", "email", "phoneE164"],
+      "properties": {
+        "taxId": { "type": ["string", "null"], "maxLength": 64 },
+        "normalizedName": { "type": ["string", "null"], "maxLength": 300 },
+        "email": { "type": ["string", "null"], "format": "email", "maxLength": 320 },
+        "phoneE164": { "type": ["string", "null"], "pattern": "^\\+[1-9][0-9]{6,14}$" }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["displayName", "postcode", "contactType"],
+      "properties": {
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "postcode": { "type": ["string", "null"], "maxLength": 32 },
+        "contactType": { "type": ["string", "null"], "maxLength": 64 }
+      }
+    },
+    "resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "matchMethod", "matchedPersonId", "matchedCustomerId", "reasonCode"],
+      "properties": {
+        "status": {
+          "enum": ["AUTO_MATCH", "NEW_CANDIDATE", "REVIEW_REQUIRED", "UNRESOLVED", "REJECTED"]
+        },
+        "matchMethod": {
+          "enum": [
+            "EXACT_SOURCE_KEY",
+            "EXACT_TAX_ID",
+            "EXACT_NAME_AND_CORROBORATION",
+            "EXPLICIT_INTERNAL_MAPPING",
+            "NONE"
+          ]
+        },
+        "matchedPersonId": { "type": ["string", "null"], "format": "uuid" },
+        "matchedCustomerId": { "type": ["string", "null"], "format": "uuid" },
+        "reasonCode": {
+          "enum": [
+            "NEW_SOURCE_PROFILE",
+            "EXACT_ONE_TO_ONE_MATCH",
+            "NAME_ONLY_MATCH",
+            "CONFLICTING_IDENTIFIERS",
+            "DUPLICATE_SOURCE_KEY",
+            "CROSS_BUSINESS_CANDIDATE",
+            "MISSING_REQUIRED_IDENTITY",
+            "EXPLICIT_OWNER_DECISION"
+          ]
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["basis", "evidenceRef", "approvedByPersonId", "retentionUntil"],
+      "properties": {
+        "basis": {
+          "enum": [
+            "PENDING_APPROVAL",
+            "CONSENT",
+            "CONTRACT",
+            "LEGAL_OBLIGATION",
+            "OWNER_ATTESTATION",
+            "NOT_REQUIRED"
+          ]
+        },
+        "evidenceRef": { "type": ["string", "null"], "maxLength": 512 },
+        "approvedByPersonId": { "type": ["string", "null"], "format": "uuid" },
+        "retentionUntil": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "disposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "reasonCode"],
+      "properties": {
+        "action": { "enum": ["HOLD", "CREATE", "LINK", "UPDATE", "REJECT"] },
+        "reasonCode": { "type": "string", "minLength": 1, "maxLength": 128 }
+      }
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "pattern": "^SMARTGIFT_DUCKDB\\|[a-z_]+\\|[^|]+\\|[0-9a-fA-F]{64}$",
+      "maxLength": 512
+    }
+  }
+}

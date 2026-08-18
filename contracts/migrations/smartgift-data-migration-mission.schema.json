@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.local/contracts/migrations/smartgift-data-migration-mission.schema.json",
+  "title": "SmartGift data migration mission",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "missionId",
+    "versionId",
+    "status",
+    "approver",
+    "scope",
+    "source",
+    "execution",
+    "backup",
+    "remoteTarget"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "missionId": { "type": "string", "pattern": "^MIS-[A-Z0-9-]+$" },
+    "versionId": { "type": "string", "pattern": "^VER-[A-Z0-9.-]+$" },
+    "status": {
+      "type": "string",
+      "enum": [
+        "IDENTITY_BOOTSTRAP_COMPLETE_REMOTE_PREFLIGHT_PENDING",
+        "READY_FOR_REMOTE_PREFLIGHT",
+        "READY_FOR_MIGRATION",
+        "MIGRATED_AND_RECONCILED",
+        "BLOCKED"
+      ]
+    },
+    "approver": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["personId", "code", "displayName", "role"],
+      "properties": {
+        "personId": { "type": "string", "format": "uuid" },
+        "code": { "const": "PER-BOSS" },
+        "displayName": { "const": "Boss (บอส)" },
+        "role": { "const": "PLATFORM_OWNER_APPROVER" },
+        "membershipCreated": { "const": false }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["portfolio", "tenant", "businesses", "targetBusinessCode"],
+      "properties": {
+        "portfolio": { "$ref": "#/$defs/identity" },
+        "tenant": { "$ref": "#/$defs/identity" },
+        "businesses": {
+          "type": "array",
+          "minItems": 4,
+          "items": { "$ref": "#/$defs/identity" }
+        },
+        "targetBusinessCode": { "const": "BUS-SMARTGIFT" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceRef", "approvedSourceSha256", "accessMode", "artifactEvidenceStatus"],
+      "properties": {
+        "sourceRef": { "const": "SMARTGIFT_DUCKDB_PATH" },
+        "approvedSourceSha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+        "accessMode": { "const": "READ_ONLY" },
+        "artifactSha256": { "type": ["string", "null"], "pattern": "^[0-9a-fA-F]{64}$" },
+        "artifactEvidenceStatus": {
+          "type": "string",
+          "enum": ["NOT_REGENERATED", "RECONCILED", "DRIFT_REQUIRES_RECONCILIATION"]
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bootstrapBatchId", "artifactRef", "recordsTotal"],
+      "properties": {
+        "bootstrapBatchId": { "type": "string", "format": "uuid" },
+        "artifactRef": { "type": "string", "minLength": 1 },
+        "recordsTotal": { "type": "integer", "const": 74 }
+      }
+    },
+    "backup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["backupId", "status", "artifactRef", "sha256"],
+      "properties": {
+        "backupId": { "type": "string", "pattern": "^BKP-[A-Z0-9-]+$" },
+        "status": { "const": "VERIFIED_READ_ONLY_SNAPSHOT" },
+        "artifactRef": { "type": "string", "minLength": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" }
+      }
+    },
+    "remoteTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["projectRef", "identityStatus", "writeStatus", "scope"],
+      "properties": {
+        "projectRef": { "type": "string", "pattern": "^[a-z0-9]+$" },
+        "identityStatus": { "enum": ["UNVERIFIED", "PARTIALLY_RECONCILED", "RECONCILED", "MISMATCH"] },
+        "writeStatus": { "enum": ["NOT_STARTED", "READ_ONLY_PREFLIGHT", "APPLIED", "ROLLED_BACK"] },
+        "migrationVersion": { "type": "string", "pattern": "^[0-9]{14}$" },
+        "migrationName": { "type": "string", "minLength": 1 },
+        "migrationSha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" },
+        "postflightArtifactRef": { "type": "string", "minLength": 1 },
+        "postflightStatus": { "const": "VERIFIED" },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["portfolio", "tenant", "businesses", "targetBusinessCode"],
+          "properties": {
+            "portfolio": { "$ref": "#/$defs/identity" },
+            "tenant": { "$ref": "#/$defs/identity" },
+            "businesses": {
+              "type": "array",
+              "minItems": 4,
+              "items": { "$ref": "#/$defs/identity" }
+            },
+            "targetBusinessCode": { "const": "BUS-SMARTGIFT" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "code", "name"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "code": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

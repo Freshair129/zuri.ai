@@ -290,7 +290,12 @@ function BusinessOverview({ scope }) {
   const params = new URLSearchParams()
   // Overview is the Business strategy surface. A module-local Workspace
   // selection must not turn a portfolio-shared Project into Business-owned work.
-  if (businessId) params.set('businessId', businessId)
+  if (businessId) {
+    params.set('businessId', businessId)
+    // The Overview projection still needs relation-rich Project rows. Keep it
+    // explicit while the /projects page uses the stable list DTO.
+    params.set('view', 'overview')
+  }
   const { data: projects, loading, error, reload } = useFetch(
     businessId ? `/api/projects?${params.toString()}` : null,
     [businessId],

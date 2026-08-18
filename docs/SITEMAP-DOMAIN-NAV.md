@@ -123,7 +123,8 @@ shell scope. The active lens changes labels, never identity or isolation.
 | 4 | **`/overview`… domain home** | sidebar → **sub-domain** | 🏠 › ABC › Overview |
 | 5 | **`/projects` (list)** | open a Project resource | 🏠 › Workspace › Organization › Business › Projects |
 | 6 | **`/projects/{id}`** | tabs → work view | 🏠 › Workspace › Organization › Business › PRJ-x |
-| 7 | **`/projects/{id}/files`** | — (leaf) | 🏠 › Workspace › Organization › Business › PRJ-x › Files |
+| 7 | **`/projects/{id}/inventory`** | — (Project Inventory read model) | 🏠 › Workspace › Organization › Business › PRJ-x › Inventory |
+| 8 | **`/projects/{id}/files`** | — (leaf) | 🏠 › Workspace › Organization › Business › PRJ-x › Files |
 
 - **Accepted FR-044 route contract:** `/` is minimal Landing,
   `/login` is a demo Login stub, `/businesses` is Business Routing, and `/overview` is the
@@ -229,7 +230,7 @@ and performance are future HR slices.
 
 ### Platform — ระบบ/ตั้งค่า  *(V1: platform + gaps)*
 1. **Dashboard** — สุขภาพระบบ · integrations status
-2. Integrations — accounting · FlowAccount *(lift)*
+2. Integrations — Phase 1 LINE connection metadata and redacted Supabase Vault status *(FR-080, implemented locally; `/platform/integrations`; raw secrets never shown)*
 3. ธุรกิจ·องค์กร / Business & Tenant config *(rebuild — V1 PATCH is 403 for all roles)*
 4. ผู้ใช้·สิทธิ์ / Users & Roles — Membership *(rebuild — V1 auth is per-tenant Employee)*
 5. Identity / LINE linking *(new — the P3 gate: account linking, staff/customer split)*
@@ -261,6 +262,7 @@ and performance are future HR slices.
  /people/directory        → Business-scoped People Directory
 /{domain}                 → 302 /{domain}/dashboard        (first sub is always the dashboard)
 /{domain}/{subdomain}     → e.g. /projects (Project resource list), /commerce/inventory
+/platform/integrations    → owner-scoped Phase 1 Integration metadata and redacted Vault status (FR-080; local implementation)
 /projects/{id}/...        → existing Project routes stay verbatim (Development work views)
 ```
 

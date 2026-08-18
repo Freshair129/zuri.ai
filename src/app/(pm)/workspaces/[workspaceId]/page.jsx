@@ -2,6 +2,7 @@
 
 // @req FR-001 — single-Workspace detail: resolves one Space's identity
 // (code/scopeType/name) from the scope hierarchy and lists its Projects.
+// @tested tests/unit/project-list-contract.test.js, tests/e2e/smoke.spec.js
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { PageHeader, Card, StatusPill, EmptyState, ErrorState } from '@/components/ui'
@@ -12,7 +13,7 @@ import { MODE_LABELS } from '@/lib/validation/enums'
 export default function WorkspaceDetailPage() {
   const { workspaceId } = useParams()
   const scope = useScope()
-  const { data, loading, error, reload } = useFetch(`/api/projects?workspaceId=${workspaceId}`)
+  const { data, loading, error, reload } = useFetch(`/api/projects?workspaceId=${workspaceId}&view=workspace`)
   const workspace = scope.workspaces.find((w) => w.id === workspaceId)
 
   if (loading) return <LoadingCard />

@@ -1,8 +1,8 @@
 ---
-version: "0.1.0"
+version: "0.2.0b"
 created_at: "2026-08-16T07:15:00+07:00"
-last_update: "2026-08-16T07:15:00+07:00"
-status: "proposed"
+last_update: "2026-08-18T00:00:00+07:00"
+status: "candidate"
 superseded_by: null
 attributes:
   domain: "documentation-architecture"
@@ -37,6 +37,28 @@ Normalize `docs/INTERFACE-INVENTORY.md` so it has one primary responsibility:
 The current document mixes interface inventory with shell architecture, route sitemap, feature inventory, API inventory, documentation audit, implementation evidence, change planning, and owner-decision history. Those concerns already have or should have separate authoritative homes.
 
 This CR does not redesign the UI, navigation, shell, routes, or Design System. It changes documentation ownership and removes duplicated facts that can drift.
+
+## Execution status
+
+The normalization has now been applied to docs/INTERFACE-INVENTORY.md:
+
+- one registry row exists for each of the 37 current page routes;
+- the Business Home shell slot is explicitly separated from the seven
+  operational domain keys and 21 operational sub-domain entries;
+- /files, /platform/integrations and /projects/[projectId]/inventory are represented;
+- API endpoint catalogs, generated feature counts, change DAGs and owner
+  follow-up ledgers have been removed from the canonical inventory and replaced
+  with authority links;
+- machine-checkable route/domain count markers are guarded by
+  scripts/doc-preflight.mjs.
+
+docs/appendices/A-api-spec.md was also normalized to declare 63 current API
+route handlers, separate the five deferred integration lifecycle paths from
+current routes, and state the minimum endpoint contract fields.
+
+The documentation migration is complete in the working tree. The final
+governance exit gate remains pending while the concurrent FR-076/FR-077 session
+owns dirty route, feature, schema and generated-output changes.
 
 ## Complexity and risk
 
@@ -164,7 +186,14 @@ Each routable or materially distinct user-facing interface SHOULD have one regis
 
 A separate shell registry MAY remain at the top if it is bounded to interface containment and does not duplicate the architectural rationale from ADRs.
 
-## Migration plan
+## Migration plan and result
+
+| Work | Result |
+|---|---|
+| W0–W1 | complete — responsibility contract and section disposition recorded |
+| W2–W5 | complete — canonical 37-route registry rebuilt and duplicate sections retired |
+| W6 | complete — Interface Inventory authority links and RCA link updated |
+| W7 | pending shared-tree reconciliation — parity gates are implemented; final graph freshness cannot be claimed over another session's dirty inputs |
 
 ```text
 W0  Approve CR-007 responsibility contract
@@ -213,7 +242,7 @@ W7  Run docs graph/preflight/check and verify no authority conflict remains
 | AC-007-07 | Historical change DAG and owner follow-up ledger are removed from the canonical current-state inventory. |
 | AC-007-08 | Sitemap, route map, Design System, API spec and feature map remain authoritative for their respective concerns and are linked from the Inventory where needed. |
 | AC-007-09 | No runtime code or UI behavior changes are introduced by this documentation normalization. |
-| AC-007-10 | `npm run docs:graph`, `npm run docs:preflight` and `npm run docs:check` pass after migration. |
+| AC-007-10 | `npm run docs:graph`, `npm run docs:preflight` and `npm run docs:check` pass after migration and after the concurrent FR-076/FR-077 generated outputs are reconciled. |
 
 ## Non-goals
 
@@ -236,4 +265,5 @@ CR-007 is complete only when a reader can open `INTERFACE-INVENTORY.md` and answ
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 0.1.0 | 2026-08-16 | proposed | Proposed normalization of Interface Inventory into a bounded canonical UI registry with explicit document responsibility split | working-tree | ChatGPT |
+| 0.2.0b | 2026-08-18 | candidate | Executed the bounded UI registry migration, added 37-route/domain count evidence and semantic preflight gates; final W7 awaits shared-tree reconciliation | working-tree | ATHER |
+| 0.1.0 | 2026-08-16 | proposed | Proposed normalization of Interface Inventory into a bounded canonical UI registry with explicit document responsibility split | historical | ChatGPT |

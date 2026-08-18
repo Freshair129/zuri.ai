@@ -28,6 +28,9 @@ turn flows through before any agent work happens.
 
 - `ingestLineMessage` — the ingest seam (FR-023): first contact creates
   Person + Customer + Conversation + Message atomically.
+- FR-078 owns the historical Customer Profile backfill contract. It defines
+  source identity, entity resolution, PII boundaries and rollback gates; it
+  does not authorize a write until its approvals and target-schema gate pass.
 
 ## Known shared-write exceptions (debt, visible on purpose)
 

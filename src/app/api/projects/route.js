@@ -4,22 +4,26 @@
 // @spec SEC-001, SEC-008
 // @tested tests/integration/fr072-project-service-authorization.test.js
 import { handle, queryParams } from '../_helpers'
-import { listProjects, createProject } from '@/modules/project-manager/application/project-service'
+import {
+  listProjects,
+  listProjectsForOverview,
+  listProjectsForTimeline,
+  listProjectsForWorkspace,
+  createProject,
+} from '@/modules/project-manager/application/project-service'
+import { parseProjectListQuery } from '@/modules/project-manager/application/project-list-read-model'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request) {
-  const q = queryParams(request)
-  return handle(() =>
-    listProjects({
-      workspaceId: q.workspaceId || undefined,
-      businessId: q.businessId || undefined,
-      tenantId: q.tenantId || undefined,
-      status: q.status || undefined,
-      q: q.q || undefined,
-    })
-  )
+  return handle(() => {
+    const { view, ...filters } = parseProjectListQuery(queryParams(request))
+    if (view === 'overview') return listProjectsForOverview(filters)
+    if (view === 'timeline') return listProjectsForTimeline(filters)
+    if (view === 'workspace') return listProjectsForWorkspace(filters)
+    return listProjects(filters)
+  })
 }
 
 export async function POST(request) {

@@ -27,6 +27,20 @@ export {
 } from './phase1-runtime'
 export { createOpenRouterAuthorization, exchangeOpenRouterCode } from './openrouter-oauth'
 export { createPostgresLineBindingResolver, hashBindingSecret } from './line-binding-resolver'
+// @req FR-079 — explicit runtime source and connection-selection contracts.
+export {
+  RUNTIME_SOURCES,
+  SecretManagerError,
+  createSecretManagerPort,
+  createVaultSecretManagerAdapter,
+} from '@/platform/integrations/core/secret-manager'
+export {
+  PHASE1_LINE_LLM_PURPOSE,
+  selectPhase1PrimaryConnection,
+  resolvePhase1PrimaryConnection,
+  resolvePhase1PrimaryConnectionByQuery,
+  promotePhase1PrimaryConnection,
+} from '@/platform/integrations/core/integration-registry'
 // @req FR-053, FR-054 — production-disabled activation-readiness public surface.
 // @spec SDD-027, SEC-011 — evaluation and dry-run planning do not grant activation authority.
 // @tested tests/unit/activation-readiness-integration.test.js

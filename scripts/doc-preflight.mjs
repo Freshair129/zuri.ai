@@ -349,15 +349,71 @@ for (const s of superseded) {
   }
 }
 
-// ---- Check 5: appendix drift vs the real code ---------------------------
+// ---- Check 5: appendix/interface drift vs the real code -----------------
+// A graph node proves that a file exists and is linked. It does not prove that
+// a human inventory contains the current route, count or semantic boundary.
+// These checks are deliberately separate from doc-graph so stale prose cannot
+// hide behind a fresh generated projection.
+const appRoute = (f) => {
+  const fileRel = rel(f)
+  const dir = path.posix.dirname(fileRel).replace(/^src\/app\/?/, '')
+  const segments = dir.split('/').filter(Boolean).filter((segment) => !/^\(.*\)$/.test(segment))
+  return '/' + segments.join('/')
+}
+
 const routeFiles = walk(path.join(ROOT, 'src', 'app', 'api'), 'route.js')
-const routes = routeFiles.map((f) => '/' + rel(f).replace(/^src\/app\//, '').replace(/\/route\.js$/, ''))
+const routes = routeFiles.map(appRoute).sort()
+const tick = String.fromCharCode(96)
+const escapeRegex = (value) => value.replace(/[.*+?^$(){}|[\]\\]/g, '\\$&')
+const documentedPath = (body, route) => {
+  const escaped = escapeRegex(route)
+  return body.includes(tick + route + tick) ||
+    new RegExp(tick + escaped + '(?:\\?[^' + tick + ']+)?' + tick).test(body) ||
+    body.includes('| ' + route + ' |')
+}
 const apiSpec = path.join(ROOT, 'docs', 'appendices', 'A-api-spec.md')
 if (existsSync(apiSpec)) {
   const body = read(apiSpec)
-  const missing = routes.filter((r) => !body.includes(r.replace(/\[(\w+)\]/g, '[$1]')) && !body.includes(r.replace(/\/\[\w+\]/g, '')))
+  const missing = routes.filter((r) => !documentedPath(body, r))
   if (missing.length) {
-    add('warning', 'staleness', 'API appendix does not list every route', missing.join(', '), ['docs/appendices/A-api-spec.md'], 'Add the new endpoints to Appendix A')
+    add('critical', 'staleness', 'API appendix does not list every current route', missing.join(', '), ['docs/appendices/A-api-spec.md'], 'Add every current endpoint to Appendix A before release')
+  }
+  const apiCount = /<!--\s*api-spec-counts:\s*route_handlers=(\d+)\s*-->/.exec(body)
+  if (!apiCount) {
+    add('critical', 'staleness', 'API appendix has no machine-checkable handler count', 'Missing api-spec-counts marker', ['docs/appendices/A-api-spec.md'], 'Add <!-- api-spec-counts: route_handlers=N --> and keep it equal to src/app/api route.js files')
+  } else if (Number(apiCount[1]) !== routes.length) {
+    add('critical', 'staleness', 'API appendix handler count is stale', 'declared ' + apiCount[1] + ', actual ' + routes.length, ['docs/appendices/A-api-spec.md'], 'Regenerate the count from src/app/api route.js files')
+  }
+}
+
+const pageFiles = walk(path.join(ROOT, 'src', 'app'), 'page.jsx')
+const pageRoutes = pageFiles.map(appRoute).sort()
+const interfaceInventory = path.join(ROOT, 'docs', 'INTERFACE-INVENTORY.md')
+if (existsSync(interfaceInventory)) {
+  const body = read(interfaceInventory)
+  const missing = pageRoutes.filter((r) => !documentedPath(body, r))
+  if (missing.length) {
+    add('critical', 'staleness', 'Interface inventory does not list every current page route', missing.join(', '), ['docs/INTERFACE-INVENTORY.md'], 'Add one interface row or an explicit grouping rule for every page route')
+  }
+
+  const marker = /<!--\s*interface-inventory-counts:\s*page_routes=(\d+);\s*operational_domain_keys=(\d+);\s*operational_subdomain_entries=(\d+);\s*business_home_shell_slots=(\d+)\s*-->/
+  const declared = marker.exec(body)
+  if (!declared) {
+    add('critical', 'staleness', 'Interface inventory has no machine-checkable coverage marker', 'Missing interface-inventory-counts marker', ['docs/INTERFACE-INVENTORY.md'], 'Add the route/domain count marker and keep it equal to the source registry')
+  } else {
+    const domainConfig = read(path.join(ROOT, 'src', 'config', 'domains.js'))
+    const domainKeys = [...domainConfig.matchAll(/^\s*key:\s*'([^']+)',/gm)].map((m) => m[1])
+    const subdomainEntries = [...domainConfig.matchAll(/\{\s*label:\s*'[^']+',\s*path:/g)].length
+    const expected = [
+      pageRoutes.length,
+      domainKeys.filter((key) => key !== 'business-home').length,
+      subdomainEntries - (domainKeys.includes('business-home') ? 1 : 0),
+      domainKeys.filter((key) => key === 'business-home').length,
+    ]
+    const actual = declared.slice(1).map(Number)
+    if (actual.some((value, index) => value !== expected[index])) {
+      add('critical', 'staleness', 'Interface inventory coverage marker is stale', 'declared ' + actual.join('/') + ', actual ' + expected.join('/'), ['docs/INTERFACE-INVENTORY.md', 'src/config/domains.js'], 'Reconcile the interface registry with page routes and src/config/domains.js')
+    }
   }
 }
 const schema = path.join(ROOT, 'prisma', 'schema.prisma')

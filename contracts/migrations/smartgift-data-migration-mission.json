@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "1.0.0",
+  "missionId": "MIS-SG-CUSTOMER-DATA-MIGRATION-001",
+  "versionId": "VER-SG-DATA-MIGRATION-0.2.0B",
+  "status": "MIGRATED_AND_RECONCILED",
+  "approver": {
+    "personId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+    "code": "PER-BOSS",
+    "displayName": "Boss (บอส)",
+    "role": "PLATFORM_OWNER_APPROVER",
+    "membershipCreated": false
+  },
+  "scope": {
+    "portfolio": {
+      "id": "5c621811-7e7a-42dd-ac39-ea9e8416ba98",
+      "code": "PF-WANNAPA-WORKSPACE",
+      "name": "Wannapa Workspace"
+    },
+    "tenant": {
+      "id": "f477c41a-c8d4-4c89-8612-372265907089",
+      "code": "TNT-ETOHGROUP",
+      "name": "TNT-EtohGroup"
+    },
+    "businesses": [
+      {
+        "id": "2dfb89a9-206a-4f32-aff5-8ca4d00a28fe",
+        "code": "BUS-SMARTGIFT",
+        "name": "SmartGift"
+      },
+      {
+        "id": "ad6627eb-cc3c-4465-8d55-10ef68786fa3",
+        "code": "BUS-ETOH-MUKU",
+        "name": "Etoh-Muku"
+      },
+      {
+        "id": "dc84f828-df37-4417-84e0-63b863bedb34",
+        "code": "BUS-MUJEEN",
+        "name": "Mujeen"
+      },
+      {
+        "id": "161c1acf-7c0a-44bc-875c-39bee1628685",
+        "code": "BUS-EMC",
+        "name": "EMC"
+      }
+    ],
+    "targetBusinessCode": "BUS-SMARTGIFT"
+  },
+  "source": {
+    "sourceRef": "SMARTGIFT_DUCKDB_PATH",
+    "approvedSourceSha256": "017e72b6748d5f3ad99d2c85da0d3df71cf0e7e3d66fe79e67591066f2788c76",
+    "accessMode": "READ_ONLY",
+    "artifactSha256": "769d6f83743656591ff095f945f3f32aa8d8b9702dfc5cbb4184011260082717",
+    "artifactEvidenceStatus": "RECONCILED"
+  },
+  "execution": {
+    "bootstrapBatchId": "32a14e35-8896-45b5-b949-4ca1dda24620",
+    "artifactRef": "artifacts/migrations/MIS-SG-CUSTOMER-DATA-MIGRATION-001/business-knowledge-remote-scope.jsonl",
+    "recordsTotal": 74
+  },
+  "backup": {
+    "backupId": "BKP-SG-MIGRATION-20260818-001",
+    "status": "VERIFIED_READ_ONLY_SNAPSHOT",
+    "artifactRef": "artifacts/migrations/MIS-SG-CUSTOMER-DATA-MIGRATION-001/supabase-before-migration-backup.json",
+    "sha256": "33c76f7e3c761a13b73caf9fd8b3f6ae1e037c388e559049d978c478a9885178"
+  },
+  "remoteTarget": {
+    "projectRef": "qcnmhyglarzcpudjorzc",
+    "identityStatus": "RECONCILED",
+    "writeStatus": "APPLIED",
+    "migrationVersion": "20260818060000",
+    "migrationName": "customer_wannapa_identity_and_smartgift_cutover",
+    "migrationSha256": "aa9975f27610456c359c59ac4fc3ce2734ab74f328deea4c7270a439dcd144fb",
+    "postflightArtifactRef": "artifacts/migrations/MIS-SG-CUSTOMER-DATA-MIGRATION-001/supabase-post-migration-verification.json",
+    "postflightStatus": "VERIFIED",
+    "scope": {
+      "portfolio": {
+        "id": "5c621811-7e7a-42dd-ac39-ea9e8416ba98",
+        "code": "PF-WANNAPA-WORKSPACE",
+        "name": "Wannapa Workspace"
+      },
+      "tenant": {
+        "id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+        "code": "TNT-ETOHGROUP",
+        "name": "TNT-EtohGroup"
+      },
+      "businesses": [
+        {
+          "id": "834fa869-62f3-431c-a287-e9a95e91175b",
+          "code": "BUS-SMARTGIFT",
+          "name": "SmartGift"
+        },
+        {
+          "id": "ad6627eb-cc3c-4465-8d55-10ef68786fa3",
+          "code": "BUS-ETOH-MUKU",
+          "name": "Etoh-Muku"
+        },
+        {
+          "id": "dc84f828-df37-4417-84e0-63b863bedb34",
+          "code": "BUS-MUJEEN",
+          "name": "Mujeen"
+        },
+        {
+          "id": "161c1acf-7c0a-44bc-875c-39bee1628685",
+          "code": "BUS-EMC",
+          "name": "EMC"
+        }
+      ],
+      "targetBusinessCode": "BUS-SMARTGIFT"
+    }
+  }
+}

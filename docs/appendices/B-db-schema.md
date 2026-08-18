@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.3.0 |
+| **Version** | 1.6.0 |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-14 |
+| **Last Updated** | 2026-08-18 |
 
 Source of truth: `prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md)
 Conventions: UUID PK · unique human `code` · `createdAt/updatedAt` · `version` บน aggregate
@@ -20,6 +20,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Business | tenantId, legalEntityId? | ธุรกิจปฏิบัติการ |
 | Branch | tenantId, businessId | tenantId ต้องตรงกับ business (tested) |
 | Person / Membership | tenant, business?, branch?, role, domainKeysJson | local identity; MEMBER domain allow-list, OWNER/DEV role grant (FR-038) |
+| RoleBinding | personId, tenantId, businessId, roleKey, scopeType, status, assignedBy, revokedAt | generic Business-scoped RBAC binding; `PRODUCT_OWNER` is the current Product role (FR-076) |
 | Workspace | scopeType (PORTFOLIO/TENANT/BUSINESS) + denormalized ancestor ids | ต้องมี scope ชัดเจน |
 | Project | businessId?, workspaceId, type, status, startAt/targetAt | direct Business owner; schema Workspace is Development Space; null owner only for explicit shared work; soft delete |
 | Workstream | projectId, executionMode, progressStrategy, progressWeight, progressCache, viewConfigJson | หัวใจของ 7 โหมด |
@@ -35,6 +36,19 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | BusinessGoal | businessId, roadmapId?, horizonId?, code, title, status, progress | Business goal displayed in Strategy Overview |
 | ProjectGoal | projectId, goalId | optional many-to-many link; Project remains a Development resource |
 | AuditEvent | entityType, entityId, action, payloadJson, actorType | append-only (SEC-003) |
+
+## Product Owner RBAC role (FR-076 / ADR-033)
+
+`RoleBinding { personId→Person, tenantId→Tenant, businessId→Business, roleKey,
+scopeType, status, assignedBy?, version, createdAt, updatedAt, revokedAt? }`
+is the generic responsibility relation. The current supported scope is
+`BUSINESS`; `roleKey=PRODUCT_OWNER` expands through the identity role registry
+to Product permissions. `status` is `ACTIVE`, `SUSPENDED` or `REVOKED`.
+`tenantId` and `businessId` are both persisted for scoped queries, while the
+service rejects a mismatch against `Business.tenantId`. The relation is
+many-to-many and does not change `Membership.role`, platform authority or
+import authority. Changes append an `AuditEvent` without secrets or customer
+content.
 
 ## Planned (FR-019)
 
@@ -85,3 +99,24 @@ types are limited to approved FR-045 targets; arbitrary polymorphic input is den
 These models are additive. `ProjectFile` remains for compatibility and is not
 removed by ZV2-CR-001. SQLite is canonical for MVP; the generated Postgres schema
 preserves metadata semantics while device root paths remain local configuration.
+
+## Integration runtime connections (FR-079 / ADR-031)
+
+`IntegrationProvider { code, name, status, capabilitiesJson }` is provider
+metadata. `IntegrationConnection { tenantId, businessId?, providerId, name,
+authorizationType, externalAccountId?, purpose, role, status, metadataJson,
+version }` is the Business-scoped connection registry; Phase 1 selection requires
+`purpose=PHASE1_LINE_LLM`, `status=ACTIVE`, and `role=PRIMARY` under the
+server-resolved binding scope. `IntegrationCredential { connectionId@unique,
+secretRef, status, expiresAt?, rotatedAt?, version }` stores only an opaque
+external secret-manager reference; raw credential material is never persisted in
+Prisma or returned to the browser.
+
+The generic Postgres artifact carries the additive connection tables and
+`prisma/postgres/0002_phase1_line_primary_connection.sql` adds the active-primary
+unique index. Production Supabase uses the private-schema migration
+`supabase/migrations/20260818040000_phase1_line_runtime_connections.sql`, which
+adds forced RLS and read-only `zuri_line_smartgift_ro` grants. The follow-up
+`supabase/migrations/20260818050000_phase1_line_supabase_vault_resolver.sql`
+adds a private `SECURITY DEFINER` resolver for `supabase-vault:<uuid>` refs;
+`zuri_line_runtime` receives function execute only and no direct Vault view read.

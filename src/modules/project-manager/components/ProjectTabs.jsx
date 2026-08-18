@@ -4,12 +4,13 @@
 // @spec SDD-019, ADR-012
 // @tested tests/unit/project-work-route.test.js
 import Link from 'next/link'
-import { CircleDot, Flag, Users, ListTree, TriangleAlert, ChartPie, Folder } from 'lucide-react'
+import { CircleDot, Flag, Users, ListTree, TriangleAlert, ChartPie, Folder, ClipboardList } from 'lucide-react'
 
 // Indest-style per-project domain tab bar. Built tabs link; the rest are visible but
 // marked "soon" so the shape is complete while the sections land one by one.
 const TABS = [
   { key: 'project', label: 'Project', icon: CircleDot, href: (id) => `/projects/${id}` },
+  { key: 'inventory', label: 'Inventory', icon: ClipboardList, href: (id) => `/projects/${id}/inventory` },
   { key: 'requirements', label: 'Requirements', icon: Flag, soon: true },
   { key: 'team', label: 'Team', icon: Users, href: (id) => `/projects/${id}/team` },
   { key: 'work', label: 'Work', icon: ListTree, href: (id) => `/projects/${id}/structure` },

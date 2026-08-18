@@ -12,9 +12,9 @@
 
 - **Status:** done
 - **Surface:** `/workspaces/[workspaceId]` (page) · `/workspaces` (page) · `/api/scope` (api) · `/api/workspaces/[id]` (api)
-- **Code:** `src/app/(pm)/workspaces/[workspaceId]/page.jsx` · `src/app/(pm)/workspaces/page.jsx` · `src/app/api/scope/route.js` · `src/app/api/workspaces/[id]/route.js` · `src/modules/project-manager/application/scope-service.js`
-- **Follows:** BR-001, SEC-001, SEC-008
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/fr072-workspace-mutation-authorization.test.js` · `tests/integration/fr074-scope-creation-authorization.test.js` · `tests/integration/scope-and-isolation.test.js`
+- **Code:** `src/app/(pm)/workspaces/[workspaceId]/page.jsx` · `src/app/(pm)/workspaces/page.jsx` · `src/app/api/scope/route.js` · `src/app/api/workspaces/[id]/route.js` · `src/modules/project-manager/application/project-service.js` · `src/modules/project-manager/application/scope-service.js`
+- **Follows:** BR-001, BR-004, SDD-004, SDD-021, SDD-033, SDD-036, SEC-001, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/fr072-workspace-mutation-authorization.test.js` · `tests/integration/fr074-scope-creation-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/integration/scope-and-isolation.test.js` · `tests/unit/project-list-contract.test.js`
 
 ### FR-002 — Scope selectors (Portfolio·Business·Workspace·Project) + จำ selection ล่าสุด
 
@@ -27,17 +27,17 @@
 
 - **Status:** done
 - **Surface:** `/projects` (page) · `/api/projects/[id]` (api) · `/api/projects` (api)
-- **Code:** `src/app/(pm)/projects/page.jsx` · `src/app/api/projects/[id]/route.js` · `src/app/api/projects/route.js` · `src/modules/project-manager/application/project-service.js`
-- **Follows:** BR-001, BR-004, SDD-004, SDD-021, SEC-001, SEC-008
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js`
+- **Code:** `src/app/(pm)/projects/page.jsx` · `src/app/api/projects/[id]/route.js` · `src/app/api/projects/route.js` · `src/modules/project-manager/application/project-list-read-model.js` · `src/modules/project-manager/application/project-service.js`
+- **Follows:** BR-001, BR-004, SDD-004, SDD-021, SDD-033, SDD-036, SEC-001, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/integration/project-list-contract.test.js` · `tests/unit/project-list-contract.test.js`
 
 ### FR-004 — Workstream CRUD: executionMode + progressStrategy + progressWeight
 
 - **Status:** done
 - **Surface:** `/api/workstreams/[id]` (api) · `/api/workstreams` (api)
 - **Code:** `src/app/api/workstreams/[id]/route.js` · `src/app/api/workstreams/route.js` · `src/modules/project-manager/application/project-service.js`
-- **Follows:** BR-001, BR-004, SDD-004, SDD-021, SEC-001, SEC-008
-- **Tests:** `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js`
+- **Follows:** BR-001, BR-004, SDD-004, SDD-021, SDD-033, SDD-036, SEC-001, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/unit/project-list-contract.test.js`
 
 ### FR-005 — Neutral work model: WorkContainer (ลำดับชั้น) + WorkItem (weight/value/probability/metrics), browsed and status-edited at Development → All Work, both **global and project-scoped** (same view, different filter)
 
@@ -242,7 +242,7 @@
 - **Surface:** `/api/viewer` (api)
 - **Code:** `src/app/api/viewer/route.js` · `src/modules/identity/resolve-viewer.js`
 - **Follows:** ADR-008 §D4, docs/features/FR-031-viewer-gate.md, FR-031, SDD-011, SDD-011, docs/features/FR-031-viewer-gate.md, SDD-017, SDD-034
-- **Tests:** `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/viewer-gate.test.js`
+- **Tests:** `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/fr076-product-owner-business-assignment.test.js` · `tests/unit/viewer-gate.test.js`
 
 ### FR-032 — Home (`/`) is the ADR-008 entry journey: it shows only groups and businesses permitted by `resolveViewer()`, lets the user enter the Group (“all businesses”) or one Business scope, and then navigates to Overview. A single visible group skips the group choice. Creating a business remains the existing Settings flow.
 
@@ -297,7 +297,7 @@
 - **Surface:** `/platform/users` (page) · `/profile` (page) · `/api/platform/users` (api) · `/api/profile` (api)
 - **Code:** `src/app/(pm)/platform/users/page.jsx` · `src/app/(pm)/profile/page.jsx` · `src/app/api/platform/users/route.js` · `src/app/api/profile/route.js` · `src/components/layouts/DomainBar.jsx` · `src/modules/identity/profile-permission-service.js` · `src/modules/identity/resolve-viewer.js` · `src/modules/identity/viewer-authority.js`
 - **Follows:** ADR-008 §D4, docs/features/FR-031-viewer-gate.md, BR-001, FR-031, FR-038, SDD-017, SDD-017, SEC-003, docs/features/FR-038-profile-and-permissions.md, SDD-017, docs/features/FR-038-profile-and-permissions.md, SDD-024, SDD-034, SDD-035, SEC-001, SEC-003, SEC-008
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr036-team-authorization.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/fr062-permissions-read-scope.test.js` · `tests/unit/profile-permission-service.test.js` · `tests/unit/viewer-authority.test.js` · `tests/unit/viewer-gate.test.js`
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr036-team-authorization.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/fr062-permissions-read-scope.test.js` · `tests/unit/fr076-product-owner-business-assignment.test.js` · `tests/unit/profile-permission-service.test.js` · `tests/unit/viewer-authority.test.js` · `tests/unit/viewer-gate.test.js`
 
 ### FR-039 — The Base Context Bar maps `Portfolio > Tenant > Business` to `Workspace > Organization > Business` and stops global shell scope at Business. Schema Workspace and Project are Development resources, not shell or sidebar parents; Organization is a UI label for Tenant, whose UUID and isolation semantics remain unchanged.
 
@@ -319,9 +319,9 @@
 - **Feature:** FEAT-002 — Business Home — shell-level cross-domain aggregation (Dashboard now; Goals & KPIs, Risks & Alerts, Reports later)
 - **Status:** done
 - **Surface:** `/overview` (page) · `/api/business/strategy` (api)
-- **Code:** `prisma/seed.js` · `src/app/(pm)/overview/page.jsx` · `src/app/api/business/strategy/route.js` · `src/lib/shell-mode.js` · `src/modules/business/application/business-strategy-service.js`
-- **Follows:** BR-001, FR-020, NFR-007, SDD-014, SDD-020, SDD-024, SDD-032, SDD-033, SEC-008, docs/features/FR-020-adaptive-shell.md
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/adaptive-shell.test.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/unit/business-strategy-route.test.js` · `tests/unit/business-strategy-service.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr059-strategy-validation.test.js` · `tests/unit/fr060-business-home-read-model.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/overview-split.test.js` · `tests/unit/shell-mode.test.js`
+- **Code:** `prisma/seed.js` · `src/app/(pm)/overview/page.jsx` · `src/app/api/business/strategy/route.js` · `src/lib/shell-mode.js` · `src/modules/business/application/business-strategy-service.js` · `src/modules/project-manager/application/project-service.js`
+- **Follows:** BR-001, BR-004, FR-020, NFR-007, SDD-004, SDD-014, SDD-020, SDD-021, SDD-024, SDD-032, SDD-033, SDD-036, SEC-001, SEC-008, docs/features/FR-020-adaptive-shell.md
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/adaptive-shell.test.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/unit/business-strategy-route.test.js` · `tests/unit/business-strategy-service.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr059-strategy-validation.test.js` · `tests/unit/fr060-business-home-read-model.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/overview-split.test.js` · `tests/unit/project-list-contract.test.js` · `tests/unit/shell-mode.test.js`
 
 ### FR-042 — HR / People is a peer ERP domain (route key `people`) with a Business-scoped People Directory over Person/Membership. It is not nested under Development; Project Team remains Project-local. Attendance, leave, payroll, and performance are out of scope for this slice.
 
@@ -335,9 +335,9 @@
 
 - **Status:** done
 - **Surface:** `/projects/[projectId]` (page)
-- **Code:** `prisma/seed.js` · `src/app/(pm)/projects/[projectId]/page.jsx` · `src/components/layouts/Breadcrumb.jsx` · `src/components/layouts/Topbar.jsx` · `src/context/ScopeContext.jsx` · `src/modules/business/application/business-strategy-service.js` · `src/modules/project-manager/application/project-service.js` · `src/modules/project-manager/import/plan-import-service.js`
-- **Follows:** BR-001, BR-004, BR-009, NFR-007, SDD-004, SDD-006, SDD-009, SDD-012, SDD-018, SDD-020, SDD-021, SDD-024, SDD-037, SEC-001, SEC-002, SEC-008
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr046-entry-contract.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/unit/breadcrumb-switcher.test.js` · `tests/unit/business-strategy-service.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/project-business-context.test.js` · `tests/unit/scope-view-context.test.js` · `tests/unit/topbar-no-dropdown.test.js`
+- **Code:** `prisma/seed.js` · `src/app/(pm)/projects/[projectId]/page.jsx` · `src/components/layouts/Breadcrumb.jsx` · `src/components/layouts/Topbar.jsx` · `src/context/ScopeContext.jsx` · `src/modules/business/application/business-strategy-service.js` · `src/modules/project-manager/application/project-list-read-model.js` · `src/modules/project-manager/application/project-service.js` · `src/modules/project-manager/import/plan-import-service.js`
+- **Follows:** BR-001, BR-004, BR-009, NFR-007, SDD-004, SDD-006, SDD-009, SDD-012, SDD-018, SDD-020, SDD-021, SDD-024, SDD-033, SDD-036, SDD-037, SEC-001, SEC-002, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr046-entry-contract.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/integration/project-list-contract.test.js` · `tests/unit/breadcrumb-switcher.test.js` · `tests/unit/business-strategy-service.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/project-business-context.test.js` · `tests/unit/project-list-contract.test.js` · `tests/unit/scope-view-context.test.js` · `tests/unit/topbar-no-dropdown.test.js`
 
 ### FR-044 — Entry routing is split into a minimal Landing (`/`), a demo Login stub (`/login`), a Business Routing page (`/businesses`) that shows only viewer-visible Businesses, and the final BusinessShell (`/overview`) mounted only after a Business is selected. No real auth or new design tokens are included in this slice.
 
@@ -368,14 +368,15 @@
 
 - **Status:** n/a
 - **Code:** `src/modules/agent/phase1-runtime.js` · `src/modules/knowledge/business-contract.js` · `src/modules/knowledge/supabase-business-knowledge.js`
-- **Follows:** SDD-025, SDD-026, SEC-009, SEC-010
+- **Follows:** SDD-025, SDD-026, SDD-044, SEC-009, SEC-010, SEC-016
 - **Tests:** `tests/unit/business-knowledge-contract.test.js` · `tests/unit/phase1-business-agent-runtime.test.js` · `tests/unit/supabase-business-knowledge.test.js`
 
 ### FR-048 — Provider selection contract: `ModelProviderPort` normalizes OpenRouter OAuth credential references and API-key adapters for OpenAI, Anthropic, Gemini and Groq. Public LINE cannot select consumer-plan CLI credentials, and automatic fallback is disabled.
 
+- **Feature:** FEAT-004 — Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution, local evaluation providers and secret-safe Platform management
 - **Status:** n/a
 - **Code:** `src/modules/agent/index.js` · `src/modules/agent/model-provider.js` · `src/modules/agent/openrouter-oauth.js` · `src/modules/agent/phase1-runtime.js`
-- **Follows:** SDD-025, SDD-026, SDD-027, SEC-009, SEC-010, SEC-011
+- **Follows:** SDD-025, SDD-026, SDD-027, SDD-044, SEC-009, SEC-010, SEC-011, SEC-016
 - **Tests:** `tests/integration/agent-action-gate.test.js` · `tests/integration/agent-context.test.js` · `tests/unit/activation-readiness-integration.test.js` · `tests/unit/model-provider-port.test.js` · `tests/unit/phase1-business-agent-runtime.test.js`
 
 ### FR-049 — Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient.
@@ -405,7 +406,7 @@
 - **Status:** n/a
 - **Surface:** `/api/agent/line-webhook` (api)
 - **Code:** `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/line-binding-resolver.js` · `src/modules/agent/phase1-runtime.js` · `src/modules/knowledge/runtime-postgres-config.js`
-- **Follows:** BR-011, BR-012, SDD-025, SDD-026, SDD-027, SEC-009, SEC-010, SEC-011
+- **Follows:** BR-011, BR-012, SDD-025, SDD-026, SDD-027, SDD-044, SEC-009, SEC-010, SEC-011, SEC-016
 - **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/unit/line-binding-resolver.test.js` · `tests/unit/phase1-business-agent-runtime.test.js` · `tests/unit/phase1-runtime-login-probe.test.js` · `tests/unit/runtime-postgres-config.test.js`
 
 ### FR-053 — Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers.
@@ -465,16 +466,16 @@
 - **Feature:** FEAT-002 — Business Home — shell-level cross-domain aggregation (Dashboard now; Goals & KPIs, Risks & Alerts, Reports later)
 - **Status:** done
 - **Surface:** `/overview` (page)
-- **Code:** `src/app/(pm)/overview/page.jsx` · `src/config/domains.js` · `src/config/modules.js` · `src/lib/business-shell-guard.js` · `src/modules/business/application/business-home-read-model.js`
-- **Follows:** BR-001, BR-004, SDD-014, SDD-018, SDD-020, SDD-022, SDD-032, SDD-033
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr044-entry-routing.spec.js` · `tests/e2e/fr045-files.spec.js` · `tests/e2e/fr058-file-views.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/e2e/fr060-business-home.spec.js` · `tests/unit/business-shell-guard.test.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr045-api-ui-contract.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr060-business-home-read-model.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/overview-split.test.js` · `tests/unit/sidebar-visible-subdomains.test.js`
+- **Code:** `src/app/(pm)/overview/page.jsx` · `src/config/domains.js` · `src/config/modules.js` · `src/lib/business-shell-guard.js` · `src/modules/business/application/business-home-read-model.js` · `src/modules/project-manager/application/project-service.js`
+- **Follows:** BR-001, BR-004, SDD-004, SDD-014, SDD-018, SDD-020, SDD-021, SDD-022, SDD-032, SDD-033, SDD-036, SEC-001, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr044-entry-routing.spec.js` · `tests/e2e/fr045-files.spec.js` · `tests/e2e/fr058-file-views.spec.js` · `tests/e2e/fr059-strategy-edit.spec.js` · `tests/e2e/fr060-business-home.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/unit/business-shell-guard.test.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr045-api-ui-contract.test.js` · `tests/unit/fr059-strategy-edit-ui.test.js` · `tests/unit/fr060-business-home-read-model.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/overview-split.test.js` · `tests/unit/project-list-contract.test.js` · `tests/unit/sidebar-visible-subdomains.test.js`
 
 ### FR-061 — Per-Business domain visibility: `resolveViewer()` resolves which domains a principal may see **per Business**, not once per principal. Each Membership's grant applies only to the Businesses that Membership covers — an OWNER Membership confers all domains on the Businesses it owns, and never widens what the same principal sees in a Business where they hold only a MEMBER Membership. The viewer gains `domainsByBusinessId` (per-Business allow-list; absent or `[]` denies), and `domainsForBusiness(viewer, businessId)` is the only way a Business-scoped consumer may ask the question. The existing flat `visibleDomains` is retained and additively redefined as the union across visible Businesses — "may this principal see this domain *anywhere*" — and is never an authorization input for a Business-scoped decision. The route guard and the domain bar both read the per-Business answer.
 
 - **Status:** done
 - **Code:** `src/components/layouts/DomainBar.jsx` · `src/lib/business-shell-guard.js` · `src/modules/identity/resolve-viewer.js` · `src/modules/identity/viewer-domains.js`
 - **Follows:** ADR-008 §D4, docs/features/FR-031-viewer-gate.md, FR-031, FR-038, SDD-017, SDD-017, docs/features/FR-038-profile-and-permissions.md, SDD-022, SDD-034, SEC-008
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/unit/business-shell-guard.test.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/profile-permission-service.test.js` · `tests/unit/viewer-gate.test.js`
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/unit/business-shell-guard.test.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr060-business-home-visibility.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/fr076-product-owner-business-assignment.test.js` · `tests/unit/profile-permission-service.test.js` · `tests/unit/viewer-gate.test.js`
 
 ### FR-062 — Users & Permissions read scope: `GET /api/platform/users` returns only Memberships the caller may actually administer — those whose Business is in `viewer.ownedBusinessIds` — so the list can no longer disagree with the authority `updateUserPermissions` enforces. Tenant-wide Memberships (`businessId: null`) are returned **only for tenants where the caller owns a Business**, never unconditionally, and each row carries a server-decided `manageable` flag; the client renders a non-manageable row read-only rather than inferring editability itself. The response carries no field the surface does not display — `Person.email` is dropped.
 
@@ -496,9 +497,9 @@
 
 - **Status:** done
 - **Surface:** `/projects/[projectId]/timeline` (page) · `/timeline` (page)
-- **Code:** `src/app/(pm)/projects/[projectId]/timeline/page.jsx` · `src/app/(pm)/timeline/page.jsx`
-- **Follows:** SDD-036
-- **Tests:** `tests/e2e/smoke.spec.js`
+- **Code:** `src/app/(pm)/projects/[projectId]/timeline/page.jsx` · `src/app/(pm)/timeline/page.jsx` · `src/modules/project-manager/application/project-service.js` · `src/modules/project-manager/views/universal/TimelineView.jsx`
+- **Follows:** BR-001, BR-004, SDD-004, SDD-021, SDD-033, SDD-036, SEC-001, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/unit/project-list-contract.test.js`
 
 ### FR-065 — Import target authorization: the FR-012 pipeline authorizes the Workspace it is about to write to, instead of accepting whichever `workspaceId` the request body names. All three intake routes (`/api/import/dry-run`, `/api/import/commit`, `/api/import/xlsx`) resolve a viewer, and the target Workspace is resolved **before** validation so an unauthorized target is refused without the caller learning anything about the plan. (a) A **Business-scoped** Workspace requires `ownsBusiness(viewer, workspace.businessId)` — the same predicate the other write paths use, not a second reading of it; a caller who may see the Business but does not own it is refused. (b) A Workspace **above Business** (`scopeType` PORTFOLIO or TENANT) is refused with an explicit reason stating that no authority above Business is declared — this requirement deliberately does **not** invent one. Enabling such an import requires a prior FR that makes portfolio/tenant authority *holdable*: a viewer-contract change in the manner of FR-061, since today no principal can hold it. The dry run is authorized identically to the commit — a read-only preview of another scope's contents is the leak the commit guard would otherwise still allow.
 
@@ -558,8 +559,8 @@
 - **Status:** done
 - **Surface:** `/api/containers/[id]` (api) · `/api/containers` (api) · `/api/dependencies/[id]` (api) · `/api/dependencies` (api) · `/api/gates/[id]` (api) · `/api/gates` (api) · `/api/milestones/[id]` (api) · `/api/milestones` (api) · `/api/projects/[id]/files/[fileId]` (api) · `/api/projects/[id]/files` (api) · `/api/projects/[id]` (api) · `/api/projects` (api) · `/api/repositories/link/[id]` (api) · `/api/repositories/link` (api) · `/api/work/[id]` (api) · `/api/work` (api) · `/api/workspaces/[id]` (api) · `/api/workstreams/[id]` (api) · `/api/workstreams` (api)
 - **Code:** `src/app/api/containers/[id]/route.js` · `src/app/api/containers/route.js` · `src/app/api/dependencies/[id]/route.js` · `src/app/api/dependencies/route.js` · `src/app/api/gates/[id]/route.js` · `src/app/api/gates/route.js` · `src/app/api/milestones/[id]/route.js` · `src/app/api/milestones/route.js` · `src/app/api/projects/[id]/files/[fileId]/route.js` · `src/app/api/projects/[id]/files/route.js` · `src/app/api/projects/[id]/route.js` · `src/app/api/projects/route.js` · `src/app/api/repositories/link/[id]/route.js` · `src/app/api/repositories/link/route.js` · `src/app/api/work/[id]/route.js` · `src/app/api/work/route.js` · `src/app/api/workspaces/[id]/route.js` · `src/app/api/workstreams/[id]/route.js` · `src/app/api/workstreams/route.js` · `src/modules/project-manager/application/dependency-service.js` · `src/modules/project-manager/application/milestone-gate-service.js` · `src/modules/project-manager/application/project-authorization.js` · `src/modules/project-manager/application/project-file-service.js` · `src/modules/project-manager/application/project-service.js` · `src/modules/project-manager/application/repository-service.js` · `src/modules/project-manager/application/scope-service.js` · `src/modules/project-manager/application/work-service.js`
-- **Follows:** BR-001, BR-002, BR-004, FR-037, SDD-004, SDD-016, SDD-016, BR-002, SEC-003, docs/features/FR-037-project-files.md, SDD-016, SEC-003, docs/features/FR-037-project-files.md, SDD-019, SDD-021, SEC-001, SEC-003, SEC-008
-- **Tests:** `tests/integration/adaptive-shell.test.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/integration/fr072-dependency-authorization.test.js` · `tests/integration/fr072-milestone-gate-authorization.test.js` · `tests/integration/fr072-project-file-authorization.test.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/fr072-refusal-disclosure.test.js` · `tests/integration/fr072-repository-link-authorization.test.js` · `tests/integration/fr072-work-service-authorization.test.js` · `tests/integration/fr072-workspace-mutation-authorization.test.js` · `tests/integration/fr073-repository-scope.test.js` · `tests/integration/fr074-scope-creation-authorization.test.js` · `tests/integration/project-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/integration/scope-and-isolation.test.js` · `tests/integration/work-listing-scope.test.js` · `tests/unit/project-dependency-service.test.js` · `tests/unit/project-file-service.test.js`
+- **Follows:** BR-001, BR-002, BR-004, FR-037, SDD-004, SDD-016, SDD-016, BR-002, SEC-003, docs/features/FR-037-project-files.md, SDD-016, SEC-003, docs/features/FR-037-project-files.md, SDD-019, SDD-021, SDD-033, SDD-036, SEC-001, SEC-003, SEC-008
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/adaptive-shell.test.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/integration/fr072-dependency-authorization.test.js` · `tests/integration/fr072-milestone-gate-authorization.test.js` · `tests/integration/fr072-project-file-authorization.test.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/fr072-refusal-disclosure.test.js` · `tests/integration/fr072-repository-link-authorization.test.js` · `tests/integration/fr072-work-service-authorization.test.js` · `tests/integration/fr072-workspace-mutation-authorization.test.js` · `tests/integration/fr073-repository-scope.test.js` · `tests/integration/fr074-scope-creation-authorization.test.js` · `tests/integration/project-authorization.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/integration/scope-and-isolation.test.js` · `tests/integration/work-listing-scope.test.js` · `tests/unit/project-dependency-service.test.js` · `tests/unit/project-file-service.test.js` · `tests/unit/project-list-contract.test.js`
 
 ### FR-073 — Repository ownership: a `Repository` is owned by exactly one Business (`Repository.businessId`), which is the decision FR-072 recorded as missing for `/api/repositories` and `/api/repositories/[id]`. Business rather than Tenant or Portfolio is forced, not chosen: the viewer contract carries only Business-keyed grants, so no principal can hold authority above Business (SDD-037) and a higher-scoped Repository would be ungovernable. (a) Creating a Repository requires `ownsBusiness(viewer, businessId)`, and the Business is required at the input boundary so every new Repository is governed. (b) Updating one requires the same authority over its owning Business; an unowned Repository answers exactly as a nonexistent one. (c) Linking a Repository to a Project requires authority over **both** the Project's governing Business and the Repository's Business — the same fail-closed composition FR-072 applies to a Dependency edge. (d) `Repository.businessId` is nullable only for rows predating this requirement; such a Repository is governed by nobody, is refused for every principal with the missing owner named, and is invisible to every reader until backfilled (`scripts/backfill-repository-business.mjs`, which infers an owner only where a Repository's Project links agree and reports the rest rather than guessing). (e) Listing Repositories is scoped by `seesBusiness`, closing a cross-tenant read that previously returned every Repository in the installation with its project links attached.
 
@@ -567,7 +568,7 @@
 - **Surface:** `/api/repositories/[id]` (api) · `/api/repositories` (api)
 - **Code:** `prisma/seed.js` · `src/app/api/repositories/[id]/route.js` · `src/app/api/repositories/route.js` · `src/lib/validation/entities.js` · `src/modules/project-manager/application/project-authorization.js` · `src/modules/project-manager/application/repository-service.js`
 - **Follows:** BR-001, BR-002, NFR-007, SEC-001, SEC-008
-- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-refusal-disclosure.test.js` · `tests/integration/fr072-repository-link-authorization.test.js` · `tests/integration/fr073-repository-scope.test.js` · `tests/integration/project-authorization.test.js` · `tests/integration/project-core.test.js`
+- **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-refusal-disclosure.test.js` · `tests/integration/fr072-repository-link-authorization.test.js` · `tests/integration/fr073-repository-scope.test.js` · `tests/integration/project-authorization.test.js` · `tests/integration/project-core.test.js` · `tests/integration/project-inventory.test.js`
 
 ### FR-074 — Scope-creation authorization: every creator behind `POST /api/scope` resolves a viewer and is authorized at the scope it actually writes, in three tiers. (a) **Business scope** — `branch` and a BUSINESS-scoped `workspace` require `ownsBusiness(viewer, businessId)`. (b) **Tenant scope** — creating a `business` inside an existing Tenant, or a TENANT-scoped `workspace`, requires `ownsTenant(viewer, tenantId)`, surfaced on the viewer contract as `ownedTenantIds` from the tenant-wide OWNER Membership that already existed in the data and was previously only expanded into `ownedBusinessIds`. This names a held row; it grants nobody anything new, and is deliberately not satisfied by owning every Business in a Tenant. (c) **Self-service provisioning** — `businessInGroup` creates a new Tenant + Business + Workspace for any authenticated principal, because nothing exists to own beforehand, and **binds the creator as OWNER in the same transaction**. Without that binding the caller would provision scope they cannot subsequently write to, which is the defect this clause fixes as well as authorizes. `portfolio`, `tenant`, `legalEntity` and a PORTFOLIO-scoped `workspace` are installation primitives above any Tenant and require FR-075 operator authority. Self-service is never unauthenticated: the viewer is resolved, the write is attributed, and an audit event is recorded.
 
@@ -575,7 +576,7 @@
 - **Surface:** `/api/scope` (api)
 - **Code:** `src/app/api/scope/route.js` · `src/modules/identity/resolve-viewer.js` · `src/modules/identity/viewer-authority.js` · `src/modules/project-manager/application/scope-service.js`
 - **Follows:** ADR-008 §D4, docs/features/FR-031-viewer-gate.md, BR-001, FR-031, SDD-017, SDD-034, SEC-001, SEC-008
-- **Tests:** `tests/integration/adaptive-shell.test.js` · `tests/integration/fr072-workspace-mutation-authorization.test.js` · `tests/integration/fr074-scope-creation-authorization.test.js` · `tests/integration/scope-and-isolation.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/viewer-authority.test.js` · `tests/unit/viewer-gate.test.js`
+- **Tests:** `tests/integration/adaptive-shell.test.js` · `tests/integration/fr072-workspace-mutation-authorization.test.js` · `tests/integration/fr074-scope-creation-authorization.test.js` · `tests/integration/scope-and-isolation.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/fr076-product-owner-business-assignment.test.js` · `tests/unit/viewer-authority.test.js` · `tests/unit/viewer-gate.test.js`
 
 ### FR-075 — Installation-operator authority: an installation-wide operation is authorized by a named capability, `isOperator`, carried on the viewer contract and true for a platform grant (FR-031, on a trusted session per SEC-008) or the local single-installation session, and false for every ordinary authenticated principal however much of the installation they own. It governs `POST /api/backup/import` — both the preview and the restore, since a preview of every table across every tenant is the same disclosure the restore guard would otherwise still permit — and the scope primitives above any Tenant (FR-074). This is a distinct *scope* of authority rather than a larger amount of Business ownership: a restore replaces Portfolios, Tenants, identities and audit rows, so no composition of `ownsBusiness` can express it, which is why the route was unrepayable until the capability was named. `isPlatform` remains visibility-only and is never read as authority (RCA 2026-08-16).
 
@@ -583,4 +584,45 @@
 - **Surface:** `/api/backup/import` (api)
 - **Code:** `src/app/api/backup/import/route.js` · `src/modules/identity/resolve-viewer.js` · `src/modules/identity/viewer-authority.js` · `src/modules/project-manager/application/backup-service.js` · `src/modules/project-manager/application/scope-service.js`
 - **Follows:** ADR-008 §D4, docs/features/FR-031-viewer-gate.md, BR-001, BR-008, FR-031, SDD-017, SDD-023, SDD-034, SEC-001, SEC-008
-- **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr072-workspace-mutation-authorization.test.js` · `tests/integration/fr074-scope-creation-authorization.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/scope-and-isolation.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/viewer-authority.test.js` · `tests/unit/viewer-gate.test.js`
+- **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr072-workspace-mutation-authorization.test.js` · `tests/integration/fr074-scope-creation-authorization.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/scope-and-isolation.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/fr076-product-owner-business-assignment.test.js` · `tests/unit/viewer-authority.test.js` · `tests/unit/viewer-gate.test.js`
+
+### FR-076 — Product Owner Business role binding: a Person may hold one active generic `RoleBinding` with `roleKey=PRODUCT_OWNER` per assigned Business inside a customer Tenant; the registry expands it only to Product permissions for that Business, never Business/Tenant/Workspace ownership, Resource/Operations, Marketing, Platform, Integration, secret, LINE or import authority. Bindings are trusted, Business-scoped, revocable, audited and fail closed.
+
+- **Status:** n/a
+- **Code:** `src/modules/identity/product-owner-authority.js` · `src/modules/identity/product-owner-service.js` · `src/modules/identity/rbac-service.js` · `src/modules/identity/rbac.js` · `src/modules/identity/resolve-viewer.js`
+- **Follows:** ADR-008 §D4, docs/features/FR-031-viewer-gate.md, FR-031, SDD-017, SDD-034
+- **Tests:** `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/fr076-product-owner-business-assignment.test.js` · `tests/unit/viewer-gate.test.js`
+
+### FR-077 — Project Inventory MVP: an authorized viewer can open one Project and receive a stable, read-only `PROJECT_INVENTORY` DTO covering Project identity/Business/Space context, Workstreams/Containers/Items, Milestones/Gates, Project-contained Dependencies, legacy and managed file metadata, linked Repositories, visible Team/Memberships, strategy-based progress/evidence and redacted recent activity. The route uses trusted viewer scope, independent pagination/truncation metadata, no raw Prisma graph, no mutation, no external sync and does not change the Project List or `overview`/`timeline`/`workspace` compatibility views.
+
+- **Feature:** FEAT-005 — Project Inventory — authorized, read-only Project-wide operational snapshot
+- **Status:** done
+- **Surface:** `/projects/[projectId]/inventory` (page) · `/api/projects/[id]/inventory` (api)
+- **Code:** `src/app/(pm)/projects/[projectId]/inventory/page.jsx` · `src/app/api/projects/[id]/inventory/route.js` · `src/modules/project-manager/application/project-inventory-read-model.js`
+- **Follows:** SDD-045
+- **Tests:** `tests/e2e/fr077-project-inventory.spec.js` · `tests/integration/project-inventory.test.js` · `tests/unit/project-inventory-read-model.test.js`
+
+### FR-078 — Customer Profile backfill contract: the SmartGift historical customer pipeline has a fixed Tenant/Business scope, read-only source snapshot, machine-validated record/provenance envelope, explicit tax/name/corroboration resolution rules, duplicate/unresolved review queue, PII/financial/LINE exclusions, target Person/Customer schema gate, server-owned idempotent transaction and batch rollback; drafting the contract does not import customer data.
+
+- **Feature:** FEAT-006 — Customer Data Backfill — scoped, provenance-preserving Customer Profile contract with entity resolution and PDPA gates
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
+
+### FR-079 — Phase 1 LINE runtime connection cut-over: after the server-owned LINE binding resolves the trusted Tenant/Business scope, the runtime selects exactly one `ACTIVE` `PRIMARY` `PHASE1_LINE_LLM` IntegrationConnection under that scope, resolves its opaque `secretRef` through the environment-selected provider-neutral SecretManagerPort, then composes the existing ModelProviderPort. Zero/multiple candidates, untrusted scope, secret-manager failure/expiry/version mismatch, production local-vault/raw-credential access and production/public-LINE Ollama selection fail closed before knowledge/model/reply work. Promotion uses compare-and-swap and a database uniqueness invariant; local Ollama is explicit local/dev/test/eval only and never automatic fallback. Production now selects Supabase Vault through the private resolver; live apply/provisioning/canary remain pending.
+
+- **Feature:** FEAT-004 — Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution, local evaluation providers and secret-safe Platform management
+- **Status:** n/a
+- **Code:** `src/modules/agent/grounded-business-answer.js` · `src/modules/agent/index.js` · `src/platform/integrations/core/credential-vault.js` · `src/platform/integrations/core/integration-registry.js` · `src/platform/integrations/core/secret-manager.js`
+- **Follows:** NFR-015, SDD-025, SDD-027, SDD-043, SEC-009, SEC-011, SEC-015
+- **Tests:** `tests/integration/agent-action-gate.test.js` · `tests/integration/agent-context.test.js` · `tests/unit/activation-readiness-integration.test.js` · `tests/unit/fr079-credential-vault.test.js` · `tests/unit/fr079-runtime-cutover.test.js` · `tests/unit/fr079-schema-contract.test.js` · `tests/unit/fr079-supabase-migration.test.js` · `tests/unit/grounded-business-answer.test.js`
+
+### FR-080 — Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts.
+
+- **Feature:** FEAT-004 — Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution, local evaluation providers and secret-safe Platform management
+- **Status:** n/a
+- **Surface:** `/platform/integrations` (page) · `/api/platform/integrations` (api)
+- **Code:** `src/app/(pm)/platform/integrations/page.jsx` · `src/app/api/platform/integrations/route.js` · `src/modules/agent/phase1-runtime.js` · `src/modules/integration/application/integration-management-service.js` · `src/platform/integrations/core/secret-manager.js`
+- **Follows:** NFR-015, SDD-025, SDD-026, SDD-044, SEC-009, SEC-010, SEC-015, SEC-016
+- **Tests:** `tests/unit/fr079-runtime-cutover.test.js` · `tests/unit/fr080-integration-management.test.js` · `tests/unit/fr080-runtime-wiring.test.js` · `tests/unit/fr080-supabase-vault.test.js` · `tests/unit/fr080-ui-contract.test.js` · `tests/unit/phase1-business-agent-runtime.test.js`

@@ -13,6 +13,8 @@ export default function ProjectLayout({ children }) {
   const base = `/projects/${projectId}`
   const active = pathname === base
     ? 'project'
+    : pathname.includes('/inventory')
+      ? 'inventory'
     : pathname.includes('/team')
       ? 'team'
       : pathname.includes('/files')

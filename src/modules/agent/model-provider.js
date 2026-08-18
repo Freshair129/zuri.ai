@@ -5,6 +5,8 @@ import { z } from 'zod'
 // @tested tests/unit/model-provider-port.test.js
 
 export const PUBLIC_LINE_PROVIDERS = Object.freeze(['openrouter', 'openai', 'anthropic', 'gemini', 'groq'])
+export const LOCAL_EVAL_PROVIDERS = Object.freeze(['ollama'])
+const LOCAL_RUNTIME_SOURCES = new Set(['LOCAL_DEV', 'TEST', 'EVAL'])
 
 const zConfig = z.object({
   provider: z.enum(PUBLIC_LINE_PROVIDERS),
@@ -25,6 +27,13 @@ function promptFor({ question, evidence }) {
 }
 
 function requestFor(config, prompt) {
+  if (config.provider === 'ollama') {
+    return {
+      url: `${config.baseUrl}/api/generate`,
+      headers: {},
+      body: { model: config.model, prompt, stream: false },
+    }
+  }
   if (config.provider === 'anthropic') {
     return {
       url: config.baseUrl ?? 'https://api.anthropic.com/v1/messages',
@@ -59,6 +68,7 @@ function requestFor(config, prompt) {
 }
 
 function textFrom(provider, json) {
+  if (provider === 'ollama') return json.response
   if (provider === 'openai') {
     if (typeof json.output_text === 'string') return json.output_text
     return json.output?.flatMap((item) => item.content ?? []).find((item) => item.type === 'output_text')?.text
@@ -69,17 +79,50 @@ function textFrom(provider, json) {
 }
 
 export function createModelProviderPort(inputConfig) {
+  const runtimeSource = inputConfig.runtimeSource ?? 'PRODUCTION_LINE'
   let config
-  try {
-    config = zConfig.parse({
-      provider: inputConfig.provider,
-      model: inputConfig.model,
-      credential: inputConfig.credential,
-      timeoutMs: inputConfig.timeoutMs,
-      baseUrl: inputConfig.baseUrl,
-    })
-  } catch (error) {
-    throw new Error(`MODEL_PROVIDER_NOT_ALLOWED_FOR_PUBLIC_LINE: ${error.issues?.[0]?.path?.join('.') || 'provider'}`)
+  if (inputConfig.provider === 'ollama') {
+    if (!LOCAL_RUNTIME_SOURCES.has(runtimeSource)) {
+      throw new Error('MODEL_PROVIDER_NOT_ALLOWED_FOR_PRODUCTION_LINE: ollama')
+    }
+    if (inputConfig.credential) throw new Error('OLLAMA_CREDENTIAL_FORBIDDEN')
+    let url
+    try {
+      url = new URL(inputConfig.baseUrl ?? '')
+      if (
+        url.protocol !== 'http:'
+        || url.hostname !== '127.0.0.1'
+        || !url.port
+        || url.username
+        || url.password
+        || url.search
+        || url.hash
+        || (url.pathname !== '' && url.pathname !== '/')
+      ) throw new Error('unsafe loopback URL')
+      const port = Number(url.port)
+      if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('unsafe loopback port')
+    } catch {
+      throw new Error('OLLAMA_LOOPBACK_URL_REQUIRED')
+    }
+    config = {
+      provider: 'ollama',
+      model: z.string().trim().min(1).max(200).parse(inputConfig.model),
+      credential: null,
+      timeoutMs: z.number().int().min(100).max(25000).default(10000).parse(inputConfig.timeoutMs),
+      baseUrl: new URL(inputConfig.baseUrl).toString().replace(/\/$/, ''),
+    }
+  } else {
+    try {
+      config = zConfig.parse({
+        provider: inputConfig.provider,
+        model: inputConfig.model,
+        credential: inputConfig.credential,
+        timeoutMs: inputConfig.timeoutMs,
+        baseUrl: inputConfig.baseUrl,
+      })
+    } catch (error) {
+      throw new Error(`MODEL_PROVIDER_NOT_ALLOWED_FOR_PUBLIC_LINE: ${error.issues?.[0]?.path?.join('.') || 'provider'}`)
+    }
   }
   const fetchFn = inputConfig.fetchFn ?? fetch
 
@@ -98,6 +141,7 @@ export function createModelProviderPort(inputConfig) {
           headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...request.headers },
           body: JSON.stringify(request.body),
           signal: controller.signal,
+          redirect: 'error',
         })
       } catch {
         throw new Error('MODEL_PROVIDER_NETWORK_ERROR')

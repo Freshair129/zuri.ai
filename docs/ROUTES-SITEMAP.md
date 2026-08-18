@@ -64,6 +64,7 @@ Root Provider Layout
     ├── /milestones
     ├── /repositories
     ├── /platform/users
+    ├── /platform/integrations *(FR-080 metadata-only local implementation)*
     ├── /profile
     ├── /settings
     ├── /audit
@@ -84,6 +85,7 @@ Root Provider Layout
     ├── /execution/[mode]
     ├── /files
     ├── /import
+    ├── /inventory
     ├── /milestones
     ├── /repositories
     ├── /structure
@@ -102,6 +104,11 @@ The BusinessShell domain bar has seven runtime domain keys:
 ```text
 Commerce · CRM · Marketing · Operations · HR / People · Development · Platform
 ```
+
+`/platform/integrations` is the FR-080 Platform sub-domain. Its local
+implementation exposes trusted owner-scoped metadata create/list and redacted
+Supabase Vault status; live Supabase apply and production provisioning remain
+external gates.
 
 Business Overview is the shell root, not a Development sub-domain. Development's
 sidebar is:
@@ -141,7 +148,7 @@ until their parity and BusinessModule gates are met.
 ## API reference
 
 The current API route inventory is maintained in
-[`appendices/A-api-spec.md`](appendices/A-api-spec.md). It contains 43 route handlers;
+[`appendices/A-api-spec.md`](appendices/A-api-spec.md). It contains 63 current route handlers;
 FR-044 adds no login endpoint. The entry routing contract reuses `/api/viewer` and
 `/api/scope` until production authentication introduces a viewer-scoped session
 interface. ADR-027's future contract will add viewer-scoped Profile/Workspace
