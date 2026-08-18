@@ -51,6 +51,94 @@ describe('snapshot backup round trip', () => {
     await prisma.roleBinding.create({
       data: { personId: person.id, tenantId: tenant.id, businessId: business.id, roleKey: 'PRODUCT_OWNER' },
     })
+    // The eight integration models had no row in this file either, and three of
+    // them were asserted only with toBeInstanceOf(Array) — which passes on the
+    // empty array a table shows when nothing ever wrote to it. That is the exact
+    // assertion the RCA above was written about, left in place by the change that
+    // cited it. The whole FR-081 chain is built here so the assertions below can
+    // count rows, and so the restore exercises provider → connection → run →
+    // raw record → dead letter in order.
+    const provider = await prisma.integrationProvider.create({
+      data: { code: 'PRV-BAK', name: 'Backup provider' },
+    })
+    const connection = await prisma.integrationConnection.create({
+      data: {
+        tenantId: tenant.id,
+        businessId: business.id,
+        providerId: provider.id,
+        name: 'Backup connection',
+        purpose: 'PHASE1_LINE_LLM',
+        role: 'PRIMARY',
+        status: 'ACTIVE',
+      },
+    })
+    await prisma.integrationCredential.create({
+      data: { connectionId: connection.id, secretRef: 'supabase-vault:00000000-0000-4000-8000-00000000bak0' },
+    })
+    const run = await prisma.ingestionRun.create({
+      data: {
+        tenantId: tenant.id,
+        businessId: business.id,
+        connectionId: connection.id,
+        lane: 'CUSTOMER',
+        resourceType: 'WEBHOOK_EVENT',
+      },
+    })
+    const rawRecord = await prisma.rawExternalRecord.create({
+      data: {
+        tenantId: tenant.id,
+        businessId: business.id,
+        connectionId: connection.id,
+        ingestionRunId: run.id,
+        provider: 'PRV-BAK',
+        lane: 'CUSTOMER',
+        entityType: 'message',
+        externalId: 'EXT-BAK-001',
+        sourceType: 'WEBHOOK',
+        schemaVersion: 'backup.test.v1',
+        payloadJson: '{"kind":"backup-fixture"}',
+        payloadHash: 'b'.repeat(64),
+        idempotencyKey: 'c'.repeat(64),
+        receivedAt: new Date('2026-08-18T00:00:00Z'),
+      },
+    })
+    await prisma.syncCursor.create({
+      data: {
+        tenantId: tenant.id,
+        businessId: business.id,
+        connectionId: connection.id,
+        resourceType: 'WEBHOOK_EVENT',
+        strategy: 'WATERMARK',
+        cursorValue: 'BAK-CURSOR-1',
+      },
+    })
+    await prisma.externalEntityRef.create({
+      data: {
+        tenantId: tenant.id,
+        businessId: business.id,
+        connectionId: connection.id,
+        provider: 'PRV-BAK',
+        entityType: 'message',
+        externalId: 'EXT-BAK-001',
+      },
+    })
+    await prisma.deadLetterRecord.create({
+      data: {
+        tenantId: tenant.id,
+        businessId: business.id,
+        connectionId: connection.id,
+        ingestionRunId: run.id,
+        rawRecordId: rawRecord.id,
+        lane: 'CUSTOMER',
+        entityType: 'message',
+        externalId: 'EXT-BAK-001',
+        failureStage: 'TRANSLATE',
+        failureOwner: 'INTEGRATION',
+        errorCode: 'BACKUP_FIXTURE',
+        errorMessage: 'Preserved so the restore has a dead letter to carry.',
+      },
+    })
+
     const customer = await prisma.customer.create({
       data: {
         code: 'CUS-BAK-IMPORT',
@@ -122,9 +210,14 @@ describe('snapshot backup round trip', () => {
     expect(snapshot.tables.project.length).toBeGreaterThan(0)
     expect(snapshot.tables.portfolio.length).toBeGreaterThan(0)
     // @req FR-081 — a snapshot that omits a table restores an installation missing it.
-    expect(snapshot.tables.integrationProvider).toBeInstanceOf(Array)
-    expect(snapshot.tables.integrationConnection).toBeInstanceOf(Array)
-    expect(snapshot.tables.rawExternalRecord).toBeInstanceOf(Array)
+    expect(snapshot.tables.integrationProvider.length).toBeGreaterThan(0)
+    expect(snapshot.tables.integrationConnection.length).toBeGreaterThan(0)
+    expect(snapshot.tables.integrationCredential.length).toBeGreaterThan(0)
+    expect(snapshot.tables.ingestionRun.length).toBeGreaterThan(0)
+    expect(snapshot.tables.rawExternalRecord.length).toBeGreaterThan(0)
+    expect(snapshot.tables.syncCursor.length).toBeGreaterThan(0)
+    expect(snapshot.tables.externalEntityRef.length).toBeGreaterThan(0)
+    expect(snapshot.tables.deadLetterRecord.length).toBeGreaterThan(0)
     // Populated, not merely present: an empty array is what a table looks like
     // when nothing ever wrote to it, which is how the gap hid for two releases.
     expect(snapshot.tables.businessRoadmap.length).toBeGreaterThan(0)
