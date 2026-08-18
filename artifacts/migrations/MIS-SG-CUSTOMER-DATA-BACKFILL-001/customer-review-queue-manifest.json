@@ -1,0 +1,2822 @@
+{
+  "schemaVersion": "1.0.0",
+  "mode": "READ_ONLY_REVIEW_QUEUE_MANIFEST",
+  "contractId": "CDC-SG-CUSTOMER-DATA-001",
+  "versionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.3.0B",
+  "missionId": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
+  "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+  "scope": {
+    "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+    "businessId": "834fa869-62f3-431c-a287-e9a95e91175b",
+    "businessCode": "BUS-SMARTGIFT"
+  },
+  "source": {
+    "sourceRef": "SMARTGIFT_DUCKDB_PATH",
+    "snapshotSha256": "a8da233228cb80a088f11ff98fdef5773d0890bc158bcc40752c6d7a5e4bd5d7",
+    "accessMode": "READ_ONLY"
+  },
+  "counts": {
+    "sourceRows": 3569,
+    "reviewItems": 130,
+    "reviewCases": 65
+  },
+  "rawPiiStored": false,
+  "cases": [
+    {
+      "reviewCaseId": "b619fc6c-bb53-5491-b244-ae1f878f6bdd",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "6dda7127456367f2a52211b758a22ae94bcda00331f995827b76cd470e2550eb",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "1d6aa177-e71b-52fa-95fb-2cf8a0a576e2",
+          "sourceRow": 761,
+          "sourceSha256": "a5d0c8f1c3737986ea9043fa2029b87571a393fbfc873a7a4fdac8ce33b28aaf",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "98b20764-ff97-5ae5-b9f1-c607e1583829",
+          "sourceRow": 1093,
+          "sourceSha256": "f368dc4ffb878d79d6a60736a157303ae1e4fc817d2d16641fdfa26e90c55dcb",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "42ab6258-cea7-593a-94cb-b5cdd353f04b",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "a35202109f33dd7d27866a2b4919e90de4d88ea693f3ce46e08df7cfa069925c",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "e3acc95a-7de9-50eb-a961-663815a2ed4c",
+          "sourceRow": 411,
+          "sourceSha256": "fc1c6d7e414c942fe3569f0e3a86159c06ac79a0604b3294e1640ba1bc35f627",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "859d114b-1c13-5c63-995c-b45691f10c4f",
+          "sourceRow": 1143,
+          "sourceSha256": "a70125881a0f7e88d6cb9ec3d4f90eaf7c224ae3d1c0fe6ed26e60db65eef25e",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "2fe51a3b-fb76-56c7-b966-8753fa975fba",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "fc9d6fd3533fdbd113e18eb2e53c24265fd7809735e3a0628ba9f28fa5e4855b",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "27ff45a5-7610-50d1-b9ac-f7eb3d12e559",
+          "sourceRow": 877,
+          "sourceSha256": "eac0de4fbda623800c2a0cf0bd4b4762c1960caf5a5e9bb6162c613198820b36",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "377aedcd-4c75-59e8-9e35-3165151b7391",
+          "sourceRow": 1152,
+          "sourceSha256": "659231c9c51cc1ae5484aac47c4576bb5cc5ca583c9f480c8094c706003449ab",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "a5034c48-8692-5b8d-bcbb-0111b0dfbb2c",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "4b3cf58968495f3888cc4ee024146b8b85b5788381336a86e51f9a70ba978cb3",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "5f333b19-2ab7-5a8b-9a05-857f4ca9d504",
+          "sourceRow": 115,
+          "sourceSha256": "4ab3e4f54f4bb738c561b08f2ab0dbe934a0c4c826ffd68087c6801c2d1eb95c",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "1eaee68d-aef7-5f29-8be9-49f03e0aa988",
+          "sourceRow": 1181,
+          "sourceSha256": "b2ce4591ba60374efc4a992c62542dbbaa75a33c7e0f28b81f196e0b0f9a5261",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "f3bf040f-abaa-51bb-bcd0-b6916fcefb13",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "f6c74f81deaf7edc1973bd76ada3ac5c432f01cb585a025d4f00a828dbbc19cf",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": false,
+        "postcodeMatch": false
+      },
+      "items": [
+        {
+          "reviewItemId": "434cba64-c57c-5e74-8bdc-633e0b4a1d1c",
+          "sourceRow": 27,
+          "sourceSha256": "b69b18e34a76aca1649cc7269bae344b080fc8b052586537bcc517e71ee45e4b",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": false,
+            "postcodeMatch": false
+          }
+        },
+        {
+          "reviewItemId": "d185b464-c86b-549f-8b63-e9307afb7375",
+          "sourceRow": 1188,
+          "sourceSha256": "93c1c7ac158e711afb94b324bd296ec4e23508bea5359528f1af9d978c702a53",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": false,
+            "postcodeMatch": false
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "91bede7c-3b73-5cc0-b9e9-e917de5d6765",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "289d5adef28e56b9e608d266bd0cafc27c02b47439dd252dcdca5605ffdf176c",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": false,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "315c2e70-da5f-5ac7-b26d-dd7cbfc5f026",
+          "sourceRow": 312,
+          "sourceSha256": "ee0e3efeaf53e781d4056a851f5b40f55e5c05aa46510efa2b5c4b0dc0671f67",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": false,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "092640b2-726b-56f3-9c09-478e1518e77b",
+          "sourceRow": 1682,
+          "sourceSha256": "5b2237fe7b85b45b3128b75c2190e1814858b65252179055d329a64bbc504a74",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": false,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "34559ab5-bde0-508d-a90e-9408f040c345",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "b4d8e0782df89142f5b68d41e7b0c0f32c16f587be3ca565078a64f4eb48679f",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "2e8a9459-6f31-5212-85ec-83a70967a658",
+          "sourceRow": 46,
+          "sourceSha256": "b013a1c6c0afea9a178adc6ff103d36aa426f691c144d45cc51436974e1b8222",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "9f5033d9-fb3c-5e32-a718-a258142929b0",
+          "sourceRow": 2435,
+          "sourceSha256": "221108236e611bcd9e310787b4c1b4774ea87aceb048a5555ca2cd0123fad78e",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "b3f02153-ea2f-5bae-b6da-2ff26f4beecb",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "fe0d736d441cb32ea9063ddf49ed432d4e9351e33df3d84fa5015109178e8a7b",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "c0a73d3b-8f5e-5851-8ae7-e9f611dce215",
+          "sourceRow": 11,
+          "sourceSha256": "0ae06848547758a7d980fc1325516f64de3190d2e60da7545c359101f278a737",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "5777411b-0913-53c2-94f7-155bfbbc471f",
+          "sourceRow": 2448,
+          "sourceSha256": "f9ba5add7789a36e017b9b24664194947f2554611320c51388b65cdf15b400d2",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "01417ff6-39a2-56c1-8f41-6e4c1632b218",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "56aee1a4c55a018921e0f015c8721b0f62be0462c695db03fde2a785fee3f6dc",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "29105a0c-0c4a-5b59-afb3-5e7ac57ce762",
+          "sourceRow": 617,
+          "sourceSha256": "29a0c807d527b1491fedb3a78fddb9b1bc10e60a468d57e30dd116491f48e468",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "47290bb7-6696-53b6-ae8c-17141d930e01",
+          "sourceRow": 2544,
+          "sourceSha256": "a1a86c8bc62c695dd71fa30f4df44dfe87fea4305bf730d06ec918f39ad3ff8d",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "7eb9357c-6f4d-5b4a-aecc-438253c4042f",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "6764d6d8e086fa359c679c26299f4bf5e99024b1dc6db6219afb7367d617386f",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "11b16d03-847b-52af-b2b6-4bdc2ca070c5",
+          "sourceRow": 972,
+          "sourceSha256": "5f63df4558274fe87a21523bfa233789834449d3a3e7af083674503ea6847e4a",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "35378ada-3c7f-57ed-8ea4-06d8d6062279",
+          "sourceRow": 2581,
+          "sourceSha256": "9dcfaa0067f345bb3f745f05011bc397d96fe1e299936b73f8386cef08aa449c",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "d3d7382e-849e-5863-bf2b-0f664d88b94b",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "30925547473bf2697a2da0257cc6c01ffcb3c512a9f7c109eabcd29132ef6d99",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": false
+      },
+      "items": [
+        {
+          "reviewItemId": "3e824759-8236-58d1-abb2-fb5154f86743",
+          "sourceRow": 642,
+          "sourceSha256": "717db3924600e0feed33f75a1b10aed6431b8fb8db6db7a551e588a7bfedd4b6",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": false
+          }
+        },
+        {
+          "reviewItemId": "120c2f01-b6d7-5007-bf63-de1dfa73a5b5",
+          "sourceRow": 2589,
+          "sourceSha256": "607f962e842b0390a232efe9334d6193698520d9b799ad087a4640d0b9d0ea43",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": false
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "5f77ae9d-5bf0-53e6-b640-b01aad6e862c",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "3e24cd611657e546271a810596f2216f349f6a92af40ed58db296528d1d8611e",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "f34a2e5b-4137-5bda-8fc1-d04e9c061146",
+          "sourceRow": 153,
+          "sourceSha256": "19601de458c7bbea18994106589b552f739f39a24f63d6618ce5982887b774cc",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "052a1743-3e63-5829-a1e8-d50a2770b531",
+          "sourceRow": 2599,
+          "sourceSha256": "10e6630439e1c878ffcd1859cdf76d723864f457f9ce73c05f1a97ec3339f330",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "1a3d3638-f4c4-56ae-8427-11cf9634ec3a",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "f3ba04f27c38ac46500d3c75b24e9955abf55258d4098a0636dd78d523bdb77d",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "a307487a-c6b6-520e-b78d-195d645bddd4",
+          "sourceRow": 449,
+          "sourceSha256": "873f0d364549c431333a79a8e7ef4716ccd614a6ae08c9b50c63e4b4f748e6d7",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "a7649d3a-f1af-5c31-8856-23514dd29f47",
+          "sourceRow": 2652,
+          "sourceSha256": "143fd61a136c467f0112632adc8143125bc7053f8bc4c8c0e242fc9df02b41b0",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "88c95d0c-59fe-5540-b928-09b424360c93",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "52b8bdd2cb4d2f53113d935b837168d4405f422f12c988c67e59b54e96dc2a29",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "6dd9a03c-af70-5565-b77e-cfdfa33bf11a",
+          "sourceRow": 933,
+          "sourceSha256": "25c8759f1196b4784fd3a69db040cccfb26ebb52e921acf869043e0eb846e3ed",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "acfa2325-d7ae-567b-806a-314352db2896",
+          "sourceRow": 2670,
+          "sourceSha256": "0cacbc8e3f155b27fd1ad9f9681e51a5cd25e34cf74411161bc11ffa66d5343f",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "af12d712-bbf2-5eee-a904-b5106da89e82",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "f8acaa748f4e84bd7435aee675814b1ff17fc4e60a7fc00767a142aea14cced3",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "bb0973c5-24c5-5513-b1dc-4d4a2a9dba27",
+          "sourceRow": 1,
+          "sourceSha256": "5132ec745f079ea4c47afba9ad049784e19178d7128390433629731c4d8d75d2",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "2a2c71d7-1e57-57b5-b9e3-5dee147a3c20",
+          "sourceRow": 21,
+          "sourceSha256": "c442d69acc48a62fd7b9624e157d4fc5abfb8ab425682475be35b786d53c3104",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "9bac9a20-0617-52f8-9664-699b57b58d96",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "4342f1d17725578f0107604bc6bb79c90c2a897baa476d64cb906ee2290b00c9",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "14f7b38c-df8e-59cc-8a30-d45525b752a8",
+          "sourceRow": 300,
+          "sourceSha256": "af01a8f253925f5a2b6c28b6801965dc256f4551ea797436e8a83dfe769a1c21",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "e1e2af4b-e9ae-52d5-ad30-1ce1c8956a93",
+          "sourceRow": 2684,
+          "sourceSha256": "16dae78440935db6cc0e74ddd9f41b85f5c8aef999fea7614ac2d2dfeb80a8aa",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "ada8959f-0ae4-518b-92df-f7ae40c8bf08",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "a2cbaa0a7368195aa51281f23eccae4fe63cb02a48bed174f4b9546e59799ad4",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "f60194ba-a89f-5809-861e-e8cd8eb879b6",
+          "sourceRow": 293,
+          "sourceSha256": "bc8f41999d8c86f976b9dd3df950b2b85f4d7a005c16dd5415f0dc3b121d4921",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "60aae666-4aff-563b-9d41-ab06baff3827",
+          "sourceRow": 2692,
+          "sourceSha256": "f4d4b41f2eda867312fc29df2cf68cd5bf20936c2c5a21414f9ed9badf21bf3d",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "1b188596-ff68-5417-9c83-62ab28cd1ad5",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "5a0a6fd08fbca07770f17fc7707f8bfd4403b12730dc584450a9e894a200d777",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": false,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "11ae2e3e-b6b7-5469-bf09-0419db7c6dd8",
+          "sourceRow": 426,
+          "sourceSha256": "c29b5f09aab626c26ab7582e1be82df327e8950f8f2d778176b44b1eaf69f64f",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": false,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "37db51a0-afef-5e6e-ae9f-bbf642f48044",
+          "sourceRow": 2694,
+          "sourceSha256": "a94dc2494ce09c61e3ff044dd318da2dd859b588a448cf0c88800817c5e16c59",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": false,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "4b51fca5-cd2f-509d-891b-e59217efd0f5",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "af3c7392de8f7c971648a152945df8552fa33843a525eb6f882f5bf8f4863680",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": false,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "bfc713c4-182b-5826-88f7-691dc9530028",
+          "sourceRow": 1007,
+          "sourceSha256": "4a1ca7ef0184be7e3d528140195567330ec0e49022361b39009d61e812b9dc54",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": false,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "bd50d46f-d990-5d1e-a1d7-cb095bb1c908",
+          "sourceRow": 2850,
+          "sourceSha256": "f1bb3b80ecbb1c072c21b6fdc3ac5015ec3e84bed141e5b6d62d7dd7bfff16b5",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": false,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "2c9cc28e-04ba-5b1c-93a6-9c3355456069",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "991507bba76c42ed72da3d6ed83c4c77aebfa582a86a27e5febc3e2d879b8078",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": false,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "ab5196d5-6efa-5549-9000-7a3cc09a27c2",
+          "sourceRow": 1002,
+          "sourceSha256": "58b7e2ae44be51cd47267714730755bd944c7d03af1ca2efca728bce911e3793",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": false,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "e043a414-fa7e-544c-bdb4-0ae98cdaa0aa",
+          "sourceRow": 2905,
+          "sourceSha256": "881d99c307eae33c4cdd40978816a4a0cddcf0086d8d014b5f58557f1f8d7d01",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": false,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "b840abaa-d043-565a-98ae-b5a2c8e85e43",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "f77599f5b640b4be0ca14e13a45ff606f5be971e2dc49dbc4dee3f727c33ba5a",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "e4c8afd8-8204-5dae-a236-08646b86bf04",
+          "sourceRow": 994,
+          "sourceSha256": "9e620d1638dfb198fedaf52b17e49fed44d2477aea7e67e68c0d7b18358eb40f",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "92c83531-9e74-5639-84d5-74e07c1169e9",
+          "sourceRow": 2912,
+          "sourceSha256": "88dbfebfea2b329f0809d7516a1fa08378edcec8631d30aca30d2eeb68082e7e",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "59df05b5-9a79-5720-8665-267f12c3c9e5",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "9bd41fd087449f432d9b05fd557339d0d2623a192af71f11b59b048e832449c2",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "720a3cd1-0bfc-5f61-b772-6773160c927a",
+          "sourceRow": 987,
+          "sourceSha256": "ab88b232a7e137cf5d578991038b2b8adbe4e1490f5e5376639311fe3e6d4930",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "d7ebc534-a3c1-5bda-bd74-2d397ef0c072",
+          "sourceRow": 3027,
+          "sourceSha256": "2278f3a94e358876eb6567fc6c9343558b129109fac9c6a2ddc59e98c12cf753",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "d231926a-b3c3-50de-b9e2-b77832e65ceb",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "2087c6b27b15e59559bac9e0beae35bb2957bf917515b646eb71587ba9a9b359",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "3c2c76cb-98af-52f4-ae82-be9e7d0f6da9",
+          "sourceRow": 384,
+          "sourceSha256": "0113c8ee8273badb62400cf712407b9800a32cd1fa21a842430938e87140aa09",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "c1228ac1-3851-5ebe-836f-6ae22d3091ef",
+          "sourceRow": 624,
+          "sourceSha256": "5f3caa07ec6e1b2c324b06b922e7beb3e600cad810e9ca3ab311b6dc6e318c71",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "bce9e002-fea0-5518-9661-bd187568542a",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "2f0c000bc5ab0be8601f36e590b4f3841350b66746670543d6d34de4a787f778",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "1a966c4b-2b19-5c03-8a55-4cc7071562e0",
+          "sourceRow": 164,
+          "sourceSha256": "d450fd228c22a582bd39de003ea50eb378266d614b679d1bcaf748f4d10ad5eb",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "9eaf5965-4ef0-5ba7-a64d-b989f927e047",
+          "sourceRow": 3258,
+          "sourceSha256": "f907f02874d1fe64f2bbf31d18bf1081fa82210795224bd1d41e158bef3b1a42",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "9100b6a0-3304-543f-a7d3-a4ef550211a3",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "03806ed1b6dedb7c94d83333584ecf7ca4d373f0853dca6a7a00e9c1e5b60c69",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "a1883cf2-1d36-57dd-8cda-aa99af39bad6",
+          "sourceRow": 342,
+          "sourceSha256": "a1044f115705477087d97ecb3dc598de7bbefc62c8cd254d548d1bb19ca38b23",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "40d20c04-4df5-5170-ad53-cee7acce073f",
+          "sourceRow": 3265,
+          "sourceSha256": "63483199b417dcb243832e5e039dd8bf910a603bd15a0f182262d1c12fd3e858",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "0d2d0499-2887-5b23-a8bb-1e1b6347a61d",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "7f12cf62a3397d0b2a1e641af0743dffa39ad7ca524878ae65bbb8a952f39e1e",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "7746c4d0-7c05-5021-a649-51b89940afa8",
+          "sourceRow": 598,
+          "sourceSha256": "e04cce92e5a9c167329938817f5a305c0c27ee4ce8a993f461f307ed12338b3a",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "8279b8f4-8b27-59db-88fc-ac66c4c02e9b",
+          "sourceRow": 3268,
+          "sourceSha256": "e984c95fa9d750cfa7463b64810ac591b0cc10b287d290b1d88282437821337f",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "c91c63bc-d036-52c5-aa2d-0b68e4ed6301",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "60dd9c68031e461d9600eedae369eaf06eaad5ebd014f0292b7183d19965ab00",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "53cd9a41-dc46-55c7-8af8-17dbab5b9941",
+          "sourceRow": 844,
+          "sourceSha256": "affe86e867ec390f89a21e44fc3608411949853fcd6c8ca70a96aa388c5e63a0",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "0afcde7a-bf71-55df-b1cd-7c60f9570408",
+          "sourceRow": 3277,
+          "sourceSha256": "b6bb2f50b77762637392c6691c0f926bd26eeb85e8fb2e8edd7c864a0cd29edf",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "8ba64a8c-3bb4-5dff-890e-9a234aafce2c",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "5b248864217725db35e7e23e1db54728a9a6bea337b5fe172c051b4c75ff5c35",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "7fafdc53-6534-5fc6-af2b-9a026e8fc632",
+          "sourceRow": 871,
+          "sourceSha256": "991de1071a5c1050d6c68f493a9005992405b69c282f27a7909eef7245e4eb73",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "c7c1a1f4-1ea9-5339-a876-8f74cfc9ed14",
+          "sourceRow": 3278,
+          "sourceSha256": "6a7dc17f0f2852ffc4352da80efb075c1600a0d009cef15a88a78c5aa9a6ec68",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "9f20f646-a982-5a86-81f4-fa80073abb17",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "4ff91344ce0a79d2e98968a16613118a3cd2efa81577ace294b4170aa2f0129a",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "1c1e75ec-fd20-5a77-ba13-c05ee7f5f806",
+          "sourceRow": 669,
+          "sourceSha256": "a32fef8838e1940a22cbe8cd2058d84d0d11aaec8bb722331a5f3aa276d5c5f5",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "6773ea9f-4a15-52c2-9b0b-7ccb1908040a",
+          "sourceRow": 3283,
+          "sourceSha256": "dd413168f5b4289058436692bf6e57797b09070fa9077c09119f02d19691cccf",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "0d63a671-2c8c-547d-a78f-a542f8f0310b",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "91ba2383160e4c05dcb3e73a7107113ae11975b5b84ce428069146d906c63d14",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "ed79a663-ab0b-5914-abab-167f79c53e23",
+          "sourceRow": 194,
+          "sourceSha256": "0b7033b5c252ce926eb0dcab228ef2e802a7b76ba3eda38d725c91f5d38141f9",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "324aec21-dbb3-5f44-a0d3-ab5a3d673f63",
+          "sourceRow": 3290,
+          "sourceSha256": "874e93a23c70bcd874be186876b38f08b88a08f6361f7b4ed40beb5e3dfcd148",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "9b5e0561-dc10-5631-abe8-7838f3ffc5e4",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "5c8209e4aa7cbb5cb3acc9af3dcc8468a386bada712f611a488f38d214787a0f",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "107c1e3b-1d93-5cd0-bad5-fd1ad41d2d29",
+          "sourceRow": 705,
+          "sourceSha256": "9b1a137cea2a5de1048308e37931e3bd51a5483b524b419cf4c8e0d955e6d38c",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "813e3e79-dc3c-5f2b-a19b-7ae76178e68b",
+          "sourceRow": 3293,
+          "sourceSha256": "b3cb100da4c9fe8a7f8e7e721a20a44a9c06fafb9ce78d6451b524b1130ea180",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "51e06d4d-f956-5666-a2a3-db0ba55e6225",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "42644feda525500b8a970da4ed0cc59f86387e0a2f566ca375448bcd78ac90cc",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "1f93d0ea-9084-58f9-82a7-d74f2481b357",
+          "sourceRow": 513,
+          "sourceSha256": "aebe776286b9eb67a6c3d2c87139ad260dd2f76b5da21a230e3b1bf7074dda52",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "4b99b0bb-15e0-5df1-a19c-539b91b16c8f",
+          "sourceRow": 3296,
+          "sourceSha256": "6389f0bb26311664674fc1591bc64d57d1001e8ae25ce8524aa40cb8aefb095c",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "b3aee8fd-2103-581a-bcfa-4c514062887a",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "7c86ba9ddfe096f8fcaa4cfeb83f3ef8250cc47cc400dedcd255d7cf469c7b4b",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "7863ec3e-325a-5ca3-9bc7-3d50c0d5ca6a",
+          "sourceRow": 576,
+          "sourceSha256": "5b0d2f5465f5ace0bb312675a06a83f9439050d9e68cc75dd943fe1a3931e93b",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "bff6bdd8-0b6e-5414-9f60-1993044fab92",
+          "sourceRow": 3297,
+          "sourceSha256": "3e553ca3c8812b49926ab87a49266a68f543e8507543c75e606e8b785dec41f0",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "5c404472-523f-5ceb-bfc0-648467d272e7",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "72c25298a250df87ede6c48689a7841baf14102678d8ddc94122ed3716492abe",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "95d23d92-ed57-5381-9b7f-9b3c3fb01edc",
+          "sourceRow": 712,
+          "sourceSha256": "0ad3b9134da54f03389f42d33c20ea6b74f6f0610b88ad976ce24d45bfab5d21",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "238cc282-c196-54f6-bad7-00b79ad30c1b",
+          "sourceRow": 3305,
+          "sourceSha256": "223ca20007bc080fb82bfc3a3e62c6daa3393a384c3cc30289e7c41b4612237d",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "70508a26-957d-597b-9bac-a744959d587d",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "6ef8d5e7e3fce489aa5be8542eb579f3fb29cf359633ff812d18354570f98f72",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "0337db4e-bbf9-5a43-86f5-00e98debf67b",
+          "sourceRow": 586,
+          "sourceSha256": "de34fb81329f758afd89b3f44462dd9f8991aa3a8c506dc2b193f2d6c98c5602",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "02850ad7-720c-5d92-bf58-5e27ee3d4378",
+          "sourceRow": 3323,
+          "sourceSha256": "1ca5c476cb2569f6df2617619fab2cacb7e2e7e5f0fab5ad9c38dfa02eeca046",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "afbc81fd-3d91-5b06-b3f4-e279b070c375",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "15852748bca9b22371a0279cbb4e4806f5082ec06b8cf7ce9e0e6df366d44a20",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "4371f8b1-9a66-5936-b0aa-09dd2806dcde",
+          "sourceRow": 944,
+          "sourceSha256": "f286058e115f79662a71459e51e37ae5448a37704453b0c7e8024048fa39ba38",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "1a741441-0cf6-5e28-a5aa-8d31d4f0cac4",
+          "sourceRow": 3354,
+          "sourceSha256": "a028d47ce0ae1b067e40e6e0554daee0c59e7b9c427867f480f6f6d38185b11e",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "d545c6f3-d642-58ec-bf4e-c5beba5630f5",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "a6fae35bb5f420e3547da21907f6c1aa9d8aee4c0a28ec6efe95893410e03d3d",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "e5c9dc22-8a6c-5b44-b5b6-3b23b1a75f53",
+          "sourceRow": 346,
+          "sourceSha256": "bc6937c2dbf337fac9c452d58ebbe99af687c2cbac5369829c86e5171348f204",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "bf117a4e-d31f-59ed-b590-48135c6a6a8d",
+          "sourceRow": 623,
+          "sourceSha256": "ec87639ef2bd07858f0455b9ff25baa4fe9ca43ffc404762e36b83cee6e1b61e",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "e10490d1-ad14-5781-bf9c-4bd2394a5bba",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "b7a0186555d22d6d592f1e3ae77279d3aabf16ca32fdb75561e6a4366cbbab5e",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "cad6a07d-3098-5207-9fca-bfa5202f857b",
+          "sourceRow": 2,
+          "sourceSha256": "6f2cfe1e3663138b2a0683440f4ade97d242d3f91e7b09c6b0716dc6c926fbec",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "3a2288e1-678f-54e7-959d-f3c97503683f",
+          "sourceRow": 358,
+          "sourceSha256": "c174e77a2e2613a1f1802a3e5306f1b91f8edee5357391177c64955dbf4cfb97",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "3276938b-8f55-501a-959c-c0aee0ead733",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "016a676e92614104e3ec2a6ceaa0c50ec23420017eec0b0f50eae415ba893c49",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "596a23d2-c8c5-5fa8-a907-c16664f7ba10",
+          "sourceRow": 999,
+          "sourceSha256": "7ba7139adf4e0c87dd4b60451df624f6c645331e2eaee4bfe18f3a377c675f97",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "cb03b4ba-882a-5a3b-9aba-c74bc46ce5ae",
+          "sourceRow": 3373,
+          "sourceSha256": "69cb9a444bea13a5099fce35f39cea8fe0604e84f8c467dbf22229637b7af055",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "bc205d19-8900-563b-a1b1-57e949bb661f",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "ba82ca51f27c2147d23ed6e41fc8988188a4aabeeb3d182b347a9ad1a236dbe5",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": false,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "53ad80bf-ce03-5b14-b1ef-397c877e1baf",
+          "sourceRow": 853,
+          "sourceSha256": "fa245c0b0a9c8ef211caef946ec843352e2a192c8b4ee6fc0cbbeb96eadd760d",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": false,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "dc01bc68-33ea-5a07-b0fa-6d7c5b650ad9",
+          "sourceRow": 3375,
+          "sourceSha256": "43d694eb2532ab9d18c034dfb70615decc9c86d5c6d7ece5f2056882fc387eda",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": false,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "2f6396dd-9a45-5e07-964d-4c74d33b64c0",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "28e0835964627d2402643979f27b66878e478e5af3fa728401ca635eedf65ca9",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "be31643b-0a42-53cc-927e-c487adc3c4ad",
+          "sourceRow": 34,
+          "sourceSha256": "adcf0fb64b64dc2e925cd52df59a2d963a0585d6caa344880ca60bc52602e98b",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "a3f70c7c-e065-52ad-836f-d665f49dd711",
+          "sourceRow": 3377,
+          "sourceSha256": "97b0aaf171de5597f86d30eca64ab6188511e9de983ffaedb90b777fed15b100",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "3c4fed9d-11a9-5c36-a591-b888008de73f",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "f322bdc88d3cc273b5130580d5a5057f2bfceb5a7deffd5293dce00cca135591",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "6199efd2-9f0f-5ab0-8829-9a63c34ec8a1",
+          "sourceRow": 8,
+          "sourceSha256": "d77f04dfa378372fb58a2a297e6e91ae276b62f98830bdcf1e385c4f2f699a8a",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "79aa6708-047e-57a2-928d-f8b0f6c726e6",
+          "sourceRow": 3383,
+          "sourceSha256": "bc540d853be42ba359bf06b2bbe4dffb71b6ad46b907b9d9a7ef42d3de0fff8c",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "43cd37ae-b5e6-5430-8108-b2a5fed8c568",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "4bf1acde1b93e0ef42c36764244443b42f2877557ae19c03e461767376ad209e",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "154f49dd-02e0-5c30-aab7-4b725a1e6419",
+          "sourceRow": 716,
+          "sourceSha256": "4032a28611351f72858018275c533432a90b5a01848631d6a7c8f2d8b9acd594",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "9ef23bef-0c15-52e8-baa9-36a34931f23a",
+          "sourceRow": 3387,
+          "sourceSha256": "7780e10d74382e30bdebf5e069522ecfd732a46f3f8627d8bfb30106ffac430e",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "2bb5c0ee-be32-5490-bae4-a77072a6e91d",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "48835bb2f95489a7df0e972e432c02341967d9ebcb7a772d4f1209dec5300a5d",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "d8a7e153-4a10-54ca-baf8-63e6a28af59b",
+          "sourceRow": 416,
+          "sourceSha256": "9f2eb27887c0926d0caf94ed65c16e6cc59e78273271b933a1cb551bac5e84d6",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "a0567fab-5fa9-52f5-83db-3df37b8e32f6",
+          "sourceRow": 3388,
+          "sourceSha256": "f6932fd680dc50b0f39326321bc220b5926ece355aff6a1113c8e84b647ec30b",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "50466100-7764-5cce-89a4-a6f333c04ce3",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "f2b8b4a1d99939fc99704e5be5a7a91f7ba06a20408b6bf6e599f482ff15be9b",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "dc343a34-5bfc-58e7-ab4c-67182aa34c2e",
+          "sourceRow": 743,
+          "sourceSha256": "045dd6a5107a2f4f390420995442323cb609bfc848b21ed4c4efd56754fd5cfd",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "05337360-c40e-5e4e-bc55-f05f7e4899f6",
+          "sourceRow": 3393,
+          "sourceSha256": "ae98562e181b498c33258fd878867d09d6b3e93c59131bd6387d2e55dce9750f",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "3162b88c-10a6-5ff1-ba10-8862d4d7ec82",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "04584ea19bd6a752237f3bffaf35e8ca14345f4f63a52ac8e4b932de7027e848",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "18949ece-15ef-5b9e-a556-7d46a9ad8ca5",
+          "sourceRow": 911,
+          "sourceSha256": "8542a665bb052ac9a52e15ec9087d30ad9d1d2bf94b66a92ba252581c6fa69dd",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "b50f0a71-d6f5-5307-870a-52f18c2b3778",
+          "sourceRow": 3404,
+          "sourceSha256": "0d8dbdd74ab29dc2eac9ab4b72eb626b8b18d45a3d182b1d373ce508ca35d083",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "903a62b7-71ce-5ebe-b73c-2bc68aac8b58",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "a6b9425534abeffd62512767514bcf037042f09c8aad9d10c9891854790a0fe5",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "07aa52a1-f659-596e-aa7e-28c8fa534124",
+          "sourceRow": 969,
+          "sourceSha256": "5dc84eb142f46b2ad73ee673130ddd4eb6ded1c1843fe41663093504df1c0fda",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "535a979b-d392-5137-b12b-ad20356956cd",
+          "sourceRow": 3405,
+          "sourceSha256": "65e886bc586765640035a33447e54ff367b31f58274192f94b60f69b7e5541a3",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "98596633-ac75-57dc-84be-0f763d205c07",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "f58428583ac4bb3d36ff331d133e1dcc0288d38c8f09587cb63c6e61ee15e3db",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "3d5c0510-bcf6-5edd-beab-8d7b5ea010be",
+          "sourceRow": 913,
+          "sourceSha256": "df7302393bfc33f32876b9c29ec19d89e3e16d78bb321735e060f123bda8f52e",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "d63d488f-d73c-57f1-b806-83e490d35b80",
+          "sourceRow": 3431,
+          "sourceSha256": "e37a5a733a77502f20a96aed5cabb60776261322e45673d0f81823dc73406ac8",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "0383388d-bf4d-56b6-9783-07dc0bce6987",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "3c20f350b98a6db742a1ce181d2117fa592df2ce51bd8352d5da702ac227f2bd",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "38f87c6f-504b-522a-8be2-9719fcbb60b4",
+          "sourceRow": 168,
+          "sourceSha256": "d4e745c4f651907031ff60f91b040ada8286cec9aff3c750ed4d28c3bc80e4cb",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "4bab42d2-d18c-57a6-adb6-51b46e90b807",
+          "sourceRow": 3447,
+          "sourceSha256": "b70bde704cd32ded73f7590c2a5b7a5c53f01edda1dc9541132c5d5cd6a99bc2",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "4a66dcbc-b2a3-5e56-88b6-ff6502eca73e",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "4c02fafe26b51f9ec9b5fe3887e50c787d1a57a55402606aa9ff1266823db6af",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "b84f5828-a818-5a2d-8707-bc79005d257a",
+          "sourceRow": 564,
+          "sourceSha256": "607e17118dda3bb00fb00098958af4e48182121d8370f7350b232538e9620a27",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "f0eec509-284f-5fc9-9bd2-8e8c0e9b9326",
+          "sourceRow": 3454,
+          "sourceSha256": "5e3691a3a66deef0da41a5d9b04fdf3008bef05e30922ddb28bd9a8265166cbb",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "9a823802-8e36-54f7-b2e6-27ef1395c641",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "34558e93ac9aef0242bda9592af33c6ebbc0cdb553ab7311314c237ced5c94d2",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "d3a19bfb-5a99-5717-ba6c-f432cd0e5ccd",
+          "sourceRow": 284,
+          "sourceSha256": "e2997f23f4857b167dfec0d3b3ed588eef81214a40eef54d655b1e742fb941b7",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "10d1b4ad-924a-504f-bb20-96acaf549dd6",
+          "sourceRow": 3458,
+          "sourceSha256": "3dac5c7af47e025deb5cd4db34558f1032c01bcd1b0691e14404e0821a49cace",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "4ccebc7e-b5ed-5f9d-8fae-c5917a586f17",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "df2c406e7ed83fb29c68f430a6b7551c64556cf27f65abed7fdb2723e55b65c3",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "01c4e1a9-ff5d-560b-a508-6ec7a50148b8",
+          "sourceRow": 626,
+          "sourceSha256": "93c50f890a978e33b4ae068545611d403c0176e83bc80285d45d857620e6ea4b",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "738f5e68-f7cd-5dba-8c52-1a4a284a02a5",
+          "sourceRow": 3467,
+          "sourceSha256": "d6c5237caeae2be69a1b07e057af6460eb55829fb8bfb1b2ee4b057c2b29024d",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "01dd3c9e-350d-509e-942c-5e5b3455f9d9",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "d58b1602913e50bcb1448badf995fef5b81c6e9265e84b1ffa9e8580190a94b4",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "f991970b-7536-5918-9471-7e9cf2ad07fb",
+          "sourceRow": 654,
+          "sourceSha256": "14bd98d87be692785e3cf6b3f0183aad948f54a6a77ef1a2c070950f566f4057",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "d8a3c571-c620-5d22-b48c-e964e3fe8962",
+          "sourceRow": 3476,
+          "sourceSha256": "01f00510ce945ffea4108f8a2067044bc56e86434375455fc0e9d7f8f669dc8e",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "ff8ddfc0-9bea-51ed-abea-9f0a39692392",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "f9b8d14a5f14e72527f364e8bc1e1e0224c1c80e601cc8458bc702fb7992fab6",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "71965e53-95d6-5edf-b061-6a9ab9681441",
+          "sourceRow": 729,
+          "sourceSha256": "6a61c379adb23551ae540cc73770ec1fbb49c8b1625c6c44217bbab696b932a3",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "1bdd8078-3c69-56cd-845b-eff74144182b",
+          "sourceRow": 3484,
+          "sourceSha256": "d47287ceba4d2e227aaf6a622550e8eac21c7d64983fad47f1e1392ba5d3f573",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "df582902-f0e1-52f9-80f3-7bb804122df9",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "3c3df33d42f3c016061f1031c325fdfd5b3653ddf734a860afb624a87ff7e698",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "b31c3700-24eb-5aa3-9aa2-f0e2f31ff56d",
+          "sourceRow": 916,
+          "sourceSha256": "26401a4865bad976a7152392ae548d59ca4c83cd5e508fe577646c331fca287c",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "b64f5ec9-5855-5cee-a20c-0c59b82ce352",
+          "sourceRow": 3495,
+          "sourceSha256": "69edd75b264ad0bded81d33026d8c59741a503f7a760050b325e9ce3c2285a27",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "9107f1e3-f181-588e-bb8f-3b9d33f2e43f",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "a7d98ec266155fba44c7c681a92cf533dab35ec4511a4b1028e20ed17fc37702",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "8c3aba1f-8040-5c7b-b64e-ad52a5c93b72",
+          "sourceRow": 832,
+          "sourceSha256": "9e34f4dc19506a8cb530b8b360fad235a769612067568ce31acacd4531006e72",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "2420d5ad-8e5c-5bf7-98ec-a20f467b0cb1",
+          "sourceRow": 3514,
+          "sourceSha256": "22978ccfe75f7ee7ba8989426709b16ba349568767d54e290262dea7d0853d25",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "1be0abc0-e0af-530d-ab59-be12e701e510",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "314be9bd33defb42e323e9fc360ccc4cf4924def5effdaeca7ab8e793acb43dd",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "db9cd46a-5283-5234-8aa0-5e1799225839",
+          "sourceRow": 596,
+          "sourceSha256": "2a8c41388a94df3e15895bf7f9ee49cdcaaaf63972fcb78c58030504abf94c88",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "fdde14b3-ca39-52ae-b23a-b2de9296e8e5",
+          "sourceRow": 3516,
+          "sourceSha256": "a059eaff64c3ec61574fb59002916f9614a1d48195351ee0715e9b3b2a6558c3",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "a6924614-dd38-53bf-8bbe-cb741618ccf2",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "5ab223b13f92294895956be8f8f0f98bc27268348cf229bb467aac8ff45429bc",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "892fc993-35ae-5fb5-8cd0-c0e166e2feda",
+          "sourceRow": 304,
+          "sourceSha256": "21cf3ea77e812a75d0fe1004f30c35dcffb837af24c57d33c359ae7abe9b18b3",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "f07353ef-00c9-5d07-ab7f-9f8be1151140",
+          "sourceRow": 3517,
+          "sourceSha256": "82a2ebbd27db077fdc723398b056dff9a519b4a2a7479926b40371f099bca4fc",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "4c00edb4-093c-58fd-88df-5225caa96f6c",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "393fd9d01ff26208130dd2281bb319e16d8d7d8b7dc57f2793fbeb671512cde3",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "130a1eec-877f-557a-873b-0617812d01b6",
+          "sourceRow": 612,
+          "sourceSha256": "b9b69e4c346a97a9ebd8506089eb7bdf4e67a6e1ebe0cb5e08ece1eeeb721972",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "1e1456bd-cbf5-5f39-b5a0-fffdfd21ec68",
+          "sourceRow": 3529,
+          "sourceSha256": "e4202b25b0cac7312280d861563810cfced1771fe93c4b47cda62e359ce9dec8",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "77633f1f-4432-580e-9b34-b29875bc8a85",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "e27bb24211ace719b805ae4bf69b0d11dbb7e9b008724ad8f954c7471c334876",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": false
+      },
+      "items": [
+        {
+          "reviewItemId": "ce157c5c-2f6d-571c-b195-22752f32bbcd",
+          "sourceRow": 51,
+          "sourceSha256": "ca21f7444b225571bb78df7f57a8193621edb3a83d3ffe325e87e7bb2b952dff",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": false
+          }
+        },
+        {
+          "reviewItemId": "73a1db17-3e88-50e5-afbd-52ae06ff96d0",
+          "sourceRow": 3531,
+          "sourceSha256": "6981941f4b276d9152b12ef0d9cb07e692a8b10c604cb5350999dd189bad58a5",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": false
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "07ab4586-d5e5-59ca-b1c4-c52ddb51dba8",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "70c643eb3dcbdc07f7896f59eca79d3806715ddfe137f7960965fe315ef827d6",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "2884f503-5712-58f8-abb4-47da27452d0a",
+          "sourceRow": 460,
+          "sourceSha256": "f5989ee0b4deec54544ed68a80211de20be308e2d7e5f226d0e8c81afeebbe12",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "f6c93c45-6431-581a-a96b-d648c06cdf9c",
+          "sourceRow": 3534,
+          "sourceSha256": "7180b70fbea70314c47bd58a94d963cd90f1ba838715f7038198d552ff6ea6cc",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "59dd7ee7-2ce2-5447-9b42-42990d6d0dd3",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "8b360a07c3936bd4906b3ea56655b55ebd285def42bda8d015572c39402cbdb1",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "389b6fdc-d88a-566e-bfea-cbab91b1e968",
+          "sourceRow": 779,
+          "sourceSha256": "c0ec07de254c149ca677a24ac363c5261fbc12c2de9c64a97bfb8fdd1693746a",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "368e7738-484c-5973-9b99-d4551593f5c5",
+          "sourceRow": 3537,
+          "sourceSha256": "2862c15811dcc4ce90a1c90c37924e7898425b421ae0b18d09473b075c06ab52",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "ad4d64e4-78ca-5590-9684-9ec27889a177",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "9738b08a75990f40a3f733c1d111e72da0ac8aa4bff16cf08ff447f9161c2233",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "7fbd57f9-abbb-5b39-b6e5-53b01399a88e",
+          "sourceRow": 943,
+          "sourceSha256": "d20fd7540db594538e61d2fe4efa9fd406ad57ec6a4fc05332cd4d57ee0df0ff",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "50d81991-d6cb-5d98-849e-f49b8b4d98d1",
+          "sourceRow": 3552,
+          "sourceSha256": "d569bfb815b688d8187a78ff72f571a8c138e1b4a5d61b76e9c45418c852bdc5",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "2b036dd8-4ba0-55b7-b375-bfbc557d9431",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "2067992299927f042bd42b256da3336532278eb78c4491adf097360f1ba312b7",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": true,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "b2c9034f-35e5-5d2f-b0f8-e46e2f51fade",
+          "sourceRow": 914,
+          "sourceSha256": "27a48ca6888d5e32465a3a79cb6dce74674af93e8e3489aa1ad2f7a453f1ba94",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "75f12b14-2707-5aa0-b2db-7d1cf18d4363",
+          "sourceRow": 3553,
+          "sourceSha256": "e329b7df6ce2f30291829d93f4169ca0a247c955fdd46d5cb74eab2d86867a98",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": true,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    },
+    {
+      "reviewCaseId": "c4b0cc69-b7b2-5fe6-82e9-bf9a27f6c62b",
+      "batchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+      "reasonCode": "DUPLICATE_NORMALIZED_NAME",
+      "groupFingerprint": "4a512db58485c272ae83c303c96502b00218ae855bbfaee4be4d334c4687a588",
+      "itemCount": 2,
+      "evidenceSummary": {
+        "normalizedNameMatch": true,
+        "sourceKeyMatch": false,
+        "taxIdMatch": false,
+        "emailMatch": false,
+        "phoneMatch": true,
+        "postcodeMatch": true
+      },
+      "items": [
+        {
+          "reviewItemId": "eca05aa3-fade-52a0-a553-274069603a16",
+          "sourceRow": 281,
+          "sourceSha256": "af610210a55bbf297d621cc98340027b6fbafa2d7dee528a21a35e5169cdb18d",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        },
+        {
+          "reviewItemId": "5c9b01c8-126c-5ffc-b4dc-81fc51583cfb",
+          "sourceRow": 3568,
+          "sourceSha256": "3e24ea32a86411872ecbad5bd1b11f454cbf672b000dfaac0b04cda925d1d6ea",
+          "evidence": {
+            "normalizedNameMatch": true,
+            "sourceKeyMatch": false,
+            "taxIdMatch": false,
+            "emailMatch": false,
+            "phoneMatch": true,
+            "postcodeMatch": true
+          }
+        }
+      ]
+    }
+  ],
+  "generatedAt": "2026-08-18T06:25:42.416751+00:00"
+}

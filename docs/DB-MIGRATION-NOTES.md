@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.3 |
+| **Version** | 1.0.5 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
@@ -41,8 +41,10 @@ the same relation and index, so export/import preserves both UUID references.
 
 The lab stays SQLite (`prisma/schema.prisma`); production is generated, not hand-edited:
 
-1. `npm run db:pg:sql` — regenerates `prisma/schema.postgres.prisma` (datasource swap
-   only) and emits `prisma/postgres/0001_init.sql`. The two schemas can't drift.
+1. `npm run db:pg:sql` — regenerates `prisma/schema.postgres.prisma` and emits
+   `prisma/postgres/0001_init.sql`. The generated Postgres schema uses a separate
+   `@zuri/prisma-postgres` client; the default `@prisma/client` remains
+   SQLite for the lab/test provider.
 2. In `.env` (see `.env.example`): set `DATABASE_URL` to the Supabase **pooler** URL and
    `DIRECT_URL` to the **direct** connection (migrations use direct, runtime the pooler).
 3. Apply the DDL against Supabase: `prisma db execute --file prisma/postgres/0001_init.sql
@@ -51,7 +53,34 @@ The lab stays SQLite (`prisma/schema.prisma`); production is generated, not hand
    resolving — the hard rule): `npm run db:pg:export` on the SQLite box → `snapshot.json`;
    then, with `DATABASE_URL` pointed at Supabase, `npm run db:pg:import` (refuses a
    non-empty target). `importSnapshot` recreates each row with its original id.
-5. Re-run the suite against Postgres; integration tests are provider-independent.
+5. Production installs run `scripts/generate-prisma-clients.mjs`; `src/lib/db.js`
+   selects the Postgres client when `DATABASE_URL` is `postgres:`/`postgresql:` and
+   keeps SQLite when the URL is `file:`. Re-run the suite against the selected
+   provider; integration tests remain provider-independent.
+
+### Application identity and review queue deployment (FR-076 / FR-078)
+
+The private customer projection and the application RBAC store are separate
+boundaries. The following tracked Supabase migrations provision the application
+schema and project only the verified customer scope into it:
+
+- `20260818084011_application_schema.sql` — Prisma/Postgres application schema,
+  RLS enabled on public application tables and no `anon`/`authenticated` table
+  grants;
+- `20260818084047_application_smartgift_identity.sql` — Wannapa Workspace,
+  `TNT-ETOHGROUP`, all four Businesses, `PER-BOSS` tenant employment and one
+  `CUSTOMER_DATA_REVIEWER` binding for `BUS-SMARTGIFT`.
+- `20260818090201_customer_review_runtime_login.sql` — a dedicated,
+  unprivileged `zuri_customer_review_login` that may `SET LOCAL ROLE
+  zuri_app_runtime` and has no direct private-schema grants.
+
+The review adapter must receive an explicit server-only
+`ZURI_CUSTOMER_REVIEW_DATABASE_URL` using the dedicated login, pointing at the
+private `zuri_core` database connection. Provision its password with
+`scripts/provision-customer-review-runtime-login.mjs` using deployment-only
+`ZURI_ADMIN_DB_URL` and `ZURI_CUSTOMER_REVIEW_DB_PASSWORD` environment values;
+the admin URL is never the review runtime URL. It must never be inferred from a
+browser URL or a Data API client.
 
 ### Phase 1 runtime connection metadata (FR-079 / ADR-031)
 

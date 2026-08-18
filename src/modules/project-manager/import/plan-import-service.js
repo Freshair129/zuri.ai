@@ -6,7 +6,7 @@ import { recordAudit } from '../application/audit'
 
 // @req FR-012, FR-019 — dry-run preview + transactional commit + audit,
 // with identity resolved by external id before code (Salesforce-style upsert).
-// @spec SDD-006, SDD-009, SEC-002, BR-009 — single transaction; every surface
+// @spec FR-069, SDD-006, SDD-009, SEC-002, BR-009 — single transaction; every surface
 // converges on this one envelope pipeline
 // @req FR-043 - imported Projects inherit and preserve the target Space owner
 // @spec ADR-014, SDD-021, BR-001, SEC-001
@@ -232,6 +232,36 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer } = {}) {
     }
   )
 
+  // FR-069 / FR-070 — Business Goals are existing strategic records. Resolve
+  // every requested id inside the target Business before preview and carry the
+  // same decision into commit. A missing or cross-Business id is a conflict,
+  // never a silently ignored link.
+  const goalIds = plan.project.goalIds || []
+  const goals = goalIds.length && targetBusinessId
+    ? await prisma.businessGoal.findMany({
+      where: { id: { in: goalIds }, businessId: targetBusinessId },
+      select: { id: true, code: true, title: true },
+    })
+    : []
+  const goalById = new Map(goals.map((goal) => [goal.id, goal]))
+  const existingGoalLinks = existingProject && goalIds.length
+    ? await prisma.projectGoal.findMany({
+      where: { projectId: existingProject.id, goalId: { in: goalIds } },
+      select: { goalId: true },
+    })
+    : []
+  const existingGoalIds = new Set(existingGoalLinks.map((link) => link.goalId))
+  for (const goalId of goalIds) {
+    const goal = goalById.get(goalId)
+    if (!goal) {
+      conflicts.push({ kind: 'projectGoal', code: goalId, reason: 'Business Goal is missing or does not belong to the target Business' })
+    } else if (existingGoalIds.has(goalId)) {
+      updates.push({ kind: 'projectGoal', code: goalId, title: goal.title })
+    } else {
+      inserts.push({ kind: 'projectGoal', code: goalId, title: goal.title })
+    }
+  }
+
   for (const ws of plan.workstreams) {
     const existingWorkstream = await classify('workstream', 'workstream', ws, ws.name, { projectId: existingProject?.id })
     const wsScope = { workstreamId: existingWorkstream?.id }
@@ -263,6 +293,7 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer } = {}) {
       updates,
       conflicts,
       dependencyCount,
+      goalLinkCount: goalIds.length,
       externalRefCount,
       matchedByExternalId: updates.filter((u) => u.matchedBy === 'externalRef').length,
       summary: {
@@ -335,6 +366,14 @@ export async function commitPlan(rawPlan, { workspaceId, viewer } = {}) {
         targetAt: plan.project.targetAt ? new Date(plan.project.targetAt) : null,
       }
     )
+
+    for (const goalId of plan.project.goalIds || []) {
+      await tx.projectGoal.upsert({
+        where: { projectId_goalId: { projectId: project.id, goalId } },
+        update: {},
+        create: { projectId: project.id, goalId },
+      })
+    }
 
     for (const ws of plan.workstreams) {
       const workstream = await write(
@@ -517,6 +556,7 @@ export async function commitPlan(rawPlan, { workspaceId, viewer } = {}) {
         generatedBy: plan.generatedBy || null,
         schemaVersion: plan.schemaVersion,
         workstreams: plan.workstreams.length,
+        goalLinks: (plan.project.goalIds || []).length,
         inserts: dry.preview.summary.insertCount,
         updates: dry.preview.summary.updateCount,
         externalRefs: dry.preview.externalRefCount,

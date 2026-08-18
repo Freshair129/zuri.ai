@@ -27,6 +27,18 @@ describe('plan envelope schema', () => {
     expect(zPlanEnvelope.safeParse(plan).success).toBe(true)
   })
 
+  it('accepts optional Business Goal links on the Project', () => {
+    const plan = structuredClone(validPlan)
+    plan.project.goalIds = ['goal-a', 'goal-b']
+    expect(zPlanEnvelope.safeParse(plan).success).toBe(true)
+  })
+
+  it('rejects duplicate Business Goal links', () => {
+    const plan = structuredClone(validPlan)
+    plan.project.goalIds = ['goal-a', 'goal-a']
+    expect(zPlanEnvelope.safeParse(plan).success).toBe(false)
+  })
+
   it('rejects unknown execution modes', () => {
     const bad = structuredClone(validPlan)
     bad.workstreams[0].executionMode = 'KANBAN_FLOW'

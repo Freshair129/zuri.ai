@@ -1,5 +1,6 @@
 // @req FR-013 - snapshot export/import with preview and confirmation.
-// @req FR-078 - customer import batches and provenance must survive snapshot restore.
+// @req FR-078 - customer import batches, review cases, decisions and provenance
+// must survive snapshot restore.
 // @req FR-045 - portable FileAsset metadata, optional content and explicit remount gaps.
 // @req FR-075 - restore is an installation-wide operation and requires operator
 // authority. This is what took /api/backup/import off the route-viewer baseline.
@@ -58,12 +59,12 @@ const SNAPSHOT_MODELS = [
   // plus projectGoal and roleBinding below, were absent from this list until the
   // coverage check below started deriving it from the schema.
   'businessRoadmap', 'businessRoadmapHorizon', 'businessGoal',
-  'person', 'customerImportBatch', 'membership', 'roleBinding',
+  'person', 'customerImportBatch', 'customerImportReviewCase', 'membership', 'roleBinding',
   'workspace', 'project', 'projectGoal', 'workstream', 'workContainer', 'workItem',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',
   'externalRef', 'externalIdentity', 'identityLinkToken',
-  'customer', 'customerImportProvenance', 'conversation', 'message', 'auditEvent',
+  'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message', 'auditEvent',
 ]
 
 /**

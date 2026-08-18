@@ -49,7 +49,9 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | ProjectGoal | projectId, goalId | optional many-to-many link; Project remains a Development resource |
 | AuditEvent | entityType, entityId, action, payloadJson, actorType | append-only (SEC-003) |
 | CustomerImportBatch | contractId, missionId, versionId, tenantId, businessId, snapshotSha256, counts, status, approvedByPersonId | private batch receipt and rollback boundary for FR-078; no raw PII |
-| CustomerImportProvenance | batchId, sourceSystem/table/key, sourceRow, sourceSha256, snapshotSha256, idempotencyKey, resolutionStatus, disposition, optional target ids | private source identity/idempotency ledger for FR-078; no raw PII |
+| CustomerImportProvenance | batchId, sourceSystem/table/key, sourceRow, sourceSha256, snapshotSha256, idempotencyKey, resolutionStatus, disposition, optional target ids, optional reviewCaseId/evidence flags | private source identity/idempotency ledger for FR-078; no raw PII |
+| CustomerImportReviewCase | batchId, tenantId, businessId, reasonCode, groupFingerprint, status, itemCount, redacted evidence, version | deterministic duplicate-group queue identity for FR-078; no raw PII |
+| CustomerImportReviewDecision | reviewCaseId, provenanceId, decisionVersion, action, targetCustomerId?, decidedByPersonId, decidedAt | append-only human decision ledger; no update/delete path |
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 
@@ -63,6 +65,10 @@ service rejects a mismatch against `Business.tenantId`. The relation is
 many-to-many and does not change `Membership.role`, platform authority or
 import authority. Changes append an `AuditEvent` without secrets or customer
 content.
+
+FR-078 adds `roleKey=CUSTOMER_DATA_REVIEWER` as a separate Business-scoped
+capability. It grants review read/decision permissions only; Product Owner,
+platform and ownership labels do not imply customer-data review authority.
 
 ## Planned (FR-019)
 
@@ -85,7 +91,8 @@ The LINE gateway `ingestLineMessage` resolves through FR-021 then upserts custom
 conversation → message in one transaction; idempotent on externalMessageId.
 
 The FR-078 historical backfill uses a separate private `zuri_core` target boundary
-(`person`, `customer`, `customer_import_batch`, `customer_import_provenance`) so
+(`person`, `customer`, `customer_import_batch`, `customer_import_provenance`,
+`customer_import_review_case`, `customer_import_review_decision`) so
 the Supabase migration can enforce forced RLS and deny Data API roles before any
 Customer row is approved. The contract's initial publish allowlist is
 `display_name` only; source keys and hashes remain in the private provenance

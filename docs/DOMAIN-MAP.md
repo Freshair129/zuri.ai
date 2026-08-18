@@ -26,9 +26,9 @@ Charter: [docs/domains/crm/CHARTER.md](domains/crm/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/crm` |
-| Models owned | Person, Customer, CustomerImportBatch, CustomerImportProvenance, Conversation, Message |
+| Models owned | Person, Customer, CustomerImportBatch, CustomerImportProvenance, CustomerImportReviewCase, CustomerImportReviewDecision, Conversation, Message |
 | Routes owned | 0 (0 api · 0 pages) |
-| FRs implemented in lane | FR-023 |
+| FRs implemented in lane | FR-023, FR-078 |
 
 ## identity
 
@@ -39,7 +39,7 @@ Charter: [docs/domains/identity/CHARTER.md](domains/identity/CHARTER.md)
 | Modules | `src/modules/identity` |
 | Models owned | ExternalIdentity, IdentityLinkToken, ExternalRef, RoleBinding |
 | Routes owned | 3 (1 api · 2 pages) |
-| FRs implemented in lane | FR-021, FR-022, FR-031, FR-036, FR-038, FR-046, FR-059, FR-061, FR-062, FR-074, FR-075, FR-076, SDD-034 |
+| FRs implemented in lane | FR-021, FR-022, FR-031, FR-036, FR-038, FR-046, FR-059, FR-061, FR-062, FR-074, FR-075, FR-076, FR-078, SDD-034 |
 
 ## integration
 
@@ -71,5 +71,5 @@ Charter: [docs/domains/project-manager/CHARTER.md](domains/project-manager/CHART
 |---|---|
 | Modules | `src/modules/project-manager`, `src/modules/business`, `src/modules/people` |
 | Models owned | Portfolio, Tenant, LegalEntity, LegalEntityIdentifier, Business, Branch, Workspace, Project, BusinessRoadmap, BusinessRoadmapHorizon, BusinessGoal, ProjectGoal, Workstream, WorkContainer, WorkItem, Milestone, Gate, Dependency, Repository, ProjectRepository, ProjectFile, LocalWorkspaceMount, FileAsset, FileLink, Membership, AuditEvent |
-| Routes owned | 95 (61 api · 34 pages) |
-| FRs implemented in lane | BR-001, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-018, FR-019, FR-020, FR-036, FR-037, FR-040, FR-041, FR-042, FR-043, FR-045, FR-058, FR-059, FR-060, FR-063, FR-064, FR-065, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, SDD-037 |
+| Routes owned | 101 (65 api · 36 pages) |
+| FRs implemented in lane | BR-001, FR-001, FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-009, FR-010, FR-011, FR-012, FR-013, FR-014, FR-018, FR-019, FR-020, FR-036, FR-037, FR-040, FR-041, FR-042, FR-043, FR-045, FR-058, FR-059, FR-060, FR-063, FR-064, FR-065, FR-068, FR-072, FR-073, FR-074, FR-075, FR-077, FR-078, FR-081, SDD-037 |

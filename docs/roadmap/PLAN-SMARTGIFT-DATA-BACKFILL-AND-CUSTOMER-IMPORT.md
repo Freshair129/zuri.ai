@@ -1,7 +1,7 @@
 ---
-version: "0.6.0"
+version: "0.10.0b"
 created_at: "2026-08-18T04:37:44+07:00,ATHER"
-last_update: "2026-08-18T09:25:08+07:00,ATHER"
+last_update: "2026-08-18T16:15:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -47,6 +47,7 @@ run, batch or audit event ID.
 | Customer contract version | `VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B` |
 | Customer batch | `3a7a45b1-1785-55dd-af41-d225a4afb45c` (`APPLIED`) |
 | Customer batch result | 3,569 source rows; 3,439 published; 130 held for review; raw PII not stored |
+| Review queue extension | Production migration `20260818073000` applied; 65 deterministic review cases and 130 stable review item IDs linked; 0 decisions and no customer publish |
 
 Post-apply evidence is recorded at
 [`supabase-post-migration-verification.json`](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-MIGRATION-001/supabase-post-migration-verification.json).
@@ -393,6 +394,10 @@ Risk score is Probability × Impact, on a 1–5 scale.
 - [Customer dry-run builder](../../scripts/build_smartgift_customer_backfill.py)
 - [Fail-closed customer importer](../../scripts/apply_smartgift_customer_backfill.py)
 - [Customer target verification](../../scripts/verify-smartgift-customer-profile-target.mjs)
+- [Customer review queue contract](../../contracts/migrations/smartgift-customer-review-queue-contract.json)
+- [Customer review queue manifest builder](../../scripts/build_smartgift_customer_review_queue.py)
+- [Customer review queue manifest](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-review-queue-manifest.json)
+- [Customer review queue migration](../../supabase/migrations/20260818073000_customer_import_review_queue.sql)
 - [Customer dry-run receipt](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-dry-run.json)
 - [Customer target verification artifact](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-verification.json)
 - [Customer post-apply verification artifact](../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-post-apply-verification.json)
@@ -415,13 +420,31 @@ destination/isolation verification are complete for the approved 74-row
 SmartGift product projection. P3 and P4 are complete for
 `MIS-SG-CUSTOMER-DATA-BACKFILL-001`; 3,439 Customer rows were published under
 `TNT-ETOHGROUP` / `BUS-SMARTGIFT`, while 130 rows remain held for explicit
-review. LINE activation, new snapshots and live-delta/cutover are separate
-pending gates.
+review. The redacted review manifest now proves 65 duplicate groups and 130
+stable review item IDs. The queue migration and metadata-only apply are now
+production-verified: 65 cases, 130 linked held rows and 0 decisions. The
+application-side `CUSTOMER_DATA_REVIEWER` RoleBinding is now production-applied
+against the reconciled Business UUID. The application Postgres schema and the
+verified Wannapa/TNT-EtohGroup identity projection are tracked by migrations
+`20260818084011` and `20260818084047`; the binding is active for `PER-BOSS` only
+on `BUS-SMARTGIFT`, with no OWNER or PRODUCT_OWNER grant. The runtime selects the
+Postgres Prisma client automatically for a Postgres `DATABASE_URL`. The hosted
+environment must still supply the explicit server-only
+`ZURI_CUSTOMER_REVIEW_DATABASE_URL` secret using the dedicated
+`zuri_customer_review_login` provisioned by
+`scripts/provision-customer-review-runtime-login.mjs`; the migration/admin URL
+is not a runtime credential. No decision has been recorded and no held row has
+been published. LINE activation, new snapshots and live-delta/cutover are
+separate pending gates.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.10.0b | 2026-08-18 | beta | Add and document the dedicated customer-review login so the live runtime can assume the bounded role without using Supabase admin | working-tree | ATHER |
+| 0.9.0b | 2026-08-18 | beta | Deploy the application Postgres/RBAC projection, close the reviewer UUID gate and select the production Prisma client; hosted review-store secret remains explicit | working-tree | ATHER |
+| 0.8.0b | 2026-08-18 | candidate | Deploy and verify the private duplicate review queue schema plus 65-case/130-item metadata apply; keep application RBAC assignment gated on UUID reconciliation | working-tree | ATHER |
+| 0.7.0b | 2026-08-18 | candidate | Add deterministic duplicate review queue contract, redacted 65-case/130-item manifest and Business-scoped decision boundary | pending | ATHER |
 | 0.6.0 | 2026-08-18 | beta | Approve and apply the bounded SmartGift customer snapshot; add post-apply, backup, rollback and timeout evidence | pending | ATHER |
 | 0.5.0b | 2026-08-18 | candidate | Add private Customer target verification, platform approver profile, redacted dry-run and fail-closed importer scaffold | working-tree | ATHER |
 | 0.4.0b | 2026-08-18 | candidate | Add FR-078 Customer Profile contract, read-only source inventory and explicit approval/PII/entity-resolution gates | working-tree | ATHER |

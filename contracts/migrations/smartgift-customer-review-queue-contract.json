@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0.0",
+  "customerDataContractId": "CDC-SG-CUSTOMER-DATA-001",
+  "versionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.3.0B",
+  "supersedesVersionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B",
+  "status": "CANDIDATE",
+  "missionId": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
+  "approver": {
+    "personId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+    "code": "PER-BOSS",
+    "displayName": "Boss (บอส)",
+    "approvalBoundary": "IMPLEMENTATION_SCOPE_ONLY"
+  },
+  "scope": {
+    "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+    "businessId": "834fa869-62f3-431c-a287-e9a95e91175b",
+    "businessCode": "BUS-SMARTGIFT",
+    "crossBusinessMerge": false
+  },
+  "reviewQueue": {
+    "sourceBatchId": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+    "expectedHeldRows": 130,
+    "expectedDuplicateGroups": 65,
+    "reviewItemId": "zuri_core.customer_import_provenance.id",
+    "reviewCaseIdPolicy": "UUIDv5(URL, zuri:smartgift:review-case:<batchId>:<groupFingerprint>)",
+    "groupFingerprint": "SHA-256 of the normalized duplicate-resolution key; the raw key is never stored in the queue",
+    "actions": ["CREATE_SEPARATE", "LINK_EXISTING", "REJECT", "DEFER"],
+    "decisionLedger": {
+      "storage": "zuri_core.customer_import_review_decision",
+      "appendOnly": true,
+      "optimisticConcurrency": true,
+      "targetCustomerScope": "same tenant_id and business_id only"
+    },
+    "privacyBoundary": {
+      "rawPiiStored": false,
+      "browserResponse": "REDACTED_IDENTIFIERS_AND_FLAGS_ONLY",
+      "evidence": "HASHES_COUNTS_AND_BOOLEAN_MATCH_FLAGS_ONLY"
+    },
+    "applyBoundary": {
+      "publishesCustomers": false,
+      "requiresSeparateApproval": true,
+      "lineReplay": false
+    }
+  }
+}

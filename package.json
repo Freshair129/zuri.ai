@@ -21,7 +21,7 @@
     "test:integration": "node scripts/assert-tests-ran.mjs vitest run tests/integration",
     "test:e2e": "node scripts/assert-tests-ran.mjs playwright test --fail-on-flaky",
     "verify": "npm test && npm run build && npm run govern && npm run test:e2e",
-    "postinstall": "prisma generate",
+    "postinstall": "node scripts/generate-prisma-clients.mjs",
     "docs:graph": "node scripts/doc-graph.mjs",
     "docs:check": "node scripts/doc-graph.mjs --check",
     "docs:preflight": "node scripts/doc-preflight.mjs --strict",

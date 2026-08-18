@@ -23,7 +23,8 @@ $precondition_guard$;
 do $roles$
 begin
   if not exists (select 1 from pg_roles where rolname = 'zuri_line_activation_operator') then
-    create role zuri_line_activation_operator noinherit nobypassrls nologin;
+    create role zuri_line_activation_operator noinherit nobypassrls nologin
+      nosuperuser nocreatedb nocreaterole noreplication;
   end if;
   if not exists (select 1 from pg_roles where rolname = 'zuri_line_activation_login') then
     create role zuri_line_activation_login login noinherit nobypassrls
@@ -31,11 +32,6 @@ begin
   end if;
 end
 $roles$;
-
-alter role zuri_line_activation_operator noinherit nobypassrls nologin
-  nosuperuser nocreatedb nocreaterole noreplication;
-alter role zuri_line_activation_login login noinherit nobypassrls
-  nosuperuser nocreatedb nocreaterole noreplication;
 
 do $role_security_guard$
 begin

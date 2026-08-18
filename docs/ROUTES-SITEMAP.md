@@ -148,7 +148,7 @@ until their parity and BusinessModule gates are met.
 ## API reference
 
 The current API route inventory is maintained in
-[`appendices/A-api-spec.md`](appendices/A-api-spec.md). It contains 63 current route handlers;
+[`appendices/A-api-spec.md`](appendices/A-api-spec.md). It contains 67 current route handlers;
 FR-044 adds no login endpoint. The entry routing contract reuses `/api/viewer` and
 `/api/scope` until production authentication introduces a viewer-scoped session
 interface. ADR-027's future contract will add viewer-scoped Profile/Workspace

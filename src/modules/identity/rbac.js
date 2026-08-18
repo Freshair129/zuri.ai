@@ -1,10 +1,13 @@
-// @req FR-076 — role bindings resolve through a generic role and permission registry.
+// @req FR-076, FR-078 — role bindings resolve through a generic role and permission registry.
 // @spec ADR-033 D3-D5 — Product Owner is a Business-scoped RBAC role, not an owner type.
-// @tested tests/unit/fr076-product-owner-business-assignment.test.js
+// @tested tests/unit/fr076-product-owner-business-assignment.test.js, tests/unit/customer-import-review-service.test.js
 
 export const ROLE_PRODUCT_OWNER = 'PRODUCT_OWNER'
+export const ROLE_CUSTOMER_DATA_REVIEWER = 'CUSTOMER_DATA_REVIEWER'
 export const ROLE_SCOPE_BUSINESS = 'BUSINESS'
 export const PRODUCT_MANAGE_PERMISSION = 'product.work.write'
+export const CUSTOMER_REVIEW_READ_PERMISSION = 'customer.import.review.read'
+export const CUSTOMER_REVIEW_DECIDE_PERMISSION = 'customer.import.review.decide'
 
 export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_PRODUCT_OWNER]: Object.freeze([
@@ -12,6 +15,10 @@ export const ROLE_PERMISSIONS = Object.freeze({
     'product.plan.write',
     'product.decision.write',
     PRODUCT_MANAGE_PERMISSION,
+  ]),
+  [ROLE_CUSTOMER_DATA_REVIEWER]: Object.freeze([
+    CUSTOMER_REVIEW_READ_PERMISSION,
+    CUSTOMER_REVIEW_DECIDE_PERMISSION,
   ]),
 })
 

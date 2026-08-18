@@ -3,7 +3,8 @@ import prisma from '@/lib/db'
 // @req FR-075 — restore is an installation-wide operation; these cases arrange
 // as the operator, and fr075-restore-authorization.test.js is where the refusal
 // side is proven.
-// @req FR-078 — customer import ledger tables must be included in snapshots.
+// @req FR-078 — customer import ledger, review case and decision tables must be
+// included in snapshots.
 import { makeOperatorViewer } from '../factories/viewer'
 import {
   exportSnapshot,
@@ -75,7 +76,7 @@ describe('snapshot backup round trip', () => {
         approvedByPersonId: person.id,
       },
     })
-    await prisma.customerImportProvenance.create({
+    const provenance = await prisma.customerImportProvenance.create({
       data: {
         batchId: batch.id,
         sourceSystem: 'BACKUP_TEST',
@@ -90,6 +91,26 @@ describe('snapshot backup round trip', () => {
         disposition: 'PUBLISH',
         personId: person.id,
         customerId: customer.id,
+      },
+    })
+    const reviewCase = await prisma.customerImportReviewCase.create({
+      data: {
+        batchId: batch.id,
+        tenantId: tenant.id,
+        businessId: business.id,
+        reasonCode: 'DUPLICATE_NORMALIZED_NAME',
+        groupFingerprint: 'c'.repeat(64),
+        itemCount: 1,
+        evidenceSummaryJson: JSON.stringify({ normalizedNameMatch: true }),
+        items: { connect: { id: provenance.id } },
+      },
+    })
+    await prisma.customerImportReviewDecision.create({
+      data: {
+        reviewCaseId: reviewCase.id,
+        provenanceId: provenance.id,
+        action: 'DEFER',
+        decidedByPersonId: person.id,
       },
     })
   })
@@ -113,6 +134,8 @@ describe('snapshot backup round trip', () => {
     expect(snapshot.tables.roleBinding.length).toBeGreaterThan(0)
     expect(snapshot.tables.customerImportBatch.length).toBeGreaterThan(0)
     expect(snapshot.tables.customerImportProvenance.length).toBeGreaterThan(0)
+    expect(snapshot.tables.customerImportReviewCase.length).toBeGreaterThan(0)
+    expect(snapshot.tables.customerImportReviewDecision.length).toBeGreaterThan(0)
   })
 
   it('rejects invalid snapshot on preview', async () => {
@@ -182,12 +205,17 @@ describe('snapshot backup round trip', () => {
     const snapshot = await exportSnapshot()
     const batch = snapshot.tables.customerImportBatch.find((row) => row.contractId === 'CDC-BAK')
     const provenance = snapshot.tables.customerImportProvenance.find((row) => row.sourceRecordKey === 'C-BAK-001')
+    const reviewCase = snapshot.tables.customerImportReviewCase.find((row) => row.batchId === batch.id)
+    const reviewDecision = snapshot.tables.customerImportReviewDecision.find((row) => row.provenanceId === provenance.id)
     const customer = snapshot.tables.customer.find((row) => row.code === 'CUS-BAK-IMPORT')
     expect(batch).toBeTruthy()
     expect(provenance).toBeTruthy()
+    expect(reviewCase).toBeTruthy()
+    expect(reviewDecision).toBeTruthy()
     expect(customer).toBeTruthy()
 
     // Mutate both ledger tables before restoring the snapshot.
+    await prisma.customerImportReviewDecision.delete({ where: { id: reviewDecision.id } })
     await prisma.customerImportProvenance.delete({ where: { id: provenance.id } })
     await prisma.customerImportBatch.update({ where: { id: batch.id }, data: { status: 'ROLLED_BACK' } })
     expect(await prisma.customerImportProvenance.findUnique({ where: { id: provenance.id } })).toBeNull()
@@ -198,9 +226,15 @@ describe('snapshot backup round trip', () => {
 
     const restoredBatch = await prisma.customerImportBatch.findUnique({ where: { id: batch.id } })
     const restoredProvenance = await prisma.customerImportProvenance.findUnique({ where: { id: provenance.id } })
+    const restoredReviewCase = await prisma.customerImportReviewCase.findUnique({ where: { id: reviewCase.id } })
+    const restoredReviewDecision = await prisma.customerImportReviewDecision.findUnique({ where: { id: reviewDecision.id } })
     expect(restoredBatch.status).toBe('APPLIED')
     expect(restoredProvenance.batchId).toBe(restoredBatch.id)
     expect(restoredProvenance.customerId).toBe(customer.id)
     expect(restoredProvenance.personId).toBe(customer.personId)
+    expect(restoredReviewCase.batchId).toBe(restoredBatch.id)
+    expect(restoredReviewCase.itemCount).toBe(1)
+    expect(restoredReviewDecision.reviewCaseId).toBe(restoredReviewCase.id)
+    expect(restoredReviewDecision.provenanceId).toBe(restoredProvenance.id)
   })
 })

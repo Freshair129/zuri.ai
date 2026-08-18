@@ -100,7 +100,7 @@
 - **Status:** done
 - **Surface:** `/projects/[projectId]/import` (page) · `/api/import/commit` (api) · `/api/import/dry-run` (api)
 - **Code:** `src/app/(pm)/projects/[projectId]/import/page.jsx` · `src/app/api/import/commit/route.js` · `src/app/api/import/dry-run/route.js` · `src/lib/validation/enums.js` · `src/modules/project-manager/import/plan-import-service.js` · `src/modules/project-manager/import/plan-schema.js`
-- **Follows:** BR-001, BR-004, BR-007, BR-009, SDD-002, SDD-006, SDD-009, SDD-021, SDD-032, SDD-037, SEC-001, SEC-002, SEC-008
+- **Follows:** BR-001, BR-004, BR-007, BR-009, FR-069, SDD-002, SDD-006, SDD-009, SDD-021, SDD-032, SDD-037, SEC-001, SEC-002, SEC-008
 - **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import-scope.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/plan-schema.test.js` · `tests/unit/plan-status-vocabulary.test.js`
 
 ### FR-013 — Snapshot backup: export + import แบบ preview-then-confirm
@@ -154,7 +154,7 @@
 - **Status:** done
 - **Surface:** `/api/docs` (api) · `/api/resolve` (api)
 - **Code:** `src/app/api/docs/route.js` · `src/app/api/resolve/route.js` · `src/modules/project-manager/api-docs/openapi.js` · `src/modules/project-manager/import/external-ref.js` · `src/modules/project-manager/import/plan-import-service.js` · `src/modules/project-manager/import/plan-schema.js`
-- **Follows:** BR-001, BR-002, BR-004, BR-007, BR-009, FR-019, SDD-002, SDD-003, SDD-006, SDD-009, SDD-021, SDD-037, SEC-001, SEC-002, SEC-006, SEC-008, docs/features/FR-019-enterprise-api.md
+- **Follows:** BR-001, BR-002, BR-004, BR-007, BR-009, FR-019, FR-069, SDD-002, SDD-003, SDD-006, SDD-009, SDD-021, SDD-037, SEC-001, SEC-002, SEC-006, SEC-008, docs/features/FR-019-enterprise-api.md
 - **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/openapi-docs.test.js` · `tests/integration/plan-import-scope.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/unit/plan-schema.test.js` · `tests/unit/plan-status-vocabulary.test.js`
 
 ### FR-020 — Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing)
@@ -232,9 +232,9 @@
 ### FR-030 — Persistence: Postgres/Supabase readiness (ADR-007 P4): generated `schema.postgres.prisma` + init DDL (provider swap only, models identical); `assertDbBoundary` enforces **Zuri DB ≠ MSP DB**; UUID-preserving cutover via the provider-agnostic backup snapshot (`db:pg:export`/`import`). DuckDB stays a cache/analytics tier, not the transactional store
 
 - **Status:** done
-- **Code:** `src/lib/db-boundary.js`
+- **Code:** `src/lib/db-boundary.js` · `src/lib/db.js`
 - **Follows:** —
-- **Tests:** `tests/unit/db-boundary.test.js`
+- **Tests:** `tests/unit/db-boundary.test.js` · `tests/unit/postgres-runtime-client.test.js`
 
 ### FR-031 — Viewer gate: `resolveViewer()` resolves the current principal into one role (`OWNER`, `MEMBER`, or platform `DEV`), `visibleBusinessIds`, and `visibleDomains` before the ADR-008 Home journey. DEV is an explicit platform grant, never a widened Membership; development fallback is OWNER-of-all only when no real principal exists.
 
@@ -311,8 +311,8 @@
 - **Status:** done
 - **Surface:** `/projects/[projectId]/dependencies` (page) · `/projects/[projectId]/structure` (page) · `/api/projects/[id]/dependencies` (api)
 - **Code:** `src/app/(pm)/projects/[projectId]/dependencies/page.jsx` · `src/app/(pm)/projects/[projectId]/layout.jsx` · `src/app/(pm)/projects/[projectId]/structure/page.jsx` · `src/app/api/projects/[id]/dependencies/route.js` · `src/modules/project-manager/application/dependency-service.js` · `src/modules/project-manager/application/project-dependency-map.js` · `src/modules/project-manager/components/ProjectTabs.jsx` · `src/modules/project-manager/components/WorkViewTabs.jsx` · `src/modules/project-manager/views/DependencyMap.jsx` · `src/modules/project-manager/views/WbsCanvas.jsx`
-- **Follows:** BR-001, SDD-019, SEC-001, SEC-008
-- **Tests:** `tests/e2e/fr040-project-work.spec.js` · `tests/integration/fr072-dependency-authorization.test.js` · `tests/integration/project-core.test.js` · `tests/unit/dependency-map-view.test.js` · `tests/unit/project-dependency-map.test.js` · `tests/unit/project-dependency-route.test.js` · `tests/unit/project-dependency-service.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/wbs-structure.test.js`
+- **Follows:** BR-001, SDD-019, SDD-039, SEC-001, SEC-008
+- **Tests:** `tests/e2e/fr040-project-work.spec.js` · `tests/integration/fr072-dependency-authorization.test.js` · `tests/integration/project-core.test.js` · `tests/unit/dependency-map-view.test.js` · `tests/unit/project-dependency-map.test.js` · `tests/unit/project-dependency-route.test.js` · `tests/unit/project-dependency-service.test.js` · `tests/unit/project-roadmap-ui.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/wbs-structure.test.js`
 
 ### FR-041 — Business Overview renders the selected Business's Projects plus a Business Strategy read model: Roadmap and two or three ordered goal horizons. The service enforces horizon cardinality and viewer/business isolation; roadmap editing and Project links are a follow-up mutation slice.
 
@@ -336,7 +336,7 @@
 - **Status:** done
 - **Surface:** `/projects/[projectId]` (page)
 - **Code:** `prisma/seed.js` · `src/app/(pm)/projects/[projectId]/page.jsx` · `src/components/layouts/Breadcrumb.jsx` · `src/components/layouts/Topbar.jsx` · `src/context/ScopeContext.jsx` · `src/modules/business/application/business-strategy-service.js` · `src/modules/project-manager/application/project-list-read-model.js` · `src/modules/project-manager/application/project-service.js` · `src/modules/project-manager/import/plan-import-service.js`
-- **Follows:** BR-001, BR-004, BR-009, NFR-007, SDD-004, SDD-006, SDD-009, SDD-012, SDD-018, SDD-020, SDD-021, SDD-024, SDD-033, SDD-036, SDD-037, SEC-001, SEC-002, SEC-008
+- **Follows:** BR-001, BR-004, BR-009, FR-069, NFR-007, SDD-004, SDD-006, SDD-009, SDD-012, SDD-018, SDD-020, SDD-021, SDD-024, SDD-033, SDD-036, SDD-037, SEC-001, SEC-002, SEC-008
 - **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr046-entry-contract.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/integration/project-list-contract.test.js` · `tests/unit/breadcrumb-switcher.test.js` · `tests/unit/business-strategy-service.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/project-business-context.test.js` · `tests/unit/project-list-contract.test.js` · `tests/unit/scope-view-context.test.js` · `tests/unit/topbar-no-dropdown.test.js`
 
 ### FR-044 — Entry routing is split into a minimal Landing (`/`), a demo Login stub (`/login`), a Business Routing page (`/businesses`) that shows only viewer-visible Businesses, and the final BusinessShell (`/overview`) mounted only after a Business is selected. No real auth or new design tokens are included in this slice.
@@ -507,7 +507,7 @@
 - **Status:** done
 - **Surface:** `/api/import/commit` (api) · `/api/import/dry-run` (api) · `/api/import/xlsx` (api)
 - **Code:** `src/app/api/import/commit/route.js` · `src/app/api/import/dry-run/route.js` · `src/app/api/import/xlsx/route.js` · `src/modules/project-manager/import/import-authorization.js` · `src/modules/project-manager/import/plan-import-service.js`
-- **Follows:** BR-001, BR-009, SDD-006, SDD-009, SDD-021, SDD-037, SEC-001, SEC-002, SEC-008
+- **Follows:** BR-001, BR-009, FR-069, SDD-006, SDD-009, SDD-021, SDD-037, SEC-001, SEC-002, SEC-008
 - **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import-scope.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/import-authorization.test.js`
 
 ### FR-066 — Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant.
@@ -528,9 +528,10 @@
 
 - **Feature:** FEAT-003 — Execution Planning — Human-visible Roadmap, Blueprint intake and stable identity bindings
 - **Status:** planned
-- **Code:** —
-- **Follows:** —
-- **Tests:** —
+- **Surface:** `/projects/[projectId]/roadmap` (page) · `/api/projects/[id]/roadmap` (api)
+- **Code:** `src/app/(pm)/projects/[projectId]/roadmap/page.jsx` · `src/app/api/projects/[id]/roadmap/route.js` · `src/modules/project-manager/application/project-roadmap-read-model.js` · `src/modules/project-manager/components/WorkViewTabs.jsx`
+- **Follows:** FR-070, SDD-019, SDD-039
+- **Tests:** `tests/e2e/fr040-project-work.spec.js` · `tests/integration/project-roadmap.test.js` · `tests/unit/project-roadmap-read-model.test.js` · `tests/unit/project-roadmap-ui.test.js` · `tests/unit/project-work-route.test.js`
 
 ### FR-069 — Plan Blueprint and Human/Agent intake: after the user states an objective, Zuri may recommend an editable mode-specific Blueprint; Human forms and external Agent plans normalize to the same PlanEnvelope validation, dry-run, preview, authorization, transactional commit and audit path. Each mode has an `executionContractId`; every lifecycle/evidence step has run, step, attempt and replay IDs for tags, failure localization and append-only replay, with applicable `goal_id`/`risk_id` and supporting identity references. No first-step template picker, fake execution state or new execution mode.
 
@@ -538,7 +539,7 @@
 - **Status:** planned
 - **Code:** —
 - **Follows:** —
-- **Tests:** —
+- **Tests:** `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/unit/plan-schema.test.js` · `tests/unit/plan-status-vocabulary.test.js`
 
 ### FR-070 — Stable execution, domain, goal, risk, tag, trace and supporting identities: every committed Execution Plan exposes canonical `executionModeId`, `executionContractId`, `planId` (= Workstream UUID), domain bindings, authorized `goal_id`/`goalIds[]`, resolved `risk_id`/`riskIds[]` when available, `containerId` plus a mode-valid period alias, `workItemId` plus a mode-valid item alias and `tagId` references; applicable `node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id` references are owner-resolved and remain distinct from execution trace IDs.
 
@@ -546,7 +547,7 @@
 - **Status:** planned
 - **Code:** —
 - **Follows:** —
-- **Tests:** —
+- **Tests:** `tests/integration/project-roadmap.test.js` · `tests/unit/project-roadmap-read-model.test.js` · `tests/unit/project-roadmap-ui.test.js`
 
 ### FR-071 — Supabase data pipeline monitor and replay: the governed SmartGift DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes.
 
@@ -590,9 +591,9 @@
 ### FR-076 — Product Owner Business role binding: a Person may hold one active generic `RoleBinding` with `roleKey=PRODUCT_OWNER` per assigned Business inside a customer Tenant; the registry expands it only to Product permissions for that Business, never Business/Tenant/Workspace ownership, Resource/Operations, Marketing, Platform, Integration, secret, LINE or import authority. Bindings are trusted, Business-scoped, revocable, audited and fail closed.
 
 - **Status:** n/a
-- **Code:** `src/modules/identity/product-owner-authority.js` · `src/modules/identity/product-owner-service.js` · `src/modules/identity/rbac-service.js` · `src/modules/identity/rbac.js` · `src/modules/identity/resolve-viewer.js`
+- **Code:** `src/lib/db.js` · `src/modules/identity/product-owner-authority.js` · `src/modules/identity/product-owner-service.js` · `src/modules/identity/rbac-service.js` · `src/modules/identity/rbac.js` · `src/modules/identity/resolve-viewer.js`
 - **Follows:** ADR-008 §D4, docs/features/FR-031-viewer-gate.md, FR-031, SDD-017, SDD-034
-- **Tests:** `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/fr076-product-owner-business-assignment.test.js` · `tests/unit/viewer-gate.test.js`
+- **Tests:** `tests/unit/application-identity-bootstrap-migration.test.js` · `tests/unit/application-schema-migration.test.js` · `tests/unit/customer-import-review-service.test.js` · `tests/unit/fr061-per-business-domain-visibility.test.js` · `tests/unit/fr076-product-owner-business-assignment.test.js` · `tests/unit/postgres-runtime-client.test.js` · `tests/unit/viewer-gate.test.js`
 
 ### FR-077 — Project Inventory MVP: an authorized viewer can open one Project and receive a stable, read-only `PROJECT_INVENTORY` DTO covering Project identity/Business/Space context, Workstreams/Containers/Items, Milestones/Gates, Project-contained Dependencies, legacy and managed file metadata, linked Repositories, visible Team/Memberships, strategy-based progress/evidence and redacted recent activity. The route uses trusted viewer scope, independent pagination/truncation metadata, no raw Prisma graph, no mutation, no external sync and does not change the Project List or `overview`/`timeline`/`workspace` compatibility views.
 
@@ -603,13 +604,14 @@
 - **Follows:** SDD-045
 - **Tests:** `tests/e2e/fr077-project-inventory.spec.js` · `tests/integration/project-inventory.test.js` · `tests/unit/project-inventory-read-model.test.js`
 
-### FR-078 — Customer Profile backfill contract: the SmartGift historical customer pipeline has a fixed Tenant/Business scope, read-only source snapshot, machine-validated record/provenance envelope, explicit tax/name/corroboration resolution rules, duplicate/unresolved review queue, PII/financial/LINE exclusions, target Person/Customer schema gate, server-owned idempotent transaction and batch rollback; target verification and redacted dry-run are complete but Customer writes remain approval-gated.
+### FR-078 — Customer Profile backfill contract: the SmartGift historical customer pipeline has a fixed Tenant/Business scope, read-only source snapshot, machine-validated record/provenance envelope, explicit tax/name/corroboration resolution rules, duplicate/unresolved review queue, PII/financial/LINE exclusions, target Person/Customer schema gate, server-owned idempotent transaction and batch rollback; the first batch is applied with 3,439 Customer rows and 130 held review rows. The v0.3.0B review extension adds deterministic review IDs, redacted evidence, append-only Business-scoped decisions and a separate no-publish apply gate.
 
-- **Feature:** FEAT-006 — Customer Data Backfill — scoped, provenance-preserving Customer Profile contract with entity resolution and PDPA gates
-- **Status:** planned
-- **Code:** `src/modules/project-manager/application/backup-service.js`
+- **Feature:** FEAT-006 — Customer Data Backfill — scoped, provenance-preserving Customer Profile contract with entity resolution, PDPA gates and explicit duplicate review
+- **Status:** n/a
+- **Surface:** `/platform/customer-import-reviews` (page) · `/api/platform/customer-import-reviews/[caseId]/decisions` (api) · `/api/platform/customer-import-reviews` (api) · `/api/platform/customer-import-reviews/targets` (api)
+- **Code:** `src/app/(pm)/platform/customer-import-reviews/page.jsx` · `src/app/api/platform/customer-import-reviews/[caseId]/decisions/route.js` · `src/app/api/platform/customer-import-reviews/route.js` · `src/app/api/platform/customer-import-reviews/targets/route.js` · `src/lib/db.js` · `src/modules/crm/customer-import-review-service.js` · `src/modules/crm/customer-import-review-store.js` · `src/modules/identity/rbac.js` · `src/modules/project-manager/application/backup-service.js`
 - **Follows:** BR-008, SDD-023, SEC-008
-- **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/unit/customer-data-contract.test.js` · `tests/unit/customer-profile-backfill-migration.test.js` · `tests/unit/customer-profile-contract-receipt.test.js` · `tests/unit/customer-profile-target-verification.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/platform-approver-profile-migration.test.js`
+- **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/unit/application-identity-bootstrap-migration.test.js` · `tests/unit/application-schema-migration.test.js` · `tests/unit/customer-data-contract.test.js` · `tests/unit/customer-import-review-api.test.js` · `tests/unit/customer-import-review-contract.test.js` · `tests/unit/customer-import-review-queue-script.test.js` · `tests/unit/customer-import-review-service.test.js` · `tests/unit/customer-import-review-ui.test.js` · `tests/unit/customer-profile-backfill-migration.test.js` · `tests/unit/customer-profile-contract-receipt.test.js` · `tests/unit/customer-profile-target-verification.test.js` · `tests/unit/customer-review-runtime-login-migration.test.js` · `tests/unit/customer-review-runtime-login.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/fr076-product-owner-business-assignment.test.js` · `tests/unit/platform-approver-profile-migration.test.js` · `tests/unit/postgres-runtime-client.test.js`
 
 ### FR-079 — Phase 1 LINE runtime connection cut-over: after the server-owned LINE binding resolves the trusted Tenant/Business scope, the runtime selects exactly one `ACTIVE` `PRIMARY` `PHASE1_LINE_LLM` IntegrationConnection under that scope, resolves its opaque `secretRef` through the environment-selected provider-neutral SecretManagerPort, then composes the existing ModelProviderPort. Zero/multiple candidates, untrusted scope, secret-manager failure/expiry/version mismatch, production local-vault/raw-credential access and production/public-LINE Ollama selection fail closed before knowledge/model/reply work. Promotion uses compare-and-swap and a database uniqueness invariant; local Ollama is explicit local/dev/test/eval only and never automatic fallback. Production now selects Supabase Vault through the private resolver; live apply/provisioning/canary remain pending.
 

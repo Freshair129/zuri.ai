@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.local/contracts/migrations/smartgift-customer-review-queue-contract.schema.json",
+  "title": "SmartGift customer duplicate review queue contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "customerDataContractId",
+    "versionId",
+    "supersedesVersionId",
+    "status",
+    "missionId",
+    "approver",
+    "scope",
+    "reviewQueue"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "customerDataContractId": { "const": "CDC-SG-CUSTOMER-DATA-001" },
+    "versionId": { "const": "VER-SG-CUSTOMER-DATA-CONTRACT-0.3.0B" },
+    "supersedesVersionId": { "const": "VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B" },
+    "status": { "enum": ["CANDIDATE", "APPROVED", "SUPERSEDED"] },
+    "missionId": { "const": "MIS-SG-CUSTOMER-DATA-BACKFILL-001" },
+    "approver": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["personId", "code"],
+      "properties": {
+        "personId": { "const": "c82690eb-84e8-48a8-8a28-fe3d839c2276" },
+        "code": { "const": "PER-BOSS" },
+        "displayName": { "type": "string" },
+        "approvalBoundary": { "const": "IMPLEMENTATION_SCOPE_ONLY" }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tenantId", "businessId", "businessCode", "crossBusinessMerge"],
+      "properties": {
+        "tenantId": { "const": "77cdbe70-3111-4a04-922a-8059be99a8b0" },
+        "businessId": { "const": "834fa869-62f3-431c-a287-e9a95e91175b" },
+        "businessCode": { "const": "BUS-SMARTGIFT" },
+        "crossBusinessMerge": { "const": false }
+      }
+    },
+    "reviewQueue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceBatchId",
+        "expectedHeldRows",
+        "expectedDuplicateGroups",
+        "reviewItemId",
+        "reviewCaseIdPolicy",
+        "groupFingerprint",
+        "actions",
+        "decisionLedger",
+        "privacyBoundary",
+        "applyBoundary"
+      ],
+      "properties": {
+        "sourceBatchId": { "const": "3a7a45b1-1785-55dd-af41-d225a4afb45c" },
+        "expectedHeldRows": { "const": 130 },
+        "expectedDuplicateGroups": { "const": 65 },
+        "reviewItemId": { "const": "zuri_core.customer_import_provenance.id" },
+        "reviewCaseIdPolicy": { "type": "string", "minLength": 1 },
+        "groupFingerprint": { "type": "string", "minLength": 1 },
+        "actions": {
+          "type": "array",
+          "const": ["CREATE_SEPARATE", "LINK_EXISTING", "REJECT", "DEFER"]
+        },
+        "decisionLedger": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["storage", "appendOnly", "optimisticConcurrency", "targetCustomerScope"],
+          "properties": {
+            "storage": { "const": "zuri_core.customer_import_review_decision" },
+            "appendOnly": { "const": true },
+            "optimisticConcurrency": { "const": true },
+            "targetCustomerScope": { "const": "same tenant_id and business_id only" }
+          }
+        },
+        "privacyBoundary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["rawPiiStored", "browserResponse", "evidence"],
+          "properties": {
+            "rawPiiStored": { "const": false },
+            "browserResponse": { "const": "REDACTED_IDENTIFIERS_AND_FLAGS_ONLY" },
+            "evidence": { "const": "HASHES_COUNTS_AND_BOOLEAN_MATCH_FLAGS_ONLY" }
+          }
+        },
+        "applyBoundary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["publishesCustomers", "requiresSeparateApproval", "lineReplay"],
+          "properties": {
+            "publishesCustomers": { "const": false },
+            "requiresSeparateApproval": { "const": true },
+            "lineReplay": { "const": false }
+          }
+        }
+      }
+    }
+  }
+}

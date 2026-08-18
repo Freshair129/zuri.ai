@@ -3,9 +3,9 @@ domain: crm
 feature: FR-078
 module: crm
 source: v2-native
-version: "0.4.0"
+version: "0.8.0b"
 created_at: "2026-08-18T06:35:00+07:00,ATHER"
-last_update: "2026-08-18T09:25:08+07:00,ATHER"
+last_update: "2026-08-18T16:15:00+07:00,ATHER"
 status: "beta"
 ---
 
@@ -25,14 +25,20 @@ Customer Profile ของ `BUS-SMARTGIFT` เท่านั้น
 Machine-readable contracts:
 
 - [Contract manifest](../../../../contracts/migrations/smartgift-customer-data-contract.json)
+- [Duplicate review queue contract v0.3.0B](../../../../contracts/migrations/smartgift-customer-review-queue-contract.json)
+- [Duplicate review queue contract schema](../../../../contracts/migrations/smartgift-customer-review-queue-contract.schema.json)
 - [Contract schema](../../../../contracts/migrations/smartgift-customer-data-contract.schema.json)
 - [Staging record schema](../../../../contracts/migrations/smartgift-customer-record.schema.json)
 - [Target schema migration](../../../../supabase/migrations/20260818070000_customer_profile_backfill_schema.sql)
 - [Platform approver profile migration](../../../../supabase/migrations/20260818071000_platform_approver_profile.sql)
 - [Current contract receipt migration](../../../../supabase/migrations/20260818072000_customer_profile_contract_receipt.sql)
+- [Duplicate review queue migration](../../../../supabase/migrations/20260818073000_customer_import_review_queue.sql)
+- [Customer review runtime login migration](../../../../supabase/migrations/20260818090201_customer_review_runtime_login.sql)
+- [Customer review runtime login provisioning](../../../../scripts/provision-customer-review-runtime-login.mjs)
 - [Target verification script](../../../../scripts/verify-smartgift-customer-profile-target.mjs)
 - [Redacted target verification](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-verification.json)
 - [Redacted post-apply verification](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-post-apply-verification.json)
+- [Redacted review-runtime post-apply verification](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-review-runtime-post-apply-verification.json)
 - [Redacted dry-run receipt](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-dry-run.json)
 - [Verified target backup](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-target-backup-before-apply.json)
 - [Applied-batch rollback rehearsal](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-rollback-applied-batch-rehearsal.json)
@@ -248,6 +254,8 @@ stores no raw source PII in the provenance boundary:
 | `customer` | Tenant/Business-scoped Customer projection linked to `person` |
 | `customer_import_batch` | Batch receipt, approval, counts and rollback boundary |
 | `customer_import_provenance` | Source key/hash, resolution/disposition and idempotency ledger |
+| `customer_import_review_case` | Duplicate-group identity, scope, counts and redacted evidence flags |
+| `customer_import_review_decision` | Append-only per-item human decision ledger |
 
 The target-schema and contract-receipt migrations are schema/receipt-only. The
 approved server-owned batch then wrote only `display_name` to the private target.
@@ -257,6 +265,87 @@ verification for batch `3a7a45b1-1785-55dd-af41-d225a4afb45c` confirms 3,439
 Customer rows, 3,440 Person rows including the approver profile, one applied
 batch and 3,569 provenance rows. The 130 review-required rows remain held with
 no Person/Customer target row.
+
+## Duplicate review queue extension — contract v0.3.0B
+
+The first applied batch leaves 130 rows in `REVIEW_REQUIRED`, forming 65
+duplicate `normalized_name` groups. The queue is an approval workspace for
+those rows; it is not a second customer-import path and it does not publish a
+customer by itself.
+
+Identity is deliberately split into three layers:
+
+| Identity | Storage | Meaning |
+|---|---|---|
+| `reviewItemId` | existing `customer_import_provenance.id` | immutable source-row review identity |
+| `reviewCaseId` | `customer_import_review_case.id` | one deterministic duplicate-group identity |
+| `decisionId` | `customer_import_review_decision.id` | one append-only human decision record |
+
+`reviewCaseId` is derived from the batch ID and a SHA-256 group fingerprint;
+the raw normalized name is never stored in the queue, API response or audit
+payload. The queue may store source row number, source hash, counts and
+boolean evidence flags only. No display name, tax ID, email, phone, postcode,
+raw source key or document content is returned to the browser.
+
+Each review item may receive one of these decisions:
+
+- `CREATE_SEPARATE` — keep this source row as a separate future customer candidate;
+- `LINK_EXISTING` — link to an existing Customer in the same Tenant/Business;
+- `REJECT` — reject the source candidate; or
+- `DEFER` — leave the row held for a later decision.
+
+Decisions are append-only, actor-bound and protected by optimistic
+concurrency. A `LINK_EXISTING` target is checked server-side against the
+approved `TNT-ETOHGROUP` / `BUS-SMARTGIFT` scope. There is no browser-side
+database write, no automatic merge and no apply/publish operation in this
+extension. A later apply phase requires a separate owner/data-security gate,
+backup and transactional reconciliation.
+
+The UI capability is a Business-scoped `CUSTOMER_DATA_REVIEWER` RoleBinding.
+`PRODUCT_OWNER`, `isPlatform`, `isOperator`, visibility and Organization/Tenant
+ownership do not imply this permission.
+
+## Production deployment evidence
+
+The private Supabase target now has migration history through
+`20260818073000_customer_import_review_queue`. The migration catch-up applied
+the controlled activation, integration/Vault boundary and review-queue schema in
+timestamp order with `--skip-vault`; no Customer publish or LINE activation was
+performed by that deployment.
+
+The redacted manifest was then applied through the reviewed Postgres connection:
+
+- `65` review cases and `130` provenance rows are linked to their deterministic
+  review IDs;
+- all `130` rows remain `REVIEW_REQUIRED` / `REVIEW` and all cases remain open;
+- `customer_import_review_decision` contains `0` rows;
+- Customer and Person counts remain `3,439` and `3,440`;
+- the queue tables use forced RLS, Data API roles have no grants, and Supabase
+  security advisors report no issues.
+
+The application-side blocker is now closed through two tracked migrations:
+
+- `20260818084011_application_schema` provisioned the Prisma/Postgres application
+  schema in `public`, enabled RLS on its tables and granted no table access to
+  `anon` or `authenticated`;
+- `20260818084047_application_smartgift_identity` projected the verified Wannapa
+  Portfolio, `TNT-ETOHGROUP`, all four Businesses and `PER-BOSS` into that schema;
+- `PER-BOSS` has one tenant-wide `MEMBER` employment row and one active,
+  Business-scoped `CUSTOMER_DATA_REVIEWER` binding for
+  `834fa869-62f3-431c-a287-e9a95e91175b`, recorded with the migration mission and
+  an append-only audit event. No OWNER or PRODUCT_OWNER grant was created;
+- the application runtime now selects the generated Postgres Prisma client when
+  `DATABASE_URL` is a Postgres URL, while SQLite remains the local/test client.
+- the review adapter now has a dedicated `zuri_customer_review_login` that can
+  assume `zuri_app_runtime` with `SET LOCAL ROLE`; the migration/admin
+  connection is not an application runtime identity and the login has no direct
+  private-schema grants.
+
+The hosted application must provide the explicit server-only
+`ZURI_CUSTOMER_REVIEW_DATABASE_URL` pooler secret using
+`zuri_customer_review_login.<project-ref>` for the private `zuri_core` review
+adapter. Provision it through the tracked server-only provisioning script; the
+browser never receives the value.
 
 ## Write, rollback and channel boundary
 
@@ -324,6 +413,16 @@ itself is applied.
   tenant/business-scoped and independently rollbackable.
 - **AC-078.9** Historical customer data is not replayed through LINE and does not
   activate a LINE binding.
+- **AC-078.10** Every held duplicate row has an immutable review item ID, and
+  every duplicate group has a deterministic review case ID without storing raw
+  source PII in the queue or browser response.
+- **AC-078.11** Only a Business-scoped `CUSTOMER_DATA_REVIEWER` role may read
+  the queue or append a decision; Product Owner and platform flags do not
+  widen this capability.
+- **AC-078.12** Decisions are append-only, versioned, auditable and reject a
+  cross-Tenant or cross-Business `LINK_EXISTING` target.
+- **AC-078.13** Review decisions do not publish Customer rows or activate a
+  LINE binding; a separate apply gate remains required.
 
 ## Non-goals
 
@@ -347,6 +446,10 @@ itself is applied.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.8.0b | 2026-08-18 | beta | Add the dedicated customer-review login and close the live SET ROLE runtime gate without using the migration/admin identity | working-tree | ATHER |
+| 0.7.0b | 2026-08-18 | beta | Provision application Postgres/RBAC schema, apply the verified SmartGift reviewer binding and select the production Prisma client by URL | working-tree | ATHER |
+| 0.6.0b | 2026-08-18 | candidate | Apply the private review-queue migration and redacted 65-case/130-item metadata manifest; keep application reviewer assignment and decisions gated | working-tree | ATHER |
+| 0.5.0b | 2026-08-18 | candidate | Add append-only duplicate review queue contract, redacted evidence boundary, Business-scoped reviewer role and separate apply gate | pending | ATHER |
 | 0.4.0 | 2026-08-18 | beta | Record scoped owner/security approval, approved historical window and successful batch apply with post-apply/rollback evidence | pending | ATHER |
 | 0.3.1b | 2026-08-18 | candidate | Record Boss Platform Owner approval; Customer Data Owner, Security/PDPA and import gates remain pending | working-tree | ATHER |
 | 0.3.0b | 2026-08-18 | candidate | Verify target scope/RLS, create PER-BOSS profile and append current contract receipt; dry-run/import remain gated | working-tree | ATHER |

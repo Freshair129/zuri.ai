@@ -539,8 +539,45 @@ CREATE TABLE "CustomerImportProvenance" (
     "customerId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "reviewCaseId" TEXT,
+    "reviewReasonCode" TEXT,
+    "reviewEvidenceJson" TEXT,
 
     CONSTRAINT "CustomerImportProvenance_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CustomerImportReviewCase" (
+    "id" TEXT NOT NULL,
+    "batchId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "reasonCode" TEXT NOT NULL,
+    "groupFingerprint" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'OPEN',
+    "itemCount" INTEGER NOT NULL DEFAULT 0,
+    "evidenceSummaryJson" TEXT NOT NULL DEFAULT '{}',
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CustomerImportReviewCase_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CustomerImportReviewDecision" (
+    "id" TEXT NOT NULL,
+    "reviewCaseId" TEXT NOT NULL,
+    "provenanceId" TEXT NOT NULL,
+    "decisionVersion" INTEGER NOT NULL DEFAULT 1,
+    "action" TEXT NOT NULL,
+    "targetCustomerId" TEXT,
+    "decidedByPersonId" TEXT NOT NULL,
+    "decidedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "note" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "CustomerImportReviewDecision_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1025,7 +1062,25 @@ CREATE INDEX "CustomerImportProvenance_batchId_resolutionStatus_dispositi_idx" O
 CREATE INDEX "CustomerImportProvenance_personId_customerId_idx" ON "CustomerImportProvenance"("personId", "customerId");
 
 -- CreateIndex
+CREATE INDEX "CustomerImportProvenance_reviewCaseId_idx" ON "CustomerImportProvenance"("reviewCaseId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "CustomerImportProvenance_sourceSystem_sourceTable_sourceRec_key" ON "CustomerImportProvenance"("sourceSystem", "sourceTable", "sourceRecordKey", "snapshotSha256");
+
+-- CreateIndex
+CREATE INDEX "CustomerImportReviewCase_tenantId_businessId_status_idx" ON "CustomerImportReviewCase"("tenantId", "businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CustomerImportReviewCase_batchId_groupFingerprint_key" ON "CustomerImportReviewCase"("batchId", "groupFingerprint");
+
+-- CreateIndex
+CREATE INDEX "CustomerImportReviewDecision_reviewCaseId_provenanceId_deci_idx" ON "CustomerImportReviewDecision"("reviewCaseId", "provenanceId", "decisionVersion");
+
+-- CreateIndex
+CREATE INDEX "CustomerImportReviewDecision_targetCustomerId_idx" ON "CustomerImportReviewDecision"("targetCustomerId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CustomerImportReviewDecision_provenanceId_decisionVersion_key" ON "CustomerImportReviewDecision"("provenanceId", "decisionVersion");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Conversation_externalThreadId_key" ON "Conversation"("externalThreadId");
@@ -1302,6 +1357,30 @@ ALTER TABLE "CustomerImportProvenance" ADD CONSTRAINT "CustomerImportProvenance_
 
 -- AddForeignKey
 ALTER TABLE "CustomerImportProvenance" ADD CONSTRAINT "CustomerImportProvenance_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportProvenance" ADD CONSTRAINT "CustomerImportProvenance_reviewCaseId_fkey" FOREIGN KEY ("reviewCaseId") REFERENCES "CustomerImportReviewCase"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportReviewCase" ADD CONSTRAINT "CustomerImportReviewCase_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "CustomerImportBatch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportReviewCase" ADD CONSTRAINT "CustomerImportReviewCase_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportReviewCase" ADD CONSTRAINT "CustomerImportReviewCase_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportReviewDecision" ADD CONSTRAINT "CustomerImportReviewDecision_reviewCaseId_fkey" FOREIGN KEY ("reviewCaseId") REFERENCES "CustomerImportReviewCase"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportReviewDecision" ADD CONSTRAINT "CustomerImportReviewDecision_provenanceId_fkey" FOREIGN KEY ("provenanceId") REFERENCES "CustomerImportProvenance"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportReviewDecision" ADD CONSTRAINT "CustomerImportReviewDecision_targetCustomerId_fkey" FOREIGN KEY ("targetCustomerId") REFERENCES "Customer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomerImportReviewDecision" ADD CONSTRAINT "CustomerImportReviewDecision_decidedByPersonId_fkey" FOREIGN KEY ("decidedByPersonId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Conversation" ADD CONSTRAINT "Conversation_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE CASCADE ON UPDATE CASCADE;

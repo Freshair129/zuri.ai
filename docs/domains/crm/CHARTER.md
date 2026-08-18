@@ -6,6 +6,8 @@ owns_models:
   - Customer
   - CustomerImportBatch
   - CustomerImportProvenance
+  - CustomerImportReviewCase
+  - CustomerImportReviewDecision
   - Conversation
   - Message
 ---
@@ -33,6 +35,10 @@ turn flows through before any agent work happens.
 - FR-078 owns the historical Customer Profile backfill contract. It defines
   source identity, entity resolution, PII boundaries and rollback gates; it
   does not authorize a write until its approvals and target-schema gate pass.
+- The FR-078 duplicate review queue stores only deterministic IDs, hashes,
+  counts and boolean evidence flags. A Business-scoped Customer Data Reviewer
+  may append a decision, but the queue never publishes a Customer or replays
+  historical data through LINE.
 
 ## Known shared-write exceptions (debt, visible on purpose)
 
