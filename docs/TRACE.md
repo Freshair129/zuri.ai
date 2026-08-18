@@ -53,7 +53,7 @@
 - **Surface:** `/milestones` (page) · `/projects/[projectId]/milestones` (page) · `/api/gates/[id]` (api) · `/api/gates` (api) · `/api/milestones/[id]` (api) · `/api/milestones` (api)
 - **Code:** `src/app/(pm)/milestones/page.jsx` · `src/app/(pm)/projects/[projectId]/layout.jsx` · `src/app/(pm)/projects/[projectId]/milestones/page.jsx` · `src/app/api/gates/[id]/route.js` · `src/app/api/gates/route.js` · `src/app/api/milestones/[id]/route.js` · `src/app/api/milestones/route.js` · `src/modules/project-manager/application/milestone-gate-service.js` · `src/modules/project-manager/components/WorkViewTabs.jsx`
 - **Follows:** BR-001, SDD-019, SDD-039, SEC-001, SEC-008
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/fr072-milestone-gate-authorization.test.js` · `tests/integration/project-core.test.js` · `tests/unit/authorization-seam-list-routes.test.js` · `tests/unit/authorization-seam-routes.test.js` · `tests/unit/project-roadmap-ui.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/route-reachability.test.js`
+- **Tests:** `tests/e2e/fr040-project-work.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/fr072-milestone-gate-authorization.test.js` · `tests/integration/project-core.test.js` · `tests/unit/authorization-seam-list-routes.test.js` · `tests/unit/authorization-seam-routes.test.js` · `tests/unit/project-roadmap-ui.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/route-reachability.test.js`
 
 ### FR-007 — Dependencies 5 ชนิด, กัน self/cycle, ประเมิน blocked/ready — created, listed and deleted at the cross-project register Development → Dependencies. (The project-local Dependency **Map** is a separate read view, FR-040.)
 

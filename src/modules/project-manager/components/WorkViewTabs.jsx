@@ -14,7 +14,7 @@ import { usePathname } from 'next/navigation'
 import { Network, Columns3, GanttChartSquare, Share2, Map, Flag } from 'lucide-react'
 
 // Sub-views of the project "Work" tab
-// (Execution Roadmap · Structure Plan · Board · Schedule · Milestones & Gates · Dependency Map).
+// (Execution Roadmap · Structure Plan · Board · Schedule · Milestones · Dependency Map).
 //
 // Every href here must be rendered by a page that itself renders this bar, or
 // the tab becomes a one-way door: the user arrives and the siblings vanish.
@@ -27,11 +27,26 @@ export default function WorkViewTabs({ projectId }) {
     { key: 'structure', label: 'Structure Plan', icon: Network, href: `/projects/${projectId}/structure` },
     { key: 'board', label: 'Board', icon: Columns3, href: `/projects/${projectId}/board` },
     { key: 'timeline', label: 'Schedule', icon: GanttChartSquare, href: `/projects/${projectId}/timeline` },
-    { key: 'milestones', label: 'Milestones & Gates', icon: Flag, href: `/projects/${projectId}/milestones` },
+    // "Milestones", not "Milestones & Gates": the Development sidebar is on
+    // screen at the same time and already owns that exact label for the
+    // Business-wide `/milestones` route. One name for two different routes is
+    // ambiguous to a reader and to a screen reader alike — Playwright strict
+    // mode is what surfaced the collision. Every other project-scoped label
+    // here is already a different word from its Business-wide half for the same
+    // reason: Schedule vs Timeline, Dependency Map vs Dependencies. The page
+    // heading stays "Milestones & Gates"; only the tab is shortened.
+    { key: 'milestones', label: 'Milestones', icon: Flag, href: `/projects/${projectId}/milestones` },
     { key: 'dependencies', label: 'Dependency Map', icon: Share2, href: `/projects/${projectId}/dependencies` },
   ]
   return (
-    <div className="mb-4 inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface-mid)] p-1">
+    // A named landmark, like `ProjectTabs`' "Project sections": this is
+    // navigation, and naming it is what lets a reader — or a test — tell its
+    // links apart from the sidebar's without depending on the labels staying
+    // unique forever.
+    <nav
+      aria-label="Project work views"
+      className="mb-4 inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface-mid)] p-1"
+    >
       {views.map((v) => {
         const Icon = v.icon
         const active = pathname === v.href
@@ -48,6 +63,6 @@ export default function WorkViewTabs({ projectId }) {
           </Link>
         )
       })}
-    </div>
+    </nav>
   )
 }
