@@ -3,6 +3,7 @@ import prisma from '@/lib/db'
 // @req FR-075 — restore is an installation-wide operation; these cases arrange
 // as the operator, and fr075-restore-authorization.test.js is where the refusal
 // side is proven.
+// @req FR-078 — customer import ledger tables must be included in snapshots.
 import { makeOperatorViewer } from '../factories/viewer'
 import {
   exportSnapshot,
@@ -49,6 +50,48 @@ describe('snapshot backup round trip', () => {
     await prisma.roleBinding.create({
       data: { personId: person.id, tenantId: tenant.id, businessId: business.id, roleKey: 'PRODUCT_OWNER' },
     })
+    const customer = await prisma.customer.create({
+      data: {
+        code: 'CUS-BAK-IMPORT',
+        tenantId: tenant.id,
+        businessId: business.id,
+        personId: person.id,
+        displayName: 'Backup imported customer',
+      },
+    })
+    const batch = await prisma.customerImportBatch.create({
+      data: {
+        contractId: 'CDC-BAK',
+        missionId: 'MIS-BAK',
+        versionId: 'VER-BAK',
+        tenantId: tenant.id,
+        businessId: business.id,
+        sourceRef: 'BACKUP_TEST',
+        snapshotSha256: 'a'.repeat(64),
+        sourceRowCount: 1,
+        publishRowCount: 1,
+        heldRowCount: 0,
+        status: 'APPLIED',
+        approvedByPersonId: person.id,
+      },
+    })
+    await prisma.customerImportProvenance.create({
+      data: {
+        batchId: batch.id,
+        sourceSystem: 'BACKUP_TEST',
+        sourceTable: 'customer',
+        sourceRecordKey: 'C-BAK-001',
+        sourceRow: 1,
+        sourceSha256: 'b'.repeat(64),
+        snapshotSha256: 'a'.repeat(64),
+        idempotencyKey: 'BACKUP_TEST|customer|C-BAK-001|' + 'a'.repeat(64),
+        resolutionStatus: 'NEW_CANDIDATE',
+        matchMethod: 'NONE',
+        disposition: 'PUBLISH',
+        personId: person.id,
+        customerId: customer.id,
+      },
+    })
   })
 
   it('export includes schema version, timestamp and table counts', async () => {
@@ -68,6 +111,8 @@ describe('snapshot backup round trip', () => {
     expect(snapshot.tables.businessGoal.length).toBeGreaterThan(0)
     expect(snapshot.tables.projectGoal.length).toBeGreaterThan(0)
     expect(snapshot.tables.roleBinding.length).toBeGreaterThan(0)
+    expect(snapshot.tables.customerImportBatch.length).toBeGreaterThan(0)
+    expect(snapshot.tables.customerImportProvenance.length).toBeGreaterThan(0)
   })
 
   it('rejects invalid snapshot on preview', async () => {
@@ -131,5 +176,31 @@ describe('snapshot backup round trip', () => {
 
     const binding = await prisma.roleBinding.findFirst({ where: { roleKey: 'PRODUCT_OWNER' } })
     expect(binding.status).toBe('ACTIVE')
+  })
+
+  it('round trip carries the customer import batch and provenance edge, in restorable order', async () => {
+    const snapshot = await exportSnapshot()
+    const batch = snapshot.tables.customerImportBatch.find((row) => row.contractId === 'CDC-BAK')
+    const provenance = snapshot.tables.customerImportProvenance.find((row) => row.sourceRecordKey === 'C-BAK-001')
+    const customer = snapshot.tables.customer.find((row) => row.code === 'CUS-BAK-IMPORT')
+    expect(batch).toBeTruthy()
+    expect(provenance).toBeTruthy()
+    expect(customer).toBeTruthy()
+
+    // Mutate both ledger tables before restoring the snapshot.
+    await prisma.customerImportProvenance.delete({ where: { id: provenance.id } })
+    await prisma.customerImportBatch.update({ where: { id: batch.id }, data: { status: 'ROLLED_BACK' } })
+    expect(await prisma.customerImportProvenance.findUnique({ where: { id: provenance.id } })).toBeNull()
+    expect((await prisma.customerImportBatch.findUnique({ where: { id: batch.id } })).status).toBe('ROLLED_BACK')
+
+    const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
+    expect(result.restored).toBe(true)
+
+    const restoredBatch = await prisma.customerImportBatch.findUnique({ where: { id: batch.id } })
+    const restoredProvenance = await prisma.customerImportProvenance.findUnique({ where: { id: provenance.id } })
+    expect(restoredBatch.status).toBe('APPLIED')
+    expect(restoredProvenance.batchId).toBe(restoredBatch.id)
+    expect(restoredProvenance.customerId).toBe(customer.id)
+    expect(restoredProvenance.personId).toBe(customer.personId)
   })
 })

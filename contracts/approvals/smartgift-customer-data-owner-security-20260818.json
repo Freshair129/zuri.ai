@@ -1,0 +1,82 @@
+{
+  "approvalId": "APR-SG-CUSTOMER-DATA-OWNER-SECURITY-001",
+  "customerDataContractId": "CDC-SG-CUSTOMER-DATA-001",
+  "versionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B",
+  "missionId": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
+  "status": "APPROVED",
+  "approvalSource": "Codex user authorization message",
+  "approvedAt": "2026-08-18T08:53:00+07:00",
+  "approvedBy": {
+    "personId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+    "code": "PER-BOSS",
+    "displayName": "Boss (บอส)"
+  },
+  "approvedRolesForThisMission": [
+    "CUSTOMER_DATA_OWNER",
+    "SECURITY_PDPA"
+  ],
+  "scope": {
+    "portfolioId": "5c621811-7e7a-42dd-ac39-ea9e8416ba98",
+    "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+    "businessId": "834fa869-62f3-431c-a287-e9a95e91175b",
+    "businessCode": "BUS-SMARTGIFT"
+  },
+  "purpose": "Create a private SmartGift Customer Profile projection in Zuri CRM from the approved read-only DuckDB snapshot.",
+  "privacy": {
+    "basis": "OWNER_ATTESTATION",
+    "evidenceRef": "contracts/approvals/smartgift-customer-data-owner-security-20260818.json#privacy",
+    "approvedByPersonId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+    "retentionUntil": null,
+    "retentionRule": "Retain only while necessary for SmartGift customer-profile operations; review at least annually and delete or anonymize when no longer necessary or on a validated erasure request.",
+    "decisionNote": "Scoped owner attestation for this migration; it does not create Organization Owner membership and is not a legal opinion outside this approval record."
+  },
+  "historicalWindow": {
+    "status": "APPROVED",
+    "from": "2020-07-17",
+    "to": "2026-06-22",
+    "decisionBasis": "Full observed SmartGift source date window in the read-only snapshot; customer profile rows are included as present at snapshotAsOf, while transaction/document fields remain excluded from initial publish.",
+    "sourceSnapshotSha256": "a8da233228cb80a088f11ff98fdef5773d0890bc158bcc40752c6d7a5e4bd5d7",
+    "snapshotAsOf": "2026-08-12T12:13:43+07:00"
+  },
+  "resolutionDecision": {
+    "sourceCustomerRows": 3569,
+    "newCandidatesAuthorizedForPublish": 3439,
+    "reviewRequiredRows": 130,
+    "rejectedRows": 0,
+    "reviewDisposition": "HOLD_NO_WRITE",
+    "nameOnlyAutoMerge": false,
+    "crossBusinessMerge": false
+  },
+  "fieldDecision": {
+    "initialPublishFields": ["displayName"],
+    "excludedFields": [
+      "taxId",
+      "email",
+      "phoneE164",
+      "postcode",
+      "orders",
+      "quotes",
+      "lifetime_value",
+      "amount",
+      "vat",
+      "total",
+      "credit_days",
+      "raw_document_content",
+      "LINE identifiers",
+      "secrets"
+    ],
+    "rawPiiStored": false
+  },
+  "backupRollbackDecision": {
+    "backupRequiredBeforeWrite": true,
+    "rollbackScope": "BATCH_SCOPED_ONLY",
+    "rollbackOwner": "PER-BOSS",
+    "unrelatedBusinessRowsUntouched": true
+  },
+  "limitations": [
+    "This approval is limited to CDC-SG-CUSTOMER-DATA-001 and MIS-SG-CUSTOMER-DATA-BACKFILL-001.",
+    "It does not assign Tenant or Organization Owner membership.",
+    "It does not authorize cross-business merge, LINE replay, financial/document import or raw PII publication.",
+    "The 130 review-required rows remain held until an explicit row-level review decision."
+  ]
+}

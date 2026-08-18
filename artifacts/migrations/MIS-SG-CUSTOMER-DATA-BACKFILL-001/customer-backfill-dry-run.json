@@ -3,7 +3,7 @@
   "contractId": "CDC-SG-CUSTOMER-DATA-001",
   "versionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B",
   "missionId": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
-  "contractStatus": "CANDIDATE",
+  "contractStatus": "APPROVED",
   "scope": {
     "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
     "businessId": "834fa869-62f3-431c-a287-e9a95e91175b",
@@ -54,17 +54,17 @@
     "lineIdentifiersPublished": false
   },
   "disposition": {
-    "writeAuthorized": false,
-    "reason": "CONTRACT_OR_APPROVAL_GATE_PENDING",
-    "allRowsHeldUntilApproval": true
+    "writeAuthorized": true,
+    "reason": "READY_FOR_APPROVED_IMPORT",
+    "allRowsHeldUntilApproval": false
   },
   "gates": {
     "CDC-G1": "COMPLETE",
-    "CDC-G2": "PENDING",
-    "CDC-G3": "PENDING",
-    "CDC-G4": "PENDING",
+    "CDC-G2": "COMPLETE",
+    "CDC-G3": "COMPLETE",
+    "CDC-G4": "COMPLETE",
     "CDC-G5": "COMPLETE",
-    "CDC-G6": "PENDING"
+    "CDC-G6": "COMPLETE"
   },
-  "generatedAt": "2026-08-18T01:20:38.469330+00:00"
+  "generatedAt": "2026-08-18T02:16:53.707831+00:00"
 }

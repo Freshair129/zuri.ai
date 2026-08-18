@@ -1,6 +1,6 @@
 {
-  "mode": "READ_ONLY_TARGET_VERIFICATION",
-  "generatedAt": "2026-08-18T02:14:48.012Z",
+  "mode": "READ_ONLY_TARGET_POST_APPLY_VERIFICATION",
+  "generatedAt": "2026-08-18T02:32:10.060Z",
   "expected": {
     "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
     "tenantCode": "TNT-ETOHGROUP",
@@ -52,7 +52,7 @@
         "table": "person",
         "row_security": true,
         "force_row_security": true,
-        "row_count": 1
+        "row_count": 3440
       }
     ],
     "table:customer": [
@@ -60,7 +60,7 @@
         "table": "customer",
         "row_security": true,
         "force_row_security": true,
-        "row_count": 0
+        "row_count": 3439
       }
     ],
     "table:customer_import_batch": [
@@ -68,7 +68,7 @@
         "table": "customer_import_batch",
         "row_security": true,
         "force_row_security": true,
-        "row_count": 0
+        "row_count": 1
       }
     ],
     "table:customer_import_provenance": [
@@ -76,7 +76,7 @@
         "table": "customer_import_provenance",
         "row_security": true,
         "force_row_security": true,
-        "row_count": 0
+        "row_count": 3569
       }
     ],
     "forbiddenGrants": [],
@@ -90,9 +90,9 @@
     ],
     "customerCounts": [
       {
-        "customer_rows": 0,
-        "batch_rows": 0,
-        "provenance_rows": 0
+        "customer_rows": 3439,
+        "batch_rows": 1,
+        "provenance_rows": 3569
       }
     ],
     "contractReceipt": [
@@ -109,28 +109,51 @@
         }
       }
     ],
+    "appliedBatch": [
+      {
+        "id": "3a7a45b1-1785-55dd-af41-d225a4afb45c",
+        "status": "APPLIED",
+        "contract_id": "CDC-SG-CUSTOMER-DATA-001",
+        "mission_id": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
+        "version_id": "VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B",
+        "tenant_id": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+        "business_id": "834fa869-62f3-431c-a287-e9a95e91175b",
+        "snapshot_sha256": "a8da233228cb80a088f11ff98fdef5773d0890bc158bcc40752c6d7a5e4bd5d7",
+        "source_row_count": 3569,
+        "publish_row_count": 3439,
+        "held_row_count": 130
+      }
+    ],
+    "appliedCounts": [
+      {
+        "customer_rows": 3439,
+        "published_provenance_rows": 3439,
+        "held_provenance_rows": 130,
+        "linked_provenance_rows": 3439
+      }
+    ],
     "tables": [
       {
         "table": "person",
-        "rowCount": 1,
+        "rowCount": 3440,
         "rowSecurity": true,
         "forceRowSecurity": true
       },
       {
         "table": "customer",
-        "rowCount": 0,
+        "rowCount": 3439,
         "rowSecurity": true,
         "forceRowSecurity": true
       },
       {
         "table": "customer_import_batch",
-        "rowCount": 0,
+        "rowCount": 1,
         "rowSecurity": true,
         "forceRowSecurity": true
       },
       {
         "table": "customer_import_provenance",
-        "rowCount": 0,
+        "rowCount": 3569,
         "rowSecurity": true,
         "forceRowSecurity": true
       }

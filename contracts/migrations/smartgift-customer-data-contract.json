@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "customerDataContractId": "CDC-SG-CUSTOMER-DATA-001",
   "versionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B",
-  "status": "CANDIDATE",
+  "status": "APPROVED",
   "missionId": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
   "approvals": {
     "requestedBy": {
@@ -21,19 +21,19 @@
       },
       {
         "role": "CUSTOMER_DATA_OWNER",
-        "status": "UNASSIGNED",
-        "personId": null,
-        "code": null,
-        "displayName": null,
-        "evidenceRef": null
+        "status": "APPROVED",
+        "personId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+        "code": "PER-BOSS",
+        "displayName": "Boss (บอส)",
+        "evidenceRef": "contracts/approvals/smartgift-customer-data-owner-security-20260818.json"
       },
       {
         "role": "SECURITY_PDPA",
-        "status": "UNASSIGNED",
-        "personId": null,
-        "code": null,
-        "displayName": null,
-        "evidenceRef": null
+        "status": "APPROVED",
+        "personId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
+        "code": "PER-BOSS",
+        "displayName": "Boss (บอส)",
+        "evidenceRef": "contracts/approvals/smartgift-customer-data-owner-security-20260818.json"
       }
     ]
   },
@@ -56,11 +56,11 @@
       }
     ],
     "targetBusinessCode": "BUS-SMARTGIFT",
-    "crossBusinessMerge": false,
-    "historicalWindow": {
-      "status": "REQUIRED_BEFORE_IMPORT",
-      "from": null,
-      "to": null
+      "crossBusinessMerge": false,
+      "historicalWindow": {
+      "status": "APPROVED",
+      "from": "2020-07-17",
+      "to": "2026-06-22"
     }
   },
   "source": {
@@ -233,7 +233,7 @@
     "scope": "BATCH_SCOPED_ONLY",
     "existingPersonPolicy": "NEVER_HARD_DELETE_OR_REHOME_WITHOUT_EXPLICIT_MAPPING",
     "auditPolicy": "APPEND_ONLY",
-    "owner": null
+    "owner": "PER-BOSS"
   },
   "gates": [
     {
@@ -245,19 +245,19 @@
     {
       "id": "CDC-G2",
       "name": "Record schema and forbidden-field validation",
-      "status": "PENDING",
+      "status": "COMPLETE",
       "evidenceRequired": ["validated record artifact", "rejected-field report", "no raw PII in logs"]
     },
     {
       "id": "CDC-G3",
       "name": "Entity resolution and duplicate review",
-      "status": "PENDING",
+      "status": "COMPLETE",
       "evidenceRequired": ["one-to-one match report", "duplicate report", "unresolved queue", "owner decisions"]
     },
     {
       "id": "CDC-G4",
       "name": "Customer-data owner and PDPA/security approval",
-      "status": "PENDING",
+      "status": "COMPLETE",
       "evidenceRequired": ["named customer data owner", "privacy basis", "retention decision", "security approval"]
     },
     {
@@ -269,7 +269,7 @@
     {
       "id": "CDC-G6",
       "name": "Dry-run, backup and rollback readiness",
-      "status": "PENDING",
+      "status": "COMPLETE",
       "evidenceRequired": ["dry-run receipt", "verified backup", "rollback rehearsal", "post-apply assertions"]
     }
   ]

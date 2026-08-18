@@ -47,6 +47,7 @@ model Tenant {
   identityLinkTokens     IdentityLinkToken[]
   customers              Customer[]
   roleBindings           RoleBinding[]
+  customerImportBatches  CustomerImportBatch[]
   localWorkspaceMounts   LocalWorkspaceMount[]
   fileAssets             FileAsset[]
   integrationConnections IntegrationConnection[]
@@ -107,6 +108,7 @@ model Business {
   memberships            Membership[]
   customers              Customer[]
   roleBindings           RoleBinding[]
+  customerImportBatches  CustomerImportBatch[]
   roadmaps               BusinessRoadmap[]
   goals                  BusinessGoal[]
   projects               Project[]
@@ -153,6 +155,8 @@ model Person {
   identityLinkTokens IdentityLinkToken[]
   customers          Customer[]
   roleBindings       RoleBinding[]
+  customerImportApprovals CustomerImportBatch[] @relation("CustomerImportBatchApprover")
+  customerImportProvenance CustomerImportProvenance[] @relation("CustomerImportProvenancePerson")
 }
 
 model Membership {
@@ -700,9 +704,63 @@ model Customer {
   business      Business?      @relation(fields: [businessId], references: [id])
   person        Person         @relation(fields: [personId], references: [id])
   conversations Conversation[]
+  importProvenance CustomerImportProvenance[] @relation("CustomerImportProvenanceCustomer")
 
   @@unique([tenantId, personId])
   @@index([businessId])
+}
+
+model CustomerImportBatch {
+  id                String   @id @default(uuid())
+  contractId        String
+  missionId         String
+  versionId         String
+  tenantId          String
+  businessId        String
+  sourceRef         String
+  snapshotSha256    String
+  sourceRowCount    Int
+  publishRowCount   Int      @default(0)
+  heldRowCount      Int      @default(0)
+  status            String
+  approvedByPersonId String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  business   Business @relation(fields: [businessId], references: [id])
+  approvedBy Person?  @relation("CustomerImportBatchApprover", fields: [approvedByPersonId], references: [id])
+  provenance CustomerImportProvenance[]
+
+  @@unique([contractId, missionId, versionId, snapshotSha256])
+  @@index([tenantId, businessId, status])
+}
+
+model CustomerImportProvenance {
+  id               String   @id @default(uuid())
+  batchId          String
+  sourceSystem     String
+  sourceTable      String
+  sourceRecordKey  String
+  sourceRow        Int?
+  sourceSha256     String
+  snapshotSha256   String
+  idempotencyKey   String   @unique
+  resolutionStatus String
+  matchMethod      String
+  disposition      String
+  personId         String?
+  customerId       String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  batch    CustomerImportBatch @relation(fields: [batchId], references: [id])
+  person   Person?             @relation("CustomerImportProvenancePerson", fields: [personId], references: [id])
+  customer Customer?           @relation("CustomerImportProvenanceCustomer", fields: [customerId], references: [id])
+
+  @@unique([sourceSystem, sourceTable, sourceRecordKey, snapshotSha256])
+  @@index([batchId, resolutionStatus, disposition])
+  @@index([personId, customerId])
 }
 
 model Conversation {

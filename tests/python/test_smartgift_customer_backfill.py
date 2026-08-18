@@ -58,13 +58,24 @@ class SmartGiftCustomerBackfillTests(unittest.TestCase):
         self.assertIsNone(rows[1]["personId"])
         self.assertIsNotNone(rows[2]["personId"])
 
-    def test_current_contract_is_not_import_ready(self):
+    def test_current_contract_is_import_ready_after_explicit_approval(self):
         contract_path = Path(__file__).parents[2] / "contracts/migrations/smartgift-customer-data-contract.json"
         contract = json.loads(contract_path.read_text(encoding="utf-8"))
         ready, reasons = MODULE.approval_gate(contract)
-        self.assertFalse(ready)
-        self.assertIn("contract_status:CANDIDATE", reasons)
-        self.assertIn("approval:CUSTOMER_DATA_OWNER:UNASSIGNED", reasons)
+        self.assertTrue(ready)
+        self.assertEqual(reasons, [])
+
+    def test_provenance_insert_values_include_resolution_status(self):
+        rows = MODULE.read_source_rows(self.db_path, "b" * 64)
+        values = MODULE.provenance_insert_values(rows[2], "batch-id", "b" * 64)
+        self.assertEqual(len(values), 13)
+        self.assertEqual(values[9], rows[2]["resolutionStatus"])
+        self.assertEqual(values[10], rows[2]["disposition"])
+
+    def test_apply_uses_batched_inserts_for_the_atomic_transaction(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("from psycopg2.extras import execute_batch", source)
+        self.assertEqual(source.count("page_size=250"), 3)
 
 
 if __name__ == "__main__":

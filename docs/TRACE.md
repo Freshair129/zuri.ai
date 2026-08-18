@@ -607,9 +607,9 @@
 
 - **Feature:** FEAT-006 — Customer Data Backfill — scoped, provenance-preserving Customer Profile contract with entity resolution and PDPA gates
 - **Status:** planned
-- **Code:** —
-- **Follows:** —
-- **Tests:** `tests/unit/customer-data-contract.test.js` · `tests/unit/customer-profile-backfill-migration.test.js` · `tests/unit/customer-profile-contract-receipt.test.js` · `tests/unit/platform-approver-profile-migration.test.js`
+- **Code:** `src/modules/project-manager/application/backup-service.js`
+- **Follows:** BR-008, SDD-023, SEC-008
+- **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/unit/customer-data-contract.test.js` · `tests/unit/customer-profile-backfill-migration.test.js` · `tests/unit/customer-profile-contract-receipt.test.js` · `tests/unit/customer-profile-target-verification.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/platform-approver-profile-migration.test.js`
 
 ### FR-079 — Phase 1 LINE runtime connection cut-over: after the server-owned LINE binding resolves the trusted Tenant/Business scope, the runtime selects exactly one `ACTIVE` `PRIMARY` `PHASE1_LINE_LLM` IntegrationConnection under that scope, resolves its opaque `secretRef` through the environment-selected provider-neutral SecretManagerPort, then composes the existing ModelProviderPort. Zero/multiple candidates, untrusted scope, secret-manager failure/expiry/version mismatch, production local-vault/raw-credential access and production/public-LINE Ollama selection fail closed before knowledge/model/reply work. Promotion uses compare-and-swap and a database uniqueness invariant; local Ollama is explicit local/dev/test/eval only and never automatic fallback. Production now selects Supabase Vault through the private resolver; live apply/provisioning/canary remain pending.
 

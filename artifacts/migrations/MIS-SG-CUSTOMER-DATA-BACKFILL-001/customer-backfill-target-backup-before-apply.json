@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0.0",
+  "mode": "READ_ONLY_REDACTED_TARGET_BACKUP",
+  "contractId": "CDC-SG-CUSTOMER-DATA-001",
+  "missionId": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
+  "versionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B",
+  "scope": {
+    "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+    "businessId": "834fa869-62f3-431c-a287-e9a95e91175b"
+  },
+  "capturedAt": "2026-08-18T01:57:27.537Z",
+  "rawPiiStored": false,
+  "tables": {
+    "person": {
+      "rowCount": 1,
+      "rowSha256": "43b79060874395d7cb9b8f79be849300e7706930e0b1fd66970a53936787504e"
+    },
+    "customer": {
+      "rowCount": 0,
+      "rowSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "customer_import_batch": {
+      "rowCount": 0,
+      "rowSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "customer_import_provenance": {
+      "rowCount": 0,
+      "rowSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "scopeCounts": {
+    "customer_rows": 0,
+    "batch_rows": 0,
+    "provenance_rows": 0,
+    "platform_owner_profiles": 1
+  },
+  "sha256": "ea932007f1c457241141b3acd4d29c5eeb444af4d3cd6c276ec011b09ed7d1cd"
+}

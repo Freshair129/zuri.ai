@@ -292,7 +292,7 @@ def main() -> None:
         "newCandidates": receipt["resolution"]["statusCounts"]["NEW_CANDIDATE"],
         "reviewRequired": receipt["resolution"]["statusCounts"]["REVIEW_REQUIRED"],
         "rejected": receipt["resolution"]["statusCounts"]["REJECTED"],
-        "writeAuthorized": False,
+        "writeAuthorized": receipt["disposition"]["writeAuthorized"],
     }))
 
 

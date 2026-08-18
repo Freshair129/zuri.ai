@@ -20,6 +20,7 @@ from typing import Any
 
 import duckdb
 import psycopg2
+from psycopg2.extras import execute_batch
 
 # @req FR-078 - apply the approved SmartGift Customer Profile batch with
 # tenant/business scope, provenance and idempotent rollback boundary.
@@ -243,6 +244,28 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, int]:
     return counts
 
 
+def provenance_insert_values(
+    row: dict[str, Any], batch_id: str, snapshot_sha256: str
+) -> tuple[Any, ...]:
+    """Return the exact values for the provenance insert placeholders."""
+
+    return (
+        row["provenanceId"],
+        batch_id,
+        SOURCE_SYSTEM,
+        SOURCE_TABLE,
+        row["sourceRecordKey"] or "MISSING",
+        row["sourceRow"],
+        row["sourceSha256"],
+        snapshot_sha256,
+        row["idempotencyKey"],
+        row["resolutionStatus"],
+        row["disposition"],
+        row["personId"],
+        row["customerId"],
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--apply", action="store_true")
@@ -373,58 +396,60 @@ def main() -> int:
                     ),
                 )
 
-                for row in rows:
-                    if row["resolutionStatus"] == "NEW_CANDIDATE":
-                        cursor.execute(
-                            """
-                            insert into zuri_core.person (id, code, display_name, email)
-                            values (%s, %s, %s, null)
-                            """,
-                            (
-                                row["personId"],
-                                f"PER-SG-{row['sourceSha256'][:24]}",
-                                value_key(row["displayName"]),
-                            ),
-                        )
-                        cursor.execute(
-                            """
-                            insert into zuri_core.customer (
-                              id, code, tenant_id, business_id, person_id, display_name
-                            ) values (%s, %s, %s, %s, %s, %s)
-                            """,
-                            (
-                                row["customerId"],
-                                f"CUS-SG-{row['sourceSha256'][:24]}",
-                                EXPECTED_TENANT_ID,
-                                EXPECTED_BUSINESS_ID,
-                                row["personId"],
-                                value_key(row["displayName"]),
-                            ),
-                        )
-
-                    cursor.execute(
-                        """
-                        insert into zuri_core.customer_import_provenance (
-                          id, batch_id, source_system, source_table, source_record_key,
-                          source_row, source_sha256, snapshot_sha256, idempotency_key,
-                          resolution_status, match_method, disposition, person_id, customer_id
-                        ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'NONE', %s, %s, %s)
-                        """,
+                publish_rows = [
+                    row for row in rows if row["resolutionStatus"] == "NEW_CANDIDATE"
+                ]
+                execute_batch(
+                    cursor,
+                    """
+                    insert into zuri_core.person (id, code, display_name, email)
+                    values (%s, %s, %s, null)
+                    """,
+                    [
                         (
-                            row["provenanceId"],
-                            batch_id,
-                            SOURCE_SYSTEM,
-                            SOURCE_TABLE,
-                            row["sourceRecordKey"] or "MISSING",
-                            row["sourceRow"],
-                            row["sourceSha256"],
-                            snapshot_sha256,
-                            row["idempotencyKey"],
-                            row["disposition"],
                             row["personId"],
+                            f"PER-SG-{row['sourceSha256'][:24]}",
+                            value_key(row["displayName"]),
+                        )
+                        for row in publish_rows
+                    ],
+                    page_size=250,
+                )
+                execute_batch(
+                    cursor,
+                    """
+                    insert into zuri_core.customer (
+                      id, code, tenant_id, business_id, person_id, display_name
+                    ) values (%s, %s, %s, %s, %s, %s)
+                    """,
+                    [
+                        (
                             row["customerId"],
-                        ),
-                    )
+                            f"CUS-SG-{row['sourceSha256'][:24]}",
+                            EXPECTED_TENANT_ID,
+                            EXPECTED_BUSINESS_ID,
+                            row["personId"],
+                            value_key(row["displayName"]),
+                        )
+                        for row in publish_rows
+                    ],
+                    page_size=250,
+                )
+                execute_batch(
+                    cursor,
+                    """
+                    insert into zuri_core.customer_import_provenance (
+                      id, batch_id, source_system, source_table, source_record_key,
+                      source_row, source_sha256, snapshot_sha256, idempotency_key,
+                      resolution_status, match_method, disposition, person_id, customer_id
+                    ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'NONE', %s, %s, %s)
+                    """,
+                    [
+                        provenance_insert_values(row, batch_id, snapshot_sha256)
+                        for row in rows
+                    ],
+                    page_size=250,
+                )
 
                 cursor.execute(
                     """

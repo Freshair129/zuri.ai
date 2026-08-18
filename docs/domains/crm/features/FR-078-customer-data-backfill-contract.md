@@ -3,10 +3,10 @@ domain: crm
 feature: FR-078
 module: crm
 source: v2-native
-version: "0.3.1b"
+version: "0.4.0"
 created_at: "2026-08-18T06:35:00+07:00,ATHER"
-last_update: "2026-08-18T08:20:00+07:00,ATHER"
-status: "candidate"
+last_update: "2026-08-18T09:25:08+07:00,ATHER"
+status: "beta"
 ---
 
 # FR-078 — Customer data backfill contract
@@ -17,10 +17,10 @@ status: "candidate"
 CRM ของ Zuri อย่างมีขอบเขตและตรวจสอบย้อนกลับได้ โดยรอบแรกครอบคลุมเฉพาะ
 Customer Profile ของ `BUS-SMARTGIFT` เท่านั้น
 
-เอกสารนี้ยังไม่อนุมัติการเขียนข้อมูล Customer ใน Supabase แม้จะเตรียม target
-schema, สร้าง profile ผู้อนุมัติ, ทำ dry-run และมี importer แบบ fail-closed แล้ว
-การอนุมัติของ contract นี้เป็นคนละ gate กับ mission ที่ migrate product knowledge
-74 แถวเสร็จแล้ว
+เอกสารนี้บันทึก contract ที่ได้รับอนุมัติและ batch แรกที่ migrate สำเร็จแล้ว โดย
+แยก historical backfill ออกจาก production LINE/event path อย่างชัดเจน การอนุมัติ
+ของ contract นี้เป็นคนละ gate กับ mission ที่ migrate product knowledge 74 แถว
+เสร็จแล้ว
 
 Machine-readable contracts:
 
@@ -32,8 +32,12 @@ Machine-readable contracts:
 - [Current contract receipt migration](../../../../supabase/migrations/20260818072000_customer_profile_contract_receipt.sql)
 - [Target verification script](../../../../scripts/verify-smartgift-customer-profile-target.mjs)
 - [Redacted target verification](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-verification.json)
+- [Redacted post-apply verification](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-profile-target-post-apply-verification.json)
 - [Redacted dry-run receipt](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-dry-run.json)
+- [Verified target backup](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-target-backup-before-apply.json)
+- [Applied-batch rollback rehearsal](../../../../artifacts/migrations/MIS-SG-CUSTOMER-DATA-BACKFILL-001/customer-backfill-rollback-applied-batch-rehearsal.json)
 - [Platform-owner approval](../../../../contracts/approvals/smartgift-customer-data-platform-owner-20260818.json)
+- [Customer-data owner and security approval](../../../../contracts/approvals/smartgift-customer-data-owner-security-20260818.json)
 
 ## Identity and approval
 
@@ -43,9 +47,12 @@ Machine-readable contracts:
 | `versionId` | `VER-SG-CUSTOMER-DATA-CONTRACT-0.2.0B` |
 | `missionId` | `MIS-SG-CUSTOMER-DATA-BACKFILL-001` |
 | Requested by / Platform approver | Boss (`PER-BOSS`, `c82690eb-84e8-48a8-8a28-fe3d839c2276`) |
-| Contract status | `CANDIDATE` — Platform Owner approval recorded; target schema/profile are verified and dry-run is complete; customer write remains blocked |
-| Customer Data Owner | ยังไม่ระบุ — required before import |
-| Security/PDPA approver | ยังไม่ระบุ — required before import |
+| Contract status | `APPROVED` — all required approvals and gates complete; batch apply reconciled |
+| Customer Data Owner | Boss (`PER-BOSS`, `c82690eb-84e8-48a8-8a28-fe3d839c2276`) — scoped to this mission |
+| Security/PDPA approver | Boss (`PER-BOSS`, `c82690eb-84e8-48a8-8a28-fe3d839c2276`) — scoped to this mission |
+| Privacy basis | `OWNER_ATTESTATION`; approval evidence is the owner/security record, not an Organization Owner membership |
+| Retention | `retentionUntil: null`; retain only while necessary, review at least annually, then delete/anonymize when no longer necessary or after a validated erasure request |
+| Historical window | `2020-07-17` through `2026-06-22`, approved against snapshot as-of `2026-08-12T12:13:43+07:00` |
 
 `customerDataContractId` เป็น identity ของ data contract ไม่ใช่
 Project Manager `contract_id` ซึ่งหมายถึง CRM Contact ตาม FR-070/FR-071
@@ -65,8 +72,8 @@ Rules for this contract:
 - No automatic merge or sharing across Etoh-Muku, Mujeen or EMC.
 - A customer appearing to belong to more than one Business goes to review;
   the importer must not infer cross-Business ownership.
-- Historical date range is still required and is intentionally unspecified in
-  the draft contract.
+- Historical date range is approved as `2020-07-17` through `2026-06-22`, based
+  on the full observed SmartGift source window in the read-only snapshot.
 - Customer Profile is the only initial publishable record type.
 
 ## Source inventory
@@ -136,14 +143,14 @@ record schema. A record carries:
     "reasonCode": "NEW_SOURCE_PROFILE"
   },
   "privacy": {
-    "basis": "PENDING_APPROVAL",
-    "evidenceRef": null,
-    "approvedByPersonId": null,
+    "basis": "OWNER_ATTESTATION",
+    "evidenceRef": "contracts/approvals/smartgift-customer-data-owner-security-20260818.json#privacy",
+    "approvedByPersonId": "c82690eb-84e8-48a8-8a28-fe3d839c2276",
     "retentionUntil": null
   },
   "disposition": {
-    "action": "HOLD",
-    "reasonCode": "CONTRACT_NOT_APPROVED"
+    "action": "PUBLISH",
+    "reasonCode": "APPROVED_NEW_CANDIDATE"
   },
   "idempotencyKey": "SMARTGIFT_DUCKDB|customer|source-key|sha256"
 }
@@ -242,11 +249,14 @@ stores no raw source PII in the provenance boundary:
 | `customer_import_batch` | Batch receipt, approval, counts and rollback boundary |
 | `customer_import_provenance` | Source key/hash, resolution/disposition and idempotency ledger |
 
-The target-schema migration is schema-only. The follow-up profile and contract
-receipt migrations create no Customer rows. Live verification confirms the
-Tenant/Business scope, forced RLS, no Data API grants, one `PER-BOSS` platform
-profile, and zero Customer/import-ledger rows. CDC-G5 is complete; the customer
-write gates remain separate and pending.
+The target-schema and contract-receipt migrations are schema/receipt-only. The
+approved server-owned batch then wrote only `display_name` to the private target.
+Pre-apply verification confirmed the Tenant/Business scope, forced RLS, no Data
+API grants, one `PER-BOSS` platform profile, and an empty target. Post-apply
+verification for batch `3a7a45b1-1785-55dd-af41-d225a4afb45c` confirms 3,439
+Customer rows, 3,440 Person rows including the approver profile, one applied
+batch and 3,569 provenance rows. The 130 review-required rows remain held with
+no Person/Customer target row.
 
 ## Write, rollback and channel boundary
 
@@ -282,13 +292,15 @@ Rollback is batch-scoped and append-audited:
 | Gate | Status | Exit evidence |
 |---|---|---|
 | CDC-G1 Source snapshot/inventory | complete | source hash, table counts, read-only evidence |
-| CDC-G2 Record/forbidden-field validation | pending | valid artifact, rejection report, redaction scan |
-| CDC-G3 Entity resolution | pending | duplicate/collision/unresolved reports and decisions |
-| CDC-G4 Customer data owner + Security/PDPA | pending | named approvers, legal basis, retention decision |
-| CDC-G5 Target schema/scope | complete | target/profile/receipt migrations and live verification artifact; forced RLS and no Data API grants |
-| CDC-G6 Dry-run/backup/rollback | pending | redacted dry-run receipt exists; verified backup and rollback rehearsal remain |
+| CDC-G2 Record/forbidden-field validation | complete | dry-run receipt, allowed-field policy and no-raw-PII evidence |
+| CDC-G3 Entity resolution | complete | 3,439 publish candidates, 130 held review rows, no name-only auto-merge |
+| CDC-G4 Customer data owner + Security/PDPA | complete | Boss scoped owner/security approval, `OWNER_ATTESTATION`, retention rule |
+| CDC-G5 Target schema/scope | complete | target/profile/receipt migrations, pre/post verification, forced RLS and no Data API grants |
+| CDC-G6 Dry-run/backup/rollback | complete | dry-run receipt, verified backup, applied-batch rollback rehearsal and post-apply assertions |
 
-No customer row may be written while any gate above is `pending` or `blocked`.
+No additional batch may write while any gate above is `pending` or `blocked`.
+The 130 review-required rows are still `HOLD_NO_WRITE` even though the batch
+itself is applied.
 
 ## Acceptance criteria
 
@@ -306,7 +318,8 @@ No customer row may be written while any gate above is `pending` or `blocked`.
 - **AC-078.6** No raw PII is emitted into logs, monitor payloads, browser
   responses, repository fixtures or audit detail.
 - **AC-078.7** Target writes require the Person/Customer/provenance schema gate,
-  privacy basis, named data owner/security approval, backup and dry-run receipt.
+  privacy basis, named data owner/security approval, backup and dry-run receipt;
+  the first approved batch is evidenced by its post-apply verification.
 - **AC-078.8** The future write is server-owned, transactional, idempotent,
   tenant/business-scoped and independently rollbackable.
 - **AC-078.9** Historical customer data is not replayed through LINE and does not
@@ -314,7 +327,8 @@ No customer row may be written while any gate above is `pending` or `blocked`.
 
 ## Non-goals
 
-- Authorizing the Customer row import in this documentation change.
+- Authorizing future fields, future snapshots, review-row publication or any
+  additional business beyond the approved batch and scope.
 - Importing invoices, quotations, payments, costs, margin, orders or documents.
 - Importing interactions or consent/erasure history without their own contract.
 - Creating LINE identities, memberships, Product Owner bindings or marketing
@@ -333,6 +347,7 @@ No customer row may be written while any gate above is `pending` or `blocked`.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.4.0 | 2026-08-18 | beta | Record scoped owner/security approval, approved historical window and successful batch apply with post-apply/rollback evidence | pending | ATHER |
 | 0.3.1b | 2026-08-18 | candidate | Record Boss Platform Owner approval; Customer Data Owner, Security/PDPA and import gates remain pending | working-tree | ATHER |
 | 0.3.0b | 2026-08-18 | candidate | Verify target scope/RLS, create PER-BOSS profile and append current contract receipt; dry-run/import remain gated | working-tree | ATHER |
 | 0.2.0b | 2026-08-18 | candidate | Add private Person/Customer/provenance target schema boundary; live apply and customer write remain gated | working-tree | ATHER |
