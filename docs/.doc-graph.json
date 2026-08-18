@@ -54,10 +54,7 @@
   "drift": {
     "changed": [],
     "added": [],
-    "removed": [
-      "code:src/generated/prisma-postgres/edge.js",
-      "code:src/generated/prisma-postgres/index.js"
-    ]
+    "removed": []
   },
   "nodes": [
     {
@@ -9112,7 +9109,7 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
-      "hash": "0aad042b",
+      "hash": "e3711d02",
       "status": "current"
     },
     {
