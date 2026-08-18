@@ -91,7 +91,20 @@ function requirementNodes(prdPath) {
       defined_in: rel(prdPath),
       // ✅/🔜 only appear in the FR registry; other families carry evidence text.
       declared: marker.includes('✅') ? 'done' : marker.includes('🔜') ? 'planned' : 'n/a',
-      status: marker.includes('🔜') ? 'planned' : 'current',
+      // A rule the registry itself retires is not a coverage defect, for the same
+      // reason a 🔜 FR is not one. Documents have carried this state since the
+      // control-block reader was written (`status:` above); requirement rows had
+      // no way to say it, so a retired rule sat in the denominator forever and
+      // made "rules anchored" mix three different things: not built yet, built
+      // but unannotated, and no longer true. Same predicate as the doc reader.
+      // Strikethrough on the STATEMENT, or an explicit word in the STATUS column —
+      // deliberately not a keyword search over the whole row, so a rule whose prose
+      // happens to discuss retirement is not silently dropped from the denominator.
+      status: /~~/.test(label) || /\b(supersed|cancelled|retired)/i.test(marker)
+        ? 'superseded'
+        : marker.includes('🔜') ? 'planned' : 'current',
+      // Kept so a retired rule's successors can be resolved into real edges below.
+      row_text: `${label} ${marker}`,
     })
   }
   return nodes
@@ -244,6 +257,10 @@ function build() {
   const reqs = requirementNodes(prd)
   nodes.push(...reqs)
   for (const r of reqs) addEdge(r.id, 'doc:PRD-SDD-v1.0', 'specifies', 'prd-registry')
+  // A retired rule must be answerable as "replaced by what" from the graph, not
+  // only from prose — the same obligation the lineage guard already puts on a
+  // superseded document. The successors are the ids its own row names.
+  const retiredReqs = reqs.filter((r) => r.status === 'superseded')
 
   // Typed lineage from document control blocks (**Supersedes:** / **Superseded by:** /
   // **Relates to:**) → supersedes · relates edges. This is what makes "what replaced what"
@@ -255,6 +272,16 @@ function build() {
     const m = /:(ADR-\d{3})/.exec(n.id)
     if (m) adrById.set(m[1], n.id)
   }
+  for (const r of retiredReqs) {
+    const self = r.id.slice(4)
+    for (const a of r.row_text.match(/ADR-\d{3}/g) || []) {
+      if (adrById.has(a)) addEdge(adrById.get(a), r.id, 'supersedes', 'prd-registry')
+    }
+    for (const s of r.row_text.match(/\b(?:FR|BR|SEC|SDD|NFR)-\d{3}\b/g) || []) {
+      if (s !== self) addEdge(`req:${s}`, r.id, 'supersedes', 'prd-registry')
+    }
+  }
+
   for (const file of docFiles) {
     const base = path.basename(file, '.md')
     const selfId = (base.startsWith('ADR-') ? 'spec:' : 'doc:') + base
@@ -366,7 +393,13 @@ function coverage(nodes, edges) {
   const frPlanned = reqs.filter((r) => r.family === 'FR' && r.declared === 'planned').map((r) => r.id.slice(4))
   const frImpl = fr.filter((r) => linked(r, ['implements']))
   const frTest = fr.filter((r) => linked(r, ['verifies']))
-  const rules = reqs.filter((r) => ['BR', 'SEC', 'SDD'].includes(r.family))
+  // Same exclusion as the FR line above: a rule the registry retires cannot be
+  // anchored by definition, and counting it makes the percentage unreadable.
+  // Retired rules are reported separately so the number stays auditable — the
+  // id is burnt, not hidden (AGENTS.md §18).
+  const allRules = reqs.filter((r) => ['BR', 'SEC', 'SDD'].includes(r.family))
+  const rulesSuperseded = allRules.filter((r) => r.status === 'superseded').map((r) => r.id.slice(4))
+  const rules = allRules.filter((r) => r.status !== 'superseded')
   const rulesLinked = rules.filter((r) => linked(r, ['follows', 'implements', 'verifies']))
   const nfr = reqs.filter((r) => r.family === 'NFR')
 
@@ -381,6 +414,7 @@ function coverage(nodes, edges) {
     fr_without_code: fr.filter((r) => !frImpl.includes(r)).map((r) => r.id.slice(4)),
     fr_without_tests: fr.filter((r) => !frTest.includes(r)).map((r) => r.id.slice(4)),
     rules_without_anchor: rules.filter((r) => !rulesLinked.includes(r)).map((r) => r.id.slice(4)),
+    rules_superseded: rulesSuperseded,
   }
 }
 

@@ -263,7 +263,7 @@
 
 - **Status:** done
 - **Code:** `src/components/layouts/Breadcrumb.jsx`
-- **Follows:** SDD-018, SDD-021
+- **Follows:** SDD-013, SDD-018, SDD-021
 - **Tests:** `tests/unit/breadcrumb-switcher.test.js` · `tests/unit/scope-view-context.test.js`
 
 ### FR-035 — Overview is the selected Business's operational home: scoped execution KPIs, project health, strategy, and shortcuts to enabled V2 domains. A missing Business selection is an actionable Home state, never a Group card roll-up.
@@ -303,7 +303,7 @@
 
 - **Status:** done
 - **Code:** `src/components/layouts/Breadcrumb.jsx` · `src/components/layouts/Sidebar.jsx` · `src/components/layouts/Topbar.jsx` · `src/config/domains.js` · `src/config/modules.js` · `src/config/scope-views.js` · `src/context/ScopeContext.jsx`
-- **Follows:** SDD-012, SDD-018, SDD-021, SDD-024, SEC-008
+- **Follows:** SDD-012, SDD-013, SDD-018, SDD-021, SDD-024, SEC-008
 - **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr046-entry-contract.spec.js` · `tests/e2e/smoke.spec.js` · `tests/unit/breadcrumb-switcher.test.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr045-api-ui-contract.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/scope-view-context.test.js` · `tests/unit/sidebar-visible-subdomains.test.js` · `tests/unit/topbar-no-dropdown.test.js`
 
 ### FR-040 — Project Work views: every Project provides a Structure Plan (WBS) and a project-local Dependency Map. Structure Plan renders the existing Project → Workstream → WorkContainer → WorkItem hierarchy. Dependency Map renders only dependency edges whose two endpoints both belong to the opened Project. The cross-project register remains Development → Dependencies. No new persistence model is introduced.
@@ -336,7 +336,7 @@
 - **Status:** done
 - **Surface:** `/projects/[projectId]` (page)
 - **Code:** `prisma/seed.js` · `src/app/(pm)/projects/[projectId]/page.jsx` · `src/components/layouts/Breadcrumb.jsx` · `src/components/layouts/Topbar.jsx` · `src/context/ScopeContext.jsx` · `src/modules/business/application/business-strategy-service.js` · `src/modules/project-manager/application/project-list-read-model.js` · `src/modules/project-manager/application/project-service.js` · `src/modules/project-manager/import/plan-import-service.js`
-- **Follows:** BR-001, BR-004, BR-009, FR-069, NFR-007, SDD-004, SDD-006, SDD-009, SDD-012, SDD-018, SDD-020, SDD-021, SDD-024, SDD-033, SDD-036, SDD-037, SEC-001, SEC-002, SEC-008
+- **Follows:** BR-001, BR-004, BR-009, FR-069, NFR-007, SDD-004, SDD-006, SDD-009, SDD-012, SDD-013, SDD-018, SDD-020, SDD-021, SDD-024, SDD-033, SDD-036, SDD-037, SEC-001, SEC-002, SEC-008
 - **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr046-entry-contract.spec.js` · `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/fr059-business-strategy-mutation.test.js` · `tests/integration/fr072-project-service-authorization.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/project-core.test.js` · `tests/integration/project-list-contract.test.js` · `tests/unit/breadcrumb-switcher.test.js` · `tests/unit/business-strategy-service.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/project-business-context.test.js` · `tests/unit/project-list-contract.test.js` · `tests/unit/scope-view-context.test.js` · `tests/unit/topbar-no-dropdown.test.js`
 
 ### FR-044 — Entry routing is split into a minimal Landing (`/`), a demo Login stub (`/login`), a Business Routing page (`/businesses`) that shows only viewer-visible Businesses, and the final BusinessShell (`/overview`) mounted only after a Business is selected. No real auth or new design tokens are included in this slice.
@@ -344,7 +344,7 @@
 - **Status:** done
 - **Surface:** `/businesses` (page) · `/login` (page) · `/` (page)
 - **Code:** `src/app/(entry)/businesses/page.jsx` · `src/app/(pm)/layout.jsx` · `src/app/layout.jsx` · `src/app/login/page.jsx` · `src/app/page.jsx` · `src/components/layouts/Breadcrumb.jsx` · `src/components/layouts/BusinessRoutingShell.jsx` · `src/components/layouts/BusinessShellGuard.jsx` · `src/components/layouts/EntryShell.jsx` · `src/components/layouts/Topbar.jsx` · `src/lib/business-routing.js` · `src/lib/business-shell-guard.js`
-- **Follows:** SDD-012, SDD-018, SDD-021, SDD-022, SDD-024, SDD-029, SEC-008
+- **Follows:** SDD-012, SDD-013, SDD-018, SDD-021, SDD-022, SDD-024, SDD-029, SEC-008
 - **Tests:** `tests/e2e/fr044-entry-routing.spec.js` · `tests/e2e/fr046-entry-contract.spec.js` · `tests/e2e/smoke.spec.js` · `tests/unit/breadcrumb-switcher.test.js` · `tests/unit/business-routing-page.test.js` · `tests/unit/business-routing.test.js` · `tests/unit/business-shell-guard.test.js` · `tests/unit/entry-routing-boundary.test.js` · `tests/unit/entry-surfaces.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr056-landing.test.js` · `tests/unit/scope-view-context.test.js` · `tests/unit/topbar-no-dropdown.test.js`
 
 ### FR-045 — Managed local file workspace: SQLite is authoritative for FileAsset identity, Business/Project ownership, links, version, status and audit; the filesystem stores real content plus disposable cache. Business File Manager aggregates Business-owned and child Project assets without copying content. Existing FR-037 ProjectFile rows/routes migrate through a compatibility boundary; local OS reveal is capability-gated and hosted mode denies it.

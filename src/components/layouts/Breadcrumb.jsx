@@ -1,7 +1,7 @@
 'use client'
 
 // @req FR-034, FR-039, FR-043, FR-044 — breadcrumb mirrors shell context, direct Project ownership, and stays inside BusinessShell.
-// @spec SDD-018, SDD-021, ADR-011, ADR-014
+// @spec SDD-013, SDD-018, SDD-021, ADR-011, ADR-014
 // @tested tests/unit/breadcrumb-switcher.test.js, tests/unit/scope-view-context.test.js
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
