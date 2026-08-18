@@ -1,7 +1,7 @@
 ---
-version: "0.3.0b"
+version: "0.6.0b"
 created_at: "2026-08-18T05:05:12+07:00,ATHER"
-last_update: "2026-08-18T06:19:39+07:00,ATHER"
+last_update: "2026-08-18T16:15:00+07:00,ATHER"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -223,6 +223,27 @@ customer-data gates remain separate:
 6. Viewer/API contract for per-Business Product capability.
 7. Migration and rollback mapping from the Phase 1 pilot identities — applied and postflight-verified for the current product projection.
 
+### D8 — Customer-data review is a separate Business-scoped capability
+
+`CUSTOMER_DATA_REVIEWER` is a distinct generic RoleBinding for the
+FR-078 duplicate review queue. It grants only the review read/decision
+permissions for the selected Business. Product Owner, `OWNER`, `DEV`,
+`isPlatform`, `isOperator`, visibility and data-owner approval do not imply
+this capability. Customer-data owner/security approval is a governance gate,
+not a replacement for the runtime Business-scoped permission.
+
+The approved SmartGift bootstrap now projects the verified customer scope into
+the application Postgres schema and creates one active reviewer binding for
+`PER-BOSS` on `BUS-SMARTGIFT`. The projection is recorded in the migration audit
+event with mission `MIS-SG-CUSTOMER-DATA-BACKFILL-001`; it does not make the
+Person a Tenant or Business owner and does not create a Product Owner binding.
+
+The production review adapter uses the separate
+`zuri_customer_review_login` identity. It has no direct private-schema grants,
+may assume only `zuri_app_runtime` for the bounded review transaction, and is
+provisioned out-of-band from the Supabase migration/admin connection. The
+`postgres` deployment identity is never accepted as the review runtime.
+
 ## Non-goals
 
 - Changing existing UUIDs or applied migrations in this documentation slice.
@@ -242,12 +263,16 @@ customer-data gates remain separate:
 - [FR-067 — Workspace invitation and scoped membership](../domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md)
 - [FR-076 — Product Owner Business assignment](../domains/identity/features/FR-076-product-owner-business-assignment.md)
 - [FR-078 — Customer data backfill contract](../domains/crm/features/FR-078-customer-data-backfill-contract.md)
+- [FR-078 review queue contract v0.3.0B](../../contracts/migrations/smartgift-customer-review-queue-contract.json)
 - [`zuri_workspace_system.md`](../zuri_workspace_system.md)
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.6.0b | 2026-08-18 | beta | Close the live customer-review SET ROLE gate with a dedicated unprivileged login | working-tree | ATHER |
+| 0.5.0b | 2026-08-18 | beta | Apply the separate SmartGift Customer Data Reviewer binding to the verified application identity projection | working-tree | ATHER |
+| 0.4.0b | 2026-08-18 | candidate | Separate Customer Data Reviewer authority from Product Owner and governance approver identity | pending | ATHER |
 | 0.3.0b | 2026-08-18 | candidate | Truth-sync the reconciled remote customer scope and bounded SmartGift product migration evidence | working-tree | ATHER |
 | 0.2.0b | 2026-08-18 | candidate | Correct Product Owner to generic Business-scoped RBAC RoleBinding and record local identity-bootstrap boundary | working-tree | ATHER |
 | 0.1.0b | 2026-08-18 | candidate | Define customer-owned Workspace/Tenant hierarchy and Product Owner's Business-scoped product-only authority | working-tree | ATHER |

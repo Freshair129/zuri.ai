@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0.0",
+  "mode": "READ_ONLY_CUSTOMER_REVIEW_RUNTIME_VERIFICATION",
+  "verifiedAt": "2026-08-18T16:08:31+07:00",
+  "missionId": "MIS-SG-CUSTOMER-DATA-BACKFILL-001",
+  "contractId": "CDC-SG-CUSTOMER-DATA-001",
+  "versionId": "VER-SG-CUSTOMER-DATA-CONTRACT-0.3.0B",
+  "scope": {
+    "tenantId": "77cdbe70-3111-4a04-922a-8059be99a8b0",
+    "businessId": "834fa869-62f3-431c-a287-e9a95e91175b",
+    "businessCode": "BUS-SMARTGIFT"
+  },
+  "runtimeIdentity": {
+    "loginRole": "zuri_customer_review_login",
+    "assumedRole": "zuri_app_runtime",
+    "migrationAdminUsedAsRuntime": false,
+    "directPrivateSchemaGrants": false,
+    "setMembership": true
+  },
+  "viewer": {
+    "principalCode": "PER-BOSS",
+    "tenantMembershipRole": "MEMBER",
+    "visibleBusinessCount": 4,
+    "ownedBusinessCount": 0,
+    "smartGiftPermissions": [
+      "customer.import.review.read",
+      "customer.import.review.decide"
+    ]
+  },
+  "queue": {
+    "reviewCases": 65,
+    "heldItems": 130,
+    "openCases": 65,
+    "decisions": 0,
+    "rawPii": false,
+    "customerPublish": false,
+    "lineReplay": false
+  },
+  "result": "PASS"
+}

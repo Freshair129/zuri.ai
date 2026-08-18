@@ -26,8 +26,9 @@ describe('controlled LINE activation migration (FR-055)', () => {
   it('creates separated operator privilege and login roles without privileged attributes', () => {
     const sql = activationMigration()
 
-    expect(sql).toMatch(/create role zuri_line_activation_operator\s+noinherit\s+nobypassrls\s+nologin/i)
-    expect(sql).toMatch(/create role zuri_line_activation_login\s+login\s+noinherit\s+nobypassrls/i)
+    expect(sql).toMatch(/create role zuri_line_activation_operator\s+noinherit\s+nobypassrls\s+nologin[\s\S]{0,120}nosuperuser/i)
+    expect(sql).toMatch(/create role zuri_line_activation_login\s+login\s+noinherit\s+nobypassrls[\s\S]{0,120}nosuperuser/i)
+    expect(sql).not.toMatch(/^\s*alter role\s+zuri_line_activation_/im)
     expect(sql).toMatch(/grant zuri_line_activation_operator to zuri_line_activation_login/i)
     expect(sql).toMatch(/ACTIVATION_ROLE_SECURITY_MISMATCH/i)
     expect(sql).not.toMatch(/(?:password|service_role_key|authorization\s+bearer)/i)

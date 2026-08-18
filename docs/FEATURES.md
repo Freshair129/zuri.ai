@@ -23,4 +23,4 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-003 | Execution Planning — Human-visible Roadmap, Blueprint intake and stable identity bindings | FR-068, FR-069, FR-070 | proposed |
 | FEAT-004 | Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution, local evaluation providers and secret-safe Platform management | FR-048, FR-079, FR-080 | building |
 | FEAT-005 | Project Inventory — authorized, read-only Project-wide operational snapshot | FR-077 | live |
-| FEAT-006 | Customer Data Backfill — scoped, provenance-preserving Customer Profile contract with entity resolution and PDPA gates | FR-078 | proposed |
+| FEAT-006 | Customer Data Backfill — scoped, provenance-preserving Customer Profile contract with entity resolution, PDPA gates and explicit duplicate review | FR-078 | building |

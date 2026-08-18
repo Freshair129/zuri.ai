@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 898,
-    "total_edges": 2772,
+    "total_nodes": 923,
+    "total_edges": 2844,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,27 +13,26 @@
       "domain": 6,
       "roadmap": 25,
       "feature": 6,
-      "route": 102,
-      "model": 44,
+      "route": 106,
+      "model": 46,
       "requirement": 174,
-      "test": 182,
-      "code_file": 242
+      "test": 192,
+      "code_file": 251
     },
     "coverage": {
       "requirements": 174,
-      "fr_with_code": "100% (74/74)",
-      "fr_with_tests": "100% (74/74)",
+      "fr_with_code": "100% (75/75)",
+      "fr_with_tests": "100% (75/75)",
       "rules_anchored_in_code": "86% (66/77)",
       "nfr_evidence_based": "16 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 242,
+      "annotated_code_files": 251,
       "fr_planned": [
         "FR-066",
         "FR-067",
         "FR-068",
         "FR-069",
         "FR-070",
-        "FR-071",
-        "FR-078"
+        "FR-071"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -53,32 +52,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:A-api-spec",
-      "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
-      "doc:FR-068-human-visible-execution-roadmap",
-      "doc:FR-069-plan-blueprint-and-intake",
-      "doc:INTERFACE-INVENTORY",
-      "doc:ROUTES-SITEMAP",
-      "test:tests/e2e/fr040-project-work.spec.js",
-      "test:tests/integration/plan-import.test.js",
-      "test:tests/unit/plan-schema.test.js",
-      "test:tests/unit/project-work-route.test.js",
-      "code:src/app/(pm)/projects/[projectId]/layout.jsx",
-      "code:src/modules/project-manager/components/WorkViewTabs.jsx",
-      "code:src/modules/project-manager/import/plan-import-service.js",
-      "code:src/modules/project-manager/import/plan-schema.js"
-    ],
-    "added": [
-      "route:page:/projects/[projectId]/roadmap",
-      "route:api:/api/projects/[id]/roadmap",
-      "test:tests/integration/project-roadmap.test.js",
-      "test:tests/unit/project-roadmap-read-model.test.js",
-      "test:tests/unit/project-roadmap-ui.test.js",
-      "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
-      "code:src/app/api/projects/[id]/roadmap/route.js",
-      "code:src/modules/project-manager/application/project-roadmap-read-model.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -321,6 +296,21 @@
       }
     },
     {
+      "id": "code:src/app/(pm)/platform/customer-import-reviews/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/platform/customer-import-reviews/page.jsx",
+      "hash": "4e6a549c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-078"
+        ],
+        "@tested": [
+          "tests/unit/customer-import-review-ui.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
@@ -505,7 +495,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/layout.jsx",
       "hash": "e6f5df5e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-040"
@@ -1518,6 +1508,51 @@
       }
     },
     {
+      "id": "code:src/app/api/platform/customer-import-reviews/[caseId]/decisions/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/customer-import-reviews/[caseId]/decisions/route.js",
+      "hash": "dc2ad08c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-078"
+        ],
+        "@tested": [
+          "tests/unit/customer-import-review-api.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/customer-import-reviews/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/customer-import-reviews/route.js",
+      "hash": "1d2a807d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-078"
+        ],
+        "@tested": [
+          "tests/unit/customer-import-review-api.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/customer-import-reviews/targets/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/customer-import-reviews/targets/route.js",
+      "hash": "b39a0d62",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-078"
+        ],
+        "@tested": [
+          "tests/unit/customer-import-review-api.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/platform/integrations/route.js",
       "type": "code_file",
       "path": "src/app/api/platform/integrations/route.js",
@@ -2352,7 +2387,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "47c0e666",
+      "hash": "ab44ec3f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2438,6 +2473,60 @@
       }
     },
     {
+      "id": "code:src/generated/prisma-postgres/edge.js",
+      "type": "code_file",
+      "path": "src/generated/prisma-postgres/edge.js",
+      "hash": "0d6493fa",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-043",
+          "SDD-021",
+          "BR-001",
+          "FR-073",
+          "SDD-037",
+          "FR-037",
+          "FR-045",
+          "SDD-023",
+          "FR-019",
+          "FR-021",
+          "BR-002",
+          "FR-022",
+          "FR-023",
+          "FR-079",
+          "SDD-043",
+          "SEC-015"
+        ]
+      }
+    },
+    {
+      "id": "code:src/generated/prisma-postgres/index.js",
+      "type": "code_file",
+      "path": "src/generated/prisma-postgres/index.js",
+      "hash": "bf099f31",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-043",
+          "SDD-021",
+          "BR-001",
+          "FR-073",
+          "SDD-037",
+          "FR-037",
+          "FR-045",
+          "SDD-023",
+          "FR-019",
+          "FR-021",
+          "BR-002",
+          "FR-022",
+          "FR-023",
+          "FR-079",
+          "SDD-043",
+          "SEC-015"
+        ]
+      }
+    },
+    {
       "id": "code:src/lib/business-routing.js",
       "type": "code_file",
       "path": "src/lib/business-routing.js",
@@ -2487,6 +2576,20 @@
         ],
         "@tested": [
           "tests/unit/db-boundary.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/db.js",
+      "type": "code_file",
+      "path": "src/lib/db.js",
+      "hash": "6c61f59c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-030",
+          "FR-076",
+          "FR-078"
         ]
       }
     },
@@ -3120,6 +3223,36 @@
       }
     },
     {
+      "id": "code:src/modules/crm/customer-import-review-service.js",
+      "type": "code_file",
+      "path": "src/modules/crm/customer-import-review-service.js",
+      "hash": "2dbac991",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-078"
+        ],
+        "@tested": [
+          "tests/unit/customer-import-review-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/crm/customer-import-review-store.js",
+      "type": "code_file",
+      "path": "src/modules/crm/customer-import-review-store.js",
+      "hash": "140226ff",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-078"
+        ],
+        "@tested": [
+          "tests/unit/customer-import-review-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/crm/line-ingest-service.js",
       "type": "code_file",
       "path": "src/modules/crm/line-ingest-service.js",
@@ -3303,14 +3436,16 @@
       "id": "code:src/modules/identity/rbac.js",
       "type": "code_file",
       "path": "src/modules/identity/rbac.js",
-      "hash": "0531871f",
+      "hash": "d3aca59b",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-076"
+          "FR-076",
+          "FR-078"
         ],
         "@tested": [
-          "tests/unit/fr076-product-owner-business-assignment.test.js"
+          "tests/unit/fr076-product-owner-business-assignment.test.js",
+          "tests/unit/customer-import-review-service.test.js"
         ]
       }
     },
@@ -3781,7 +3916,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "5b664df3",
+      "hash": "93d4fb70",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4337,7 +4472,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/components/WorkViewTabs.jsx",
       "hash": "c9af0885",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-040",
@@ -4399,7 +4534,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
       "hash": "7a33d7d3",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
@@ -4433,7 +4568,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-schema.js",
       "hash": "aab849d3",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
@@ -4832,10 +4967,10 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.8.0b",
+      "version": "1.9.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "1f85f8b3",
-      "status": "changed"
+      "hash": "db35badc",
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -4880,7 +5015,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.7.0",
       "doc_status": "Draft",
-      "hash": "73230227",
+      "hash": "27d54795",
       "status": "current"
     },
     {
@@ -4888,9 +5023,9 @@
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
       "title": "Database Migration Notes — SQLite → PostgreSQL",
-      "version": "1.0.3",
+      "version": "1.0.5",
       "doc_status": "Approved",
-      "hash": "fbfdb7c4",
+      "hash": "34293a39",
       "status": "current"
     },
     {
@@ -4954,7 +5089,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.2.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "52052338",
+      "hash": "2cdd2e48",
       "status": "current"
     },
     {
@@ -5310,7 +5445,7 @@
       "path": "docs/domains/project-manager/features/FR-068-human-visible-execution-roadmap.md",
       "title": "FR-068 — Human-visible Project Execution Roadmap and identity references",
       "hash": "dbe07895",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-069-plan-blueprint-and-intake",
@@ -5318,7 +5453,7 @@
       "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
       "title": "FR-069 — Plan Blueprint and Human/Agent intake with stable references",
       "hash": "e549bbb6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-070-stable-execution-domain-and-tag-identities",
@@ -5357,7 +5492,7 @@
       "type": "document",
       "path": "docs/domains/crm/features/FR-078-customer-data-backfill-contract.md",
       "title": "FR-078 — Customer data backfill contract",
-      "hash": "620850ed",
+      "hash": "c00fd921",
       "status": "current"
     },
     {
@@ -5409,10 +5544,10 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.0.0b",
+      "version": "1.1.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "effea566",
-      "status": "changed"
+      "hash": "18630824",
+      "status": "current"
     },
     {
       "id": "doc:LINE-PHASE1-CANARY",
@@ -5611,7 +5746,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT.md",
       "title": "Roadmap — SmartGift data backfill and customer import",
-      "hash": "72991c44",
+      "hash": "6ce218e8",
       "status": "current"
     },
     {
@@ -5621,7 +5756,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "6cde8eb7",
+      "hash": "d14ca42a",
       "status": "current"
     },
     {
@@ -5675,8 +5810,8 @@
       "title": "Zuri — Route and Shell Sitemap",
       "version": "1.0.0",
       "doc_status": "draft",
-      "hash": "0f30fe67",
-      "status": "changed"
+      "hash": "51728a12",
+      "status": "current"
     },
     {
       "id": "doc:SITEMAP-DOMAIN-NAV",
@@ -5815,6 +5950,8 @@
         "Customer",
         "CustomerImportBatch",
         "CustomerImportProvenance",
+        "CustomerImportReviewCase",
+        "CustomerImportReviewDecision",
         "Conversation",
         "Message"
       ],
@@ -5822,7 +5959,7 @@
       "modules": [
         "crm"
       ],
-      "hash": "ab9486f4",
+      "hash": "cb4dd8cd",
       "status": "current"
     },
     {
@@ -5965,8 +6102,8 @@
     {
       "id": "feat:FEAT-006",
       "type": "feature",
-      "label": "Customer Data Backfill — scoped, provenance-preserving Customer Profile contract with entity resolution and PDPA gates",
-      "declared": "proposed",
+      "label": "Customer Data Backfill — scoped, provenance-preserving Customer Profile contract with entity resolution, PDPA gates and explicit duplicate review",
+      "declared": "building",
       "status": "current"
     },
     {
@@ -6016,6 +6153,16 @@
     },
     {
       "id": "model:CustomerImportProvenance",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:CustomerImportReviewCase",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:CustomerImportReviewDecision",
       "type": "model",
       "status": "current"
     },
@@ -7030,10 +7177,10 @@
       "id": "req:FR-078",
       "type": "requirement",
       "family": "FR",
-      "label": "Customer Profile backfill contract: the SmartGift historical customer pipeline has a fixed Tenant/Business scope, read-only source snapshot, machine-validated record/provenance envelope, explicit tax/name/corroboration resolution rules, duplicate/unresolved review queue, PII/financial/LINE exclusions, target Person/Customer schema gate, server-owned idempotent transaction and batch rollback; target verification and redacted dry-run are complete but Customer writes remain approval-gated.",
+      "label": "Customer Profile backfill contract: the SmartGift historical customer pipeline has a fixed Tenant/Business scope, read-only source snapshot, machine-validated record/provenance envelope, explicit tax/name/corroboration resolution rules, duplicate/unresolved review queue, PII/financial/LINE exclusions, target Person/Customer schema gate, server-owned idempotent transaction and batch rollback; the first batch is applied with 3,439 Customer rows and 130 held review rows. The v0.3.0B review extension adds deterministic review IDs, redacted evidence, append-only Business-scoped decisions and a separate no-publish apply gate.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned"
+      "declared": "n/a",
+      "status": "current"
     },
     {
       "id": "req:FR-079",
@@ -8044,6 +8191,30 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/platform/customer-import-reviews",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/customer-import-reviews",
+      "path": "src/app/api/platform/customer-import-reviews/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/customer-import-reviews/[caseId]/decisions",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/customer-import-reviews/[caseId]/decisions",
+      "path": "src/app/api/platform/customer-import-reviews/[caseId]/decisions/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/customer-import-reviews/targets",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/customer-import-reviews/targets",
+      "path": "src/app/api/platform/customer-import-reviews/targets/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/platform/integrations",
       "type": "route",
       "kind": "api",
@@ -8369,6 +8540,14 @@
       "kind": "page",
       "route": "/people/directory",
       "path": "src/app/(pm)/people/directory/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/platform/customer-import-reviews",
+      "type": "route",
+      "kind": "page",
+      "route": "/platform/customer-import-reviews",
+      "path": "src/app/(pm)/platform/customer-import-reviews/page.jsx",
       "status": "current"
     },
     {
@@ -8797,7 +8976,7 @@
       "path": "docs/decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md",
       "title": "ADR-028 — Human-visible execution roadmap and shared plan intake",
       "hash": "a83551c6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
@@ -8836,7 +9015,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md",
       "title": "ADR-033 — Customer scope and Product Owner authority",
-      "hash": "74ca81d1",
+      "hash": "e024e9ff",
       "status": "current"
     },
     {
@@ -8852,7 +9031,7 @@
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
       "hash": "7408b623",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr041-business-first.spec.js",
@@ -8984,7 +9163,7 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
-      "hash": "33c6a842",
+      "hash": "0aad042b",
       "status": "current"
     },
     {
@@ -9202,7 +9381,7 @@
       "type": "test",
       "path": "tests/integration/plan-import.test.js",
       "hash": "7fc4cd0b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/platform/integration-persistence.test.js",
@@ -9296,6 +9475,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/application-identity-bootstrap-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/application-identity-bootstrap-migration.test.js",
+      "hash": "6183a134",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/application-schema-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/application-schema-migration.test.js",
+      "hash": "78ea05a1",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/assert-tests-ran.test.js",
       "type": "test",
       "path": "tests/unit/assert-tests-ran.test.js",
@@ -9362,7 +9555,7 @@
       "id": "test:tests/unit/controlled-line-activation-migration.test.js",
       "type": "test",
       "path": "tests/unit/controlled-line-activation-migration.test.js",
-      "hash": "9f653d5e",
+      "hash": "562e19ae",
       "status": "current"
     },
     {
@@ -9370,6 +9563,41 @@
       "type": "test",
       "path": "tests/unit/customer-data-contract.test.js",
       "hash": "f9d074f5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-import-review-api.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-import-review-api.test.js",
+      "hash": "6d0d7235",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-import-review-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-import-review-contract.test.js",
+      "hash": "287e1c2f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-import-review-queue-script.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-import-review-queue-script.test.js",
+      "hash": "e7a4ba2c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-import-review-service.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-import-review-service.test.js",
+      "hash": "5771043e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-import-review-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-import-review-ui.test.js",
+      "hash": "5ca33fd9",
       "status": "current"
     },
     {
@@ -9391,6 +9619,20 @@
       "type": "test",
       "path": "tests/unit/customer-profile-target-verification.test.js",
       "hash": "f2f8aa42",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-review-runtime-login-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-review-runtime-login-migration.test.js",
+      "hash": "80319913",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-review-runtime-login.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-review-runtime-login.test.js",
+      "hash": "e7a5aa29",
       "status": "current"
     },
     {
@@ -9860,7 +10102,7 @@
       "type": "test",
       "path": "tests/unit/plan-schema.test.js",
       "hash": "baeffcf1",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/plan-status-vocabulary.test.js",
@@ -9909,6 +10151,13 @@
       "type": "test",
       "path": "tests/unit/postgres-business-knowledge.test.js",
       "hash": "5d0d75ec",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/postgres-runtime-client.test.js",
+      "type": "test",
+      "path": "tests/unit/postgres-runtime-client.test.js",
+      "hash": "23505c46",
       "status": "current"
     },
     {
@@ -10000,7 +10249,7 @@
       "type": "test",
       "path": "tests/unit/project-work-route.test.js",
       "hash": "aba2aa5b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/rollup.test.js",
@@ -10371,6 +10620,13 @@
     {
       "from": "code:src/app/(pm)/people/page.jsx",
       "to": "req:FR-042",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/customer-import-reviews/page.jsx",
+      "to": "req:FR-078",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -12077,6 +12333,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/platform/customer-import-reviews/[caseId]/decisions/route.js",
+      "to": "req:FR-078",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/customer-import-reviews/route.js",
+      "to": "req:FR-078",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/customer-import-reviews/targets/route.js",
+      "to": "req:FR-078",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/platform/integrations/route.js",
       "to": "req:FR-080",
       "type": "implements",
@@ -13435,6 +13712,230 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:BR-001",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:BR-002",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:FR-019",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:FR-021",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:FR-023",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:FR-037",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:FR-073",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:FR-079",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:SDD-021",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:SDD-023",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:SDD-037",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:SDD-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/edge.js",
+      "to": "req:SEC-015",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:BR-001",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:BR-002",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:FR-019",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:FR-021",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:FR-023",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:FR-037",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:FR-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:FR-073",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:FR-079",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:SDD-021",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:SDD-023",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:SDD-037",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:SDD-043",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/generated/prisma-postgres/index.js",
+      "to": "req:SEC-015",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/lib/business-routing.js",
       "to": "req:FR-044",
       "type": "implements",
@@ -13479,6 +13980,27 @@
     {
       "from": "code:src/lib/db-boundary.js",
       "to": "req:FR-030",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/db.js",
+      "to": "req:FR-030",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/db.js",
+      "to": "req:FR-076",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/db.js",
+      "to": "req:FR-078",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -14275,6 +14797,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/crm/customer-import-review-service.js",
+      "to": "req:FR-078",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-import-review-store.js",
+      "to": "req:FR-078",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/crm/line-ingest-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -14459,6 +14995,13 @@
     {
       "from": "code:src/modules/identity/rbac.js",
       "to": "req:FR-076",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/rbac.js",
+      "to": "req:FR-078",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -16767,6 +17310,20 @@
       "source": "charter"
     },
     {
+      "from": "model:CustomerImportReviewCase",
+      "to": "domain:crm",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:CustomerImportReviewDecision",
+      "to": "domain:crm",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:DeadLetterRecord",
       "to": "domain:integration",
       "type": "owned_by",
@@ -18475,6 +19032,27 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/platform/customer-import-reviews/[caseId]/decisions",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/customer-import-reviews/targets",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/customer-import-reviews",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/platform/integrations",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -18749,6 +19327,13 @@
     },
     {
       "from": "route:page:/people",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/platform/customer-import-reviews",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -24383,6 +24968,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/application-identity-bootstrap-migration.test.js",
+      "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/application-identity-bootstrap-migration.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/application-schema-migration.test.js",
+      "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/application-schema-migration.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/breadcrumb-switcher.test.js",
       "to": "code:src/components/layouts/Breadcrumb.jsx",
       "type": "tests",
@@ -24740,6 +25353,97 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/customer-import-review-api.test.js",
+      "to": "code:src/app/api/platform/customer-import-reviews/[caseId]/decisions/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-api.test.js",
+      "to": "code:src/app/api/platform/customer-import-reviews/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-api.test.js",
+      "to": "code:src/app/api/platform/customer-import-reviews/targets/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-api.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-contract.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-queue-script.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-service.test.js",
+      "to": "code:src/modules/crm/customer-import-review-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-service.test.js",
+      "to": "code:src/modules/crm/customer-import-review-store.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-service.test.js",
+      "to": "code:src/modules/identity/rbac.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-service.test.js",
+      "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-service.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-ui.test.js",
+      "to": "code:src/app/(pm)/platform/customer-import-reviews/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-ui.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/customer-profile-backfill-migration.test.js",
       "to": "req:FR-078",
       "type": "verifies",
@@ -24755,6 +25459,27 @@
     },
     {
       "from": "test:tests/unit/customer-profile-target-verification.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-review-runtime-login-migration.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-review-runtime-login-migration.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-review-runtime-login.test.js",
       "to": "req:FR-078",
       "type": "verifies",
       "status": "current",
@@ -26869,6 +27594,13 @@
     },
     {
       "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -28144,6 +28876,27 @@
     {
       "from": "test:tests/unit/postgres-business-knowledge.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/postgres-runtime-client.test.js",
+      "to": "req:FR-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/postgres-runtime-client.test.js",
+      "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/postgres-runtime-client.test.js",
+      "to": "req:FR-078",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

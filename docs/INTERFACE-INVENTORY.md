@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.0.0b |
+| **Version** | 1.1.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-08-18 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=38; operational_domain_keys=7; operational_subdomain_entries=21; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=39; operational_domain_keys=7; operational_subdomain_entries=22; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -100,7 +100,7 @@ the Business Home slot is excluded from this count.
 
 ### 3.3 People and Platform domains
 
-The operational registry has seven domain keys. Platform currently exposes six
+The operational registry has seven domain keys. Platform currently exposes seven
 page routes because its Dashboard and Settings navigation entries share
 `/settings`; one route is one interface row here.
 
@@ -110,6 +110,7 @@ page routes because its Dashboard and Settings navigation entries share
 | `/people/directory` | People Directory | BusinessShell → HR / People / Directory | Business-scoped people search and view | empty, loading, error, forbidden | implemented; `src/app/(pm)/people/directory/page.jsx`, FR-042 |
 | `/platform/users` | Users and Permissions | BusinessShell → Platform / Users | OWNER-scoped membership role and domain grants | owner-only, empty, loading, error, forbidden | implemented; `src/app/(pm)/platform/users/page.jsx`, FR-038/062 |
 | `/platform/integrations` | Platform Integrations | BusinessShell → Platform / Integrations | owner-only provider/connection metadata and redacted Vault readiness | owner-only, empty, loading, error, manager unavailable; no raw secret state | implemented beta; `src/app/(pm)/platform/integrations/page.jsx`, FR-080 |
+| `/platform/customer-import-reviews` | Customer Duplicate Review | BusinessShell → Platform / Customer Review | review held duplicate groups, inspect redacted evidence and append a per-item decision | reviewer-only, empty, loading, error, forbidden, stale-version conflict; no Customer publish | implemented beta; `src/app/(pm)/platform/customer-import-reviews/page.jsx`, FR-078 |
 | `/profile` | My Profile | BusinessShell → Platform/identity | resolved local account, language and LINE-link state | auth required, loading, error, empty | implemented beta; `src/app/(pm)/profile/page.jsx`, FR-038 |
 | `/settings` | Settings | BusinessShell → Platform / Settings | local preferences and shell/runtime settings | loading, error, ready, forbidden | implemented; `src/app/(pm)/settings/page.jsx`, FR-020 |
 | `/audit` | Audit Log | BusinessShell → Platform / Audit | immutable audit event browser and filters | empty, loading, error, forbidden | implemented; `src/app/(pm)/audit/page.jsx`, FR-014 |
@@ -158,10 +159,10 @@ explicitly so “domain count” cannot silently mix the two concepts:
 | Source `DOMAINS` entries | 8 | `business-home` plus seven operational domains |
 | Operational domain keys | 7 | `commerce`, `customer`, `growth`, `operations`, `people`, `projects`, `platform` |
 | Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
-| Source sub-domain entries | 22 | includes Business Home Dashboard |
-| Operational sub-domain entries | 21 | excludes Business Home Dashboard |
+| Source sub-domain entries | 23 | includes Business Home Dashboard |
+| Operational sub-domain entries | 22 | excludes Business Home Dashboard |
 | Development sub-domain entries | 8 | includes Files and excludes Business Home |
-| Platform navigation entries | 6 | Dashboard and Settings intentionally share `/settings` |
+| Platform navigation entries | 7 | Dashboard and Settings intentionally share `/settings` |
 
 The marker at the top of this document is the published operational count. The
 preflight check derives it from `src/config/domains.js` and fails if it drifts.
@@ -204,8 +205,8 @@ The current route evidence is:
 
 | Evidence | Current value | Check |
 |---|---:|---|
-| `src/app/**/page.jsx` | 37 page routes | preflight compares every derived URL to this registry |
-| `src/config/domains.js` | 7 operational domains, 21 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
+| `src/app/**/page.jsx` | 38 page routes | preflight compares every derived URL to this registry |
+| `src/config/domains.js` | 7 operational domains, 22 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
 | UI status | per-row, not a global completion claim | local implementation does not imply production provider/cutover readiness |
 
 ## 7. Out of scope
@@ -222,5 +223,6 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0b | 2026-08-18 | candidate | Added the FR-078 Customer Duplicate Review interface and reconciled the page/domain counts to the live registry | working-tree | ATHER |
 | 1.0.0b | 2026-08-18 | candidate | Executed CR-007: bounded the document to a canonical UI registry, reconciled 37 routes and explicit Business Home/domain counts, and added machine-checkable evidence | working-tree | ATHER |
 | 0.4.0 | 2026-08-14 | beta | FR-044/FR-046 shell boundary inventory before normalization | historical | ATHER |
