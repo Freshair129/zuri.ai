@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 927,
-    "total_edges": 2942,
+    "total_nodes": 938,
+    "total_edges": 2998,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,25 +13,22 @@
       "domain": 6,
       "roadmap": 25,
       "feature": 6,
-      "route": 106,
-      "model": 46,
+      "route": 107,
+      "model": 47,
       "requirement": 174,
-      "test": 198,
-      "code_file": 249
+      "test": 203,
+      "code_file": 253
     },
     "coverage": {
       "requirements": 174,
-      "fr_with_code": "100% (75/75)",
-      "fr_with_tests": "100% (75/75)",
+      "fr_with_code": "100% (78/78)",
+      "fr_with_tests": "100% (78/78)",
       "rules_anchored_in_code": "89% (67/75)",
       "nfr_evidence_based": "16 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 249,
+      "annotated_code_files": 253,
       "fr_planned": [
         "FR-066",
         "FR-067",
-        "FR-068",
-        "FR-069",
-        "FR-070",
         "FR-071"
       ],
       "fr_without_code": [],
@@ -54,29 +51,10 @@
   },
   "drift": {
     "changed": [
-      "test:tests/unit/project-dependency-route.test.js",
-      "test:tests/unit/project-list-contract.test.js",
-      "code:src/app/api/audit/route.js",
-      "code:src/app/api/backup/export/route.js",
-      "code:src/app/api/dependencies/route.js",
-      "code:src/app/api/milestones/route.js",
-      "code:src/app/api/progress/portfolio/route.js",
-      "code:src/app/api/progress/project/[id]/route.js",
-      "code:src/app/api/progress/workstream/[id]/route.js",
-      "code:src/app/api/projects/route.js",
-      "code:src/app/api/projects/[id]/dependencies/route.js",
-      "code:src/app/api/projects/[id]/files/route.js",
-      "code:src/app/api/projects/[id]/route.js",
-      "code:src/app/api/projects/[id]/tree/route.js",
-      "code:src/app/api/resolve/route.js",
-      "code:src/app/api/scope/route.js",
-      "code:src/app/api/work/route.js",
-      "code:src/app/api/workstreams/route.js"
+      "test:tests/unit/project-work-route.test.js",
+      "code:src/modules/project-manager/components/WorkViewTabs.jsx"
     ],
-    "added": [
-      "test:tests/unit/authorization-seam-list-routes.test.js",
-      "test:tests/unit/authorization-seam-routes.test.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -587,7 +565,7 @@
       "id": "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
-      "hash": "97dd5d63",
+      "hash": "b5101ccb",
       "status": "current",
       "annotations": {
         "@req": [
@@ -818,7 +796,7 @@
       "type": "code_file",
       "path": "src/app/api/audit/route.js",
       "hash": "cedfc448",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-014",
@@ -838,7 +816,7 @@
       "type": "code_file",
       "path": "src/app/api/backup/export/route.js",
       "hash": "408b25af",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -1128,7 +1106,7 @@
       "type": "code_file",
       "path": "src/app/api/dependencies/route.js",
       "hash": "9dc890da",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-007",
@@ -1149,7 +1127,7 @@
       "id": "code:src/app/api/docs/route.js",
       "type": "code_file",
       "path": "src/app/api/docs/route.js",
-      "hash": "cbc92e25",
+      "hash": "8b122a5b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1468,11 +1446,18 @@
       "id": "code:src/app/api/import/template/route.js",
       "type": "code_file",
       "path": "src/app/api/import/template/route.js",
-      "hash": "9940f424",
+      "hash": "1b5ee451",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-018"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/public-read-route-auth.test.js"
         ]
       }
     },
@@ -1491,6 +1476,25 @@
           "SDD-037",
           "SEC-001",
           "SEC-008"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/mcp/route.js",
+      "type": "code_file",
+      "path": "src/app/api/mcp/route.js",
+      "hash": "621ca6a3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-069"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/project-manager-mcp.test.js"
         ]
       }
     },
@@ -1520,7 +1524,7 @@
       "type": "code_file",
       "path": "src/app/api/milestones/route.js",
       "hash": "013c89f6",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-006",
@@ -1678,7 +1682,7 @@
       "type": "code_file",
       "path": "src/app/api/progress/portfolio/route.js",
       "hash": "735b31bb",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-020"
@@ -1694,7 +1698,7 @@
       "type": "code_file",
       "path": "src/app/api/progress/project/[id]/route.js",
       "hash": "8ed8ec1f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-011",
@@ -1714,7 +1718,7 @@
       "type": "code_file",
       "path": "src/app/api/progress/workstream/[id]/route.js",
       "hash": "537d5e00",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-010",
@@ -1734,7 +1738,7 @@
       "type": "code_file",
       "path": "src/app/api/projects/[id]/dependencies/route.js",
       "hash": "f434c912",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -1782,7 +1786,7 @@
       "type": "code_file",
       "path": "src/app/api/projects/[id]/files/route.js",
       "hash": "354b2853",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-037",
@@ -1847,7 +1851,7 @@
       "type": "code_file",
       "path": "src/app/api/projects/[id]/route.js",
       "hash": "38826b40",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-003",
@@ -1894,7 +1898,7 @@
       "type": "code_file",
       "path": "src/app/api/projects/[id]/tree/route.js",
       "hash": "b7656bae",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-017",
@@ -1915,7 +1919,7 @@
       "type": "code_file",
       "path": "src/app/api/projects/route.js",
       "hash": "31224681",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-003",
@@ -2020,7 +2024,7 @@
       "type": "code_file",
       "path": "src/app/api/resolve/route.js",
       "hash": "9dd7322c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -2036,7 +2040,7 @@
       "type": "code_file",
       "path": "src/app/api/scope/route.js",
       "hash": "83ef3646",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-001",
@@ -2059,7 +2063,7 @@
       "id": "code:src/app/api/session/demo/route.js",
       "type": "code_file",
       "path": "src/app/api/session/demo/route.js",
-      "hash": "054686cd",
+      "hash": "15942514",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2122,7 +2126,7 @@
       "type": "code_file",
       "path": "src/app/api/work/route.js",
       "hash": "297d7874",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-005",
@@ -2186,7 +2190,7 @@
       "type": "code_file",
       "path": "src/app/api/workstreams/route.js",
       "hash": "a0a62338",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-004",
@@ -3557,7 +3561,7 @@
       "id": "code:src/modules/identity/session-port.js",
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
-      "hash": "875b828f",
+      "hash": "2d26895e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3896,7 +3900,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "b875399a",
+      "hash": "8f3d4121",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3954,7 +3958,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "93d4fb70",
+      "hash": "ed9f7f07",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4251,11 +4255,12 @@
       "id": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-roadmap-read-model.js",
-      "hash": "af501581",
+      "hash": "0afafca5",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-068"
+          "FR-068",
+          "FR-070"
         ],
         "@spec": [
           "SDD-039",
@@ -4428,6 +4433,28 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/components/HumanPlanBuilderModal.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/HumanPlanBuilderModal.jsx",
+      "hash": "8ae60ed7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-017",
+          "FR-069"
+        ],
+        "@spec": [
+          "BR-003",
+          "BR-009",
+          "SDD-006"
+        ],
+        "@tested": [
+          "tests/unit/human-plan-builder.test.js",
+          "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/ManagedFilesPanel.jsx",
@@ -4512,8 +4539,8 @@
       "id": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/WorkViewTabs.jsx",
-      "hash": "bf9aa7a5",
-      "status": "current",
+      "hash": "9c9a95b0",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-040",
@@ -4550,6 +4577,27 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/import/human-plan-builder.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/human-plan-builder.js",
+      "hash": "7b74d38d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-017",
+          "FR-069"
+        ],
+        "@spec": [
+          "BR-003",
+          "BR-009",
+          "SDD-006"
+        ],
+        "@tested": [
+          "tests/unit/human-plan-builder.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/import/import-authorization.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/import-authorization.js",
@@ -4575,12 +4623,14 @@
       "id": "code:src/modules/project-manager/import/plan-import-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
-      "hash": "7a33d7d3",
+      "hash": "b34b6426",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
           "FR-019",
+          "FR-069",
+          "FR-070",
           "FR-043",
           "FR-065",
           "SDD-037"
@@ -4609,12 +4659,14 @@
       "id": "code:src/modules/project-manager/import/plan-schema.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-schema.js",
-      "hash": "aab849d3",
+      "hash": "38f6c0e5",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
-          "FR-019"
+          "FR-019",
+          "FR-069",
+          "FR-070"
         ],
         "@spec": [
           "FR-069",
@@ -4694,6 +4746,25 @@
         ],
         "@tested": [
           "tests/unit/fr045-path-security.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/mcp/transport.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/mcp/transport.js",
+      "hash": "084399aa",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-069"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/project-manager-mcp.test.js"
         ]
       }
     },
@@ -5009,9 +5080,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.9.0b",
+      "version": "1.10.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "db35badc",
+      "hash": "b05a2191",
       "status": "current"
     },
     {
@@ -5055,9 +5126,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "doc_status": "Draft",
-      "hash": "27d54795",
+      "hash": "907580e8",
       "status": "current"
     },
     {
@@ -5131,7 +5202,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.2.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "2cdd2e48",
+      "hash": "1933cf36",
       "status": "current"
     },
     {
@@ -5191,7 +5262,7 @@
       "title": "FR-033 — Topbar without scope dropdowns",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "d557a14a",
+      "hash": "c2d49a43",
       "status": "current"
     },
     {
@@ -5201,7 +5272,7 @@
       "title": "FR-034 — Breadcrumb scope switcher",
       "version": "1.0.0",
       "doc_status": "Implemented",
-      "hash": "4cc75512",
+      "hash": "31f3fe1d",
       "status": "current"
     },
     {
@@ -5249,7 +5320,7 @@
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-039-business-scope-ceiling.md",
       "title": "FR-039 — Business scope ceiling",
-      "hash": "1de2e075",
+      "hash": "58674727",
       "status": "current"
     },
     {
@@ -5370,7 +5441,7 @@
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-056-zuri-branded-entry-landing.md",
       "title": "FR-056 — Zuri Branded Entry Landing Experience",
-      "hash": "bb1a64ad",
+      "hash": "860ca701",
       "status": "current"
     },
     {
@@ -5486,7 +5557,7 @@
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-068-human-visible-execution-roadmap.md",
       "title": "FR-068 — Human-visible Project Execution Roadmap and identity references",
-      "hash": "dbe07895",
+      "hash": "deaf4306",
       "status": "current"
     },
     {
@@ -5494,7 +5565,7 @@
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
       "title": "FR-069 — Plan Blueprint and Human/Agent intake with stable references",
-      "hash": "e549bbb6",
+      "hash": "d24d972f",
       "status": "current"
     },
     {
@@ -5588,7 +5659,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.1.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "18630824",
+      "hash": "0edb4dd5",
       "status": "current"
     },
     {
@@ -5798,7 +5869,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "923162e8",
+      "hash": "f8ace806",
       "status": "current"
     },
     {
@@ -5976,6 +6047,7 @@
       "owns_routes": [
         "src/app/api/agent/**"
       ],
+      "owns_code": [],
       "modules": [
         "agent"
       ],
@@ -5998,6 +6070,7 @@
         "Message"
       ],
       "owns_routes": [],
+      "owns_code": [],
       "modules": [
         "crm"
       ],
@@ -6020,6 +6093,7 @@
         "src/app/login/**",
         "src/app/api/entry/**"
       ],
+      "owns_code": [],
       "modules": [
         "identity"
       ],
@@ -6042,6 +6116,7 @@
         "DeadLetterRecord"
       ],
       "owns_routes": [],
+      "owns_code": [],
       "modules": [
         "integration"
       ],
@@ -6055,6 +6130,7 @@
       "title": "Domain — knowledge",
       "owns_models": [],
       "owns_routes": [],
+      "owns_code": [],
       "modules": [
         "knowledge"
       ],
@@ -6092,18 +6168,26 @@
         "FileAsset",
         "FileLink",
         "Membership",
-        "AuditEvent"
+        "AuditEvent",
+        "PlanImportReceipt"
       ],
       "owns_routes": [
         "src/app/(pm)/**",
         "src/app/api/**"
+      ],
+      "owns_code": [
+        "src/components/layouts/**",
+        "src/components/landing/**",
+        "src/context/ScopeContext.jsx",
+        "src/config/scope-views.js",
+        "src/config/domains.js"
       ],
       "modules": [
         "project-manager",
         "business",
         "people"
       ],
-      "hash": "3b78aaed",
+      "hash": "bbfae8c2",
       "status": "current"
     },
     {
@@ -6124,7 +6208,7 @@
       "id": "feat:FEAT-003",
       "type": "feature",
       "label": "Execution Planning — Human-visible Roadmap, Blueprint intake and stable identity bindings",
-      "declared": "proposed",
+      "declared": "live",
       "status": "current"
     },
     {
@@ -6305,6 +6389,11 @@
     },
     {
       "id": "model:Person",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PlanImportReceipt",
       "type": "model",
       "status": "current"
     },
@@ -7214,9 +7303,9 @@
       "family": "FR",
       "label": "Human-visible Project Execution Roadmap: an authorized Human sees the same Project execution structure as Agents — current mode-specific phase/stage/period, sprint/batch/wave, backlog, linked `goal_id`/`risk_id` references when available, tags, Human/Agent assignees, dependencies/blocker owners, `gate_id`, evidence and closure, plus applicable supporting identity references — as a composed Work view over the existing Project/Workstream/WorkContainer/WorkItem model.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Human-visible Project Execution Roadmap: an authorized Human sees the same Project execution structure as Agents — current mode-specific phase/stage/period, sprint/batch/wave, backlog, linked `goal_id`/`risk_id` references when available, tags, Human/Agent assignees, dependencies/blocker owners, `gate_id`, evidence and closure, plus applicable supporting identity references — as a composed Work view over the existing Project/Workstream/WorkContainer/WorkItem model. 🔜 design approved; implementation pending "
+      "declared": "done",
+      "status": "current",
+      "row_text": "Human-visible Project Execution Roadmap: an authorized Human sees the same Project execution structure as Agents — current mode-specific phase/stage/period, sprint/batch/wave, backlog, linked `goal_id`/`risk_id` references when available, tags, Human/Agent assignees, dependencies/blocker owners, `gate_id`, evidence and closure, plus applicable supporting identity references — as a composed Work view over the existing Project/Workstream/WorkContainer/WorkItem model. ✅ implemented; code + tests verified "
     },
     {
       "id": "req:FR-069",
@@ -7224,9 +7313,9 @@
       "family": "FR",
       "label": "Plan Blueprint and Human/Agent intake: after the user states an objective, Zuri may recommend an editable mode-specific Blueprint; Human forms and external Agent plans normalize to the same PlanEnvelope validation, dry-run, preview, authorization, transactional commit and audit path. Each mode has an `executionContractId`; every lifecycle/evidence step has run, step, attempt and replay IDs for tags, failure localization and append-only replay, with applicable `goal_id`/`risk_id` and supporting identity references. No first-step template picker, fake execution state or new execution mode.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Plan Blueprint and Human/Agent intake: after the user states an objective, Zuri may recommend an editable mode-specific Blueprint; Human forms and external Agent plans normalize to the same PlanEnvelope validation, dry-run, preview, authorization, transactional commit and audit path. Each mode has an `executionContractId`; every lifecycle/evidence step has run, step, attempt and replay IDs for tags, failure localization and append-only replay, with applicable `goal_id`/`risk_id` and supporting identity references. No first-step template picker, fake execution state or new execution mode. 🔜 design approved; implementation pending "
+      "declared": "done",
+      "status": "current",
+      "row_text": "Plan Blueprint and Human/Agent intake: after the user states an objective, Zuri may recommend an editable mode-specific Blueprint; Human forms and external Agent plans normalize to the same PlanEnvelope validation, dry-run, preview, authorization, transactional commit and audit path. Each mode has an `executionContractId`; every lifecycle/evidence step has run, step, attempt and replay IDs for tags, failure localization and append-only replay, with applicable `goal_id`/`risk_id` and supporting identity references. No first-step template picker, fake execution state or new execution mode. ✅ implemented; code + tests verified "
     },
     {
       "id": "req:FR-070",
@@ -7234,9 +7323,9 @@
       "family": "FR",
       "label": "Stable execution, domain, goal, risk, tag, trace and supporting identities: every committed Execution Plan exposes canonical `executionModeId`, `executionContractId`, `planId` (= Workstream UUID), domain bindings, authorized `goal_id`/`goalIds[]`, resolved `risk_id`/`riskIds[]` when available, `containerId` plus a mode-valid period alias, `workItemId` plus a mode-valid item alias and `tagId` references; applicable `node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id` references are owner-resolved and remain distinct from execution trace IDs.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Stable execution, domain, goal, risk, tag, trace and supporting identities: every committed Execution Plan exposes canonical `executionModeId`, `executionContractId`, `planId` (= Workstream UUID), domain bindings, authorized `goal_id`/`goalIds[]`, resolved `risk_id`/`riskIds[]` when available, `containerId` plus a mode-valid period alias, `workItemId` plus a mode-valid item alias and `tagId` references; applicable `node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id` references are owner-resolved and remain distinct from execution trace IDs. 🔜 design approved; implementation pending "
+      "declared": "done",
+      "status": "current",
+      "row_text": "Stable execution, domain, goal, risk, tag, trace and supporting identities: every committed Execution Plan exposes canonical `executionModeId`, `executionContractId`, `planId` (= Workstream UUID), domain bindings, authorized `goal_id`/`goalIds[]`, resolved `risk_id`/`riskIds[]` when available, `containerId` plus a mode-valid period alias, `workItemId` plus a mode-valid item alias and `tagId` references; applicable `node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id` references are owner-resolved and remain distinct from execution trace IDs. ✅ implemented; code + tests verified "
     },
     {
       "id": "req:FR-071",
@@ -8383,6 +8472,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/mcp",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/mcp",
+      "path": "src/app/api/mcp/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/milestones",
       "type": "route",
       "kind": "api",
@@ -9246,7 +9343,7 @@
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
-      "hash": "7408b623",
+      "hash": "86ce8cc8",
       "status": "current"
     },
     {
@@ -9281,7 +9378,7 @@
       "id": "test:tests/e2e/fr058-file-views.spec.js",
       "type": "test",
       "path": "tests/e2e/fr058-file-views.spec.js",
-      "hash": "65dc161b",
+      "hash": "db37f91b",
       "status": "current"
     },
     {
@@ -9302,14 +9399,14 @@
       "id": "test:tests/e2e/fr077-project-inventory.spec.js",
       "type": "test",
       "path": "tests/e2e/fr077-project-inventory.spec.js",
-      "hash": "e6ee71a2",
+      "hash": "56cdf53d",
       "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
-      "hash": "fbb36e86",
+      "hash": "d96d6e98",
       "status": "current"
     },
     {
@@ -9582,7 +9679,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "f7ec1641",
+      "hash": "0611b207",
       "status": "current"
     },
     {
@@ -9596,7 +9693,7 @@
       "id": "test:tests/integration/plan-import.test.js",
       "type": "test",
       "path": "tests/integration/plan-import.test.js",
-      "hash": "7fc4cd0b",
+      "hash": "0a6711d7",
       "status": "current"
     },
     {
@@ -9918,7 +10015,7 @@
       "id": "test:tests/unit/doc-views.test.js",
       "type": "test",
       "path": "tests/unit/doc-views.test.js",
-      "hash": "f92faa3e",
+      "hash": "d9f3a2a9",
       "status": "current"
     },
     {
@@ -9926,6 +10023,13 @@
       "type": "test",
       "path": "tests/unit/domain-navigation.test.js",
       "hash": "e26f08d0",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/domain-state.test.js",
+      "type": "test",
+      "path": "tests/unit/domain-state.test.js",
+      "hash": "b395ea36",
       "status": "current"
     },
     {
@@ -10030,7 +10134,7 @@
       "id": "test:tests/unit/fr046-api-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr046-api-ui-contract.test.js",
-      "hash": "c6a238f1",
+      "hash": "62bd64f3",
       "status": "current"
     },
     {
@@ -10038,6 +10142,13 @@
       "type": "test",
       "path": "tests/unit/fr046-entry-read-model.test.js",
       "hash": "4e7fe113",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr046-session-demo-route.test.js",
+      "type": "test",
+      "path": "tests/unit/fr046-session-demo-route.test.js",
+      "hash": "36354088",
       "status": "current"
     },
     {
@@ -10227,6 +10338,13 @@
       "type": "test",
       "path": "tests/unit/human-intake-surface.test.js",
       "hash": "d21888cd",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/human-plan-builder.test.js",
+      "type": "test",
+      "path": "tests/unit/human-plan-builder.test.js",
+      "hash": "06f17102",
       "status": "current"
     },
     {
@@ -10444,7 +10562,7 @@
       "type": "test",
       "path": "tests/unit/project-dependency-route.test.js",
       "hash": "1313c74e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/project-dependency-service.test.js",
@@ -10472,7 +10590,14 @@
       "type": "test",
       "path": "tests/unit/project-list-contract.test.js",
       "hash": "a0ae313d",
-      "status": "changed"
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-manager-mcp.test.js",
+      "type": "test",
+      "path": "tests/unit/project-manager-mcp.test.js",
+      "hash": "aabac6bb",
+      "status": "current"
     },
     {
       "id": "test:tests/unit/project-roadmap-read-model.test.js",
@@ -10485,7 +10610,7 @@
       "id": "test:tests/unit/project-roadmap-ui.test.js",
       "type": "test",
       "path": "tests/unit/project-roadmap-ui.test.js",
-      "hash": "7a95e054",
+      "hash": "de90d9ce",
       "status": "current"
     },
     {
@@ -10499,7 +10624,14 @@
       "id": "test:tests/unit/project-work-route.test.js",
       "type": "test",
       "path": "tests/unit/project-work-route.test.js",
-      "hash": "fbfcd7a7",
+      "hash": "c34647e0",
+      "status": "changed"
+    },
+    {
+      "id": "test:tests/unit/public-read-route-auth.test.js",
+      "type": "test",
+      "path": "tests/unit/public-read-route-auth.test.js",
+      "hash": "86e00d42",
       "status": "current"
     },
     {
@@ -12542,6 +12674,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/import/template/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/template/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/import/xlsx/route.js",
       "to": "req:FR-018",
       "type": "implements",
@@ -12571,6 +12717,27 @@
     },
     {
       "from": "code:src/app/api/import/xlsx/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/mcp/route.js",
+      "to": "req:FR-069",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/mcp/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/mcp/route.js",
       "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
@@ -16289,6 +16456,13 @@
     {
       "from": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
       "to": "req:FR-070",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
+      "to": "req:FR-070",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -16658,6 +16832,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/components/HumanPlanBuilderModal.jsx",
+      "to": "req:BR-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/HumanPlanBuilderModal.jsx",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/HumanPlanBuilderModal.jsx",
+      "to": "req:FR-017",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/HumanPlanBuilderModal.jsx",
+      "to": "req:FR-069",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/HumanPlanBuilderModal.jsx",
+      "to": "req:SDD-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
       "to": "req:FR-045",
       "type": "implements",
@@ -16819,6 +17028,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/import/human-plan-builder.js",
+      "to": "req:BR-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/human-plan-builder.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/human-plan-builder.js",
+      "to": "req:FR-017",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/human-plan-builder.js",
+      "to": "req:FR-069",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/human-plan-builder.js",
+      "to": "req:SDD-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/import/import-authorization.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -16905,7 +17149,21 @@
     {
       "from": "code:src/modules/project-manager/import/plan-import-service.js",
       "to": "req:FR-069",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:FR-069",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:FR-070",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -16996,7 +17254,21 @@
     {
       "from": "code:src/modules/project-manager/import/plan-schema.js",
       "to": "req:FR-069",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-schema.js",
+      "to": "req:FR-069",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-schema.js",
+      "to": "req:FR-070",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -17066,6 +17338,27 @@
     {
       "from": "code:src/modules/project-manager/local-files/path-security.js",
       "to": "req:SEC-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/mcp/transport.js",
+      "to": "req:FR-069",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/mcp/transport.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/mcp/transport.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -17731,6 +18024,13 @@
     {
       "from": "model:Person",
       "to": "domain:crm",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PlanImportReceipt",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -19305,6 +19605,13 @@
     },
     {
       "from": "route:api:/api/import/xlsx",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/mcp",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -21503,6 +21810,13 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "code:src/modules/project-manager/components/HumanPlanBuilderModal.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
       "type": "tests",
       "status": "current",
@@ -21720,6 +22034,13 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:FR-072",
       "type": "verifies",
       "status": "current",
@@ -21742,6 +22063,13 @@
     {
       "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:SDD-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -22470,6 +22798,13 @@
     {
       "from": "test:tests/integration/external-ref-import.test.js",
       "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:FR-070",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -23792,6 +24127,13 @@
     },
     {
       "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:FR-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -24219,6 +24561,13 @@
     },
     {
       "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:FR-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -24444,6 +24793,13 @@
     {
       "from": "test:tests/integration/project-business-binding.test.js",
       "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-070",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -26423,6 +26779,27 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/domain-state.test.js",
+      "to": "req:FR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-state.test.js",
+      "to": "req:FR-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-state.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/e2e-warmup.test.js",
       "to": "req:NFR-008",
       "type": "verifies",
@@ -27530,6 +27907,27 @@
     },
     {
       "from": "test:tests/unit/fr046-entry-read-model.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr046-session-demo-route.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr046-session-demo-route.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr046-session-demo-route.test.js",
       "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
@@ -28733,6 +29131,55 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/human-plan-builder.test.js",
+      "to": "code:src/modules/project-manager/components/HumanPlanBuilderModal.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/human-plan-builder.test.js",
+      "to": "code:src/modules/project-manager/import/human-plan-builder.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/human-plan-builder.test.js",
+      "to": "req:BR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/human-plan-builder.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/human-plan-builder.test.js",
+      "to": "req:FR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/human-plan-builder.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/human-plan-builder.test.js",
+      "to": "req:SDD-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/ids.test.js",
       "to": "code:src/lib/ids.js",
       "type": "tests",
@@ -29441,6 +29888,13 @@
     },
     {
       "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
       "to": "req:SDD-002",
       "type": "verifies",
       "status": "current",
@@ -29519,6 +29973,13 @@
     {
       "from": "test:tests/unit/plan-status-vocabulary.test.js",
       "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-status-vocabulary.test.js",
+      "to": "req:FR-070",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -30245,6 +30706,41 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "code:src/app/api/mcp/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "code:src/modules/project-manager/mcp/transport.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/project-roadmap-read-model.test.js",
       "to": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
       "type": "tests",
@@ -30516,6 +31012,34 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/public-read-route-auth.test.js",
+      "to": "code:src/app/api/import/template/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/public-read-route-auth.test.js",
+      "to": "req:FR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/public-read-route-auth.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/public-read-route-auth.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/rollup.test.js",

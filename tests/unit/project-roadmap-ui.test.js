@@ -18,6 +18,20 @@ describe('Execution Roadmap UI boundary', () => {
     expect(page).toContain('<WorkViewTabs projectId={projectId} />')
   })
 
+  it('renders the roadmap contract fields and explicit unavailable states', () => {
+    expect(page).toContain('Linked Business Goal IDs')
+    expect(page).toContain('Project risk IDs')
+    expect(page).toContain('Active source')
+    expect(page).toContain('Identity references')
+    expect(page).toContain('Execution plan identities')
+    expect(page).toContain('Progress evidence')
+    expect(page).toContain('Completion evidence')
+    expect(page).toContain('Blocker owner')
+    expect(page).toContain('carry-over')
+    expect(page).toContain('gate_id=')
+    expect(page).toContain('<ul')
+  })
+
   it('authorizes the server-side Roadmap route through the request viewer', () => {
     expect(route).toContain('resolveRequestViewer(request)')
     expect(route).toContain('getProjectRoadmap(params.id, { viewer })')

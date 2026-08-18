@@ -51,7 +51,9 @@ export function domainMap(nodes, edges) {
     banner(
       'Domain Map',
       'One section per domain: the lane, what it owns, and what lives in it — generated from the charters and the graph (ADR-025).',
-    ) + sections.join('\n')
+    ) +
+    '> Machine-readable implementation readiness: [docs/.domain-state.json](.domain-state.json). It is generated with the graph and is not a runtime domain state.\n\n' +
+    sections.join('\n')
   )
 }
 

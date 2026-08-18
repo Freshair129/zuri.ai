@@ -228,6 +228,13 @@ CREATE TABLE "Workstream" (
     "projectId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "executionMode" TEXT NOT NULL,
+    "executionModeId" TEXT,
+    "executionContractId" TEXT,
+    "contractVersion" TEXT,
+    "primaryDomainId" TEXT,
+    "supportingDomainIdsJson" TEXT NOT NULL DEFAULT '[]',
+    "technicalOwnerDomainId" TEXT,
+    "identityRefsJson" TEXT NOT NULL DEFAULT '{}',
     "progressStrategy" TEXT NOT NULL,
     "progressWeight" DOUBLE PRECISION NOT NULL DEFAULT 1,
     "status" TEXT NOT NULL DEFAULT 'PLANNED',
@@ -239,6 +246,26 @@ CREATE TABLE "Workstream" (
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "Workstream_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PlanImportReceipt" (
+    "idempotencyKey" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "executionRunId" TEXT NOT NULL,
+    "executionStepId" TEXT,
+    "attemptId" TEXT,
+    "stepKey" TEXT NOT NULL DEFAULT 'plan.import.commit',
+    "status" TEXT NOT NULL DEFAULT 'SUCCEEDED',
+    "correlationId" TEXT NOT NULL,
+    "schemaVersion" TEXT NOT NULL,
+    "projectId" TEXT NOT NULL,
+    "replayOfExecutionRunId" TEXT,
+    "replayOfExecutionStepId" TEXT,
+    "auditEventId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "PlanImportReceipt_pkey" PRIMARY KEY ("idempotencyKey")
 );
 
 -- CreateTable
@@ -912,6 +939,21 @@ CREATE INDEX "Workstream_projectId_idx" ON "Workstream"("projectId");
 CREATE INDEX "Workstream_executionMode_idx" ON "Workstream"("executionMode");
 
 -- CreateIndex
+CREATE INDEX "Workstream_executionModeId_idx" ON "Workstream"("executionModeId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PlanImportReceipt_executionRunId_key" ON "PlanImportReceipt"("executionRunId");
+
+-- CreateIndex
+CREATE INDEX "PlanImportReceipt_projectId_idx" ON "PlanImportReceipt"("projectId");
+
+-- CreateIndex
+CREATE INDEX "PlanImportReceipt_correlationId_idx" ON "PlanImportReceipt"("correlationId");
+
+-- CreateIndex
+CREATE INDEX "PlanImportReceipt_replayOfExecutionRunId_idx" ON "PlanImportReceipt"("replayOfExecutionRunId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "WorkContainer_code_key" ON "WorkContainer"("code");
 
 -- CreateIndex
@@ -1258,6 +1300,9 @@ ALTER TABLE "ProjectGoal" ADD CONSTRAINT "ProjectGoal_goalId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "Workstream" ADD CONSTRAINT "Workstream_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PlanImportReceipt" ADD CONSTRAINT "PlanImportReceipt_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "WorkContainer" ADD CONSTRAINT "WorkContainer_workstreamId_fkey" FOREIGN KEY ("workstreamId") REFERENCES "Workstream"("id") ON DELETE CASCADE ON UPDATE CASCADE;

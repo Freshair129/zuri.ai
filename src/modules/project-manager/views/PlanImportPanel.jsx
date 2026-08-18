@@ -5,10 +5,11 @@
 // never executed.
 
 import { useRef, useState } from 'react'
-import { FileSpreadsheet, Download } from 'lucide-react'
+import { FileSpreadsheet, Download, WandSparkles } from 'lucide-react'
 import { PageHeader, Card, SectionTitle, EmptyState } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { api, useFetch } from '../components/useApi'
+import HumanPlanBuilderModal from '../components/HumanPlanBuilderModal'
 
 const SAMPLE_HINT = 'Paste a PlanEnvelope JSON (schemaVersion "1.0") — see contracts/sample-plan.json'
 
@@ -23,6 +24,7 @@ export default function PlanImportPanel({ projectId }) {
   const [errors, setErrors] = useState(null)
   const [committed, setCommitted] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [builderOpen, setBuilderOpen] = useState(false)
   const fileRef = useRef(null)
 
   // FR-018 — Excel surface: upload → convert (per-row errors) → same pipeline.
@@ -66,11 +68,11 @@ export default function PlanImportPanel({ projectId }) {
     }
   }
 
-  const runDry = async () => {
+  const runDry = async (planOverride = null) => {
     setErrors(null)
     setCommitted(null)
     setDryRun(null)
-    const plan = parsePlan()
+    const plan = planOverride || parsePlan()
     if (!plan) return
     setBusy(true)
     try {
@@ -89,6 +91,12 @@ export default function PlanImportPanel({ projectId }) {
     } finally {
       setBusy(false)
     }
+  }
+
+  const generateHumanPlan = (plan) => {
+    setBuilderOpen(false)
+    setText(JSON.stringify(plan, null, 2))
+    void runDry(plan)
   }
 
   const commit = async () => {
@@ -136,10 +144,23 @@ export default function PlanImportPanel({ projectId }) {
       <PageHeader
         eyebrow="Agent plan import"
         title="Import Plan Envelope"
-        subtitle="Structured plans generated outside the app: validate → dry-run → confirm. Nothing in a plan is ever executed as code."
+        subtitle="Human form, Excel หรือ Agent JSON จะ converge เป็น PlanEnvelope เดียวกัน: validate → dry-run → confirm"
+        actions={
+          <button type="button" className="btn btn-primary flex items-center gap-1.5" onClick={() => setBuilderOpen(true)}>
+            <WandSparkles size={13} aria-hidden /> สร้างแผนด้วยฟอร์ม
+          </button>
+        }
       />
       <div className="grid grid-cols-[1.2fr_1fr] gap-4 max-md:grid-cols-1">
         <div>
+        <Card className="mb-4" warm>
+          <SectionTitle caption="ไม่ต้องเขียน JSON เอง — กรอกเป้าหมาย สายงาน และงานเริ่มต้น แล้วระบบจะสร้าง JSON ให้ตรวจสอบ">
+            Human Plan Builder
+          </SectionTitle>
+          <button type="button" className="btn btn-primary flex items-center gap-1.5" onClick={() => setBuilderOpen(true)}>
+            <WandSparkles size={13} aria-hidden /> เปิดฟอร์มสร้าง Plan
+          </button>
+        </Card>
         <Card className="mb-4">
           <SectionTitle caption="สำหรับข้อมูลในกระดาษ/ไฟล์เดิม — แบบฟอร์ม generate จาก schema ของระบบ (dropdown ครบ ไม่ drift)">
             Excel template
@@ -238,6 +259,14 @@ export default function PlanImportPanel({ projectId }) {
           )}
         </div>
       </div>
+      <HumanPlanBuilderModal
+        open={builderOpen}
+        onClose={() => setBuilderOpen(false)}
+        workspaces={scope.scopedWorkspaces}
+        defaultWorkspaceId={effectiveWorkspaceId}
+        onGenerate={generateHumanPlan}
+        busy={busy}
+      />
     </div>
   )
 }

@@ -18,3 +18,10 @@ Breadcrumbs mirror the Base Context Bar without reintroducing a selector dropdow
 Workspace, Organization, and Business return to Home when changed. A Project may
 appear only as the opened resource and never becomes a global scope switcher. Space
 does not appear in the breadcrumb.
+
+## Evidence
+
+- Implementation: `src/components/layouts/Breadcrumb.jsx`
+- Contract tests: `tests/unit/breadcrumb-switcher.test.js`, `tests/unit/scope-view-context.test.js`
+- The breadcrumb remains inside the BusinessShell route group and does not create a
+  parallel scope-selection or Project-creation surface.

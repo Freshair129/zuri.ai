@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "zuri://contracts/domain-state.schema.json",
+  "title": "Zuri domain implementation state",
+  "description": "Generated, evidence-linked implementation readiness for each domain. It is a projection, not runtime domain data.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "generatedBy",
+    "generatedAt",
+    "generatedFrom",
+    "statusVocabulary",
+    "overall",
+    "domains"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "generatedBy": { "type": "string", "const": "scripts/domain-state.mjs" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "generatedFrom": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "statusVocabulary": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/status" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "overall": { "$ref": "#/$defs/overall" },
+    "domains": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/domain" }
+    }
+  },
+  "$defs": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "partial",
+        "planned",
+        "blocked",
+        "not_implemented",
+        "not_applicable",
+        "unknown"
+      ]
+    },
+    "gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "severity", "summary"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "check": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence", "gaps"],
+      "properties": {
+        "status": { "$ref": "#/$defs/status" },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "gaps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/gap" }
+        },
+        "details": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "declared", "status", "codeCount", "testCount"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^(FR|NFR|BR|SEC|SDD)-[0-9]{3}$" },
+        "declared": { "type": "string", "minLength": 1 },
+        "status": { "$ref": "#/$defs/status" },
+        "codeCount": { "type": "integer", "minimum": 0 },
+        "testCount": { "type": "integer", "minimum": 0 },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "domain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "requirements", "checks", "evidence", "gaps"],
+      "properties": {
+        "status": { "$ref": "#/$defs/status" },
+        "requirements": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/requirement" }
+        },
+        "checks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ui", "httpApi", "mcp", "runtimeContract", "jsonSchema", "database", "authorization", "tests"],
+          "properties": {
+            "ui": { "$ref": "#/$defs/check" },
+            "httpApi": { "$ref": "#/$defs/check" },
+            "mcp": { "$ref": "#/$defs/check" },
+            "runtimeContract": { "$ref": "#/$defs/check" },
+            "jsonSchema": { "$ref": "#/$defs/check" },
+            "database": { "$ref": "#/$defs/check" },
+            "authorization": { "$ref": "#/$defs/check" },
+            "tests": { "$ref": "#/$defs/check" }
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "gaps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/gap" }
+        },
+        "details": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "overallGap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "id", "severity", "check", "summary"],
+      "properties": {
+        "domain": { "type": "string", "minLength": 1 },
+        "id": { "type": "string", "minLength": 1 },
+        "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "check": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "overall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "domainCount", "gapCount", "gaps"],
+      "properties": {
+        "status": { "$ref": "#/$defs/status" },
+        "domainCount": { "type": "integer", "minimum": 1 },
+        "gapCount": { "type": "integer", "minimum": 0 },
+        "gaps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/overallGap" }
+        }
+      }
+    }
+  }
+}

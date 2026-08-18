@@ -4,6 +4,12 @@ modules:
   - project-manager
   - business
   - people
+owns_code:
+  - src/components/layouts/**
+  - src/components/landing/**
+  - src/context/ScopeContext.jsx
+  - src/config/scope-views.js
+  - src/config/domains.js
 owns_models:
   - Portfolio
   - Tenant
@@ -31,6 +37,7 @@ owns_models:
   - FileLink
   - Membership
   - AuditEvent
+  - PlanImportReceipt
 owns_routes:
   - src/app/(pm)/**
   - src/app/api/**

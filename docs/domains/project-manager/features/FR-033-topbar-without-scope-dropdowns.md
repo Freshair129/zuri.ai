@@ -18,3 +18,10 @@ The topbar never selects scope. It presents the read-only Base Context Bar:
 `Workspace > Organization > Business`, mapped to `Portfolio > Tenant > Business`.
 It keeps Zuri identity, ERP/PM lens toggle, command palette, new-project action,
 and profile cluster. Space and Project never enter the shell chrome.
+
+## Evidence
+
+- Implementation: `src/components/layouts/Topbar.jsx`
+- Contract tests: `tests/unit/topbar-no-dropdown.test.js`, `tests/unit/scope-view-context.test.js`
+- The route-group composes this shell through `src/app/(pm)/layout.jsx`; no alternate
+  Project creation or scope-picker path is introduced.

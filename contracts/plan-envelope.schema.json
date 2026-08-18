@@ -13,7 +13,8 @@
     "schemaVersion": {
       "enum": [
         "1.0",
-        "1.1"
+        "1.1",
+        "1.2"
       ]
     },
     "generatedBy": {
@@ -80,6 +81,15 @@
             "minLength": 1
           }
         },
+        "riskIds": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
         "externalRefs": {
           "type": "array",
           "items": {
@@ -87,6 +97,15 @@
           }
         }
       }
+    },
+    "trace": {
+      "$ref": "#/$defs/trace"
+    },
+    "domainBinding": {
+      "$ref": "#/$defs/domainBinding"
+    },
+    "identityRefs": {
+      "$ref": "#/$defs/identityRefs"
     },
     "workstreams": {
       "type": "array",
@@ -116,6 +135,18 @@
               "OPERATIONS",
               "BUSINESS_EXPANSION"
             ]
+          },
+          "executionModeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "executionContractId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contractVersion": {
+            "type": "string",
+            "minLength": 1
           },
           "progressStrategy": {
             "enum": [
@@ -154,6 +185,13 @@
             "type": "array",
             "items": {
               "$ref": "#/$defs/gate"
+            }
+          },
+          "tagRefs": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/$defs/tagRef"
             }
           },
           "externalRefs": {
@@ -298,6 +336,27 @@
       }
     }
   },
+  "allOf": [
+    {
+      "if": { "properties": { "schemaVersion": { "const": "1.2" } } },
+      "then": {
+        "required": ["trace", "domainBinding", "identityRefs"],
+        "properties": {
+          "trace": {
+            "required": ["correlationId", "idempotencyKey"]
+          },
+          "domainBinding": {
+            "required": ["primaryDomainId", "supportingDomainIds", "technicalOwnerDomainId"]
+          },
+          "workstreams": {
+            "items": {
+              "required": ["executionModeId", "executionContractId", "contractVersion"]
+            }
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "container": {
       "type": "object",
@@ -460,6 +519,68 @@
           "type": "boolean"
         }
       }
+    },
+    "tagRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tagId": { "type": "string", "minLength": 1 },
+        "requestedTagCode": { "type": "string", "minLength": 1 }
+      },
+      "anyOf": [
+        { "required": ["tagId"] },
+        { "required": ["requestedTagCode"] }
+      ]
+    },
+    "trace": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "correlationId": { "type": "string", "minLength": 1 },
+        "idempotencyKey": { "type": "string", "minLength": 1 },
+        "replayOfExecutionRunId": { "type": ["string", "null"] },
+        "replayOfExecutionStepId": { "type": ["string", "null"] }
+      }
+    },
+    "domainBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "primaryDomainId": { "type": "string", "minLength": 1 },
+        "supportingDomainIds": { "type": "array", "maxItems": 20, "items": { "type": "string", "minLength": 1 } },
+        "technicalOwnerDomainId": { "type": "string", "minLength": 1 }
+      }
+    },
+    "identityRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gateIds": { "$ref": "#/$defs/stringIds" },
+        "artifactIds": { "$ref": "#/$defs/stringIds" },
+        "contractIds": { "$ref": "#/$defs/stringIds" },
+        "meetingIds": { "$ref": "#/$defs/stringIds" },
+        "callIds": { "$ref": "#/$defs/stringIds" },
+        "followupIds": { "$ref": "#/$defs/stringIds" },
+        "reqIds": { "$ref": "#/$defs/stringIds" },
+        "verifyIds": { "$ref": "#/$defs/stringIds" },
+        "integrationId": { "type": ["string", "null"] },
+        "graphId": { "type": ["string", "null"] },
+        "nodeIds": { "$ref": "#/$defs/stringIds" },
+        "edgeIds": { "$ref": "#/$defs/stringIds" },
+        "workflowContractId": { "type": ["string", "null"] },
+        "workflowId": { "type": ["string", "null"] },
+        "runbookId": { "type": ["string", "null"] },
+        "runbookIds": { "$ref": "#/$defs/stringIds" },
+        "promotionId": { "type": ["string", "null"] },
+        "promotionIds": { "$ref": "#/$defs/stringIds" },
+        "skillIds": { "$ref": "#/$defs/stringIds" },
+        "toolIds": { "$ref": "#/$defs/stringIds" }
+      }
+    },
+    "stringIds": {
+      "type": "array",
+      "maxItems": 100,
+      "items": { "type": "string", "minLength": 1 }
     }
   }
 }
