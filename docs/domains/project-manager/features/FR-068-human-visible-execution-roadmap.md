@@ -163,7 +163,9 @@ aggregate or schema migration:
   and ProjectGoal records.
 - `Work > Execution Roadmap` renders the Project outcome, authorized Business
   Goals, strategy-based progress, seven-mode vocabulary, execution hierarchy,
-  dependencies, roster and closure gates.
+  typed identities, progress evidence, item criteria/evidence/tags states,
+  dependencies with blocker fields, supporting identity references, roster and
+  closure gates.
 - Project-level gates are included even when they have no `workstreamId`.
 - Accountable owner, risks, sources, tags, criteria, item evidence, blocker
   owner, closure decision and supporting identity references remain explicit
@@ -172,6 +174,16 @@ aggregate or schema migration:
 This is a usable read-only candidate, not a declaration that every AC-068
 field is live. The remaining fields and full acceptance closure stay governed
 by this contract and must not be inferred from the candidate UI.
+
+## Evidence
+
+- Implementation: `src/app/(pm)/projects/[projectId]/roadmap/page.jsx`,
+  `src/modules/project-manager/components/WorkViewTabs.jsx`
+- Read contract: `src/modules/project-manager/application/project-roadmap-read-model.js`
+- Contract tests: `tests/unit/project-roadmap-ui.test.js`,
+  `tests/unit/project-roadmap-read-model.test.js`, `tests/integration/project-roadmap.test.js`
+- The UI renders unavailable states from the existing read model; it does not create
+  a second owner or invent unsupported risk, tag, criteria, source or identity data.
 
 ## Related documents
 

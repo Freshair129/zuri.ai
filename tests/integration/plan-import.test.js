@@ -65,6 +65,46 @@ const plan = {
   dependencies: [{ sourceRef: 'IMP-GATE1', targetRef: 'WST-IMP-DEV', type: 'RELATES_TO' }],
 }
 
+function schema12Plan() {
+  const candidate = structuredClone(plan)
+  candidate.schemaVersion = '1.2'
+  candidate.project.code = 'PRJ-IMP-V12'
+  candidate.project.name = 'Imported Program v1.2'
+  candidate.trace = {
+    correlationId: 'corr-plan-import-v12',
+    idempotencyKey: 'idem-plan-import-v12',
+  }
+  candidate.domainBinding = {
+    primaryDomainId: 'DOM-DEVELOPMENT',
+    supportingDomainIds: [],
+    technicalOwnerDomainId: 'TD-PROJECT-MANAGER',
+  }
+  candidate.identityRefs = {}
+  candidate.workstreams = candidate.workstreams.map((workstream) => {
+    const prefix = `V12-${workstream.code}`
+    const containerCodes = new Map((workstream.containers || []).map((container) => [container.code, `V12-${container.code}`]))
+    return {
+      ...workstream,
+      code: prefix,
+      containers: (workstream.containers || []).map((container) => ({
+        ...container,
+        code: `V12-${container.code}`,
+        parentCode: container.parentCode ? `V12-${container.parentCode}` : undefined,
+      })),
+      items: (workstream.items || []).map((item) => ({
+        ...item,
+        code: `V12-${item.code}`,
+        containerCode: item.containerCode ? containerCodes.get(item.containerCode) : undefined,
+      })),
+      milestones: (workstream.milestones || []).map((milestone) => ({ ...milestone, code: `V12-${milestone.code}` })),
+      gates: (workstream.gates || []).map((gate) => ({ ...gate, code: `V12-${gate.code}` })),
+    }
+  })
+  candidate.repositories = [{ ...candidate.repositories[0], code: 'REP-IMP-V12' }]
+  candidate.dependencies = [{ sourceRef: 'V12-IMP-GATE1', targetRef: 'V12-WST-IMP-DEV', type: 'RELATES_TO' }]
+  return candidate
+}
+
 describe('plan envelope import', () => {
   beforeAll(async () => {
     const portfolio = await createPortfolio({ name: 'Import Group', code: 'PF-IMP' })
@@ -165,5 +205,82 @@ describe('plan envelope import', () => {
     orphan.scope = { workspaceCode: 'WS-DOES-NOT-EXIST' }
     const result = await dryRun(orphan)
     expect(result.valid).toBe(false)
+  })
+
+  it('persists schema 1.2 identity, receipt, deterministic hash and audit trace', async () => {
+    const v12 = schema12Plan()
+    const result = await runCommit(v12)
+    expect(result.committed).toBe(true)
+    expect(result.executionRunId).toMatch(/^[0-9a-f-]{36}$/i)
+    expect(result.executionStepId).toMatch(/^[0-9a-f-]{36}$/i)
+    expect(result.attemptId).toMatch(/^[0-9a-f-]{36}$/i)
+    expect(result.stepKey).toBe('plan.import.commit')
+    expect(result.status).toBe('SUCCEEDED')
+    expect(result.auditEventId).toMatch(/^[0-9a-f-]{36}$/i)
+
+    const project = await prisma.project.findUnique({
+      where: { code: 'PRJ-IMP-V12' },
+      include: { workstreams: true },
+    })
+    const workstream = project.workstreams.find((row) => row.code === 'V12-WST-IMP-DEV')
+    expect(workstream).toMatchObject({
+      executionModeId: 'EXM-SOFTWARE-SPRINT',
+      executionContractId: 'EXC-SOFTWARE-SPRINT-V1',
+      contractVersion: '1.0.0',
+      primaryDomainId: 'DOM-DEVELOPMENT',
+      technicalOwnerDomainId: 'TD-PROJECT-MANAGER',
+    })
+    expect(JSON.parse(workstream.supportingDomainIdsJson)).toEqual([])
+    expect(JSON.parse(workstream.identityRefsJson)).toEqual(expect.objectContaining({ gateIds: [], artifactIds: [] }))
+
+    const receipt = await prisma.planImportReceipt.findUnique({ where: { idempotencyKey: v12.trace.idempotencyKey } })
+    expect(receipt).toMatchObject({
+      correlationId: v12.trace.correlationId,
+      schemaVersion: '1.2',
+      projectId: project.id,
+      executionRunId: result.executionRunId,
+      executionStepId: result.executionStepId,
+      attemptId: result.attemptId,
+      stepKey: 'plan.import.commit',
+      status: 'SUCCEEDED',
+      auditEventId: result.auditEventId,
+    })
+    expect(receipt.payloadHash).toMatch(/^[0-9a-f]{64}$/)
+
+    const audit = await prisma.auditEvent.findFirst({
+      where: { action: 'PLAN_IMPORTED', entityId: project.id },
+    })
+    const auditPayload = JSON.parse(audit.payloadJson)
+    expect(auditPayload).toMatchObject({
+      correlationId: v12.trace.correlationId,
+      idempotencyKey: v12.trace.idempotencyKey,
+      executionRunId: result.executionRunId,
+    })
+  })
+
+  it('retries the same idempotency key without writes and returns the original result', async () => {
+    const v12 = schema12Plan()
+    const first = await runCommit(v12)
+    const beforeAuditCount = await prisma.auditEvent.count({ where: { action: 'PLAN_IMPORTED' } })
+    const beforeWorkstream = await prisma.workstream.findUnique({ where: { code: 'V12-WST-IMP-DEV' } })
+
+    const retry = await runCommit(v12)
+    expect(retry).toEqual(first)
+    expect(await prisma.auditEvent.count({ where: { action: 'PLAN_IMPORTED' } })).toBe(beforeAuditCount)
+    expect((await prisma.workstream.findUnique({ where: { code: 'V12-WST-IMP-DEV' } })).version).toBe(beforeWorkstream.version)
+  })
+
+  it('rejects a different payload under an existing idempotency key without writes', async () => {
+    const v12 = schema12Plan()
+    await runCommit(v12)
+    const beforeAuditCount = await prisma.auditEvent.count({ where: { action: 'PLAN_IMPORTED' } })
+    const changed = structuredClone(v12)
+    changed.project.description = 'different payload'
+
+    const result = await runCommit(changed)
+    expect(result.committed).toBe(false)
+    expect(result.errors.join(' ')).toMatch(/idempotency/i)
+    expect(await prisma.auditEvent.count({ where: { action: 'PLAN_IMPORTED' } })).toBe(beforeAuditCount)
+    expect(await prisma.planImportReceipt.count({ where: { idempotencyKey: v12.trace.idempotencyKey } })).toBe(1)
   })
 })

@@ -185,6 +185,7 @@ function build() {
         title: `Domain — ${domain}`,
         owns_models: listOf('owns_models'),
         owns_routes: listOf('owns_routes'),
+        owns_code: listOf('owns_code'),
         modules: listOf('modules').length ? listOf('modules') : [domain],
         hash: hash(body),
         status: 'current',

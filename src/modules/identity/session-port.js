@@ -4,6 +4,15 @@
 
 export const LOCAL_DEMO_COOKIE = 'zuri_local_demo_session'
 
+// @req FR-046 — the pre-session demo bootstrap is a server-owned capability,
+// available only in an explicitly enabled non-production environment.
+// @spec ADR-017, SDD-024, SEC-008
+export function requireTrustedLocalDemo({ env = process.env } = {}) {
+  if (env.NODE_ENV !== 'production' && env.ZURI_LOCAL_DEMO_AUTH === '1') return
+
+  throw new Error('LOCAL_DEMO_NOT_ALLOWED')
+}
+
 function cookieValue(request, name) {
   const header = request?.headers?.get?.('cookie') || ''
   for (const part of header.split(';')) {

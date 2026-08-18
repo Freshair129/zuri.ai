@@ -250,6 +250,7 @@ model Project {
   milestones   Milestone[]
   gates        Gate[]
   goalLinks    ProjectGoal[]
+  planImportReceipts PlanImportReceipt[]
 
   @@index([businessId])
   @@index([workspaceId])
@@ -339,6 +340,13 @@ model Workstream {
   projectId        String
   name             String
   executionMode    String
+  executionModeId  String?
+  executionContractId String?
+  contractVersion  String?
+  primaryDomainId  String?
+  supportingDomainIdsJson String @default("[]")
+  technicalOwnerDomainId String?
+  identityRefsJson String @default("{}")
   progressStrategy String
   progressWeight   Float     @default(1)
   status           String    @default("PLANNED")
@@ -357,6 +365,33 @@ model Workstream {
 
   @@index([projectId])
   @@index([executionMode])
+  @@index([executionModeId])
+}
+
+// @req FR-069, FR-070 — server-owned import identity and idempotency receipt.
+// One receipt binds a client idempotency key to the exact normalized payload
+// and execution run. It is not a second Plan model.
+model PlanImportReceipt {
+  idempotencyKey   String   @id
+  payloadHash      String
+  executionRunId   String   @unique
+  executionStepId  String?
+  attemptId        String?
+  stepKey          String   @default("plan.import.commit")
+  status           String   @default("SUCCEEDED")
+  correlationId    String
+  schemaVersion    String
+  projectId        String
+  replayOfExecutionRunId  String?
+  replayOfExecutionStepId String?
+  auditEventId     String?
+  createdAt        DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([correlationId])
+  @@index([replayOfExecutionRunId])
 }
 
 model WorkContainer {

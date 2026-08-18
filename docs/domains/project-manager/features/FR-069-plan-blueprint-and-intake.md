@@ -79,6 +79,17 @@ The user can save a draft, run a dry-run, resolve conflicts, inspect the final
 preview and explicitly confirm. Only the authorized transactional commit creates
 or updates Project Manager records and emits AuditEvent entries.
 
+### 5. Implemented Human Plan Builder surface
+
+On the Project Import surface, `สร้างแผนด้วยฟอร์ม` opens a popup with the
+objective, description, target date, Space, Workstreams, execution modes and
+starter work items. The browser builds a PlanEnvelope JSON, renders it in the
+same Plan JSON editor, and immediately sends that object through the existing
+validate → dry-run path. Confirming the preview uses the same transactional
+commit and audit boundary as pasted JSON, Excel conversion and Agent/API/MCP
+intake. This is an additional Human entry surface, not a second persistence
+path.
+
 ## Minimum mode-specific intake prompts
 
 These are the minimum questions the UI or planning Agent must be able to answer
@@ -242,14 +253,13 @@ Every mode-specific contract inherits these rules:
 | Closure | Open/blocked/carry-over work, required gates/criteria and dependency blockers must be summarized before an owner can close the plan container |
 | Import safety | Strict schema + semantic validation, dry-run, conflict check, Human preview, authorized transaction and AuditEvent; imported content is data only |
 
-The current PlanEnvelope 1.0/1.1 carries the neutral identity, legacy mode alias,
-subtype, status, metrics, milestones, gates, dependencies and optional
-`project.goalIds[]`. It does not yet carry every Human field above (notably
-goal success criteria, accountable owner, first-class tags, canonical
-`executionModeId` and domain binding IDs). Those fields are part of this
-product contract and require an approved additive envelope/schema change before
-FR-069 can be marked live; they must not be silently discarded or stored as
-unvalidated free text.
+PlanEnvelope 1.0/1.1 remains backward-compatible for the neutral identity,
+legacy mode alias, subtype, status, metrics, milestones, gates, dependencies and
+optional `project.goalIds[]`. PlanEnvelope 1.2 adds the approved stable
+`executionModeId`, `executionContractId`, `contractVersion`, domain bindings,
+trace/idempotency fields and identity-reference envelope. Fields without an
+owner in this Project Manager slice remain explicit validation conflicts rather
+than being silently discarded or stored as unvalidated free text.
 
 ### Candidate implementation status (2026-08-18)
 

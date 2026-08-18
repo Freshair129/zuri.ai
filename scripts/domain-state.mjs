@@ -107,6 +107,11 @@ function aggregateStatus(statuses, hasEvidence) {
 
 function domainCodeIds(domain, nodes, edges) {
   const modulePrefixes = (domain.modules || []).map((module) => `src/modules/${module}/`)
+  const ownedCodeGlobs = domain.owns_code || []
+  const ownsCodePath = (codePath) => ownedCodeGlobs.some((glob) => {
+    const prefix = glob.replace(/\*\*$/, '').replace(/\/$/, '')
+    return glob.endsWith('**') ? (codePath === prefix || codePath.startsWith(`${prefix}/`)) : codePath === prefix
+  })
   const ownedRoutePaths = new Set(
     nodes
       .filter((node) => node.type === 'route')
@@ -116,7 +121,7 @@ function domainCodeIds(domain, nodes, edges) {
   return new Set(
     nodes
       .filter((node) => node.type === 'code_file')
-      .filter((node) => modulePrefixes.some((prefix) => node.path.startsWith(prefix)) || ownedRoutePaths.has(node.path))
+      .filter((node) => modulePrefixes.some((prefix) => node.path.startsWith(prefix)) || ownedRoutePaths.has(node.path) || ownsCodePath(node.path))
       .map((node) => node.id),
   )
 }
@@ -210,7 +215,10 @@ function apiCheck(root, routes) {
   )
   const missingFromInventory = apis.filter((route) => !inventoryPaths.has(route.route))
   const openapi = readText(root, 'src/modules/project-manager/api-docs/openapi.js')
-  const openApiPaths = unique([...openapi.matchAll(/path:\s*['"]([^'"]+)['"]/g)].map((match) => match[1]))
+  const openApiPaths = unique([
+    ...[...openapi.matchAll(/path:\s*['"]([^'"]+)['"]/g)].map((match) => match[1]),
+    ...[...openapi.matchAll(/\[\s*['"](\/api\/[^'"]+)['"]/g)].map((match) => match[1]),
+  ].map((value) => value.replace(/\{([^}]+)\}/g, '[$1]')))
   const missingFromOpenApi = apis.filter((route) => !openApiPaths.includes(route.route))
   const gaps = []
   if (missingFromInventory.length) gaps.push(gap('API-INVENTORY-001', 'high', 'API route is not present in Appendix A', missingFromInventory.map((route) => route.route)))
@@ -229,8 +237,18 @@ function mcpCheck(root, domain, featureDocs) {
   const text = mcpDocs.map((doc) => doc.body).join('\n')
   const mentionsMcp = /\bMCP\b/i.test(text)
   const mcpFiles = walkFiles(path.join(root, 'src'), ['.js', '.jsx', '.mjs']).filter((file) => /mcp/i.test(file))
+  const protocolTests = walkFiles(path.join(root, 'tests'), ['.js', '.jsx', '.mjs'])
+    .filter((file) => /mcp/i.test(file))
+    .filter((file) => {
+      const body = readText(root, rel(root, file))
+      return /initialize/.test(body) && /tools\/list/.test(body) && /tools\/call/.test(body)
+    })
   if (!mentionsMcp && !mcpFiles.length) return check('not_applicable')
-  if (mcpFiles.length) return check('partial', mcpFiles.map((file) => rel(root, file)), [gap('MCP-VERIFY-001', 'medium', 'MCP implementation exists but requires an explicit protocol test')])
+  if (mcpFiles.length) {
+    const evidence = [...mcpFiles, ...protocolTests].map((file) => rel(root, file))
+    if (protocolTests.length) return check('verified', evidence)
+    return check('partial', evidence, [gap('MCP-VERIFY-001', 'medium', 'MCP implementation exists but requires an explicit protocol test')])
+  }
   const outOfScope = /out of scope|not selected|deliberately out of scope/i.test(text)
   return check(outOfScope ? 'planned' : 'not_implemented', mcpDocs.map((doc) => doc.path), [gap('MCP-TRANSPORT-001', 'medium', 'MCP is referenced but no domain MCP adapter is implemented', mcpDocs.map((doc) => doc.path))])
 }

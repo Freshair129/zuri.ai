@@ -100,4 +100,31 @@ describe('domain state projection', () => {
       { id: 'SCHEMA-001', severity: 'high', check: 'jsonSchema', summary: 'Schema drift', evidence: ['contracts/plan-envelope.schema.json'] },
     ])
   })
+
+  it('counts explicitly owned shared shell code for a domain requirement', () => {
+    const sharedNodes = [
+      ...nodes.map((node) => node.id === 'domain:project-manager'
+        ? { ...node, owns_code: ['src/components/layouts/**'] }
+        : node),
+      { id: 'req:FR-033', type: 'requirement', family: 'FR', label: 'Topbar', declared: 'done' },
+      { id: 'code:src/components/layouts/Topbar.jsx', type: 'code_file', path: 'src/components/layouts/Topbar.jsx' },
+      { id: 'test:tests/unit/topbar.test.js', type: 'test', path: 'tests/unit/topbar.test.js' },
+    ]
+    const sharedEdges = [
+      ...edges,
+      { from: 'code:src/components/layouts/Topbar.jsx', to: 'req:FR-033', type: 'implements' },
+      { from: 'test:tests/unit/topbar.test.js', to: 'req:FR-033', type: 'verifies' },
+    ]
+    const state = buildDomainState({
+      nodes: sharedNodes,
+      edges: sharedEdges,
+      featureRequirements: new Map([['project-manager', ['FR-033']]]),
+      observations: {},
+      generatedAt: '2026-08-18T00:00:00.000Z',
+    })
+
+    expect(state.domains['project-manager'].requirements).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: 'FR-033', status: 'verified', codeCount: 1, testCount: 1 }),
+    ]))
+  })
 })

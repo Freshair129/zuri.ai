@@ -60,7 +60,7 @@ const SNAPSHOT_MODELS = [
   // coverage check below started deriving it from the schema.
   'businessRoadmap', 'businessRoadmapHorizon', 'businessGoal',
   'person', 'customerImportBatch', 'customerImportReviewCase', 'membership', 'roleBinding',
-  'workspace', 'project', 'projectGoal', 'workstream', 'workContainer', 'workItem',
+  'workspace', 'project', 'planImportReceipt', 'projectGoal', 'workstream', 'workContainer', 'workItem',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',
   'externalRef', 'externalIdentity', 'identityLinkToken',

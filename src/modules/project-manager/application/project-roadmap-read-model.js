@@ -9,7 +9,7 @@ import { calculateWorkstreamProgress } from '../progress/strategies'
 import { rollupProject } from '../progress/rollup'
 import { WORK_STATUSES } from '@/lib/validation/enums'
 
-// @req FR-068 — one authorized, read-only Human Execution Roadmap over the
+// @req FR-068, FR-070 — one authorized, read-only Human Execution Roadmap over the
 // existing Project/Workstream/WorkContainer/WorkItem graph, including Business Goals.
 // @spec SDD-039, ADR-028, ADR-029, FR-070
 // @tested tests/unit/project-roadmap-read-model.test.js, tests/integration/project-roadmap.test.js

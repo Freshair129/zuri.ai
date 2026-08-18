@@ -58,6 +58,16 @@ FR-044 route and authorization boundary.
 Production authentication, Business selection behavior, BusinessShell navigation,
 new design tokens, external media hosting, marketing CMS, commerce, and checkout.
 
+## Evidence
+
+- Implementation: `src/app/page.jsx`, `src/components/landing/ZuriLanding.jsx`,
+  `src/components/layouts/EntryShell.jsx`
+- Contract tests: `tests/unit/fr056-landing.test.js`, `tests/unit/entry-surfaces.test.js`
+- Browser entry proof: `tests/e2e/fr044-entry-routing.spec.js`,
+  `tests/e2e/fr046-entry-contract.spec.js`
+- The landing remains outside the BusinessShell and uses one `/login` route-bearing
+  action with local/code-native visuals and reduced-motion behavior.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |

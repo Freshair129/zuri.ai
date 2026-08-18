@@ -33,8 +33,10 @@ describe('FR-046 API and UI boundary', () => {
   it('issues the local demo cookie only through an explicit demo-session route', () => {
     const login = read('src/app/login/page.jsx')
     const route = read('src/app/api/session/demo/route.js')
+    const sessionPort = read('src/modules/identity/session-port.js')
     expect(login).toContain('action="/api/session/demo"')
-    expect(route).toContain('ZURI_LOCAL_DEMO_AUTH')
+    expect(route).toContain('requireTrustedLocalDemo()')
+    expect(sessionPort).toContain('ZURI_LOCAL_DEMO_AUTH')
     expect(route).toContain('httpOnly: true')
   })
 

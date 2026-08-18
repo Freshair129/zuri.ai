@@ -1,10 +1,12 @@
+import { createHash, randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
-import { zPlanEnvelope, validatePlanSemantics } from './plan-schema'
+import { normalizePlanEnvelope, zPlanEnvelope, validatePlanSemantics } from './plan-schema'
 import { resolveEntityIdentity, syncExternalRefs } from './external-ref'
 import { authorizeImportTarget } from './import-authorization'
 import { recordAudit } from '../application/audit'
 
-// @req FR-012, FR-019 — dry-run preview + transactional commit + audit,
+// @req FR-012, FR-019, FR-069, FR-070 — dry-run + transactional commit,
+// stable execution/domain identity and trace receipt + audit,
 // with identity resolved by external id before code (Salesforce-style upsert).
 // @spec FR-069, SDD-006, SDD-009, SEC-002, BR-009 — single transaction; every surface
 // converges on this one envelope pipeline
@@ -24,6 +26,31 @@ const KIND_TO_ENDPOINT = {
   gate: 'GATE',
   container: 'WORK_CONTAINER',
   item: 'WORK_ITEM',
+}
+
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize)
+  if (value && typeof value === 'object') {
+    return Object.keys(value)
+      .sort()
+      .reduce((result, key) => {
+        if (value[key] !== undefined) result[key] = canonicalize(value[key])
+        return result
+      }, {})
+  }
+  return value
+}
+
+function normalizedPayloadHash(plan) {
+  return createHash('sha256').update(JSON.stringify(canonicalize(plan))).digest('hex')
+}
+
+function readAuditPayload(payloadJson) {
+  try {
+    return JSON.parse(payloadJson)
+  } catch {
+    return null
+  }
 }
 
 /**
@@ -104,7 +131,7 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer } = {}) {
       preview: null,
     }
   }
-  const plan = parsed.data
+  const plan = normalizePlanEnvelope(parsed.data)
   const semanticErrors = validatePlanSemantics(plan)
   if (semanticErrors.length > 0) {
     return { valid: false, errors: semanticErrors, preview: null }
@@ -317,8 +344,55 @@ export async function commitPlan(rawPlan, { workspaceId, viewer } = {}) {
     return { committed: false, errors: dry.errors, preview: dry.preview }
   }
   const { plan, workspace, resolution } = dry
+  const idempotencyKey = plan.schemaVersion === '1.2' ? plan.trace?.idempotencyKey : null
+  const correlationId = plan.schemaVersion === '1.2' ? plan.trace?.correlationId : null
+  const payloadHash = idempotencyKey ? normalizedPayloadHash(plan) : null
+  const executionRunId = randomUUID()
+  const executionStepId = randomUUID()
+  const attemptId = randomUUID()
+  const stepKey = 'plan.import.commit'
+  const replayOfExecutionRunId = plan.trace?.replayOfExecutionRunId || null
+  const replayOfExecutionStepId = plan.trace?.replayOfExecutionStepId || null
 
   const result = await prisma.$transaction(async (tx) => {
+    if (idempotencyKey) {
+      const existingReceipt = await tx.planImportReceipt.findUnique({
+        where: { idempotencyKey },
+        include: { project: true },
+      })
+      if (existingReceipt) {
+        if (existingReceipt.payloadHash !== payloadHash) {
+          return {
+            idempotencyConflict: true,
+            errors: [`Idempotency key "${idempotencyKey}" was already used with a different payload`],
+          }
+        }
+
+        const auditEvents = await tx.auditEvent.findMany({
+          where: { action: 'PLAN_IMPORTED', entityId: existingReceipt.projectId },
+          orderBy: { occurredAt: 'asc' },
+        })
+        const originalAudit = auditEvents
+          .map((event) => ({ event, payload: readAuditPayload(event.payloadJson) }))
+          .find(({ payload }) => payload?.idempotencyKey === idempotencyKey && payload?.executionRunId === existingReceipt.executionRunId)
+
+        return {
+          replay: true,
+          projectId: existingReceipt.projectId,
+          projectCode: existingReceipt.project.code,
+          executionRunId: existingReceipt.executionRunId,
+          executionStepId: existingReceipt.executionStepId,
+          attemptId: existingReceipt.attemptId,
+          stepKey: existingReceipt.stepKey,
+          status: existingReceipt.status,
+          auditEventId: existingReceipt.auditEventId,
+          replayOfExecutionRunId: existingReceipt.replayOfExecutionRunId,
+          replayOfExecutionStepId: existingReceipt.replayOfExecutionStepId,
+          preview: originalAudit?.payload?.resultPreview || dry.preview,
+        }
+      }
+    }
+
     const codeToEntity = new Map() // code -> { kind, id }
     const now = new Date()
 
@@ -376,6 +450,15 @@ export async function commitPlan(rawPlan, { workspaceId, viewer } = {}) {
     }
 
     for (const ws of plan.workstreams) {
+      const workstreamIdentity = {
+        executionModeId: ws.executionModeId ?? null,
+        executionContractId: ws.executionContractId ?? null,
+        contractVersion: ws.contractVersion ?? null,
+        primaryDomainId: plan.domainBinding?.primaryDomainId ?? null,
+        supportingDomainIdsJson: JSON.stringify(plan.domainBinding?.supportingDomainIds || []),
+        technicalOwnerDomainId: plan.domainBinding?.technicalOwnerDomainId ?? null,
+        identityRefsJson: JSON.stringify(plan.identityRefs || {}),
+      }
       const workstream = await write(
         'workstream',
         'workstream',
@@ -385,6 +468,7 @@ export async function commitPlan(rawPlan, { workspaceId, viewer } = {}) {
           executionMode: ws.executionMode,
           progressStrategy: ws.progressStrategy,
           progressWeight: ws.progressWeight ?? 1,
+          ...workstreamIdentity,
           version: { increment: 1 },
         },
         {
@@ -392,6 +476,7 @@ export async function commitPlan(rawPlan, { workspaceId, viewer } = {}) {
           projectId: project.id,
           name: ws.name,
           executionMode: ws.executionMode,
+          ...workstreamIdentity,
           progressStrategy: ws.progressStrategy,
           progressWeight: ws.progressWeight ?? 1,
           status: 'PLANNED',
@@ -546,7 +631,7 @@ export async function commitPlan(rawPlan, { workspaceId, viewer } = {}) {
       if (!existing) await tx.dependency.create({ data })
     }
 
-    await recordAudit(tx, {
+    const auditEvent = await recordAudit(tx, {
       entityType: 'PROJECT',
       entityId: project.id,
       action: 'PLAN_IMPORTED',
@@ -555,17 +640,61 @@ export async function commitPlan(rawPlan, { workspaceId, viewer } = {}) {
         projectCode: plan.project.code,
         generatedBy: plan.generatedBy || null,
         schemaVersion: plan.schemaVersion,
+        correlationId,
+        idempotencyKey,
+        executionRunId,
+        executionStepId,
+        attemptId,
+        stepKey,
+        replayOfExecutionRunId,
+        replayOfExecutionStepId,
         workstreams: plan.workstreams.length,
         goalLinks: (plan.project.goalIds || []).length,
         inserts: dry.preview.summary.insertCount,
         updates: dry.preview.summary.updateCount,
         externalRefs: dry.preview.externalRefCount,
         matchedByExternalId: dry.preview.matchedByExternalId,
+        resultPreview: dry.preview,
       },
     })
 
-    return { projectId: project.id, projectCode: project.code }
+    if (idempotencyKey) {
+      await tx.planImportReceipt.create({
+        data: {
+          idempotencyKey,
+          payloadHash,
+          executionRunId,
+          executionStepId,
+          attemptId,
+          stepKey,
+          status: 'SUCCEEDED',
+          correlationId,
+          schemaVersion: plan.schemaVersion,
+          projectId: project.id,
+          replayOfExecutionRunId,
+          replayOfExecutionStepId,
+          auditEventId: auditEvent.id,
+        },
+      })
+    }
+
+    return {
+      projectId: project.id,
+      projectCode: project.code,
+      executionRunId,
+      executionStepId,
+      attemptId,
+      stepKey,
+      status: 'SUCCEEDED',
+      auditEventId: auditEvent.id,
+      replayOfExecutionRunId,
+      replayOfExecutionStepId,
+      preview: dry.preview,
+    }
   })
 
-  return { committed: true, ...result, preview: dry.preview }
+  if (result.idempotencyConflict) {
+    return { committed: false, errors: result.errors, preview: dry.preview }
+  }
+  return { committed: true, ...result }
 }
