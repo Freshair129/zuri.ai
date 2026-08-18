@@ -4,13 +4,18 @@
 // @spec SDD-023, ADR-016, SEC-007
 // @tested tests/unit/fr045-api-ui-contract.test.js
 import { useState } from 'react'
-import { PageHeader, Card, EmptyState, ErrorState, Field, SectionTitle } from '@/components/ui'
+import { PageHeader, Card, ErrorState, Field, SectionTitle } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { api, useFetch } from '@/modules/project-manager/components/useApi'
 import ManagedFilesPanel from '@/modules/project-manager/components/ManagedFilesPanel'
 
 export default function BusinessFilesPage() {
   const scope = useScope()
+  // BusinessShellGuard resolves BUSINESS_REQUIRED/FORBIDDEN and redirects to
+  // `/businesses` before this page mounts, so an authorized `activeBusinessId`
+  // is a precondition here (FR-044; ADR-015 Consequences). The page owning a
+  // second "choose a Business" empty state was a pre-FR-044 leftover that no
+  // route could reach.
   const businessId = scope.shell.activeBusinessId
   const mounts = useFetch(businessId ? `/api/files/mounts?businessId=${encodeURIComponent(businessId)}` : null, [businessId])
   const [deviceKey, setDeviceKey] = useState('desktop-main')
@@ -18,7 +23,6 @@ export default function BusinessFilesPage() {
   // A failed save used to leave the form looking as though it had worked: the
   // row simply never appeared, which is indistinguishable from "no mounts yet".
   const [saveError, setSaveError] = useState(null)
-  if (!businessId) return <EmptyState title="Choose a Business" hint="Files are isolated to the selected operating Business." />
   return <div>
     <PageHeader eyebrow="Development" title="Files" subtitle="Business-wide managed metadata with Project grouping, explicit device mounts and rebuildable cache." />
     <Card className="mb-4"><SectionTitle caption="Absolute paths stay device-local and are excluded from portable snapshots">Local workspace mount</SectionTitle>

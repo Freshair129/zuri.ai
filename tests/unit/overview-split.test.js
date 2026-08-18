@@ -12,7 +12,13 @@ describe('Business-first Overview', () => {
     // @req FR-060 — the shortcut list still hides reserved domains, and now also
     // excludes Business Home itself, since this page *is* Business Home.
     expect(overview).toContain("DOMAINS.filter((domain) => !domain.soon && domain.key !== 'business-home')")
-    expect(overview).toContain('Choose a Business to open Overview')
+    // Business-first, but the "no Business yet" case is not this page's to own:
+    // BusinessShellGuard redirects to `/businesses` before the `(pm)` layout
+    // mounts anything, so the empty state this line used to pin was
+    // unreachable. ADR-015: BusinessShell can assume an authorized
+    // `activeBusinessId`.
+    expect(overview).toContain('scope.shell.activeBusinessId')
+    expect(overview).not.toContain('Choose a Business to open Overview')
     expect(overview).toContain('module-local Workspace')
   })
 })

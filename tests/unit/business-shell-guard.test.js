@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { resolveBusinessShellDecision, projectIdFromPath } from '@/lib/business-shell-guard'
+import { deriveShell } from '@/lib/shell-mode'
 
 // @req FR-044 — route states must be resolved before BusinessShell render.
 // @spec ADR-015, SDD-022
@@ -123,5 +124,70 @@ describe('BusinessShell route guard', () => {
     expect(projectIdFromPath('/projects/p-1/files')).toBe('p-1')
     expect(projectIdFromPath('/projects')).toBe(null)
     expect(projectIdFromPath('/projects/new')).toBe(null)
+  })
+})
+
+describe('the guard is the only decider of "no Business"', () => {
+  // @req FR-044, FR-020 - the guard reads `selection.businessId`; every page
+  // inside the `(pm)` shell reads `shell.activeBusinessId`, which `deriveShell`
+  // computes separately and which CAN disagree with the selection (a
+  // single-Business install is implicitly scoped even with no selection at
+  // all). Three pages therefore kept their own "choose a Business" empty state
+  // for the disagreement in the other direction - READY with no active
+  // Business. This sweep is the proof that direction does not exist, which is
+  // what ADR-015 asserts ("BusinessShell can assume an authorized
+  // activeBusinessId"). If deriveShell ever gains a way to return a falsy
+  // activeBusinessId for a selection the guard admitted, this fails and the
+  // shell pages need a state again - rather than rendering with a null id.
+  const BUSINESS_SETS = [
+    [],
+    [{ id: 'b-1' }],
+    [{ id: 'b-1' }, { id: 'b-2' }],
+    [{ id: 'b-1' }, { id: 'b-2' }, { id: 'b-3' }],
+  ]
+  const SELECTIONS = [{}, { businessId: null }, { businessId: 'b-1' }, { businessId: 'b-2' }, { businessId: 'gone' }]
+  const GRANTS = ['projects', 'people', 'files']
+  const VIEWERS = [
+    { visibleBusinessIds: [], visibleDomains: GRANTS },
+    { visibleBusinessIds: ['b-1'], visibleDomains: GRANTS },
+    { visibleBusinessIds: ['b-1', 'b-2'], visibleDomains: GRANTS },
+    { visibleBusinessIds: ['gone'], visibleDomains: GRANTS },
+  ]
+  // The three surfaces that owned the removed empty states, plus the shell root.
+  const PATHS = ['/overview', '/people', '/people/directory', '/files']
+
+  it('never reaches READY with a falsy shell.activeBusinessId', () => {
+    let readyCases = 0
+    for (const businesses of BUSINESS_SETS) {
+      for (const selection of SELECTIONS) {
+        for (const viewer of VIEWERS) {
+          for (const pathname of PATHS) {
+            const decision = resolveBusinessShellDecision({
+              pathname, scopeLoaded: true, businesses, selection, viewer, projects: [],
+            })
+            if (decision.state !== 'READY') continue
+            readyCases += 1
+            const shell = deriveShell({ businesses, workspaces: [], selection })
+            const where = JSON.stringify({ pathname, businesses, selection, viewer })
+            expect(shell.activeBusinessId, where).toBe(decision.businessId)
+            expect(shell.activeBusinessId, where).toBeTruthy()
+          }
+        }
+      }
+    }
+    // A sweep that admitted nothing would pass vacuously.
+    expect(readyCases).toBeGreaterThan(0)
+  })
+
+  it('sends every un-selected and unauthorized case to Business Routing instead', () => {
+    const businesses = [{ id: 'b-1' }, { id: 'b-2' }]
+    const viewer = { visibleBusinessIds: ['b-1'], visibleDomains: ['projects', 'people', 'files'] }
+    for (const selection of [{}, { businessId: null }, { businessId: 'b-2' }, { businessId: 'gone' }]) {
+      const decision = resolveBusinessShellDecision({
+        pathname: '/overview', scopeLoaded: true, businesses, selection, viewer,
+      })
+      expect(decision.state, JSON.stringify(selection)).not.toBe('READY')
+      expect(decision.redirect, JSON.stringify(selection)).toBe('/businesses')
+    }
   })
 })
