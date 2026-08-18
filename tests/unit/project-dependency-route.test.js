@@ -1,15 +1,32 @@
 // @req FR-040 - the Project Dependency Map API returns the contained graph DTO.
 // @spec SDD-019, ADR-012
 // @tested tests/unit/project-dependency-route.test.js
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { makeViewer } from '../factories/viewer'
 
-const { getProjectDependencyGraph } = vi.hoisted(() => ({
+const { getProjectDependencyGraph, resolveRequestViewer, findProject } = vi.hoisted(() => ({
   getProjectDependencyGraph: vi.fn(),
+  resolveRequestViewer: vi.fn(),
+  findProject: vi.fn(),
 }))
 
 vi.mock('@/modules/project-manager/application/dependency-service', () => ({ getProjectDependencyGraph }))
+vi.mock('@/modules/identity/request-viewer', () => ({ resolveRequestViewer }))
+vi.mock('@/lib/db', () => ({ default: { project: { findUnique: findProject } } }))
 
 const { GET } = await import('@/app/api/projects/[id]/dependencies/route')
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  resolveRequestViewer.mockResolvedValue(makeViewer({ visibleBusinessIds: ['business-a'], ownedBusinessIds: ['business-a'] }))
+  findProject.mockResolvedValue({
+    id: 'project-a',
+    deletedAt: null,
+    businessId: 'business-a',
+    business: { tenantId: 'tenant-a' },
+    workspace: { businessId: 'business-a', scopeType: 'BUSINESS', tenantId: 'tenant-a', portfolioId: 'portfolio-a' },
+  })
+})
 
 describe('GET /api/projects/:id/dependencies', () => {
   it('delegates to the project-contained read model and returns its DTO', async () => {
@@ -26,7 +43,7 @@ describe('GET /api/projects/:id/dependencies', () => {
   })
 
   it('maps a missing project to a not-found response', async () => {
-    getProjectDependencyGraph.mockRejectedValue(new Error('Project not found'))
+    findProject.mockResolvedValue(null)
 
     const response = await GET(new Request('http://localhost/api/projects/missing/dependencies'), {
       params: { id: 'missing' },

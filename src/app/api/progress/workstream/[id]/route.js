@@ -1,9 +1,43 @@
 // @req FR-010 — compute strategy-based progress with evidence and warnings
-import { handle } from '../../../_helpers'
+// @req FR-046 — a Workstream progress read resolves and checks its Project
+// scope before the calculator reads items and refreshes cache state.
+// @spec SEC-001, SEC-008
+// @tested tests/unit/authorization-seam-routes.test.js
+import prisma from '@/lib/db'
+import { handle, httpError } from '../../../_helpers'
 import { computeWorkstreamProgress } from '@/modules/project-manager/application/progress-service'
+import { resolveRequestViewer } from '@/modules/identity/request-viewer'
+import { assertProjectReadable } from '@/modules/project-manager/application/project-inventory-read-model'
 
 export const dynamic = 'force-dynamic'
 
+async function assertWorkstreamVisible(workstreamId, viewer) {
+  const workstream = await prisma.workstream.findUnique({
+    where: { id: workstreamId },
+    select: {
+      id: true,
+      deletedAt: true,
+      project: {
+        select: {
+          deletedAt: true,
+          businessId: true,
+          business: { select: { tenantId: true } },
+          workspace: { select: { businessId: true, scopeType: true, tenantId: true, portfolioId: true } },
+        },
+      },
+    },
+  })
+  const project = workstream?.project
+  if (!workstream || workstream.deletedAt || !project || project.deletedAt) {
+    throw httpError(404, 'Workstream not found')
+  }
+  await assertProjectReadable(viewer, project, { db: prisma })
+}
+
 export async function GET(request, { params }) {
-  return handle(() => computeWorkstreamProgress(params.id))
+  return handle(async () => {
+    const viewer = await resolveRequestViewer(request)
+    await assertWorkstreamVisible(params.id, viewer)
+    return computeWorkstreamProgress(params.id)
+  })
 }
