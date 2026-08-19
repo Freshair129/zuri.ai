@@ -3,6 +3,8 @@
 // @spec SDD-019, ADR-012, ADR-028
 
 const { test, expect } = require('@playwright/test')
+// api() retries a lost connection, never an answer — see ./reconnecting-request.
+const { api } = require('./reconnecting-request')
 
 async function chooseBusiness(page, name = 'Business 01') {
   await page.goto('/login')
@@ -14,7 +16,7 @@ async function chooseBusiness(page, name = 'Business 01') {
 test.describe('FR-040 Project Work views', () => {
   test('keeps WBS and Dependency Map inside one canonical Project tab shell', async ({ page }) => {
     await chooseBusiness(page)
-    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const resolved = await (await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
     const projectId = resolved.id
 
     await page.goto(`/projects/${projectId}/structure`)
@@ -39,7 +41,7 @@ test.describe('FR-040 Project Work views', () => {
   // @spec SDD-019, ADR-012
   test('names its Work sub-views apart from the Development sidebar', async ({ page }) => {
     await chooseBusiness(page)
-    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const resolved = await (await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
 
     await page.goto(`/projects/${resolved.id}/structure`)
 
@@ -64,7 +66,7 @@ test.describe('FR-040 Project Work views', () => {
 
   test('renders the read-only Execution Roadmap over the same Project graph', async ({ page }) => {
     await chooseBusiness(page)
-    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const resolved = await (await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
 
     await page.goto(`/projects/${resolved.id}/roadmap`)
     await expect(page.getByRole('heading', { name: 'Project outcome' })).toBeVisible()
@@ -78,7 +80,7 @@ test.describe('FR-040 Project Work views', () => {
   test('keeps the graph inside a scrollable canvas on a narrow viewport', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await chooseBusiness(page)
-    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const resolved = await (await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
 
     await page.goto(`/projects/${resolved.id}/dependencies`)
     await page.waitForLoadState('networkidle')

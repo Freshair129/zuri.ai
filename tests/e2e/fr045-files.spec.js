@@ -2,6 +2,8 @@
 // @spec SDD-023, ADR-016, SEC-007
 // @tested tests/e2e/fr045-files.spec.js
 const { test, expect } = require('@playwright/test')
+// api() retries a lost connection, never an answer — see ./reconnecting-request.
+const { api } = require('./reconnecting-request')
 
 async function chooseBusiness(page) {
   await page.goto('/login')
@@ -25,8 +27,8 @@ test.describe('FR-045 Business File Manager', () => {
   })
 
   test('fails a Business aggregation request outside the viewer scope', async ({ request }) => {
-    await request.post('/api/session/demo', { maxRedirects: 0 })
-    const response = await request.get('/api/business/files?businessId=not-visible')
+    await api(request).post('/api/session/demo', { maxRedirects: 0 })
+    const response = await api(request).get('/api/business/files?businessId=not-visible')
     expect(response.status()).toBe(400)
     expect((await response.json()).error).toMatch(/not visible/i)
   })

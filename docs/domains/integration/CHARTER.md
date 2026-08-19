@@ -1,5 +1,9 @@
 ---
 domain: integration
+module: src/modules/integration
+owns_routes:
+  - src/app/(pm)/platform/integrations/**
+  - src/app/api/platform/integrations/**
 owns_models:
   - IntegrationProvider
   - IntegrationConnection
@@ -9,7 +13,13 @@ owns_models:
   - SyncCursor
   - ExternalEntityRef
   - DeadLetterRecord
+owns_code:
+  - src/platform/integrations/**
 ---
+
+<!-- owns_routes stay at the leaf: `platform/` is a shared shell prefix whose
+     siblings are customer-import-reviews (crm) and users (identity), so claiming
+     it would take two other domains' surfaces with it. -->
 
 # Domain charter — integration platform
 
@@ -17,8 +27,13 @@ The integration platform owns external provider metadata, Business-scoped
 connection state, opaque credential references and the raw record of everything
 that arrived through a connection. It is not a business-truth owner and it never
 writes Customer, Conversation, Message or LINE reply state.
-Its planned human management surface is a Platform sub-domain, not a new
-Business domain.
+Its human management surface is a Platform sub-domain, not a new Business domain.
+
+The lane is split across two trees on purpose: the provider-neutral substrate —
+core contracts, the registry, raw persistence and the per-provider adapters —
+lives in `src/platform/integrations/`, because everything above it depends on it
+and it depends on no business domain. `src/modules/integration/` holds only what
+needs a viewer: the owner-scoped management service behind the Platform surface.
 
 ## Boundaries
 
@@ -35,9 +50,10 @@ Business domain.
   client payloads and normalized LINE events cannot widen it.
 - Runtime selection and credential resolution are read-only ports. Management
   operations for promotion, rotation and revocation are separate audited paths.
-- The `/platform/integrations` surface shows metadata and redacted secret status
-  only, and accepts only an opaque `supabase-vault:<uuid>` reference. Raw secret
-  entry stays in the Supabase Dashboard Vault UI; no browser response contains it.
+- The `/platform/integrations` page and its API are this domain's surfaces. They
+  show metadata and redacted secret status only, and accept only an opaque
+  `supabase-vault:<uuid>` reference. Raw secret entry stays in the Supabase
+  Dashboard Vault UI; no browser response contains it.
 - Local encrypted vault storage is dev/test only. Production uses Supabase Vault
   through the private `zuri_line_runtime` resolver and fails closed when it is
   unavailable.
@@ -68,6 +84,9 @@ Business domain.
   connection from the binding-proved scope and records every event as raw evidence
   before the agent turn runs. See "Wiring status" in
   `docs/domains/integration/features/FR-081-raw-external-ingestion.md`.
+- `src/modules/integration/application/integration-management-service.js` — the
+  owner-scoped read and create path behind `/platform/integrations`; raw secret
+  values never cross it and connection health is computed, never stored.
 - `src/modules/agent/phase1-runtime.js` — binding-scoped Phase 1 composition.
 - `docs/decisions/ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI.md` — planned Platform
   management and provisioning boundary.
