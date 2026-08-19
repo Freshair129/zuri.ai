@@ -34,7 +34,7 @@ const conversationKey = (tenantId, threadId) => ({
  */
 export async function ingestLineMessage(input) {
   const data = zIngestLineMessageInput.parse(input)
-  const { tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId, direction } = data
+  const { tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId, direction, correlationId } = data
 
   // 1. Identity — the single seam. Resolves (or creates) the Person principal.
   const identity = await resolveLineIdentity({ tenantId, lineUserId, displayName })
@@ -95,7 +95,16 @@ export async function ingestLineMessage(input) {
       entityId: conversation.id,
       action: 'MESSAGE_INGESTED',
       actorType: 'LINE',
-      payload: { tenantId, customerId: customer.id, direction, messageId: message.id },
+      // @spec NFR-017 — the audit row is the DURABLE end of the correlation chain. A log
+      //   stream is sampled, rotated and eventually gone; this row is append-only, so
+      //   "which webhook delivery produced this message" stays answerable afterwards.
+      payload: {
+        tenantId,
+        customerId: customer.id,
+        direction,
+        messageId: message.id,
+        ...(correlationId ? { correlationId } : {}),
+      },
     })
 
     return {

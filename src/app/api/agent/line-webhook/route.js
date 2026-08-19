@@ -2,6 +2,8 @@ import { z } from 'zod'
 import { handle } from '../../_helpers'
 import { createPhase1BusinessAgentPortsFromEnv, handleAgentTurn, resolvePhase1RequestScope } from '@/modules/agent'
 import { createLineOaEvidenceRecorder } from '@/platform/integrations/providers/line/line-oa-evidence'
+import { logger as defaultLogger } from '@/lib/observability/logger'
+import { resolveCorrelationId } from '@/lib/observability/correlation'
 
 // @req FR-050 — return event-correlated verified reply text/skipReply state to the sole
 // LINE transport owner without receiving or consuming the LINE replyToken here.
@@ -15,6 +17,9 @@ import { createLineOaEvidenceRecorder } from '@/platform/integrations/providers/
 //   normalized ingestion envelope: every event becomes raw evidence through the shared
 //   adapter before anything interprets it. There is no second raw-write path.
 // @spec ADR-007 §P7, BR-012, SDD-026, SEC-010 — LINE is a channel/shell; the turn runs in Zuri.
+// @spec NFR-017, SDD-048 — one correlation id per batch, echoed on every record, on the
+//   response, and onto the audit row; every rejection and every failed event says which
+//   stage failed. Records carry ids and counts only — never message text or credentials.
 // @tested tests/integration/agent-webhook-route.test.js
 // @tested tests/integration/line-oa-evidence-convergence.test.js
 
@@ -55,17 +60,49 @@ export function createLineWebhookPost({
   runtimeFactory = createPhase1BusinessAgentPortsFromEnv,
   turnHandler = handleAgentTurn,
   evidenceRecorderFactory = createLineOaEvidenceRecorder,
+  logger = defaultLogger,
+  clock = () => Date.now(),
 } = {}) {
   return async function lineWebhookPost(request) {
+  // Resolved before anything can fail, so a rejected batch is correlated too — the
+  // requests an operator most needs to trace are the ones that never reached a turn.
+  const { correlationId, source: correlationSource } = resolveCorrelationId(request.headers)
+  const startedAt = clock()
+
   return handle(async () => {
     const body = zBody.parse(await request.json())
     const results = []
-    const phase1Ports = await runtimeFactory()
-    const scope = await resolvePhase1RequestScope({
-      runtime: phase1Ports,
-      headers: request.headers,
-      body,
+    let phase1Ports
+    let scope
+    try {
+      phase1Ports = await runtimeFactory()
+      scope = await resolvePhase1RequestScope({
+        runtime: phase1Ports,
+        headers: request.headers,
+        body,
+      })
+    } catch (err) {
+      // A batch-level rejection is true of every event in it, so it still throws — but
+      // it does not get to leave without a record naming the stage.
+      logger.warn('line.webhook.rejected', {
+        correlationId,
+        correlationSource,
+        stage: 'SCOPE',
+        errorCode: err?.message,
+        received: body.events.length,
+        durationMs: clock() - startedAt,
+      })
+      throw err
+    }
+
+    logger.info('line.webhook.received', {
+      correlationId,
+      correlationSource,
+      tenantId: scope.tenantId,
+      businessId: scope.businessId ?? undefined,
+      received: body.events.length,
     })
+
     let resolvedModel = phase1Ports?.model
     let modelResolved = !phase1Ports?.resolveModel
 
@@ -79,6 +116,17 @@ export function createLineWebhookPost({
     })
 
     for (const ev of body.events) {
+      const eventStartedAt = clock()
+      const eventId = ev.webhookEventId || ev.message?.id
+      const base = {
+        correlationId,
+        eventId,
+        tenantId: scope.tenantId,
+        businessId: scope.businessId ?? undefined,
+        eventType: ev.type,
+        messageType: ev.message?.type,
+        connectionId: evidence?.connectionId,
+      }
       // Evidence first, and for EVERY event — including the follow/unfollow/postback
       // and non-text messages the turn skips. Those were previously discarded with no
       // record at all; the envelope is the only place they are now durable.
@@ -90,8 +138,16 @@ export function createLineWebhookPost({
           // Evidence is the replayable record of what LINE actually sent. Processing an
           // event we could not record would do business work with no way to reconstruct
           // its input, so the event stops here — isolated, never failing the batch.
+          logger.error('line.webhook.event', {
+            ...base,
+            stage: 'EVIDENCE',
+            outcome: 'FAILED',
+            errorCode: err?.message,
+            durationMs: clock() - eventStartedAt,
+          })
           results.push({
             ok: false,
+            correlationId,
             stage: 'EVIDENCE',
             type: ev.type,
             error: err?.message || 'evidence write failed',
@@ -101,13 +157,30 @@ export function createLineWebhookPost({
       }
 
       if (ev.type !== 'message' || ev.message?.type !== 'text') {
-        results.push({ skipped: true, type: ev.type, evidence: evidenceResult })
+        logger.info('line.webhook.event', {
+          ...base,
+          stage: 'DISPATCH',
+          outcome: 'SKIPPED',
+          skipped: true,
+          evidenceStatus: evidenceResult?.status,
+          durationMs: clock() - eventStartedAt,
+        })
+        results.push({ skipped: true, correlationId, type: ev.type, evidence: evidenceResult })
         continue
       }
       const lineUserId = ev.source?.userId
       const threadId = ev.source?.groupId || ev.source?.roomId || ev.source?.userId
       if (!lineUserId || !threadId) {
-        results.push({ skipped: true, reason: 'no source userId', evidence: evidenceResult })
+        logger.warn('line.webhook.event', {
+          ...base,
+          stage: 'DISPATCH',
+          outcome: 'SKIPPED',
+          skipped: true,
+          errorCode: 'NO_SOURCE_USER_ID',
+          evidenceStatus: evidenceResult?.status,
+          durationMs: clock() - eventStartedAt,
+        })
+        results.push({ skipped: true, correlationId, reason: 'no source userId', evidence: evidenceResult })
         continue
       }
       try {
@@ -115,7 +188,6 @@ export function createLineWebhookPost({
           resolvedModel = await phase1Ports.resolveModel(scope)
           modelResolved = true
         }
-        const eventId = ev.webhookEventId || ev.message.id
         const turn = await turnHandler({
           tenantId: scope.tenantId,
           businessId: scope.businessId,
@@ -124,6 +196,7 @@ export function createLineWebhookPost({
           threadId,
           text: ev.message.text ?? '',
           externalMessageId: ev.message.id,
+          correlationId,
         }, {
           ...(phase1Ports ?? {}),
           model: resolvedModel,
@@ -133,8 +206,23 @@ export function createLineWebhookPost({
             businessId: scope.businessId ?? null,
           },
         })
+        logger.info('line.webhook.event', {
+          ...base,
+          stage: 'TURN',
+          outcome: 'OK',
+          principalType: turn.identity.principalType,
+          responseKind: turn.response.kind,
+          grounded: turn.response.grounded,
+          skipReply: turn.response.skipReply === true,
+          conversationId: turn.inbound?.conversationId,
+          messageId: turn.inbound?.messageId,
+          personId: turn.inbound?.personId,
+          evidenceStatus: evidenceResult?.status,
+          durationMs: clock() - eventStartedAt,
+        })
         results.push({
           ok: true,
+          correlationId,
           eventId,
           principalType: turn.identity.principalType,
           skipReply: turn.response.skipReply === true,
@@ -142,8 +230,17 @@ export function createLineWebhookPost({
           evidence: evidenceResult,
         })
       } catch (err) {
+        logger.error('line.webhook.event', {
+          ...base,
+          stage: 'TURN',
+          outcome: 'FAILED',
+          errorCode: err?.message,
+          evidenceStatus: evidenceResult?.status,
+          durationMs: clock() - eventStartedAt,
+        })
         results.push({
           ok: false,
+          correlationId,
           stage: 'TURN',
           error: err?.message || 'turn failed',
           evidence: evidenceResult,
@@ -151,7 +248,22 @@ export function createLineWebhookPost({
       }
     }
 
-    return { handled: results.filter((r) => r.ok).length, results }
+    const handled = results.filter((r) => r.ok).length
+    logger.info('line.webhook.completed', {
+      correlationId,
+      correlationSource,
+      tenantId: scope.tenantId,
+      businessId: scope.businessId ?? undefined,
+      connectionId: evidence?.connectionId,
+      received: body.events.length,
+      handled,
+      failed: results.filter((r) => r.ok === false).length,
+      skippedCount: results.filter((r) => r.skipped).length,
+      evidenceRecorded: results.filter((r) => r.evidence).length,
+      durationMs: clock() - startedAt,
+    })
+
+    return { correlationId, handled, results }
   })
   }
 }
