@@ -33,7 +33,18 @@ describe('domain state projection', () => {
     const validate = ajv.compile(schema)
 
     expect(validate(state), JSON.stringify(validate.errors)).toBe(true)
-    expect(Object.keys(state.domains).sort()).toEqual(['agent', 'crm', 'identity', 'integration', 'knowledge', 'project-manager'])
+    // Derived from the filesystem, so this list must track `ls docs/domains/`. It is
+    // spelled out rather than globbed on purpose: a domain appearing or vanishing is a
+    // structural change someone should have to acknowledge here.
+    //
+    // `market-intelligence` was added to main in 3a0f72f but nobody regenerated
+    // docs/.domain-state.json, so the committed projection kept claiming six domains
+    // and this assertion kept passing against a file that had stopped being true. CI
+    // did not catch it either: its staleness step checks FEATURE-MAP, DOMAIN-MAP,
+    // TRACE and D-traceability, and .domain-state.json is not in that list.
+    expect(Object.keys(state.domains).sort()).toEqual([
+      'agent', 'crm', 'identity', 'integration', 'knowledge', 'market-intelligence', 'project-manager',
+    ])
   })
 
   it('uses a stable status vocabulary and derives partial readiness from planned requirements', () => {

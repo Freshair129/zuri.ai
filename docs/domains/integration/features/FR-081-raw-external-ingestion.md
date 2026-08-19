@@ -115,12 +115,61 @@ unwritten — an evidence failure is reported in the response as
 `{ ok: false, stage: 'EVIDENCE' }` and nothing durable records it. Both need the
 scheduler/replay surface this requirement declares out of scope.
 
-**Signature verification remains outside this repository.** The connector's
+**Signature verification lives in `zuri-cli`, and it is real.** The connector's
 `verifySignature` needs the raw request bytes and the `x-line-signature` header,
-and the live route receives an already-normalized batch from `zuri-cli`, which
-holds both (BR-011). Convergence gives ZURI the canonical envelope; it does not
-move the authenticity boundary. Doing that requires `zuri-cli` to forward the raw
-body and signature, which is a contract change across two repositories.
+and the live route receives an already-normalized batch — so the authenticity
+boundary sits in the transport, exactly as BR-011 assigns it. Convergence gives
+ZURI the canonical envelope; it does not move that boundary.
+
+Read on 2026-08-19 in `zuri-cli` (`codex/line-stack-fr050`) rather than assumed:
+
+- `src/history/webhook-server.ts` buffers the raw body, reads `x-line-signature`
+  and returns **401 before parsing or archiving anything**.
+- `src/history/archive.ts :: verifyLineSignature` is HMAC-SHA256 over the raw
+  bytes, base64, compared with a length check plus `crypto.timingSafeEqual`.
+- `src/stack/stack-client.ts :: normalizedEvents` is an allowlist that never
+  forwards `replyToken`, so the token stays with its single owner.
+- `handleStackReplies` awaits this route, honours `skipReply`, falls back to its
+  own message when a turn fails, caps the reply at 5,000 characters, and dedupes
+  on `webhookEventId` both durably and in-flight.
+
+So the two hops this repository cannot perform are performed, and the exit-gate
+blocker is not "unimplemented" — it is that no test spans both runtimes. What
+guards the seam from this side is
+`tests/integration/line-webhook-transport-contract.test.js`, which pins the four
+response fields `handleStackReplies` actually reads. Renaming one of them is
+otherwise a silent failure: every customer receives the transport's "unavailable"
+fallback while this repository's suite stays green.
+
+**The correlation id now crosses the seam.** `zuri-cli` mints `cli-<uuid>` per
+signature-verified batch and sends it as `x-correlation-id`; this side adopts it
+(`correlationSource: CALLER`) and carries it to the audit row, so the LINE request
+id, the transport's log and the ZURI turn are one chain.
+
+**The round trip is proven end to end.**
+`tests/integration/line-oa-cross-repo-round-trip.test.js` drives a genuinely
+HMAC-signed LINE payload into `zuri-cli`'s real webhook server, through its real
+`ZuriStackClient`, into this route and turn, and asserts on what the transport
+would have handed the LINE Reply API. Exactly two things are substituted, both real
+external boundaries: the LINE Messaging API (a spy on `replyText`) and the network
+hop between the two services (the stack client's injectable `fetchFn`). Nothing in
+ZURI's own chain is mocked — identity, customer, conversation, message and audit
+are really written.
+
+It is opt-in on `ZURI_CLI_DIST` and **skips by name** when that is absent, because
+`zuri-cli` is not a dependency of this repository and CI has no copy of it. A green
+CI run therefore never implies this ran. Run it with:
+
+```
+ZURI_CLI_DIST=<zuri-cli>/dist npx vitest run tests/integration/line-oa-cross-repo-round-trip.test.js
+```
+
+The harness and `line-webhook-transport-contract.test.js` cover different failures
+and both are load-bearing. Renaming `skipReply` on this route was checked as a
+mutation: the contract test failed, the round trip did **not** — `zuri-cli`'s own
+durable dedupe suppresses a redelivery before it forwards, so that field never
+reaches the wire in a round trip. The harness proves the wiring; the contract test
+proves the fields.
 
 ## Relationship to the neighbouring requirements
 
