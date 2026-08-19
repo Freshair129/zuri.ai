@@ -264,8 +264,29 @@ function badRequest(message) {
   return error
 }
 
-export async function resolvePhase1RequestScope({ runtime, headers, body }) {
+function unauthorized(message) {
+  const error = new Error(message)
+  error.status = 401
+  return error
+}
+
+/**
+ * Resolve the trusted Tenant/Business scope for one inbound LINE webhook batch.
+ *
+ * With a composed Phase 1 runtime the only accepted evidence is binding identity +
+ * destination + binding-scoped bearer, verified by the resolver (FR-052).
+ *
+ * Without one there is nothing to verify scope against, so the client-scope branch
+ * is a lab/test compatibility seam only. It stays open outside production and is
+ * closed in production: BR-012 makes Tenant/Business server authority, and an
+ * unbound caller selecting its own tenant would be an unauthenticated write path
+ * into ingestLineMessage (Person/Customer/Conversation/Message + audit).
+ */
+export async function resolvePhase1RequestScope({ runtime, headers, body, env = process.env }) {
   if (!runtime) {
+    // Deny-by-default (SEC-010). One status for every unbound production shape so
+    // the response never tells an unauthenticated caller which field to add next.
+    if (env.NODE_ENV === 'production') throw unauthorized('PHASE1_BINDING_REQUIRED')
     if (!body.tenantId) throw badRequest('TENANT_ID_REQUIRED')
     return { tenantId: body.tenantId, businessId: body.businessId }
   }

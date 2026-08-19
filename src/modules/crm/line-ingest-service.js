@@ -17,6 +17,18 @@ const CHANNEL = 'LINE'
 const customerCodeExists = async (code) => Boolean(await prisma.customer.findUnique({ where: { code } }))
 
 /**
+ * Refuse a row that resolved through a global external-id lookup but belongs to a
+ * different tenant (or channel). Scope is a precondition here, not a filter applied
+ * afterwards — the caller must never observe that the other tenant's row exists.
+ * @spec BR-001, SEC-001
+ */
+function assertSameTenant(row, tenantId, channel) {
+  if (!row) return
+  if (row.tenantId !== tenantId) throw new Error('LINE_INGEST_TENANT_MISMATCH')
+  if (channel && row.channel !== channel) throw new Error('LINE_INGEST_TENANT_MISMATCH')
+}
+
+/**
  * Ingest one LINE message. Idempotent on externalMessageId (a redelivered webhook
  * does not double-store). Returns the resolved ids.
  * @returns {{ personId, customerId, conversationId, messageId, created: {customer:boolean, conversation:boolean, message:boolean} }}
@@ -33,6 +45,12 @@ export async function ingestLineMessage(input) {
     const dup = await prisma.message.findUnique({ where: { externalMessageId } })
     if (dup) {
       const conv = await prisma.conversation.findUnique({ where: { id: dup.conversationId } })
+      // The external namespace is not tenant-partitioned in the schema
+      // (`Message.externalMessageId` is a GLOBAL @unique), so a match proves the id
+      // was seen — not that this tenant is the one that saw it. Returning another
+      // tenant's conversation/customer ids here would disclose them across the
+      // isolation boundary (SEC-001), so an out-of-tenant hit is refused, not reused.
+      assertSameTenant(conv, tenantId)
       return {
         personId: identity.personId,
         customerId: conv?.customerId,
@@ -56,7 +74,12 @@ export async function ingestLineMessage(input) {
     }
 
     // 4. Conversation — one per external thread (channel-unique).
+    // Same reasoning as the idempotency guard above: `externalThreadId` is a global
+    // @unique, so a hit must be proven to belong to this tenant and channel before it
+    // is continued. Without this a caller presenting another tenant's thread id would
+    // append its message into that tenant's conversation.
     let conversation = await tx.conversation.findUnique({ where: { externalThreadId: threadId } })
+    assertSameTenant(conversation, tenantId, CHANNEL)
     const createdConversation = !conversation
     if (!conversation) {
       conversation = await tx.conversation.create({

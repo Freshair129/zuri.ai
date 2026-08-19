@@ -60,6 +60,10 @@ Business domain.
   record persistence.
 - `src/platform/integrations/providers/line/line-oa-webhook.js` — signature
   verified LINE ingress; drops the transient `replyToken` before persistence.
+  **Not yet wired to a route**: it has no runtime caller, and the live LINE path
+  is the FR-028 pilot seam where `zuri-cli` owns signature verification and the
+  Reply API (BR-011). See "Wiring status" in
+  `docs/domains/integration/features/FR-081-raw-external-ingestion.md`.
 - `src/modules/agent/phase1-runtime.js` — binding-scoped Phase 1 composition.
 - `docs/decisions/ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI.md` — planned Platform
   management and provisioning boundary.
