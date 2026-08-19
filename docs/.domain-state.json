@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-19T18:18:39.696Z",
+  "generatedAt": "2026-08-19T22:42:16.655Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -109,7 +109,8 @@
           "tests/unit/fr079-runtime-cutover.test.js",
           "tests/unit/platform/integration-contracts.test.js",
           "tests/unit/platform/line-oa-webhook.test.js",
-          "tests/unit/platform/raw-ingest-service.test.js"
+          "tests/unit/platform/raw-ingest-service.test.js",
+          "tests/unit/platform/raw-record-repository-read.test.js"
         ]
       },
       {
@@ -380,7 +381,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "checks": {
@@ -872,7 +873,7 @@
           "declared": "n/a",
           "status": "not_implemented",
           "codeCount": 0,
-          "testCount": 11,
+          "testCount": 12,
           "evidence": [
             "tests/integration/agent-webhook-route.test.js",
             "tests/integration/backup.test.js",
@@ -884,7 +885,8 @@
             "tests/unit/fr079-runtime-cutover.test.js",
             "tests/unit/platform/integration-contracts.test.js",
             "tests/unit/platform/line-oa-webhook.test.js",
-            "tests/unit/platform/raw-ingest-service.test.js"
+            "tests/unit/platform/raw-ingest-service.test.js",
+            "tests/unit/platform/raw-record-repository-read.test.js"
           ]
         }
       ],
@@ -1015,7 +1017,8 @@
             "tests/unit/fr079-runtime-cutover.test.js",
             "tests/unit/platform/integration-contracts.test.js",
             "tests/unit/platform/line-oa-webhook.test.js",
-            "tests/unit/platform/raw-ingest-service.test.js"
+            "tests/unit/platform/raw-ingest-service.test.js",
+            "tests/unit/platform/raw-record-repository-read.test.js"
           ]
         }
       ],
@@ -1177,7 +1180,15 @@
     },
     "market-intelligence": {
       "status": "verified",
-      "requirements": [],
+      "requirements": [
+        {
+          "id": "FR-092",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 5
+        }
+      ],
       "checks": {
         "ui": {
           "status": "not_applicable",
@@ -1199,8 +1210,11 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "not_applicable",
-          "evidence": [],
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md",
+            "src/modules/project-manager/import/plan-schema.js"
+          ],
           "gaps": []
         },
         "jsonSchema": {
@@ -1209,9 +1223,15 @@
           "gaps": []
         },
         "database": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "prisma/schema.prisma"
+          ],
+          "gaps": [],
+          "details": {
+            "models": 1,
+            "present": 1
+          }
         },
         "authorization": {
           "status": "not_applicable",
@@ -1219,14 +1239,20 @@
           "gaps": []
         },
         "tests": {
-          "status": "not_applicable",
-          "evidence": [],
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md"
+          ],
           "gaps": []
         }
       },
       "evidence": [
+        "docs/TRACE.md",
         "docs/domains/market-intelligence/CHARTER.md",
+        "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
+        "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -1235,8 +1261,8 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 0,
-        "featureNotes": 0
+        "ownedModels": 1,
+        "featureNotes": 1
       }
     },
     "project-manager": {
@@ -1632,7 +1658,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-082",
@@ -1741,6 +1767,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 3
+        },
+        {
+          "id": "FR-092",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 5
         }
       ],
       "checks": {

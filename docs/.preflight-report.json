@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 161,
+    "docs": 162,
     "routes": 73,
-    "test_files": 225
+    "test_files": 235
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 19,
+    "info": 20,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -182,6 +182,15 @@
     {
       "id": "I16",
       "severity": "info",
+      "check": "requirement-coverage",
+      "title": "Gaps in FR numbering",
+      "details": "FR-091",
+      "files": [],
+      "action": "Intentional gaps are fine — confirm nothing was lost"
+    },
+    {
+      "id": "I17",
+      "severity": "info",
       "check": "domain-spine",
       "title": "Models not yet claimed by any charter: 9",
       "details": "Membership, Team, TeamMembership, ProjectTeam, PlanImportReceipt, LocalWorkspaceMount, FileAsset, FileLink, AuditEvent",
@@ -189,7 +198,7 @@
       "action": "Coverage debt — claim them as charters mature"
     },
     {
-      "id": "I17",
+      "id": "I18",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
@@ -197,10 +206,10 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 225 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 235 files"
     },
     {
-      "id": "I18",
+      "id": "I19",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 hand-copied enum list(s) remain (accepted debt)",
@@ -211,7 +220,7 @@
       "action": "Derive from enums.js; the baseline may only shrink"
     },
     {
-      "id": "I19",
+      "id": "I20",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",

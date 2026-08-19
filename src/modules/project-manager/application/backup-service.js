@@ -54,6 +54,9 @@ const SNAPSHOT_MODELS = [
   // them, which the new foreign keys turn from invisible data loss into a hard error.
   'integrationConnection', 'integrationCredential', 'ingestionRun', 'rawExternalRecord',
   'syncCursor', 'externalEntityRef', 'deadLetterRecord',
+  // @req FR-092 — translated market state is restored after its Integration
+  // evidence and before downstream projections exist.
+  'marketObservation',
   // A roadmap hangs off a Business, a horizon off the roadmap, and a goal off
   // both — so they restore in that order and delete in the reverse. All three,
   // plus projectGoal and roleBinding below, were absent from this list until the

@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1010,
-    "total_edges": 3312,
+    "total_nodes": 1028,
+    "total_edges": 3334,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 83,
+      "document": 84,
       "adr": 38,
       "domain": 7,
       "roadmap": 25,
       "feature": 8,
       "route": 112,
-      "model": 52,
-      "requirement": 189,
-      "test": 225,
-      "code_file": 267
+      "model": 53,
+      "requirement": 194,
+      "test": 235,
+      "code_file": 268
     },
     "coverage": {
-      "requirements": 189,
-      "fr_with_code": "100% (79/79)",
-      "fr_with_tests": "100% (79/79)",
-      "rules_anchored_in_code": "89% (71/80)",
-      "nfr_evidence_based": "17 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 267,
+      "requirements": 194,
+      "fr_with_code": "100% (80/80)",
+      "fr_with_tests": "100% (80/80)",
+      "rules_anchored_in_code": "89% (74/83)",
+      "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 268,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -60,7 +60,7 @@
   },
   "drift": {
     "changed": [
-      "test:tests/unit/domain-state.test.js"
+      "doc:B-db-schema"
     ],
     "added": [],
     "removed": []
@@ -4045,6 +4045,24 @@
       }
     },
     {
+      "id": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/application/market-observation-service.js",
+      "hash": "0a54664c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092",
+          "NFR-018"
+        ],
+        "@spec": [
+          "BR-019",
+          "SDD-049",
+          "SEC-017"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/people/application/people-service.js",
       "type": "code_file",
       "path": "src/modules/people/application/people-service.js",
@@ -4143,7 +4161,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "cbc9be9b",
+      "hash": "6262dbb2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4152,6 +4170,7 @@
           "FR-045",
           "FR-075",
           "FR-081",
+          "FR-092",
           "FR-090",
           "FR-089"
         ],
@@ -5215,7 +5234,7 @@
       "id": "code:src/platform/integrations/core/contracts.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/contracts.js",
-      "hash": "16db55c0",
+      "hash": "19fd7465",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5313,7 +5332,7 @@
       "id": "code:src/platform/integrations/core/raw-record-repository.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/raw-record-repository.js",
-      "hash": "c9fc53c4",
+      "hash": "e02f347c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5464,10 +5483,10 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.8.0",
+      "version": "1.9.0",
       "doc_status": "Draft",
-      "hash": "dadb2d5f",
-      "status": "current"
+      "hash": "27db889c",
+      "status": "changed"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -5999,6 +6018,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-092-market-translation-core",
+      "type": "document",
+      "path": "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
+      "title": "FR-092 — Market translation core",
+      "hash": "6f8b46c8",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -6235,7 +6262,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "b8c374b0",
+      "hash": "9cfea1d4",
       "status": "current"
     },
     {
@@ -6518,7 +6545,9 @@
       "type": "domain",
       "path": "docs/domains/market-intelligence/CHARTER.md",
       "title": "Domain — market-intelligence",
-      "owns_models": [],
+      "owns_models": [
+        "MarketObservation"
+      ],
       "owns_routes": [],
       "owns_code": [
         "src/modules/market-intelligence/**"
@@ -6526,7 +6555,7 @@
       "modules": [
         "market-intelligence"
       ],
-      "hash": "4b905c54",
+      "hash": "9e066efd",
       "status": "current"
     },
     {
@@ -6769,6 +6798,11 @@
     },
     {
       "id": "model:LocalWorkspaceMount",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:MarketObservation",
       "type": "model",
       "status": "current"
     },
@@ -7071,6 +7105,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Team membership is never an input to an authorization decision. A Team groups people; it does not grant, widen or imply any scope, role or domain visibility, and the identity resolver never reads it. Stated as a rule rather than left as an intention because a negative invariant holds only while something checks it — `Membership` is the authority record, and merging a grouping into it is what let a single unauthenticated POST mint business-owner authority on 2026-08-17. "
+    },
+    {
+      "id": "req:BR-019",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Integration raw evidence is immutable authority for external acquisition provenance. Market may derive observations from it but never rewrites, re-owns or treats translated payload fields as authority for Tenant/Business/connection/source scope.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Integration raw evidence is immutable authority for external acquisition provenance. Market may derive observations from it but never rewrites, re-owns or treats translated payload fields as authority for Tenant/Business/connection/source scope. FR-081, FR-092, ADR-038 "
     },
     {
       "id": "req:FR-001",
@@ -7973,6 +8017,16 @@
       "row_text": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. When the owning branch lands it must renumber: it currently claims FR-082/FR-083, which `main` already spent on the pipeline canvas, and its \"Development Overview Dashboard\" overlaps FR-086 — both are product decisions, not merge mechanics. 🟠 schema declared to match the live database; the owning feature is unmerged "
     },
     {
+      "id": "req:FR-092",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. 🟠 #76 implementation in progress "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -8141,6 +8195,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "The LINE ingress is traceable end to end from one correlation id: every batch carries a correlation id — accepted from the trusted transport owner when it presents a well-formed one, generated otherwise — that appears on every structured record the request emits, on the HTTP response, and on the durable audit row for the message it produced, so an operator can join `webhook → identity → conversation → message` without archaeology. Records are emitted through one allowlisted emitter: message text, display names, bearer tokens, binding ids and reply tokens can never reach a log line, and a field the allowlist does not know is dropped and named rather than printed. Every rejected batch and every failed event emits a record naming the stage that failed; no failure is silent. FR-028/050/052/081 observability gate; SDD-048 "
+    },
+    {
+      "id": "req:NFR-018",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable. FR-092 tests + unique lineage persistence gate "
     },
     {
       "id": "req:SDD-001",
@@ -8623,6 +8687,16 @@
       "row_text": "Observability is one emitter and one correlation id, not logging scattered through the call path. `src/lib/observability` exposes a structured emitter whose sink is injectable (stdout by default, captured in tests) and whose field names are **allowlisted**: safety comes from what the emitter accepts, not from scrubbing what a caller passed, because a denylist only ever knows the secrets someone already thought of. An unknown field is omitted and its *name* listed in `unsafeFieldsOmitted`, so a dropped field is visible rather than silent. The correlation id is validated before use (`^[A-Za-z0-9_-]{8,64}$`) since it arrives as untrusted input and is echoed into records. It flows route → turn → ingest → `AuditEvent.payloadJson`, which makes the audit table — not the log stream — the durable join between a webhook delivery and the rows it created. Counts and durations ride on the batch record; a metrics backend is deliberately not introduced. NFR-017; FR-028, FR-050, FR-081, SEC-009 "
     },
     {
+      "id": "req:SDD-049",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Market translation is a ports-and-adapters seam: a Market-specific explicit Business scope constructs the Integration raw read port; the translator produces a strict MarketObservation domain draft; Knowledge/GKS resolution is injected through governed registered reads; Market persistence atomically creates by unique lineage or returns the existing scoped row on replay. Source-specific adapters remain upstream in Integration.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Market translation is a ports-and-adapters seam: a Market-specific explicit Business scope constructs the Integration raw read port; the translator produces a strict MarketObservation domain draft; Knowledge/GKS resolution is injected through governed registered reads; Market persistence atomically creates by unique lineage or returns the existing scoped row on replay. Source-specific adapters remain upstream in Integration. FR-092, NFR-018, BR-019, SEC-017, ADR-038 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -8781,6 +8855,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Platform Integration management refuses client-selected scope/authority and never exposes or persists raw secret material. The implemented create/list path requires trusted owner authority, stores only an opaque Supabase Vault reference, and audits a redacted summary; resolver failure, ambiguous connection and unauthorized scope fail closed. Future write/rotate/revoke operations require a separate audited manager port. The UI cannot activate LINE routing or send a canary. FR-075 / ADR-032 security gate "
+    },
+    {
+      "id": "req:SEC-017",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope. FR-092 / ADR-038 security gate "
     },
     {
       "id": "route:api:/api/agent/line-webhook",
@@ -10123,7 +10207,7 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
-      "hash": "e3711d02",
+      "hash": "e9999e30",
       "status": "current"
     },
     {
@@ -10383,6 +10467,20 @@
       "type": "test",
       "path": "tests/integration/line-webhook-unbound-production.test.js",
       "hash": "31c3fc99",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/market-intelligence-gks-resolution.test.js",
+      "type": "test",
+      "path": "tests/integration/market-intelligence-gks-resolution.test.js",
+      "hash": "98e49d21",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/market-intelligence-persistence.test.js",
+      "type": "test",
+      "path": "tests/integration/market-intelligence-persistence.test.js",
+      "hash": "cea62aa8",
       "status": "current"
     },
     {
@@ -10761,7 +10859,7 @@
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
       "hash": "3b86cfe8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/e2e-warmup.test.js",
@@ -11156,6 +11254,55 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/market-intelligence-schema-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence-schema-migration.test.js",
+      "hash": "e39aa8b9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+      "hash": "e4f76e21",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-observation-domain.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-observation-domain.test.js",
+      "hash": "45abf9bf",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-observation-repository.test.js",
+      "hash": "1ae80100",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-observation-service.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-observation-service.test.js",
+      "hash": "ec6df85c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "hash": "8ae01f8a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/translate-raw-record.test.js",
+      "hash": "3c96ef1c",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/mode-default-subtype.test.js",
       "type": "test",
       "path": "tests/unit/mode-default-subtype.test.js",
@@ -11257,7 +11404,7 @@
       "id": "test:tests/unit/platform/integration-contracts.test.js",
       "type": "test",
       "path": "tests/unit/platform/integration-contracts.test.js",
-      "hash": "4d4e29ca",
+      "hash": "657c4423",
       "status": "current"
     },
     {
@@ -11272,6 +11419,13 @@
       "type": "test",
       "path": "tests/unit/platform/raw-ingest-service.test.js",
       "hash": "f426e0fa",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform/raw-record-repository-read.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/raw-record-repository-read.test.js",
+      "hash": "9f802b22",
       "status": "current"
     },
     {
@@ -17045,6 +17199,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:BR-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:NFR-018",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:SEC-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/people/application/people-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -17194,6 +17383,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-090",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-092",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -19439,6 +19635,13 @@
       "source": "charter"
     },
     {
+      "from": "model:MarketObservation",
+      "to": "domain:market-intelligence",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Message",
       "to": "domain:crm",
       "type": "owned_by",
@@ -19692,6 +19895,13 @@
     },
     {
       "from": "req:BR-018",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-019",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -20342,6 +20552,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-092",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -20455,6 +20672,13 @@
     },
     {
       "from": "req:NFR-017",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-018",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -20797,6 +21021,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-049",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -20917,6 +21148,13 @@
     },
     {
       "from": "req:SEC-016",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-017",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -24501,6 +24739,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -25768,6 +26013,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -26672,6 +26924,13 @@
     {
       "from": "test:tests/integration/line-webhook-unbound-production.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-persistence.test.js",
+      "to": "req:FR-092",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -29702,6 +29961,13 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -32053,6 +32319,41 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/market-intelligence-schema-migration.test.js",
+      "to": "req:BR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence-schema-migration.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence-schema-migration.test.js",
+      "to": "req:NFR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence-schema-migration.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence-schema-migration.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/mode-default-subtype.test.js",
       "to": "req:BR-004",
       "type": "verifies",
@@ -32730,6 +33031,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/raw-record-repository-read.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/playwright-database-bootstrap.test.js",

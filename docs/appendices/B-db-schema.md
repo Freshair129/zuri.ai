@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.8.0 |
+| **Version** | 1.9.0 |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-18 |
+| **Last Updated** | 2026-08-20 |
 
 Source of truth: `prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md)
 Conventions: UUID PK · unique human `code` · `createdAt/updatedAt` · `version` บน aggregate
@@ -48,6 +48,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | SyncCursor | (connectionId,resourceType) unique | incremental watermark per resource (FR-081) |
 | ExternalEntityRef | (connectionId,entityType,externalId) unique | external → internal mapping; external id is never a PK (BR-002) |
 | DeadLetterRecord | connectionId, failureStage, failureOwner, status | preserved failure with a named owner (FR-081) |
+| MarketObservation | tenantId, businessId?, rawRecordId, connectionId, provider, externalId, lineageKey unique | Market-owned translated observation; scalar raw/connection refs preserve Integration authority, and unresolved candidates remain valid (FR-092 / ADR-038) |
 | ProjectFile | projectId, workItemId?, name, mime, size, url/blobRef, version, uploadedBy | metadata/reference only; optional WorkItem must belong to Project (FR-037) |
 | BusinessRoadmap | businessId, code, title, status, startAt/targetAt | Business-level direction container (FR-041) |
 | BusinessRoadmapHorizon | roadmapId, key, label, position, targetAt | ordered short/medium/long horizon; service allows 2 or 3 |

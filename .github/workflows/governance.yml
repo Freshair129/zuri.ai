@@ -1,144 +1,32 @@
 name: governance
 
+# Why this exists: until 2026-08-17 nothing ran the governance commands
+# automatically — no CI, no git hooks, no lifecycle hooks. `docs:preflight` and
+# `docs:check` were manual, so the "preflight CRITICAL" that CLAUDE.md describes
+# as a hard gate only fired when someone chose to run it. Every merge was gated
+# by an author's discipline rather than by the repository.
+# See .brain/rca/2026-08-17-governance-did-not-govern.md
+
 on:
   pull_request:
   push:
     branches: [main]
 
-permissions:
-  contents: write
-
 jobs:
-  # Temporary self-removing carrier for #76. It patches the two large canonical
-  # files from a real checkout, proves the complete slice, restores this workflow
-  # from main, removes the temporary helper, and only then commits durable state.
-  phase76-persist:
-    if: github.event_name == 'pull_request' && github.event.pull_request.number == 88 && github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-
-      - name: Patch governed registry and MarketObservation schema
-        shell: pwsh
-        run: |
-          @'
-          from pathlib import Path
-
-          prd_path = Path('docs/PRD-SDD-v1.0.md')
-          schema_path = Path('prisma/schema.prisma')
-          prd = prd_path.read_text(encoding='utf-8')
-
-          rows = [
-              ('| FR-090 | Schema declaration for the live production-auth tables:', '| FR-092 | Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. | 🟠 #76 implementation in progress |'),
-              ('| NFR-017 | The LINE ingress is traceable end to end from one correlation id:', '| NFR-018 | Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable. | FR-092 tests + unique lineage persistence gate |'),
-              ('| BR-017 | There is no bare edge.', '| BR-019 | Integration raw evidence is immutable authority for external acquisition provenance. Market may derive observations from it but never rewrites, re-owns or treats translated payload fields as authority for Tenant/Business/connection/source scope. | FR-081, FR-092, ADR-038 |'),
-              ('| SDD-048 | Observability is one emitter and one correlation id, not logging scattered through the call path.', '| SDD-049 | Market translation is a ports-and-adapters seam: a Market-specific explicit Business scope constructs the Integration raw read port; the translator produces a strict MarketObservation domain draft; Knowledge/GKS resolution is injected through governed registered reads; Market persistence atomically creates by unique lineage or returns the existing scoped row on replay. Source-specific adapters remain upstream in Integration. | FR-092, NFR-018, BR-019, SEC-017, ADR-038 |'),
-              ('| SEC-016 | Platform Integration management refuses client-selected scope/authority', '| SEC-017 | Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope. | FR-092 / ADR-038 security gate |'),
-          ]
-
-          for marker, new_row in rows:
-              row_id = new_row.split('|')[1].strip()
-              if f'| {row_id} |' in prd:
-                  raise SystemExit(f'{row_id} already exists; refusing duplicate patch')
-              matches = [line for line in prd.splitlines() if line.startswith(marker)]
-              if len(matches) != 1:
-                  raise SystemExit(f'expected exactly one anchor for {row_id}; found {len(matches)}')
-              anchor = matches[0]
-              prd = prd.replace(anchor, anchor + '\n' + new_row, 1)
-          prd_path.write_text(prd, encoding='utf-8', newline='\n')
-
-          schema = schema_path.read_text(encoding='utf-8')
-          if 'model MarketObservation {' in schema:
-              raise SystemExit('MarketObservation already exists; refusing duplicate schema patch')
-          model = r'''
-
-          // @req FR-092 — provider-neutral translated market evidence owned by Market Intelligence.
-          // @spec SDD-049, BR-019, SEC-017 — scalar provenance refs preserve the Integration boundary;
-          // unique lineage serializes concurrent replay without making Market own the source records.
-          model MarketObservation {
-            id                       String   @id @default(uuid())
-            tenantId                 String
-            businessId               String?
-            rawRecordId              String
-            connectionId             String
-            provider                 String
-            sourceEntityType         String
-            externalId               String
-            sourcePayloadHash        String
-            sourceUri                String?
-            translationSchemaVersion String
-            observationType          String
-            candidateJson            String
-            canonicalProductRef      String?
-            canonicalCategoryRef     String?
-            resolutionStatus         String
-            resolutionConfidence     Float?
-            observedAt               DateTime
-            translatedAt             DateTime
-            createdAt                DateTime @default(now())
-            lineageKey               String   @unique
-
-            @@index([tenantId, businessId, observedAt])
-            @@index([tenantId, connectionId, provider])
-            @@index([rawRecordId])
-            @@index([canonicalProductRef])
-          }
-          '''
-          schema_path.write_text(schema.rstrip() + model + '\n', encoding='utf-8', newline='\n')
-          '@ | python -
-
-      - name: Install and generate Prisma clients
-        run: npm ci
-
-      - name: Focused Market tests
-        run: npx vitest run tests/unit/market-intelligence tests/unit/platform/integration-contracts.test.js tests/unit/platform/raw-record-repository-read.test.js tests/integration/market-intelligence-gks-resolution.test.js tests/integration/market-intelligence-persistence.test.js
-
-      - name: Regenerate doc graph before full suite
-        run: npm run docs:graph
-
-      - name: Full unit and integration tests
-        run: npm test
-
-      - name: Production build
-        run: npm run build
-
-      - name: Governance chain
-        run: npm run govern
-
-      - name: Restore CI and remove temporary helper
-        shell: pwsh
-        run: |
-          git fetch origin main
-          git checkout origin/main -- .github/workflows/governance.yml
-          if (Test-Path .github/workflows/phase76-one-shot.yml) { Remove-Item .github/workflows/phase76-one-shot.yml }
-
-      - name: Verify intended durable state and commit
-        shell: pwsh
-        run: |
-          git diff --check
-          if (Select-String -Path docs/PRD-SDD-v1.0.md -Pattern '^\| FR-092 \|' -Quiet) { } else { throw 'FR-092 registry row missing' }
-          if (Select-String -Path docs/PRD-SDD-v1.0.md -Pattern '^\| NFR-018 \|' -Quiet) { } else { throw 'NFR-018 registry row missing' }
-          if (Select-String -Path docs/PRD-SDD-v1.0.md -Pattern '^\| BR-019 \|' -Quiet) { } else { throw 'BR-019 registry row missing' }
-          if (Select-String -Path docs/PRD-SDD-v1.0.md -Pattern '^\| SDD-049 \|' -Quiet) { } else { throw 'SDD-049 registry row missing' }
-          if (Select-String -Path docs/PRD-SDD-v1.0.md -Pattern '^\| SEC-017 \|' -Quiet) { } else { throw 'SEC-017 registry row missing' }
-          if (Select-String -Path prisma/schema.prisma -Pattern '^model MarketObservation \{' -Quiet) { } else { throw 'MarketObservation model missing' }
-          if (Test-Path .github/workflows/phase76-one-shot.yml) { throw 'one-shot workflow still present' }
-          git diff --quiet origin/main -- .github/workflows/governance.yml
-
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git commit -m 'feat: persist governed Market observation core'
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
-
+  # Which parts of the tree changed. The e2e suite takes 7-8 minutes and cannot
+  # observe a documentation-only change at all, so a doc slice used to pay the
+  # full price for nothing — four of six pull requests on 2026-08-17 were
+  # docs-only.
+  #
+  # The condition is computed from the actual diff, never from a label, a title
+  # convention or an author's word, and it FAILS SAFE in every direction:
+  # anything outside `docs/` and `.brain/` counts as code, an unreadable diff
+  # counts as code, and a missing base sha counts as code. A path nobody
+  # anticipated therefore runs the full suite rather than skipping it — the
+  # opposite of an allowlist that silently grows holes.
+  #
+  # `verify` is deliberately NOT gated on this. It carries the governance chain,
+  # which is exactly what a documentation change has to pass.
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -147,6 +35,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - id: filter
         shell: bash
         run: |
@@ -158,35 +47,79 @@ jobs:
             base='${{ github.event.before }}'
             head='${{ github.sha }}'
           fi
+
+          # A first push, a force push or a branch with no common history gives
+          # an empty or all-zero base. Nothing can be concluded from that, so
+          # conclude nothing and run everything.
           case "$base" in
             ''|0000000000000000000000000000000000000000)
+              echo "no usable base ($base) — running the full suite"
               echo "code=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
           esac
+
           if ! changed=$(git diff --name-only "$base" "$head" 2>&1); then
+            echo "could not diff $base..$head — running the full suite"
+            echo "$changed"
             echo "code=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
-          echo "$changed"
+
+          echo "changed files:"; echo "$changed"
+
+          # Root documentation files are enumerated, never matched by a `*.md`
+          # wildcard. A wildcard would also skip a README dropped into `src/`
+          # beside code, and the whole point of this filter is that a surprise
+          # runs the suite rather than dodges it.
           if printf '%s\n' "$changed" | grep -qvE '^(docs/|\.brain/|AGENTS\.md$|CLAUDE\.md$|README\.md$)'; then
             echo "code=true" >> "$GITHUB_OUTPUT"
+            echo "→ non-documentation files changed: running e2e"
           else
             echo "code=false" >> "$GITHUB_OUTPUT"
+            echo "→ documentation only: skipping e2e (it cannot observe this change)"
           fi
 
   verify:
+    # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
+    # hardcodes `path.win32` in three files, deliberately — mounted-root
+    # containment has to reason about drive letters, UNC paths and
+    # junction/reparse points (SEC-007). On Linux those helpers turn `/tmp/x`
+    # into `\tmp\x` and FR-045's integration tests fail with ENOENT. The first
+    # CI run found this; the constraint was real and undocumented, not a
+    # regression. See .brain/rca/2026-08-17-ci-found-an-undocumented-platform-constraint.md
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
+
+      # `postinstall` runs `prisma generate`, so the client is built here.
       - run: npm ci
+
       - name: Unit and integration tests
         run: npm test
+
       - name: Production build
         run: npm run build
+
+      # docs:graph rebuilds from the filesystem, docs:check fails when the
+      # committed graph disagrees with it, docs:preflight (--strict) fails on
+      # any CRITICAL. The order matters: two preflight checks read the graph,
+      # so a branch that declares a new id must regenerate before preflighting.
       - name: Governance chain
         run: npm run govern
+
+      # The generated human views are deterministic, so if `govern` rewrote one
+      # the branch is shipping a stale view and docs:check cannot see it —
+      # `--check` compares a canonical projection of the graph, not the views.
+      #
+      # `.doc-graph.json` is deliberately NOT listed. It carries `generated_at`,
+      # a `drift` block and per-node `status` — bookkeeping *about the previous
+      # run*, which changes on every regeneration by design. `docs:check` strips
+      # exactly those fields before comparing, and demanding byte-stability here
+      # instead reintroduced the two-pass convergence bug fixed in #15/#22. The
+      # first CI run caught that; keep the narrower list.
       - name: Generated views are committed and current
         shell: bash
         run: |
@@ -197,16 +130,33 @@ jobs:
           fi
 
   e2e:
+    # Skipped when the diff touches only `docs/` and `.brain/` — see the
+    # `changes` job for why that decision is safe in the direction it fails.
     needs: changes
     if: needs.changes.outputs.code == 'true'
+    # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
+    # hardcodes `path.win32` in three files, deliberately — mounted-root
+    # containment has to reason about drive letters, UNC paths and
+    # junction/reparse points (SEC-007). On Linux those helpers turn `/tmp/x`
+    # into `\tmp\x` and FR-045's integration tests fail with ENOENT. The first
+    # CI run found this; the constraint was real and undocumented, not a
+    # regression. See .brain/rca/2026-08-17-ci-found-an-undocumented-platform-constraint.md
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
+
       - run: npm ci
+
       - run: npx playwright install --with-deps chromium
+
+      # Kept as its own job so an e2e failure is attributable, and because the
+      # full suite is the only thing that catches cross-spec interference — a
+      # subset passing proves nothing (.brain/rca/2026-08-16-e2e-subset-green-
+      # and-shared-state.md).
       - name: Full end-to-end suite
         run: npm run test:e2e
