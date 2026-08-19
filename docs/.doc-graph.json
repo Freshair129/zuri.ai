@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1010,
-    "total_edges": 3312,
+    "total_nodes": 1011,
+    "total_edges": 3314,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 112,
       "model": 52,
       "requirement": 189,
-      "test": 225,
+      "test": 226,
       "code_file": 267
     },
     "coverage": {
@@ -60,9 +60,11 @@
   },
   "drift": {
     "changed": [
-      "test:tests/unit/domain-state.test.js"
+      "test:tests/e2e/fr077-project-inventory.spec.js"
     ],
-    "added": [],
+    "added": [
+      "test:tests/unit/e2e-reconnecting-request.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -10046,8 +10048,8 @@
       "id": "test:tests/e2e/fr077-project-inventory.spec.js",
       "type": "test",
       "path": "tests/e2e/fr077-project-inventory.spec.js",
-      "hash": "56cdf53d",
-      "status": "current"
+      "hash": "3f6c241f",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -10761,7 +10763,14 @@
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
       "hash": "3b86cfe8",
-      "status": "changed"
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/e2e-reconnecting-request.test.js",
+      "type": "test",
+      "path": "tests/unit/e2e-reconnecting-request.test.js",
+      "hash": "3159667a",
+      "status": "current"
     },
     {
       "id": "test:tests/unit/e2e-warmup.test.js",
@@ -29213,6 +29222,20 @@
     {
       "from": "test:tests/unit/domain-state.test.js",
       "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/e2e-reconnecting-request.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/e2e-reconnecting-request.test.js",
+      "to": "req:SDD-045",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
