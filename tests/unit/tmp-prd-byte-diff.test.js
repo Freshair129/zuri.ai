@@ -1,0 +1,28 @@
+import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { describe, expect, it } from 'vitest'
+
+const expected = [{"start":1,"end":10,"sha256":"44debaad9817f4be00a075b48403315a3a08fe0c24216cc2dd92097b188d53ab","bytes":416},{"start":11,"end":20,"sha256":"5799474623f3bdef7465f4902ce772260e7eef41b3b33b549e07397345885a87","bytes":311},{"start":21,"end":30,"sha256":"6534ab45ec5c5b9e55dae66a078af0ea55ff2a92269cc2347726cbd72e197620","bytes":1617},{"start":31,"end":40,"sha256":"27ed05cd98a273793bb0980feae1e28ab97a0845302b75f42946777337cbd484","bytes":1740},{"start":41,"end":50,"sha256":"7d65d3f1117dc247f7ec912b64ac8ee101b2c9952c6679caba7b29f1a8bfed59","bytes":1526},{"start":51,"end":60,"sha256":"87d585e67fe337a68cc2235c71f4f60ad6cb2bfb61cbf47398ffe8fd45b595da","bytes":1713},{"start":61,"end":70,"sha256":"0beeb3a725a3fb98f64c6f7a3cedfe7c53cfe46e1d6f539843856dac36af0617","bytes":1902},{"start":71,"end":80,"sha256":"5cfc65b08b02db49a9714af50279e5d09d461de5e4f1972ed19ee66ed5304da8","bytes":3147},{"start":81,"end":90,"sha256":"901a8d06661b45b44ad6778fd0c8cf5801b65670169872f06f2fc832029b998d","bytes":4363},{"start":91,"end":100,"sha256":"15acebed1d1290fc07695f42f2c7fe47f6c2f8b5ced5f6c5839bd0eacfca653d","bytes":3754},{"start":101,"end":110,"sha256":"067d179c4c82ccb4152b66ff1ba10ea522ad95d4ae21aeee13b4cddeb8221c8d","bytes":2738},{"start":111,"end":120,"sha256":"7bcf8073ae39b6ec78ed4fddc99455a8b902fd1ddee96c3873a2794c83f54b9b","bytes":436},{"start":121,"end":130,"sha256":"dcc5feaf48cdc0f3905feefb7c24a642e31386e5e87998420206a1dcfca05d80","bytes":427},{"start":131,"end":140,"sha256":"25e0a3780dbc0a7f2ea5b2aece935588a0e2b71c4e04000e05974bca3c72c817","bytes":1013},{"start":141,"end":150,"sha256":"65c62a4c7077d677983cb270101b1b46eb04c49fdb8b4d3abc09161819ac0035","bytes":924},{"start":151,"end":160,"sha256":"1455d0d14d48ac7023c4ad758d320596b8157fdf44b9423e22768aee139d61e3","bytes":1357},{"start":161,"end":170,"sha256":"fff5e43e8f9a0259d6706206a4dd110232a57c0c236bce592f0340aa49a39574","bytes":1005},{"start":171,"end":180,"sha256":"c9786540c96896dfe2417a8c24df3015dfe090048ca1a4df00c006786ff29b92","bytes":3123},{"start":181,"end":190,"sha256":"78207bdfdb53575963c75ee59299e5068c29af15730987b5680c9729fa4d3c2c","bytes":3189},{"start":191,"end":200,"sha256":"71d7fa197d0e04704fb235897cdedffcef905c6cd6ba31ff8ee79cbf93871427","bytes":3244},{"start":201,"end":210,"sha256":"831b77f469c565a5f236e2f25f3ed0d4e4a80c925d10e184b9737b39fd7cbdff","bytes":4250},{"start":211,"end":220,"sha256":"f08a38740d0bcf5d5d607bd0053679f18ac2c518bbab3dff651bd3cd36945f8d","bytes":6299},{"start":221,"end":230,"sha256":"47921877897ee82d022070a9ac1a5d7844e2b93c32c223d822ed911ea004e8f8","bytes":9687},{"start":231,"end":240,"sha256":"fce364def6d02789de4da68435c97b329ebcdc10ab97faea6dd9adbb5d3df206","bytes":9192},{"start":241,"end":250,"sha256":"021e861eed395df162e4de13ca867397b76cf1c1a0acccc6cf27fb7d8d984dae","bytes":1516},{"start":251,"end":260,"sha256":"665866a34c10dcc295e83707d04c26d782e5f557fe74a40762a398d1fd924128","bytes":1458},{"start":261,"end":270,"sha256":"009ff832f62cc0367d036ab3f9187e520131f0be60569197b367bba991775ccb","bytes":3370},{"start":271,"end":280,"sha256":"770a4d7781c2e48fd1445c942612734b7bf2dba472a11076fcc348c5de2b1b6e","bytes":1050},{"start":281,"end":290,"sha256":"6bd3eab454d98bc9d77505205bc69c1597f573c06e78ccbdf0de2756493a2ee2","bytes":2054},{"start":291,"end":300,"sha256":"2b896cf0d8c7a08681007aa443d46b07d884c93e6f7976f5b45d84af2f105f94","bytes":1735},{"start":301,"end":310,"sha256":"d389763207de89e117a79f1d96c26ef2ec5cf65e1db5ca39f69c7c140835b15d","bytes":294},{"start":311,"end":320,"sha256":"085c1288c4cecabcd7355d87d92858fb183280dac6b1bc53407ea574d48fbbbb","bytes":332},{"start":321,"end":330,"sha256":"22e95cf167dca7843b4794e3d763dd182cf7ac6e787bfc4bd4647ed8e51312e9","bytes":1848},{"start":331,"end":340,"sha256":"fdda263de332092f8b71932a78ae547b3deaf8e578b21cafa2706fdcf5e438f6","bytes":3525},{"start":341,"end":350,"sha256":"c76ccb0be31603ff690c97697a0b7de6323e473e293b0c62d9d6c7e9fb4fa8f0","bytes":4166},{"start":351,"end":360,"sha256":"8c8f3cbb847b863243375e07af742b038f2280be4336264dfb24a3d821dcafb2","bytes":7136},{"start":361,"end":370,"sha256":"d97c088647d423c72c5d28f96de0f81e8af3ada804d24841eb352e65123ac469","bytes":8476},{"start":371,"end":380,"sha256":"16b2292ebe29f8176438afd142712efe8a9020eb1739840d7574a5ab27940072","bytes":2735},{"start":381,"end":390,"sha256":"74d790593c8a9666b9f5f52e9eabb620bcf3a79ef58dec150667a45b61ecc516","bytes":3126},{"start":391,"end":400,"sha256":"3b46272c64b54ce33c956f115df62cca0353df7dc9944e09e5e39169b127d2a4","bytes":1738},{"start":401,"end":410,"sha256":"ceb9f520f5a6f38b4b808a1a9bcab16dcc0fc6f400e3e01f7de86d9ccba53da4","bytes":395},{"start":411,"end":419,"sha256":"cafa8d647c57d8fa0cf06344ac791643482d51f80e39ab0b04dd69e56dd492f7","bytes":1059}]
+const hash = (s) => createHash('sha256').update(s).digest('hex')
+
+describe('temporary PRD byte-diff locator', () => {
+  it('reports reconstructed block mismatches', () => {
+    const text = readFileSync('docs/PRD-SDD-v1.0.md', 'utf8')
+    const lines = text.endsWith('\n') ? text.slice(0, -1).split('\n') : text.split('\n')
+    const mismatches = []
+    for (const block of expected) {
+      const value = lines.slice(block.start - 1, block.end).join('\n')
+      if (hash(value) !== block.sha256) {
+        mismatches.push({
+          start: block.start,
+          end: block.end,
+          actualSha256: hash(value),
+          actualBytes: Buffer.byteLength(value),
+          expectedSha256: block.sha256,
+          expectedBytes: block.bytes,
+        })
+      }
+    }
+    expect(mismatches, JSON.stringify(mismatches, null, 2)).toEqual([])
+  })
+})
