@@ -115,12 +115,38 @@ unwritten — an evidence failure is reported in the response as
 `{ ok: false, stage: 'EVIDENCE' }` and nothing durable records it. Both need the
 scheduler/replay surface this requirement declares out of scope.
 
-**Signature verification remains outside this repository.** The connector's
+**Signature verification lives in `zuri-cli`, and it is real.** The connector's
 `verifySignature` needs the raw request bytes and the `x-line-signature` header,
-and the live route receives an already-normalized batch from `zuri-cli`, which
-holds both (BR-011). Convergence gives ZURI the canonical envelope; it does not
-move the authenticity boundary. Doing that requires `zuri-cli` to forward the raw
-body and signature, which is a contract change across two repositories.
+and the live route receives an already-normalized batch — so the authenticity
+boundary sits in the transport, exactly as BR-011 assigns it. Convergence gives
+ZURI the canonical envelope; it does not move that boundary.
+
+Read on 2026-08-19 in `zuri-cli` (`codex/line-stack-fr050`) rather than assumed:
+
+- `src/history/webhook-server.ts` buffers the raw body, reads `x-line-signature`
+  and returns **401 before parsing or archiving anything**.
+- `src/history/archive.ts :: verifyLineSignature` is HMAC-SHA256 over the raw
+  bytes, base64, compared with a length check plus `crypto.timingSafeEqual`.
+- `src/stack/stack-client.ts :: normalizedEvents` is an allowlist that never
+  forwards `replyToken`, so the token stays with its single owner.
+- `handleStackReplies` awaits this route, honours `skipReply`, falls back to its
+  own message when a turn fails, caps the reply at 5,000 characters, and dedupes
+  on `webhookEventId` both durably and in-flight.
+
+So the two hops this repository cannot perform are performed, and the exit-gate
+blocker is not "unimplemented" — it is that no test spans both runtimes. What
+guards the seam from this side is
+`tests/integration/line-webhook-transport-contract.test.js`, which pins the four
+response fields `handleStackReplies` actually reads. Renaming one of them is
+otherwise a silent failure: every customer receives the transport's "unavailable"
+fallback while this repository's suite stays green.
+
+**Still open at the seam:** the correlation id does not cross it. NFR-017 mints one
+per batch and returns it, but `stack-client.ts` sends no `x-correlation-id`, so
+every batch gets a freshly generated id and `zuri-cli`'s own logs — including the
+`x-line-request-id` receipt it captures from the Reply API — cannot be joined to
+the ZURI turn. Closing that is a two-line change in the transport plus threading
+it through `handleStackReplies`.
 
 ## Relationship to the neighbouring requirements
 
