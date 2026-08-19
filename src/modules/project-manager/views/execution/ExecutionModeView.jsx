@@ -3,9 +3,18 @@
 // Wrapper for one execution mode: lists matching workstreams (optionally
 // scoped to a project), shows strategy-based progress with explanation, and
 // renders the mode-specific body over the neutral core model.
+//
+// @req FR-009 — the seven execution modes, in both of their instances: the
+// global `/execution/{mode}` and the project-scoped
+// `/projects/{id}/execution/{mode}`. The two differ only by `projectId`, so
+// anything project-shaped in here is guarded rather than assumed.
+// @spec SDD-019, ADR-012 — `ProjectTabs` is the project-local navigation
+// boundary; a drill-down underneath it still owes the user a named way back up.
+// @tested tests/unit/project-execution-backpath.test.js
 
 import { useMemo } from 'react'
 import Link from 'next/link'
+import { ArrowLeft, ChevronRight } from 'lucide-react'
 import { PageHeader, Card, StatusPill, EmptyState, ErrorState } from '@/components/ui'
 import { MODE_LABELS } from '@/lib/validation/enums'
 import { useFetch, LoadingCard } from '../../components/useApi'
@@ -71,12 +80,69 @@ function WorkstreamPanel({ workstream, reload }) {
   )
 }
 
+/**
+ * The way back out of a project-scoped execution mode.
+ *
+ * This route was a leaf. The Workstream cards on the Project detail page are
+ * its only inbound link, and nothing on the page pointed back, so the only
+ * exits were the browser's back button and the top-level nav — and the nav
+ * drops the user out of the project entirely. A drill-down keeps a visible
+ * path back to the thing it drilled from.
+ *
+ * Rendered only in project scope. This view also serves the global
+ * `/execution/{mode}`, where `projectId` is undefined and a link built from it
+ * would read `/projects/undefined`: a broken exit is worse than no exit.
+ *
+ * The link renders before the project is loaded and survives that fetch
+ * failing — an escape hatch that depends on a round trip is not a predictable
+ * one. Only the label waits, and it names the project's `code` rather than
+ * saying "Back", because the shell breadcrumb above already ends at this
+ * project as inert text: this is the only linked way up, so it should say
+ * where it goes.
+ */
+function ProjectBackPath({ projectId, project, modeLabel }) {
+  const projectLabel = project?.code || project?.name || null
+  // "Project path", and neither of the two names it would otherwise collide
+  // with. This page already carries a landmark called "Breadcrumb" (the shell's
+  // scope path, Portfolio → Tenant → Business → Project) and one called
+  // "Project sections" (the tab bar) — so "Breadcrumb" would be a duplicate
+  // entry in a screen reader's landmark list, and "Project section" would differ
+  // from the tab bar by one letter, which is a distinction nobody can hear.
+  // Landmarks of one role are chosen by name, so the names have to be tellable
+  // apart out loud.
+  return (
+    <nav aria-label="Project path" className="mb-3 flex min-w-0 items-center gap-1.5 text-xs text-[var(--muted)]">
+      <Link
+        href={`/projects/${projectId}`}
+        className="flex shrink-0 items-center gap-1.5 font-semibold transition hover:text-[var(--text)]"
+        // The visible crumb is a bare code next to an arrow glyph, so the
+        // accessible name spells out both the direction and the destination.
+        aria-label={projectLabel ? `Back to project ${projectLabel} workstreams` : 'Back to project workstreams'}
+      >
+        <ArrowLeft size={13} aria-hidden />
+        {projectLabel || 'Project'}
+      </Link>
+      <ChevronRight size={12} aria-hidden className="shrink-0 opacity-50" />
+      <span className="truncate font-semibold text-[var(--text)]" aria-current="page">
+        Execution · {modeLabel}
+      </span>
+    </nav>
+  )
+}
+
 export default function ExecutionModeView({ mode, projectId }) {
   const query = projectId ? `/api/workstreams?executionMode=${mode}&projectId=${projectId}` : `/api/workstreams?executionMode=${mode}`
   const { data, loading, error, reload } = useFetch(query)
+  // Read purely so the back-path can name its destination. The ternary is
+  // load-bearing: `useFetch(null)` is a no-op, and an unguarded template would
+  // have the global view asking the API for `/api/projects/undefined`.
+  const project = useFetch(projectId ? `/api/projects/${projectId}` : null)
 
   return (
     <div>
+      {projectId ? (
+        <ProjectBackPath projectId={projectId} project={project.data} modeLabel={MODE_LABELS[mode]} />
+      ) : null}
       <PageHeader
         eyebrow={`Execution · ${MODE_VOCAB[mode]}`}
         title={MODE_LABELS[mode]}
@@ -89,9 +155,19 @@ export default function ExecutionModeView({ mode, projectId }) {
           title={`No ${MODE_LABELS[mode]} workstreams yet`}
           hint="Import an agent PlanEnvelope with this execution mode."
           action={
-            <Link className="btn btn-primary" href="/projects">
-              Go to projects
-            </Link>
+            // Scope-aware for the same reason the crumb is: an empty project
+            // scope is exactly when the back-path matters most, and sending
+            // that user to the portfolio-wide list is sending them somewhere
+            // they were never coming from.
+            projectId ? (
+              <Link className="btn btn-primary" href={`/projects/${projectId}`}>
+                Back to {project.data?.code || 'project'}
+              </Link>
+            ) : (
+              <Link className="btn btn-primary" href="/projects">
+                Go to projects
+              </Link>
+            )
           }
         />
       )}

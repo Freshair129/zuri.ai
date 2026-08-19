@@ -2,6 +2,9 @@
 // Roadmap and its Structure Plan, Board, Schedule, Milestones, and
 // Dependency Map views; Project Import is a first-class Project resource.
 // @spec SDD-019, SDD-039, ADR-012, ADR-028
+// @spec NFR-008 — and the Project bar spends its slots on sections that exist:
+// the three with no page behind them are disclosed behind one keyboard-operable
+// control rather than interleaved with the live tabs as greyed spans.
 // @tested tests/unit/project-work-route.test.js
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -15,12 +18,33 @@ const timelineRoute = readFileSync(resolve(process.cwd(), 'src/app/(pm)/projects
 const projectLayout = readFileSync(resolve(process.cwd(), 'src/app/(pm)/projects/[projectId]/layout.jsx'), 'utf8')
 const projectTabs = readFileSync(resolve(process.cwd(), 'src/modules/project-manager/components/ProjectTabs.jsx'), 'utf8')
 
+/**
+ * Slices one top-level array literal out of the source.
+ *
+ * The Project bar is two rows now — destinations that exist, and the sections
+ * disclosed behind "More" — and the decision worth pinning is which row a
+ * section is in. Asserting against the whole file could not tell those apart:
+ * `toContain("label: 'Import'")` passes just as happily if Import is demoted
+ * into the overflow list.
+ */
+function tabRow(name) {
+  const declaration = projectTabs.indexOf(`const ${name} = [`)
+  expect(declaration, `ProjectTabs.jsx no longer declares ${name}`).toBeGreaterThan(-1)
+  const open = projectTabs.indexOf('[', declaration)
+  return projectTabs.slice(open, projectTabs.indexOf('\n]', open))
+}
+
+const primaryRow = tabRow('TABS')
+const overflowRow = tabRow('PLANNED')
+
 describe('Project Work navigation boundary', () => {
   it('exposes all Work sub-views without promoting Dependency Map to a sidebar domain', () => {
     expect(workTabs).toContain("label: 'Execution Roadmap'")
     expect(workTabs).toContain("/projects/${projectId}/roadmap")
     expect(workTabs).toContain("label: 'Structure Plan'")
     expect(workTabs).toContain("label: 'Board'")
+    expect(workTabs).toContain("label: 'Work Items'")
+    expect(workTabs).toContain("/projects/${projectId}/all-work")
     expect(workTabs).toContain("label: 'Schedule'")
     expect(workTabs).toContain("label: 'Milestones'")
     expect(workTabs).toContain("/projects/${projectId}/milestones")
@@ -43,7 +67,7 @@ describe('Project Work navigation boundary', () => {
     const sidebarLabels = DOMAINS.find((domain) => domain.key === 'projects').sub.map((item) => item.label)
     const workViewLabels = [...workTabs.matchAll(/label: '([^']+)'/g)].map((match) => match[1])
 
-    expect(workViewLabels).toHaveLength(6)
+    expect(workViewLabels).toHaveLength(7)
     for (const label of workViewLabels) {
       expect(sidebarLabels, `"${label}" is also a Development sidebar entry`).not.toContain(label)
     }
@@ -67,9 +91,53 @@ describe('Project Work navigation boundary', () => {
   })
 
   it('exposes Project Import as a first-class resource tab', () => {
-    expect(projectTabs).toContain("label: 'Import'")
-    expect(projectTabs).toContain('/projects/${id}/import')
+    // In the primary row specifically: Import is a destination the user reaches
+    // in one click, not something folded away behind a disclosure.
+    expect(primaryRow).toContain("label: 'Import'")
+    expect(primaryRow).toContain('/projects/${id}/import')
+    expect(overflowRow).not.toContain('Import')
     expect(projectLayout).toContain("['import', ['/import']]")
+  })
+
+  it('keeps the primary row to sections that exist, and discloses the rest without dropping them', () => {
+    // Every primary entry links somewhere. Three sections used to sit between
+    // the live ones with nothing behind them, pushing the real destinations
+    // apart in a row already wide enough to scroll.
+    const keys = primaryRow.match(/key: '/g) || []
+    const hrefs = primaryRow.match(/href: \(id\) =>/g) || []
+    expect(keys.length).toBeGreaterThan(3)
+    expect(hrefs).toHaveLength(keys.length)
+
+    for (const planned of ['requirements', 'risks', 'resources']) {
+      expect(primaryRow).not.toContain(`key: '${planned}'`)
+      expect(overflowRow).toContain(`key: '${planned}'`)
+    }
+    // Disclosed, not deleted: the roadmap signal is the reason these were ever
+    // rendered, so removing them would buy back the space by hiding it.
+    expect(overflowRow).toContain("label: 'Requirements'")
+    expect(overflowRow).toContain("label: 'Risks'")
+    expect(overflowRow).toContain("label: 'Resources'")
+    // And nothing disclosed can navigate.
+    expect(overflowRow).not.toContain('href')
+  })
+
+  it('discloses them through a keyboard-operable control instead of a greyed span with a tooltip', () => {
+    // A `title` is not an accessible name and never reaches a touch user, and
+    // reduced opacity is not disabled semantics.
+    expect(projectTabs).not.toContain('title="Coming soon"')
+    expect(projectTabs).not.toMatch(/title=["{]/)
+    expect(projectTabs).toContain('aria-expanded={open}')
+    expect(projectTabs).toContain('aria-controls={panelId}')
+    expect(projectTabs).toContain('aria-disabled="true"')
+    expect(projectTabs).toMatch(/\n\s+disabled\n/)
+    // Escape closes and hands focus back to the control that opened the panel.
+    expect(projectTabs).toContain("if (event.key !== 'Escape') return")
+    expect(projectTabs).toContain('triggerRef.current?.focus()')
+    // Icon meanings stay exclusive across the nav: Flag is Milestones & Gates
+    // and Network is Dependencies, so neither may be assigned to a tab here.
+    // (Matched on the assignment, not the file, because the comment explaining
+    // the rule names both icons.)
+    expect(projectTabs).not.toMatch(/icon: (Flag|Network)\b/)
   })
 
   it('keeps the Dependency Map route inside the project Work shell', () => {

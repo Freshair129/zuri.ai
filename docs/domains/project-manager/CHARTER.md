@@ -32,6 +32,11 @@ owns_models:
   - Repository
   - ProjectRepository
   - ProjectFile
+  # FR-089 / ADR-037 — organisational grouping only. These three grant nothing:
+  # the identity module never reads them, and BR-018 is the rule that says so.
+  - Team
+  - TeamMembership
+  - ProjectTeam
   - LocalWorkspaceMount
   - FileAsset
   - FileLink

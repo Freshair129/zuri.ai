@@ -12,8 +12,19 @@ describe('Topbar scope boundary', () => {
 
   it('keeps the non-scope navigation controls', () => {
     expect(topbar).toContain('Open command palette')
-    expect(topbar).toContain('New Project')
     expect(topbar).toContain('ViewToggle')
+  })
+
+  // @req FR-086 — ADR-036 D1 removed the creation button from the shell on
+  // 2026-08-19: a global control implies Project creation is context-free, when
+  // it is scoped to the Business or Space the shell has selected. `/projects`
+  // renders the single copy. Asserted against the route and the icon rather
+  // than the phrase, because the source still explains the removal in prose and
+  // a text match on the label would pass on the comment alone.
+  it('does not offer Project creation from the shell chrome', () => {
+    expect(topbar).not.toContain('/projects/new')
+    expect(topbar).not.toContain('Plus')
+    expect(topbar).not.toContain('useRouter')
   })
 
   it('opens Business Routing from Organization while keeping Business read-only', () => {

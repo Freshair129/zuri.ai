@@ -9,6 +9,8 @@ import { assertProjectWritable } from './project-authorization'
 // @spec SEC-001, SEC-008, BR-001
 // @tested tests/integration/project-core.test.js
 // @tested tests/integration/fr072-milestone-gate-authorization.test.js
+// @tested tests/unit/global-view-drilldown.test.js — pins the `project` select,
+// which the global view's drill-down link reads its href key from.
 
 const codeExists = (model) => async (code) =>
   Boolean(await prisma[model].findUnique({ where: { code } }))
@@ -109,6 +111,23 @@ export async function updateGate(id, patch, { viewer } = {}) {
   return gate
 }
 
+/**
+ * @req FR-006 — the read behind both scopes of the Milestones & Gates browser.
+ *
+ * `project.select` carries `id` as well as `code`, because the global instance
+ * renders that code as the drill-down into the project-scoped instance and
+ * needs the key to build the href. The row's own `projectId` scalar does arrive
+ * (the top-level `include` returns every scalar), but the view must not depend
+ * on an undeclared field: an explicit `select` is a second place the shape is
+ * declared and it does not fail loudly when it falls behind
+ * (`.brain/rca/2026-08-16-narrow-select-dropped-fields-silently.md`). Selecting
+ * `id` next to `code` matches `listWork`, whose `workstream.project` select
+ * already carries all three — one drill-down reading its key from two
+ * structurally different places is how that incident started.
+ *
+ * Widening is additive: the sole consumer is `GET /api/milestones`, whose sole
+ * consumer is `MilestonesView`. No caller can break from a key appearing.
+ */
 export async function listMilestonesAndGates({ projectId, workstreamId } = {}) {
   const whereM = {}
   const whereG = {}
@@ -124,12 +143,12 @@ export async function listMilestonesAndGates({ projectId, workstreamId } = {}) {
     prisma.milestone.findMany({
       where: whereM,
       orderBy: [{ targetAt: 'asc' }, { code: 'asc' }],
-      include: { project: { select: { code: true, name: true } }, workstream: { select: { code: true, name: true } } },
+      include: { project: { select: { id: true, code: true, name: true } }, workstream: { select: { code: true, name: true } } },
     }),
     prisma.gate.findMany({
       where: whereG,
       orderBy: [{ targetAt: 'asc' }, { code: 'asc' }],
-      include: { project: { select: { code: true, name: true } }, workstream: { select: { code: true, name: true } } },
+      include: { project: { select: { id: true, code: true, name: true } }, workstream: { select: { code: true, name: true } } },
     }),
   ])
   return { milestones, gates: gates.map((g) => ({ ...g, evidence: safeParse(g.evidenceJson) })) }

@@ -1,5 +1,6 @@
 import {
   BriefcaseBusiness,
+  LayoutDashboard,
   ListChecks,
   GanttChartSquare,
   Network,
@@ -40,7 +41,13 @@ export const modules = {
     // neither this module's base nor one of its nav entries.
     basePath: '/projects',
     nav: [
-      { label: 'Projects', path: '/projects', icon: BriefcaseBusiness },
+      // @req FR-086 — kept in step with `DOMAINS` in `./domains.js`, whose first
+      // Development entry became `Dashboard` on 2026-08-19 (ADR-036 D1). Nothing
+      // reads this list at runtime, but `domain-navigation.test.js` pins it, and
+      // a stale copy of a nav list is exactly the thing that makes the next
+      // reader trust the wrong one. `LayoutDashboard` mirrors the registry too:
+      // `BriefcaseBusiness` stays the Development *domain* mark above.
+      { label: 'Dashboard', path: '/projects', icon: LayoutDashboard },
       { label: 'All Work', path: '/work', icon: ListChecks },
       { label: 'Execution', path: '/execution', icon: Rocket },
       { label: 'Timeline', path: '/timeline', icon: GanttChartSquare },
