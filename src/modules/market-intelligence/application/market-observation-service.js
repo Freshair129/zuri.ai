@@ -3,7 +3,8 @@ import { translateRawRecordToMarketObservation } from './translate-raw-record'
 // Phase #76 application seam. Persistence is injected so the domain/application
 // semantics are proven before binding to Prisma. Integration raw evidence remains
 // read-only input; only Market-owned observation state is written here.
-// @spec ADR-038
+// @req FR-092, NFR-018
+// @spec BR-019, SDD-049, SEC-017, ADR-038
 
 function requireRepository(repository) {
   if (!repository || typeof repository.insertIfAbsent !== 'function') {
