@@ -33,7 +33,25 @@ export const zMarketObservationDraft = z.object({
   observedAt: z.coerce.date(),
   translatedAt: z.coerce.date(),
   lineageKey: sha256,
-}).strict()
+}).strict().superRefine((value, ctx) => {
+  const hasCanonicalRef = Boolean(value.canonicalProductRef || value.canonicalCategoryRef)
+
+  if (value.resolutionStatus === MARKET_RESOLUTION_STATUS.RESOLVED && !hasCanonicalRef) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['resolutionStatus'],
+      message: 'RESOLVED requires at least one canonical identity reference',
+    })
+  }
+
+  if (value.resolutionStatus === MARKET_RESOLUTION_STATUS.UNRESOLVED && hasCanonicalRef) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['resolutionStatus'],
+      message: 'UNRESOLVED cannot carry a canonical identity reference',
+    })
+  }
+})
 
 export function normalizeMarketObservationDraft(input) {
   const parsed = zMarketObservationDraft.parse(input)
