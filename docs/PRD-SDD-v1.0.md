@@ -7,11 +7,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.71.0b |
+| **Version** | 1.77.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-18 |
+| **Last Updated** | 2026-08-20 |
 | **Approved By** | Boss (documentation gate, 2026-08-17) |
 
 ## Version History
@@ -104,6 +104,7 @@
 | 1.74.0b | 2026-08-18 | ATHER | FR-078 review extension adds deterministic reviewCase/reviewItem identities, a redacted 65-case/130-item manifest, append-only Business-scoped decisions and a separate no-publish apply gate; production queue metadata and reviewer RoleBinding remain deployment-gated |
 | 1.75.0b | 2026-08-18 | ATHER | FR-078 production queue migration `20260818073000` and redacted 65-case/130-item metadata apply are verified; Customer/Person counts are unchanged and application reviewer RoleBinding remains pending on production UUID reconciliation |
 | 1.76.0b | 2026-08-18 | ATHER | FR-078 application Postgres schema and verified SmartGift identity projection are now applied through `20260818084011`/`20260818084047`; `PER-BOSS` has only the Business-scoped `CUSTOMER_DATA_REVIEWER` binding, and the runtime selects the Postgres Prisma client for production URLs |
+| 1.77.0b | 2026-08-20 | ATHER | FR-092/NFR-018/BR-019/SDD-049/SEC-017 establish the governed Market translation core and its provider-neutral MarketObservation persistence boundary |
 | 1.71.0b | 2026-08-18 | ATHER | FR-077/FEAT-005/SDD-045 and ADR-034 add the additive, read-only Project Inventory DTO and route. It composes existing Project data with trusted viewer isolation, contained dependencies, metadata-only files and redacted activity without changing Project List compatibility views |
 | 1.65.0b | 2026-08-17 | Boss + ATHER | FR-072 declares Project-Manager mutation authorization for the 19 repayable routes on `docs/.route-viewer-baseline.json`: the guard lives in the service, the predicate stays `ownsBusiness`, an unowned Business-governed target answers as an absent one, and a target no Business governs is refused for every principal with the missing authority named rather than invented. Four routes (`/api/scope`, `/api/backup/import`, `/api/repositories`, `/api/repositories/[id]`) are explicitly **not** covered — each collides a declared capability against SEC-008 and needs an owner decision, recorded in `.brain/waves/route-viewer-plan.md` §BLOCKED |
 

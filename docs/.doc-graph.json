@@ -60,11 +60,9 @@
   },
   "drift": {
     "changed": [
-      "test:tests/e2e/fr077-project-inventory.spec.js"
+      "doc:PRD-SDD-v1.0"
     ],
-    "added": [
-      "test:tests/unit/e2e-reconnecting-request.test.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -6262,10 +6260,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.71.0b",
+      "version": "1.77.0b",
       "doc_status": "Draft",
-      "hash": "9cfea1d4",
-      "status": "current"
+      "hash": "1814a369",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -10133,7 +10131,7 @@
       "type": "test",
       "path": "tests/e2e/fr077-project-inventory.spec.js",
       "hash": "3f6c241f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
