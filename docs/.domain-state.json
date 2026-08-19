@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-19T18:18:39.696Z",
+  "generatedAt": "2026-08-19T23:30:33.142Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,8 +28,41 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 18,
+    "gapCount": 22,
     "gaps": [
+      {
+        "domain": "crm",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "crm",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "crm",
+        "id": "REQ-FR-091",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-091 is partial",
+        "evidence": [
+          "src/modules/crm/conversation-read-model.js",
+          "tests/e2e/fr041-business-first.spec.js",
+          "tests/e2e/fr060-business-home.spec.js",
+          "tests/e2e/fr091-conversation-inbox.spec.js",
+          "tests/integration/crm-conversation-inbox.test.js",
+          "tests/unit/command-palette-index.test.js",
+          "tests/unit/conversation-read-model.test.js",
+          "tests/unit/domain-navigation.test.js",
+          "tests/unit/fr045-api-ui-contract.test.js",
+          "tests/unit/fr091-inbox-ui-contract.test.js"
+        ]
+      },
       {
         "domain": "identity",
         "id": "CONTRACT-001",
@@ -249,6 +282,29 @@
           "tests/unit/projects-dashboard-schema-migration.test.js",
           "tests/unit/projects-dashboard-ui.test.js"
         ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-091",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-091 is partial",
+        "evidence": [
+          "src/app/(pm)/customer/conversations/page.jsx",
+          "src/app/(pm)/customer/page.jsx",
+          "src/app/api/crm/conversations/[id]/route.js",
+          "src/app/api/crm/conversations/route.js",
+          "src/config/domains.js",
+          "tests/e2e/fr041-business-first.spec.js",
+          "tests/e2e/fr060-business-home.spec.js",
+          "tests/e2e/fr091-conversation-inbox.spec.js",
+          "tests/integration/crm-conversation-inbox.test.js",
+          "tests/unit/command-palette-index.test.js",
+          "tests/unit/conversation-read-model.test.js",
+          "tests/unit/domain-navigation.test.js",
+          "tests/unit/fr045-api-ui-contract.test.js",
+          "tests/unit/fr091-inbox-ui-contract.test.js"
+        ]
       }
     ]
   },
@@ -399,7 +455,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 73,
+            "openApiPaths": 75,
             "missingFromOpenApi": 0
           }
         },
@@ -477,7 +533,7 @@
       }
     },
     "crm": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-023",
@@ -492,6 +548,25 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 20
+        },
+        {
+          "id": "FR-091",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 9,
+          "evidence": [
+            "src/modules/crm/conversation-read-model.js",
+            "tests/e2e/fr041-business-first.spec.js",
+            "tests/e2e/fr060-business-home.spec.js",
+            "tests/e2e/fr091-conversation-inbox.spec.js",
+            "tests/integration/crm-conversation-inbox.test.js",
+            "tests/unit/command-palette-index.test.js",
+            "tests/unit/conversation-read-model.test.js",
+            "tests/unit/domain-navigation.test.js",
+            "tests/unit/fr045-api-ui-contract.test.js",
+            "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
         }
       ],
       "checks": {
@@ -515,12 +590,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "verified",
@@ -546,11 +627,17 @@
           "gaps": []
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -558,19 +645,51 @@
         "docs/TRACE.md",
         "docs/domains/crm/CHARTER.md",
         "docs/domains/crm/features/FR-078-customer-data-backfill-contract.md",
+        "docs/domains/crm/features/FR-091-conversation-inbox.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-091",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-091 is partial",
+          "evidence": [
+            "src/modules/crm/conversation-read-model.js",
+            "tests/e2e/fr041-business-first.spec.js",
+            "tests/e2e/fr060-business-home.spec.js",
+            "tests/e2e/fr091-conversation-inbox.spec.js",
+            "tests/integration/crm-conversation-inbox.test.js",
+            "tests/unit/command-palette-index.test.js",
+            "tests/unit/conversation-read-model.test.js",
+            "tests/unit/domain-navigation.test.js",
+            "tests/unit/fr045-api-ui-contract.test.js",
+            "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
+        }
+      ],
       "details": {
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 8,
-        "featureNotes": 1
+        "featureNotes": 2
       }
     },
     "identity": {
@@ -712,7 +831,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 73,
+            "openApiPaths": 75,
             "missingFromOpenApi": 0
           }
         },
@@ -1741,6 +1860,29 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 3
+        },
+        {
+          "id": "FR-091",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 9,
+          "evidence": [
+            "src/app/(pm)/customer/conversations/page.jsx",
+            "src/app/(pm)/customer/page.jsx",
+            "src/app/api/crm/conversations/[id]/route.js",
+            "src/app/api/crm/conversations/route.js",
+            "src/config/domains.js",
+            "tests/e2e/fr041-business-first.spec.js",
+            "tests/e2e/fr060-business-home.spec.js",
+            "tests/e2e/fr091-conversation-inbox.spec.js",
+            "tests/integration/crm-conversation-inbox.test.js",
+            "tests/unit/command-palette-index.test.js",
+            "tests/unit/conversation-read-model.test.js",
+            "tests/unit/domain-navigation.test.js",
+            "tests/unit/fr045-api-ui-contract.test.js",
+            "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
         }
       ],
       "checks": {
@@ -1751,8 +1893,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 36,
-            "inventoried": 36,
+            "routes": 38,
+            "inventoried": 38,
             "missing": 0
           }
         },
@@ -1764,9 +1906,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 71,
-            "inventoried": 71,
-            "openApiPaths": 73,
+            "routes": 73,
+            "inventoried": 73,
+            "openApiPaths": 75,
             "missingFromOpenApi": 0
           }
         },
@@ -1820,7 +1962,7 @@
           "details": {
             "mutations": 59,
             "guardedMutations": 59,
-            "reads": 38,
+            "reads": 40,
             "unguardedReads": 0
           }
         },
@@ -1988,12 +2130,34 @@
             "tests/unit/projects-dashboard-schema-migration.test.js",
             "tests/unit/projects-dashboard-ui.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-091",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-091 is partial",
+          "evidence": [
+            "src/app/(pm)/customer/conversations/page.jsx",
+            "src/app/(pm)/customer/page.jsx",
+            "src/app/api/crm/conversations/[id]/route.js",
+            "src/app/api/crm/conversations/route.js",
+            "src/config/domains.js",
+            "tests/e2e/fr041-business-first.spec.js",
+            "tests/e2e/fr060-business-home.spec.js",
+            "tests/e2e/fr091-conversation-inbox.spec.js",
+            "tests/integration/crm-conversation-inbox.test.js",
+            "tests/unit/command-palette-index.test.js",
+            "tests/unit/conversation-read-model.test.js",
+            "tests/unit/domain-navigation.test.js",
+            "tests/unit/fr045-api-ui-contract.test.js",
+            "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
         }
       ],
       "details": {
-        "routes": 107,
-        "apiRoutes": 71,
-        "pageRoutes": 36,
+        "routes": 111,
+        "apiRoutes": 73,
+        "pageRoutes": 38,
         "ownedModels": 21,
         "featureNotes": 28
       }
