@@ -7,8 +7,11 @@ function assertPrismaModel(prisma) {
   if (!prisma?.marketObservation) {
     throw new Error('Prisma MarketObservation model is not available')
   }
-  if (typeof prisma.marketObservation.upsert !== 'function') {
-    throw new Error('Prisma MarketObservation model must support atomic upsert')
+  if (
+    typeof prisma.marketObservation.create !== 'function' ||
+    typeof prisma.marketObservation.findUnique !== 'function'
+  ) {
+    throw new Error('Prisma MarketObservation model must support create/findUnique')
   }
 }
 
@@ -34,6 +37,20 @@ function assertDraftScope(draft, scopeWhere) {
   }
 }
 
+function isUniqueConflict(error) {
+  return error?.code === 'P2002'
+}
+
+function assertObservationScope(observation, scopeWhere) {
+  if (
+    !observation ||
+    observation.tenantId !== scopeWhere.tenantId ||
+    (observation.businessId ?? null) !== scopeWhere.businessId
+  ) {
+    throw new Error('MarketObservation lineage identity resolved outside repository scope')
+  }
+}
+
 export function createMarketObservationRepository(prisma, scope) {
   assertPrismaModel(prisma)
   assertScope(scope)
@@ -47,36 +64,20 @@ export function createMarketObservationRepository(prisma, scope) {
     async insertIfAbsent(draft) {
       assertDraftScope(draft, scopeWhere)
 
-      // `lineageKey` is a deterministic globally unique identity derived from the
-      // internal raw-record id + payload hash + translation schema + observation
-      // type. Prisma's unique constraint serializes concurrent replays here.
-      // We intentionally perform no update on replay.
-      const observation = await prisma.marketObservation.upsert({
-        where: { lineageKey: draft.lineageKey },
-        update: {},
-        create: draft,
-      })
+      try {
+        const observation = await prisma.marketObservation.create({ data: draft })
+        assertObservationScope(observation, scopeWhere)
+        return { status: 'CREATED', observation }
+      } catch (error) {
+        if (!isUniqueConflict(error)) throw error
 
-      // A cryptographic collision or incorrectly shared lineage key must not become
-      // a cross-scope read. Even after the atomic upsert, verify the returned row is
-      // inside the repository's trusted scope.
-      if (
-        observation.tenantId !== scopeWhere.tenantId ||
-        (observation.businessId ?? null) !== scopeWhere.businessId
-      ) {
-        throw new Error('MarketObservation lineage identity resolved outside repository scope')
-      }
-
-      const created = observation.createdAt && observation.updatedAt
-        ? new Date(observation.createdAt).getTime() === new Date(observation.updatedAt).getTime()
-        : false
-
-      return {
-        // A future Prisma-backed adapter may use a transaction/create-on-conflict
-        // implementation to report this perfectly. Until the model lands, the port
-        // contract treats an upserted row with equal timestamps as newly created.
-        status: created ? 'CREATED' : 'UNCHANGED',
-        observation,
+        // The unique lineage constraint is the concurrency boundary. If another
+        // worker won the create race, load that one row and return UNCHANGED.
+        const observation = await prisma.marketObservation.findUnique({
+          where: { lineageKey: draft.lineageKey },
+        })
+        assertObservationScope(observation, scopeWhere)
+        return { status: 'UNCHANGED', observation }
       }
     },
   })
