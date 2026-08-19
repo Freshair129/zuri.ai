@@ -4,7 +4,7 @@
   "scanned": {
     "docs": 157,
     "routes": 73,
-    "test_files": 222
+    "test_files": 224
   },
   "summary": {
     "critical": 0,
@@ -175,7 +175,7 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 222 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 224 files"
     },
     {
       "id": "I16",
