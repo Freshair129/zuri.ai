@@ -1,0 +1,150 @@
+name: phase76-one-shot
+
+on:
+  push:
+    branches:
+      - agent/zuri-74-market-translation-core
+    paths:
+      - .github/workflows/phase76-one-shot.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch-verify-commit:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/zuri-74-market-translation-core
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Patch governed registry and MarketObservation schema
+        shell: pwsh
+        run: |
+          @'
+          from pathlib import Path
+
+          prd_path = Path('docs/PRD-SDD-v1.0.md')
+          schema_path = Path('prisma/schema.prisma')
+
+          prd = prd_path.read_text(encoding='utf-8')
+
+          rows = [
+              (
+                  '| FR-090 | Schema declaration for the live production-auth tables:',
+                  '| FR-092 | Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. | 🟠 #76 implementation in progress |'
+              ),
+              (
+                  '| NFR-017 | The LINE ingress is traceable end to end from one correlation id:',
+                  '| NFR-018 | Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable. | FR-092 tests + unique lineage persistence gate |'
+              ),
+              (
+                  '| BR-017 | There is no bare edge.',
+                  '| BR-019 | Integration raw evidence is immutable authority for external acquisition provenance. Market may derive observations from it but never rewrites, re-owns or treats translated payload fields as authority for Tenant/Business/connection/source scope. | FR-081, FR-092, ADR-038 |'
+              ),
+              (
+                  '| SDD-048 | Observability is one emitter and one correlation id, not logging scattered through the call path.',
+                  '| SDD-049 | Market translation is a ports-and-adapters seam: a Market-specific explicit Business scope constructs the Integration raw read port; the translator produces a strict MarketObservation domain draft; Knowledge/GKS resolution is injected through governed registered reads; Market persistence atomically creates by unique lineage or returns the existing scoped row on replay. Source-specific adapters remain upstream in Integration. | FR-092, NFR-018, BR-019, SEC-017, ADR-038 |'
+              ),
+              (
+                  '| SEC-016 | Platform Integration management refuses client-selected scope/authority',
+                  '| SEC-017 | Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope. | FR-092 / ADR-038 security gate |'
+              ),
+          ]
+
+          for marker, new_row in rows:
+              row_id = new_row.split('|')[1].strip()
+              if f'| {row_id} |' in prd:
+                  raise SystemExit(f'{row_id} already exists; refusing duplicate patch')
+              matches = [line for line in prd.splitlines() if line.startswith(marker)]
+              if len(matches) != 1:
+                  raise SystemExit(f'expected exactly one anchor for {row_id}; found {len(matches)}')
+              anchor = matches[0]
+              prd = prd.replace(anchor, anchor + '\n' + new_row, 1)
+
+          prd_path.write_text(prd, encoding='utf-8', newline='\n')
+
+          schema = schema_path.read_text(encoding='utf-8')
+          if 'model MarketObservation {' in schema:
+              raise SystemExit('MarketObservation already exists; refusing duplicate schema patch')
+
+          model = r'''
+
+          // @req FR-092 — provider-neutral translated market evidence owned by Market Intelligence.
+          // @spec SDD-049, BR-019, SEC-017 — scalar provenance refs preserve the Integration boundary;
+          // unique lineage serializes concurrent replay without making Market own the source records.
+          model MarketObservation {
+            id                       String   @id @default(uuid())
+            tenantId                 String
+            businessId               String?
+            rawRecordId              String
+            connectionId             String
+            provider                 String
+            sourceEntityType         String
+            externalId               String
+            sourcePayloadHash        String
+            sourceUri                String?
+            translationSchemaVersion String
+            observationType          String
+            candidateJson            String
+            canonicalProductRef      String?
+            canonicalCategoryRef     String?
+            resolutionStatus         String
+            resolutionConfidence     Float?
+            observedAt               DateTime
+            translatedAt             DateTime
+            createdAt                DateTime @default(now())
+            lineageKey               String   @unique
+
+            @@index([tenantId, businessId, observedAt])
+            @@index([tenantId, connectionId, provider])
+            @@index([rawRecordId])
+            @@index([canonicalProductRef])
+          }
+          '''
+          schema_path.write_text(schema.rstrip() + model + '\n', encoding='utf-8', newline='\n')
+          '@ | python -
+
+      - name: Install and generate Prisma clients
+        run: npm ci
+
+      - name: Focused Market tests
+        run: npx vitest run tests/unit/market-intelligence tests/unit/platform/integration-contracts.test.js tests/unit/platform/raw-record-repository-read.test.js tests/integration/market-intelligence-gks-resolution.test.js tests/integration/market-intelligence-persistence.test.js
+
+      - name: Full unit and integration tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+      - name: Governance chain
+        run: npm run govern
+
+      - name: Remove one-shot workflow before commit
+        shell: pwsh
+        run: Remove-Item .github/workflows/phase76-one-shot.yml
+
+      - name: Verify intended durable diff and commit
+        shell: pwsh
+        run: |
+          git status --short
+          git diff --check
+          if (Select-String -Path docs/PRD-SDD-v1.0.md -Pattern '^\| FR-092 \|' -Quiet) { } else { throw 'FR-092 registry row missing' }
+          if (Select-String -Path docs/PRD-SDD-v1.0.md -Pattern '^\| NFR-018 \|' -Quiet) { } else { throw 'NFR-018 registry row missing' }
+          if (Select-String -Path docs/PRD-SDD-v1.0.md -Pattern '^\| BR-019 \|' -Quiet) { } else { throw 'BR-019 registry row missing' }
+          if (Select-String -Path docs/PRD-SDD-v1.0.md -Pattern '^\| SDD-049 \|' -Quiet) { } else { throw 'SDD-049 registry row missing' }
+          if (Select-String -Path docs/PRD-SDD-v1.0.md -Pattern '^\| SEC-017 \|' -Quiet) { } else { throw 'SEC-017 registry row missing' }
+          if (Select-String -Path prisma/schema.prisma -Pattern '^model MarketObservation \{' -Quiet) { } else { throw 'MarketObservation model missing' }
+          if (Test-Path .github/workflows/phase76-one-shot.yml) { throw 'one-shot workflow was not removed' }
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat: persist governed Market observation core'
+          git push origin HEAD:agent/zuri-74-market-translation-core
