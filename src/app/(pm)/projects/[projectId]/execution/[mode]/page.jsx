@@ -3,6 +3,11 @@
 // @req FR-009 — renders one of the seven execution mode views, scoped to
 // this Project (the project-scoped instance over the same neutral core
 // model as the global route).
+// @spec SDD-019, ADR-012 — `projectId` is the only thing that tells the shared
+// view it is a drill-down inside `ProjectTabs`: it both selects this project's
+// workstreams and turns on the breadcrumb back to the Project detail page that
+// linked here. The global route passes none, and gets neither.
+// @tested tests/unit/project-execution-backpath.test.js
 import { useParams } from 'next/navigation'
 import { MODE_SLUGS } from '@/lib/validation/enums'
 import { EmptyState } from '@/components/ui'

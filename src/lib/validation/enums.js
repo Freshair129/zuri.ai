@@ -60,6 +60,11 @@ export const DEPENDENCY_ENDPOINT_TYPES = [
 ]
 
 export const PROJECT_STATUSES = ['PLANNED', 'ACTIVE', 'ON_HOLD', 'DONE', 'ARCHIVED']
+// @req FR-087 — ordered most-urgent first, and the order is the contract: the
+// Projects Dashboard's "Top 5 Priority" sorts by this array's index, so a value
+// inserted in the middle re-ranks the list. Four levels rather than five because
+// a scale with a middle has one, and everything lands on it.
+export const PROJECT_PRIORITIES = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']
 export const WORKSTREAM_STATUSES = ['PLANNED', 'ACTIVE', 'ON_HOLD', 'DONE', 'ARCHIVED']
 export const WORK_STATUSES = ['PLANNED', 'READY', 'IN_PROGRESS', 'REVIEW', 'BLOCKED', 'DONE', 'CANCELLED']
 // A WorkContainer (sprint / stage / pipeline / wave / phase / period / site) is a
@@ -113,6 +118,7 @@ export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
 export const zDependencyType = z.enum(DEPENDENCY_TYPES)
 export const zDependencyEndpointType = z.enum(DEPENDENCY_ENDPOINT_TYPES)
 export const zProjectStatus = z.enum(PROJECT_STATUSES)
+export const zProjectPriority = z.enum(PROJECT_PRIORITIES)
 export const zWorkstreamStatus = z.enum(WORKSTREAM_STATUSES)
 export const zWorkStatus = z.enum(WORK_STATUSES)
 export const zContainerStatus = z.enum(CONTAINER_STATUSES)

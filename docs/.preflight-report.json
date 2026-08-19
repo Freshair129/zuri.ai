@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 152,
-    "routes": 68,
-    "test_files": 213
+    "docs": 157,
+    "routes": 73,
+    "test_files": 220
   },
   "summary": {
     "critical": 0,
@@ -160,11 +160,11 @@
     {
       "id": "I14",
       "severity": "info",
-      "check": "requirement-coverage",
-      "title": "Gaps in SDD numbering",
-      "details": "SDD-046, SDD-047",
+      "check": "domain-spine",
+      "title": "Models not yet claimed by any charter: 9",
+      "details": "Membership, Team, TeamMembership, ProjectTeam, PlanImportReceipt, LocalWorkspaceMount, FileAsset, FileLink, AuditEvent",
       "files": [],
-      "action": "Intentional gaps are fine — confirm nothing was lost"
+      "action": "Coverage debt — claim them as charters mature"
     },
     {
       "id": "I15",
@@ -175,7 +175,7 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 213 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 220 files"
     },
     {
       "id": "I16",
@@ -193,7 +193,7 @@
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
-      "details": "src/app/(pm)/projects/[projectId]/page.jsx:51 · src/app/(pm)/projects/[projectId]/repositories/page.jsx:107 · src/app/(pm)/projects/[projectId]/team/page.jsx:111 · src/app/(pm)/projects/page.jsx:130 · src/app/(pm)/workspaces/page.jsx:141 · src/modules/project-manager/components/ManagedFilesPanel.jsx:108 · src/modules/project-manager/views/universal/DependenciesView.jsx:127",
+      "details": "src/app/(pm)/projects/[projectId]/page.jsx:51 · src/app/(pm)/projects/[projectId]/repositories/page.jsx:107 · src/app/(pm)/projects/[projectId]/team/page.jsx:111 · src/app/(pm)/projects/page.jsx:334 · src/app/(pm)/workspaces/page.jsx:141 · src/modules/project-manager/components/ManagedFilesPanel.jsx:108 · src/modules/project-manager/views/universal/DependenciesView.jsx:127",
       "files": [
         "docs/.client-mutation-baseline.json"
       ],

@@ -28,7 +28,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Person / Membership | tenant, business?, branch?, role, domainKeysJson | local identity; MEMBER domain allow-list, OWNER/DEV role grant (FR-038) |
 | RoleBinding | personId, tenantId, businessId, roleKey, scopeType, status, assignedBy, revokedAt | generic Business-scoped RBAC binding; `PRODUCT_OWNER` is the current Product role (FR-076) |
 | Workspace | scopeType (PORTFOLIO/TENANT/BUSINESS) + denormalized ancestor ids | ต้องมี scope ชัดเจน |
-| Project | businessId?, workspaceId, type, status, startAt/targetAt | direct Business owner; schema Workspace is Development Space; null owner only for explicit shared work; soft delete |
+| Project | businessId?, workspaceId, type, status, priority?, picPersonId?, startAt/targetAt | direct Business owner; schema Workspace is Development Space; null owner only for explicit shared work; soft delete. `priority` (FR-087) and `picPersonId` (FR-088) are both nullable at rest — every row predates them, and unset is a state the Dashboard renders honestly rather than defaulting |
 | PlanImportReceipt | idempotencyKey, payloadHash, executionRunId, executionStepId?, attemptId?, correlationId, projectId | server-owned PlanEnvelope commit receipt; stable trace/idempotency boundary; never accepts client-generated execution IDs |
 | Workstream | projectId, executionMode, progressStrategy, progressWeight, progressCache, viewConfigJson | หัวใจของ 7 โหมด |
 | WorkContainer | workstreamId, parentId (hierarchy), subtype, metadataJson | SPRINT/MIGRATION_STAGE/… |
@@ -37,6 +37,9 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Gate | projectId, workstreamId?, required, evidenceJson, status | cap progress (BR-006) |
 | Dependency | (sourceType,sourceId,targetType,targetId,dependencyType) unique | cycle-checked ที่ service |
 | Repository / ProjectRepository | provider, externalRepoId?, fullName; (projectId,repoId,role) unique | local metadata, m2m |
+| Team | code unique, businessId, deletedAt? | FR-089 — organisational grouping, Business-scoped (ADR-037 D2). Grants nothing: the identity module never reads it (BR-018) |
+| TeamMembership | (teamId,personId) unique | Person ↔ Team, deliberately separate from `Membership` — that one is the authority record, and merging the two is what let an unauthenticated POST mint owner authority on 2026-08-17. No `role` column, on purpose |
+| ProjectTeam | (projectId,teamId) unique | m2m: a Project is worked by several Teams and a Team works several Projects (ADR-037 D3) |
 | IntegrationProvider / IntegrationConnection / IntegrationCredential | code unique; (tenantId,providerId,externalAccountId) unique; connectionId unique | provider + Business-scoped connection registry, opaque secret ref (FR-079/FR-080) |
 | IngestionRun | connectionId, lane, resourceType, status, counts | one acquisition pass; inherits the connection's scope (FR-081) |
 | RawExternalRecord | idempotencyKey unique; (connectionId,entityType,externalId) | verbatim source payload as replayable evidence (FR-081) |

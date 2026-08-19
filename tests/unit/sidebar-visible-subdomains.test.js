@@ -20,11 +20,14 @@ describe('sidebar sub-domain visibility', () => {
     expect(sidebar).toContain('max-md:opacity-0')
   })
 
-  // @req FR-060 — the heading stays static; the first Development entry is now
-  // Projects, since `/overview` became the Business Home Dashboard.
-  it('keeps the domain heading static and exposes Projects as the first Development entry', () => {
+  // @req FR-060, FR-086 — the heading stays static; the first Development entry
+  // points at `/projects`, since `/overview` became the Business Home Dashboard.
+  // Its label became `Dashboard` on 2026-08-19 (ADR-036 D1); the *path* is the
+  // load-bearing half of this assertion and did not move — `/projects` is a
+  // route key (AGENTS.md §18).
+  it('keeps the domain heading static and roots the Development sidebar at /projects', () => {
     const development = DOMAINS.find((domain) => domain.key === 'projects')
-    expect(development.sub[0]).toMatchObject({ label: 'Projects', path: '/projects' })
+    expect(development.sub[0]).toMatchObject({ label: 'Dashboard', path: '/projects' })
     const businessHome = DOMAINS.find((domain) => domain.key === 'business-home')
     expect(businessHome.sub[0]).toMatchObject({ label: 'Dashboard', path: '/overview' })
     expect(sidebar).not.toContain('<Link href={domain.basePath || domain.sub[0].path}')

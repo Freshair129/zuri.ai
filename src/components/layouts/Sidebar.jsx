@@ -1,5 +1,6 @@
 'use client'
 
+import { Fragment } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { domainForPath } from '@/config/domains'
@@ -30,12 +31,22 @@ export default function Sidebar() {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4 [scrollbar-width:none]" aria-label={`${domain.label} sections`}>
-          {domain.sub.map((item) => {
+          {domain.sub.map((item, index) => {
             const Icon = item.icon
             const active = pathname === item.path || pathname.startsWith(`${item.path}/`)
+            // A header marks where a scope group starts. Several Development
+            // entries share names with a Project's own Work views on purpose
+            // (the global half of the same view) — the header is what tells the
+            // reader these operate across all projects, not inside the open one.
+            const startsGroup = item.group && item.group !== domain.sub[index - 1]?.group
             return (
+              <Fragment key={item.label}>
+                {startsGroup && (
+                  <p className="px-3 pb-1 pt-4 text-[9px] font-bold uppercase tracking-[0.14em] text-white/40 max-md:hidden">
+                    {item.group}
+                  </p>
+                )}
               <Link
-                key={item.label}
                 href={item.path}
                 aria-label={item.label}
                 aria-current={active ? 'page' : undefined}
@@ -50,6 +61,7 @@ export default function Sidebar() {
                   {item.label}
                 </span>
               </Link>
+              </Fragment>
             )
           })}
         </nav>

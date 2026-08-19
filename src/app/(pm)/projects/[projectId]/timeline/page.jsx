@@ -13,6 +13,7 @@
 // @spec SDD-019, ADR-012
 // @tested tests/unit/project-work-route.test.js
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import { PageHeader } from '@/components/ui'
 import WorkViewTabs from '@/modules/project-manager/components/WorkViewTabs'
 import TimelineView from '@/modules/project-manager/views/universal/TimelineView'
@@ -21,7 +22,12 @@ export default function ProjectTimelinePage() {
   const { projectId } = useParams()
   return (
     <div>
-      <PageHeader eyebrow="Project Work" title="Schedule" subtitle="Project window and milestone targets." />
+      <PageHeader
+        eyebrow="Project Work"
+        title="Schedule"
+        subtitle="Project window and milestone targets."
+        actions={<Link className="btn" href="/timeline" aria-label="View the schedule across all projects">All projects</Link>}
+      />
       <WorkViewTabs projectId={projectId} />
       <TimelineView projectId={projectId} />
     </div>

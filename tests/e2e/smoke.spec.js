@@ -101,9 +101,17 @@ test.describe('universal routes', () => {
     await page.getByRole('button', { name: /Open command palette/i }).click()
     const input = page.getByLabel('Command palette search')
     await expect(input).toBeVisible()
+    // "Overview" matching nothing is not an accident of the fixture — it is
+    // FR-060 and ADR-036 D1 holding: the word belongs to `/overview`, whose
+    // palette entry reads "Business Home · Dashboard", so no label contains it.
     await input.fill('Overview')
     await expect(page.getByText(/No matches for/i)).toBeVisible()
-    await input.fill('Projects')
+    // Queries the domain, not the page. Development's first entry was relabelled
+    // `Dashboard` on 2026-08-19 (ADR-036 D1), so "Projects" no longer appears in
+    // any palette label — the palette builds them as `${domain} · ${item}`.
+    // "Dashboard" would be the wrong query too: every domain now has one and
+    // Business Home sorts first, so Enter would land on `/overview`.
+    await input.fill('Development')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/projects/)
   })

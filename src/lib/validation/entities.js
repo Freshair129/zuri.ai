@@ -5,6 +5,7 @@ import {
   zDependencyType,
   zDependencyEndpointType,
   zProjectStatus,
+  zProjectPriority,
   zWorkstreamStatus,
   zWorkStatus,
   zContainerStatus,
@@ -180,6 +181,12 @@ export const zProjectInput = z.object({
   description: z.string().nullish(),
   type: z.string().default('GENERAL'),
   status: zProjectStatus.default('PLANNED'),
+  // @req FR-087, FR-088 — both nullish rather than defaulted. "Unset" is a real
+  // and common state here (every row predates these columns), and the Dashboard
+  // is built to render it honestly: a defaulted priority would silently rank
+  // every legacy Project into the Top 5 panel at whatever level we picked.
+  priority: zProjectPriority.nullish(),
+  picPersonId: z.string().min(1).nullish(),
   startAt: zOptionalDate,
   targetAt: zOptionalDate,
 })
