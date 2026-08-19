@@ -60,6 +60,10 @@ const SNAPSHOT_MODELS = [
   // coverage check below started deriving it from the schema.
   'businessRoadmap', 'businessRoadmapHorizon', 'businessGoal',
   'person', 'customerImportBatch', 'customerImportReviewCase', 'membership', 'roleBinding',
+  // @req FR-090 — both hang off Person, so they restore after it and delete
+  // before it. A snapshot that omitted them would silently drop the credential
+  // a person logs in with, which is the class of loss this list exists to stop.
+  'personCredential', 'passwordResetToken',
   // @req FR-089 — a Team hangs off a Business (restored at the top of this list)
   // and a TeamMembership off both that Team and the Person above, so they
   // restore in this order and delete in the reverse. `projectTeam` needs

@@ -91,6 +91,29 @@ CREATE TABLE "Person" (
 );
 
 -- CreateTable
+CREATE TABLE "PersonCredential" (
+    "id" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PersonCredential_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PasswordResetToken" (
+    "id" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "usedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "PasswordResetToken_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Membership" (
     "id" TEXT NOT NULL,
     "personId" TEXT NOT NULL,
@@ -150,6 +173,8 @@ CREATE TABLE "Project" (
     "description" TEXT,
     "type" TEXT NOT NULL DEFAULT 'GENERAL',
     "status" TEXT NOT NULL DEFAULT 'PLANNED',
+    "priority" TEXT,
+    "picPersonId" TEXT,
     "startAt" TIMESTAMP(3),
     "targetAt" TIMESTAMP(3),
     "deletedAt" TIMESTAMP(3),
@@ -158,6 +183,40 @@ CREATE TABLE "Project" (
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "Project_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Team" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "deletedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Team_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TeamMembership" (
+    "id" TEXT NOT NULL,
+    "teamId" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "TeamMembership_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProjectTeam" (
+    "id" TEXT NOT NULL,
+    "projectId" TEXT NOT NULL,
+    "teamId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ProjectTeam_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -229,6 +288,7 @@ CREATE TABLE "Workstream" (
     "name" TEXT NOT NULL,
     "executionMode" TEXT NOT NULL,
     "executionModeId" TEXT,
+    "laneId" TEXT,
     "executionContractId" TEXT,
     "contractVersion" TEXT,
     "primaryDomainId" TEXT,
@@ -858,6 +918,18 @@ CREATE INDEX "Branch_businessId_idx" ON "Branch"("businessId");
 CREATE UNIQUE INDEX "Person_code_key" ON "Person"("code");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "PersonCredential_personId_key" ON "PersonCredential"("personId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PasswordResetToken_token_key" ON "PasswordResetToken"("token");
+
+-- CreateIndex
+CREATE INDEX "PasswordResetToken_personId_idx" ON "PasswordResetToken"("personId");
+
+-- CreateIndex
+CREATE INDEX "PasswordResetToken_token_idx" ON "PasswordResetToken"("token");
+
+-- CreateIndex
 CREATE INDEX "Membership_personId_idx" ON "Membership"("personId");
 
 -- CreateIndex
@@ -900,6 +972,36 @@ CREATE INDEX "Project_workspaceId_idx" ON "Project"("workspaceId");
 CREATE INDEX "Project_status_idx" ON "Project"("status");
 
 -- CreateIndex
+CREATE INDEX "Project_priority_idx" ON "Project"("priority");
+
+-- CreateIndex
+CREATE INDEX "Project_picPersonId_idx" ON "Project"("picPersonId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Team_code_key" ON "Team"("code");
+
+-- CreateIndex
+CREATE INDEX "Team_businessId_idx" ON "Team"("businessId");
+
+-- CreateIndex
+CREATE INDEX "TeamMembership_teamId_idx" ON "TeamMembership"("teamId");
+
+-- CreateIndex
+CREATE INDEX "TeamMembership_personId_idx" ON "TeamMembership"("personId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TeamMembership_teamId_personId_key" ON "TeamMembership"("teamId", "personId");
+
+-- CreateIndex
+CREATE INDEX "ProjectTeam_projectId_idx" ON "ProjectTeam"("projectId");
+
+-- CreateIndex
+CREATE INDEX "ProjectTeam_teamId_idx" ON "ProjectTeam"("teamId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProjectTeam_projectId_teamId_key" ON "ProjectTeam"("projectId", "teamId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "BusinessRoadmap_code_key" ON "BusinessRoadmap"("code");
 
 -- CreateIndex
@@ -940,6 +1042,9 @@ CREATE INDEX "Workstream_executionMode_idx" ON "Workstream"("executionMode");
 
 -- CreateIndex
 CREATE INDEX "Workstream_executionModeId_idx" ON "Workstream"("executionModeId");
+
+-- CreateIndex
+CREATE INDEX "Workstream_laneId_idx" ON "Workstream"("laneId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PlanImportReceipt_executionRunId_key" ON "PlanImportReceipt"("executionRunId");
@@ -1242,6 +1347,12 @@ ALTER TABLE "Business" ADD CONSTRAINT "Business_legalEntityId_fkey" FOREIGN KEY 
 ALTER TABLE "Branch" ADD CONSTRAINT "Branch_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "PersonCredential" ADD CONSTRAINT "PersonCredential_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PasswordResetToken" ADD CONSTRAINT "PasswordResetToken_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Membership" ADD CONSTRAINT "Membership_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -1276,6 +1387,24 @@ ALTER TABLE "Project" ADD CONSTRAINT "Project_businessId_fkey" FOREIGN KEY ("bus
 
 -- AddForeignKey
 ALTER TABLE "Project" ADD CONSTRAINT "Project_workspaceId_fkey" FOREIGN KEY ("workspaceId") REFERENCES "Workspace"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Project" ADD CONSTRAINT "Project_picPersonId_fkey" FOREIGN KEY ("picPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Team" ADD CONSTRAINT "Team_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TeamMembership" ADD CONSTRAINT "TeamMembership_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TeamMembership" ADD CONSTRAINT "TeamMembership_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectTeam" ADD CONSTRAINT "ProjectTeam_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProjectTeam" ADD CONSTRAINT "ProjectTeam_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "BusinessRoadmap" ADD CONSTRAINT "BusinessRoadmap_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;

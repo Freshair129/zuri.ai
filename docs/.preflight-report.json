@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 157,
+    "docs": 161,
     "routes": 73,
-    "test_files": 224
+    "test_files": 225
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 17,
+    "info": 19,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -120,12 +120,34 @@
       "title": "Missing control fields: Version, Status",
       "details": "CHARTER.md",
       "files": [
-        "docs/domains/project-manager/CHARTER.md"
+        "docs/domains/market-intelligence/CHARTER.md"
       ],
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
       "id": "I11",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version",
+      "details": "CONTEXT-MAP.md",
+      "files": [
+        "docs/domains/market-intelligence/CONTEXT-MAP.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I12",
+      "severity": "info",
+      "check": "doc-control",
+      "title": "Missing control fields: Version, Status",
+      "details": "CHARTER.md",
+      "files": [
+        "docs/domains/project-manager/CHARTER.md"
+      ],
+      "action": "Inherited spec pack — add a control block at its next revision"
+    },
+    {
+      "id": "I13",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -136,7 +158,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I12",
+      "id": "I14",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version, Status",
@@ -147,7 +169,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I13",
+      "id": "I15",
       "severity": "info",
       "check": "doc-control",
       "title": "Missing control fields: Version",
@@ -158,7 +180,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "I14",
+      "id": "I16",
       "severity": "info",
       "check": "domain-spine",
       "title": "Models not yet claimed by any charter: 9",
@@ -167,7 +189,7 @@
       "action": "Coverage debt — claim them as charters mature"
     },
     {
-      "id": "I15",
+      "id": "I17",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
@@ -175,10 +197,10 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 224 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 225 files"
     },
     {
-      "id": "I16",
+      "id": "I18",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 hand-copied enum list(s) remain (accepted debt)",
@@ -189,7 +211,7 @@
       "action": "Derive from enums.js; the baseline may only shrink"
     },
     {
-      "id": "I17",
+      "id": "I19",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",

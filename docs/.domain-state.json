@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-19T17:28:48.256Z",
+  "generatedAt": "2026-08-19T18:18:39.696Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -27,7 +27,7 @@
   ],
   "overall": {
     "status": "partial",
-    "domainCount": 6,
+    "domainCount": 7,
     "gapCount": 18,
     "gaps": [
       {
@@ -200,6 +200,7 @@
           "tests/unit/plan-schema.test.js",
           "tests/unit/project-list-contract.test.js",
           "tests/unit/projects-dashboard-read-model.test.js",
+          "tests/unit/projects-dashboard-schema-migration.test.js",
           "tests/unit/projects-dashboard-ui.test.js"
         ]
       },
@@ -220,6 +221,7 @@
           "tests/integration/project-core.test.js",
           "tests/unit/project-list-contract.test.js",
           "tests/unit/projects-dashboard-read-model.test.js",
+          "tests/unit/projects-dashboard-schema-migration.test.js",
           "tests/unit/projects-dashboard-ui.test.js"
         ]
       },
@@ -244,6 +246,7 @@
           "tests/integration/fr089-team-scope.test.js",
           "tests/unit/fr045-backup-contract.test.js",
           "tests/unit/fr089-br018-team-grants-nothing.test.js",
+          "tests/unit/projects-dashboard-schema-migration.test.js",
           "tests/unit/projects-dashboard-ui.test.js"
         ]
       }
@@ -748,8 +751,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 4,
-            "present": 4
+            "models": 6,
+            "present": 6
           }
         },
         "authorization": {
@@ -832,7 +835,7 @@
         "routes": 3,
         "apiRoutes": 1,
         "pageRoutes": 2,
-        "ownedModels": 4,
+        "ownedModels": 6,
         "featureNotes": 9
       }
     },
@@ -1170,6 +1173,70 @@
         "pageRoutes": 0,
         "ownedModels": 0,
         "featureNotes": 2
+      }
+    },
+    "market-intelligence": {
+      "status": "verified",
+      "requirements": [],
+      "checks": {
+        "ui": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "httpApi": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "mcp": {
+          "status": "verified",
+          "evidence": [
+            "src/app/api/mcp/route.js",
+            "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/project-manager-mcp.test.js"
+          ],
+          "gaps": []
+        },
+        "runtimeContract": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "jsonSchema": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "database": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "authorization": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "tests": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        }
+      },
+      "evidence": [
+        "docs/domains/market-intelligence/CHARTER.md",
+        "src/app/api/mcp/route.js",
+        "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/project-manager-mcp.test.js"
+      ],
+      "gaps": [],
+      "details": {
+        "routes": 0,
+        "apiRoutes": 0,
+        "pageRoutes": 0,
+        "ownedModels": 0,
+        "featureNotes": 0
       }
     },
     "project-manager": {
@@ -1604,7 +1671,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 10,
+          "testCount": 11,
           "evidence": [
             "src/app/(pm)/projects/page.jsx",
             "src/modules/project-manager/application/project-service.js",
@@ -1618,6 +1685,7 @@
             "tests/unit/plan-schema.test.js",
             "tests/unit/project-list-contract.test.js",
             "tests/unit/projects-dashboard-read-model.test.js",
+            "tests/unit/projects-dashboard-schema-migration.test.js",
             "tests/unit/projects-dashboard-ui.test.js"
           ]
         },
@@ -1626,7 +1694,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 8,
+          "testCount": 9,
           "evidence": [
             "src/app/(pm)/projects/page.jsx",
             "src/modules/project-manager/application/project-service.js",
@@ -1638,6 +1706,7 @@
             "tests/integration/project-core.test.js",
             "tests/unit/project-list-contract.test.js",
             "tests/unit/projects-dashboard-read-model.test.js",
+            "tests/unit/projects-dashboard-schema-migration.test.js",
             "tests/unit/projects-dashboard-ui.test.js"
           ]
         },
@@ -1646,7 +1715,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 7,
-          "testCount": 8,
+          "testCount": 9,
           "evidence": [
             "src/app/(pm)/projects/page.jsx",
             "src/app/api/projects/[id]/teams/route.js",
@@ -1662,8 +1731,16 @@
             "tests/integration/fr089-team-scope.test.js",
             "tests/unit/fr045-backup-contract.test.js",
             "tests/unit/fr089-br018-team-grants-nothing.test.js",
+            "tests/unit/projects-dashboard-schema-migration.test.js",
             "tests/unit/projects-dashboard-ui.test.js"
           ]
+        },
+        {
+          "id": "FR-090",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
         }
       ],
       "checks": {
@@ -1864,6 +1941,7 @@
             "tests/unit/plan-schema.test.js",
             "tests/unit/project-list-contract.test.js",
             "tests/unit/projects-dashboard-read-model.test.js",
+            "tests/unit/projects-dashboard-schema-migration.test.js",
             "tests/unit/projects-dashboard-ui.test.js"
           ]
         },
@@ -1883,6 +1961,7 @@
             "tests/integration/project-core.test.js",
             "tests/unit/project-list-contract.test.js",
             "tests/unit/projects-dashboard-read-model.test.js",
+            "tests/unit/projects-dashboard-schema-migration.test.js",
             "tests/unit/projects-dashboard-ui.test.js"
           ]
         },
@@ -1906,6 +1985,7 @@
             "tests/integration/fr089-team-scope.test.js",
             "tests/unit/fr045-backup-contract.test.js",
             "tests/unit/fr089-br018-team-grants-nothing.test.js",
+            "tests/unit/projects-dashboard-schema-migration.test.js",
             "tests/unit/projects-dashboard-ui.test.js"
           ]
         }
