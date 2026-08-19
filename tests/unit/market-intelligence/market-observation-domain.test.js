@@ -86,4 +86,32 @@ describe('MarketObservation domain schema (#76)', () => {
       resolutionConfidence: -0.1,
     }).success).toBe(false)
   })
+
+  it('does not allow RESOLVED without a canonical identity reference', () => {
+    const result = zMarketObservationDraft.safeParse({
+      ...validDraft,
+      resolutionStatus: MARKET_RESOLUTION_STATUS.RESOLVED,
+      resolutionConfidence: 0.99,
+    })
+
+    expect(result.success).toBe(false)
+  })
+
+  it('does not allow UNRESOLVED to carry a canonical identity reference', () => {
+    const result = zMarketObservationDraft.safeParse({
+      ...validDraft,
+      canonicalProductRef: 'gks:business-knowledge:KN-RTX3060',
+    })
+
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts RESOLVED when a governed canonical reference exists', () => {
+    expect(zMarketObservationDraft.safeParse({
+      ...validDraft,
+      resolutionStatus: MARKET_RESOLUTION_STATUS.RESOLVED,
+      canonicalProductRef: 'gks:business-knowledge:KN-RTX3060',
+      resolutionConfidence: 1,
+    }).success).toBe(true)
+  })
 })
