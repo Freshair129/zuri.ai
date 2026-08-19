@@ -141,12 +141,35 @@ response fields `handleStackReplies` actually reads. Renaming one of them is
 otherwise a silent failure: every customer receives the transport's "unavailable"
 fallback while this repository's suite stays green.
 
-**Still open at the seam:** the correlation id does not cross it. NFR-017 mints one
-per batch and returns it, but `stack-client.ts` sends no `x-correlation-id`, so
-every batch gets a freshly generated id and `zuri-cli`'s own logs — including the
-`x-line-request-id` receipt it captures from the Reply API — cannot be joined to
-the ZURI turn. Closing that is a two-line change in the transport plus threading
-it through `handleStackReplies`.
+**The correlation id now crosses the seam.** `zuri-cli` mints `cli-<uuid>` per
+signature-verified batch and sends it as `x-correlation-id`; this side adopts it
+(`correlationSource: CALLER`) and carries it to the audit row, so the LINE request
+id, the transport's log and the ZURI turn are one chain.
+
+**The round trip is proven end to end.**
+`tests/integration/line-oa-cross-repo-round-trip.test.js` drives a genuinely
+HMAC-signed LINE payload into `zuri-cli`'s real webhook server, through its real
+`ZuriStackClient`, into this route and turn, and asserts on what the transport
+would have handed the LINE Reply API. Exactly two things are substituted, both real
+external boundaries: the LINE Messaging API (a spy on `replyText`) and the network
+hop between the two services (the stack client's injectable `fetchFn`). Nothing in
+ZURI's own chain is mocked — identity, customer, conversation, message and audit
+are really written.
+
+It is opt-in on `ZURI_CLI_DIST` and **skips by name** when that is absent, because
+`zuri-cli` is not a dependency of this repository and CI has no copy of it. A green
+CI run therefore never implies this ran. Run it with:
+
+```
+ZURI_CLI_DIST=<zuri-cli>/dist npx vitest run tests/integration/line-oa-cross-repo-round-trip.test.js
+```
+
+The harness and `line-webhook-transport-contract.test.js` cover different failures
+and both are load-bearing. Renaming `skipReply` on this route was checked as a
+mutation: the contract test failed, the round trip did **not** — `zuri-cli`'s own
+durable dedupe suppresses a redelivery before it forwards, so that field never
+reaches the wire in a round trip. The harness proves the wiring; the contract test
+proves the fields.
 
 ## Relationship to the neighbouring requirements
 
