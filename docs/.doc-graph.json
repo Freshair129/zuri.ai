@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1027,
-    "total_edges": 3382,
+    "total_nodes": 1028,
+    "total_edges": 3384,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 116,
       "model": 52,
       "requirement": 191,
-      "test": 229,
+      "test": 230,
       "code_file": 272
     },
     "coverage": {
@@ -61,11 +61,11 @@
   },
   "drift": {
     "changed": [
-      "doc:FR-091-conversation-inbox",
-      "test:tests/e2e/fr060-business-home.spec.js",
-      "test:tests/e2e/fr091-conversation-inbox.spec.js"
+      "test:tests/e2e/fr077-project-inventory.spec.js"
     ],
-    "added": [],
+    "added": [
+      "test:tests/unit/e2e-reconnecting-request.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -6116,7 +6116,7 @@
       "path": "docs/domains/crm/features/FR-091-conversation-inbox.md",
       "title": "FR-091 — CRM Conversation Inbox",
       "hash": "a42ddc3f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -10219,21 +10219,21 @@
       "type": "test",
       "path": "tests/e2e/fr060-business-home.spec.js",
       "hash": "94eb0038",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr077-project-inventory.spec.js",
       "type": "test",
       "path": "tests/e2e/fr077-project-inventory.spec.js",
-      "hash": "56cdf53d",
-      "status": "current"
+      "hash": "3f6c241f",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
       "hash": "e43824e5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -10961,6 +10961,13 @@
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
       "hash": "3b86cfe8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/e2e-reconnecting-request.test.js",
+      "type": "test",
+      "path": "tests/unit/e2e-reconnecting-request.test.js",
+      "hash": "3159667a",
       "status": "current"
     },
     {
@@ -29847,6 +29854,20 @@
     {
       "from": "test:tests/unit/domain-state.test.js",
       "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/e2e-reconnecting-request.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/e2e-reconnecting-request.test.js",
+      "to": "req:SDD-045",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
