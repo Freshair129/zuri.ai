@@ -7,25 +7,34 @@
 // filtered to one Project, exactly as Schedule and Dependency Map mirror their
 // global halves. It had no inbound link from anywhere in the app and was
 // reachable only by typing the URL.
+// @req FR-005 — the project-scoped All Work browser is a Work sub-view too:
+// the project layout already claimed `/all-work` for the Work tab, but only
+// Inventory linked to it, so arriving there dropped every sibling view.
 // @spec SDD-019, SDD-039, ADR-012, ADR-028
 // @tested tests/unit/project-work-route.test.js, tests/unit/project-roadmap-ui.test.js
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Network, Columns3, GanttChartSquare, Share2, Map, Flag } from 'lucide-react'
+import { Layers, Columns3, GanttChartSquare, Share2, Map, Flag, ListChecks } from 'lucide-react'
 
-// Sub-views of the project "Work" tab
-// (Execution Roadmap · Structure Plan · Board · Schedule · Milestones · Dependency Map).
+// Sub-views of the project "Work" tab (Execution Roadmap · Structure Plan ·
+// Board · Work Items · Schedule · Milestones · Dependency Map).
 //
 // Every href here must be rendered by a page that itself renders this bar, or
 // the tab becomes a one-way door: the user arrives and the siblings vanish.
-// `/timeline` was already such a door before Milestones was added; both now
-// mount the bar.
+// `/timeline` was already such a door before Milestones was added; all now
+// mount the bar (pinned by route-reachability.test.js).
+//
+// Icons carry one meaning across the whole nav: ListChecks = All Work,
+// GanttChartSquare = Schedule and Flag = Milestones & Gates in both this bar
+// and the Development sidebar (same view, two scopes). Structure Plan must NOT
+// use Network — that icon is the sidebar's Dependencies entry.
 export default function WorkViewTabs({ projectId }) {
   const pathname = usePathname()
   const views = [
     { key: 'roadmap', label: 'Execution Roadmap', icon: Map, href: `/projects/${projectId}/roadmap` },
-    { key: 'structure', label: 'Structure Plan', icon: Network, href: `/projects/${projectId}/structure` },
+    { key: 'structure', label: 'Structure Plan', icon: Layers, href: `/projects/${projectId}/structure` },
     { key: 'board', label: 'Board', icon: Columns3, href: `/projects/${projectId}/board` },
+    { key: 'all-work', label: 'Work Items', icon: ListChecks, href: `/projects/${projectId}/all-work` },
     { key: 'timeline', label: 'Schedule', icon: GanttChartSquare, href: `/projects/${projectId}/timeline` },
     // "Milestones", not "Milestones & Gates": the Development sidebar is on
     // screen at the same time and already owns that exact label for the
@@ -43,9 +52,13 @@ export default function WorkViewTabs({ projectId }) {
     // navigation, and naming it is what lets a reader — or a test — tell its
     // links apart from the sidebar's without depending on the labels staying
     // unique forever.
+    //
+    // `max-w-full` + `overflow-x-auto` because the bar is seven tabs wide since
+    // All Work joined it: without them the row pushes the page into a
+    // horizontal scroll, which the mobile e2e check forbids outright.
     <nav
       aria-label="Project work views"
-      className="mb-4 inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface-mid)] p-1"
+      className="mb-4 inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface-mid)] p-1"
     >
       {views.map((v) => {
         const Icon = v.icon
@@ -55,7 +68,7 @@ export default function WorkViewTabs({ projectId }) {
             key={v.key}
             href={v.href}
             aria-current={active ? 'page' : undefined}
-            className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            className={`flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
               active ? 'bg-[var(--surface-card)] text-[var(--text)] shadow-sm' : 'text-[var(--muted)] hover:text-[var(--text)]'
             }`}
           >

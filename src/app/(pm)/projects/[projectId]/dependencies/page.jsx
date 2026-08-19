@@ -1,6 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import { ErrorState, PageHeader } from '@/components/ui'
 import { LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
 import WorkViewTabs from '@/modules/project-manager/components/WorkViewTabs'
@@ -21,6 +22,7 @@ export default function ProjectDependenciesPage() {
         eyebrow="Project Work"
         title="Dependency Map"
         subtitle="See the dependency edges whose endpoints belong to this project."
+        actions={<Link className="btn" href="/dependencies" aria-label="Open the dependency register across all projects">All projects</Link>}
       />
       <WorkViewTabs projectId={projectId} />
 

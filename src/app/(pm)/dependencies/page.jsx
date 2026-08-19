@@ -10,7 +10,7 @@ import DependenciesView from '@/modules/project-manager/views/universal/Dependen
 export default function GlobalDependenciesPage() {
   return (
     <div>
-      <PageHeader eyebrow="Universal view" title="Dependencies" subtitle="Blocking and ordering relations across all tracked entities." />
+      <PageHeader eyebrow="All projects" title="Dependencies" subtitle="Blocking and ordering relations across all tracked entities." />
       <DependenciesView />
     </div>
   )

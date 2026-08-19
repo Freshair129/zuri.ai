@@ -21,7 +21,7 @@ export default function ExecutionIndexPage() {
   return (
     <div>
       <PageHeader
-        eyebrow="Execution"
+        eyebrow="All projects"
         title="Seven Execution Modes"
         subtitle="One neutral core model, seven domain views. Execution mode belongs to a workstream — a project may mix modes."
       />

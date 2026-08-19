@@ -60,7 +60,12 @@ const SNAPSHOT_MODELS = [
   // coverage check below started deriving it from the schema.
   'businessRoadmap', 'businessRoadmapHorizon', 'businessGoal',
   'person', 'customerImportBatch', 'customerImportReviewCase', 'membership', 'roleBinding',
-  'workspace', 'project', 'planImportReceipt', 'projectGoal', 'workstream', 'workContainer', 'workItem',
+  // @req FR-089 — a Team hangs off a Business (restored at the top of this list)
+  // and a TeamMembership off both that Team and the Person above, so they
+  // restore in this order and delete in the reverse. `projectTeam` needs
+  // `project` as well and therefore waits for the next line.
+  'team', 'teamMembership',
+  'workspace', 'project', 'planImportReceipt', 'projectTeam', 'projectGoal', 'workstream', 'workContainer', 'workItem',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',
   'externalRef', 'externalIdentity', 'identityLinkToken',
@@ -186,6 +191,22 @@ export async function importSnapshot(snapshot, {
       await tx.localWorkspaceMount.create({ data: { tenantId: business.tenantId, businessId: mount.businessId, deviceKey: mount.deviceKey, rootPath: path.win32.normalize(mount.rootPath) } })
     }
     await recordAudit(tx, { entityType: 'SNAPSHOT', entityId: 'local', action: 'RESTORED', payload: { exportedAt: snapshot.exportedAt || null, counts: preview.counts } })
+  }, {
+    // Prisma's default interactive-transaction budget is 5s, and the loop above
+    // is one `create` per row across every model in SNAPSHOT_MODELS — so its
+    // cost grows with the schema itself, not with anything a caller passes. It
+    // crossed the default once FR-089's three models and the plan-import
+    // receipt joined the list, and the error it produced said "Transaction not
+    // found", which reads like a dropped connection rather than a clock running
+    // out. That misleading message is most of why this deserves a comment.
+    //
+    // The budget is raised rather than the transaction split: a restore that
+    // committed halfway would leave the installation holding a mixture of two
+    // snapshots, and there is no meaningful state between "every table
+    // replaced" and "none of them". Whole-or-nothing is the property worth
+    // paying for, and it is the one BR-008 relies on.
+    maxWait: 10_000,
+    timeout: 120_000,
   })
 
   const remountByBusiness = new Map(remounts.map((mount) => [mount.businessId, mount]))

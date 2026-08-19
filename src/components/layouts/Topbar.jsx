@@ -5,9 +5,12 @@
 // @tested tests/unit/topbar-no-dropdown.test.js, tests/unit/scope-view-context.test.js
 // @req FR-043 - direct Project owner fills the Business context when a deep link has no saved shell selection.
 // @spec ADR-014, SDD-021
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Bell, Command, Plus, Sparkles } from 'lucide-react'
+// The removed creation button was the only reader of the router hook and of its
+// own icon, so both imports went with it — an import kept "in case" is how a
+// deleted control grows back without a decision being made.
+import { Bell, Command, Sparkles } from 'lucide-react'
 import { useScope } from '@/context/ScopeContext'
 import { BASE_CONTEXT_LEVELS, SCOPE_VIEWS } from '@/config/scope-views'
 
@@ -48,7 +51,6 @@ export default function Topbar({ onOpenPalette }) {
   const routeTenant = routeBusiness
     ? scope.tenants.find((tenant) => tenant.id === routeBusiness.tenantId) || null
     : null
-  const router = useRouter()
   const contextBySchema = {
     portfolio: currentPortfolio,
     tenant: currentTenant || routeTenant,
@@ -104,13 +106,12 @@ export default function Topbar({ onOpenPalette }) {
         >
           <Command size={13} aria-hidden /> <span className="max-md:hidden">Ctrl K</span>
         </button>
-        <button
-          type="button"
-          className="flex h-9 items-center gap-1.5 rounded-xl bg-[var(--brand)] px-3 text-xs font-bold text-[#1A1710] shadow-md"
-          onClick={() => router.push('/projects/new')}
-        >
-          <Plus size={14} aria-hidden /> New Project
-        </button>
+        {/* @req FR-086 — the "New Project" button was removed here on 2026-08-19
+            (ADR-036 D1). A global control implies Project creation is
+            context-free, when it is scoped to the Business or Space the shell
+            has selected; the single copy of the action belongs on the surface
+            that shows that scope, and `/projects` already renders it. Before
+            this the same action existed twice. */}
         <div className="ml-1 flex items-center gap-2 border-l border-white/10 pl-2">
           <ViewToggle mode={viewMode} onChange={setViewMode} />
           <div className="flex items-center gap-1 rounded-lg border border-white/10 px-2 py-1 text-[10px] font-bold tracking-wider max-md:hidden">

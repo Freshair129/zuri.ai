@@ -101,6 +101,8 @@ model Business {
   branches               Branch[]
   workspaces             Workspace[]
   memberships            Membership[]
+  // @req FR-089 — Teams are Business-scoped (ADR-037 D2).
+  teams                  Team[]
   customers              Customer[]
   roleBindings           RoleBinding[]
   customerImportBatches  CustomerImportBatch[]
@@ -147,6 +149,9 @@ model Person {
   updatedAt   DateTime @updatedAt
 
   memberships        Membership[]
+  teamMemberships    TeamMembership[]
+  // @req FR-088 — Projects this Person is accountable for (PIC).
+  picProjects        Project[]          @relation("ProjectPic")
   externalIdentities ExternalIdentity[]
   identityLinkTokens IdentityLinkToken[]
   customers          Customer[]
@@ -234,6 +239,18 @@ model Project {
   description String?
   type        String    @default("GENERAL")
   status      String    @default("PLANNED")
+  // @req FR-087 — priority is stored, never derived. "Top 5 Priority" cannot be
+  // computed from anything else here: ordering by `targetAt` is a deadline list,
+  // and a deadline list under a "Priority" heading is a wrong answer the reader
+  // cannot detect. Values live in `src/lib/validation/enums.js`; nullable at
+  // rest because every existing row predates the column (ADR-036 D3).
+  priority    String?
+  // @req FR-088 — the one accountable Person (PIC). Deliberately not FR-036
+  // Team membership (who *may* work here, Business-scoped) and not
+  // `WorkItem.assigneeRef` (who does one piece). Nullable for the same reason,
+  // and `onDelete` is left to the default: a Person who leaves must not take
+  // their Projects with them (ADR-036 D4).
+  picPersonId String?
   startAt     DateTime?
   targetAt    DateTime?
   deletedAt   DateTime?
@@ -243,6 +260,7 @@ model Project {
 
   business     Business?           @relation(fields: [businessId], references: [id])
   workspace    Workspace           @relation(fields: [workspaceId], references: [id])
+  pic          Person?             @relation("ProjectPic", fields: [picPersonId], references: [id])
   workstreams  Workstream[]
   repositories ProjectRepository[]
   files        ProjectFile[]
@@ -251,10 +269,77 @@ model Project {
   gates        Gate[]
   goalLinks    ProjectGoal[]
   planImportReceipts PlanImportReceipt[]
+  teams              ProjectTeam[]
 
   @@index([businessId])
   @@index([workspaceId])
   @@index([status])
+  @@index([priority])
+  @@index([picPersonId])
+}
+
+// @req FR-089 — a Team records who works together. It is an organisational
+// grouping and grants nothing: `resolveViewer` never reads these models, no
+// route guard consults them, and adding a Person to a Team changes no role, no
+// domain grant and no visible or owned Business (BR-018, ADR-037 D1).
+//
+// Business-scoped for the same reason Project and Membership are (SEC-001): the
+// Business is the operating unit, and a Team spanning Businesses would be a
+// group whose members cannot all see the same Projects.
+model Team {
+  id          String    @id @default(uuid())
+  code        String    @unique
+  businessId  String
+  name        String
+  description String?
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  business Business         @relation(fields: [businessId], references: [id])
+  members  TeamMembership[]
+  projects ProjectTeam[]
+
+  @@index([businessId])
+}
+
+// @req FR-089 — Person ↔ Team, deliberately separate from `Membership`. Same
+// distinct-authority-layer discipline BR-016 applies to WorkspaceMembership:
+// `Membership` is the authority record `resolveViewer` reads, so folding a
+// grouping into it would put grouping and authority in one row — which is how a
+// single unauthenticated POST minted business-owner authority on 2026-08-17.
+// There is no `role` column here on purpose (ADR-037 D3, "Let Team carry a
+// role" rejected): a role on a Team is authority on a Team.
+model TeamMembership {
+  id        String   @id @default(uuid())
+  teamId    String
+  personId  String
+  createdAt DateTime @default(now())
+
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, personId])
+  @@index([teamId])
+  @@index([personId])
+}
+
+// @req FR-089 — many-to-many, because a Project is worked by several Teams and a
+// Team works several Projects. One Team per Project would force a fake "primary
+// team" the first time two teams share an initiative, which is the normal case
+// (ADR-037 D3).
+model ProjectTeam {
+  id        String   @id @default(uuid())
+  projectId String
+  teamId    String
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  team    Team    @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, teamId])
+  @@index([projectId])
+  @@index([teamId])
 }
 
 model BusinessRoadmap {

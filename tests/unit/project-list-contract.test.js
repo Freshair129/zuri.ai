@@ -162,9 +162,16 @@ describe('Project list read contract', () => {
   })
 
   it('renders the envelope states instead of treating the response as a bare array', () => {
-    expect(projectsPage).toContain('const rows = data?.items || []')
+    // The Projects surface became the Development Dashboard on 2026-08-19 and
+    // reads its own composed model at `/api/projects/overview` (FR-086,
+    // SDD-047), so the envelope it unwraps is `rows.items` rather than `items`.
+    // What this test pins did not move: the page must render the envelope's
+    // truncation state instead of treating the payload as a bare array. The
+    // three assertions below it still cover `/api/projects`' own consumers,
+    // which are untouched — SDD-047 keeps that contract exactly where it was.
+    expect(projectsPage).toContain('data?.rows?.items || []')
     expect(projectsPage).toContain('<TruncationNotice')
-    expect(projectsPage).toContain('data?.truncated')
+    expect(projectsPage).toContain('data.rows.truncated')
     expect(projectsPage).not.toContain('rows={data || []}')
     expect(overviewPage).toContain("params.set('view', 'overview')")
     expect(timelineView).toContain("'/api/projects?view=timeline'")

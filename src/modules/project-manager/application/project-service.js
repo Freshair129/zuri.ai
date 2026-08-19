@@ -154,6 +154,11 @@ export async function createProject(input, { viewer } = {}) {
       description: data.description ?? null,
       type: data.type || 'GENERAL',
       status: data.status || 'PLANNED',
+      // @req FR-087, FR-088 — written through, never defaulted. Unset is the
+      // honest state for a Project nobody has ranked or staffed yet, and the
+      // Dashboard renders it as unset rather than guessing.
+      priority: data.priority ?? null,
+      picPersonId: data.picPersonId ?? null,
       startAt: data.startAt ?? null,
       targetAt: data.targetAt ?? null,
     },
@@ -195,6 +200,12 @@ export async function updateProject(id, patch, { viewer } = {}) {
       description: data.description === undefined ? existing.description : data.description,
       type: data.type ?? existing.type,
       status: data.status ?? existing.status,
+      // @req FR-087, FR-088 — `undefined` means "not in this patch" and keeps
+      // the stored value; an explicit `null` clears it. `??` would conflate the
+      // two and make unsetting a priority or a PIC impossible, which is the
+      // same trap `description` above is written to avoid.
+      priority: data.priority === undefined ? existing.priority : data.priority,
+      picPersonId: data.picPersonId === undefined ? existing.picPersonId : data.picPersonId,
       startAt: data.startAt === undefined ? existing.startAt : data.startAt,
       targetAt: data.targetAt === undefined ? existing.targetAt : data.targetAt,
       version: { increment: 1 },

@@ -160,9 +160,18 @@ async function main() {
   await goal('GOAL-B01-EXPANSION', 'Prepare the next business expansion', longHorizon.id, 12, 'MEDIUM')
 
   // ---- Demo project: one workstream per execution mode ---------------------
+  // @req FR-087, FR-088 — `priority` and `pic` are set on `update` as well as
+  // `create`, because the demo database predates both columns: a seed that only
+  // filled them on first insert would leave every existing row null and the
+  // Dashboard permanently empty on any machine that had seeded before.
   const project = await prisma.project.upsert({
     where: { code: 'PRJ-B01-TRANSFORM' },
-    update: { businessId: businesses['BUS-001'].id, workspaceId: wsBusiness.id },
+    update: {
+      businessId: businesses['BUS-001'].id,
+      workspaceId: wsBusiness.id,
+      priority: 'CRITICAL',
+      picPersonId: owner.id,
+    },
     create: {
       code: 'PRJ-B01-TRANSFORM',
       businessId: businesses['BUS-001'].id,
@@ -171,9 +180,38 @@ async function main() {
       description: 'Mixed-mode demo project covering all seven execution modes.',
       type: 'TRANSFORMATION',
       status: 'ACTIVE',
+      priority: 'CRITICAL',
+      picPersonId: owner.id,
       startAt: new Date('2026-07-01'),
       targetAt: new Date('2026-12-20'),
     },
+  })
+
+  // @req FR-089 — two Teams so the Dashboard's team count is a number a reader
+  // can check against something, and so the many-to-many link is exercised by
+  // the demo data rather than only by tests (ADR-037 D3).
+  const team = async (code, name, description) =>
+    prisma.team.upsert({
+      where: { code },
+      update: { name, businessId: businesses['BUS-001'].id },
+      create: { code, name, description, businessId: businesses['BUS-001'].id },
+    })
+  const platformTeam = await team('TEAM-B01-PLATFORM', 'Platform Squad', 'Runs the migration and operations workstreams.')
+  const growthTeam = await team('TEAM-B01-GROWTH', 'Growth Squad', 'Runs the campaign and sales workstreams.')
+
+  for (const t of [platformTeam, growthTeam]) {
+    // `upsert` on the composite unique keeps a re-seed from stacking duplicate
+    // links — the same idempotency the rest of this file holds to.
+    await prisma.projectTeam.upsert({
+      where: { projectId_teamId: { projectId: project.id, teamId: t.id } },
+      update: {},
+      create: { projectId: project.id, teamId: t.id },
+    })
+  }
+  await prisma.teamMembership.upsert({
+    where: { teamId_personId: { teamId: platformTeam.id, personId: owner.id } },
+    update: {},
+    create: { teamId: platformTeam.id, personId: owner.id },
   })
 
   const ws = async (code, name, executionMode, progressStrategy, progressWeight, viewConfig = {}) =>
@@ -363,6 +401,51 @@ async function main() {
   })
   await gate('GATE-EXP-GOLIVE', wsExpand.id, 'Go-live readiness', { status: 'OPEN' })
   await milestone('MS-EXP-OPEN', wsExpand.id, 'Store opening', { status: 'PLANNED', weight: 1, targetAt: '2026-11-01' })
+
+  // ---- Assignees ------------------------------------------------------------
+  // @req FR-086 — the Dashboard's "People with work assigned" counts distinct
+  // `WorkItem.assigneeRef`. No seeded item carried one, so the card read 0 on a
+  // freshly seeded database and looked broken rather than empty. A second
+  // Person also makes the count something other than 1, which is the number a
+  // bug would most plausibly produce.
+  const delivery = await prisma.person.upsert({
+    where: { code: 'PER-DELIVERY' },
+    update: {},
+    create: { code: 'PER-DELIVERY', displayName: 'Delivery Lead', email: 'delivery@local' },
+  })
+  const existingDeliveryMembership = await prisma.membership.findFirst({
+    where: { personId: delivery.id, tenantId: tenants['TNT-001'].id },
+  })
+  if (!existingDeliveryMembership) {
+    await prisma.membership.create({
+      data: {
+        personId: delivery.id,
+        tenantId: tenants['TNT-001'].id,
+        businessId: businesses['BUS-001'].id,
+        // MEMBER, not OWNER: `resolveViewer` builds `ownedBusinessIds` from
+        // OWNER memberships, so a second owner in the demo data would quietly
+        // widen what the demo identity can write.
+        role: 'MEMBER',
+      },
+    })
+  }
+  await prisma.teamMembership.upsert({
+    where: { teamId_personId: { teamId: growthTeam.id, personId: delivery.id } },
+    update: {},
+    create: { teamId: growthTeam.id, personId: delivery.id },
+  })
+
+  // Deterministic split by code order, so a re-seed assigns the same items to
+  // the same people and the headcount does not drift between runs.
+  const assignable = await prisma.workItem.findMany({
+    where: { deletedAt: null, workstream: { projectId: project.id } },
+    orderBy: { code: 'asc' },
+    select: { id: true },
+  })
+  await Promise.all(assignable.map((workItem, index) => prisma.workItem.update({
+    where: { id: workItem.id },
+    data: { assigneeRef: index % 2 === 0 ? owner.id : delivery.id },
+  })))
 
   // ---- Repository metadata (local only, no GitHub API) ---------------------
   const repo = await prisma.repository.upsert({

@@ -11,6 +11,7 @@
 // @spec SDD-019, ADR-012
 // @tested tests/unit/project-work-route.test.js
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import { PageHeader } from '@/components/ui'
 import WorkViewTabs from '@/modules/project-manager/components/WorkViewTabs'
 import MilestonesView from '@/modules/project-manager/views/universal/MilestonesView'
@@ -19,7 +20,12 @@ export default function ProjectMilestonesPage() {
   const { projectId } = useParams()
   return (
     <div>
-      <PageHeader eyebrow="Project Work" title="Milestones & Gates" subtitle="Weighted checkpoints and required gates for this project." />
+      <PageHeader
+        eyebrow="Project Work"
+        title="Milestones & Gates"
+        subtitle="Weighted checkpoints and required gates for this project."
+        actions={<Link className="btn" href="/milestones" aria-label="View milestones and gates across all projects">All projects</Link>}
+      />
       <WorkViewTabs projectId={projectId} />
       <MilestonesView projectId={projectId} />
     </div>
