@@ -4,13 +4,19 @@ import { createPortfolio, createTenant, createBusiness } from '../factories/scop
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 
 // @req FR-023 — the LINE gateway resolves conversation and message inside one tenant.
-// @spec BR-001, SEC-001 — Tenant is the isolation boundary. Scope is not a filter applied
-//   afterwards: a row belonging to another tenant must be refused, not reused.
-// @spec BR-002 — an external id is envelope data, never a key. `Conversation.externalThreadId`
-//   and `Message.externalMessageId` carry a GLOBAL `@unique` in prisma/schema.prisma, so the
-//   external namespace is not tenant-partitioned at the database level. This suite pins the
-//   application-level guard that keeps one tenant's thread id from reaching another's
-//   conversation while that composite-key change remains outstanding.
+// @spec BR-001, SEC-001 — Tenant is the isolation boundary.
+// @spec BR-002 — an external id is envelope data, never a key.
+//
+// `Conversation` is keyed by (tenantId, channel, externalThreadId) and `Message` by
+// (conversationId, externalMessageId). Before that, both carried a GLOBAL @unique: one
+// tenant presenting another's thread id appended into that tenant's conversation, and
+// one presenting another's message id got that tenant's conversationId, customerId and
+// messageId back through the idempotency short-circuit.
+//
+// The fix is structural, so the assertions here are about OUTCOME, not about an error
+// message: two tenants using the same provider id is legitimate and must simply
+// produce two independent conversations. There is no application-level scope check
+// left to test, because the key cannot return another tenant's row in the first place.
 
 let tenantA, businessA, tenantB, businessB
 
@@ -26,45 +32,78 @@ describe('ingestLineMessage — cross-tenant thread and message collisions (SEC-
     businessB = await createBusiness({ tenantId: tenantB.id, name: 'Business B', code: 'BUS-LINE-ISO-B' })
   })
 
-  it('refuses to append into another tenant conversation that already holds the thread id', async () => {
+  it('gives each tenant its own conversation for the same external thread id', async () => {
     const owned = await ingestLineMessage({
       tenantId: tenantB.id, businessId: businessB.id,
       lineUserId: 'Uiso-owner', threadId: SHARED_THREAD,
       text: 'ข้อความของ tenant B', externalMessageId: 'M-ISO-B-1',
     })
-    expect(owned.conversationId).toBeTruthy()
 
-    // Tenant A presents the SAME external thread id. It must not be able to write
-    // into, or learn the id of, tenant B's conversation.
-    await expect(ingestLineMessage({
+    const other = await ingestLineMessage({
       tenantId: tenantA.id, businessId: businessA.id,
       lineUserId: 'Uiso-intruder', threadId: SHARED_THREAD,
-      text: 'ข้อความแทรกจาก tenant A', externalMessageId: 'M-ISO-A-1',
-    })).rejects.toThrow(/LINE_INGEST_TENANT_MISMATCH/)
+      text: 'ข้อความของ tenant A', externalMessageId: 'M-ISO-A-1',
+    })
 
-    // tenant B's conversation still holds exactly its own one message
-    const messages = await prisma.message.findMany({ where: { conversationId: owned.conversationId } })
-    expect(messages).toHaveLength(1)
-    expect(messages[0].body).toBe('ข้อความของ tenant B')
+    // two tenants, two conversations — never the same row
+    expect(other.conversationId).not.toBe(owned.conversationId)
+    expect(other.created.conversation).toBe(true)
 
-    // and nothing was written for the intruder
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'M-ISO-A-1' } })).toBeNull()
+    const [convA, convB] = await Promise.all([
+      prisma.conversation.findUnique({ where: { id: other.conversationId } }),
+      prisma.conversation.findUnique({ where: { id: owned.conversationId } }),
+    ])
+    expect(convA.tenantId).toBe(tenantA.id)
+    expect(convB.tenantId).toBe(tenantB.id)
+
+    // and tenant B's conversation still holds exactly its own one message
+    const messagesB = await prisma.message.findMany({ where: { conversationId: owned.conversationId } })
+    expect(messagesB).toHaveLength(1)
+    expect(messagesB[0].body).toBe('ข้อความของ tenant B')
   })
 
-  it('refuses a redelivery short-circuit that would return another tenant conversation', async () => {
-    await ingestLineMessage({
+  it('does not let another tenant message id short-circuit into our conversation', async () => {
+    const ownedB = await ingestLineMessage({
       tenantId: tenantB.id, businessId: businessB.id,
       lineUserId: 'Uiso-owner-2', threadId: 'U-thread-B-2',
       text: 'อีกข้อความของ tenant B', externalMessageId: SHARED_MESSAGE_ID,
     })
 
-    // The same provider message id arriving under tenant A must not resolve to
-    // tenant B's conversation through the idempotency short-circuit.
-    await expect(ingestLineMessage({
+    const inA = await ingestLineMessage({
       tenantId: tenantA.id, businessId: businessA.id,
       lineUserId: 'Uiso-intruder-2', threadId: 'U-thread-A-2',
-      text: 'ข้อความแทรก', externalMessageId: SHARED_MESSAGE_ID,
-    })).rejects.toThrow(/LINE_INGEST_TENANT_MISMATCH/)
+      text: 'ข้อความของ tenant A', externalMessageId: SHARED_MESSAGE_ID,
+    })
+
+    // the same provider message id under two tenants is two real messages —
+    // tenant A must not receive tenant B's ids back
+    expect(inA.created.message).toBe(true)
+    expect(inA.messageId).not.toBe(ownedB.messageId)
+    expect(inA.conversationId).not.toBe(ownedB.conversationId)
+    expect(inA.customerId).not.toBe(ownedB.customerId)
+
+    const stored = await prisma.message.findUnique({ where: { id: inA.messageId } })
+    expect(stored.conversationId).toBe(inA.conversationId)
+    expect(stored.body).toBe('ข้อความของ tenant A')
+  })
+
+  it('keeps a thread id in one channel from colliding with another channel', async () => {
+    const line = await ingestLineMessage({
+      tenantId: tenantA.id, businessId: businessA.id,
+      lineUserId: 'Uiso-channel', threadId: 'U-thread-shared-channel',
+      text: 'ทาง LINE', externalMessageId: 'M-ISO-CH-1',
+    })
+    const conversation = await prisma.conversation.findUnique({ where: { id: line.conversationId } })
+    expect(conversation.channel).toBe('LINE')
+
+    // the same tenant may hold the same external thread id on a different channel
+    const web = await prisma.conversation.create({
+      data: {
+        tenantId: tenantA.id, businessId: businessA.id, customerId: conversation.customerId,
+        channel: 'WEB', externalThreadId: 'U-thread-shared-channel',
+      },
+    })
+    expect(web.id).not.toBe(conversation.id)
   })
 
   it('still allows the same tenant to continue its own thread', async () => {
@@ -82,7 +121,7 @@ describe('ingestLineMessage — cross-tenant thread and message collisions (SEC-
     expect(second.created.conversation).toBe(false)
   })
 
-  it('still short-circuits a genuine redelivery inside the owning tenant', async () => {
+  it('still short-circuits a genuine redelivery inside the owning conversation', async () => {
     const input = {
       tenantId: tenantA.id, businessId: businessA.id,
       lineUserId: 'Uiso-replay', threadId: 'U-thread-replay',
@@ -92,5 +131,17 @@ describe('ingestLineMessage — cross-tenant thread and message collisions (SEC-
     const replay = await ingestLineMessage(input)
     expect(replay.messageId).toBe(first.messageId)
     expect(replay.created.message).toBe(false)
+    expect(await prisma.message.count({ where: { conversationId: first.conversationId } })).toBe(1)
+  })
+
+  it('lets unkeyed messages coexist in one conversation (NULL never conflicts)', async () => {
+    const base = {
+      tenantId: tenantA.id, businessId: businessA.id,
+      lineUserId: 'Uiso-nokey', threadId: 'U-thread-nokey', text: 'ไม่มี id',
+    }
+    const first = await ingestLineMessage(base)
+    const second = await ingestLineMessage(base)
+    expect(second.messageId).not.toBe(first.messageId)
+    expect(await prisma.message.count({ where: { conversationId: first.conversationId } })).toBe(2)
   })
 })

@@ -50,8 +50,8 @@ describe('POST /api/agent/line-webhook — unbound production caller (SEC-010)',
 
     // Nothing on the write path may have run: no message, no conversation, no
     // customer, no Person minted for the attacker-chosen tenant.
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MUNB-1' } })).toBeNull()
-    expect(await prisma.conversation.findUnique({ where: { externalThreadId: 'Uunbound-1' } })).toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MUNB-1' } })).toBeNull()
+    expect(await prisma.conversation.findFirst({ where: { externalThreadId: 'Uunbound-1' } })).toBeNull()
     expect(await prisma.externalIdentity.findUnique({
       where: { tenantId_provider_providerSubject: { tenantId: tenant.id, provider: 'LINE', providerSubject: 'Uunbound-1' } },
     })).toBeNull()
@@ -77,6 +77,6 @@ describe('POST /api/agent/line-webhook — unbound production caller (SEC-010)',
       events: [textEvent('Uunbound-3', 'สวัสดี', 'MUNB-3')],
     })
     expect(res.status).toBe(200)
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MUNB-3' } })).not.toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MUNB-3' } })).not.toBeNull()
   })
 })

@@ -140,13 +140,13 @@ describe('LINE OA golden path — one authentic event through every ZURI-owned h
     expect(customer).not.toBeNull()
 
     // hop 5 — conversation resolved on the LINE channel for this thread
-    const conversation = await prisma.conversation.findUnique({ where: { externalThreadId: 'Ugolden-1' } })
+    const conversation = await prisma.conversation.findFirst({ where: { externalThreadId: 'Ugolden-1' } })
     expect(conversation).toMatchObject({
       tenantId: tenant.id, businessId: business.id, channel: 'LINE', customerId: customer.id,
     })
 
     // hop 6 — inbound message persisted, keyed by the provider message id
-    const message = await prisma.message.findUnique({ where: { externalMessageId: 'MGOLD-1' } })
+    const message = await prisma.message.findFirst({ where: { externalMessageId: 'MGOLD-1' } })
     expect(message).toMatchObject({
       conversationId: conversation.id, direction: 'INBOUND', body: 'GIFT-777 ราคาเท่าไร',
     })
@@ -205,7 +205,7 @@ describe('LINE OA golden path — one authentic event through every ZURI-owned h
     expect(seen.modelCalls).toBe(1)
     const messages = await prisma.message.findMany({ where: { externalMessageId: 'MGOLD-2' } })
     expect(messages).toHaveLength(1)
-    const conversation = await prisma.conversation.findUnique({ where: { externalThreadId: 'Ugolden-2' } })
+    const conversation = await prisma.conversation.findFirst({ where: { externalThreadId: 'Ugolden-2' } })
     const ingested = await prisma.auditEvent.count({
       where: { entityType: 'CONVERSATION', entityId: conversation.id, action: 'MESSAGE_INGESTED' },
     })

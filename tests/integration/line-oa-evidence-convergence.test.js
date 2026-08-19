@@ -119,7 +119,7 @@ describe('LINE OA ingress converges on the canonical ingestion envelope (FR-081)
     // the turn still happened — convergence adds a lane, it does not replace one
     expect(json.results[0].ok).toBe(true)
     expect(json.results[0].response.kind).toBe('ANSWER')
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MCONV-1' } })).not.toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MCONV-1' } })).not.toBeNull()
 
     // and the same event is now durable as canonical evidence
     expect(json.results[0].evidence).toMatchObject({
@@ -162,7 +162,7 @@ describe('LINE OA ingress converges on the canonical ingestion envelope (FR-081)
     // still skipped for the turn — no reply, no CRM write
     expect(json.handled).toBe(0)
     expect(json.results.every((r) => r.skipped === true)).toBe(true)
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MCONV-STICKER' } })).toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MCONV-STICKER' } })).toBeNull()
 
     // but no longer invisible: each is a typed raw record
     expect(await rawFor('WEH-CONV-FOLLOW')).toMatchObject({ entityType: 'LINE_IDENTITY' })
@@ -235,7 +235,7 @@ describe('LINE OA ingress converges on the canonical ingestion envelope (FR-081)
 
     expect(json.results[0].ok).toBe(true)
     expect(json.results[0].evidence).toBeNull()
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MCONV-5' } })).not.toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MCONV-5' } })).not.toBeNull()
     expect(await prisma.rawExternalRecord.findFirst({ where: { externalId: 'WEH-CONV-5' } })).toBeNull()
   })
 
@@ -291,7 +291,7 @@ describe('LINE OA ingress converges on the canonical ingestion envelope (FR-081)
     // to silently fall back from
     expect(res.status).toBeGreaterThanOrEqual(400)
     expect((await res.json()).error).toBe('LINE_OA_CONNECTION_OUTSIDE_BUSINESS')
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MCONV-6' } })).toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MCONV-6' } })).toBeNull()
     expect(await rawFor('WEH-CONV-6')).toBeNull()
   })
 })

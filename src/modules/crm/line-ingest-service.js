@@ -17,20 +17,19 @@ const CHANNEL = 'LINE'
 const customerCodeExists = async (code) => Boolean(await prisma.customer.findUnique({ where: { code } }))
 
 /**
- * Refuse a row that resolved through a global external-id lookup but belongs to a
- * different tenant (or channel). Scope is a precondition here, not a filter applied
- * afterwards — the caller must never observe that the other tenant's row exists.
- * @spec BR-001, SEC-001
+ * The conversation's identity: tenant + channel + the provider's thread id.
+ *
+ * Every lookup goes through this key rather than through `externalThreadId` alone.
+ * That is the whole isolation guarantee — the key cannot return another tenant's
+ * conversation, so there is no scope to re-check afterwards (BR-001, SEC-001).
  */
-function assertSameTenant(row, tenantId, channel) {
-  if (!row) return
-  if (row.tenantId !== tenantId) throw new Error('LINE_INGEST_TENANT_MISMATCH')
-  if (channel && row.channel !== channel) throw new Error('LINE_INGEST_TENANT_MISMATCH')
-}
+const conversationKey = (tenantId, threadId) => ({
+  tenantId_channel_externalThreadId: { tenantId, channel: CHANNEL, externalThreadId: threadId },
+})
 
 /**
- * Ingest one LINE message. Idempotent on externalMessageId (a redelivered webhook
- * does not double-store). Returns the resolved ids.
+ * Ingest one LINE message. Idempotent on externalMessageId within its conversation
+ * (a redelivered webhook does not double-store). Returns the resolved ids.
  * @returns {{ personId, customerId, conversationId, messageId, created: {customer:boolean, conversation:boolean, message:boolean} }}
  */
 export async function ingestLineMessage(input) {
@@ -40,23 +39,25 @@ export async function ingestLineMessage(input) {
   // 1. Identity — the single seam. Resolves (or creates) the Person principal.
   const identity = await resolveLineIdentity({ tenantId, lineUserId, displayName })
 
-  // 2. Idempotency: a redelivered message id short-circuits before any write.
+  // 2. Idempotency: a redelivered message short-circuits before any write.
+  //    Both lookups are scoped by construction. A provider message id is unique
+  //    inside its own thread, never globally, so it is only meaningful once the
+  //    conversation is known — which is also what keeps another tenant's message id
+  //    from resolving (and disclosing) a conversation that is not ours.
   if (externalMessageId) {
-    const dup = await prisma.message.findUnique({ where: { externalMessageId } })
-    if (dup) {
-      const conv = await prisma.conversation.findUnique({ where: { id: dup.conversationId } })
-      // The external namespace is not tenant-partitioned in the schema
-      // (`Message.externalMessageId` is a GLOBAL @unique), so a match proves the id
-      // was seen — not that this tenant is the one that saw it. Returning another
-      // tenant's conversation/customer ids here would disclose them across the
-      // isolation boundary (SEC-001), so an out-of-tenant hit is refused, not reused.
-      assertSameTenant(conv, tenantId)
-      return {
-        personId: identity.personId,
-        customerId: conv?.customerId,
-        conversationId: dup.conversationId,
-        messageId: dup.id,
-        created: { customer: false, conversation: false, message: false },
+    const existing = await prisma.conversation.findUnique({ where: conversationKey(tenantId, threadId) })
+    if (existing) {
+      const dup = await prisma.message.findUnique({
+        where: { conversationId_externalMessageId: { conversationId: existing.id, externalMessageId } },
+      })
+      if (dup) {
+        return {
+          personId: identity.personId,
+          customerId: existing.customerId,
+          conversationId: existing.id,
+          messageId: dup.id,
+          created: { customer: false, conversation: false, message: false },
+        }
       }
     }
   }
@@ -73,13 +74,8 @@ export async function ingestLineMessage(input) {
       })
     }
 
-    // 4. Conversation — one per external thread (channel-unique).
-    // Same reasoning as the idempotency guard above: `externalThreadId` is a global
-    // @unique, so a hit must be proven to belong to this tenant and channel before it
-    // is continued. Without this a caller presenting another tenant's thread id would
-    // append its message into that tenant's conversation.
-    let conversation = await tx.conversation.findUnique({ where: { externalThreadId: threadId } })
-    assertSameTenant(conversation, tenantId, CHANNEL)
+    // 4. Conversation — one per (tenant, channel, external thread).
+    let conversation = await tx.conversation.findUnique({ where: conversationKey(tenantId, threadId) })
     const createdConversation = !conversation
     if (!conversation) {
       conversation = await tx.conversation.create({
@@ -87,7 +83,9 @@ export async function ingestLineMessage(input) {
       })
     }
 
-    // 5. Message — appended; externalMessageId (if any) enforces idempotency at the DB.
+    // 5. Message — appended; (conversationId, externalMessageId) enforces idempotency
+    //    at the database, which is what makes step 2 an optimisation rather than the
+    //    guarantee: two concurrent redeliveries still collide on the constraint.
     const message = await tx.message.create({
       data: { conversationId: conversation.id, direction, body: text, externalMessageId: externalMessageId ?? null },
     })

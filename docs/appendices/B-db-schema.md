@@ -86,8 +86,17 @@ ADR-003 §D10, so no polymorphic principal). Distinct from ExternalRef (data map
 `Customer { code, tenantId, businessId?, personId→Person, displayName, lifecycleStage, +soft-delete/version }`
 unique(tenantId, personId) — a CRM record per principal per tenant (shared across the
 tenant's businesses).
-`Conversation { tenantId, businessId?, customerId→Customer, channel, externalThreadId@unique, status }`
-`Message { conversationId→Conversation, direction, body, externalMessageId@unique?, createdAt }`
+`Conversation { tenantId, businessId?, customerId→Customer, channel, externalThreadId, status }`
+  — `@@unique([tenantId, channel, externalThreadId])`
+`Message { conversationId→Conversation, direction, body, externalMessageId?, createdAt }`
+  — `@@unique([conversationId, externalMessageId])`
+
+Both external ids were globally unique until 2026-08-19, which made a provider id an
+effective primary key across every tenant (BR-002) and let one tenant's thread or
+message id resolve another tenant's rows. They are now scoped: the conversation by
+tenant and channel, the message by the conversation that owns it — a Message has no
+tenant column of its own, and adding one would duplicate truth that could drift from
+its Conversation.
 The LINE gateway `ingestLineMessage` resolves through FR-021 then upserts customer →
 conversation → message in one transaction; idempotent on externalMessageId.
 

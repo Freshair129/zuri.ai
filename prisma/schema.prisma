@@ -855,7 +855,7 @@ model Conversation {
   businessId       String?
   customerId       String
   channel          String // LINE | FACEBOOK | WEB
-  externalThreadId String   @unique
+  externalThreadId String
   status           String   @default("OPEN")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -863,6 +863,10 @@ model Conversation {
   customer Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
   messages Message[]
 
+  // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
+  // it by tenant and channel is what makes the external namespace tenant-partitioned:
+  // a global unique let one tenant's thread id resolve another tenant's conversation.
+  @@unique([tenantId, channel, externalThreadId])
   @@index([customerId])
   @@index([tenantId])
 }
@@ -872,11 +876,17 @@ model Message {
   conversationId    String
   direction         String // INBOUND | OUTBOUND
   body              String
-  externalMessageId String?  @unique
+  externalMessageId String?
   createdAt         DateTime @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
+  // @spec BR-002, SEC-001 — scoped to the conversation that owns the message rather
+  // than to a tenant column: a Message has no tenant of its own, and denormalising one
+  // would create a second copy of the truth that could drift from its Conversation.
+  // The conversation is already tenant-scoped, so isolation follows and cannot drift.
+  // NULL stays non-conflicting in both engines, so unkeyed outbound messages are free.
+  @@unique([conversationId, externalMessageId])
   @@index([conversationId])
 }
 

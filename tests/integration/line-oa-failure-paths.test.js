@@ -86,7 +86,7 @@ describe('LINE OA failure paths', () => {
       events: [textEvent('Ufail-unknown', 'สวัสดี', 'MFAIL-UNKNOWN')],
     })
     expect(res.status).toBe(401)
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MFAIL-UNKNOWN' } })).toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MFAIL-UNKNOWN' } })).toBeNull()
   })
 
   it('rejects a destination that does not match the binding', async () => {
@@ -97,7 +97,7 @@ describe('LINE OA failure paths', () => {
       events: [textEvent('Ufail-dest', 'สวัสดี', 'MFAIL-DEST')],
     })
     expect(res.status).toBe(401)
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MFAIL-DEST' } })).toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MFAIL-DEST' } })).toBeNull()
   })
 
   it('rejects a malformed payload with 400 and writes nothing', async () => {
@@ -131,7 +131,7 @@ describe('LINE OA failure paths', () => {
     expect(result.response.text).toContain('99')
     expect(result.skipReply).toBe(false)
     // the inbound message is preserved regardless of provider health
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MFAIL-PROVIDER' } })).not.toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MFAIL-PROVIDER' } })).not.toBeNull()
   })
 
   it('isolates a knowledge-layer failure to its own event and keeps the inbound evidence', async () => {
@@ -158,7 +158,7 @@ describe('LINE OA failure paths', () => {
     expect(json.handled).toBe(1)
 
     // the customer's message survived the failure: it is evidence, not a side effect
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MFAIL-KNOW' } })).not.toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MFAIL-KNOW' } })).not.toBeNull()
     // and no reply was claimed for it
     expect(json.results[0].skipReply).toBeUndefined()
   })
@@ -175,7 +175,7 @@ describe('LINE OA failure paths', () => {
     expect(json.handled).toBe(0)
     expect(json.results[0].ok).toBe(false)
     expect(json.results[0].error).toMatch(/revoked/i)
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MFAIL-REV-2' } })).toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MFAIL-REV-2' } })).toBeNull()
   })
 
   it('skips unsupported message types and non-message events without a reply', async () => {
@@ -190,7 +190,7 @@ describe('LINE OA failure paths', () => {
 
     expect(json.handled).toBe(0)
     expect(json.results.every((r) => r.skipped === true)).toBe(true)
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MFAIL-STICKER' } })).toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MFAIL-STICKER' } })).toBeNull()
   })
 
   it('skips an event with no resolvable source without failing the batch', async () => {
@@ -200,6 +200,6 @@ describe('LINE OA failure paths', () => {
     ]))).json()
 
     expect(json.results[0]).toMatchObject({ skipped: true, reason: 'no source userId' })
-    expect(await prisma.message.findUnique({ where: { externalMessageId: 'MFAIL-NOSRC' } })).toBeNull()
+    expect(await prisma.message.findFirst({ where: { externalMessageId: 'MFAIL-NOSRC' } })).toBeNull()
   })
 })
