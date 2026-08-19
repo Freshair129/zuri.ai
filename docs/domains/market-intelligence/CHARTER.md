@@ -1,7 +1,8 @@
 ---
 domain: market-intelligence
 module: src/modules/market-intelligence
-owns_models: []
+owns_models:
+  - MarketObservation
 owns_code:
   - src/modules/market-intelligence/**
 ---
@@ -35,9 +36,9 @@ Target route key: market
 
 ## Owned concepts (target; models land only with an approved global implementation requirement)
 
-The charter reserves the semantic lane, not Prisma tables that do not yet exist. Candidate owned concepts are:
+`MarketObservation` is the first persisted model owned by this domain under #76. The remaining names are candidate concepts only until their own global implementation requirements land:
 
-- `MarketObservation`
+- `MarketObservation` — persisted in #76
 - `ExternalOffer` / `ExternalListing`
 - `PriceObservation`
 - `AvailabilityObservation`
@@ -52,7 +53,7 @@ The charter reserves the semantic lane, not Prisma tables that do not yet exist.
 - `WatchRule`
 - `MarketAlert`
 
-When a model is added, this frontmatter SHALL be updated in the same implementation slice so preflight can enforce unique model ownership. Until then `owns_models: []` is truthful.
+When another model is added, this frontmatter SHALL be updated in the same implementation slice so preflight can enforce unique model ownership.
 
 ## Capability map
 
@@ -73,7 +74,7 @@ These are subdomains/capabilities of one product domain, not peer Tier-2 domains
 
 ## Public contract direction
 
-The following names describe the intended boundary; they are not committed code signatures until global FRs authorize implementation:
+The following names describe the intended boundary; only the #76 translation seam is committed in this slice:
 
 ```text
 translateRawRecord(rawExternalRecordRef)
