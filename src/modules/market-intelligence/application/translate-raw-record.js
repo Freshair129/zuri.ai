@@ -1,5 +1,12 @@
 import { createHash } from 'node:crypto'
 
+import {
+  MARKET_RESOLUTION_STATUS,
+  normalizeMarketObservationDraft,
+} from '../domain/market-observation'
+
+export { MARKET_RESOLUTION_STATUS } from '../domain/market-observation'
+
 // Phase #76 contract-first slice. Global requirement IDs are reserved in issue #76
 // and will be added to the canonical PRD registry before this branch is mergeable.
 // @spec ADR-038 — Integration owns raw evidence; Market owns translated observations.
@@ -14,12 +21,6 @@ const REQUIRED_RAW_FIELDS = [
   'payloadJson',
   'payloadHash',
 ]
-
-export const MARKET_RESOLUTION_STATUS = Object.freeze({
-  RESOLVED: 'RESOLVED',
-  PARTIAL: 'PARTIAL',
-  UNRESOLVED: 'UNRESOLVED',
-})
 
 function requireRawRecord(rawRecord) {
   if (!rawRecord || typeof rawRecord !== 'object') {
@@ -163,7 +164,7 @@ export async function translateRawRecordToMarketObservation(
     observationType: extracted.observationType,
   })
 
-  return {
+  return normalizeMarketObservationDraft({
     tenantId: rawRecord.tenantId,
     businessId: rawRecord.businessId ?? null,
     rawRecordId: rawRecord.id,
@@ -183,5 +184,5 @@ export async function translateRawRecordToMarketObservation(
     observedAt,
     translatedAt,
     lineageKey,
-  }
+  })
 }
