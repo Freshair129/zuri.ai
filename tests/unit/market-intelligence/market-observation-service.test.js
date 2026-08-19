@@ -10,11 +10,13 @@ function createRepository() {
   const rows = new Map()
   return {
     rows,
-    findByLineageKey: vi.fn(async (lineageKey) => rows.get(lineageKey) ?? null),
-    insert: vi.fn(async (draft) => {
+    insertIfAbsent: vi.fn(async (draft) => {
+      const existing = rows.get(draft.lineageKey)
+      if (existing) return { status: 'UNCHANGED', observation: existing }
+
       const row = { id: `obs-${rows.size + 1}`, ...draft }
       rows.set(draft.lineageKey, row)
-      return row
+      return { status: 'CREATED', observation: row }
     }),
   }
 }
@@ -67,7 +69,7 @@ describe('MarketObservation persistence application seam (#76)', () => {
 
     expect(result.status).toBe('CREATED')
     expect(result.observation.id).toBe('obs-1')
-    expect(repository.insert).toHaveBeenCalledTimes(1)
+    expect(repository.insertIfAbsent).toHaveBeenCalledTimes(1)
   })
 
   it('returns UNCHANGED for replay of the same lineage key', async () => {
@@ -79,11 +81,24 @@ describe('MarketObservation persistence application seam (#76)', () => {
     expect(first.status).toBe('CREATED')
     expect(second.status).toBe('UNCHANGED')
     expect(second.observation.id).toBe(first.observation.id)
-    expect(repository.insert).toHaveBeenCalledTimes(1)
+    expect(repository.insertIfAbsent).toHaveBeenCalledTimes(2)
   })
 
-  it('requires the persistence port rather than writing through Integration', async () => {
-    await expect(persistMarketObservationDraft(draft)).rejects.toThrow(/repository/i)
+  it('requires an atomic persistence port rather than a read-before-create pair', async () => {
+    await expect(persistMarketObservationDraft(draft, {
+      repository: {
+        findByLineageKey: vi.fn(),
+        insert: vi.fn(),
+      },
+    })).rejects.toThrow(/atomic insertIfAbsent/i)
+  })
+
+  it('rejects malformed repository status instead of pretending persistence succeeded', async () => {
+    await expect(persistMarketObservationDraft(draft, {
+      repository: {
+        insertIfAbsent: vi.fn(async () => ({ status: 'MAYBE', observation: null })),
+      },
+    })).rejects.toThrow(/invalid insertIfAbsent result/i)
   })
 
   it('composes translation then persistence without mutating raw evidence', async () => {
@@ -103,7 +118,6 @@ describe('MarketObservation persistence application seam (#76)', () => {
 
     expect(first.status).toBe('CREATED')
     expect(second.status).toBe('UNCHANGED')
-    expect(repository.insert).toHaveBeenCalledTimes(1)
     expect(rawRecord).toEqual(before)
   })
 
@@ -137,7 +151,7 @@ describe('MarketObservation persistence application seam (#76)', () => {
     })
 
     expect(result).toEqual({ status: 'NOT_FOUND', observation: null })
-    expect(repository.insert).not.toHaveBeenCalled()
+    expect(repository.insertIfAbsent).not.toHaveBeenCalled()
   })
 
   it('requires the Integration scoped read port for the preferred entry point', async () => {
