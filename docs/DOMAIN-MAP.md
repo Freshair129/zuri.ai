@@ -65,6 +65,17 @@ Charter: [docs/domains/knowledge/CHARTER.md](domains/knowledge/CHARTER.md)
 | Routes owned | 0 (0 api · 0 pages) |
 | FRs implemented in lane | FR-024, FR-047, FR-051, FR-052, FR-054 |
 
+## market-intelligence
+
+Charter: [docs/domains/market-intelligence/CHARTER.md](domains/market-intelligence/CHARTER.md)
+
+| | |
+|---|---|
+| Modules | `src/modules/market-intelligence` |
+| Models owned | — (state lives outside the shared schema by design) |
+| Routes owned | 0 (0 api · 0 pages) |
+| FRs implemented in lane | — |
+
 ## project-manager
 
 Charter: [docs/domains/project-manager/CHARTER.md](domains/project-manager/CHARTER.md)
