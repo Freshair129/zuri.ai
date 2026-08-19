@@ -27,6 +27,25 @@ describe('FR-080 Platform Integrations UI contract', () => {
     expect(source).not.toMatch(/promote|activate|canary|ACCEPTED_BY_LINE/i)
   })
 
+  it('renders the AC-075.3 health state with the reasons behind it', () => {
+    const source = page()
+    // a pill alone tells an operator something is wrong without telling them what
+    // to fix — which is why `reasons` is a list and is rendered
+    expect(source).toContain('row.health')
+    expect(source).toMatch(/reasons\.map/)
+    expect(source).toMatch(/StatusPill status=\{state\}/)
+    // the channel's most actionable fact is when it was last heard from
+    expect(source).toMatch(/lastEventAt/)
+  })
+
+  it('keeps channel rows read-only — provisioning is not a UI action', () => {
+    const source = page()
+    // the create form stays fixed to the Phase 1 model provider; a channel must not
+    // gain an edit/activate affordance here (AC-075.6)
+    expect(source).toMatch(/isChannel/)
+    expect(source).not.toMatch(/editChannel|createChannel|activateChannel/i)
+  })
+
   it('keeps the API behind the trusted viewer route boundary', () => {
     const route = readFileSync('src/app/api/platform/integrations/route.js', 'utf8')
     expect(route).toContain('resolveRequestViewer')

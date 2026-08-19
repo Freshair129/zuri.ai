@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 997,
-    "total_edges": 3278,
+    "total_nodes": 1000,
+    "total_edges": 3290,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,8 +16,8 @@
       "route": 112,
       "model": 50,
       "requirement": 188,
-      "test": 220,
-      "code_file": 266
+      "test": 222,
+      "code_file": 267
     },
     "coverage": {
       "requirements": 188,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (78/78)",
       "rules_anchored_in_code": "89% (71/80)",
       "nfr_evidence_based": "17 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 266,
+      "annotated_code_files": 267,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -60,33 +60,17 @@
   },
   "drift": {
     "changed": [
-      "domain:integration",
-      "doc:FR-081-raw-external-ingestion",
+      "doc:FR-080-integration-secret-management-ui",
       "doc:PRD-SDD-v1.0",
-      "test:tests/integration/agent-webhook-route.test.js",
-      "code:src/app/api/agent/line-webhook/route.js",
-      "code:src/lib/validation/entities.js",
-      "code:src/modules/agent/phase1-runtime.js",
-      "code:src/modules/agent/turn.js",
-      "code:src/modules/crm/line-ingest-service.js",
-      "code:src/platform/integrations/core/integration-registry.js"
+      "test:tests/unit/fr080-ui-contract.test.js",
+      "code:src/app/(pm)/platform/integrations/page.jsx",
+      "code:src/components/ui/index.jsx",
+      "code:src/modules/integration/application/integration-management-service.js"
     ],
     "added": [
-      "req:NFR-017",
-      "req:SDD-048",
-      "test:tests/integration/line-ingest-tenant-isolation.test.js",
-      "test:tests/integration/line-oa-correlation-trace.test.js",
-      "test:tests/integration/line-oa-evidence-convergence.test.js",
-      "test:tests/integration/line-oa-failure-paths.test.js",
-      "test:tests/integration/line-oa-golden-path.test.js",
-      "test:tests/integration/line-webhook-unbound-production.test.js",
-      "test:tests/unit/line-webhook-scope-fail-closed.test.js",
-      "test:tests/unit/observability-correlation.test.js",
-      "test:tests/unit/observability-logger.test.js",
-      "test:tests/unit/scope-external-ids-migration.test.js",
-      "code:src/lib/observability/correlation.js",
-      "code:src/lib/observability/logger.js",
-      "code:src/platform/integrations/providers/line/line-oa-evidence.js"
+      "test:tests/integration/line-oa-connection-health.test.js",
+      "test:tests/unit/connection-health.test.js",
+      "code:src/platform/integrations/core/connection-health.js"
     ],
     "removed": []
   },
@@ -352,8 +336,8 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "97a0f798",
-      "status": "current",
+      "hash": "f1db9e70",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080",
@@ -834,7 +818,7 @@
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
       "hash": "bfeff596",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-050",
@@ -2632,8 +2616,8 @@
       "id": "code:src/components/ui/index.jsx",
       "type": "code_file",
       "path": "src/components/ui/index.jsx",
-      "hash": "d8928f9e",
-      "status": "current",
+      "hash": "1da104f1",
+      "status": "changed",
       "annotations": {
         "@req": [
           "NFR-008",
@@ -2904,7 +2888,7 @@
       "type": "code_file",
       "path": "src/lib/validation/entities.js",
       "hash": "fbadf32b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-087",
@@ -3299,7 +3283,7 @@
       "type": "code_file",
       "path": "src/modules/agent/phase1-runtime.js",
       "hash": "0d907f98",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-047",
@@ -3388,7 +3372,7 @@
       "type": "code_file",
       "path": "src/modules/agent/turn.js",
       "hash": "b7e65eac",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-027"
@@ -3507,7 +3491,7 @@
       "type": "code_file",
       "path": "src/modules/crm/line-ingest-service.js",
       "hash": "f55a0acd",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-023"
@@ -3833,8 +3817,8 @@
       "id": "code:src/modules/integration/application/integration-management-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/integration-management-service.js",
-      "hash": "34484977",
-      "status": "current",
+      "hash": "b3e37f31",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080"
@@ -3844,7 +3828,8 @@
           "SDD-044"
         ],
         "@tested": [
-          "tests/unit/fr080-integration-management.test.js"
+          "tests/unit/fr080-integration-management.test.js",
+          "tests/unit/connection-health.test.js"
         ]
       }
     },
@@ -5217,6 +5202,24 @@
       }
     },
     {
+      "id": "code:src/platform/integrations/core/connection-health.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/connection-health.js",
+      "hash": "97a5704b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-080"
+        ],
+        "@spec": [
+          "SEC-016"
+        ],
+        "@tested": [
+          "tests/unit/connection-health.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/platform/integrations/core/contracts.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/contracts.js",
@@ -5277,7 +5280,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/integration-registry.js",
       "hash": "13daaa65",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-079",
@@ -5964,8 +5967,8 @@
       "type": "document",
       "path": "docs/domains/integration/features/FR-080-integration-secret-management-ui.md",
       "title": "FR-080 — Integration and Secret Manager management UI",
-      "hash": "f7bef9d9",
-      "status": "current"
+      "hash": "a88cff0e",
+      "status": "changed"
     },
     {
       "id": "doc:FR-081-raw-external-ingestion",
@@ -5973,7 +5976,7 @@
       "path": "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
       "title": "FR-081 — Raw external ingestion boundary",
       "hash": "fc627694",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-082-pipeline-canvas",
@@ -6232,7 +6235,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "f3c4c60f",
+      "hash": "985b7a8d",
       "status": "changed"
     },
     {
@@ -6484,7 +6487,7 @@
         "integration"
       ],
       "hash": "fea9113f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:knowledge",
@@ -7827,11 +7830,11 @@
       "id": "req:FR-080",
       "type": "requirement",
       "family": "FR",
-      "label": "Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts.",
+      "label": "Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts. The read model now carries the AC-075.3 `health` field (`CONNECTED · DEGRADED · ERROR · DISABLED · MISCONFIGURED` plus every reason observed), computed from connection/credential state and `RawExternalRecord` arrival evidence rather than stored; the listing includes the `LINE_OA` channel alongside the Phase 1 model providers so channel health has no separate surface, while the create form stays fixed to `purpose=PHASE1_LINE_LLM`.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts. 🟠 local page/API/service/adapter implemented; live Supabase and activation evidence pending "
+      "row_text": "Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts. The read model now carries the AC-075.3 `health` field (`CONNECTED · DEGRADED · ERROR · DISABLED · MISCONFIGURED` plus every reason observed), computed from connection/credential state and `RawExternalRecord` arrival evidence rather than stored; the listing includes the `LINE_OA` channel alongside the Phase 1 model providers so channel health has no separate surface, while the create form stays fixed to `purpose=PHASE1_LINE_LLM`. 🟠 local page/API/service/adapter implemented; live Supabase and activation evidence pending "
     },
     {
       "id": "req:FR-081",
@@ -10060,7 +10063,7 @@
       "type": "test",
       "path": "tests/integration/agent-webhook-route.test.js",
       "hash": "aeb0607d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/backup.test.js",
@@ -10270,6 +10273,13 @@
       "type": "test",
       "path": "tests/integration/line-ingest.test.js",
       "hash": "07ff60e4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/line-oa-connection-health.test.js",
+      "type": "test",
+      "path": "tests/integration/line-oa-connection-health.test.js",
+      "hash": "bd0ebdb5",
       "status": "current"
     },
     {
@@ -10529,6 +10539,13 @@
       "type": "test",
       "path": "tests/unit/command-palette-index.test.js",
       "hash": "200c987a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/connection-health.test.js",
+      "type": "test",
+      "path": "tests/unit/connection-health.test.js",
+      "hash": "5d75d534",
       "status": "current"
     },
     {
@@ -10948,8 +10965,8 @@
       "id": "test:tests/unit/fr080-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr080-ui-contract.test.js",
-      "hash": "c22b2cba",
-      "status": "current"
+      "hash": "50e1b6cb",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr089-br018-team-grants-nothing.test.js",
@@ -18703,6 +18720,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/platform/integrations/core/connection-health.js",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/connection-health.js",
+      "to": "req:SEC-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/platform/integrations/core/contracts.js",
       "to": "doc:FR-081-raw-external-ingestion",
       "type": "references",
@@ -26193,6 +26224,27 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/line-oa-connection-health.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-connection-health.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-connection-health.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/line-oa-correlation-trace.test.js",
       "to": "req:NFR-017",
       "type": "verifies",
@@ -28540,6 +28592,55 @@
     {
       "from": "test:tests/unit/command-palette-index.test.js",
       "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "code:src/modules/integration/application/integration-management-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "code:src/platform/integrations/core/connection-health.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "req:FR-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "req:SEC-016",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

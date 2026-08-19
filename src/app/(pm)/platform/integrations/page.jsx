@@ -15,20 +15,63 @@ import { LLM_PROVIDER_CATALOG, providerByKey } from '@/platform/integrations/llm
 // @spec ADR-032 D1-D4, SEC-016, SDD-044
 // @tested tests/unit/fr080-ui-contract.test.js
 
+// FR-080 AC-075.3 — the health field, rendered as a state plus the reasons behind
+// it. A pill alone would tell an operator that something is wrong without telling
+// them what to fix, which is the whole reason `reasons` is a list and not a boolean.
+const HEALTH_HINT = {
+  CONNECTED: 'ทำงานปกติ',
+  DEGRADED: 'ยังพิสูจน์ไม่ได้ว่าทำงานอยู่',
+  ERROR: 'ใช้งานไม่ได้',
+  DISABLED: 'ปิดใช้งานอยู่',
+  MISCONFIGURED: 'ตั้งค่าไม่ครบ',
+}
+
+function HealthPanel({ health, kind }) {
+  if (!health) return null
+  const { state, reasons = [], evidence = {} } = health
+  const lastEvent = evidence.lastEventAt ? new Date(evidence.lastEventAt).toLocaleString() : null
+  return (
+    <div className="mt-3 border-t border-[var(--border)] pt-3 text-[11px]">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-muted">Health</span>
+        <StatusPill status={state} />
+        <span className="text-muted">{HEALTH_HINT[state] || ''}</span>
+      </div>
+      {reasons.length > 0 && (
+        <ul className="mt-1.5 list-disc pl-4 text-muted">
+          {reasons.map((reason) => <li key={reason} className="font-mono">{reason}</li>)}
+        </ul>
+      )}
+      {kind === 'CHANNEL' && (
+        <p className="mt-1.5 text-muted">
+          รับ event ล่าสุด: {lastEvent || 'ยังไม่เคยรับ event'}
+        </p>
+      )}
+    </div>
+  )
+}
+
 function IntegrationRow({ row }) {
+  const isChannel = row.kind === 'CHANNEL'
   return (
     <Card>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-sm font-bold">{row.name}</p>
-          <p className="mt-0.5 text-[11px] text-muted">{row.providerName || row.provider} · {row.model || 'Model not set'}</p>
+          <p className="mt-0.5 text-[11px] text-muted">
+            {isChannel ? 'Channel' : 'Model provider'} · {row.providerName || row.provider}
+            {isChannel ? '' : ` · ${row.model || 'Model not set'}`}
+          </p>
         </div>
         <StatusPill status={row.status} />
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-3 border-t border-[var(--border)] pt-3 text-[11px] max-md:grid-cols-1">
-        <div><span className="text-muted">Secret reference</span><p className="font-mono">{row.secretRefMasked || 'ยังไม่ได้ผูก Vault reference'}</p></div>
-        <div><span className="text-muted">Version / expiry</span><p>{row.credentialVersion || '—'} · {row.expiresAt ? new Date(row.expiresAt).toLocaleString() : 'refresh deadline 5m'}</p></div>
-      </div>
+      {!isChannel && (
+        <div className="mt-3 grid grid-cols-2 gap-3 border-t border-[var(--border)] pt-3 text-[11px] max-md:grid-cols-1">
+          <div><span className="text-muted">Secret reference</span><p className="font-mono">{row.secretRefMasked || 'ยังไม่ได้ผูก Vault reference'}</p></div>
+          <div><span className="text-muted">Version / expiry</span><p>{row.credentialVersion || '—'} · {row.expiresAt ? new Date(row.expiresAt).toLocaleString() : 'refresh deadline 5m'}</p></div>
+        </div>
+      )}
+      <HealthPanel health={row.health} kind={row.kind} />
     </Card>
   )
 }
@@ -116,9 +159,9 @@ export default function IntegrationsPage() {
           {error && <p className="mt-2 text-[11px] text-[var(--danger)]" role="alert">{error}</p>}
         </Card>
         <div>
-          <SectionTitle caption="แสดงเฉพาะ Business ที่ trusted viewer อนุญาต">Connections</SectionTitle>
+          <SectionTitle caption="Model provider ที่สร้างจากหน้านี้ และ LINE OA channel ที่ ingress บันทึกหลักฐานไว้ — เฉพาะ Business ที่ trusted viewer อนุญาต">Connections</SectionTitle>
           {rows.length === 0
-            ? <Card><p className="text-[11px] text-muted">ยังไม่มี Phase 1 connection ในขอบเขตนี้</p></Card>
+            ? <Card><p className="text-[11px] text-muted">ยังไม่มี connection ในขอบเขตนี้</p></Card>
             : <div className="space-y-3">{rows.map((row) => <IntegrationRow key={row.id} row={row} />)}</div>}
         </div>
       </div>
