@@ -26,7 +26,7 @@ const baseInput = {
 }
 
 describe('P1 integration contracts', () => {
-  it('keeps the six business lanes explicit and rejects an unknown lane', () => {
+  it('keeps business data lanes explicit and rejects an unknown lane', () => {
     expect(DATA_LANES).toEqual([
       'ACCOUNTING',
       'SALES',
@@ -34,9 +34,26 @@ describe('P1 integration contracts', () => {
       'MARKETING',
       'CUSTOMER',
       'BUSINESS',
+      'MARKET_INTELLIGENCE',
     ])
 
     expect(zIngestionEnvelope.safeParse({ ...baseInput, lane: 'META_API' }).success).toBe(false)
+  })
+
+  it('accepts Market Intelligence as a first-class lane without creating a second ingestion contract', () => {
+    const result = createIngestionEnvelope({
+      ...baseInput,
+      provider: 'MARKET_TEST',
+      lane: 'MARKET_INTELLIGENCE',
+      entityType: 'LISTING',
+      externalId: 'LISTING-1',
+      schemaVersion: 'market.test.listing.v1',
+      payload: { title: 'RTX 3060', price: 4900 },
+    })
+
+    expect(result.lane).toBe('MARKET_INTELLIGENCE')
+    expect(result.entityType).toBe('LISTING')
+    expect(result.idempotencyKey).toMatch(/^[a-f0-9]{64}$/)
   })
 
   it('requires tenant and connection scope on every external record', () => {
