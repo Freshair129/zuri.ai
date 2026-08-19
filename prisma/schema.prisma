@@ -149,6 +149,8 @@ model Person {
   updatedAt   DateTime @updatedAt
 
   memberships        Membership[]
+  credential         PersonCredential?
+  passwordResetTokens PasswordResetToken[]
   teamMemberships    TeamMembership[]
   // @req FR-088 — Projects this Person is accountable for (PIC).
   picProjects        Project[]          @relation("ProjectPic")
@@ -159,6 +161,41 @@ model Person {
   customerImportApprovals CustomerImportBatch[] @relation("CustomerImportBatchApprover")
   customerImportProvenance CustomerImportProvenance[] @relation("CustomerImportProvenancePerson")
   customerImportReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionActor")
+}
+
+// @req FR-090 — the production authentication credential and its password-reset
+// token, declared here because both tables already exist on the Supabase database
+// and `PersonCredential` holds a live row. They were pushed there from the
+// unmerged branch `codex/postgres-primary-runtime`; without them in this file
+// `prisma migrate diff` proposes DROPping both, which is how an ordinary
+// `db push` would have destroyed a real credential without anyone reading the SQL.
+//
+// This declares the shape that exists, not that the feature has landed: the
+// service and routes that use these tables still live on that branch. When it
+// merges, its own FR ids must not reuse FR-082/FR-083 — `main` already spent
+// those on the pipeline canvas (ADR-035), and an id is a key (AGENTS.md §18).
+model PersonCredential {
+  id           String   @id @default(uuid())
+  personId     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  personId  String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId])
+  @@index([token])
 }
 
 model Membership {
@@ -426,6 +463,10 @@ model Workstream {
   name             String
   executionMode    String
   executionModeId  String?
+  // @req FR-090 — same reason as PersonCredential above: the column is live on
+  // the Supabase database with a distinct value on every Workstream row, so
+  // leaving it undeclared made a DROP COLUMN the diff's recommendation.
+  laneId           String?
   executionContractId String?
   contractVersion  String?
   primaryDomainId  String?
@@ -451,6 +492,7 @@ model Workstream {
   @@index([projectId])
   @@index([executionMode])
   @@index([executionModeId])
+  @@index([laneId])
 }
 
 // @req FR-069, FR-070 — server-owned import identity and idempotency receipt.

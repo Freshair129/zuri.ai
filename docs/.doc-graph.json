@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1000,
-    "total_edges": 3290,
+    "total_nodes": 1003,
+    "total_edges": 3297,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -14,15 +14,15 @@
       "roadmap": 25,
       "feature": 8,
       "route": 112,
-      "model": 50,
-      "requirement": 188,
+      "model": 52,
+      "requirement": 189,
       "test": 222,
       "code_file": 267
     },
     "coverage": {
-      "requirements": 188,
-      "fr_with_code": "100% (78/78)",
-      "fr_with_tests": "100% (78/78)",
+      "requirements": 189,
+      "fr_with_code": "100% (79/79)",
+      "fr_with_tests": "100% (79/79)",
       "rules_anchored_in_code": "89% (71/80)",
       "nfr_evidence_based": "17 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 267,
@@ -60,17 +60,15 @@
   },
   "drift": {
     "changed": [
-      "doc:FR-080-integration-secret-management-ui",
+      "doc:B-db-schema",
+      "domain:identity",
       "doc:PRD-SDD-v1.0",
-      "test:tests/unit/fr080-ui-contract.test.js",
-      "code:src/app/(pm)/platform/integrations/page.jsx",
-      "code:src/components/ui/index.jsx",
-      "code:src/modules/integration/application/integration-management-service.js"
+      "code:src/modules/project-manager/application/backup-service.js"
     ],
     "added": [
-      "test:tests/integration/line-oa-connection-health.test.js",
-      "test:tests/unit/connection-health.test.js",
-      "code:src/platform/integrations/core/connection-health.js"
+      "model:PersonCredential",
+      "model:PasswordResetToken",
+      "req:FR-090"
     ],
     "removed": []
   },
@@ -337,7 +335,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
       "hash": "f1db9e70",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080",
@@ -2617,7 +2615,7 @@
       "type": "code_file",
       "path": "src/components/ui/index.jsx",
       "hash": "1da104f1",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "NFR-008",
@@ -3818,7 +3816,7 @@
       "type": "code_file",
       "path": "src/modules/integration/application/integration-management-service.js",
       "hash": "b3e37f31",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -4152,8 +4150,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "8c7ae6ba",
-      "status": "current",
+      "hash": "cbc9be9b",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-013",
@@ -4161,6 +4159,7 @@
           "FR-045",
           "FR-075",
           "FR-081",
+          "FR-090",
           "FR-089"
         ],
         "@spec": [
@@ -5474,8 +5473,8 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.8.0",
       "doc_status": "Draft",
-      "hash": "cbb64662",
-      "status": "current"
+      "hash": "dadb2d5f",
+      "status": "changed"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -5968,7 +5967,7 @@
       "path": "docs/domains/integration/features/FR-080-integration-secret-management-ui.md",
       "title": "FR-080 — Integration and Secret Manager management UI",
       "hash": "a88cff0e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-081-raw-external-ingestion",
@@ -6235,7 +6234,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "985b7a8d",
+      "hash": "b8c374b0",
       "status": "changed"
     },
     {
@@ -6452,7 +6451,9 @@
         "ExternalIdentity",
         "IdentityLinkToken",
         "ExternalRef",
-        "RoleBinding"
+        "RoleBinding",
+        "PersonCredential",
+        "PasswordResetToken"
       ],
       "owns_routes": [
         "src/app/(entry)/**",
@@ -6463,8 +6464,8 @@
       "modules": [
         "identity"
       ],
-      "hash": "4bda536d",
-      "status": "current"
+      "hash": "f0fafac2",
+      "status": "changed"
     },
     {
       "id": "domain:integration",
@@ -6762,7 +6763,17 @@
       "status": "current"
     },
     {
+      "id": "model:PasswordResetToken",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:Person",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PersonCredential",
       "type": "model",
       "status": "current"
     },
@@ -7925,6 +7936,16 @@
       "declared": "planned",
       "status": "planned",
       "row_text": "Team as an organisational grouping: three additive Business-scoped models — `Team`, `TeamMembership` (Person ↔ Team) and `ProjectTeam` (many-to-many, because a Project is worked by several Teams and a Team works several Projects). A Team records who works together and **grants nothing**: the identity resolver does not read it, no route guard consults it, and adding a Person to a Team changes no role, no domain grant and no visible or owned Business (BR-018, ADR-037 D1). `TeamMembership` is deliberately separate from `Membership` — the same distinct-authority-layer discipline BR-016 applies to `WorkspaceMembership` — because `Membership` is the authority record `resolveViewer` reads, and merging grouping into it is how an unauthenticated POST minted business-owner authority on 2026-08-17. Work stays assigned to a Person (`WorkItem.assigneeRef`), never to a Team (ADR-037 D4). FR-036's existing \"project Team\" tab is untouched and its reconciliation with this entity is deferred deliberately (ADR-037 D5). 🔜 design only — ADR-037 proposed, implementation not authorized "
+    },
+    {
+      "id": "req:FR-090",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. When the owning branch lands it must renumber: it currently claims FR-082/FR-083, which `main` already spent on the pipeline canvas, and its \"Development Overview Dashboard\" overlaps FR-086 — both are product decisions, not merge mechanics.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. When the owning branch lands it must renumber: it currently claims FR-082/FR-083, which `main` already spent on the pipeline canvas, and its \"Development Overview Dashboard\" overlaps FR-086 — both are product decisions, not merge mechanics. 🟠 schema declared to match the live database; the owning feature is unmerged "
     },
     {
       "id": "req:NFR-001",
@@ -10966,7 +10987,7 @@
       "type": "test",
       "path": "tests/unit/fr080-ui-contract.test.js",
       "hash": "50e1b6cb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr089-br018-team-grants-nothing.test.js",
@@ -17118,6 +17139,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-090",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:SDD-023",
       "type": "follows",
       "status": "current",
@@ -19371,6 +19399,20 @@
       "source": "charter"
     },
     {
+      "from": "model:PasswordResetToken",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PersonCredential",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Person",
       "to": "domain:crm",
       "type": "owned_by",
@@ -20233,6 +20275,13 @@
     },
     {
       "from": "req:FR-089",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-090",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -24370,6 +24419,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-090",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -25624,6 +25680,13 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-089",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-090",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -29495,6 +29558,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-089",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-090",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

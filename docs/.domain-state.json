@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-19T08:41:57.458Z",
+  "generatedAt": "2026-08-19T16:38:41.006Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -748,8 +748,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 4,
-            "present": 4
+            "models": 6,
+            "present": 6
           }
         },
         "authorization": {
@@ -832,7 +832,7 @@
         "routes": 3,
         "apiRoutes": 1,
         "pageRoutes": 2,
-        "ownedModels": 4,
+        "ownedModels": 6,
         "featureNotes": 9
       }
     },
@@ -1664,6 +1664,13 @@
             "tests/unit/fr089-br018-team-grants-nothing.test.js",
             "tests/unit/projects-dashboard-ui.test.js"
           ]
+        },
+        {
+          "id": "FR-090",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
         }
       ],
       "checks": {
