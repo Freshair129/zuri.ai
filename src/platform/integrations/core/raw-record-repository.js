@@ -11,6 +11,16 @@ function assertScope(scope) {
   }
 }
 
+function scopeWhere(scope) {
+  return {
+    tenantId: scope.tenantId,
+    connectionId: scope.connectionId,
+    ...(scope.businessId ? { businessId: scope.businessId } : {}),
+    ...(scope.ingestionRunId ? { ingestionRunId: scope.ingestionRunId } : {}),
+    ...(scope.provider ? { provider: scope.provider } : {}),
+  }
+}
+
 function assertRowScope(row, scope) {
   if (row.tenantId !== scope.tenantId || row.connectionId !== scope.connectionId) {
     throw new Error('raw record is outside repository tenant or connection scope')
@@ -30,13 +40,21 @@ export function createPrismaRawRecordRepository(db, scope) {
   assertScope(scope)
 
   return {
+    findById(rawRecordId) {
+      if (!rawRecordId) throw new Error('rawRecordId is required')
+      return db.rawExternalRecord.findFirst({
+        where: {
+          id: rawRecordId,
+          ...scopeWhere(scope),
+        },
+      })
+    },
+
     findByIdempotencyKey(idempotencyKey) {
       return db.rawExternalRecord.findFirst({
         where: {
           idempotencyKey,
-          tenantId: scope.tenantId,
-          connectionId: scope.connectionId,
-          ...(scope.businessId ? { businessId: scope.businessId } : {}),
+          ...scopeWhere(scope),
         },
       })
     },
