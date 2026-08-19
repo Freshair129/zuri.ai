@@ -33,12 +33,12 @@ export async function handleAgentTurn(
 ) {
   const {
     tenantId, businessId, lineUserId, displayName, text, threadId, externalMessageId, action,
-    sessionId, instanceId, eventId, capability, sensitivity, consent,
+    sessionId, instanceId, eventId, capability, sensitivity, consent, correlationId,
   } =
     zHandleAgentTurnInput.parse(input)
 
   // 1. Ingest the inbound message (persists + resolves identity through the one seam).
-  const inbound = await ingestLineMessage({ tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId })
+  const inbound = await ingestLineMessage({ tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId, correlationId })
 
   // 2. Assemble the read-only context (identity + memory + knowledge + read tools).
   const context = await assembleAgentContext({

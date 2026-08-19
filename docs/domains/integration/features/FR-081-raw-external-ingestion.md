@@ -52,6 +52,76 @@ replay trigger. FR-081 declares the substrate those will need. The one adapter
 shipped with it is the LINE OA webhook, which resolves its scope from the
 server-owned connection under FR-052 and never from the webhook payload.
 
+## Wiring status — converged onto the live LINE ingress (2026-08-19)
+
+Until 2026-08-19 `src/platform/integrations/providers/line/line-oa-webhook.js` was
+complete, tested and **reachable from tests only** — `grep -rn
+createLineOaWebhookConnector src/` returned nothing. The repository therefore held
+two disjoint ideas of "a LINE event": the route-local `zLineEvent` that drove the
+agent turn, and `zIngestionEnvelope`, which no running system ever produced.
+
+That is now converged. `POST /api/agent/line-webhook` resolves a `LINE_OA`
+`IntegrationConnection` from the Tenant/Business the FR-052 binding already proved,
+and records every event as a `RawExternalRecord` through
+`src/platform/integrations/providers/line/line-oa-evidence.js` — which calls the
+**same** `normalizeLineWebhookEvent` the connector uses. One channel, one
+normalizer, one raw write path.
+
+Design points worth keeping:
+
+- **Evidence first, then the turn.** The raw record is written before
+  `handleAgentTurn` and never inside its transaction, so a turn that fails on a bad
+  model, missing knowledge or an answer-policy bug still leaves a replayable record
+  of exactly what LINE sent. Proven by the "keeps the evidence when the turn fails
+  afterwards" case.
+- **Every event, not just the ones that reply.** `follow`, `unfollow`, `postback`
+  and non-text messages are still skipped by the turn, but they are no longer
+  discarded — each becomes a typed record (`LINE_IDENTITY`, `LINE_POSTBACK`,
+  `LINE_MESSAGE`). Previously they left no trace at all.
+- **Configuration, not a flag.** A channel with no *ACTIVE* `LINE_OA` connection
+  records no evidence and behaves exactly as before; the recorder returns `null`.
+  `ACTIVE` is part of the lookup rather than a check after it, so a row being
+  prepared (`createIntegrationConnection` defaults to `DRAFT`) or deliberately
+  disabled reads as "this channel is not ingesting" instead of taking a live channel
+  down mid-provisioning — and that state is still visible, because every event in the
+  response carries `evidence: null`. Once the connection is ACTIVE, evidence becomes
+  required and an event whose record cannot be written is not processed. An ACTIVE
+  connection for the destination under a *different* Business is a mapping error, not
+  an absence, and fails the batch (`LINE_OA_CONNECTION_OUTSIDE_BUSINESS`).
+- **The binding never reaches persistence.** The envelope payload is
+  `{ destination, event }` with `replyToken` stripped; `bindingId` and the caller's
+  bearer are not in it. Asserted, not assumed.
+
+### Resolution and provisioning
+
+The connection is found by `resolveLineOaConnection` on `(tenantId,
+provider.code='LINE_OA', externalAccountId=<destination>)`. The schema's
+`@@unique([tenantId, providerId, externalAccountId])` makes at most one such row
+exist, so resolution is deterministic without an ambiguity tiebreak and a tenant
+can run several Official Accounts.
+
+Provisioning is still an operator step — there is no UI for it, because FR-080
+fixes its form to `purpose=PHASE1_LINE_LLM`. Registering the provider and creating
+the connection (`registerIntegrationProvider` + `createIntegrationConnection` with
+`externalAccountId` set to the LINE destination and `status='ACTIVE'`) is the
+outstanding work before evidence flows in a live environment.
+
+### Still not closed by this
+
+An `IngestionRun` is not opened per batch: a webhook stream is continuous and a run
+per delivery would be noise, so `ingestionRunId` is left null and FR-081(d)'s run
+counters remain unexercised on this channel. `DeadLetterRecord` is likewise still
+unwritten — an evidence failure is reported in the response as
+`{ ok: false, stage: 'EVIDENCE' }` and nothing durable records it. Both need the
+scheduler/replay surface this requirement declares out of scope.
+
+**Signature verification remains outside this repository.** The connector's
+`verifySignature` needs the raw request bytes and the `x-line-signature` header,
+and the live route receives an already-normalized batch from `zuri-cli`, which
+holds both (BR-011). Convergence gives ZURI the canonical envelope; it does not
+move the authenticity boundary. Doing that requires `zuri-cli` to forward the raw
+body and signature, which is a contract change across two repositories.
+
 ## Relationship to the neighbouring requirements
 
 FR-048 remains the provider-port and credential-mode contract; FR-079 the

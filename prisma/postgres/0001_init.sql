@@ -1125,19 +1125,19 @@ CREATE INDEX "CustomerImportReviewDecision_targetCustomerId_idx" ON "CustomerImp
 CREATE UNIQUE INDEX "CustomerImportReviewDecision_provenanceId_decisionVersion_key" ON "CustomerImportReviewDecision"("provenanceId", "decisionVersion");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Conversation_externalThreadId_key" ON "Conversation"("externalThreadId");
-
--- CreateIndex
 CREATE INDEX "Conversation_customerId_idx" ON "Conversation"("customerId");
 
 -- CreateIndex
 CREATE INDEX "Conversation_tenantId_idx" ON "Conversation"("tenantId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Message_externalMessageId_key" ON "Message"("externalMessageId");
+CREATE UNIQUE INDEX "Conversation_tenantId_channel_externalThreadId_key" ON "Conversation"("tenantId", "channel", "externalThreadId");
 
 -- CreateIndex
 CREATE INDEX "Message_conversationId_idx" ON "Message"("conversationId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Message_conversationId_externalMessageId_key" ON "Message"("conversationId", "externalMessageId");
 
 -- CreateIndex
 CREATE INDEX "AuditEvent_entityType_entityId_idx" ON "AuditEvent"("entityType", "entityId");

@@ -5,12 +5,27 @@ import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { PUBLIC_LINE_PROVIDERS } from '@/modules/agent/model-provider'
 import { isSupabaseVaultSecretRef } from '@/platform/integrations/core/secret-manager'
-import { PHASE1_LINE_LLM_PURPOSE } from '@/platform/integrations/core/integration-registry'
+import {
+  LINE_OA_PROVIDER_CODE,
+  PHASE1_LINE_LLM_PURPOSE,
+} from '@/platform/integrations/core/integration-registry'
+import {
+  DEFAULT_STALE_AFTER_MS,
+  evaluateConnectionHealth,
+} from '@/platform/integrations/core/connection-health'
 
 // @req FR-080 — owner-scoped Platform metadata management for the Phase 1
-// connection; raw secret values never cross this service boundary.
+// connection; raw secret values never cross this service boundary. AC-075.3 also
+// promises health on this read model — it is computed here from evidence the
+// database already holds, never stored.
 // @spec ADR-032 D1-D4, SEC-016, SDD-044
-// @tested tests/unit/fr080-integration-management.test.js
+// @tested tests/unit/fr080-integration-management.test.js, tests/unit/connection-health.test.js
+//
+// The listing covers both connection kinds an operator has to reason about: the
+// Phase 1 MODEL_PROVIDER connections this page creates, and the LINE_OA CHANNEL the
+// ingress records evidence against (FR-081). They are one surface on purpose —
+// "is LINE up?" and "is the model configured?" are the same question asked twice,
+// and a separate LINE-only health page would be the second source of truth.
 
 const PROVIDER_NAMES = Object.freeze({
   openrouter: 'OpenRouter',
@@ -51,14 +66,28 @@ function assertOwned(viewer, businessId) {
   }
 }
 
-function toMetadata(connection) {
+const connectionKind = (connection) => (
+  connection.provider?.code === LINE_OA_PROVIDER_CODE ? 'CHANNEL' : 'MODEL_PROVIDER'
+)
+
+function toMetadata(connection, { lastEventAt = null, now = new Date(), staleAfterMs } = {}) {
   const metadata = metadataJson(connection)
   const credential = connection.credential
+  const kind = connectionKind(connection)
+  const health = evaluateConnectionHealth({
+    connection,
+    credential,
+    lastEventAt,
+    kind,
+    now,
+    ...(staleAfterMs === undefined ? {} : { staleAfterMs }),
+  })
   return {
     id: connection.id,
     tenantId: connection.tenantId,
     businessId: connection.businessId,
     name: connection.name,
+    kind,
     provider: connection.provider?.code ?? null,
     providerName: connection.provider?.name ?? null,
     model: metadata.model ?? null,
@@ -72,10 +101,36 @@ function toMetadata(connection) {
     credentialVersion: credential?.version ?? null,
     expiresAt: credential?.expiresAt ?? null,
     updatedAt: connection.updatedAt ?? null,
+    // AC-075.3 health field. `reasons` is the whole finding list, not just the one
+    // the state is named after, so a disabled *and* misconfigured row says both.
+    health,
   }
 }
 
-export async function listPhase1Integrations({ db = prisma, resolve, businessId = null } = {}) {
+/**
+ * Newest inbound evidence per connection, in one query rather than one per row.
+ *
+ * `RawExternalRecord` is the only durable record that a connection actually
+ * carried traffic (FR-081), which makes it the honest input to channel health —
+ * an operator asking "is LINE up?" is asking when we last heard from it.
+ */
+async function lastEventByConnection(db, connectionIds) {
+  if (connectionIds.length === 0) return new Map()
+  const rows = await db.rawExternalRecord.groupBy({
+    by: ['connectionId'],
+    where: { connectionId: { in: connectionIds } },
+    _max: { receivedAt: true },
+  })
+  return new Map(rows.map((row) => [row.connectionId, row._max.receivedAt ?? null]))
+}
+
+export async function listPhase1Integrations({
+  db = prisma,
+  resolve,
+  businessId = null,
+  now = new Date(),
+  staleAfterMs = DEFAULT_STALE_AFTER_MS,
+} = {}) {
   const viewer = await resolve()
   const ownedBusinessIds = Array.isArray(viewer?.ownedBusinessIds) ? viewer.ownedBusinessIds.filter(Boolean) : []
   if (businessId) assertOwned(viewer, businessId)
@@ -83,11 +138,28 @@ export async function listPhase1Integrations({ db = prisma, resolve, businessId 
   if (scopedBusinessIds.length === 0) return []
 
   const rows = await db.integrationConnection.findMany({
-    where: { purpose: PHASE1_LINE_LLM_PURPOSE, businessId: { in: scopedBusinessIds } },
+    where: {
+      businessId: { in: scopedBusinessIds },
+      // Both kinds an operator has to reason about: the Phase 1 model providers this
+      // page creates, and the LINE OA channel the ingress records evidence against.
+      OR: [
+        { purpose: PHASE1_LINE_LLM_PURPOSE },
+        { provider: { code: LINE_OA_PROVIDER_CODE } },
+      ],
+    },
     orderBy: { updatedAt: 'desc' },
     include: { provider: true, credential: true },
   })
-  return rows.map(toMetadata)
+
+  const lastEvents = await lastEventByConnection(
+    db,
+    rows.filter((row) => connectionKind(row) === 'CHANNEL').map((row) => row.id),
+  )
+  return rows.map((row) => toMetadata(row, {
+    lastEventAt: lastEvents.get(row.id) ?? null,
+    now,
+    staleAfterMs,
+  }))
 }
 
 export async function createPhase1Integration(input, { db = prisma, resolve } = {}) {

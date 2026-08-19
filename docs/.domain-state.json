@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-19T06:57:09.598Z",
+  "generatedAt": "2026-08-19T08:41:57.458Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -84,6 +84,7 @@
           "tests/integration/agent-action-gate.test.js",
           "tests/integration/agent-context.test.js",
           "tests/unit/activation-readiness-integration.test.js",
+          "tests/unit/connection-health.test.js",
           "tests/unit/fr079-credential-vault.test.js",
           "tests/unit/fr079-runtime-cutover.test.js",
           "tests/unit/fr079-schema-contract.test.js",
@@ -98,8 +99,11 @@
         "check": "requirements",
         "summary": "FR-081 is not_implemented",
         "evidence": [
+          "tests/integration/agent-webhook-route.test.js",
           "tests/integration/backup.test.js",
           "tests/integration/fr075-restore-authorization.test.js",
+          "tests/integration/line-oa-connection-health.test.js",
+          "tests/integration/line-oa-evidence-convergence.test.js",
           "tests/integration/platform/integration-persistence.test.js",
           "tests/unit/fr045-backup-contract.test.js",
           "tests/unit/fr079-runtime-cutover.test.js",
@@ -275,7 +279,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 2
+          "testCount": 6
         },
         {
           "id": "FR-029",
@@ -310,7 +314,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 1
+          "testCount": 4
         },
         {
           "id": "FR-051",
@@ -324,7 +328,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 6
+          "testCount": 10
         },
         {
           "id": "FR-053",
@@ -359,14 +363,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-080",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 8
+        },
+        {
+          "id": "FR-081",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 11
         }
       ],
       "checks": {
@@ -470,7 +481,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 2
+          "testCount": 4
         },
         {
           "id": "FR-078",
@@ -833,11 +844,12 @@
           "declared": "n/a",
           "status": "not_implemented",
           "codeCount": 0,
-          "testCount": 8,
+          "testCount": 9,
           "evidence": [
             "tests/integration/agent-action-gate.test.js",
             "tests/integration/agent-context.test.js",
             "tests/unit/activation-readiness-integration.test.js",
+            "tests/unit/connection-health.test.js",
             "tests/unit/fr079-credential-vault.test.js",
             "tests/unit/fr079-runtime-cutover.test.js",
             "tests/unit/fr079-schema-contract.test.js",
@@ -850,17 +862,20 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 8
         },
         {
           "id": "FR-081",
           "declared": "n/a",
           "status": "not_implemented",
           "codeCount": 0,
-          "testCount": 8,
+          "testCount": 11,
           "evidence": [
+            "tests/integration/agent-webhook-route.test.js",
             "tests/integration/backup.test.js",
             "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/line-oa-connection-health.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
             "tests/integration/platform/integration-persistence.test.js",
             "tests/unit/fr045-backup-contract.test.js",
             "tests/unit/fr079-runtime-cutover.test.js",
@@ -973,6 +988,7 @@
             "tests/integration/agent-action-gate.test.js",
             "tests/integration/agent-context.test.js",
             "tests/unit/activation-readiness-integration.test.js",
+            "tests/unit/connection-health.test.js",
             "tests/unit/fr079-credential-vault.test.js",
             "tests/unit/fr079-runtime-cutover.test.js",
             "tests/unit/fr079-schema-contract.test.js",
@@ -986,8 +1002,11 @@
           "check": "requirements",
           "summary": "FR-081 is not_implemented",
           "evidence": [
+            "tests/integration/agent-webhook-route.test.js",
             "tests/integration/backup.test.js",
             "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/line-oa-connection-health.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
             "tests/integration/platform/integration-persistence.test.js",
             "tests/unit/fr045-backup-contract.test.js",
             "tests/unit/fr079-runtime-cutover.test.js",
@@ -1034,7 +1053,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 10
         },
         {
           "id": "FR-054",
@@ -1539,14 +1558,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 6
+          "testCount": 8
         },
         {
           "id": "FR-081",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 11
         },
         {
           "id": "FR-082",

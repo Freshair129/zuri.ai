@@ -211,6 +211,51 @@ export async function promotePhase1PrimaryConnection({
   })
 }
 
+// @req FR-081 — the LINE OA channel this ingress records evidence against.
+// @spec BR-012, SEC-001 — the destination is matched inside the tenant the binding
+//   already proved; a connection under another Business is a misconfiguration, not a
+//   near-miss to fall back from.
+//
+// `@@unique([tenantId, providerId, externalAccountId])` makes at most one LINE_OA
+// connection exist per (tenant, destination), so resolution is deterministic without
+// an ambiguity tiebreak. `null` means this channel has no connection yet — evidence is
+// not configured — which is a different answer from "misconfigured" and is why the two
+// do not share a return value.
+export const LINE_OA_PROVIDER_CODE = 'LINE_OA'
+
+export async function resolveLineOaConnection({
+  db = prisma,
+  tenantId,
+  businessId = null,
+  destination,
+} = {}) {
+  required(tenantId, 'TENANT_ID')
+  required(destination, 'LINE_DESTINATION')
+
+  // ACTIVE is part of the lookup, not a check after it, so a connection being
+  // prepared (`createIntegrationConnection` defaults to DRAFT) or deliberately
+  // disabled reads as "this channel is not ingesting" rather than breaking a live
+  // channel mid-provisioning. That state is still visible: every event in the
+  // response carries `evidence: null`.
+  const connection = await db.integrationConnection.findFirst({
+    where: {
+      tenantId,
+      externalAccountId: destination,
+      status: 'ACTIVE',
+      provider: { code: LINE_OA_PROVIDER_CODE },
+    },
+    include: { provider: true },
+  })
+  if (!connection) return null
+  // An ACTIVE connection for this destination under a different Business is a
+  // mapping error, not an absence. Recording evidence under the wrong Business
+  // would be the cross-scope write SEC-001 exists to stop, so it fails loudly.
+  if ((connection.businessId ?? null) !== (businessId ?? null)) {
+    throw new Error('LINE_OA_CONNECTION_OUTSIDE_BUSINESS')
+  }
+  return connection
+}
+
 // @req FR-081 — a provider row is the addressable identity an ingestion channel
 // binds to; registering one is idempotent on its code.
 export async function registerIntegrationProvider({

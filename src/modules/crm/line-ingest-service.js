@@ -17,28 +17,47 @@ const CHANNEL = 'LINE'
 const customerCodeExists = async (code) => Boolean(await prisma.customer.findUnique({ where: { code } }))
 
 /**
- * Ingest one LINE message. Idempotent on externalMessageId (a redelivered webhook
- * does not double-store). Returns the resolved ids.
+ * The conversation's identity: tenant + channel + the provider's thread id.
+ *
+ * Every lookup goes through this key rather than through `externalThreadId` alone.
+ * That is the whole isolation guarantee — the key cannot return another tenant's
+ * conversation, so there is no scope to re-check afterwards (BR-001, SEC-001).
+ */
+const conversationKey = (tenantId, threadId) => ({
+  tenantId_channel_externalThreadId: { tenantId, channel: CHANNEL, externalThreadId: threadId },
+})
+
+/**
+ * Ingest one LINE message. Idempotent on externalMessageId within its conversation
+ * (a redelivered webhook does not double-store). Returns the resolved ids.
  * @returns {{ personId, customerId, conversationId, messageId, created: {customer:boolean, conversation:boolean, message:boolean} }}
  */
 export async function ingestLineMessage(input) {
   const data = zIngestLineMessageInput.parse(input)
-  const { tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId, direction } = data
+  const { tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId, direction, correlationId } = data
 
   // 1. Identity — the single seam. Resolves (or creates) the Person principal.
   const identity = await resolveLineIdentity({ tenantId, lineUserId, displayName })
 
-  // 2. Idempotency: a redelivered message id short-circuits before any write.
+  // 2. Idempotency: a redelivered message short-circuits before any write.
+  //    Both lookups are scoped by construction. A provider message id is unique
+  //    inside its own thread, never globally, so it is only meaningful once the
+  //    conversation is known — which is also what keeps another tenant's message id
+  //    from resolving (and disclosing) a conversation that is not ours.
   if (externalMessageId) {
-    const dup = await prisma.message.findUnique({ where: { externalMessageId } })
-    if (dup) {
-      const conv = await prisma.conversation.findUnique({ where: { id: dup.conversationId } })
-      return {
-        personId: identity.personId,
-        customerId: conv?.customerId,
-        conversationId: dup.conversationId,
-        messageId: dup.id,
-        created: { customer: false, conversation: false, message: false },
+    const existing = await prisma.conversation.findUnique({ where: conversationKey(tenantId, threadId) })
+    if (existing) {
+      const dup = await prisma.message.findUnique({
+        where: { conversationId_externalMessageId: { conversationId: existing.id, externalMessageId } },
+      })
+      if (dup) {
+        return {
+          personId: identity.personId,
+          customerId: existing.customerId,
+          conversationId: existing.id,
+          messageId: dup.id,
+          created: { customer: false, conversation: false, message: false },
+        }
       }
     }
   }
@@ -55,8 +74,8 @@ export async function ingestLineMessage(input) {
       })
     }
 
-    // 4. Conversation — one per external thread (channel-unique).
-    let conversation = await tx.conversation.findUnique({ where: { externalThreadId: threadId } })
+    // 4. Conversation — one per (tenant, channel, external thread).
+    let conversation = await tx.conversation.findUnique({ where: conversationKey(tenantId, threadId) })
     const createdConversation = !conversation
     if (!conversation) {
       conversation = await tx.conversation.create({
@@ -64,7 +83,9 @@ export async function ingestLineMessage(input) {
       })
     }
 
-    // 5. Message — appended; externalMessageId (if any) enforces idempotency at the DB.
+    // 5. Message — appended; (conversationId, externalMessageId) enforces idempotency
+    //    at the database, which is what makes step 2 an optimisation rather than the
+    //    guarantee: two concurrent redeliveries still collide on the constraint.
     const message = await tx.message.create({
       data: { conversationId: conversation.id, direction, body: text, externalMessageId: externalMessageId ?? null },
     })
@@ -74,7 +95,16 @@ export async function ingestLineMessage(input) {
       entityId: conversation.id,
       action: 'MESSAGE_INGESTED',
       actorType: 'LINE',
-      payload: { tenantId, customerId: customer.id, direction, messageId: message.id },
+      // @spec NFR-017 — the audit row is the DURABLE end of the correlation chain. A log
+      //   stream is sampled, rotated and eventually gone; this row is append-only, so
+      //   "which webhook delivery produced this message" stays answerable afterwards.
+      payload: {
+        tenantId,
+        customerId: customer.id,
+        direction,
+        messageId: message.id,
+        ...(correlationId ? { correlationId } : {}),
+      },
     })
 
     return {

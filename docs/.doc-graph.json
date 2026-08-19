@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 982,
-    "total_edges": 3197,
+    "total_nodes": 1000,
+    "total_edges": 3290,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,17 +15,17 @@
       "feature": 8,
       "route": 112,
       "model": 50,
-      "requirement": 186,
-      "test": 210,
-      "code_file": 263
+      "requirement": 188,
+      "test": 222,
+      "code_file": 267
     },
     "coverage": {
-      "requirements": 186,
+      "requirements": 188,
       "fr_with_code": "100% (78/78)",
       "fr_with_tests": "100% (78/78)",
-      "rules_anchored_in_code": "89% (70/79)",
-      "nfr_evidence_based": "16 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 263,
+      "rules_anchored_in_code": "89% (71/80)",
+      "nfr_evidence_based": "17 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 267,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -59,8 +59,19 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [],
+    "changed": [
+      "doc:FR-080-integration-secret-management-ui",
+      "doc:PRD-SDD-v1.0",
+      "test:tests/unit/fr080-ui-contract.test.js",
+      "code:src/app/(pm)/platform/integrations/page.jsx",
+      "code:src/components/ui/index.jsx",
+      "code:src/modules/integration/application/integration-management-service.js"
+    ],
+    "added": [
+      "test:tests/integration/line-oa-connection-health.test.js",
+      "test:tests/unit/connection-health.test.js",
+      "code:src/platform/integrations/core/connection-health.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -325,8 +336,8 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "97a0f798",
-      "status": "current",
+      "hash": "f1db9e70",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080",
@@ -806,22 +817,26 @@
       "id": "code:src/app/api/agent/line-webhook/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
-      "hash": "60311564",
+      "hash": "bfeff596",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-050",
           "FR-028",
-          "FR-052"
+          "FR-052",
+          "FR-081"
         ],
         "@spec": [
           "BR-011",
           "BR-012",
           "SDD-026",
-          "SEC-010"
+          "SEC-010",
+          "NFR-017",
+          "SDD-048"
         ],
         "@tested": [
-          "tests/integration/agent-webhook-route.test.js"
+          "tests/integration/agent-webhook-route.test.js",
+          "tests/integration/line-oa-evidence-convergence.test.js"
         ]
       }
     },
@@ -2601,8 +2616,8 @@
       "id": "code:src/components/ui/index.jsx",
       "type": "code_file",
       "path": "src/components/ui/index.jsx",
-      "hash": "d8928f9e",
-      "status": "current",
+      "hash": "1da104f1",
+      "status": "changed",
       "annotations": {
         "@req": [
           "NFR-008",
@@ -2812,6 +2827,40 @@
       }
     },
     {
+      "id": "code:src/lib/observability/correlation.js",
+      "type": "code_file",
+      "path": "src/lib/observability/correlation.js",
+      "hash": "4ba58ca0",
+      "status": "current",
+      "annotations": {
+        "@spec": [
+          "NFR-017",
+          "SDD-048",
+          "SEC-002"
+        ],
+        "@tested": [
+          "tests/unit/observability-correlation.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/observability/logger.js",
+      "type": "code_file",
+      "path": "src/lib/observability/logger.js",
+      "hash": "022e9d96",
+      "status": "current",
+      "annotations": {
+        "@spec": [
+          "NFR-017",
+          "SDD-048",
+          "SEC-009"
+        ],
+        "@tested": [
+          "tests/unit/observability-logger.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/lib/shell-mode.js",
       "type": "code_file",
       "path": "src/lib/shell-mode.js",
@@ -2838,7 +2887,7 @@
       "id": "code:src/lib/validation/entities.js",
       "type": "code_file",
       "path": "src/lib/validation/entities.js",
-      "hash": "52661460",
+      "hash": "fbadf32b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3233,7 +3282,7 @@
       "id": "code:src/modules/agent/phase1-runtime.js",
       "type": "code_file",
       "path": "src/modules/agent/phase1-runtime.js",
-      "hash": "0b1550f9",
+      "hash": "0d907f98",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3322,7 +3371,7 @@
       "id": "code:src/modules/agent/turn.js",
       "type": "code_file",
       "path": "src/modules/agent/turn.js",
-      "hash": "515b4ad3",
+      "hash": "b7e65eac",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3441,7 +3490,7 @@
       "id": "code:src/modules/crm/line-ingest-service.js",
       "type": "code_file",
       "path": "src/modules/crm/line-ingest-service.js",
-      "hash": "e688bbee",
+      "hash": "f55a0acd",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3449,7 +3498,8 @@
         ],
         "@spec": [
           "BR-001",
-          "SEC-001"
+          "SEC-001",
+          "NFR-017"
         ],
         "@tested": [
           "tests/integration/line-ingest.test.js"
@@ -3767,8 +3817,8 @@
       "id": "code:src/modules/integration/application/integration-management-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/integration-management-service.js",
-      "hash": "34484977",
-      "status": "current",
+      "hash": "b3e37f31",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080"
@@ -3778,7 +3828,8 @@
           "SDD-044"
         ],
         "@tested": [
-          "tests/unit/fr080-integration-management.test.js"
+          "tests/unit/fr080-integration-management.test.js",
+          "tests/unit/connection-health.test.js"
         ]
       }
     },
@@ -5151,6 +5202,24 @@
       }
     },
     {
+      "id": "code:src/platform/integrations/core/connection-health.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/connection-health.js",
+      "hash": "97a5704b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-080"
+        ],
+        "@spec": [
+          "SEC-016"
+        ],
+        "@tested": [
+          "tests/unit/connection-health.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/platform/integrations/core/contracts.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/contracts.js",
@@ -5210,7 +5279,7 @@
       "id": "code:src/platform/integrations/core/integration-registry.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/integration-registry.js",
-      "hash": "bb29da5a",
+      "hash": "13daaa65",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5219,7 +5288,9 @@
         ],
         "@spec": [
           "SDD-043",
-          "SEC-015"
+          "SEC-015",
+          "BR-012",
+          "SEC-001"
         ],
         "@tested": [
           "tests/unit/fr079-runtime-cutover.test.js"
@@ -5302,6 +5373,30 @@
         ],
         "@tested": [
           "tests/unit/fr048-provider-catalog.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/providers/line/line-oa-evidence.js",
+      "hash": "fd8c2010",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-081",
+          "FR-028",
+          "FR-052"
+        ],
+        "@spec": [
+          "BR-009",
+          "SDD-009",
+          "SEC-001",
+          "FR-081",
+          "docs/domains/integration/features/FR-081-raw-external-ingestion.md"
+        ],
+        "@tested": [
+          "tests/integration/line-oa-evidence-convergence.test.js"
         ]
       }
     },
@@ -5872,15 +5967,15 @@
       "type": "document",
       "path": "docs/domains/integration/features/FR-080-integration-secret-management-ui.md",
       "title": "FR-080 — Integration and Secret Manager management UI",
-      "hash": "f7bef9d9",
-      "status": "current"
+      "hash": "a88cff0e",
+      "status": "changed"
     },
     {
       "id": "doc:FR-081-raw-external-ingestion",
       "type": "document",
       "path": "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
       "title": "FR-081 — Raw external ingestion boundary",
-      "hash": "5c62ebc8",
+      "hash": "fc627694",
       "status": "current"
     },
     {
@@ -6140,8 +6235,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "a361bb33",
-      "status": "current"
+      "hash": "985b7a8d",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -6391,7 +6486,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "a0b44183",
+      "hash": "fea9113f",
       "status": "current"
     },
     {
@@ -7735,11 +7830,11 @@
       "id": "req:FR-080",
       "type": "requirement",
       "family": "FR",
-      "label": "Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts.",
+      "label": "Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts. The read model now carries the AC-075.3 `health` field (`CONNECTED · DEGRADED · ERROR · DISABLED · MISCONFIGURED` plus every reason observed), computed from connection/credential state and `RawExternalRecord` arrival evidence rather than stored; the listing includes the `LINE_OA` channel alongside the Phase 1 model providers so channel health has no separate surface, while the create form stays fixed to `purpose=PHASE1_LINE_LLM`.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts. 🟠 local page/API/service/adapter implemented; live Supabase and activation evidence pending "
+      "row_text": "Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts. The read model now carries the AC-075.3 `health` field (`CONNECTED · DEGRADED · ERROR · DISABLED · MISCONFIGURED` plus every reason observed), computed from connection/credential state and `RawExternalRecord` arrival evidence rather than stored; the listing includes the `LINE_OA` channel alongside the Phase 1 model providers so channel health has no separate surface, while the create form stays fixed to `purpose=PHASE1_LINE_LLM`. 🟠 local page/API/service/adapter implemented; live Supabase and activation evidence pending "
     },
     {
       "id": "req:FR-081",
@@ -7990,6 +8085,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Platform Integration management is bounded and secret-safe: UI/API actions use trusted Business scope, explicit async loading/error states, idempotency/version checks and redacted responses; raw secret material never crosses browser responses, Prisma, logs or audit events, and manager-unavailable states cannot report success. FR-075 / ADR-032 UI, API, redaction and accessibility gates "
+    },
+    {
+      "id": "req:NFR-017",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "The LINE ingress is traceable end to end from one correlation id: every batch carries a correlation id — accepted from the trusted transport owner when it presents a well-formed one, generated otherwise — that appears on every structured record the request emits, on the HTTP response, and on the durable audit row for the message it produced, so an operator can join `webhook → identity → conversation → message` without archaeology. Records are emitted through one allowlisted emitter: message text, display names, bearer tokens, binding ids and reply tokens can never reach a log line, and a field the allowlist does not know is dropped and named rather than printed. Every rejected batch and every failed event emits a record naming the stage that failed; no failure is silent.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "The LINE ingress is traceable end to end from one correlation id: every batch carries a correlation id — accepted from the trusted transport owner when it presents a well-formed one, generated otherwise — that appears on every structured record the request emits, on the HTTP response, and on the durable audit row for the message it produced, so an operator can join `webhook → identity → conversation → message` without archaeology. Records are emitted through one allowlisted emitter: message text, display names, bearer tokens, binding ids and reply tokens can never reach a log line, and a field the allowlist does not know is dropped and named rather than printed. Every rejected batch and every failed event emits a record naming the stage that failed; no failure is silent. FR-028/050/052/081 observability gate; SDD-048 "
     },
     {
       "id": "req:SDD-001",
@@ -8460,6 +8565,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Projects Overview is one composed read model behind one route (`GET /api/projects/overview`): the KPI counts and the list rows, progress included, in a single response. A progress bar per row would otherwise mean one `/api/progress/project/{id}` call per project — an N+1 across the page's main content. It follows SDD-045's discipline: authorize the scope before composing, read through the pure calculators, never mutate `progressCache` on a read, and leave the existing `/api/projects` list contract untouched so its consumers do not move (the cost of moving it is recorded in `.brain/rca/2026-08-18-project-list-envelope-broke-relation-consumers.md`). FR-086; ADR-036, FR-003, FR-077, SDD-045, ADR-034 "
+    },
+    {
+      "id": "req:SDD-048",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Observability is one emitter and one correlation id, not logging scattered through the call path. `src/lib/observability` exposes a structured emitter whose sink is injectable (stdout by default, captured in tests) and whose field names are **allowlisted**: safety comes from what the emitter accepts, not from scrubbing what a caller passed, because a denylist only ever knows the secrets someone already thought of. An unknown field is omitted and its *name* listed in `unsafeFieldsOmitted`, so a dropped field is visible rather than silent. The correlation id is validated before use (`^[A-Za-z0-9_-]{8,64}$`) since it arrives as untrusted input and is echoed into records. It flows route → turn → ingest → `AuditEvent.payloadJson`, which makes the audit table — not the log stream — the durable join between a webhook delivery and the rows it created. Counts and durations ride on the batch record; a metrics backend is deliberately not introduced.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Observability is one emitter and one correlation id, not logging scattered through the call path. `src/lib/observability` exposes a structured emitter whose sink is injectable (stdout by default, captured in tests) and whose field names are **allowlisted**: safety comes from what the emitter accepts, not from scrubbing what a caller passed, because a denylist only ever knows the secrets someone already thought of. An unknown field is omitted and its *name* listed in `unsafeFieldsOmitted`, so a dropped field is visible rather than silent. The correlation id is validated before use (`^[A-Za-z0-9_-]{8,64}$`) since it arrives as untrusted input and is echoed into records. It flows route → turn → ingest → `AuditEvent.payloadJson`, which makes the audit table — not the log stream — the durable join between a webhook delivery and the rows it created. Counts and durations ride on the batch record; a metrics backend is deliberately not introduced. NFR-017; FR-028, FR-050, FR-081, SEC-009 "
     },
     {
       "id": "req:SEC-001",
@@ -9947,7 +10062,7 @@
       "id": "test:tests/integration/agent-webhook-route.test.js",
       "type": "test",
       "path": "tests/integration/agent-webhook-route.test.js",
-      "hash": "377ac8f0",
+      "hash": "aeb0607d",
       "status": "current"
     },
     {
@@ -10147,10 +10262,59 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/line-ingest-tenant-isolation.test.js",
+      "type": "test",
+      "path": "tests/integration/line-ingest-tenant-isolation.test.js",
+      "hash": "0275f2fe",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/line-ingest.test.js",
       "type": "test",
       "path": "tests/integration/line-ingest.test.js",
       "hash": "07ff60e4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/line-oa-connection-health.test.js",
+      "type": "test",
+      "path": "tests/integration/line-oa-connection-health.test.js",
+      "hash": "bd0ebdb5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/line-oa-correlation-trace.test.js",
+      "type": "test",
+      "path": "tests/integration/line-oa-correlation-trace.test.js",
+      "hash": "efaf1bc2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "type": "test",
+      "path": "tests/integration/line-oa-evidence-convergence.test.js",
+      "hash": "28b43e60",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/line-oa-failure-paths.test.js",
+      "type": "test",
+      "path": "tests/integration/line-oa-failure-paths.test.js",
+      "hash": "1b9b7e53",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/line-oa-golden-path.test.js",
+      "type": "test",
+      "path": "tests/integration/line-oa-golden-path.test.js",
+      "hash": "253b16d5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/line-webhook-unbound-production.test.js",
+      "type": "test",
+      "path": "tests/integration/line-webhook-unbound-production.test.js",
+      "hash": "31c3fc99",
       "status": "current"
     },
     {
@@ -10375,6 +10539,13 @@
       "type": "test",
       "path": "tests/unit/command-palette-index.test.js",
       "hash": "200c987a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/connection-health.test.js",
+      "type": "test",
+      "path": "tests/unit/connection-health.test.js",
+      "hash": "5d75d534",
       "status": "current"
     },
     {
@@ -10794,8 +10965,8 @@
       "id": "test:tests/unit/fr080-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr080-ui-contract.test.js",
-      "hash": "c22b2cba",
-      "status": "current"
+      "hash": "50e1b6cb",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr089-br018-team-grants-nothing.test.js",
@@ -10910,6 +11081,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
+      "type": "test",
+      "path": "tests/unit/line-webhook-scope-fail-closed.test.js",
+      "hash": "50dac684",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/mode-default-subtype.test.js",
       "type": "test",
       "path": "tests/unit/mode-default-subtype.test.js",
@@ -10928,6 +11106,20 @@
       "type": "test",
       "path": "tests/unit/msp-vault-resolver.test.js",
       "hash": "9947b46e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/observability-correlation.test.js",
+      "type": "test",
+      "path": "tests/unit/observability-correlation.test.js",
+      "hash": "0dbcd84d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/observability-logger.test.js",
+      "type": "test",
+      "path": "tests/unit/observability-logger.test.js",
+      "hash": "969c407a",
       "status": "current"
     },
     {
@@ -11194,6 +11386,13 @@
       "type": "test",
       "path": "tests/unit/runtime-postgres-config.test.js",
       "hash": "eaad3529",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/scope-external-ids-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/scope-external-ids-migration.test.js",
+      "hash": "92ff0f9d",
       "status": "current"
     },
     {
@@ -12159,7 +12358,28 @@
     },
     {
       "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:FR-081",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:NFR-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
       "to": "req:SDD-026",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:SDD-048",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -15259,6 +15479,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/lib/observability/correlation.js",
+      "to": "req:NFR-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/observability/correlation.js",
+      "to": "req:SDD-048",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/observability/correlation.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/observability/logger.js",
+      "to": "req:NFR-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/observability/logger.js",
+      "to": "req:SDD-048",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/observability/logger.js",
+      "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/lib/shell-mode.js",
       "to": "doc:FR-020-adaptive-shell",
       "type": "references",
@@ -16053,6 +16315,13 @@
       "from": "code:src/modules/crm/line-ingest-service.js",
       "to": "req:FR-023",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/line-ingest-service.js",
+      "to": "req:NFR-017",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -18451,6 +18720,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/platform/integrations/core/connection-health.js",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/connection-health.js",
+      "to": "req:SEC-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/platform/integrations/core/contracts.js",
       "to": "doc:FR-081-raw-external-ingestion",
       "type": "references",
@@ -18522,6 +18805,13 @@
     },
     {
       "from": "code:src/platform/integrations/core/integration-registry.js",
+      "to": "req:BR-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/integration-registry.js",
       "to": "req:FR-079",
       "type": "implements",
       "status": "current",
@@ -18537,6 +18827,13 @@
     {
       "from": "code:src/platform/integrations/core/integration-registry.js",
       "to": "req:SDD-043",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/integration-registry.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -18649,6 +18946,62 @@
     {
       "from": "code:src/platform/integrations/llm/provider-catalog.js",
       "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
+      "to": "doc:FR-081-raw-external-ingestion",
+      "type": "references",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
+      "to": "req:FR-028",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
+      "to": "req:FR-052",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
+      "to": "req:FR-081",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
+      "to": "req:FR-081",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
+      "to": "req:SDD-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19998,6 +20351,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:NFR-017",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SDD-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -20321,6 +20681,13 @@
     },
     {
       "from": "req:SDD-047",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-048",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -23884,7 +24251,28 @@
     },
     {
       "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:NFR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
       "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:SDD-048",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -25766,6 +26154,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/line-ingest-tenant-isolation.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-ingest-tenant-isolation.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-ingest-tenant-isolation.test.js",
+      "to": "req:FR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-ingest-tenant-isolation.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/line-ingest.test.js",
       "to": "code:src/modules/crm/line-ingest-service.js",
       "type": "tests",
@@ -25795,10 +26211,276 @@
     },
     {
       "from": "test:tests/integration/line-ingest.test.js",
+      "to": "req:NFR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-ingest.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-oa-connection-health.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-connection-health.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-connection-health.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-correlation-trace.test.js",
+      "to": "req:NFR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-correlation-trace.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-correlation-trace.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "code:src/app/api/agent/line-webhook/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "code:src/platform/integrations/providers/line/line-oa-evidence.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:FR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:FR-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:NFR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:SDD-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-oa-failure-paths.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-failure-paths.test.js",
+      "to": "req:FR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-failure-paths.test.js",
+      "to": "req:FR-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-failure-paths.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-failure-paths.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-golden-path.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-golden-path.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-golden-path.test.js",
+      "to": "req:FR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-golden-path.test.js",
+      "to": "req:FR-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-golden-path.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-golden-path.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-golden-path.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-webhook-unbound-production.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-webhook-unbound-production.test.js",
+      "to": "req:FR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-webhook-unbound-production.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-webhook-unbound-production.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/msp-vault-memory-port.test.js",
@@ -27910,6 +28592,55 @@
     {
       "from": "test:tests/unit/command-palette-index.test.js",
       "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "code:src/modules/integration/application/integration-management-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "code:src/platform/integrations/core/connection-health.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "req:FR-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/connection-health.test.js",
+      "to": "req:SEC-016",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -30317,6 +31048,13 @@
     },
     {
       "from": "test:tests/unit/fr079-runtime-cutover.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr079-runtime-cutover.test.js",
       "to": "req:FR-079",
       "type": "verifies",
       "status": "current",
@@ -30349,6 +31087,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr079-runtime-cutover.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr079-runtime-cutover.test.js",
@@ -31086,6 +31831,27 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/mode-default-subtype.test.js",
       "to": "req:BR-004",
       "type": "verifies",
@@ -31158,6 +31924,62 @@
     {
       "from": "test:tests/unit/msp-vault-resolver.test.js",
       "to": "req:SEC-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/observability-correlation.test.js",
+      "to": "code:src/lib/observability/correlation.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/observability-correlation.test.js",
+      "to": "req:NFR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/observability-correlation.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/observability-correlation.test.js",
+      "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/observability-logger.test.js",
+      "to": "code:src/lib/observability/logger.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/observability-logger.test.js",
+      "to": "req:NFR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/observability-logger.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/observability-logger.test.js",
+      "to": "req:SEC-009",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -33125,6 +33947,34 @@
     {
       "from": "test:tests/unit/runtime-postgres-config.test.js",
       "to": "req:SEC-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scope-external-ids-migration.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scope-external-ids-migration.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scope-external-ids-migration.test.js",
+      "to": "req:FR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/scope-external-ids-migration.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

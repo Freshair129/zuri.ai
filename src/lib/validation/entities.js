@@ -78,6 +78,9 @@ export const zIngestLineMessageInput = z.object({
   text: z.string(),
   externalMessageId: z.string().optional(),
   direction: z.enum(['INBOUND', 'OUTBOUND']).default('INBOUND'),
+  // NFR-017 — carried through to the audit row so a webhook delivery can be joined to
+  // the rows it created. Shape already validated by resolveCorrelationId at the edge.
+  correlationId: z.string().min(8).max(64).optional(),
 })
 
 // FR-022 — account linking: issue a single-use token for an existing Person, then
@@ -136,6 +139,8 @@ export const zHandleAgentTurnInput = z.object({
   text: z.string(),
   threadId: z.string().min(1),
   externalMessageId: z.string().optional(),
+  // NFR-017 — the turn is one hop in the correlation chain, not its own trace.
+  correlationId: z.string().min(8).max(64).optional(),
   sessionId: z.string().min(1).optional(),
   instanceId: z.string().min(1).optional(),
   eventId: z.string().min(1).optional(),

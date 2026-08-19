@@ -58,8 +58,16 @@ Business domain.
   persistence; returns `UNCHANGED` for a re-delivered event.
 - `src/platform/integrations/core/raw-record-repository.js` — scope-bound raw
   record persistence.
-- `src/platform/integrations/providers/line/line-oa-webhook.js` — signature
-  verified LINE ingress; drops the transient `replyToken` before persistence.
+- `src/platform/integrations/providers/line/line-oa-webhook.js` — the LINE event
+  normalizer and signature verifier; drops the transient `replyToken` before
+  persistence. `normalizeLineWebhookEvent` is the one normalizer the live ingress
+  uses. `verifySignature` needs raw request bytes and is **not** exercised on that
+  path: `zuri-cli` still owns LINE authenticity and the Reply API (BR-011).
+- `src/platform/integrations/providers/line/line-oa-evidence.js` — binds the live
+  `POST /api/agent/line-webhook` ingress to this substrate: resolves the `LINE_OA`
+  connection from the binding-proved scope and records every event as raw evidence
+  before the agent turn runs. See "Wiring status" in
+  `docs/domains/integration/features/FR-081-raw-external-ingestion.md`.
 - `src/modules/agent/phase1-runtime.js` — binding-scoped Phase 1 composition.
 - `docs/decisions/ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI.md` — planned Platform
   management and provisioning boundary.

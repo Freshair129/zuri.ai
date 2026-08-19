@@ -54,6 +54,14 @@ const STATUS_PILL = {
   CANCELLED: 'pill-done',
   ARCHIVED: 'pill-done',
   WAIVED: 'pill-review',
+  // FR-080 AC-075.3 integration health. DEGRADED reads as review rather than
+  // blocked on purpose: it means "we cannot currently prove this works", which is
+  // a different call to action from ERROR, where we know it does not.
+  CONNECTED: 'pill-active',
+  DEGRADED: 'pill-review',
+  ERROR: 'pill-blocked',
+  DISABLED: 'pill-done',
+  MISCONFIGURED: 'pill-blocked',
 }
 
 export function StatusPill({ status }) {

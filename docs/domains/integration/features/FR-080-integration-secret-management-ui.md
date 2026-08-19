@@ -53,6 +53,45 @@ List/detail responses contain only authorized provider, model, purpose, role,
 status, masked reference label, version, expiry and health fields. They contain
 no raw secret, provider key, authorization header or full secret-bearing URL.
 
+**Health (implemented 2026-08-19).** `health` is `{ state, reasons[], evidence }`
+where state is one of `CONNECTED · DEGRADED · ERROR · DISABLED · MISCONFIGURED`.
+
+It is **computed, never stored** — the same rule progress lives under. A status
+column is a claim that was true once, and its failure mode is a dashboard reading
+CONNECTED while every event fails. `evaluateConnectionHealth` is a pure function of
+evidence the database already holds, so it cannot go stale and there is no cache to
+reconcile.
+
+Two judgements worth knowing before reading a row:
+
+- **A configured channel that has never received an event is DEGRADED, not
+  CONNECTED.** We have never observed it working, and reporting green on the
+  strength of configuration alone is exactly the claim an operator would act on and
+  regret. `NO_TRAFFIC_OBSERVED` says which case it is.
+- **Traffic silence only counts against a CHANNEL.** A model provider has no
+  inbound stream, so judging it on silence would leave every LLM connection
+  permanently DEGRADED.
+
+`reasons` carries every finding, not only the one the state is named after, so a
+connection that is both disabled and misconfigured reports both. Precedence for the
+headline is DISABLED → MISCONFIGURED → ERROR → DEGRADED → CONNECTED: an operator
+who has not enabled a connection does not need to be told its optional fields are
+blank, and that becomes actionable the moment they do.
+
+The listing covers both kinds an operator has to reason about — the Phase 1
+`MODEL_PROVIDER` connections this page creates, and the `LINE_OA` `CHANNEL` the
+FR-081 ingress records evidence against. One surface on purpose: "is LINE up?" and
+"is the model configured?" are the same question asked twice, and a separate
+LINE-only status page would be the second source of truth this domain exists to
+avoid. The create form is unchanged and still fixed to `purpose=PHASE1_LINE_LLM`;
+channels are read-only here and are provisioned by the operator path in FR-081.
+
+Channel health reads `RawExternalRecord.receivedAt`, which is the only durable
+record that a connection actually carried traffic. It does **not** yet see failure
+rates: nothing writes `processingStatus=FAILED` or a `DeadLetterRecord`, so a
+channel receiving events that all fail downstream still reads CONNECTED. Closing
+that needs the dead-letter path FR-081 declares out of scope.
+
 ### AC-075.4 — Vault-only secret lifecycle
 
 The implemented form accepts an opaque Vault reference only. Supabase Vault

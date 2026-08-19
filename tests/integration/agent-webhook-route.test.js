@@ -43,7 +43,7 @@ describe('POST /api/agent/line-webhook (FR-028)', () => {
     expect(json.results[0].skipReply).toBe(false)
     expect(json.results[0].principalType).toBe('CUSTOMER')
     // the inbound message was persisted through the ingest seam
-    const msg = await prisma.message.findUnique({ where: { externalMessageId: 'MWH-1' } })
+    const msg = await prisma.message.findFirst({ where: { externalMessageId: 'MWH-1' } })
     expect(msg).not.toBeNull()
   })
 
@@ -77,7 +77,7 @@ describe('POST /api/agent/line-webhook (FR-028)', () => {
       events: [messageEvent('Uwh-auth', 'hi', 'MWH-AUTH')],
     }, handler)
     expect(res.status).toBe(401)
-    const persisted = await prisma.message.findUnique({ where: { externalMessageId: 'MWH-AUTH' } })
+    const persisted = await prisma.message.findFirst({ where: { externalMessageId: 'MWH-AUTH' } })
     expect(persisted).toBeNull()
   })
 
