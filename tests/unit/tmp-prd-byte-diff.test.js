@@ -1,3 +1,4 @@
+// Temporary diagnostic for #76; delete after mismatch localization.
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
@@ -13,14 +14,7 @@ describe('temporary PRD byte-diff locator', () => {
     for (const block of expected) {
       const value = lines.slice(block.start - 1, block.end).join('\n')
       if (hash(value) !== block.sha256) {
-        mismatches.push({
-          start: block.start,
-          end: block.end,
-          actualSha256: hash(value),
-          actualBytes: Buffer.byteLength(value),
-          expectedSha256: block.sha256,
-          expectedBytes: block.bytes,
-        })
+        mismatches.push({ start: block.start, end: block.end, actualSha256: hash(value), actualBytes: Buffer.byteLength(value), expectedSha256: block.sha256, expectedBytes: block.bytes })
       }
     }
     expect(mismatches, JSON.stringify(mismatches, null, 2)).toEqual([])
