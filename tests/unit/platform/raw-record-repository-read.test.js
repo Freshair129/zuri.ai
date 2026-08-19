@@ -60,7 +60,7 @@ describe('FR-081 scoped raw record read port', () => {
     })
   })
 
-  it('does not silently turn null business scope into all-business access', async () => {
+  it('preserves the existing tenant/connection-scoped semantics when businessId is omitted', async () => {
     const db = createDb()
     const repository = createPrismaRawRecordRepository(db, {
       tenantId: 'tenant-a',
