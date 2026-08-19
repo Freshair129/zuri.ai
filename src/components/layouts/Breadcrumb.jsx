@@ -31,7 +31,13 @@ export default function Breadcrumb() {
     crumbs.push({ label: view.allLabel, href: shellRoot, switcher: true })
   }
   if (displayTenant) {
-    crumbs.push({ label: displayTenant.name, eyebrow: 'Organization' })
+    crumbs.push({ 
+      label: displayTenant.name, 
+      eyebrow: 'Organization',
+      href: '/businesses',
+      switcher: true,
+      ariaLabel: 'Select Business from Organization'
+    })
   }
   if (displayBusiness) {
     crumbs.push({ label: displayBusiness.name, eyebrow: 'Business' })
@@ -41,19 +47,24 @@ export default function Breadcrumb() {
   }
 
   return (
-    <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-xs text-[var(--muted)]">
-      <Link href={shellRoot} aria-label="Home" className="shrink-0 transition hover:text-[var(--text)]">
+    <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-xs text-white/55">
+      <Link href={shellRoot} aria-label="Home" className="shrink-0 transition hover:text-white">
         <House size={13} aria-hidden />
       </Link>
       {crumbs.map((crumb, index) => (
         <span key={`${crumb.label}-${index}`} className="flex min-w-0 items-center gap-1.5">
-          <ChevronRight size={12} aria-hidden className="shrink-0 opacity-50" />
+          <ChevronRight size={12} aria-hidden className="shrink-0 opacity-30" />
           {crumb.href && (crumb.switcher || index < crumbs.length - 1) ? (
-            <Link href={crumb.href} className="truncate transition hover:text-[var(--text)]" title={crumb.eyebrow}>
+            <Link 
+              href={crumb.href} 
+              className="truncate transition hover:text-white" 
+              title={crumb.eyebrow}
+              aria-label={crumb.ariaLabel}
+            >
               {crumb.label}
             </Link>
           ) : (
-            <span className={`truncate ${index === crumbs.length - 1 ? 'font-semibold text-[var(--text)]' : ''}`} title={crumb.eyebrow}>
+            <span className={`truncate ${index === crumbs.length - 1 ? 'font-bold text-white/90' : ''}`} title={crumb.eyebrow}>
               {crumb.label}
             </span>
           )}

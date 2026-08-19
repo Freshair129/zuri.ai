@@ -80,11 +80,16 @@ export default function ProjectDetailPage() {
           {(progress.data?.workstreams || p.workstreams).map((ws) => (
             <Card key={ws.workstreamId || ws.id}>
               <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-[9px] text-muted">{ws.code} · weight {ws.progressWeight}</p>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <p className="text-[9px] text-muted">{ws.code} · weight {ws.progressWeight}</p>
+                    {ws.laneId && (
+                      <span className="inline-block rounded bg-[#FFF8F0] border border-[#FDE8D0] px-1.5 py-0.2 text-[8.5px] font-bold text-[var(--brand-dark)]">
+                        {ws.laneId}
+                      </span>
+                    )}
+                  </div>
                   <p className="truncate text-xs font-bold">{ws.name}</p>
                   <p className="mt-0.5 text-[9px] text-muted">{MODE_LABELS[ws.executionMode]} · {ws.progressStrategy?.replace(/_/g, ' ')}</p>
-                </div>
                 <div className="flex shrink-0 gap-1">
                   <Link
                     className="btn px-2 py-1 text-[10px]"

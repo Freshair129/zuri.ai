@@ -187,6 +187,7 @@ export const zWorkstreamInput = z.object({
   code: z.string().min(1).optional(),
   projectId: z.string().min(1),
   name: z.string().min(1),
+  laneId: z.string().nullish(),
   executionMode: zExecutionMode,
   progressStrategy: zProgressStrategy.optional(),
   progressWeight: z.number().positive().default(1),

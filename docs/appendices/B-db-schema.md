@@ -26,11 +26,13 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Business | tenantId, legalEntityId? | ธุรกิจปฏิบัติการ |
 | Branch | tenantId, businessId | tenantId ต้องตรงกับ business (tested) |
 | Person / Membership | tenant, business?, branch?, role, domainKeysJson | local identity; MEMBER domain allow-list, OWNER/DEV role grant (FR-038) |
+| PersonCredential | personId (unique), passwordHash | salted password credentials hash for production authentication (FR-082) |
+| PasswordResetToken | personId, token (unique), expiresAt, usedAt | single-use expiring token for password reset workflow (FR-082) |
 | RoleBinding | personId, tenantId, businessId, roleKey, scopeType, status, assignedBy, revokedAt | generic Business-scoped RBAC binding; `PRODUCT_OWNER` is the current Product role (FR-076) |
 | Workspace | scopeType (PORTFOLIO/TENANT/BUSINESS) + denormalized ancestor ids | ต้องมี scope ชัดเจน |
 | Project | businessId?, workspaceId, type, status, startAt/targetAt | direct Business owner; schema Workspace is Development Space; null owner only for explicit shared work; soft delete |
 | PlanImportReceipt | idempotencyKey, payloadHash, executionRunId, executionStepId?, attemptId?, correlationId, projectId | server-owned PlanEnvelope commit receipt; stable trace/idempotency boundary; never accepts client-generated execution IDs |
-| Workstream | projectId, executionMode, progressStrategy, progressWeight, progressCache, viewConfigJson | หัวใจของ 7 โหมด |
+| Workstream | projectId, laneId?, executionMode, progressStrategy, progressWeight, progressCache, viewConfigJson | หัวใจของ 7 โหมด พร้อม execution lane grouping (FR-083) |
 | WorkContainer | workstreamId, parentId (hierarchy), subtype, metadataJson | SPRINT/MIGRATION_STAGE/… |
 | WorkItem | workstreamId, containerId?, subtype, weight, numericValue, probability, metricDataJson, metadataJson | atomic ทุกโหมด |
 | Milestone | projectId, workstreamId?, weight, targetAt, completedAt | |

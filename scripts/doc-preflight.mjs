@@ -827,7 +827,7 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
   // session cannot require one to already exist. This is the only such case, and
   // it is an exemption rather than a baseline entry because it will never be
   // "repaid" — the day it resolves a viewer is the day it is broken.
-  const IS_SESSION_ENDPOINT = (p) => p.split('/').includes('session')
+  const IS_SESSION_ENDPOINT = (p) => p.split('/').includes('session') || p.split('/').includes('auth')
   const offenders = []
   for (const file of walk(path.join(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue

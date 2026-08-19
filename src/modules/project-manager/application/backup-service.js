@@ -59,7 +59,7 @@ const SNAPSHOT_MODELS = [
   // plus projectGoal and roleBinding below, were absent from this list until the
   // coverage check below started deriving it from the schema.
   'businessRoadmap', 'businessRoadmapHorizon', 'businessGoal',
-  'person', 'customerImportBatch', 'customerImportReviewCase', 'membership', 'roleBinding',
+  'person', 'personCredential', 'passwordResetToken', 'customerImportBatch', 'customerImportReviewCase', 'membership', 'roleBinding',
   'workspace', 'project', 'planImportReceipt', 'projectGoal', 'workstream', 'workContainer', 'workItem',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',

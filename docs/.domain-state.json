@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-18T23:34:56.364Z",
+  "generatedAt": "2026-08-19T01:02:53.176Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 6,
-    "gapCount": 11,
+    "gapCount": 12,
     "gaps": [
       {
         "domain": "identity",
@@ -101,7 +101,11 @@
           "tests/integration/backup.test.js",
           "tests/integration/fr075-restore-authorization.test.js",
           "tests/integration/platform/integration-persistence.test.js",
+          "tests/unit/auth-api.test.js",
+          "tests/unit/auth-service.test.js",
+          "tests/unit/entry-surfaces.test.js",
           "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/fr046-api-ui-contract.test.js",
           "tests/unit/fr079-runtime-cutover.test.js",
           "tests/unit/platform/integration-contracts.test.js",
           "tests/unit/platform/line-oa-webhook.test.js",
@@ -129,6 +133,13 @@
         "check": "requirements",
         "summary": "FR-071 is planned",
         "evidence": []
+      },
+      {
+        "domain": "project-manager",
+        "id": "AUTH-001",
+        "severity": "high",
+        "check": "authorization",
+        "summary": "At least one mutating route lacks a recognizable request viewer seam"
       }
     ]
   },
@@ -272,7 +283,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 68,
+            "openApiPaths": 72,
             "missingFromOpenApi": 0
           }
         },
@@ -489,14 +500,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 41
+          "codeCount": 5,
+          "testCount": 40
         },
         {
           "id": "FR-059",
@@ -560,6 +571,20 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 20
+        },
+        {
+          "id": "FR-081",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 12
+        },
+        {
+          "id": "FR-082",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 2
         }
       ],
       "checks": {
@@ -585,7 +610,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 68,
+            "openApiPaths": 72,
             "missingFromOpenApi": 0
           }
         },
@@ -669,6 +694,7 @@
         "docs/domains/identity/features/FR-066-profile-first-workspace-onboarding.md",
         "docs/domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md",
         "docs/domains/identity/features/FR-076-product-owner-business-assignment.md",
+        "docs/domains/identity/features/FR-082-production-auth-and-password-reset.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -709,7 +735,7 @@
         "apiRoutes": 1,
         "pageRoutes": 2,
         "ownedModels": 4,
-        "featureNotes": 9
+        "featureNotes": 10
       }
     },
     "integration": {
@@ -744,12 +770,16 @@
           "declared": "n/a",
           "status": "not_implemented",
           "codeCount": 0,
-          "testCount": 8,
+          "testCount": 12,
           "evidence": [
             "tests/integration/backup.test.js",
             "tests/integration/fr075-restore-authorization.test.js",
             "tests/integration/platform/integration-persistence.test.js",
+            "tests/unit/auth-api.test.js",
+            "tests/unit/auth-service.test.js",
+            "tests/unit/entry-surfaces.test.js",
             "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/fr046-api-ui-contract.test.js",
             "tests/unit/fr079-runtime-cutover.test.js",
             "tests/unit/platform/integration-contracts.test.js",
             "tests/unit/platform/line-oa-webhook.test.js",
@@ -876,7 +906,11 @@
             "tests/integration/backup.test.js",
             "tests/integration/fr075-restore-authorization.test.js",
             "tests/integration/platform/integration-persistence.test.js",
+            "tests/unit/auth-api.test.js",
+            "tests/unit/auth-service.test.js",
+            "tests/unit/entry-surfaces.test.js",
             "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/fr046-api-ui-contract.test.js",
             "tests/unit/fr079-runtime-cutover.test.js",
             "tests/unit/platform/integration-contracts.test.js",
             "tests/unit/platform/line-oa-webhook.test.js",
@@ -1041,14 +1075,14 @@
       }
     },
     "project-manager": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-001",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-002",
@@ -1062,7 +1096,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-004",
@@ -1272,7 +1306,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-045",
@@ -1286,7 +1320,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 52,
-          "testCount": 41
+          "testCount": 40
         },
         {
           "id": "FR-048",
@@ -1433,7 +1467,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 12
+        },
+        {
+          "id": "FR-082",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 2
+        },
+        {
+          "id": "FR-083",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -1457,9 +1505,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 66,
-            "inventoried": 66,
-            "openApiPaths": 68,
+            "routes": 70,
+            "inventoried": 70,
+            "openApiPaths": 72,
             "missingFromOpenApi": 0
           }
         },
@@ -1499,13 +1547,19 @@
           }
         },
         "authorization": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/appendices/A-api-spec.md"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "AUTH-001",
+              "severity": "high",
+              "summary": "At least one mutating route lacks a recognizable request viewer seam"
+            }
+          ],
           "details": {
-            "mutations": 52,
+            "mutations": 56,
             "guardedMutations": 52,
             "reads": 34,
             "unguardedReads": 0
@@ -1551,6 +1605,7 @@
         "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
         "docs/domains/project-manager/features/FR-070-stable-execution-domain-and-tag-identities.md",
         "docs/domains/project-manager/features/FR-077-project-inventory-mvp.md",
+        "docs/domains/project-manager/features/FR-083-development-overview-dashboard-and-workstream-lanes.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1558,13 +1613,20 @@
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "AUTH-001",
+          "severity": "high",
+          "check": "authorization",
+          "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        }
+      ],
       "details": {
-        "routes": 102,
-        "apiRoutes": 66,
+        "routes": 106,
+        "apiRoutes": 70,
         "pageRoutes": 36,
         "ownedModels": 27,
-        "featureNotes": 26
+        "featureNotes": 27
       }
     }
   }

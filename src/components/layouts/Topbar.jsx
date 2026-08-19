@@ -8,6 +8,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Bell, Command, Plus, Sparkles } from 'lucide-react'
+import Breadcrumb from './Breadcrumb'
 import { useScope } from '@/context/ScopeContext'
 import { BASE_CONTEXT_LEVELS, SCOPE_VIEWS } from '@/config/scope-views'
 
@@ -64,33 +65,8 @@ export default function Topbar({ onOpenPalette }) {
         <span className="text-xs font-extrabold tracking-wide">Zuri</span>
       </div>
 
-      <div className="flex min-w-0 items-center border-l border-white/10 pl-3 max-md:hidden" aria-label="Current workspace, organization, and business">
-        {BASE_CONTEXT_LEVELS.map((level, index) => {
-          const item = contextBySchema[level.schema]
-          const contextContent = (
-            <>
-              <span className="block text-[9px] leading-none text-white/45">{level.label}</span>
-              <span className="block max-w-36 truncate text-xs font-bold text-white/90" title={item?.code}>{item?.name || level.fallback}</span>
-            </>
-          )
-          return (
-            <span key={level.schema} className="flex min-w-0 items-center">
-              {index > 0 && <span className="mx-2 text-white/25">›</span>}
-              {level.schema === 'tenant' ? (
-                <Link
-                  href="/businesses"
-                  aria-label="Select Business from Organization"
-                  title="Choose a Business in this Organization"
-                  className="group min-w-0 rounded-md px-1 py-0.5 transition hover:bg-white/10"
-                >
-                  {contextContent}
-                </Link>
-              ) : (
-                <span className="min-w-0">{contextContent}</span>
-              )}
-            </span>
-          )
-        })}
+      <div className="flex min-w-0 items-center border-l border-white/10 pl-4 max-md:hidden" aria-label="Current context">
+        <Breadcrumb />
       </div>
 
       <div className="min-w-0 flex-1" />

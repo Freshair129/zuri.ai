@@ -214,8 +214,7 @@ export async function archiveProject(id, { viewer } = {}) {
   return project
 }
 
-// ---- Workstreams -----------------------------------------------------------
-
+// @req FR-083 — Workstream laneId support and execution grouping.
 export async function createWorkstream(input, { viewer } = {}) {
   const data = zWorkstreamInput.parse(input)
   const project = await prisma.project.findUnique({ where: { id: data.projectId } })
@@ -228,6 +227,7 @@ export async function createWorkstream(input, { viewer } = {}) {
       code,
       projectId: data.projectId,
       name: data.name,
+      laneId: data.laneId ?? null,
       executionMode: data.executionMode,
       progressStrategy: strategy,
       progressWeight: data.progressWeight ?? 1,
@@ -239,7 +239,7 @@ export async function createWorkstream(input, { viewer } = {}) {
     entityType: 'WORKSTREAM',
     entityId: workstream.id,
     action: 'CREATED',
-    payload: { code, executionMode: data.executionMode, progressStrategy: strategy },
+    payload: { code, laneId: data.laneId, executionMode: data.executionMode, progressStrategy: strategy },
   })
   return workstream
 }
@@ -253,6 +253,7 @@ export async function updateWorkstream(id, patch, { viewer } = {}) {
     where: { id },
     data: {
       name: data.name ?? existing.name,
+      laneId: data.laneId === undefined ? existing.laneId : data.laneId,
       executionMode: data.executionMode ?? existing.executionMode,
       progressStrategy: data.progressStrategy ?? existing.progressStrategy,
       progressWeight: data.progressWeight ?? existing.progressWeight,

@@ -45,7 +45,7 @@ export default function WorkViewTabs({ projectId }) {
     // unique forever.
     <nav
       aria-label="Project work views"
-      className="mb-4 inline-flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface-mid)] p-1"
+      className="mb-6 inline-flex items-center gap-0.5 rounded-lg border border-[var(--border)] bg-[var(--surface-mid)] p-1"
     >
       {views.map((v) => {
         const Icon = v.icon
@@ -55,11 +55,11 @@ export default function WorkViewTabs({ projectId }) {
             key={v.key}
             href={v.href}
             aria-current={active ? 'page' : undefined}
-            className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-              active ? 'bg-[var(--surface-card)] text-[var(--text)] shadow-sm' : 'text-[var(--muted)] hover:text-[var(--text)]'
+            className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[11px] font-bold transition-all ${
+              active ? 'bg-[var(--surface)] text-[var(--text)] shadow-sm' : 'text-[var(--muted)] hover:text-[var(--text)]'
             }`}
           >
-            <Icon size={14} aria-hidden /> {v.label}
+            <Icon size={13} aria-hidden /> {v.label}
           </Link>
         )
       })}

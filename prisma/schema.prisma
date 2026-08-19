@@ -151,9 +151,35 @@ model Person {
   identityLinkTokens IdentityLinkToken[]
   customers          Customer[]
   roleBindings       RoleBinding[]
+  credential         PersonCredential?
+  passwordResetTokens PasswordResetToken[]
   customerImportApprovals CustomerImportBatch[] @relation("CustomerImportBatchApprover")
   customerImportProvenance CustomerImportProvenance[] @relation("CustomerImportProvenancePerson")
   customerImportReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionActor")
+}
+
+model PersonCredential {
+  id           String   @id @default(uuid())
+  personId     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  personId  String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId])
+  @@index([token])
 }
 
 model Membership {
@@ -339,6 +365,7 @@ model Workstream {
   code             String    @unique
   projectId        String
   name             String
+  laneId           String?
   executionMode    String
   executionModeId  String?
   executionContractId String?
@@ -366,6 +393,7 @@ model Workstream {
   @@index([projectId])
   @@index([executionMode])
   @@index([executionModeId])
+  @@index([laneId])
 }
 
 // @req FR-069, FR-070 — server-owned import identity and idempotency receipt.

@@ -76,12 +76,30 @@ async function main() {
     },
   })
 
-  // Local owner person + membership (demo identity only — no auth).
+  // Primary owner person + membership.
   const owner = await prisma.person.upsert({
     where: { code: 'PER-OWNER' },
-    update: {},
-    create: { code: 'PER-OWNER', displayName: 'Local Owner', email: 'owner@local' },
+    update: {
+      displayName: 'Pornpon Thanasuwannatarn',
+      email: 'p.thanawork129@gmail.com',
+    },
+    create: {
+      code: 'PER-OWNER',
+      displayName: 'Pornpon Thanasuwannatarn',
+      email: 'p.thanawork129@gmail.com',
+    },
   })
+
+  // Seed default credential for owner (Password: Password123!)
+  const crypto = require('node:crypto')
+  const defaultSalt = 'zuri-salt-v1'
+  const defaultHash = `scrypt:${defaultSalt}:${crypto.scryptSync('Password123!', defaultSalt, 64).toString('hex')}`
+  await prisma.personCredential.upsert({
+    where: { personId: owner.id },
+    update: { passwordHash: defaultHash },
+    create: { personId: owner.id, passwordHash: defaultHash },
+  })
+
   const existingMembership = await prisma.membership.findFirst({
     where: { personId: owner.id, tenantId: tenants['TNT-001'].id },
   })
@@ -185,14 +203,15 @@ async function main() {
     },
   })
 
-  const ws = async (code, name, executionMode, progressStrategy, progressWeight, viewConfig = {}) =>
+  const ws = async (code, name, executionMode, progressStrategy, progressWeight, laneId = null, viewConfig = {}) =>
     prisma.workstream.upsert({
       where: { code },
-      update: { viewConfigJson: JSON.stringify(viewConfig) },
+      update: { laneId, viewConfigJson: JSON.stringify(viewConfig) },
       create: {
         code,
         projectId: project.id,
         name,
+        laneId,
         executionMode,
         progressStrategy,
         progressWeight,
@@ -264,7 +283,7 @@ async function main() {
     })
 
   // 1. SOFTWARE_SPRINT
-  const wsDev = await ws('WST-ZURI-DEV', 'Zuri Core Development', 'SOFTWARE_SPRINT', 'TASK_WEIGHT', 1.2)
+  const wsDev = await ws('WST-ZURI-DEV', 'Zuri Core Development', 'SOFTWARE_SPRINT', 'TASK_WEIGHT', 1.2, 'LANE-CORE')
   const sprint12 = await container('SPR-012', wsDev.id, 'SPRINT', 'Sprint 12')
   await item('ZURI-421', wsDev.id, sprint12.id, 'TASK', 'External identity model', { status: 'IN_PROGRESS', weight: 5 })
   await item('ZURI-422', wsDev.id, sprint12.id, 'TASK', 'Workspace scope selectors', { status: 'DONE', weight: 3 })
@@ -274,7 +293,7 @@ async function main() {
   await gate('GATE-REL-12', wsDev.id, 'Release 12 quality gate', { status: 'OPEN', evidence: { checklist: 'regression pending' } })
 
   // 2. DATA_MIGRATION
-  const wsData = await ws('WST-DATA', 'Legacy Data Migration', 'DATA_MIGRATION', 'RECORD_VALIDATION', 1.5)
+  const wsData = await ws('WST-DATA', 'Legacy Data Migration', 'DATA_MIGRATION', 'RECORD_VALIDATION', 1.5, 'LANE-DATA')
   const migStage = await container('MIG-STG-01', wsData.id, 'MIGRATION_STAGE', 'Normalize + Validate')
   await item('DATA-CUSTOMER', wsData.id, migStage.id, 'DATASET', 'Customer records', {
     status: 'IN_PROGRESS',
@@ -291,7 +310,7 @@ async function main() {
   await gate('GATE-DATA-ID', wsData.id, 'Identity-critical data ready', { status: 'OPEN', required: true })
 
   // 3. B2B_SALES
-  const wsSales = await ws('WST-B2B', 'Enterprise Sales Pipeline', 'B2B_SALES', 'WEIGHTED_PIPELINE', 1.0, {
+  const wsSales = await ws('WST-B2B', 'Enterprise Sales Pipeline', 'B2B_SALES', 'WEIGHTED_PIPELINE', 1.0, 'LANE-SALES', {
     revenueTarget: 2500000,
   })
   const pipeline = await container('PIPE-ENT', wsSales.id, 'SALES_PIPELINE', 'Enterprise Pipeline Q3')
@@ -309,7 +328,7 @@ async function main() {
   })
 
   // 4. B2C_CAMPAIGN
-  const wsCampaign = await ws('WST-B2C', 'Q3 Acquisition Campaign', 'B2C_CAMPAIGN', 'KPI_ATTAINMENT', 0.8, {
+  const wsCampaign = await ws('WST-B2C', 'Q3 Acquisition Campaign', 'B2C_CAMPAIGN', 'KPI_ATTAINMENT', 0.8, 'LANE-GROWTH', {
     kpis: [
       { key: 'leads', label: 'Leads', target: 5000, weight: 2 },
       { key: 'conversions', label: 'Conversions', target: 600, weight: 3 },
@@ -329,7 +348,7 @@ async function main() {
   })
 
   // 5. PRODUCT_LAUNCH
-  const wsLaunch = await ws('WST-LAUNCH', 'POS 2.0 Launch', 'PRODUCT_LAUNCH', 'MILESTONE_READINESS', 1.0)
+  const wsLaunch = await ws('WST-LAUNCH', 'POS 2.0 Launch', 'PRODUCT_LAUNCH', 'MILESTONE_READINESS', 1.0, 'LANE-PRODUCT')
   const phasePrep = await container('LNCH-PREP', wsLaunch.id, 'LAUNCH_PHASE', 'Preparation')
   await item('DEL-PRICING', wsLaunch.id, phasePrep.id, 'DELIVERABLE', 'Pricing sheet', { status: 'DONE' })
   await item('DEL-TRAINING', wsLaunch.id, phasePrep.id, 'DELIVERABLE', 'Staff training kit', { status: 'IN_PROGRESS' })
@@ -340,7 +359,7 @@ async function main() {
   await gate('GATE-LNCH-OPS', wsLaunch.id, 'Support readiness', { status: 'OPEN' })
 
   // 6. OPERATIONS
-  const wsOps = await ws('WST-OPS', 'Store Operations Q3', 'OPERATIONS', 'SLA_SCORE', 0.7)
+  const wsOps = await ws('WST-OPS', 'Store Operations Q3', 'OPERATIONS', 'SLA_SCORE', 0.7, 'LANE-OPERATIONS')
   const opsPeriod = await container('OPS-2026-Q3', wsOps.id, 'OPS_PERIOD', 'Q3 2026')
   await item('OPS-CHK-OPEN', wsOps.id, opsPeriod.id, 'CHECKLIST_ITEM', 'Daily opening checklist', {
     status: 'DONE', metrics: { slaMet: 58, slaTotal: 62 },
@@ -353,7 +372,7 @@ async function main() {
   })
 
   // 7. BUSINESS_EXPANSION
-  const wsExpand = await ws('WST-EXPAND', 'Chiang Mai Branch Expansion', 'BUSINESS_EXPANSION', 'EXPANSION_READINESS', 1.0)
+  const wsExpand = await ws('WST-EXPAND', 'Chiang Mai Branch Expansion', 'BUSINESS_EXPANSION', 'EXPANSION_READINESS', 1.0, 'LANE-EXPANSION')
   const site = await container('EXP-CNX', wsExpand.id, 'EXPANSION_SITE', 'Chiang Mai — Nimman')
   await item('EXP-LEGAL-REG', wsExpand.id, site.id, 'APPROVAL', 'Branch registration (DBD)', {
     status: 'DONE', weight: 2, metadata: { dimension: 'legal' },

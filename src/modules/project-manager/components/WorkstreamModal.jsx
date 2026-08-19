@@ -11,9 +11,11 @@ import {
 } from '@/lib/validation/enums'
 import { api } from './useApi'
 
+// @req FR-083 — Workstream laneId support and editing.
 export default function WorkstreamModal({ open, onClose, projectId, workstream, onSaved }) {
   const [form, setForm] = useState(() => ({
     name: workstream?.name || '',
+    laneId: workstream?.laneId || '',
     executionMode: workstream?.executionMode || 'SOFTWARE_SPRINT',
     progressStrategy: workstream?.progressStrategy || MODE_DEFAULT_STRATEGY.SOFTWARE_SPRINT,
     progressWeight: workstream?.progressWeight ?? 1,
@@ -30,6 +32,7 @@ export default function WorkstreamModal({ open, onClose, projectId, workstream, 
     try {
       const body = {
         name: form.name,
+        laneId: form.laneId ? form.laneId.trim() : null,
         executionMode: form.executionMode,
         progressStrategy: form.progressStrategy,
         progressWeight: Number(form.progressWeight) || 1,
@@ -50,9 +53,19 @@ export default function WorkstreamModal({ open, onClose, projectId, workstream, 
   return (
     <Modal open={open} onClose={onClose} title={`Edit ${workstream.code}`}>
       <form onSubmit={submit}>
-        <Field label="Name">
-          <input className="input" value={form.name} onChange={(e) => set('name', e.target.value)} required />
-        </Field>
+        <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
+          <Field label="Name">
+            <input className="input" value={form.name} onChange={(e) => set('name', e.target.value)} required />
+          </Field>
+          <Field label="Lane ID (Swimlane / Track)" hint="e.g. LANE-CORE, LANE-DATA, LANE-UI, LANE-QA">
+            <input
+              className="input"
+              placeholder="e.g. LANE-CORE"
+              value={form.laneId}
+              onChange={(e) => set('laneId', e.target.value)}
+            />
+          </Field>
+        </div>
         <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
           <Field label="Execution mode">
             <select

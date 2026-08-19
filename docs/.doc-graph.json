@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 941,
-    "total_edges": 3003,
+    "total_nodes": 961,
+    "total_edges": 3064,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 80,
+      "document": 82,
       "adr": 35,
       "domain": 6,
       "roadmap": 25,
       "feature": 6,
-      "route": 107,
-      "model": 47,
-      "requirement": 174,
-      "test": 204,
-      "code_file": 253
+      "route": 111,
+      "model": 49,
+      "requirement": 176,
+      "test": 207,
+      "code_file": 260
     },
     "coverage": {
-      "requirements": 174,
-      "fr_with_code": "100% (78/78)",
-      "fr_with_tests": "100% (78/78)",
+      "requirements": 176,
+      "fr_with_code": "100% (80/80)",
+      "fr_with_tests": "100% (80/80)",
       "rules_anchored_in_code": "89% (67/75)",
       "nfr_evidence_based": "16 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 253,
+      "annotated_code_files": 260,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -50,10 +50,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/unit/entry-surfaces.test.js",
-      "code:src/app/login/page.jsx"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -62,7 +59,7 @@
       "id": "code:prisma/seed.js",
       "type": "code_file",
       "path": "prisma/seed.js",
-      "hash": "6a5631cd",
+      "hash": "1c251b3c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -535,7 +532,7 @@
       "id": "code:src/app/(pm)/projects/[projectId]/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/page.jsx",
-      "hash": "bf2a19cd",
+      "hash": "2bc74ffa",
       "status": "current",
       "annotations": {
         "@req": [
@@ -663,16 +660,22 @@
       "id": "code:src/app/(pm)/projects/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/page.jsx",
-      "hash": "2f343bb2",
+      "hash": "eb91ec7f",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-003",
-          "FR-001"
+          "FR-001",
+          "FR-083"
+        ],
+        "@spec": [
+          "SDD-018",
+          "SDD-033"
         ],
         "@tested": [
           "tests/e2e/smoke.spec.js",
-          "tests/unit/project-list-contract.test.js"
+          "tests/unit/project-list-contract.test.js",
+          "tests/unit/fr083-development-dashboard.test.js"
         ]
       }
     },
@@ -808,6 +811,82 @@
         ],
         "@tested": [
           "tests/unit/authorization-seam-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/forgot-password/route.js",
+      "type": "code_file",
+      "path": "src/app/api/auth/forgot-password/route.js",
+      "hash": "57570b16",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-082"
+        ],
+        "@spec": [
+          "SEC-015",
+          "SDD-024"
+        ],
+        "@tested": [
+          "tests/unit/auth-api.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/login/route.js",
+      "type": "code_file",
+      "path": "src/app/api/auth/login/route.js",
+      "hash": "05b93c71",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-082"
+        ],
+        "@spec": [
+          "SEC-015",
+          "SDD-024"
+        ],
+        "@tested": [
+          "tests/unit/auth-api.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/logout/route.js",
+      "type": "code_file",
+      "path": "src/app/api/auth/logout/route.js",
+      "hash": "b0a42b19",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-082"
+        ],
+        "@spec": [
+          "SEC-015",
+          "SDD-024"
+        ],
+        "@tested": [
+          "tests/unit/auth-api.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/reset-password/route.js",
+      "type": "code_file",
+      "path": "src/app/api/auth/reset-password/route.js",
+      "hash": "f64e745c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-082"
+        ],
+        "@spec": [
+          "SEC-015",
+          "SDD-024"
+        ],
+        "@tested": [
+          "tests/unit/auth-api.test.js"
         ]
       }
     },
@@ -2229,22 +2308,22 @@
       "id": "code:src/app/login/page.jsx",
       "type": "code_file",
       "path": "src/app/login/page.jsx",
-      "hash": "8e644dd1",
-      "status": "changed",
+      "hash": "d835129a",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
-          "FR-046"
+          "FR-081"
         ],
         "@spec": [
           "SDD-022",
           "SDD-024",
-          "SEC-008"
+          "SEC-015"
         ],
         "@tested": [
           "tests/unit/entry-surfaces.test.js",
           "tests/unit/fr046-api-ui-contract.test.js",
-          "tests/e2e/fr046-entry-contract.spec.js"
+          "tests/unit/auth-api.test.js"
         ]
       }
     },
@@ -2291,7 +2370,7 @@
       "id": "code:src/components/layouts/Breadcrumb.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Breadcrumb.jsx",
-      "hash": "3a8d8a5b",
+      "hash": "2c338635",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2374,7 +2453,7 @@
       "id": "code:src/components/layouts/DomainBar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/DomainBar.jsx",
-      "hash": "f0247388",
+      "hash": "2303b823",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2420,7 +2499,7 @@
       "id": "code:src/components/layouts/Sidebar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Sidebar.jsx",
-      "hash": "dd4861fd",
+      "hash": "98756aae",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2438,7 +2517,7 @@
       "id": "code:src/components/layouts/Topbar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Topbar.jsx",
-      "hash": "89b9aae2",
+      "hash": "00a91dc7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2697,7 +2776,7 @@
       "id": "code:src/lib/validation/entities.js",
       "type": "code_file",
       "path": "src/lib/validation/entities.js",
-      "hash": "8b770df4",
+      "hash": "813ddd16",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3313,6 +3392,26 @@
       }
     },
     {
+      "id": "code:src/modules/identity/auth-service.js",
+      "type": "code_file",
+      "path": "src/modules/identity/auth-service.js",
+      "hash": "4e4dc345",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-082"
+        ],
+        "@spec": [
+          "SEC-015",
+          "SDD-024"
+        ],
+        "@tested": [
+          "tests/unit/auth-service.test.js",
+          "tests/unit/auth-api.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/classify-principal.js",
       "type": "code_file",
       "path": "src/modules/identity/classify-principal.js",
@@ -3561,7 +3660,7 @@
       "id": "code:src/modules/identity/session-port.js",
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
-      "hash": "2d26895e",
+      "hash": "36dc6011",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3899,7 +3998,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "8f3d4121",
+      "hash": "38ba7ffc",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3957,7 +4056,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "ed9f7f07",
+      "hash": "71d622c7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4275,7 +4374,7 @@
       "id": "code:src/modules/project-manager/application/project-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-service.js",
-      "hash": "444cf6eb",
+      "hash": "17f04a76",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4286,7 +4385,8 @@
           "FR-001",
           "FR-041",
           "FR-060",
-          "FR-064"
+          "FR-064",
+          "FR-083"
         ],
         "@spec": [
           "BR-004",
@@ -4411,6 +4511,25 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/components/DevelopmentRoadmapStepper.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/DevelopmentRoadmapStepper.jsx",
+      "hash": "3ec9ca81",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-083"
+        ],
+        "@spec": [
+          "SDD-018",
+          "SDD-033"
+        ],
+        "@tested": [
+          "tests/unit/fr083-development-dashboard.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/components/FileManagerViews.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/FileManagerViews.jsx",
@@ -4479,7 +4598,7 @@
       "id": "code:src/modules/project-manager/components/ProjectTabs.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/ProjectTabs.jsx",
-      "hash": "fc072d7f",
+      "hash": "124e217a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4535,10 +4654,22 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/components/WorkstreamModal.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/WorkstreamModal.jsx",
+      "hash": "533f414f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-083"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/components/WorkViewTabs.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/WorkViewTabs.jsx",
-      "hash": "9c9a95b0",
+      "hash": "0c9b5901",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5081,7 +5212,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.10.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "b05a2191",
+      "hash": "17266ccc",
       "status": "current"
     },
     {
@@ -5127,7 +5258,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.8.0",
       "doc_status": "Draft",
-      "hash": "907580e8",
+      "hash": "9eeb8d50",
       "status": "current"
     },
     {
@@ -5632,6 +5763,25 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-082-production-auth-and-password-reset",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-082-production-auth-and-password-reset.md",
+      "title": "FR-082 — Production authentication and password reset contract",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "444967b9",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-083-development-overview-dashboard-and-workstream-lanes",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-083-development-overview-dashboard-and-workstream-lanes.md",
+      "title": "FR-083 — Development Overview Dashboard, Roadmap Stepper, and Workstream Execution Lanes",
+      "doc_status": "Implemented (candidate)",
+      "hash": "4366507b",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -5868,7 +6018,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "f8ace806",
+      "hash": "e69ca31b",
       "status": "current"
     },
     {
@@ -6395,7 +6545,17 @@
       "status": "current"
     },
     {
+      "id": "model:PasswordResetToken",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:Person",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PersonCredential",
       "type": "model",
       "status": "current"
     },
@@ -7445,6 +7605,26 @@
       "row_text": "Raw external ingestion boundary: every acquisition channel (webhook, pull, file, manual) converges on one normalized ingestion envelope carrying tenant, Business, connection, provider, lane, entity type, external id, source type and schema version, and a channel is added as an adapter rather than a second raw-write path. (a) Ingestion identity is `sha256(tenantId, connectionId, entityType, externalId, payloadHash)` over a canonically serialized payload, so a re-delivered event resolves to `UNCHANGED` instead of a duplicate row; the external id contributes to that identity and is never itself a key (BR-002). (b) Raw records are read and written only through a repository bound to one tenant/connection scope, which refuses a row outside it rather than filtering afterwards (SEC-001), and a referenced Business or IngestionRun must itself resolve inside that scope. (c) Raw ingestion persists the source payload verbatim and never writes domain truth: translation into business entities is a separate later path, so a failed translation cannot corrupt the evidence it was derived from. (d) A run records its own counts and terminal state, and a failure is preserved as a DeadLetterRecord naming the failing stage and owner rather than being retried silently. This requirement declares the ingestion substrate only; no scheduler, no translation ACL and no reader surface is in scope. 🟠 substrate and LINE OA webhook adapter implemented; scheduler, translation and replay surface not started "
     },
     {
+      "id": "req:FR-082",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Production authentication and password reset: `POST /api/auth/login` verifies credentials against salted `PersonCredential` hashes and issues HttpOnly `zuri_session` cookies; `POST /api/auth/logout` clears session cookies; `POST /api/auth/forgot-password` generates secure single-use 1-hour `PasswordResetToken` tokens; `POST /api/auth/reset-password` validates tokens and updates credential hashes.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Production authentication and password reset: `POST /api/auth/login` verifies credentials against salted `PersonCredential` hashes and issues HttpOnly `zuri_session` cookies; `POST /api/auth/logout` clears session cookies; `POST /api/auth/forgot-password` generates secure single-use 1-hour `PasswordResetToken` tokens; `POST /api/auth/reset-password` validates tokens and updates credential hashes. ✅ implemented (beta) "
+    },
+    {
+      "id": "req:FR-083",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Development Overview Dashboard and Workstream Execution Lanes: `/projects` serves as the Development Domain Command Dashboard with executive KPI metrics (projects, workstreams, manpower, delivery health), an interactive Roadmap Stepper visualizing strategic horizons, portfolio matrix cards, and Workstream execution swimlanes categorized by `Workstream.laneId`.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Development Overview Dashboard and Workstream Execution Lanes: `/projects` serves as the Development Domain Command Dashboard with executive KPI metrics (projects, workstreams, manpower, delivery health), an interactive Roadmap Stepper visualizing strategic horizons, portfolio matrix cards, and Workstream execution swimlanes categorized by `Workstream.laneId`. ✅ implemented (candidate) "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -8228,6 +8408,38 @@
       "kind": "api",
       "route": "/api/audit",
       "path": "src/app/api/audit/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/forgot-password",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/forgot-password",
+      "path": "src/app/api/auth/forgot-password/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/login",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/login",
+      "path": "src/app/api/auth/login/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/logout",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/logout",
+      "path": "src/app/api/auth/logout/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/reset-password",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/reset-password",
+      "path": "src/app/api/auth/reset-password/route.js",
       "status": "current"
     },
     {
@@ -9694,7 +9906,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "0611b207",
+      "hash": "08c838b9",
       "status": "current"
     },
     {
@@ -9824,6 +10036,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/auth-api.test.js",
+      "type": "test",
+      "path": "tests/unit/auth-api.test.js",
+      "hash": "096e352a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/auth-service.test.js",
+      "type": "test",
+      "path": "tests/unit/auth-service.test.js",
+      "hash": "622f9ecf",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/authorization-seam-list-routes.test.js",
       "type": "test",
       "path": "tests/unit/authorization-seam-list-routes.test.js",
@@ -9841,7 +10067,7 @@
       "id": "test:tests/unit/breadcrumb-switcher.test.js",
       "type": "test",
       "path": "tests/unit/breadcrumb-switcher.test.js",
-      "hash": "ffa81b51",
+      "hash": "83b0e817",
       "status": "current"
     },
     {
@@ -10065,8 +10291,8 @@
       "id": "test:tests/unit/entry-surfaces.test.js",
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
-      "hash": "9493552e",
-      "status": "changed"
+      "hash": "4d233124",
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr036-team-authorization.test.js",
@@ -10149,7 +10375,7 @@
       "id": "test:tests/unit/fr046-api-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr046-api-ui-contract.test.js",
-      "hash": "62bd64f3",
+      "hash": "95eacfb2",
       "status": "current"
     },
     {
@@ -10318,6 +10544,13 @@
       "type": "test",
       "path": "tests/unit/fr080-ui-contract.test.js",
       "hash": "c22b2cba",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr083-development-dashboard.test.js",
+      "type": "test",
+      "path": "tests/unit/fr083-development-dashboard.test.js",
+      "hash": "0ca13856",
       "status": "current"
     },
     {
@@ -10709,7 +10942,7 @@
       "id": "test:tests/unit/sidebar-visible-subdomains.test.js",
       "type": "test",
       "path": "tests/unit/sidebar-visible-subdomains.test.js",
-      "hash": "6c07388d",
+      "hash": "8ab0dec7",
       "status": "current"
     },
     {
@@ -10744,7 +10977,7 @@
       "id": "test:tests/unit/topbar-no-dropdown.test.js",
       "type": "test",
       "path": "tests/unit/topbar-no-dropdown.test.js",
-      "hash": "7fbe6b01",
+      "hash": "5a1223f9",
       "status": "current"
     },
     {
@@ -11471,6 +11704,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/(pm)/projects/page.jsx",
+      "to": "req:FR-083",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/page.jsx",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/projects/page.jsx",
+      "to": "req:SDD-033",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/(pm)/repositories/page.jsx",
       "to": "req:FR-008",
       "type": "implements",
@@ -11592,6 +11846,90 @@
     {
       "from": "code:src/app/api/audit/route.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/forgot-password/route.js",
+      "to": "req:FR-082",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/forgot-password/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/forgot-password/route.js",
+      "to": "req:SEC-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/login/route.js",
+      "to": "req:FR-082",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/login/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/login/route.js",
+      "to": "req:SEC-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/logout/route.js",
+      "to": "req:FR-082",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/logout/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/logout/route.js",
+      "to": "req:SEC-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/reset-password/route.js",
+      "to": "req:FR-082",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/reset-password/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/reset-password/route.js",
+      "to": "req:SEC-015",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -13894,7 +14232,7 @@
     },
     {
       "from": "code:src/app/login/page.jsx",
-      "to": "req:FR-046",
+      "to": "req:FR-081",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -13915,7 +14253,7 @@
     },
     {
       "from": "code:src/app/login/page.jsx",
-      "to": "req:SEC-008",
+      "to": "req:SEC-015",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -15258,6 +15596,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/auth-service.js",
+      "to": "req:FR-082",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/auth-service.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/auth-service.js",
+      "to": "req:SEC-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/classify-principal.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -16561,6 +16920,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/project-service.js",
+      "to": "req:FR-083",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-service.js",
       "to": "req:SDD-004",
       "type": "follows",
       "status": "current",
@@ -16819,6 +17185,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/components/DevelopmentRoadmapStepper.jsx",
+      "to": "req:FR-083",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/DevelopmentRoadmapStepper.jsx",
+      "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/DevelopmentRoadmapStepper.jsx",
+      "to": "req:SDD-033",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/components/FileManagerViews.jsx",
       "to": "req:FR-045",
       "type": "implements",
@@ -16983,6 +17370,13 @@
       "from": "code:src/modules/project-manager/components/useApi.js",
       "to": "req:SDD-007",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/WorkstreamModal.jsx",
+      "to": "req:FR-083",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -18842,6 +19236,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-082",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-083",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -19403,6 +19811,34 @@
     },
     {
       "from": "route:api:/api/audit",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/forgot-password",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/login",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/logout",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/reset-password",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -21328,6 +21764,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-083",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -21483,13 +21926,6 @@
     {
       "from": "test:tests/e2e/fr046-entry-contract.spec.js",
       "to": "code:src/app/api/session/demo/route.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/e2e/fr046-entry-contract.spec.js",
-      "to": "code:src/app/login/page.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
@@ -22120,6 +22556,13 @@
     {
       "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:FR-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-083",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -23467,6 +23910,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr072-project-service-authorization.test.js",
+      "to": "req:FR-083",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/fr072-project-service-authorization.test.js",
@@ -24884,6 +25334,13 @@
     },
     {
       "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-083",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
       "to": "req:SDD-004",
       "type": "verifies",
       "status": "current",
@@ -25140,6 +25597,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-core.test.js",
+      "to": "req:FR-083",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/project-core.test.js",
@@ -25767,6 +26231,125 @@
     {
       "from": "test:tests/unit/application-schema-migration.test.js",
       "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/auth-api.test.js",
+      "to": "code:src/app/api/auth/forgot-password/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/auth-api.test.js",
+      "to": "code:src/app/api/auth/login/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/auth-api.test.js",
+      "to": "code:src/app/api/auth/logout/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/auth-api.test.js",
+      "to": "code:src/app/api/auth/reset-password/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/auth-api.test.js",
+      "to": "code:src/app/login/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/auth-api.test.js",
+      "to": "code:src/modules/identity/auth-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/auth-api.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/auth-api.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/auth-api.test.js",
+      "to": "req:FR-082",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/auth-api.test.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/auth-api.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/auth-api.test.js",
+      "to": "req:SEC-015",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/auth-service.test.js",
+      "to": "code:src/modules/identity/auth-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/auth-service.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/auth-service.test.js",
+      "to": "req:FR-082",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/auth-service.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/auth-service.test.js",
+      "to": "req:SEC-015",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -26949,14 +27532,14 @@
     },
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
-      "to": "req:FR-046",
+      "to": "req:FR-056",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
-      "to": "req:FR-056",
+      "to": "req:FR-081",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -26984,7 +27567,7 @@
     },
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
-      "to": "req:SEC-008",
+      "to": "req:SEC-015",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -27901,6 +28484,13 @@
     },
     {
       "from": "test:tests/unit/fr046-api-ui-contract.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-api-ui-contract.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -27961,6 +28551,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr046-api-ui-contract.test.js",
+      "to": "req:SEC-015",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr046-entry-read-model.test.js",
@@ -29085,6 +29682,55 @@
     {
       "from": "test:tests/unit/fr080-ui-contract.test.js",
       "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr083-development-dashboard.test.js",
+      "to": "code:src/app/(pm)/projects/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr083-development-dashboard.test.js",
+      "to": "code:src/modules/project-manager/components/DevelopmentRoadmapStepper.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr083-development-dashboard.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr083-development-dashboard.test.js",
+      "to": "req:FR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr083-development-dashboard.test.js",
+      "to": "req:FR-083",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr083-development-dashboard.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr083-development-dashboard.test.js",
+      "to": "req:SDD-033",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -30722,7 +31368,21 @@
     },
     {
       "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:FR-083",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
       "to": "req:SDD-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-list-contract.test.js",
+      "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

@@ -36,15 +36,33 @@ function normalizeTrustedSession(value) {
   }
 }
 
+export const AUTH_SESSION_COOKIE = 'zuri_session'
+
+import { verifySessionToken } from './auth-service'
+
 /**
- * Provider-neutral request session port. A future LINE/OIDC/passwordless adapter may
- * supply `readTrustedSession`; client headers/body/query values are never inspected.
+ * Provider-neutral request session port. Supports signed zuri_session cookies,
+ * custom readTrustedSession hooks, or non-production local demo cookies.
  */
 export function createSessionPort({ readTrustedSession = async () => null, env = process.env } = {}) {
   return {
     async read(request) {
       const trusted = normalizeTrustedSession(await readTrustedSession(request))
       if (trusted) return trusted
+
+      const sessionCookie = cookieValue(request, AUTH_SESSION_COOKIE)
+      if (sessionCookie) {
+        const verified = verifySessionToken(sessionCookie)
+        if (verified) {
+          return {
+            state: 'AUTHENTICATED',
+            principalId: verified.principalId,
+            platformGrant: false,
+            sessionId: sessionCookie,
+            localDemo: false,
+          }
+        }
+      }
 
       const demoAllowed = env.NODE_ENV !== 'production' && env.ZURI_LOCAL_DEMO_AUTH === '1'
       if (demoAllowed && cookieValue(request, LOCAL_DEMO_COOKIE) === 'enabled') {

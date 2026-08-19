@@ -29,24 +29,24 @@ export default function ProjectTabs({ projectId, active }) {
   return (
     <nav
       aria-label="Project sections"
-      className="mb-4 flex items-center gap-1 overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface-card)] p-1.5"
+      className="mb-4 flex items-center gap-6 overflow-x-auto border-b border-[var(--border)] px-1"
     >
       {TABS.map((t) => {
         const Icon = t.icon
         const isActive = t.key === active
-        const cls = `flex items-center gap-2 whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-semibold transition ${
-          isActive ? 'bg-[#eaf0ff] text-[#2f4fe0]' : 'text-[var(--muted)] hover:bg-[var(--surface-mid)] hover:text-[var(--text)]'
+        const cls = `flex items-center gap-2 whitespace-nowrap border-b-2 py-3 text-[13px] font-medium transition-colors ${
+          isActive ? 'border-[var(--brand)] text-[var(--brand)]' : 'border-transparent text-[var(--muted)] hover:border-[var(--border)] hover:text-[var(--text)]'
         }`
         if (t.soon || !t.href) {
           return (
             <span key={t.key} className={`${cls} cursor-default opacity-55`} title="Coming soon">
-              <Icon size={15} aria-hidden /> {t.label}
+              <Icon size={14} aria-hidden /> {t.label}
             </span>
           )
         }
         return (
           <Link key={t.key} href={t.href(projectId)} className={cls} aria-current={isActive ? 'page' : undefined}>
-            <Icon size={15} aria-hidden /> {t.label}
+            <Icon size={14} aria-hidden /> {t.label}
           </Link>
         )
       })}

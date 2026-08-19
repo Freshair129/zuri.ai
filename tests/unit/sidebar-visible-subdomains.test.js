@@ -10,7 +10,7 @@ const sidebar = readFileSync(resolve(process.cwd(), 'src/components/layouts/Side
 
 describe('sidebar sub-domain visibility', () => {
   it('keeps the desktop sidebar expanded without a hover interaction', () => {
-    expect(sidebar).toContain('w-64 shrink-0')
+    expect(sidebar).toContain('w-56 shrink-0')
     expect(sidebar).not.toContain('useState')
     expect(sidebar).not.toContain('onMouseEnter')
     expect(sidebar).not.toContain('onMouseLeave')

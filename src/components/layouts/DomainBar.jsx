@@ -46,16 +46,15 @@ export default function DomainBar() {
   return (
     <nav
       aria-label="Domains"
-      className="flex h-14 shrink-0 items-center gap-1 overflow-x-auto border-b border-black/25 px-3 text-white"
-      style={{ background: '#2b3646' }}
+      className="nav-glass relative z-40 flex h-11 shrink-0 items-center gap-1 overflow-x-auto border-b border-white/10 px-4 text-white"
     >
       {DOMAINS.filter((domain) => isDomainVisible(domain.key, granted)).map((d) => {
         const Icon = d.icon
         const isActive = d.key === activeKey
         const cls = `flex items-center gap-2 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
           isActive
-            ? 'bg-[rgba(232,130,12,0.18)] text-[var(--brand)]'
-            : 'text-white/55 hover:bg-white/10 hover:text-white'
+            ? 'bg-white/10 text-white shadow-sm'
+            : 'text-white/55 hover:bg-white/5 hover:text-white'
         }`
         if (d.soon) {
           return (
