@@ -60,21 +60,9 @@
   },
   "drift": {
     "changed": [
-      "doc:B-db-schema",
-      "domain:identity",
-      "doc:PRD-SDD-v1.0",
-      "code:src/modules/project-manager/application/backup-service.js"
+      "test:tests/unit/domain-state.test.js"
     ],
-    "added": [
-      "spec:ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY",
-      "domain:market-intelligence",
-      "doc:CONTEXT-MAP",
-      "doc:SRS",
-      "model:PersonCredential",
-      "model:PasswordResetToken",
-      "req:FR-090",
-      "test:tests/unit/projects-dashboard-schema-migration.test.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -4156,7 +4144,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "cbc9be9b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -5479,7 +5467,7 @@
       "version": "1.8.0",
       "doc_status": "Draft",
       "hash": "dadb2d5f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -6248,7 +6236,7 @@
       "version": "1.71.0b",
       "doc_status": "Draft",
       "hash": "b8c374b0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -6486,7 +6474,7 @@
         "identity"
       ],
       "hash": "f0fafac2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:integration",
@@ -10772,8 +10760,8 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
-      "hash": "b395ea36",
-      "status": "current"
+      "hash": "3b86cfe8",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/e2e-warmup.test.js",
