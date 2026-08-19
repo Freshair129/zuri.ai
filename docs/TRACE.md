@@ -183,8 +183,8 @@
 
 - **Status:** done
 - **Code:** `src/modules/crm/line-ingest-service.js`
-- **Follows:** BR-001, SEC-001
-- **Tests:** `tests/integration/line-ingest.test.js` · `tests/unit/doc-views.test.js`
+- **Follows:** BR-001, NFR-017, SEC-001
+- **Tests:** `tests/integration/line-ingest-tenant-isolation.test.js` · `tests/integration/line-ingest.test.js` · `tests/unit/doc-views.test.js` · `tests/unit/scope-external-ids-migration.test.js`
 
 ### FR-024 — Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes
 
@@ -218,9 +218,9 @@
 
 - **Status:** done
 - **Surface:** `/api/agent/line-webhook` (api)
-- **Code:** `src/app/api/agent/line-webhook/route.js`
-- **Follows:** BR-011, BR-012, SDD-026, SEC-010
-- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/unit/doc-views.test.js`
+- **Code:** `src/app/api/agent/line-webhook/route.js` · `src/platform/integrations/providers/line/line-oa-evidence.js`
+- **Follows:** BR-009, BR-011, BR-012, FR-081, NFR-017, SDD-009, SDD-026, SDD-048, SEC-001, SEC-010, docs/domains/integration/features/FR-081-raw-external-ingestion.md
+- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-failure-paths.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-webhook-unbound-production.test.js` · `tests/unit/doc-views.test.js`
 
 ### FR-029 — Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent
 
@@ -392,8 +392,8 @@
 - **Status:** n/a
 - **Surface:** `/api/agent/line-webhook` (api)
 - **Code:** `src/app/api/agent/line-webhook/route.js`
-- **Follows:** BR-011, BR-012, SDD-026, SEC-010
-- **Tests:** `tests/integration/agent-webhook-route.test.js`
+- **Follows:** BR-011, BR-012, NFR-017, SDD-026, SDD-048, SEC-010
+- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-failure-paths.test.js` · `tests/integration/line-oa-golden-path.test.js`
 
 ### FR-051 — Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event.
 
@@ -406,9 +406,9 @@
 
 - **Status:** n/a
 - **Surface:** `/api/agent/line-webhook` (api)
-- **Code:** `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/line-binding-resolver.js` · `src/modules/agent/phase1-runtime.js` · `src/modules/knowledge/runtime-postgres-config.js` · `src/platform/integrations/providers/line/line-oa-webhook.js`
-- **Follows:** BR-011, BR-012, FR-081, SDD-025, SDD-026, SDD-027, SDD-044, SEC-009, SEC-010, SEC-011, SEC-016, docs/domains/integration/features/FR-081-raw-external-ingestion.md
-- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/unit/line-binding-resolver.test.js` · `tests/unit/phase1-business-agent-runtime.test.js` · `tests/unit/phase1-runtime-login-probe.test.js` · `tests/unit/platform/line-oa-webhook.test.js` · `tests/unit/runtime-postgres-config.test.js`
+- **Code:** `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/line-binding-resolver.js` · `src/modules/agent/phase1-runtime.js` · `src/modules/knowledge/runtime-postgres-config.js` · `src/platform/integrations/providers/line/line-oa-evidence.js` · `src/platform/integrations/providers/line/line-oa-webhook.js`
+- **Follows:** BR-009, BR-011, BR-012, FR-081, NFR-017, SDD-009, SDD-025, SDD-026, SDD-027, SDD-044, SDD-048, SEC-001, SEC-009, SEC-010, SEC-011, SEC-016, docs/domains/integration/features/FR-081-raw-external-ingestion.md
+- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-webhook-unbound-production.test.js` · `tests/unit/line-binding-resolver.test.js` · `tests/unit/line-webhook-scope-fail-closed.test.js` · `tests/unit/phase1-business-agent-runtime.test.js` · `tests/unit/phase1-runtime-login-probe.test.js` · `tests/unit/platform/line-oa-webhook.test.js` · `tests/unit/runtime-postgres-config.test.js`
 
 ### FR-053 — Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers.
 
@@ -619,7 +619,7 @@
 - **Feature:** FEAT-004 — Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution, local evaluation providers and secret-safe Platform management
 - **Status:** n/a
 - **Code:** `src/modules/agent/grounded-business-answer.js` · `src/modules/agent/index.js` · `src/platform/integrations/core/credential-vault.js` · `src/platform/integrations/core/integration-registry.js` · `src/platform/integrations/core/secret-manager.js`
-- **Follows:** NFR-015, SDD-025, SDD-027, SDD-043, SEC-009, SEC-011, SEC-015
+- **Follows:** BR-012, NFR-015, SDD-025, SDD-027, SDD-043, SEC-001, SEC-009, SEC-011, SEC-015
 - **Tests:** `tests/integration/agent-action-gate.test.js` · `tests/integration/agent-context.test.js` · `tests/unit/activation-readiness-integration.test.js` · `tests/unit/fr079-credential-vault.test.js` · `tests/unit/fr079-runtime-cutover.test.js` · `tests/unit/fr079-schema-contract.test.js` · `tests/unit/fr079-supabase-migration.test.js` · `tests/unit/grounded-business-answer.test.js`
 
 ### FR-080 — Platform Integrations UI: an owner with trusted Business authority can inspect and create Business-scoped IntegrationProvider/IntegrationConnection/IntegrationCredential metadata at `/platform/integrations`, with fixed `purpose=PHASE1_LINE_LLM`, redacted Vault status and explicit loading/error/empty states. The form accepts only `supabase-vault:<uuid>`; secret material is never returned to the browser or stored in Prisma, logs or audit events. The UI cannot activate LINE routing or replace FR-053/054/055 gates; promotion/rotation/revocation remain deferred lifecycle contracts.
@@ -634,6 +634,7 @@
 ### FR-081 — Raw external ingestion boundary: every acquisition channel (webhook, pull, file, manual) converges on one normalized ingestion envelope carrying tenant, Business, connection, provider, lane, entity type, external id, source type and schema version, and a channel is added as an adapter rather than a second raw-write path. (a) Ingestion identity is `sha256(tenantId, connectionId, entityType, externalId, payloadHash)` over a canonically serialized payload, so a re-delivered event resolves to `UNCHANGED` instead of a duplicate row; the external id contributes to that identity and is never itself a key (BR-002). (b) Raw records are read and written only through a repository bound to one tenant/connection scope, which refuses a row outside it rather than filtering afterwards (SEC-001), and a referenced Business or IngestionRun must itself resolve inside that scope. (c) Raw ingestion persists the source payload verbatim and never writes domain truth: translation into business entities is a separate later path, so a failed translation cannot corrupt the evidence it was derived from. (d) A run records its own counts and terminal state, and a failure is preserved as a DeadLetterRecord naming the failing stage and owner rather than being retried silently. This requirement declares the ingestion substrate only; no scheduler, no translation ACL and no reader surface is in scope.
 
 - **Status:** n/a
-- **Code:** `src/modules/project-manager/application/backup-service.js` · `src/platform/integrations/core/contracts.js` · `src/platform/integrations/core/idempotency.js` · `src/platform/integrations/core/integration-registry.js` · `src/platform/integrations/core/raw-ingest-service.js` · `src/platform/integrations/core/raw-record-repository.js` · `src/platform/integrations/providers/line/line-oa-webhook.js`
-- **Follows:** BR-002, BR-008, FR-081, SDD-023, SDD-043, SEC-001, SEC-002, SEC-008, SEC-009, SEC-015, docs/domains/integration/features/FR-081-raw-external-ingestion.md
-- **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/platform/integration-persistence.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/fr079-runtime-cutover.test.js` · `tests/unit/platform/integration-contracts.test.js` · `tests/unit/platform/line-oa-webhook.test.js` · `tests/unit/platform/raw-ingest-service.test.js`
+- **Surface:** `/api/agent/line-webhook` (api)
+- **Code:** `src/app/api/agent/line-webhook/route.js` · `src/modules/project-manager/application/backup-service.js` · `src/platform/integrations/core/contracts.js` · `src/platform/integrations/core/idempotency.js` · `src/platform/integrations/core/integration-registry.js` · `src/platform/integrations/core/raw-ingest-service.js` · `src/platform/integrations/core/raw-record-repository.js` · `src/platform/integrations/providers/line/line-oa-evidence.js` · `src/platform/integrations/providers/line/line-oa-webhook.js`
+- **Follows:** BR-002, BR-008, BR-009, BR-011, BR-012, FR-081, NFR-017, SDD-009, SDD-023, SDD-026, SDD-043, SDD-048, SEC-001, SEC-002, SEC-008, SEC-009, SEC-010, SEC-015, docs/domains/integration/features/FR-081-raw-external-ingestion.md
+- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/platform/integration-persistence.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/fr079-runtime-cutover.test.js` · `tests/unit/platform/integration-contracts.test.js` · `tests/unit/platform/line-oa-webhook.test.js` · `tests/unit/platform/raw-ingest-service.test.js`
