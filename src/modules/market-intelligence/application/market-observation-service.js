@@ -6,12 +6,8 @@ import { translateRawRecordToMarketObservation } from './translate-raw-record'
 // @spec ADR-038
 
 function requireRepository(repository) {
-  if (
-    !repository ||
-    typeof repository.findByLineageKey !== 'function' ||
-    typeof repository.insert !== 'function'
-  ) {
-    throw new Error('MarketObservation repository with findByLineageKey/insert is required')
+  if (!repository || typeof repository.insertIfAbsent !== 'function') {
+    throw new Error('MarketObservation repository with atomic insertIfAbsent is required')
   }
 }
 
@@ -28,19 +24,16 @@ export async function persistMarketObservationDraft(draft, { repository } = {}) 
     throw new Error('MarketObservation draft lineageKey is required')
   }
 
-  const existing = await repository.findByLineageKey(draft.lineageKey)
-  if (existing) {
-    return {
-      status: 'UNCHANGED',
-      observation: existing,
-    }
+  // The repository owns the atomicity boundary. A read-before-create sequence in
+  // application code is not sufficient: two workers can both observe "missing"
+  // and race the insert. The persistence adapter must serialize that identity via
+  // a unique constraint/upsert or an equivalent atomic create-if-absent primitive.
+  const result = await repository.insertIfAbsent(draft)
+  if (!result || !['CREATED', 'UNCHANGED'].includes(result.status) || !result.observation) {
+    throw new Error('MarketObservation repository returned an invalid insertIfAbsent result')
   }
 
-  const observation = await repository.insert(draft)
-  return {
-    status: 'CREATED',
-    observation,
-  }
+  return result
 }
 
 export async function translateAndPersistRawMarketRecord(
