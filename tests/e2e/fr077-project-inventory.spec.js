@@ -2,6 +2,9 @@
 // @spec SDD-045, ADR-034, ADR-017
 // @tested tests/e2e/fr077-project-inventory.spec.js
 const { test, expect } = require('@playwright/test')
+// A lost connection is not a result. See the header of this module for the run
+// that turned one into a red `main`, and for why only the connection is retried.
+const { api } = require('./reconnecting-request')
 
 async function chooseBusiness(page, name = 'Business 01') {
   await page.goto('/login')
@@ -13,7 +16,7 @@ async function chooseBusiness(page, name = 'Business 01') {
 test.describe('FR-077 Project Inventory', () => {
   test('happy path renders the additive Inventory entry and operational sections', async ({ page }) => {
     await chooseBusiness(page)
-    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const resolved = await (await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
 
     await page.goto(`/projects/${resolved.id}/inventory`)
 
@@ -26,9 +29,9 @@ test.describe('FR-077 Project Inventory', () => {
 
   test('empty Project shows an empty section without treating it as an error', async ({ page }) => {
     await chooseBusiness(page)
-    const scope = await (await page.request.get('/api/scope')).json()
+    const scope = await (await api(page.request).get('/api/scope')).json()
     const workspace = scope.workspaces.find((item) => item.code === 'WS-B01-MIG')
-    const created = await page.request.post('/api/projects', {
+    const created = await api(page.request).post('/api/projects', {
       data: { workspaceId: workspace.id, businessId: workspace.businessId, name: `Inventory empty ${Date.now()}` },
     })
     expect(created.ok()).toBe(true)
@@ -49,9 +52,9 @@ test.describe('FR-077 Project Inventory', () => {
 
   test('limit=1 exposes partial/truncated metadata instead of silently shortening the response', async ({ page }) => {
     await chooseBusiness(page)
-    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const resolved = await (await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
 
-    const response = await page.request.get(`/api/projects/${resolved.id}/inventory?limit=1`)
+    const response = await api(page.request).get(`/api/projects/${resolved.id}/inventory?limit=1`)
     expect(response.ok()).toBe(true)
     const body = await response.json()
     expect(body.sections.work.workstreams.status).toBe('PARTIAL')
@@ -59,7 +62,7 @@ test.describe('FR-077 Project Inventory', () => {
   })
 
   test('unauthenticated Inventory reads fail closed', async ({ request }) => {
-    const response = await request.get('/api/projects/00000000-0000-0000-0000-000000000000/inventory')
+    const response = await api(request).get('/api/projects/00000000-0000-0000-0000-000000000000/inventory')
     expect(response.status()).toBe(401)
   })
 })
