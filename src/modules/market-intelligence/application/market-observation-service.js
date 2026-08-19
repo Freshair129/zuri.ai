@@ -15,6 +15,12 @@ function requireRepository(repository) {
   }
 }
 
+function requireRawRepository(rawRepository) {
+  if (!rawRepository || typeof rawRepository.findById !== 'function') {
+    throw new Error('scoped Integration raw-record repository with findById is required')
+  }
+}
+
 export async function persistMarketObservationDraft(draft, { repository } = {}) {
   requireRepository(repository)
 
@@ -55,4 +61,42 @@ export async function translateAndPersistRawMarketRecord(
   })
 
   return persistMarketObservationDraft(draft, { repository })
+}
+
+/**
+ * Preferred cross-domain entry point for Phase #76.
+ *
+ * Callers provide only a raw-record id plus already-scoped repositories. The raw
+ * evidence is loaded through Integration's scope-bound repository; an arbitrary
+ * client-supplied raw envelope never becomes translation authority.
+ */
+export async function loadTranslateAndPersistRawMarketRecord(
+  rawRecordId,
+  {
+    rawRepository,
+    repository,
+    extractCandidate,
+    knowledgeResolver,
+    translationSchemaVersion,
+    now,
+  } = {},
+) {
+  if (!rawRecordId) throw new Error('rawRecordId is required')
+  requireRawRepository(rawRepository)
+
+  const rawRecord = await rawRepository.findById(rawRecordId)
+  if (!rawRecord) {
+    return {
+      status: 'NOT_FOUND',
+      observation: null,
+    }
+  }
+
+  return translateAndPersistRawMarketRecord(rawRecord, {
+    repository,
+    extractCandidate,
+    knowledgeResolver,
+    translationSchemaVersion,
+    now,
+  })
 }
