@@ -58,6 +58,7 @@ describe('Market raw-record repository scope (#76)', () => {
         id: 'raw-1',
         tenantId: 'tenant-a',
         connectionId: 'conn-a',
+        businessId: null,
       },
     })
   })
