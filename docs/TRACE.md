@@ -220,7 +220,7 @@
 - **Surface:** `/api/agent/line-webhook` (api)
 - **Code:** `src/app/api/agent/line-webhook/route.js` · `src/platform/integrations/providers/line/line-oa-evidence.js`
 - **Follows:** BR-009, BR-011, BR-012, FR-081, NFR-017, SDD-009, SDD-026, SDD-048, SEC-001, SEC-010, docs/domains/integration/features/FR-081-raw-external-ingestion.md
-- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-failure-paths.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-webhook-unbound-production.test.js` · `tests/unit/doc-views.test.js`
+- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-cross-repo-round-trip.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-failure-paths.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-webhook-transport-contract.test.js` · `tests/integration/line-webhook-unbound-production.test.js` · `tests/unit/doc-views.test.js`
 
 ### FR-029 — Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent
 
@@ -393,7 +393,7 @@
 - **Surface:** `/api/agent/line-webhook` (api)
 - **Code:** `src/app/api/agent/line-webhook/route.js`
 - **Follows:** BR-011, BR-012, NFR-017, SDD-026, SDD-048, SEC-010
-- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-failure-paths.test.js` · `tests/integration/line-oa-golden-path.test.js`
+- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-cross-repo-round-trip.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-failure-paths.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-webhook-transport-contract.test.js`
 
 ### FR-051 — Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event.
 
@@ -408,7 +408,7 @@
 - **Surface:** `/api/agent/line-webhook` (api)
 - **Code:** `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/line-binding-resolver.js` · `src/modules/agent/phase1-runtime.js` · `src/modules/knowledge/runtime-postgres-config.js` · `src/platform/integrations/providers/line/line-oa-evidence.js` · `src/platform/integrations/providers/line/line-oa-webhook.js`
 - **Follows:** BR-009, BR-011, BR-012, FR-081, NFR-017, SDD-009, SDD-025, SDD-026, SDD-027, SDD-044, SDD-048, SEC-001, SEC-009, SEC-010, SEC-011, SEC-016, docs/domains/integration/features/FR-081-raw-external-ingestion.md
-- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-webhook-unbound-production.test.js` · `tests/unit/line-binding-resolver.test.js` · `tests/unit/line-webhook-scope-fail-closed.test.js` · `tests/unit/phase1-business-agent-runtime.test.js` · `tests/unit/phase1-runtime-login-probe.test.js` · `tests/unit/platform/line-oa-webhook.test.js` · `tests/unit/runtime-postgres-config.test.js`
+- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-cross-repo-round-trip.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-webhook-unbound-production.test.js` · `tests/unit/line-binding-resolver.test.js` · `tests/unit/line-webhook-scope-fail-closed.test.js` · `tests/unit/phase1-business-agent-runtime.test.js` · `tests/unit/phase1-runtime-login-probe.test.js` · `tests/unit/platform/line-oa-webhook.test.js` · `tests/unit/runtime-postgres-config.test.js`
 
 ### FR-053 — Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers.
 

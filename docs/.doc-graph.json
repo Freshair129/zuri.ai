@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1000,
-    "total_edges": 3290,
+    "total_nodes": 1002,
+    "total_edges": 3298,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 112,
       "model": 50,
       "requirement": 188,
-      "test": 222,
+      "test": 224,
       "code_file": 267
     },
     "coverage": {
@@ -60,18 +60,9 @@
   },
   "drift": {
     "changed": [
-      "doc:FR-080-integration-secret-management-ui",
-      "doc:PRD-SDD-v1.0",
-      "test:tests/unit/fr080-ui-contract.test.js",
-      "code:src/app/(pm)/platform/integrations/page.jsx",
-      "code:src/components/ui/index.jsx",
-      "code:src/modules/integration/application/integration-management-service.js"
+      "doc:FR-081-raw-external-ingestion"
     ],
-    "added": [
-      "test:tests/integration/line-oa-connection-health.test.js",
-      "test:tests/unit/connection-health.test.js",
-      "code:src/platform/integrations/core/connection-health.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -337,7 +328,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
       "hash": "f1db9e70",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080",
@@ -2617,7 +2608,7 @@
       "type": "code_file",
       "path": "src/components/ui/index.jsx",
       "hash": "1da104f1",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "NFR-008",
@@ -3818,7 +3809,7 @@
       "type": "code_file",
       "path": "src/modules/integration/application/integration-management-service.js",
       "hash": "b3e37f31",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -5968,15 +5959,15 @@
       "path": "docs/domains/integration/features/FR-080-integration-secret-management-ui.md",
       "title": "FR-080 — Integration and Secret Manager management UI",
       "hash": "a88cff0e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-081-raw-external-ingestion",
       "type": "document",
       "path": "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
       "title": "FR-081 — Raw external ingestion boundary",
-      "hash": "fc627694",
-      "status": "current"
+      "hash": "90693e8f",
+      "status": "changed"
     },
     {
       "id": "doc:FR-082-pipeline-canvas",
@@ -6236,7 +6227,7 @@
       "version": "1.71.0b",
       "doc_status": "Draft",
       "hash": "985b7a8d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -10290,6 +10281,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/line-oa-cross-repo-round-trip.test.js",
+      "type": "test",
+      "path": "tests/integration/line-oa-cross-repo-round-trip.test.js",
+      "hash": "459ff40e",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/line-oa-evidence-convergence.test.js",
       "type": "test",
       "path": "tests/integration/line-oa-evidence-convergence.test.js",
@@ -10308,6 +10306,13 @@
       "type": "test",
       "path": "tests/integration/line-oa-golden-path.test.js",
       "hash": "253b16d5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/line-webhook-transport-contract.test.js",
+      "type": "test",
+      "path": "tests/integration/line-webhook-transport-contract.test.js",
+      "hash": "b076f584",
       "status": "current"
     },
     {
@@ -10966,7 +10971,7 @@
       "type": "test",
       "path": "tests/unit/fr080-ui-contract.test.js",
       "hash": "50e1b6cb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr089-br018-team-grants-nothing.test.js",
@@ -26266,6 +26271,41 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/line-oa-cross-repo-round-trip.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-cross-repo-round-trip.test.js",
+      "to": "req:FR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-cross-repo-round-trip.test.js",
+      "to": "req:FR-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-cross-repo-round-trip.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-oa-cross-repo-round-trip.test.js",
+      "to": "req:NFR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
       "to": "code:src/app/api/agent/line-webhook/route.js",
       "type": "tests",
@@ -26450,6 +26490,27 @@
     {
       "from": "test:tests/integration/line-oa-golden-path.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-webhook-transport-contract.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-webhook-transport-contract.test.js",
+      "to": "req:FR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-webhook-transport-contract.test.js",
+      "to": "req:FR-050",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
