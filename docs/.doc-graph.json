@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1003,
-    "total_edges": 3297,
+    "total_nodes": 1004,
+    "total_edges": 3301,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 112,
       "model": 52,
       "requirement": 189,
-      "test": 222,
+      "test": 223,
       "code_file": 267
     },
     "coverage": {
@@ -59,16 +59,9 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:B-db-schema",
-      "domain:identity",
-      "doc:PRD-SDD-v1.0",
-      "code:src/modules/project-manager/application/backup-service.js"
-    ],
+    "changed": [],
     "added": [
-      "model:PersonCredential",
-      "model:PasswordResetToken",
-      "req:FR-090"
+      "test:tests/unit/projects-dashboard-schema-migration.test.js"
     ],
     "removed": []
   },
@@ -4151,7 +4144,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "cbc9be9b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -5474,7 +5467,7 @@
       "version": "1.8.0",
       "doc_status": "Draft",
       "hash": "dadb2d5f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -6235,7 +6228,7 @@
       "version": "1.71.0b",
       "doc_status": "Draft",
       "hash": "b8c374b0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -6465,7 +6458,7 @@
         "identity"
       ],
       "hash": "f0fafac2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:integration",
@@ -11358,6 +11351,13 @@
       "type": "test",
       "path": "tests/unit/projects-dashboard-read-model.test.js",
       "hash": "cd865f8c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/projects-dashboard-schema-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/projects-dashboard-schema-migration.test.js",
+      "hash": "410a642c",
       "status": "current"
     },
     {
@@ -33702,6 +33702,34 @@
     {
       "from": "test:tests/unit/projects-dashboard-read-model.test.js",
       "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/projects-dashboard-schema-migration.test.js",
+      "to": "req:BR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/projects-dashboard-schema-migration.test.js",
+      "to": "req:FR-087",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/projects-dashboard-schema-migration.test.js",
+      "to": "req:FR-088",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/projects-dashboard-schema-migration.test.js",
+      "to": "req:FR-089",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
