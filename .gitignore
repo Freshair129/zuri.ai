@@ -13,7 +13,16 @@ playwright-report/
 .playwright-cli/
 output/playwright/*.log
 output/playwright/*.pid
+# tests/e2e/fr060-business-home.spec.js writes this screenshot on every run, so a
+# tracked copy makes `npm run test:e2e` dirty the working tree with binary churn
+# that no document cites. The evidence is the passing spec, not the committed byte.
+output/playwright/*.png
 .env
 *.local
 __pycache__/
 docs/v1-inherited/
+# A nightly report template belonging to a different project (it names the repo
+# robinbakshi007/ollama-direct-custom-agent and counts VS Code marketplace
+# releases). Nothing here generates it; ignored so an external writer cannot
+# reintroduce it as tracked noise.
+JULES_REPORT.md

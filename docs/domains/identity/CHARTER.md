@@ -10,6 +10,8 @@ owns_models:
   - IdentityLinkToken
   - ExternalRef
   - RoleBinding
+  - PersonCredential
+  - PasswordResetToken
 ---
 
 # Domain charter — identity

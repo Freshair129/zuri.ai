@@ -3,26 +3,26 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1002,
-    "total_edges": 3298,
+    "total_nodes": 1010,
+    "total_edges": 3312,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 81,
-      "adr": 37,
-      "domain": 6,
+      "document": 83,
+      "adr": 38,
+      "domain": 7,
       "roadmap": 25,
       "feature": 8,
       "route": 112,
-      "model": 50,
-      "requirement": 188,
-      "test": 224,
+      "model": 52,
+      "requirement": 189,
+      "test": 225,
       "code_file": 267
     },
     "coverage": {
-      "requirements": 188,
-      "fr_with_code": "100% (78/78)",
-      "fr_with_tests": "100% (78/78)",
+      "requirements": 189,
+      "fr_with_code": "100% (79/79)",
+      "fr_with_tests": "100% (79/79)",
       "rules_anchored_in_code": "89% (71/80)",
       "nfr_evidence_based": "17 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 267,
@@ -60,7 +60,7 @@
   },
   "drift": {
     "changed": [
-      "doc:FR-081-raw-external-ingestion"
+      "test:tests/unit/domain-state.test.js"
     ],
     "added": [],
     "removed": []
@@ -4143,7 +4143,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "8c7ae6ba",
+      "hash": "cbc9be9b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4152,6 +4152,7 @@
           "FR-045",
           "FR-075",
           "FR-081",
+          "FR-090",
           "FR-089"
         ],
         "@spec": [
@@ -5465,7 +5466,15 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.8.0",
       "doc_status": "Draft",
-      "hash": "cbb64662",
+      "hash": "dadb2d5f",
+      "status": "current"
+    },
+    {
+      "id": "doc:CONTEXT-MAP",
+      "type": "document",
+      "path": "docs/domains/market-intelligence/CONTEXT-MAP.md",
+      "title": "Context map — Market Intelligence",
+      "hash": "8ae199b0",
       "status": "current"
     },
     {
@@ -5967,7 +5976,7 @@
       "path": "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
       "title": "FR-081 — Raw external ingestion boundary",
       "hash": "90693e8f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-082-pipeline-canvas",
@@ -6226,7 +6235,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "985b7a8d",
+      "hash": "b8c374b0",
       "status": "current"
     },
     {
@@ -6291,6 +6300,14 @@
       "version": "0.5.0",
       "doc_status": "Accepted",
       "hash": "91644e98",
+      "status": "current"
+    },
+    {
+      "id": "doc:SRS",
+      "type": "document",
+      "path": "docs/domains/market-intelligence/SRS.md",
+      "title": "SRS — Market Intelligence Domain",
+      "hash": "8a5ef02c",
       "status": "current"
     },
     {
@@ -6443,7 +6460,9 @@
         "ExternalIdentity",
         "IdentityLinkToken",
         "ExternalRef",
-        "RoleBinding"
+        "RoleBinding",
+        "PersonCredential",
+        "PasswordResetToken"
       ],
       "owns_routes": [
         "src/app/(entry)/**",
@@ -6454,7 +6473,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "4bda536d",
+      "hash": "f0fafac2",
       "status": "current"
     },
     {
@@ -6492,6 +6511,22 @@
         "knowledge"
       ],
       "hash": "65d305aa",
+      "status": "current"
+    },
+    {
+      "id": "domain:market-intelligence",
+      "type": "domain",
+      "path": "docs/domains/market-intelligence/CHARTER.md",
+      "title": "Domain — market-intelligence",
+      "owns_models": [],
+      "owns_routes": [],
+      "owns_code": [
+        "src/modules/market-intelligence/**"
+      ],
+      "modules": [
+        "market-intelligence"
+      ],
+      "hash": "4b905c54",
       "status": "current"
     },
     {
@@ -6753,7 +6788,17 @@
       "status": "current"
     },
     {
+      "id": "model:PasswordResetToken",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:Person",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PersonCredential",
       "type": "model",
       "status": "current"
     },
@@ -7916,6 +7961,16 @@
       "declared": "planned",
       "status": "planned",
       "row_text": "Team as an organisational grouping: three additive Business-scoped models — `Team`, `TeamMembership` (Person ↔ Team) and `ProjectTeam` (many-to-many, because a Project is worked by several Teams and a Team works several Projects). A Team records who works together and **grants nothing**: the identity resolver does not read it, no route guard consults it, and adding a Person to a Team changes no role, no domain grant and no visible or owned Business (BR-018, ADR-037 D1). `TeamMembership` is deliberately separate from `Membership` — the same distinct-authority-layer discipline BR-016 applies to `WorkspaceMembership` — because `Membership` is the authority record `resolveViewer` reads, and merging grouping into it is how an unauthenticated POST minted business-owner authority on 2026-08-17. Work stays assigned to a Person (`WorkItem.assigneeRef`), never to a Team (ADR-037 D4). FR-036's existing \"project Team\" tab is untouched and its reconciliation with this entity is deferred deliberately (ADR-037 D5). 🔜 design only — ADR-037 proposed, implementation not authorized "
+    },
+    {
+      "id": "req:FR-090",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. When the owning branch lands it must renumber: it currently claims FR-082/FR-083, which `main` already spent on the pipeline canvas, and its \"Development Overview Dashboard\" overlaps FR-086 — both are product decisions, not merge mechanics.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. When the owning branch lands it must renumber: it currently claims FR-082/FR-083, which `main` already spent on the pipeline canvas, and its \"Development Overview Dashboard\" overlaps FR-086 — both are product decisions, not merge mechanics. 🟠 schema declared to match the live database; the owning feature is unmerged "
     },
     {
       "id": "req:NFR-001",
@@ -9924,6 +9979,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY",
+      "type": "adr",
+      "path": "docs/decisions/ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY.md",
+      "title": "ADR-038 — Market Intelligence is a first-class Zuri domain inside the Modular Monolith",
+      "hash": "e759691c",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -10697,8 +10760,8 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
-      "hash": "b395ea36",
-      "status": "current"
+      "hash": "3b86cfe8",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/e2e-warmup.test.js",
@@ -11342,6 +11405,13 @@
       "type": "test",
       "path": "tests/unit/projects-dashboard-read-model.test.js",
       "hash": "cd865f8c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/projects-dashboard-schema-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/projects-dashboard-schema-migration.test.js",
+      "hash": "410a642c",
       "status": "current"
     },
     {
@@ -17123,6 +17193,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-090",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:SDD-023",
       "type": "follows",
       "status": "current",
@@ -19376,6 +19453,20 @@
       "source": "charter"
     },
     {
+      "from": "model:PasswordResetToken",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PersonCredential",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Person",
       "to": "domain:crm",
       "type": "owned_by",
@@ -20238,6 +20329,13 @@
     },
     {
       "from": "req:FR-089",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-090",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -22617,6 +22715,27 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY",
+      "to": "req:FR-081",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY",
+      "to": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -24375,6 +24494,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-090",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -25629,6 +25755,13 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-089",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-090",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -29556,6 +29689,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-089",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-090",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -33693,6 +33833,34 @@
     {
       "from": "test:tests/unit/projects-dashboard-read-model.test.js",
       "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/projects-dashboard-schema-migration.test.js",
+      "to": "req:BR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/projects-dashboard-schema-migration.test.js",
+      "to": "req:FR-087",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/projects-dashboard-schema-migration.test.js",
+      "to": "req:FR-088",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/projects-dashboard-schema-migration.test.js",
+      "to": "req:FR-089",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
