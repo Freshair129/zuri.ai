@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.2.0b |
+| **Version** | 1.3.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -26,3 +26,4 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-006 | Customer Data Backfill — scoped, provenance-preserving Customer Profile contract with entity resolution, PDPA gates and explicit duplicate review | FR-078 | building |
 | FEAT-007 | Pipeline Builder — direct-manipulation structure and edge creation on one canvas, with a mandatory Handoff Contract on every edge and contract-gated release on the Board | FR-082, FR-083, FR-084, FR-085 | proposed |
 | FEAT-008 | Projects Dashboard — a KPI band and enriched Project list for the Development domain, with the priority, accountable-owner and Team entities it needs to be honest | FR-086, FR-087, FR-088, FR-089 | proposed |
+| FEAT-009 | CRM Conversation Inbox — the first reader surface over the LINE ingress: an operator can open the console and watch the messages their business actually received | FR-091 | building |

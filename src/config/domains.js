@@ -3,7 +3,7 @@ import {
   LayoutDashboard, BriefcaseBusiness, ListChecks, GanttChartSquare,
   Network, Flag, GitBranch, Rocket, ScrollText, DatabaseBackup, Settings,
   ShoppingCart, Users, Megaphone, UtensilsCrossed, ServerCog, Target,
-  FolderOpen, PlugZap, ClipboardCheck,
+  FolderOpen, PlugZap, ClipboardCheck, MessagesSquare,
 } from 'lucide-react'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
@@ -40,8 +40,15 @@ export const DOMAINS = [
     sub: [{ label: 'Dashboard', path: '/commerce', icon: LayoutDashboard }],
   },
   {
-    key: 'customer', label: 'CRM', icon: Users, soon: true,
-    sub: [{ label: 'Dashboard', path: '/customer', icon: LayoutDashboard }],
+    // @req FR-091 — the slot stops being reserved. `Customer`, `Conversation` and
+    // `Message` have been written by the FR-023 LINE ingest since the first turn;
+    // FR-081 left them deliberately unreadable, so this domain was `soon` while its
+    // data was already arriving. The Inbox is the reader surface that closes that.
+    key: 'customer', label: 'CRM', icon: Users, soon: false,
+    sub: [
+      { label: 'Dashboard', path: '/customer', icon: LayoutDashboard },
+      { label: 'Inbox', path: '/customer/conversations', icon: MessagesSquare },
+    ],
   },
   {
     key: 'growth', label: 'Marketing', icon: Megaphone, soon: true,

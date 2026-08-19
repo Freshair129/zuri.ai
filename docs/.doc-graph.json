@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1011,
-    "total_edges": 3314,
+    "total_nodes": 1028,
+    "total_edges": 3384,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 83,
+      "document": 84,
       "adr": 38,
       "domain": 7,
       "roadmap": 25,
-      "feature": 8,
-      "route": 112,
+      "feature": 9,
+      "route": 116,
       "model": 52,
-      "requirement": 189,
-      "test": 226,
-      "code_file": 267
+      "requirement": 191,
+      "test": 230,
+      "code_file": 272
     },
     "coverage": {
-      "requirements": 189,
+      "requirements": 191,
       "fr_with_code": "100% (79/79)",
       "fr_with_tests": "100% (79/79)",
-      "rules_anchored_in_code": "89% (71/80)",
+      "rules_anchored_in_code": "89% (72/81)",
       "nfr_evidence_based": "17 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 267,
+      "annotated_code_files": 272,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -37,7 +37,8 @@
         "FR-086",
         "FR-087",
         "FR-088",
-        "FR-089"
+        "FR-089",
+        "FR-091"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -151,6 +152,49 @@
         "@tested": [
           "tests/integration/backup.test.js",
           "tests/unit/fr045-backup-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/customer/conversations/page.jsx",
+      "hash": "8c3d1950",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091"
+        ],
+        "@spec": [
+          "SDD-049",
+          "BR-001",
+          "BR-011",
+          "SDD-007"
+        ],
+        "@tested": [
+          "tests/unit/fr091-inbox-ui-contract.test.js",
+          "tests/e2e/fr091-conversation-inbox.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/customer/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/customer/page.jsx",
+      "hash": "b1acc070",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091"
+        ],
+        "@spec": [
+          "SDD-049",
+          "BR-001",
+          "SDD-007"
+        ],
+        "@tested": [
+          "tests/unit/fr091-inbox-ui-contract.test.js",
+          "tests/e2e/fr091-conversation-inbox.spec.js"
         ]
       }
     },
@@ -1119,6 +1163,48 @@
         ],
         "@tested": [
           "tests/integration/fr072-work-service-authorization.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/crm/conversations/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/crm/conversations/[id]/route.js",
+      "hash": "3134c46f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091"
+        ],
+        "@spec": [
+          "SDD-049",
+          "BR-001",
+          "SEC-001",
+          "SDD-007"
+        ],
+        "@tested": [
+          "tests/integration/crm-conversation-inbox.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/crm/conversations/route.js",
+      "type": "code_file",
+      "path": "src/app/api/crm/conversations/route.js",
+      "hash": "9bd13ebf",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091"
+        ],
+        "@spec": [
+          "SDD-049",
+          "BR-001",
+          "SEC-001",
+          "SDD-007"
+        ],
+        "@tested": [
+          "tests/integration/crm-conversation-inbox.test.js"
         ]
       }
     },
@@ -2629,7 +2715,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "742cfc5d",
+      "hash": "c71c34ad",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2637,6 +2723,7 @@
           "FR-045",
           "FR-039",
           "FR-060",
+          "FR-091",
           "FR-086"
         ],
         "@spec": [
@@ -3450,6 +3537,29 @@
       }
     },
     {
+      "id": "code:src/modules/crm/conversation-read-model.js",
+      "type": "code_file",
+      "path": "src/modules/crm/conversation-read-model.js",
+      "hash": "f884171b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-091"
+        ],
+        "@spec": [
+          "SDD-049",
+          "BR-001",
+          "BR-011",
+          "SEC-001",
+          "SEC-009"
+        ],
+        "@tested": [
+          "tests/unit/conversation-read-model.test.js",
+          "tests/integration/crm-conversation-inbox.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/crm/customer-import-review-service.js",
       "type": "code_file",
       "path": "src/modules/crm/customer-import-review-service.js",
@@ -4087,7 +4197,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "13305038",
+      "hash": "3b5433d7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5420,9 +5530,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.10.0b",
+      "version": "1.11.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "4f46fa4b",
+      "hash": "32ce67bc",
       "status": "current"
     },
     {
@@ -5548,9 +5658,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.2.0b",
+      "version": "1.3.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "1591fd73",
+      "hash": "91e47e9c",
       "status": "current"
     },
     {
@@ -6001,6 +6111,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-091-conversation-inbox",
+      "type": "document",
+      "path": "docs/domains/crm/features/FR-091-conversation-inbox.md",
+      "title": "FR-091 — CRM Conversation Inbox",
+      "hash": "a42ddc3f",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -6025,9 +6143,9 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.1.0b",
+      "version": "1.2.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "0edb4dd5",
+      "hash": "1822697f",
       "status": "current"
     },
     {
@@ -6237,7 +6355,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "b8c374b0",
+      "hash": "fc4f6eca",
       "status": "current"
     },
     {
@@ -6450,7 +6568,7 @@
       "modules": [
         "crm"
       ],
-      "hash": "cb4dd8cd",
+      "hash": "033a3619",
       "status": "current"
     },
     {
@@ -6632,6 +6750,13 @@
       "type": "feature",
       "label": "Projects Dashboard — a KPI band and enriched Project list for the Development domain, with the priority, accountable-owner and Team entities it needs to be honest",
       "declared": "proposed",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-009",
+      "type": "feature",
+      "label": "CRM Conversation Inbox — the first reader surface over the LINE ingress: an operator can open the console and watch the messages their business actually received",
+      "declared": "building",
       "status": "current"
     },
     {
@@ -7975,6 +8100,16 @@
       "row_text": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. When the owning branch lands it must renumber: it currently claims FR-082/FR-083, which `main` already spent on the pipeline canvas, and its \"Development Overview Dashboard\" overlaps FR-086 — both are product decisions, not merge mechanics. 🟠 schema declared to match the live database; the owning feature is unmerged "
     },
     {
+      "id": "req:FR-091",
+      "type": "requirement",
+      "family": "FR",
+      "label": "CRM Conversation Inbox — the reader surface for the LINE ingress. `Customer`, `Conversation` and `Message` have been written by the FR-023 ingest seam since the first LINE turn, and FR-081 declared in as many words that **no reader surface was in scope** — so every message this product has ever received is invisible to the operator whose business received it. This requirement adds that surface and nothing else. `GET /api/crm/conversations` returns one authorized, read-only list (customer, channel, message count, last-message preview and time, owning-Business label); `GET /api/crm/conversations/{id}` returns one thread with its messages oldest-first and the customer behind it. Scope follows **BR-001, not the shell**: the CRM is tenant-shared, so the list is the Tenant of the selected Business, restricted to conversations whose `businessId` is null (tenant-shared — which is what an unbound LINE binding writes, and therefore the common case) or a Business this viewer can already see. A viewer is never handed a conversation belonging to a Business they could not open. The `customer` domain slot leaves `soon` and gains `/customer` (Dashboard) and `/customer/conversations` (Inbox). It **writes nothing**: no reply box, no status transition, no read-receipt. Replying is BR-011 territory and belongs to the edge runtime that owns the reply — a console that could also reply would make two reply owners, which is the one thing BR-011 exists to prevent. `Conversation.status` is displayed as stored and no enum is declared for it, because nothing in this slice writes it.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "CRM Conversation Inbox — the reader surface for the LINE ingress. `Customer`, `Conversation` and `Message` have been written by the FR-023 ingest seam since the first LINE turn, and FR-081 declared in as many words that **no reader surface was in scope** — so every message this product has ever received is invisible to the operator whose business received it. This requirement adds that surface and nothing else. `GET /api/crm/conversations` returns one authorized, read-only list (customer, channel, message count, last-message preview and time, owning-Business label); `GET /api/crm/conversations/{id}` returns one thread with its messages oldest-first and the customer behind it. Scope follows **BR-001, not the shell**: the CRM is tenant-shared, so the list is the Tenant of the selected Business, restricted to conversations whose `businessId` is null (tenant-shared — which is what an unbound LINE binding writes, and therefore the common case) or a Business this viewer can already see. A viewer is never handed a conversation belonging to a Business they could not open. The `customer` domain slot leaves `soon` and gains `/customer` (Dashboard) and `/customer/conversations` (Inbox). It **writes nothing**: no reply box, no status transition, no read-receipt. Replying is BR-011 territory and belongs to the edge runtime that owns the reply — a console that could also reply would make two reply owners, which is the one thing BR-011 exists to prevent. `Conversation.status` is displayed as stored and no enum is declared for it, because nothing in this slice writes it. 🔜 "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -8625,6 +8760,16 @@
       "row_text": "Observability is one emitter and one correlation id, not logging scattered through the call path. `src/lib/observability` exposes a structured emitter whose sink is injectable (stdout by default, captured in tests) and whose field names are **allowlisted**: safety comes from what the emitter accepts, not from scrubbing what a caller passed, because a denylist only ever knows the secrets someone already thought of. An unknown field is omitted and its *name* listed in `unsafeFieldsOmitted`, so a dropped field is visible rather than silent. The correlation id is validated before use (`^[A-Za-z0-9_-]{8,64}$`) since it arrives as untrusted input and is echoed into records. It flows route → turn → ingest → `AuditEvent.payloadJson`, which makes the audit table — not the log stream — the durable join between a webhook delivery and the rows it created. Counts and durations ride on the batch record; a metrics backend is deliberately not introduced. NFR-017; FR-028, FR-050, FR-081, SEC-009 "
     },
     {
+      "id": "req:SDD-049",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "The conversation reader is one composed read model (`src/modules/crm/conversation-read-model.js`) behind two routes, and it holds no write path at all. Its query count is **constant in the number of conversations**: the last message per conversation and the per-conversation message count each come from one grouped query over the page's conversation ids, never one query per row — the same N+1 discipline SDD-047 imposes on the Projects Dashboard, and the reason a read model exists here rather than a `include: { messages: true }` on the list. Authorization runs *before* composition: the viewer's Tenant is resolved from the selected Business, and a conversation owned by a Business outside `visibleBusinessIds` is excluded by the query, not filtered out of a result that was already fetched (SEC-001). `channel` and `direction` render from `enums.js` rather than from hand-copied literals. Message bodies are customer PII and reach the browser only inside this authorized response; they are never logged, and the observability emitter's allowlist (SDD-048) already refuses them.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "The conversation reader is one composed read model (`src/modules/crm/conversation-read-model.js`) behind two routes, and it holds no write path at all. Its query count is **constant in the number of conversations**: the last message per conversation and the per-conversation message count each come from one grouped query over the page's conversation ids, never one query per row — the same N+1 discipline SDD-047 imposes on the Projects Dashboard, and the reason a read model exists here rather than a `include: { messages: true }` on the list. Authorization runs *before* composition: the viewer's Tenant is resolved from the selected Business, and a conversation owned by a Business outside `visibleBusinessIds` is excluded by the query, not filtered out of a result that was already fetched (SEC-001). `channel` and `direction` render from `enums.js` rather than from hand-copied literals. Message bodies are customer PII and reach the browser only inside this authorized response; they are never logged, and the observability emitter's allowlist (SDD-048) already refuses them. FR-091; FEAT-009, BR-001, BR-011, SEC-001, SEC-009, SDD-047, SDD-048, FR-023, FR-081 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -8894,6 +9039,22 @@
       "kind": "api",
       "route": "/api/containers/[id]",
       "path": "src/app/api/containers/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/crm/conversations",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/crm/conversations",
+      "path": "src/app/api/crm/conversations/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/crm/conversations/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/crm/conversations/[id]",
+      "path": "src/app/api/crm/conversations/[id]/route.js",
       "status": "current"
     },
     {
@@ -9398,6 +9559,22 @@
       "kind": "page",
       "route": "/businesses",
       "path": "src/app/(entry)/businesses/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/customer",
+      "type": "route",
+      "kind": "page",
+      "route": "/customer",
+      "path": "src/app/(pm)/customer/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/customer/conversations",
+      "type": "route",
+      "kind": "page",
+      "route": "/customer/conversations",
+      "path": "src/app/(pm)/customer/conversations/page.jsx",
       "status": "current"
     },
     {
@@ -10041,7 +10218,7 @@
       "id": "test:tests/e2e/fr060-business-home.spec.js",
       "type": "test",
       "path": "tests/e2e/fr060-business-home.spec.js",
-      "hash": "d528904e",
+      "hash": "94eb0038",
       "status": "current"
     },
     {
@@ -10050,6 +10227,13 @@
       "path": "tests/e2e/fr077-project-inventory.spec.js",
       "hash": "3f6c241f",
       "status": "changed"
+    },
+    {
+      "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr091-conversation-inbox.spec.js",
+      "hash": "e43824e5",
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -10133,6 +10317,13 @@
       "type": "test",
       "path": "tests/integration/controlled-line-activation.postgres.test.js",
       "hash": "3c78b4b8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/crm-conversation-inbox.test.js",
+      "type": "test",
+      "path": "tests/integration/crm-conversation-inbox.test.js",
+      "hash": "5c46fd16",
       "status": "current"
     },
     {
@@ -10398,7 +10589,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "496955eb",
+      "hash": "3bb2e909",
       "status": "current"
     },
     {
@@ -10608,7 +10799,7 @@
       "id": "test:tests/unit/command-palette-index.test.js",
       "type": "test",
       "path": "tests/unit/command-palette-index.test.js",
-      "hash": "200c987a",
+      "hash": "2cac1178",
       "status": "current"
     },
     {
@@ -10623,6 +10814,13 @@
       "type": "test",
       "path": "tests/unit/controlled-line-activation-migration.test.js",
       "hash": "562e19ae",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/conversation-read-model.test.js",
+      "type": "test",
+      "path": "tests/unit/conversation-read-model.test.js",
+      "hash": "b29c9876",
       "status": "current"
     },
     {
@@ -11050,6 +11248,13 @@
       "type": "test",
       "path": "tests/unit/fr089-br018-team-grants-nothing.test.js",
       "hash": "7d770b83",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/fr091-inbox-ui-contract.test.js",
+      "hash": "ee403694",
       "status": "current"
     },
     {
@@ -11701,6 +11906,69 @@
     {
       "from": "code:src/app/(pm)/backup/page.jsx",
       "to": "req:SDD-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:BR-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:SDD-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/page.jsx",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/page.jsx",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/page.jsx",
+      "to": "req:SDD-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/page.jsx",
+      "to": "req:SDD-049",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -12996,6 +13264,76 @@
     {
       "from": "code:src/app/api/containers/route.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/conversations/[id]/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/conversations/[id]/route.js",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/conversations/[id]/route.js",
+      "to": "req:SDD-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/conversations/[id]/route.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/conversations/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/conversations/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/conversations/route.js",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/conversations/route.js",
+      "to": "req:SDD-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/conversations/route.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/conversations/route.js",
+      "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -15340,6 +15678,13 @@
     },
     {
       "from": "code:src/config/domains.js",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -16370,6 +16715,48 @@
     {
       "from": "code:src/modules/business/application/business-strategy-service.js",
       "to": "req:SDD-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-read-model.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-read-model.js",
+      "to": "req:BR-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-read-model.js",
+      "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-read-model.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-read-model.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-read-model.js",
+      "to": "req:SEC-009",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19280,6 +19667,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-009",
+      "to": "req:FR-091",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:Branch",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -20351,6 +20745,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-091",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -20806,6 +21207,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-049",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -21024,6 +21432,20 @@
     },
     {
       "from": "route:api:/api/containers",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/crm/conversations/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/crm/conversations",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -21459,6 +21881,20 @@
     {
       "from": "route:page:/businesses",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/customer/conversations",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/customer",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -22998,6 +23434,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -23390,6 +23833,13 @@
     },
     {
       "from": "test:tests/e2e/fr060-business-home.spec.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr060-business-home.spec.js",
       "to": "req:SDD-033",
       "type": "verifies",
       "status": "current",
@@ -23419,6 +23869,55 @@
     {
       "from": "test:tests/e2e/fr077-project-inventory.spec.js",
       "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "code:src/app/(pm)/customer/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:SDD-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:SDD-049",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -24549,6 +25048,76 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "code:src/app/api/crm/conversations/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "code:src/app/api/crm/conversations/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "code:src/modules/crm/conversation-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:SDD-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/external-ref-import.test.js",
@@ -28787,6 +29356,13 @@
     },
     {
       "from": "test:tests/unit/command-palette-index.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/command-palette-index.test.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -28875,6 +29451,55 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "code:src/modules/crm/conversation-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/customer-data-contract.test.js",
@@ -29183,6 +29808,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
@@ -29572,6 +30204,13 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-091",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -31556,6 +32195,62 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "code:src/app/(pm)/customer/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:SDD-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/gate-cap-rounding.test.js",
