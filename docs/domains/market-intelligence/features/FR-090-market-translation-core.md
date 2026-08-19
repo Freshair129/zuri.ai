@@ -1,7 +1,9 @@
 ---
+domain: market-intelligence
 feature: FR-090
 module: market-intelligence
 source: v2-native
+version: 0.1.0
 status: proposed
 issue: 76
 ---
