@@ -78,13 +78,13 @@ describe('FR-081 scoped raw record read port', () => {
     })
   })
 
-  it('requires a raw id for direct lookup', async () => {
+  it('requires a raw id for direct lookup', () => {
     const db = createDb()
     const repository = createPrismaRawRecordRepository(db, {
       tenantId: 'tenant-a',
       connectionId: 'conn-a',
     })
 
-    await expect(repository.findById()).rejects.toThrow(/rawRecordId/i)
+    expect(() => repository.findById()).toThrow(/rawRecordId/i)
   })
 })
