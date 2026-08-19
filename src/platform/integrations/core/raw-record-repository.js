@@ -15,7 +15,7 @@ function scopeWhere(scope) {
   return {
     tenantId: scope.tenantId,
     connectionId: scope.connectionId,
-    ...(scope.businessId ? { businessId: scope.businessId } : {}),
+    ...(scope.businessId !== undefined ? { businessId: scope.businessId } : {}),
     ...(scope.ingestionRunId ? { ingestionRunId: scope.ingestionRunId } : {}),
     ...(scope.provider ? { provider: scope.provider } : {}),
   }
@@ -25,7 +25,7 @@ function assertRowScope(row, scope) {
   if (row.tenantId !== scope.tenantId || row.connectionId !== scope.connectionId) {
     throw new Error('raw record is outside repository tenant or connection scope')
   }
-  if (scope.businessId && row.businessId !== scope.businessId) {
+  if (scope.businessId !== undefined && (row.businessId ?? null) !== scope.businessId) {
     throw new Error('raw record is outside repository business scope')
   }
   if (scope.ingestionRunId && row.ingestionRunId !== scope.ingestionRunId) {
@@ -75,7 +75,7 @@ export function createPrismaRawRecordRepository(db, scope) {
           !run ||
           run.tenantId !== scope.tenantId ||
           run.connectionId !== scope.connectionId ||
-          (scope.businessId && run.businessId !== scope.businessId)
+          (scope.businessId !== undefined && (run.businessId ?? null) !== scope.businessId)
         ) {
           throw new Error('raw record ingestion run is outside repository scope')
         }
