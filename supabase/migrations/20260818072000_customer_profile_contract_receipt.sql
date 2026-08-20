@@ -54,8 +54,4 @@ values (
 )
 on conflict (code) do nothing;
 
-insert into supabase_migrations.schema_migrations (version, name)
-values ('20260818072000', 'customer_profile_contract_receipt')
-on conflict (version) do nothing;
-
 commit;
