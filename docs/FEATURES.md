@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.4.0b |
+| **Version** | 1.5.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -10,7 +10,9 @@ A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
 (ADR-025 rev 2): a feature bundles one or more FRs, and an FR belongs to at most
 one feature. `FEAT` ids follow the same contract as every other id (AGENTS.md
 §18): never renumbered, never reused, gaps stay burnt. The duplicate-id guard in
-preflight covers this table.
+preflight covers this table, and Check 12 (ADR-039) additionally pins each row's
+SUBJECT in `.id-ledger.json`, so a FEAT number cannot quietly come to mean a
+different capability the way SDD-049 did on 2026-08-20.
 
 An FR with no FEAT row is implicitly a feature of one — add a row only when a
 capability genuinely spans FRs or needs product-level framing. The graph reads

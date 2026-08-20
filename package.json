@@ -26,6 +26,7 @@
     "docs:check": "node scripts/doc-graph.mjs --check",
     "docs:preflight": "node scripts/doc-preflight.mjs --strict",
     "docs:preflight:report": "node scripts/doc-preflight.mjs",
+    "docs:ids": "node scripts/id-ledger.mjs",
     "govern": "npm run docs:graph && npm run docs:check && npm run docs:preflight",
     "phase1:evaluate": "node scripts/evaluate-phase1-golden.mjs",
     "phase1:isolation:verify": "node scripts/verify-line-runtime-isolation.mjs",

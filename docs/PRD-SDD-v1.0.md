@@ -7,7 +7,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.78.0b |
+| **Version** | 1.80.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
@@ -110,6 +110,7 @@
 | 1.78.0b | 2026-08-20 | ATHER | Merge reconciliation for FR-091 and FR-092: preserve both feature slices, assign the CRM reader contract the unused SDD-050 identity, and regenerate governed documentation outputs |
 | 1.71.0b | 2026-08-18 | ATHER | FR-077/FEAT-005/SDD-045 and ADR-034 add the additive, read-only Project Inventory DTO and route. It composes existing Project data with trusted viewer isolation, contained dependencies, metadata-only files and redacted activity without changing Project List compatibility views |
 | 1.65.0b | 2026-08-17 | Boss + ATHER | FR-072 declares Project-Manager mutation authorization for the 19 repayable routes on `docs/.route-viewer-baseline.json`: the guard lives in the service, the predicate stays `ownsBusiness`, an unowned Business-governed target answers as an absent one, and a target no Business governs is refused for every principal with the missing authority named rather than invented. Four routes (`/api/scope`, `/api/backup/import`, `/api/repositories`, `/api/repositories/[id]`) are explicitly **not** covered — each collides a declared capability against SEC-008 and needs an owner decision, recorded in `.brain/waves/route-viewer-plan.md` §BLOCKED |
+| 1.80.0b | 2026-08-20 | CLAUDE | Governance, not a requirement: ADR-039 pins every declared id's SUBJECT — the leading noun phrase of its statement — in `.id-ledger.json`, and preflight Check 12 fails the build when one moves, when a new id inherits one from its own family, when a pinned id vanishes from its registry, when an entry that was once pinned is no longer in the ledger, when an id is declared twice in one registry, or when a burnt number is re-declared. Rewording is free; a move states itself in a revision row that names the id. Recorded after SDD-049 was repurposed by PR #88 (2026-08-20) and FR-051/SDD-026 by PR #9 (2026-08-15) — both invisible to every check, because a MOVED id is never a duplicate at any single moment. No FR/NFR/BR/SEC/SDD id is spent: this enforces AGENTS.md §18, it is not a product behaviour (ADR-039 D10) |
 
 ## Referenced Standards
 
