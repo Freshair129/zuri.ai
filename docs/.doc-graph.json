@@ -60,29 +60,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:A-api-spec",
-      "domain:crm",
-      "doc:FR-091-conversation-inbox",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "test:tests/e2e/fr091-conversation-inbox.spec.js",
-      "test:tests/integration/line-webhook-transport-contract.test.js",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/app/api/agent/line-webhook/route.js",
-      "code:src/modules/agent/turn.js",
-      "code:src/modules/project-manager/api-docs/openapi.js"
-    ],
-    "added": [
-      "doc:FR-093-reply-delivery-receipt",
-      "route:api:/api/agent/line-delivery",
-      "req:FR-093",
-      "req:SDD-051",
-      "test:tests/integration/line-reply-record.test.js",
-      "test:tests/unit/reply-record-service.test.js",
-      "code:src/app/api/agent/line-delivery/route.js",
-      "code:src/modules/crm/reply-record-service.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -900,7 +879,7 @@
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
       "hash": "79d06e2e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-050",
@@ -3499,7 +3478,7 @@
       "type": "code_file",
       "path": "src/modules/agent/turn.js",
       "hash": "5127c1e5",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-027",
@@ -4287,7 +4266,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "4f19113e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -5624,7 +5603,7 @@
       "version": "1.12.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "7ef78677",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -5752,7 +5731,7 @@
       "version": "1.4.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "4784ee45",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -6207,7 +6186,7 @@
       "path": "docs/domains/crm/features/FR-091-conversation-inbox.md",
       "title": "FR-091 — CRM Conversation Inbox",
       "hash": "2598d013",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-092-market-translation-core",
@@ -6463,7 +6442,7 @@
       "version": "1.78.0b",
       "doc_status": "Draft",
       "hash": "ea7253f8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -6676,7 +6655,7 @@
         "crm"
       ],
       "hash": "2386d97f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:identity",
@@ -10439,7 +10418,7 @@
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
       "hash": "cbdbfe52",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -10782,7 +10761,7 @@
       "type": "test",
       "path": "tests/integration/line-webhook-transport-contract.test.js",
       "hash": "6b98ee91",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/line-webhook-unbound-production.test.js",
@@ -10817,7 +10796,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "93574ddd",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/plan-import-scope.test.js",
