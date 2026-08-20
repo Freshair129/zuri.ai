@@ -7,6 +7,9 @@ import { resolveCorrelationId } from '@/lib/observability/correlation'
 
 // @req FR-050 — return event-correlated verified reply text/skipReply state to the sole
 // LINE transport owner without receiving or consuming the LINE replyToken here.
+// @req FR-093 — the successful result also names the conversation and the inbound
+//   message row it created, which is what the transport quotes back on
+//   `POST /api/agent/line-delivery` once the customer has actually received a reply.
 // @spec BR-011 — zuri-cli is the sole LINE reply owner when stack answering is enabled.
 
 // @req FR-028 — the LINE webhook seam: the zuri-cli LINE bot forwards webhook events
@@ -148,6 +151,7 @@ export function createLineWebhookPost({
           results.push({
             ok: false,
             correlationId,
+            eventId,
             stage: 'EVIDENCE',
             type: ev.type,
             error: err?.message || 'evidence write failed',
@@ -228,6 +232,12 @@ export function createLineWebhookPost({
           skipReply: turn.response.skipReply === true,
           response: turn.response,
           evidence: evidenceResult,
+          // @req FR-093 — additive, and the only reason they are here: the transport
+          // needs something to name when it reports back what it actually sent. Both
+          // were already computed and were previously visible only in a log line,
+          // which is not a place another process can read from.
+          conversationId: turn.inbound?.conversationId ?? null,
+          inboundMessageId: turn.inbound?.messageId ?? null,
         })
       } catch (err) {
         logger.error('line.webhook.event', {
@@ -241,9 +251,22 @@ export function createLineWebhookPost({
         results.push({
           ok: false,
           correlationId,
+          // @req FR-093 — the transport matches results to events by `eventId`, and
+          // this branch never carried one: a failed result was simply unfindable, and
+          // the fallback got sent because an unmatched result and a failed one both
+          // read as "not ok". That accident is now load-bearing — without the match
+          // the transport cannot pair the ids below with the event it answered.
+          eventId,
           stage: 'TURN',
           error: err?.message || 'turn failed',
           evidence: evidenceResult,
+          // @req FR-093 — a failed turn is exactly when the transport sends the
+          // customer its own fallback, so this is the branch where naming the row
+          // matters most. Ingest runs first and usually succeeded; `err.inbound`
+          // carries what it wrote. Null when the failure was the ingest itself —
+          // then there is genuinely nothing to name, and no id is invented.
+          conversationId: err?.inbound?.conversationId ?? null,
+          inboundMessageId: err?.inbound?.messageId ?? null,
         })
       }
     }

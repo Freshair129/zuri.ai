@@ -77,13 +77,15 @@ So the Dashboard reads `ข้อความที่ตอบออกไป: 
 matter how many customers are answered. The inbox shows one side of every
 conversation.
 
-That figure stays on the page. Removing it would hide the gap; showing it is how
-the gap became visible in the first place. Closing it is a **write** — the reply
-would have to be recorded by whoever owns it (BR-011 says that is the edge
-runtime, not this console), which is a different requirement with a real design
-question inside it: whether the runtime reports its reply back for recording, or
-`zuri-ai` records what it handed over at the moment it hands it over, accepting
-that a send can still fail afterwards.
+That figure stayed on the page rather than being removed — removing it would have
+hidden the gap, and showing it is how the gap became visible at all.
+
+**Closed the same day by [FR-093](FR-093-reply-delivery-receipt.md).** The design
+question this section left open — does the runtime report its reply back, or does
+`zuri-ai` record what it handed over — was settled by reading the runtime: when
+the stack cannot answer, the transport sends *its own* fallback text. The two
+strings differ on exactly the path that matters, so only the sender can say what
+the customer received.
 
 ## What is deliberately not here
 

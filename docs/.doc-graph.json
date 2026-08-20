@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1049,
-    "total_edges": 3437,
+    "total_nodes": 1057,
+    "total_edges": 3478,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 85,
+      "document": 86,
       "adr": 38,
       "domain": 7,
       "roadmap": 25,
       "feature": 9,
-      "route": 116,
+      "route": 117,
       "model": 53,
-      "requirement": 196,
-      "test": 243,
-      "code_file": 273
+      "requirement": 198,
+      "test": 245,
+      "code_file": 275
     },
     "coverage": {
-      "requirements": 196,
+      "requirements": 198,
       "fr_with_code": "100% (81/81)",
       "fr_with_tests": "100% (81/81)",
-      "rules_anchored_in_code": "89% (75/84)",
+      "rules_anchored_in_code": "89% (76/85)",
       "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 273,
+      "annotated_code_files": 275,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -37,7 +37,8 @@
         "FR-087",
         "FR-088",
         "FR-089",
-        "FR-091"
+        "FR-091",
+        "FR-093"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -850,14 +851,39 @@
       }
     },
     {
+      "id": "code:src/app/api/agent/line-delivery/route.js",
+      "type": "code_file",
+      "path": "src/app/api/agent/line-delivery/route.js",
+      "hash": "b056f150",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-093"
+        ],
+        "@spec": [
+          "SDD-051",
+          "BR-011",
+          "FR-052",
+          "SEC-001",
+          "SEC-010",
+          "NFR-017",
+          "SDD-048"
+        ],
+        "@tested": [
+          "tests/integration/line-reply-record.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/agent/line-webhook/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
-      "hash": "bfeff596",
+      "hash": "79d06e2e",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-050",
+          "FR-093",
           "FR-028",
           "FR-052",
           "FR-081"
@@ -3451,11 +3477,12 @@
       "id": "code:src/modules/agent/turn.js",
       "type": "code_file",
       "path": "src/modules/agent/turn.js",
-      "hash": "b7e65eac",
+      "hash": "5127c1e5",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-027"
+          "FR-027",
+          "FR-093"
         ],
         "@tested": [
           "tests/integration/agent-turn.test.js"
@@ -3607,6 +3634,28 @@
         ],
         "@tested": [
           "tests/integration/line-ingest.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/crm/reply-record-service.js",
+      "type": "code_file",
+      "path": "src/modules/crm/reply-record-service.js",
+      "hash": "be206ce6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-093"
+        ],
+        "@spec": [
+          "SDD-051",
+          "BR-011",
+          "SEC-001",
+          "SDD-048"
+        ],
+        "@tested": [
+          "tests/integration/line-reply-record.test.js",
+          "tests/unit/reply-record-service.test.js"
         ]
       }
     },
@@ -4216,7 +4265,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "3b5433d7",
+      "hash": "4f19113e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5551,9 +5600,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.11.0b",
+      "version": "1.12.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "3ab0bc05",
+      "hash": "7ef78677",
       "status": "current"
     },
     {
@@ -5679,9 +5728,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.3.0b",
+      "version": "1.4.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "91e47e9c",
+      "hash": "4784ee45",
       "status": "current"
     },
     {
@@ -6136,7 +6185,7 @@
       "type": "document",
       "path": "docs/domains/crm/features/FR-091-conversation-inbox.md",
       "title": "FR-091 — CRM Conversation Inbox",
-      "hash": "a42ddc3f",
+      "hash": "2598d013",
       "status": "current"
     },
     {
@@ -6145,6 +6194,14 @@
       "path": "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
       "title": "FR-092 — Market translation core",
       "hash": "6f8b46c8",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-093-reply-delivery-receipt",
+      "type": "document",
+      "path": "docs/domains/crm/features/FR-093-reply-delivery-receipt.md",
+      "title": "FR-093 — LINE reply delivery receipt",
+      "hash": "9de8d35b",
       "status": "current"
     },
     {
@@ -6384,7 +6441,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.78.0b",
       "doc_status": "Draft",
-      "hash": "3c1e7ec3",
+      "hash": "ea7253f8",
       "status": "current"
     },
     {
@@ -6597,7 +6654,7 @@
       "modules": [
         "crm"
       ],
-      "hash": "033a3619",
+      "hash": "2386d97f",
       "status": "current"
     },
     {
@@ -6800,7 +6857,7 @@
     {
       "id": "feat:FEAT-009",
       "type": "feature",
-      "label": "CRM Conversation Inbox — the first reader surface over the LINE ingress: an operator can open the console and watch the messages their business actually received",
+      "label": "CRM Conversation Inbox — the first reader surface over the LINE ingress, and the delivery receipt that makes it show both sides of a conversation rather than only what the customer said",
       "declared": "building",
       "status": "current"
     },
@@ -8180,6 +8237,16 @@
       "row_text": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. 🟠 #76 implementation in progress "
     },
     {
+      "id": "req:FR-093",
+      "type": "requirement",
+      "family": "FR",
+      "label": "LINE reply delivery receipt: the outbound half of a conversation becomes a row. Nothing has ever written a `Message` with `direction: 'OUTBOUND'` — the reply is assembled here, handed to the edge runtime, sent to the customer and then forgotten — so FR-091's inbox shows one side of every conversation and its `OUTBOUND` count is structurally zero. `POST /api/agent/line-delivery` accepts a batch of receipts from the transport owner, each naming the **inbound `Message.id` it answers** and the text that was **actually sent**. (a) The receipt comes from the edge runtime *after* a successful send and not from this side at hand-over, because the two differ: when the stack cannot answer, the transport sends its own fallback text, and recording what this side produced would record a message the customer never received (BR-011 — the reply owner is the one who knows). (b) Scope is resolved by the same seam as the webhook (FR-052), and the named inbound message must resolve inside that scope — a binding for one tenant can never attach a reply to another tenant's conversation (SEC-001). (c) Idempotent on `reply:<inboundMessageId>` as the message's external id, so a redelivered receipt resolves to the existing row: one inbound message has one reply, which is exactly what the LINE Reply API allows per token. (d) The row records the text the customer received; whether it came from the stack or from the transport's fallback is recorded on the audit event, not in the body, because the body is what was said and the provenance is a different fact. The webhook response gains `conversationId` and `inboundMessageId` so the transport has something to name — on the **failure** result as well as the success one, because a failed turn is precisely when the transport substitutes its own text and a customer certainly received something. That failure result also gains the `eventId` it never carried: the transport matches results to events by that field, so a failed result was previously unfindable and its fallback was sent only because an unmatched result and a failed one both read as \"not ok\". All additive; the four fields the transport already reads are untouched.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "LINE reply delivery receipt: the outbound half of a conversation becomes a row. Nothing has ever written a `Message` with `direction: 'OUTBOUND'` — the reply is assembled here, handed to the edge runtime, sent to the customer and then forgotten — so FR-091's inbox shows one side of every conversation and its `OUTBOUND` count is structurally zero. `POST /api/agent/line-delivery` accepts a batch of receipts from the transport owner, each naming the **inbound `Message.id` it answers** and the text that was **actually sent**. (a) The receipt comes from the edge runtime *after* a successful send and not from this side at hand-over, because the two differ: when the stack cannot answer, the transport sends its own fallback text, and recording what this side produced would record a message the customer never received (BR-011 — the reply owner is the one who knows). (b) Scope is resolved by the same seam as the webhook (FR-052), and the named inbound message must resolve inside that scope — a binding for one tenant can never attach a reply to another tenant's conversation (SEC-001). (c) Idempotent on `reply:<inboundMessageId>` as the message's external id, so a redelivered receipt resolves to the existing row: one inbound message has one reply, which is exactly what the LINE Reply API allows per token. (d) The row records the text the customer received; whether it came from the stack or from the transport's fallback is recorded on the audit event, not in the body, because the body is what was said and the provenance is a different fact. The webhook response gains `conversationId` and `inboundMessageId` so the transport has something to name — on the **failure** result as well as the success one, because a failed turn is precisely when the transport substitutes its own text and a customer certainly received something. That failure result also gains the `eventId` it never carried: the transport matches results to events by that field, so a failed result was previously unfindable and its fallback was sent only because an unmatched result and a failed one both read as \"not ok\". All additive; the four fields the transport already reads are untouched. 🔜 "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -8860,6 +8927,16 @@
       "row_text": "The conversation reader is one composed read model (`src/modules/crm/conversation-read-model.js`) behind two routes, and it holds no write path at all. Its query count is **constant in the number of conversations**: the last message per conversation and the per-conversation message count each come from one grouped query over the page's conversation ids, never one query per row — the same N+1 discipline SDD-047 imposes on the Projects Dashboard, and the reason a read model exists here rather than a `include: { messages: true }` on the list. Authorization runs *before* composition: the viewer's Tenant is resolved from the selected Business, and a conversation owned by a Business outside `visibleBusinessIds` is excluded by the query, not filtered out of a result that was already fetched (SEC-001). `channel` and `direction` render from `enums.js` rather than from hand-copied literals. Message bodies are customer PII and reach the browser only inside this authorized response; they are never logged, and the observability emitter's allowlist (SDD-048) already refuses them. FR-091; FEAT-009, BR-001, BR-011, SEC-001, SEC-009, SDD-047, SDD-048, FR-023, FR-081 "
     },
     {
+      "id": "req:SDD-051",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Recording a reply is a **separate, narrow writer** in the crm module (`reply-record-service`), not a `direction: 'OUTBOUND'` call into `ingestLineMessage`. The ingest seam creates a Person, a Customer and a Conversation when they are absent, and that is exactly wrong here: a receipt naming a conversation that does not exist is an error to report, never a reason to invent one. So the writer resolves the inbound `Message` first, derives the conversation from it, and refuses anything it cannot place — the conversation is never taken from the request, which is what makes cross-tenant attachment impossible rather than merely checked. It appends one row and one `AuditEvent` in a single transaction, exactly as the ingest seam does, and carries the same correlation id (SDD-048) so `webhook → turn → message → reply` remains one chain in the audit table. The route is a batch like the webhook: a per-receipt failure is captured with the stage that failed and never drops the rest, because a transport that has already sent three replies must be able to report all three.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Recording a reply is a **separate, narrow writer** in the crm module (`reply-record-service`), not a `direction: 'OUTBOUND'` call into `ingestLineMessage`. The ingest seam creates a Person, a Customer and a Conversation when they are absent, and that is exactly wrong here: a receipt naming a conversation that does not exist is an error to report, never a reason to invent one. So the writer resolves the inbound `Message` first, derives the conversation from it, and refuses anything it cannot place — the conversation is never taken from the request, which is what makes cross-tenant attachment impossible rather than merely checked. It appends one row and one `AuditEvent` in a single transaction, exactly as the ingest seam does, and carries the same correlation id (SDD-048) so `webhook → turn → message → reply` remains one chain in the audit table. The route is a batch like the webhook: a per-receipt failure is captured with the stage that failed and never drops the rest, because a transport that has already sent three replies must be able to report all three. FR-093; FEAT-009, BR-011, BR-001, SEC-001, SDD-048, SDD-050, FR-023, FR-052, FR-091 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -9028,6 +9105,14 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope. FR-092 / ADR-038 security gate "
+    },
+    {
+      "id": "route:api:/api/agent/line-delivery",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/agent/line-delivery",
+      "path": "src/app/api/agent/line-delivery/route.js",
+      "status": "current"
     },
     {
       "id": "route:api:/api/agent/line-webhook",
@@ -10332,7 +10417,7 @@
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
-      "hash": "d3154d6c",
+      "hash": "cbdbfe52",
       "status": "current"
     },
     {
@@ -10665,10 +10750,17 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/line-reply-record.test.js",
+      "type": "test",
+      "path": "tests/integration/line-reply-record.test.js",
+      "hash": "20729356",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/line-webhook-transport-contract.test.js",
       "type": "test",
       "path": "tests/integration/line-webhook-transport-contract.test.js",
-      "hash": "b076f584",
+      "hash": "6b98ee91",
       "status": "current"
     },
     {
@@ -10703,7 +10795,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "3bb2e909",
+      "hash": "93574ddd",
       "status": "current"
     },
     {
@@ -11827,6 +11919,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/reply-record-service.test.js",
+      "type": "test",
+      "path": "tests/unit/reply-record-service.test.js",
+      "hash": "cdf047d5",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/repositories-page-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/repositories-page-ui-contract.test.js",
@@ -12886,6 +12985,62 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/agent/line-delivery/route.js",
+      "to": "req:BR-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-delivery/route.js",
+      "to": "req:FR-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-delivery/route.js",
+      "to": "req:FR-093",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-delivery/route.js",
+      "to": "req:NFR-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-delivery/route.js",
+      "to": "req:SDD-048",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-delivery/route.js",
+      "to": "req:SDD-051",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-delivery/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-delivery/route.js",
+      "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/agent/line-webhook/route.js",
       "to": "req:BR-011",
       "type": "follows",
@@ -12923,6 +13078,13 @@
     {
       "from": "code:src/app/api/agent/line-webhook/route.js",
       "to": "req:FR-081",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:FR-093",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -16855,6 +17017,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/turn.js",
+      "to": "req:FR-093",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/write-tools.js",
       "to": "req:FR-026",
       "type": "implements",
@@ -17017,6 +17186,41 @@
     },
     {
       "from": "code:src/modules/crm/line-ingest-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/reply-record-service.js",
+      "to": "req:BR-011",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/reply-record-service.js",
+      "to": "req:FR-093",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/reply-record-service.js",
+      "to": "req:SDD-048",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/reply-record-service.js",
+      "to": "req:SDD-051",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/reply-record-service.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -19935,6 +20139,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-009",
+      "to": "req:FR-093",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:AuditEvent",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -21097,6 +21308,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-093",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -21573,6 +21791,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-051",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -21704,6 +21929,13 @@
       "type": "specifies",
       "status": "current",
       "source": "prd-registry"
+    },
+    {
+      "from": "route:api:/api/agent/line-delivery",
+      "to": "domain:agent",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
     },
     {
       "from": "route:api:/api/agent/line-webhook",
@@ -24283,17 +24515,10 @@
     },
     {
       "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
-      "to": "req:SDD-049",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "to": "req:SDD-050",
       "type": "verifies",
       "status": "current",
-      "source": "transitive"
+      "source": "test-reference"
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
@@ -25199,6 +25424,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/agent-turn.test.js",
+      "to": "req:FR-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/agent-webhook-route.test.js",
       "to": "code:src/app/api/agent/line-webhook/route.js",
       "type": "tests",
@@ -25257,6 +25489,13 @@
     {
       "from": "test:tests/integration/agent-webhook-route.test.js",
       "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:FR-093",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -27468,6 +27707,13 @@
     },
     {
       "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:FR-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
       "to": "req:NFR-017",
       "type": "verifies",
       "status": "current",
@@ -27593,6 +27839,97 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "code:src/app/api/agent/line-delivery/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "code:src/modules/crm/reply-record-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:FR-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:NFR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:SDD-051",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-reply-record.test.js",
+      "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/line-webhook-transport-contract.test.js",
       "to": "req:BR-011",
       "type": "verifies",
@@ -27609,6 +27946,13 @@
     {
       "from": "test:tests/integration/line-webhook-transport-contract.test.js",
       "to": "req:FR-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/line-webhook-transport-contract.test.js",
+      "to": "req:FR-093",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -35214,6 +35558,48 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/reply-record-service.test.js",
+      "to": "code:src/modules/crm/reply-record-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/reply-record-service.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/reply-record-service.test.js",
+      "to": "req:FR-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/reply-record-service.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/reply-record-service.test.js",
+      "to": "req:SDD-051",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/reply-record-service.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/repositories-page-ui-contract.test.js",
