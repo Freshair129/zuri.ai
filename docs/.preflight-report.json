@@ -4,7 +4,7 @@
   "scanned": {
     "docs": 161,
     "routes": 73,
-    "test_files": 226
+    "test_files": 229
   },
   "summary": {
     "critical": 0,
@@ -188,7 +188,7 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 226 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 229 files"
     },
     {
       "id": "I17",
@@ -206,7 +206,7 @@
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
-      "details": "src/app/(pm)/projects/[projectId]/page.jsx:51 · src/app/(pm)/projects/[projectId]/repositories/page.jsx:107 · src/app/(pm)/projects/[projectId]/team/page.jsx:111 · src/app/(pm)/projects/page.jsx:334 · src/app/(pm)/workspaces/page.jsx:141 · src/modules/project-manager/components/ManagedFilesPanel.jsx:108 · src/modules/project-manager/views/universal/DependenciesView.jsx:127",
+      "details": "src/app/(pm)/projects/[projectId]/page.jsx:51 · src/app/(pm)/projects/[projectId]/repositories/page.jsx:107 · src/app/(pm)/projects/[projectId]/team/page.jsx:111 · src/app/(pm)/projects/page.jsx:344 · src/app/(pm)/workspaces/page.jsx:141 · src/modules/project-manager/components/ManagedFilesPanel.jsx:108 · src/modules/project-manager/views/universal/DependenciesView.jsx:127",
       "files": [
         "docs/.client-mutation-baseline.json"
       ],

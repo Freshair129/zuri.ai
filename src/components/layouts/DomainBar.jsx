@@ -59,7 +59,7 @@ export default function DomainBar() {
         }`
         if (d.soon) {
           return (
-            <span key={d.key} className={`${cls} cursor-default text-white/30 hover:bg-transparent hover:text-white/30`} title="Lifts from V1 at cutover">
+            <span key={d.key} className={`${cls} cursor-default text-white/30 hover:bg-transparent hover:text-white/30`} title="Reserved — not available yet">
               <Icon size={15} aria-hidden /> {d.label}
             </span>
           )

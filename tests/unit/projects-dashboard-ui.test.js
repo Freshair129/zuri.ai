@@ -10,7 +10,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { PROJECT_PRIORITIES, PROJECT_STATUSES, WORK_STATUSES } from '@/lib/validation/enums'
+import { PROJECT_PRIORITIES, PROJECT_STATUSES, PROJECT_STATUS_HIGHLIGHTS, WORK_STATUSES } from '@/lib/validation/enums'
 import { zProjectInput } from '@/lib/validation/entities'
 
 const src = (path) => readFileSync(resolve(process.cwd(), path), 'utf8')
@@ -59,10 +59,12 @@ describe('Projects Dashboard surface', () => {
   })
 
   it('discloses the statuses the band does not highlight instead of dropping them', () => {
-    // ADR-036 Consequences: PROJECT_STATUSES has five values and WORK_STATUSES
-    // seven; the band highlights two of each. A band whose parts do not sum to
-    // the list beneath it teaches the reader to distrust every figure.
-    expect(PROJECT_STATUSES.length).toBeGreaterThan(2)
+    // ADR-036 Consequences: PROJECT_STATUSES has five values and the ask names
+    // three (PLANNED, ACTIVE, DONE — ON_HOLD and ARCHIVED are the remainder);
+    // WORK_STATUSES has seven and the ask names two (IN_PROGRESS, DONE). A band
+    // whose parts do not sum to the list beneath it teaches the reader to
+    // distrust every figure.
+    expect(PROJECT_STATUSES.length).toBeGreaterThan(3)
     expect(WORK_STATUSES.length).toBeGreaterThan(2)
     const card = page.slice(page.indexOf('function CountCard'), page.indexOf('const PRIORITY_TONE'))
     expect(card).toContain('otherTotal')
@@ -70,6 +72,31 @@ describe('Projects Dashboard surface', () => {
     // The remainder is computed from the enum, never from a hand-written list —
     // a literal would silently stop covering a status added later.
     expect(card).toContain('statuses.filter((status) => !highlight.includes(status))')
+  })
+
+  it("highlights PLANNED, ACTIVE and DONE for Projects — the three ADR-036 names", () => {
+    // Regression: the band used to highlight only ACTIVE and DONE, which
+    // silently folded PLANNED projects into "Other" (invisible until expanded)
+    // even though ADR-036 names PLANNED as one of the three highlighted
+    // statuses. ON_HOLD and ARCHIVED are the intended remainder.
+    //
+    // This is the actual behaviour: the runtime value of the single named
+    // subset (PROJECT_STATUS_HIGHLIGHTS, src/lib/validation/enums.js) that the
+    // page's KPI band renders with, not a string match against a literal —
+    // CLAUDE.md forbids hand-copying an enum's members at the call site, so
+    // the page imports this constant rather than spelling the three out itself.
+    expect(PROJECT_STATUS_HIGHLIGHTS).toEqual(['PLANNED', 'ACTIVE', 'DONE'])
+    // Every highlighted status is a real PROJECT_STATUSES member, so the band
+    // and the "Other" remainder it computes from PROJECT_STATUSES can never
+    // disagree about what a status even is.
+    for (const status of PROJECT_STATUS_HIGHLIGHTS) expect(PROJECT_STATUSES).toContain(status)
+
+    expect(page).toContain('PROJECT_STATUS_HIGHLIGHTS')
+    const dashboard = page.slice(page.indexOf('function ProjectsDashboardInner'))
+    const projectsCard = dashboard.slice(dashboard.indexOf('label="Projects"'), dashboard.indexOf('label="Work items"'))
+    // Wired to the imported constant, not re-spelled out as a literal here.
+    expect(projectsCard).toContain('highlight={PROJECT_STATUS_HIGHLIGHTS}')
+    expect(codeOnly(projectsCard)).not.toContain("highlight={['PLANNED'")
   })
 
   it('renders every requested column, and unset as unset', () => {
@@ -81,10 +108,16 @@ describe('Projects Dashboard surface', () => {
     expect(page).toContain('<PriorityCell value={p.priority} />')
   })
 
-  it('prints the progress number beside the bar', () => {
+  it('prints the progress number beside the bar, through the shared formatter', () => {
     // NFR-008: a bar alone cannot be read aloud or compared precisely.
+    // The number goes through `formatProgressPercent` rather than an inline
+    // `Math.round(...)` — the same underlying percent used to read "58%" here
+    // and "58.3%" on the Project page and `/overview`, three render sites
+    // apart, because each one rounded for itself (CLAUDE.md: "Never report a
+    // number a page would disagree with").
     expect(page).toContain('<ProgressBar percent={p.progress?.percent || 0}')
-    expect(page).toContain('Math.round(p.progress?.percent || 0)')
+    expect(page).toContain('formatProgressPercent(p.progress?.percent || 0)')
+    expect(codeOnly(page)).not.toMatch(/Math\.round\(p\.progress\?\.\s*percent/)
   })
 
   it('carries the New project action, which the Topbar no longer duplicates', () => {

@@ -60,6 +60,14 @@ export const DEPENDENCY_ENDPOINT_TYPES = [
 ]
 
 export const PROJECT_STATUSES = ['PLANNED', 'ACTIVE', 'ON_HOLD', 'DONE', 'ARCHIVED']
+// @req FR-086 / ADR-036 Consequences — the subset of PROJECT_STATUSES the
+// Projects Dashboard's KPI band highlights; ON_HOLD and ARCHIVED are the
+// remainder its "Other" disclosure accounts for (tests/unit/projects-dashboard-ui.test.js).
+// Named here, next to the enum it is a subset of, and imported by the page —
+// never hand-copied at the call site (CLAUDE.md) — so a sixth PROJECT_STATUSES
+// value added tomorrow lands in the remainder automatically, with no edit to
+// the page required.
+export const PROJECT_STATUS_HIGHLIGHTS = ['PLANNED', 'ACTIVE', 'DONE']
 // @req FR-087 — ordered most-urgent first, and the order is the contract: the
 // Projects Dashboard's "Top 5 Priority" sorts by this array's index, so a value
 // inserted in the middle re-ranks the list. Four levels rather than five because

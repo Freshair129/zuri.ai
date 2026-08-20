@@ -23,7 +23,8 @@ import { rollupProject } from '../progress/rollup'
 // `map` over Projects, it has rebuilt the exact problem SDD-047 exists to avoid.
 //
 // **It decides nothing the surface should decide.** `PROJECT_STATUSES` has five
-// values and `WORK_STATUSES` has seven; the ask named three of each. This model
+// values and `WORK_STATUSES` has seven; the ask named a subset of each (three
+// Project statuses, two Work statuses — ADR-036 Consequences). This model
 // returns *every* count, so the band's parts add up to the list beneath it and
 // FR-086's open question 3 — "is done `DONE`, or `DONE` + `ARCHIVED`?" — is
 // answered by the surface out of complete data rather than pre-answered here out

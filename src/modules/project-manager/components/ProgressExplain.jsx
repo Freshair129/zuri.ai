@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Info } from 'lucide-react'
 import { Card, ProgressBar } from '@/components/ui'
+import { formatProgressPercent } from '@/modules/project-manager/progress/strategies'
 
 /**
  * Displays a progress percentage with an expandable explanation of where the
@@ -17,9 +18,9 @@ export default function ProgressExplain({ result, compact }) {
     <div>
       <div className="flex items-center gap-2">
         <div className="flex-1">
-          <ProgressBar percent={percent} label={`${evidence.strategy || progressStrategy || 'progress'} ${percent}%`} />
+          <ProgressBar percent={percent} label={`${evidence.strategy || progressStrategy || 'progress'} ${formatProgressPercent(percent)}`} />
         </div>
-        <span className="w-14 text-right text-sm font-bold">{percent}%</span>
+        <span className="w-14 text-right text-sm font-bold">{formatProgressPercent(percent)}</span>
         <button
           type="button"
           className="btn flex items-center gap-1 px-2 py-1 text-[10px]"
@@ -79,9 +80,9 @@ export default function ProgressExplain({ result, compact }) {
                 <div key={d.name} className="flex items-center gap-2">
                   <span className="w-24 text-[10px] font-semibold capitalize">{d.name}</span>
                   <div className="flex-1">
-                    <ProgressBar percent={d.percent} tone="blue" label={`${d.name} ${d.percent}%`} />
+                    <ProgressBar percent={d.percent} tone="blue" label={`${d.name} ${formatProgressPercent(d.percent)}`} />
                   </div>
-                  <span className="w-10 text-right text-[10px]">{d.percent}%</span>
+                  <span className="w-10 text-right text-[10px]">{formatProgressPercent(d.percent)}</span>
                 </div>
               ))}
             </div>
