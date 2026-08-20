@@ -17,6 +17,12 @@ export const DATA_LANES = [
   'MARKETING',
   'CUSTOMER',
   'BUSINESS',
+  // #76 / ADR-038 — external market evidence is cross-domain input for Price,
+  // Supplier, Competitive, Demand and Research capabilities. Classifying it as
+  // MARKETING or BUSINESS would make the acquisition provenance lie about its
+  // semantic lane, so Market Intelligence gets one explicit additive lane while
+  // still converging on the same FR-081 raw-ingestion substrate.
+  'MARKET_INTELLIGENCE',
 ]
 
 export const SOURCE_TYPES = ['PULL', 'WEBHOOK', 'FILE', 'MANUAL']

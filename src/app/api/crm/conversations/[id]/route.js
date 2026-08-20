@@ -6,7 +6,7 @@ import {
 } from '@/modules/crm/conversation-read-model'
 
 // @req FR-091 — one conversation thread, oldest message first.
-// @spec SDD-049, BR-001, SEC-001, SDD-007
+// @spec SDD-050, BR-001, SEC-001, SDD-007
 // @tested tests/integration/crm-conversation-inbox.test.js
 //
 // `businessId` is required rather than inferred from the conversation, because the

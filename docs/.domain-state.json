@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-20T00:45:07.803Z",
+  "generatedAt": "2026-08-20T02:02:51.746Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -359,7 +359,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "checks": {
@@ -924,7 +924,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "checks": {
@@ -1182,7 +1182,15 @@
     },
     "market-intelligence": {
       "status": "verified",
-      "requirements": [],
+      "requirements": [
+        {
+          "id": "FR-092",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 5
+        }
+      ],
       "checks": {
         "ui": {
           "status": "not_applicable",
@@ -1204,8 +1212,11 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "not_applicable",
-          "evidence": [],
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md",
+            "src/modules/project-manager/import/plan-schema.js"
+          ],
           "gaps": []
         },
         "jsonSchema": {
@@ -1214,9 +1225,15 @@
           "gaps": []
         },
         "database": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "prisma/schema.prisma"
+          ],
+          "gaps": [],
+          "details": {
+            "models": 1,
+            "present": 1
+          }
         },
         "authorization": {
           "status": "not_applicable",
@@ -1224,14 +1241,20 @@
           "gaps": []
         },
         "tests": {
-          "status": "not_applicable",
-          "evidence": [],
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md"
+          ],
           "gaps": []
         }
       },
       "evidence": [
+        "docs/TRACE.md",
         "docs/domains/market-intelligence/CHARTER.md",
+        "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
+        "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
@@ -1240,8 +1263,8 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 0,
-        "featureNotes": 0
+        "ownedModels": 1,
+        "featureNotes": 1
       }
     },
     "project-manager": {
@@ -1623,7 +1646,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-082",
@@ -1737,6 +1760,13 @@
             "tests/unit/fr045-api-ui-contract.test.js",
             "tests/unit/fr091-inbox-ui-contract.test.js"
           ]
+        },
+        {
+          "id": "FR-092",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 5
         }
       ],
       "checks": {

@@ -122,7 +122,7 @@ evidence exist. There is intentionally no read-secret endpoint. The UI is owner-
 trusted viewer/Business ownership boundary and cannot activate a LINE binding or
 replace FR-053/054/055 canary evidence.
 
-## CRM conversation reader (FR-091 / SDD-049)
+## CRM conversation reader (FR-091 / SDD-050)
 
 The read side of the LINE ingress. Both endpoints are `GET` and the module
 behind them exports no writer: the reply owner is the edge runtime (BR-011) and

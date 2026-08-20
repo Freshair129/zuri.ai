@@ -637,7 +637,7 @@
 - **Surface:** `/api/agent/line-webhook` (api)
 - **Code:** `src/app/api/agent/line-webhook/route.js` · `src/modules/project-manager/application/backup-service.js` · `src/platform/integrations/core/contracts.js` · `src/platform/integrations/core/idempotency.js` · `src/platform/integrations/core/integration-registry.js` · `src/platform/integrations/core/raw-ingest-service.js` · `src/platform/integrations/core/raw-record-repository.js` · `src/platform/integrations/providers/line/line-oa-evidence.js` · `src/platform/integrations/providers/line/line-oa-webhook.js`
 - **Follows:** BR-002, BR-008, BR-009, BR-011, BR-012, FR-081, NFR-017, SDD-009, SDD-023, SDD-026, SDD-043, SDD-048, SEC-001, SEC-002, SEC-008, SEC-009, SEC-010, SEC-015, docs/domains/integration/features/FR-081-raw-external-ingestion.md
-- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/line-oa-connection-health.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/platform/integration-persistence.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/fr079-runtime-cutover.test.js` · `tests/unit/platform/integration-contracts.test.js` · `tests/unit/platform/line-oa-webhook.test.js` · `tests/unit/platform/raw-ingest-service.test.js`
+- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/line-oa-connection-health.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/platform/integration-persistence.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/fr079-runtime-cutover.test.js` · `tests/unit/platform/integration-contracts.test.js` · `tests/unit/platform/line-oa-webhook.test.js` · `tests/unit/platform/raw-ingest-service.test.js` · `tests/unit/platform/raw-record-repository-read.test.js`
 
 ### FR-082 — Structure editing by direct manipulation: the project Structure Plan becomes editable in place — a `+` affordance on a node adds a child of the type the hierarchy allows at that level, and a node is reparented by drag. An invalid drop target is refused *during* the drag rather than accepted and explained afterwards. Layout stays derived; no node position is persisted (ADR-035 D3). Every drag ships with its single-pointer equivalent in the same change (`Move to…`), because NFR-008 binds WCAG 2.2 AA and SC 2.5.7 *Dragging Movements* is AA.
 
@@ -720,5 +720,12 @@
 - **Status:** planned
 - **Surface:** `/customer/conversations` (page) · `/customer` (page) · `/api/crm/conversations/[id]` (api) · `/api/crm/conversations` (api)
 - **Code:** `src/app/(pm)/customer/conversations/page.jsx` · `src/app/(pm)/customer/page.jsx` · `src/app/api/crm/conversations/[id]/route.js` · `src/app/api/crm/conversations/route.js` · `src/config/domains.js` · `src/modules/crm/conversation-read-model.js`
-- **Follows:** BR-001, BR-011, SDD-007, SDD-018, SDD-049, SEC-001, SEC-009
+- **Follows:** BR-001, BR-011, SDD-007, SDD-018, SDD-050, SEC-001, SEC-009
 - **Tests:** `tests/e2e/fr041-business-first.spec.js` · `tests/e2e/fr060-business-home.spec.js` · `tests/e2e/fr091-conversation-inbox.spec.js` · `tests/integration/crm-conversation-inbox.test.js` · `tests/unit/command-palette-index.test.js` · `tests/unit/conversation-read-model.test.js` · `tests/unit/domain-navigation.test.js` · `tests/unit/fr045-api-ui-contract.test.js` · `tests/unit/fr091-inbox-ui-contract.test.js`
+
+### FR-092 — Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state.
+
+- **Status:** n/a
+- **Code:** `src/modules/market-intelligence/application/market-observation-service.js` · `src/modules/project-manager/application/backup-service.js`
+- **Follows:** BR-008, BR-019, SDD-023, SDD-049, SEC-008, SEC-017
+- **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/market-intelligence-persistence.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/market-intelligence-schema-migration.test.js`

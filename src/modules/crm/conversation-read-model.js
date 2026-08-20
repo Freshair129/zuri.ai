@@ -6,7 +6,7 @@ import { seesBusiness } from '@/modules/identity/viewer-authority'
 // @req FR-091 — the CRM Conversation Inbox read model: one authorized, read-only
 //   composition over Customer/Conversation/Message, which the FR-023 ingest seam has
 //   been writing since the first LINE turn with no surface able to read them.
-// @spec SDD-049, BR-001, BR-011, SEC-001, SEC-009
+// @spec SDD-050, BR-001, BR-011, SEC-001, SEC-009
 // @tested tests/unit/conversation-read-model.test.js, tests/integration/crm-conversation-inbox.test.js
 //
 // **This module exports readers only, and that is the enforcement.** BR-011 gives the
@@ -14,7 +14,7 @@ import { seesBusiness } from '@/modules/identity/viewer-authority'
 // ~30s reply token. A console that could also reply would be a second reply owner. So
 // there is no writer here to reach for: the boundary is the absence, not a comment.
 //
-// **Query count is constant in the number of conversations** (SDD-049). The per-row
+// **Query count is constant in the number of conversations** (SDD-050). The per-row
 // message count and last message come from two grouped queries over the page's ids,
 // never one query per row — the N+1 SDD-047 already paid for once on the Projects
 // Dashboard.
@@ -140,7 +140,7 @@ export async function getConversationInbox({ viewer, businessId, limit = INBOX_R
 
   const ids = conversations.map((row) => row.id)
 
-  // Two grouped queries for the whole page, not two per row (SDD-049).
+  // Two grouped queries for the whole page, not two per row (SDD-050).
   const [counts, recentMessages] = ids.length === 0
     ? [[], []]
     : await Promise.all([
