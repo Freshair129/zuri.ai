@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1036,
-    "total_edges": 3435,
+    "total_nodes": 1039,
+    "total_edges": 3456,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,13 +16,13 @@
       "route": 117,
       "model": 52,
       "requirement": 193,
-      "test": 232,
+      "test": 235,
       "code_file": 274
     },
     "coverage": {
       "requirements": 193,
-      "fr_with_code": "100% (79/79)",
-      "fr_with_tests": "100% (79/79)",
+      "fr_with_code": "100% (80/80)",
+      "fr_with_tests": "100% (80/80)",
       "rules_anchored_in_code": "89% (73/82)",
       "nfr_evidence_based": "17 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 274,
@@ -34,7 +34,6 @@
         "FR-083",
         "FR-084",
         "FR-085",
-        "FR-086",
         "FR-087",
         "FR-088",
         "FR-089",
@@ -62,16 +61,34 @@
   },
   "drift": {
     "changed": [
-      "domain:integration",
-      "domain:project-manager",
-      "test:tests/e2e/fr040-project-work.spec.js",
-      "test:tests/e2e/fr041-business-first.spec.js",
-      "test:tests/e2e/fr045-files.spec.js",
-      "test:tests/e2e/fr046-entry-contract.spec.js",
-      "test:tests/e2e/fr058-file-views.spec.js",
-      "test:tests/e2e/smoke.spec.js"
+      "doc:PRD-SDD-v1.0",
+      "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "test:tests/unit/customer-import-review-store-contract.test.js",
+      "test:tests/unit/customer-import-review-ui.test.js",
+      "test:tests/unit/fr080-ui-contract.test.js",
+      "test:tests/unit/projects-dashboard-ui.test.js",
+      "code:src/app/(pm)/backup/page.jsx",
+      "code:src/app/(pm)/execution/page.jsx",
+      "code:src/app/(pm)/platform/customer-import-reviews/page.jsx",
+      "code:src/app/(pm)/platform/integrations/page.jsx",
+      "code:src/app/(pm)/projects/page.jsx",
+      "code:src/app/(pm)/projects/[projectId]/inventory/page.jsx",
+      "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+      "code:src/app/(pm)/repositories/page.jsx",
+      "code:src/app/api/import/template/route.js",
+      "code:src/components/layouts/DomainBar.jsx",
+      "code:src/config/domains.js",
+      "code:src/lib/validation/enums.js",
+      "code:src/modules/crm/customer-import-review-store.js",
+      "code:src/modules/project-manager/application/projects-dashboard-read-model.js",
+      "code:src/modules/project-manager/progress/strategies.js",
+      "code:src/modules/project-manager/views/execution/mode-bodies.jsx"
     ],
-    "added": [],
+    "added": [
+      "test:tests/unit/format-progress-percent.test.js",
+      "test:tests/unit/project-inventory-ui.test.js",
+      "test:tests/unit/repositories-page-ui-contract.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -144,8 +161,8 @@
       "id": "code:src/app/(pm)/backup/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/backup/page.jsx",
-      "hash": "6c5f77c8",
-      "status": "current",
+      "hash": "12a1ff19",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-013",
@@ -238,8 +255,8 @@
       "id": "code:src/app/(pm)/execution/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/execution/page.jsx",
-      "hash": "742142f7",
-      "status": "current",
+      "hash": "1bf9ea68",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-009"
@@ -364,8 +381,8 @@
       "id": "code:src/app/(pm)/platform/customer-import-reviews/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/customer-import-reviews/page.jsx",
-      "hash": "4e6a549c",
-      "status": "current",
+      "hash": "a15cc1d5",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-078"
@@ -379,8 +396,8 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "f1db9e70",
-      "status": "current",
+      "hash": "d3fd5ca2",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080",
@@ -388,7 +405,8 @@
         ],
         "@spec": [
           "SEC-016",
-          "SDD-044"
+          "SDD-044",
+          "NFR-008"
         ],
         "@tested": [
           "tests/unit/fr080-ui-contract.test.js"
@@ -555,8 +573,8 @@
       "id": "code:src/app/(pm)/projects/[projectId]/inventory/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/inventory/page.jsx",
-      "hash": "c11d411e",
-      "status": "current",
+      "hash": "c87db736",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-077"
@@ -565,7 +583,8 @@
           "SDD-045"
         ],
         "@tested": [
-          "tests/e2e/fr077-project-inventory.spec.js"
+          "tests/e2e/fr077-project-inventory.spec.js",
+          "tests/unit/project-inventory-ui.test.js"
         ]
       }
     },
@@ -645,8 +664,8 @@
       "id": "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
-      "hash": "b5101ccb",
-      "status": "current",
+      "hash": "32e510eb",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-068"
@@ -743,8 +762,8 @@
       "id": "code:src/app/(pm)/projects/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/page.jsx",
-      "hash": "d805533e",
-      "status": "current",
+      "hash": "3c81cbc9",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
@@ -768,11 +787,13 @@
       "id": "code:src/app/(pm)/repositories/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/repositories/page.jsx",
-      "hash": "cc44d774",
-      "status": "current",
+      "hash": "a459cc14",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-008"
+          "FR-008",
+          "FR-073",
+          "BR-001"
         ]
       }
     },
@@ -1605,8 +1626,8 @@
       "id": "code:src/app/api/import/template/route.js",
       "type": "code_file",
       "path": "src/app/api/import/template/route.js",
-      "hash": "1b5ee451",
-      "status": "current",
+      "hash": "4ffd83cd",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-018"
@@ -2637,8 +2658,8 @@
       "id": "code:src/components/layouts/DomainBar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/DomainBar.jsx",
-      "hash": "f0247388",
-      "status": "current",
+      "hash": "6dee948d",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-038",
@@ -2746,8 +2767,8 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "c71c34ad",
-      "status": "current",
+      "hash": "f1b54620",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-042",
@@ -3012,10 +3033,11 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "0dcf5006",
-      "status": "current",
+      "hash": "2a9ecec3",
+      "status": "changed",
       "annotations": {
         "@req": [
+          "FR-086",
           "FR-087",
           "FR-012"
         ],
@@ -3610,14 +3632,15 @@
       "id": "code:src/modules/crm/customer-import-review-store.js",
       "type": "code_file",
       "path": "src/modules/crm/customer-import-review-store.js",
-      "hash": "69c2ad3c",
-      "status": "current",
+      "hash": "13e2c707",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-078"
         ],
         "@tested": [
-          "tests/unit/customer-import-review-service.test.js"
+          "tests/unit/customer-import-review-service.test.js",
+          "tests/unit/customer-import-review-store-contract.test.js"
         ]
       }
     },
@@ -4694,8 +4717,8 @@
       "id": "code:src/modules/project-manager/application/projects-dashboard-read-model.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/projects-dashboard-read-model.js",
-      "hash": "2c778773",
-      "status": "current",
+      "hash": "b3e7e431",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086"
@@ -5206,8 +5229,8 @@
       "id": "code:src/modules/project-manager/progress/strategies.js",
       "type": "code_file",
       "path": "src/modules/project-manager/progress/strategies.js",
-      "hash": "b3b061b1",
-      "status": "current",
+      "hash": "15324b5d",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-010"
@@ -5218,7 +5241,8 @@
           "SDD-005"
         ],
         "@tested": [
-          "tests/unit/strategies.test.js"
+          "tests/unit/strategies.test.js",
+          "tests/unit/format-progress-percent.test.js"
         ]
       }
     },
@@ -5262,8 +5286,8 @@
       "id": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/views/execution/mode-bodies.jsx",
-      "hash": "504fe6e3",
-      "status": "current",
+      "hash": "5398e23c",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-009"
@@ -6417,8 +6441,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.71.0b",
       "doc_status": "Draft",
-      "hash": "6998940d",
-      "status": "current"
+      "hash": "9d95d011",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -6684,7 +6708,7 @@
         "integration"
       ],
       "hash": "700dcbf0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:knowledge",
@@ -6770,7 +6794,7 @@
         "people"
       ],
       "hash": "8ab564dc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "feat:FEAT-001",
@@ -8131,9 +8155,9 @@
       "family": "FR",
       "label": "Projects Dashboard: the Development `/projects` surface becomes the domain's Dashboard — a KPI band above the resource list — and its sidebar entry is labelled `Dashboard`, the shape every peer domain already has, so that \"Overview\" keeps meaning exactly one thing in this product (`/overview`, Business Home, FR-060). The band reports Projects by status, WorkItems by status, the **headcount actually working on the in-scope Projects** (distinct `WorkItem.assigneeRef`) and the **team count** from FR-089. The last two are shown as two figures because they answer different questions — people with work assigned, versus Teams attached to Projects — and neither is derivable from the other (ADR-036 D5, ADR-037 D4). Every band figure reconciles with the list beneath it: `PROJECT_STATUSES` has five values and the highlighted three are shown with an explicit account of the remainder rather than a subset that does not sum. The list carries Code · Project Name · Size · Space · Streams · Status · Progress · Target · PIC · Priority, where **Size is defined as the count of non-deleted WorkItems under the Project** (ADR-036 D2) and Progress comes from the existing pure calculators. A `Top 5 Priority Projects` panel orders by FR-087's field and, until priorities are set, renders an empty state saying so rather than substituting a deadline ordering the reader would misread as priority. `New project` becomes this page's primary action and is removed from the Topbar, where it currently duplicates a control the page already has.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Projects Dashboard: the Development `/projects` surface becomes the domain's Dashboard — a KPI band above the resource list — and its sidebar entry is labelled `Dashboard`, the shape every peer domain already has, so that \"Overview\" keeps meaning exactly one thing in this product (`/overview`, Business Home, FR-060). The band reports Projects by status, WorkItems by status, the **headcount actually working on the in-scope Projects** (distinct `WorkItem.assigneeRef`) and the **team count** from FR-089. The last two are shown as two figures because they answer different questions — people with work assigned, versus Teams attached to Projects — and neither is derivable from the other (ADR-036 D5, ADR-037 D4). Every band figure reconciles with the list beneath it: `PROJECT_STATUSES` has five values and the highlighted three are shown with an explicit account of the remainder rather than a subset that does not sum. The list carries Code · Project Name · Size · Space · Streams · Status · Progress · Target · PIC · Priority, where **Size is defined as the count of non-deleted WorkItems under the Project** (ADR-036 D2) and Progress comes from the existing pure calculators. A `Top 5 Priority Projects` panel orders by FR-087's field and, until priorities are set, renders an empty state saying so rather than substituting a deadline ordering the reader would misread as priority. `New project` becomes this page's primary action and is removed from the Topbar, where it currently duplicates a control the page already has. 🔜 design only — ADR-036 proposed, implementation not authorized "
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Projects Dashboard: the Development `/projects` surface becomes the domain's Dashboard — a KPI band above the resource list — and its sidebar entry is labelled `Dashboard`, the shape every peer domain already has, so that \"Overview\" keeps meaning exactly one thing in this product (`/overview`, Business Home, FR-060). The band reports Projects by status, WorkItems by status, the **headcount actually working on the in-scope Projects** (distinct `WorkItem.assigneeRef`) and the **team count** from FR-089. The last two are shown as two figures because they answer different questions — people with work assigned, versus Teams attached to Projects — and neither is derivable from the other (ADR-036 D5, ADR-037 D4). Every band figure reconciles with the list beneath it: `PROJECT_STATUSES` has five values and the highlighted three are shown with an explicit account of the remainder rather than a subset that does not sum. The list carries Code · Project Name · Size · Space · Streams · Status · Progress · Target · PIC · Priority, where **Size is defined as the count of non-deleted WorkItems under the Project** (ADR-036 D2) and Progress comes from the existing pure calculators. A `Top 5 Priority Projects` panel orders by FR-087's field and, until priorities are set, renders an empty state saying so rather than substituting a deadline ordering the reader would misread as priority. `New project` becomes this page's primary action and is removed from the Topbar, where it currently duplicates a control the page already has. 🟢 shipped in ab7fb03 — `/projects` is the Development Dashboard (KPI band, Top-5-by-priority panel, enriched list) behind `GET /api/projects/overview` (SDD-047), covered by tests/integration/projects-dashboard.test.js and tests/unit/projects-dashboard-ui.test.js; the status band's explicit account-of-the-remainder requirement is now met — Projects highlights PLANNED, ACTIVE, DONE, the three ADR-036 names, with ON_HOLD and ARCHIVED disclosed under an \"Other\" total that is always rendered non-zero, and the same generic mechanism covers the Work items card "
     },
     {
       "id": "req:FR-087",
@@ -10274,14 +10298,14 @@
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
       "hash": "dbcb20f0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr041-business-first.spec.js",
       "type": "test",
       "path": "tests/e2e/fr041-business-first.spec.js",
       "hash": "a88d47fc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr044-entry-routing.spec.js",
@@ -10295,21 +10319,21 @@
       "type": "test",
       "path": "tests/e2e/fr045-files.spec.js",
       "hash": "e896678d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr046-entry-contract.spec.js",
       "type": "test",
       "path": "tests/e2e/fr046-entry-contract.spec.js",
       "hash": "aa343b8f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr058-file-views.spec.js",
       "type": "test",
       "path": "tests/e2e/fr058-file-views.spec.js",
       "hash": "7a2a3541",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr059-strategy-edit.spec.js",
@@ -10336,15 +10360,15 @@
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
-      "hash": "2cebfa71",
-      "status": "current"
+      "hash": "d3154d6c",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
       "hash": "3e214f24",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/adaptive-shell.test.js",
@@ -10973,15 +10997,15 @@
       "id": "test:tests/unit/customer-import-review-store-contract.test.js",
       "type": "test",
       "path": "tests/unit/customer-import-review-store-contract.test.js",
-      "hash": "e6408931",
-      "status": "current"
+      "hash": "adbc799c",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/customer-import-review-ui.test.js",
       "type": "test",
       "path": "tests/unit/customer-import-review-ui.test.js",
-      "hash": "5ca33fd9",
-      "status": "current"
+      "hash": "45dc8433",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/customer-profile-backfill-migration.test.js",
@@ -11100,6 +11124,13 @@
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
       "hash": "f3e76b36",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/format-progress-percent.test.js",
+      "type": "test",
+      "path": "tests/unit/format-progress-percent.test.js",
+      "hash": "e62fee97",
       "status": "current"
     },
     {
@@ -11351,8 +11382,8 @@
       "id": "test:tests/unit/fr080-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr080-ui-contract.test.js",
-      "hash": "50e1b6cb",
-      "status": "current"
+      "hash": "373623b6",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr089-br018-team-grants-nothing.test.js",
@@ -11684,6 +11715,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/project-inventory-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/project-inventory-ui.test.js",
+      "hash": "de664bbc",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/project-list-contract.test.js",
       "type": "test",
       "path": "tests/unit/project-list-contract.test.js",
@@ -11743,8 +11781,8 @@
       "id": "test:tests/unit/projects-dashboard-ui.test.js",
       "type": "test",
       "path": "tests/unit/projects-dashboard-ui.test.js",
-      "hash": "be8bb6a9",
-      "status": "current"
+      "hash": "371c504b",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/public-read-route-auth.test.js",
@@ -11758,6 +11796,13 @@
       "type": "test",
       "path": "tests/unit/reply-record-service.test.js",
       "hash": "05c3b5cc",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/repositories-page-ui-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/repositories-page-ui-contract.test.js",
+      "hash": "eabd3a57",
       "status": "current"
     },
     {
@@ -12261,6 +12306,13 @@
     },
     {
       "from": "code:src/app/(pm)/platform/integrations/page.jsx",
+      "to": "req:NFR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/integrations/page.jsx",
       "to": "req:SDD-044",
       "type": "follows",
       "status": "current",
@@ -12744,7 +12796,21 @@
     },
     {
       "from": "code:src/app/(pm)/repositories/page.jsx",
+      "to": "req:BR-001",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/repositories/page.jsx",
       "to": "req:FR-008",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/repositories/page.jsx",
+      "to": "req:FR-073",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -16196,6 +16262,13 @@
     {
       "from": "code:src/lib/validation/enums.js",
       "to": "req:FR-012",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-086",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -28837,6 +28910,13 @@
     },
     {
       "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "req:FR-087",
       "type": "verifies",
       "status": "current",
@@ -30020,6 +30100,13 @@
     },
     {
       "from": "test:tests/unit/customer-import-review-store-contract.test.js",
+      "to": "code:src/modules/crm/customer-import-review-store.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-store-contract.test.js",
       "to": "req:FR-078",
       "type": "verifies",
       "status": "current",
@@ -30416,6 +30503,41 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/format-progress-percent.test.js",
+      "to": "code:src/modules/project-manager/progress/strategies.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/format-progress-percent.test.js",
+      "to": "req:BR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/format-progress-percent.test.js",
+      "to": "req:BR-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/format-progress-percent.test.js",
+      "to": "req:FR-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/format-progress-percent.test.js",
+      "to": "req:SDD-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/fr036-team-authorization.test.js",
@@ -32547,6 +32669,13 @@
     },
     {
       "from": "test:tests/unit/fr080-ui-contract.test.js",
+      "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr080-ui-contract.test.js",
       "to": "req:SDD-044",
       "type": "verifies",
       "status": "current",
@@ -33681,6 +33810,13 @@
     },
     {
       "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
       "to": "req:FR-087",
       "type": "verifies",
       "status": "current",
@@ -34409,6 +34545,27 @@
     },
     {
       "from": "test:tests/unit/project-inventory-read-model.test.js",
+      "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-inventory-ui.test.js",
+      "to": "code:src/app/(pm)/projects/[projectId]/inventory/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-inventory-ui.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-inventory-ui.test.js",
       "to": "req:SDD-045",
       "type": "verifies",
       "status": "current",
@@ -35159,6 +35316,41 @@
     {
       "from": "test:tests/unit/reply-record-service.test.js",
       "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/repositories-page-ui-contract.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/repositories-page-ui-contract.test.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/repositories-page-ui-contract.test.js",
+      "to": "req:FR-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/repositories-page-ui-contract.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/repositories-page-ui-contract.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

@@ -111,14 +111,23 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
   test('the CRM domain is navigable rather than a reserved slot', async ({ page }) => {
     await chooseBusiness(page)
     await page.goto('/customer')
-
-    // Scoped to the sidebar on purpose. `getByRole('link', { name: 'Inbox' })`
-    // matches by SUBSTRING, so it also finds the Dashboard's own `เปิด Inbox`
-    // button — two links, strict-mode violation. The first version of this test
-    // passed only because the Dashboard was sometimes still loading when the click
-    // landed, which is a race, not a pass.
-    const sidebar = page.getByRole('navigation').filter({ has: page.getByLabel('Inbox') })
-    await sidebar.getByLabel('Inbox').click()
+    // Scoped to the sidebar's own landmark (Sidebar.jsx: `aria-label="${domain.label}
+    // sections"`), not to the whole page. The Dashboard card on this same page carries
+    // a link whose accessible name is "เปิด Inbox" ("open Inbox") — a distinct label
+    // for a distinct purpose (a call-to-action, not a second nav entry), but one that
+    // contains "Inbox" as a substring, which is all Playwright's default `name` match
+    // needs to collide once the card has rendered. That is a different situation from
+    // the 'Schedule' collision documented in src/config/domains.js above the
+    // Development sub-domain list — there, two *navigation* entries carried the
+    // identical label on screen at once, which is ambiguous to a human too, so the
+    // repo's answer was to change the copy. Here the two labels ("Inbox" vs. "เปิด
+    // Inbox") are already distinct to a person and to a screen reader; the collision is
+    // a locator-precision problem, not a copy problem, so the fix is to name which one
+    // this test means — the same landmark-scoping already used by
+    // fr040-project-work.spec.js and fr060-business-home.spec.js for the analogous case.
+    const sidebar = page.getByRole('navigation', { name: 'CRM sections' })
+    await expect(sidebar.getByRole('link', { name: 'Inbox' })).toBeVisible()
+    await sidebar.getByRole('link', { name: 'Inbox' }).click()
     await expect(page).toHaveURL(/\/customer\/conversations/)
   })
 

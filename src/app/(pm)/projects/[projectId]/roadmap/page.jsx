@@ -5,6 +5,7 @@ import { Card, EmptyState, ErrorState, Kpi, PageHeader, ProgressBar, SectionTitl
 import { LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
 import WorkViewTabs from '@/modules/project-manager/components/WorkViewTabs'
 import { MODE_LABELS } from '@/lib/validation/enums'
+import { formatProgressPercent } from '@/modules/project-manager/progress/strategies'
 
 // @req FR-068 — Human-visible Execution Roadmap includes Business Goals and
 // the same Project execution hierarchy used by the other Work views.
@@ -98,7 +99,7 @@ function PlanSection({ plan, containers, items }) {
       </div>
       <div className="mt-3 flex items-center gap-3">
         <ProgressBar percent={plan.progress.percent} label={`${plan.name} progress`} />
-        <span className="shrink-0 text-xs font-bold">{plan.progress.percent}%</span>
+        <span className="shrink-0 text-xs font-bold">{formatProgressPercent(plan.progress.percent)}</span>
       </div>
       <p className="mt-2 text-[10px] text-muted">Progress evidence: <EvidenceKeys evidence={plan.progress.evidence} /></p>
       <div className="mt-3 space-y-2">
@@ -162,7 +163,7 @@ export default function ProjectRoadmapPage() {
           <SectionTitle caption="Strategy-based Project roll-up">Project progress</SectionTitle>
           <div className="flex items-center gap-3">
             <ProgressBar percent={data.project.progress.percent} label="Project progress" />
-            <span className="shrink-0 text-sm font-bold">{data.project.progress.percent}%</span>
+            <span className="shrink-0 text-sm font-bold">{formatProgressPercent(data.project.progress.percent)}</span>
           </div>
           {data.project.progress.warnings.length > 0 && <p className="mt-2 text-[10px] text-muted">{data.project.progress.warnings.join(' ')}</p>}
           <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted" aria-label="Project roadmap references">
