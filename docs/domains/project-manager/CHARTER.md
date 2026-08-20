@@ -32,8 +32,6 @@ owns_models:
   - Repository
   - ProjectRepository
   - ProjectFile
-  # FR-089 / ADR-037 — organisational grouping only. These three grant nothing:
-  # the identity module never reads them, and BR-018 is the rule that says so.
   - Team
   - TeamMembership
   - ProjectTeam
@@ -50,6 +48,9 @@ owns_routes:
 
 <!-- owns_routes are longest-prefix globs: src/app/api/agent/** in the agent
      charter is more specific, so agent routes resolve there, not here. -->
+<!-- Annotations about the lists above belong here, outside the frontmatter: the
+     generators read each list as an unbroken run of `  - Name` lines, so a YAML
+     comment between two entries silently un-claims everything below it. -->
 
 # Domain charter — project-manager
 
@@ -65,7 +66,12 @@ trail. This is the back-office console's core.
 - **Progress is recomputed from pure calculators** in `progress/` (no I/O, no
   clock); `progressCache` is advisory.
 - All intake converges on the one import pipeline (`import/`) — a new surface
-  adds a converter, never a second write path (BR-009, SDD-009).
+  adds a converter, never a second write path (BR-009, SDD-009). Its
+  `PlanImportReceipt` is the trace record of a committed run, owned here.
+- `Team`, `TeamMembership` and `ProjectTeam` are organisational grouping and
+  grant nothing: the identity resolver never reads them and no route guard
+  consults them (FR-089, BR-018, ADR-037 D1). `Membership` stays the authority
+  record — grouping is kept out of it deliberately.
 - Does not touch CRM's Person/Customer/Conversation/Message, identity's
   ExternalIdentity/IdentityLinkToken, or anything under `/api/agent/**`.
 

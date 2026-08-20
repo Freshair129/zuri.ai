@@ -3,6 +3,8 @@ const { test, expect } = require('@playwright/test')
 // @req FR-041, FR-042 - Business-first Overview plus HR / People peer domain.
 // @spec ADR-013, PLAN-FR-041-BUSINESS-FIRST-STRATEGY-AND-HR
 // @tested tests/e2e/fr041-business-first.spec.js
+// api() retries a lost connection, never an answer — see ./reconnecting-request.
+const { api } = require('./reconnecting-request')
 
 async function chooseBusiness(page, name = 'Business 01') {
   await page.goto('/login')
@@ -40,14 +42,14 @@ test.describe('FR-041/042 Business-first shell', () => {
   })
 
   test('strategy and people API contracts stay Business-scoped', async ({ request }) => {
-    await request.post('/api/session/demo', { maxRedirects: 0 })
-    const scope = await (await request.get('/api/scope')).json()
+    await api(request).post('/api/session/demo', { maxRedirects: 0 })
+    const scope = await (await api(request).get('/api/scope')).json()
     const business = scope.businesses.find((item) => item.code === 'BUS-001')
-    const strategy = await request.get(`/api/business/strategy?businessId=${business.id}`)
+    const strategy = await api(request).get(`/api/business/strategy?businessId=${business.id}`)
     expect(strategy.status()).toBe(200)
     const strategyBody = await strategy.json()
     expect(strategyBody.roadmaps[0].horizons).toHaveLength(3)
-    const people = await request.get(`/api/people?businessId=${business.id}`)
+    const people = await api(request).get(`/api/people?businessId=${business.id}`)
     expect(people.status()).toBe(200)
     expect((await people.json()).business.code).toBe('BUS-001')
   })

@@ -9,7 +9,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 19,
+    "info": 18,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -182,15 +182,6 @@
     {
       "id": "I16",
       "severity": "info",
-      "check": "domain-spine",
-      "title": "Models not yet claimed by any charter: 9",
-      "details": "Membership, Team, TeamMembership, ProjectTeam, PlanImportReceipt, LocalWorkspaceMount, FileAsset, FileLink, AuditEvent",
-      "files": [],
-      "action": "Coverage debt — claim them as charters mature"
-    },
-    {
-      "id": "I17",
-      "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
       "details": "\"| PHASE-ZV2-MVP | Build offline-first PM MVP (spec phases 00-07) | ACCEPTANCE-CRITERIA all PASS — MVP shipped \"",
@@ -200,7 +191,7 @@
       "action": "Current suite: 129 Vitest + 28 Playwright across 232 files"
     },
     {
-      "id": "I18",
+      "id": "I17",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 hand-copied enum list(s) remain (accepted debt)",
@@ -211,7 +202,7 @@
       "action": "Derive from enums.js; the baseline may only shrink"
     },
     {
-      "id": "I19",
+      "id": "I18",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",

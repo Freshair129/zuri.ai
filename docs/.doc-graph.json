@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 1036,
-    "total_edges": 3426,
+    "total_edges": 3435,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -61,7 +61,16 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "domain:integration",
+      "domain:project-manager",
+      "test:tests/e2e/fr040-project-work.spec.js",
+      "test:tests/e2e/fr041-business-first.spec.js",
+      "test:tests/e2e/fr045-files.spec.js",
+      "test:tests/e2e/fr046-entry-contract.spec.js",
+      "test:tests/e2e/fr058-file-views.spec.js",
+      "test:tests/e2e/smoke.spec.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -6664,13 +6673,18 @@
         "ExternalEntityRef",
         "DeadLetterRecord"
       ],
-      "owns_routes": [],
-      "owns_code": [],
+      "owns_routes": [
+        "src/app/(pm)/platform/integrations/**",
+        "src/app/api/platform/integrations/**"
+      ],
+      "owns_code": [
+        "src/platform/integrations/**"
+      ],
       "modules": [
         "integration"
       ],
-      "hash": "fea9113f",
-      "status": "current"
+      "hash": "700dcbf0",
+      "status": "changed"
     },
     {
       "id": "domain:knowledge",
@@ -6728,7 +6742,16 @@
         "Dependency",
         "Repository",
         "ProjectRepository",
-        "ProjectFile"
+        "ProjectFile",
+        "Team",
+        "TeamMembership",
+        "ProjectTeam",
+        "LocalWorkspaceMount",
+        "FileAsset",
+        "FileLink",
+        "Membership",
+        "AuditEvent",
+        "PlanImportReceipt"
       ],
       "owns_routes": [
         "src/app/(pm)/**",
@@ -6746,8 +6769,8 @@
         "business",
         "people"
       ],
-      "hash": "0e0c33ef",
-      "status": "current"
+      "hash": "8ab564dc",
+      "status": "changed"
     },
     {
       "id": "feat:FEAT-001",
@@ -10250,15 +10273,15 @@
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
-      "hash": "f812f658",
-      "status": "current"
+      "hash": "dbcb20f0",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr041-business-first.spec.js",
       "type": "test",
       "path": "tests/e2e/fr041-business-first.spec.js",
-      "hash": "89554963",
-      "status": "current"
+      "hash": "a88d47fc",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr044-entry-routing.spec.js",
@@ -10271,22 +10294,22 @@
       "id": "test:tests/e2e/fr045-files.spec.js",
       "type": "test",
       "path": "tests/e2e/fr045-files.spec.js",
-      "hash": "e9721d81",
-      "status": "current"
+      "hash": "e896678d",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr046-entry-contract.spec.js",
       "type": "test",
       "path": "tests/e2e/fr046-entry-contract.spec.js",
-      "hash": "819b8209",
-      "status": "current"
+      "hash": "aa343b8f",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr058-file-views.spec.js",
       "type": "test",
       "path": "tests/e2e/fr058-file-views.spec.js",
-      "hash": "db37f91b",
-      "status": "current"
+      "hash": "7a2a3541",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr059-strategy-edit.spec.js",
@@ -10320,8 +10343,8 @@
       "id": "test:tests/e2e/smoke.spec.js",
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
-      "hash": "e77a0b2c",
-      "status": "current"
+      "hash": "3e214f24",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/adaptive-shell.test.js",
@@ -19881,6 +19904,13 @@
       "source": "feature-registry"
     },
     {
+      "from": "model:AuditEvent",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Branch",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -19993,6 +20023,20 @@
       "source": "charter"
     },
     {
+      "from": "model:FileAsset",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:FileLink",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Gate",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -20049,6 +20093,20 @@
       "source": "charter"
     },
     {
+      "from": "model:LocalWorkspaceMount",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Membership",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Message",
       "to": "domain:crm",
       "type": "owned_by",
@@ -20079,6 +20137,13 @@
     {
       "from": "model:Person",
       "to": "domain:crm",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PlanImportReceipt",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -20119,6 +20184,13 @@
       "source": "charter"
     },
     {
+      "from": "model:ProjectTeam",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:RawExternalRecord",
       "to": "domain:integration",
       "type": "owned_by",
@@ -20142,6 +20214,20 @@
     {
       "from": "model:SyncCursor",
       "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Team",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:TeamMembership",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -21863,7 +21949,7 @@
     },
     {
       "from": "route:api:/api/platform/integrations",
-      "to": "domain:project-manager",
+      "to": "domain:integration",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -22199,7 +22285,7 @@
     },
     {
       "from": "route:page:/platform/integrations",
-      "to": "domain:project-manager",
+      "to": "domain:integration",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"

@@ -3,6 +3,8 @@
 // @spec SDD-031, SEC-007
 // @tested tests/e2e/fr058-file-views.spec.js
 const { test, expect } = require('@playwright/test')
+// api() retries a lost connection, never an answer — see ./reconnecting-request.
+const { api } = require('./reconnecting-request')
 
 async function chooseBusiness(page) {
   await page.goto('/login')
@@ -118,7 +120,7 @@ test.describe('FR-058 File Manager view switcher', () => {
     const fileName = `fr058-project-scoped-${uniqueSuffix()}.pdf`
 
     await chooseBusiness(page)
-    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const resolved = await (await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
     const projectId = resolved.id
 
     // A file added from the Project's own File Manager is project-scoped —
