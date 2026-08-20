@@ -10,6 +10,8 @@ import { writeFileSync, readdirSync, statSync, existsSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
+import { collectDeclared } from './id-anchors.mjs'
+import { evaluateIdStability } from './id-stability.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -931,6 +933,97 @@ function guardedTryRanges(source) {
     add('info', 'client-mutation', `${remaining.length} file(s) still swallow a failed mutation (accepted debt)`,
       remaining.map((o) => `${o.key}:${o.lines.join('/')}`).join(' · '), [rel(API_CATCH_BASELINE)],
       'A silent failure is indistinguishable from success; the baseline may only shrink')
+  }
+}
+
+// ---- Check 12: an id is a key — its subject may not move (id-stability) ----
+// On 2026-08-20 PR #88 hit an id collision and resolved it by renumbering
+// SDD-049 — a statement that had already merged to main — to SDD-050, taking
+// SDD-049 for its own market-translation seam. AGENTS.md §18 forbids exactly
+// that. The duplicate-id guard above could not see it: it catches two rows
+// sharing a key, and a MOVED id is not a duplicate at any single moment. So the
+// whole chain stayed green while tests/e2e/fr091-conversation-inbox.spec.js went
+// on citing SDD-049 for a subject it had never been written against, and that
+// stale reference was found by hand. It was the second occurrence — on
+// 2026-08-15 a stale whole-file copy of the registry merged over main,
+// repurposing FR-051 and SDD-026 and deleting fifteen other ids outright.
+//
+// The rules live in scripts/id-stability.mjs so the incident itself can be a
+// regression test: a straight-line script that derives ROOT from its own
+// location cannot be pointed at a fixture. This block only gathers the inputs.
+//
+// Top level with its own reader, NOT inside the Check-3 `else`: that block does
+// not run when the graph is missing, and this check deliberately takes no
+// dependency on docs/.doc-graph.json at all. The graph knows only
+// FR/NFR/BR/SEC/SDD/FEAT, so a graph-backed check would ship blind to MI-RQ and
+// RSK — which is precisely how this recurs.
+const ID_LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
+{
+  // Read defensively, in the house idiom: a missing file or key degrades to the
+  // strictest state (nothing pinned), never the loosest.
+  //
+  // A CORRUPT ledger degrades the same way, and says so. Two branches each
+  // declaring an id conflict in this file, and a conflict marker left in it threw
+  // an uncaught SyntaxError out of the whole run — taking the other eleven checks
+  // with it and leaving docs/.preflight-report.json stale, which is the one
+  // outcome every check here exists to prevent.
+  let ledger = {}
+  if (existsSync(ID_LEDGER)) {
+    try {
+      ledger = JSON.parse(read(ID_LEDGER))
+    } catch (e) {
+      add('critical', 'id-stability', 'the id ledger could not be parsed', `${rel(ID_LEDGER)}: ${e.message}`, [rel(ID_LEDGER)],
+        'Every id now reads as unpinned, so this run can tell you nothing about id stability. If a merge left conflict markers in it, ' +
+          'resolve them by KEEPING BOTH sides of `ids` and `roster` — an entry never leaves this ledger (ADR-039 D9) — then run ' +
+          'npm run docs:ids -- --write')
+    }
+  }
+  const readDoc = (repoRelPath) => {
+    const abs = path.join(ROOT, repoRelPath)
+    return existsSync(abs) ? read(abs) : null
+  }
+
+  // Blast radius. Computed ONLY once something has already fired, so a healthy
+  // tree pays nothing — and deliberately a plain text scan, because it has to
+  // reach the reference sites the doc graph never reads: prisma/*.prisma,
+  // supabase/**/*.sql, the traces-to cells of CURRENT registry rows, §2.4 prose,
+  // charter prose. Every confirmed stale citation in this repository lives in one
+  // of those. It REPORTS; it never decides whether a citation is wrong — that
+  // comparison needs a model, and a gate that needs a model behaves differently
+  // on two machines.
+  let citationIndex = null
+  const citersOf = (id) => {
+    if (!citationIndex) {
+      citationIndex = [
+        ...walk(path.join(ROOT, 'src'), '.js'),
+        ...walk(path.join(ROOT, 'src'), '.jsx'),
+        ...walk(path.join(ROOT, 'tests'), '.js'),
+        ...walk(path.join(ROOT, 'prisma'), '.prisma'),
+        ...walk(path.join(ROOT, 'supabase'), '.sql'),
+        ...walk(path.join(ROOT, 'contracts'), '.json'),
+        ...allDocs,
+      ].map((f) => [rel(f), read(f)])
+    }
+    const re = new RegExp(`(?<![A-Za-z0-9-])${id}(?![0-9])`)
+    return citationIndex.filter(([, body]) => re.test(body)).map(([p]) => p)
+  }
+
+  const namedFiles = [
+    ...walk(path.join(ROOT, 'src'), '.js'),
+    ...walk(path.join(ROOT, 'src'), '.jsx'),
+    ...walk(path.join(ROOT, 'tests'), '.js'),
+    ...allDocs,
+  ].map((f) => ({ path: rel(f), body: read(f) }))
+
+  for (const f of evaluateIdStability({
+    declared: collectDeclared(ROOT),
+    ledger,
+    readDoc,
+    citersOf,
+    namedFiles,
+    ledgerPath: rel(ID_LEDGER),
+  })) {
+    add(f.severity, f.check, f.title, f.details, f.files, f.action)
   }
 }
 

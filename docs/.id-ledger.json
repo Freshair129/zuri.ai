@@ -1,0 +1,4524 @@
+{
+  "version": "1.1.0",
+  "purpose": "Per-id subject anchors — the leading subject of each declared id's statement — and their history. An id is a key, not a label (AGENTS.md §18): documents may be moved, renamed, split or merged; ids may not be renumbered, reused for a different statement, or recycled after a requirement is dropped. Preflight raises a CRITICAL when a recorded anchor moves, when a new id inherits an anchor already recorded for another id in its family, when a recorded id disappears from its registry, when an entry that was once pinned is no longer here, or when a burnt id is re-declared. This file records anchors, never statements: rewording past the anchor window is free and leaves no diff here. Adding an id is routine — a \"+\" block. A \"-\" line on an id that already existed is the alarm, and so is a new history line under an id that already had one; neither may be committed without a sentence saying what changed and why. `roster` lists every id ever pinned and is never pruned: an id in `roster` with no entry in `ids` means an entry was deleted, which is the one way a repurpose could otherwise be re-landed as a routine \"+\" block. Never hand-edit an anchor to make the build green: the legitimate way to change what a number means is to NOT change it — retire it, leave it burnt, and take the next free number. Recorded after SDD-049 was repurposed by PR #88 on 2026-08-20 and FR-051/SDD-026 by PR #9 on 2026-08-15, both invisible to every check because a MOVED id is never a duplicate. See ADR-039.",
+  "recorded_at": "2026-08-20",
+  "genesis_note": "Every entry whose only history line is \"declared\" was pinned in one pass when this ledger was created (recorded_at). It records what the id stands for today, not when it was first written — anything earlier than that line predates the ledger and lives only in git history.",
+  "generated_by": "scripts/id-ledger.mjs",
+  "registries": [
+    {
+      "families": [
+        "FR",
+        "NFR",
+        "BR",
+        "SEC",
+        "SDD"
+      ],
+      "file": "docs/PRD-SDD-v1.0.md",
+      "form": "table",
+      "has_version_history": true
+    },
+    {
+      "families": [
+        "FEAT"
+      ],
+      "file": "docs/FEATURES.md",
+      "form": "table",
+      "has_version_history": false
+    },
+    {
+      "families": [
+        "RSK"
+      ],
+      "file": "docs/appendices/E-risk-matrix.md",
+      "form": "table",
+      "has_version_history": false
+    },
+    {
+      "families": [
+        "MI-RQ"
+      ],
+      "file": "docs/domains/market-intelligence/SRS.md",
+      "form": "bold-heading",
+      "has_version_history": false,
+      "draft": true
+    },
+    {
+      "families": [
+        "ADR"
+      ],
+      "dir": "docs/decisions",
+      "form": "document-h1",
+      "has_version_history": false
+    },
+    {
+      "families": [
+        "ZV2-CR"
+      ],
+      "dir": "docs/changes",
+      "form": "document-h1",
+      "has_version_history": false
+    }
+  ],
+  "not_ids": [
+    "W0",
+    "W1",
+    "W2",
+    "W3",
+    "W4",
+    "W5",
+    "W6",
+    "W7",
+    "W8",
+    "W9",
+    "G0",
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5",
+    "B02",
+    "B03",
+    "B04"
+  ],
+  "burnt_families": [
+    "FR-MI",
+    "DQ-MI"
+  ],
+  "bulk_revisions": [],
+  "roster": [
+    "BR-001",
+    "BR-002",
+    "BR-003",
+    "BR-004",
+    "BR-005",
+    "BR-006",
+    "BR-007",
+    "BR-008",
+    "BR-009",
+    "BR-010",
+    "BR-011",
+    "BR-012",
+    "BR-013",
+    "BR-014",
+    "BR-015",
+    "BR-016",
+    "BR-017",
+    "BR-018",
+    "BR-019",
+    "FR-001",
+    "FR-002",
+    "FR-003",
+    "FR-004",
+    "FR-005",
+    "FR-006",
+    "FR-007",
+    "FR-008",
+    "FR-009",
+    "FR-010",
+    "FR-011",
+    "FR-012",
+    "FR-013",
+    "FR-014",
+    "FR-015",
+    "FR-016",
+    "FR-017",
+    "FR-018",
+    "FR-019",
+    "FR-020",
+    "FR-021",
+    "FR-022",
+    "FR-023",
+    "FR-024",
+    "FR-025",
+    "FR-026",
+    "FR-027",
+    "FR-028",
+    "FR-029",
+    "FR-030",
+    "FR-031",
+    "FR-032",
+    "FR-033",
+    "FR-034",
+    "FR-035",
+    "FR-036",
+    "FR-037",
+    "FR-038",
+    "FR-039",
+    "FR-040",
+    "FR-041",
+    "FR-042",
+    "FR-043",
+    "FR-044",
+    "FR-045",
+    "FR-046",
+    "FR-047",
+    "FR-048",
+    "FR-049",
+    "FR-050",
+    "FR-051",
+    "FR-052",
+    "FR-053",
+    "FR-054",
+    "FR-055",
+    "FR-056",
+    "FR-057",
+    "FR-058",
+    "FR-059",
+    "FR-060",
+    "FR-061",
+    "FR-062",
+    "FR-063",
+    "FR-064",
+    "FR-065",
+    "FR-066",
+    "FR-067",
+    "FR-068",
+    "FR-069",
+    "FR-070",
+    "FR-071",
+    "FR-072",
+    "FR-073",
+    "FR-074",
+    "FR-075",
+    "FR-076",
+    "FR-077",
+    "FR-078",
+    "FR-079",
+    "FR-080",
+    "FR-081",
+    "FR-082",
+    "FR-083",
+    "FR-084",
+    "FR-085",
+    "FR-086",
+    "FR-087",
+    "FR-088",
+    "FR-089",
+    "FR-090",
+    "FR-091",
+    "FR-092",
+    "FR-093",
+    "NFR-001",
+    "NFR-002",
+    "NFR-003",
+    "NFR-004",
+    "NFR-005",
+    "NFR-006",
+    "NFR-007",
+    "NFR-008",
+    "NFR-009",
+    "NFR-010",
+    "NFR-011",
+    "NFR-012",
+    "NFR-013",
+    "NFR-014",
+    "NFR-015",
+    "NFR-016",
+    "NFR-017",
+    "NFR-018",
+    "SDD-001",
+    "SDD-002",
+    "SDD-003",
+    "SDD-004",
+    "SDD-005",
+    "SDD-006",
+    "SDD-007",
+    "SDD-008",
+    "SDD-009",
+    "SDD-010",
+    "SDD-011",
+    "SDD-012",
+    "SDD-013",
+    "SDD-014",
+    "SDD-015",
+    "SDD-016",
+    "SDD-017",
+    "SDD-018",
+    "SDD-019",
+    "SDD-020",
+    "SDD-021",
+    "SDD-022",
+    "SDD-023",
+    "SDD-024",
+    "SDD-025",
+    "SDD-026",
+    "SDD-027",
+    "SDD-028",
+    "SDD-029",
+    "SDD-030",
+    "SDD-031",
+    "SDD-032",
+    "SDD-033",
+    "SDD-034",
+    "SDD-035",
+    "SDD-036",
+    "SDD-037",
+    "SDD-038",
+    "SDD-039",
+    "SDD-040",
+    "SDD-041",
+    "SDD-042",
+    "SDD-043",
+    "SDD-044",
+    "SDD-045",
+    "SDD-046",
+    "SDD-047",
+    "SDD-048",
+    "SDD-049",
+    "SDD-050",
+    "SDD-051",
+    "SEC-001",
+    "SEC-002",
+    "SEC-003",
+    "SEC-004",
+    "SEC-005",
+    "SEC-006",
+    "SEC-007",
+    "SEC-008",
+    "SEC-009",
+    "SEC-010",
+    "SEC-011",
+    "SEC-012",
+    "SEC-013",
+    "SEC-014",
+    "SEC-015",
+    "SEC-016",
+    "SEC-017",
+    "FEAT-001",
+    "FEAT-002",
+    "FEAT-003",
+    "FEAT-004",
+    "FEAT-005",
+    "FEAT-006",
+    "FEAT-007",
+    "FEAT-008",
+    "FEAT-009",
+    "RSK-001",
+    "RSK-002",
+    "RSK-003",
+    "RSK-004",
+    "RSK-005",
+    "RSK-006",
+    "RSK-007",
+    "RSK-008",
+    "RSK-009",
+    "RSK-010",
+    "RSK-011",
+    "RSK-012",
+    "RSK-013",
+    "RSK-014",
+    "MI-RQ-001",
+    "MI-RQ-002",
+    "MI-RQ-003",
+    "MI-RQ-004",
+    "MI-RQ-010",
+    "MI-RQ-011",
+    "MI-RQ-012",
+    "MI-RQ-013",
+    "MI-RQ-014",
+    "MI-RQ-015",
+    "MI-RQ-020",
+    "MI-RQ-021",
+    "MI-RQ-022",
+    "MI-RQ-023",
+    "MI-RQ-024",
+    "MI-RQ-025",
+    "MI-RQ-030",
+    "MI-RQ-031",
+    "MI-RQ-032",
+    "MI-RQ-033",
+    "MI-RQ-034",
+    "MI-RQ-040",
+    "MI-RQ-041",
+    "MI-RQ-042",
+    "MI-RQ-043",
+    "MI-RQ-050",
+    "MI-RQ-051",
+    "MI-RQ-052",
+    "MI-RQ-053",
+    "MI-RQ-054",
+    "MI-RQ-055",
+    "MI-RQ-060",
+    "MI-RQ-061",
+    "MI-RQ-062",
+    "MI-RQ-070",
+    "MI-RQ-071",
+    "MI-RQ-072",
+    "MI-RQ-073",
+    "MI-RQ-074",
+    "MI-RQ-075",
+    "MI-RQ-080",
+    "MI-RQ-081",
+    "MI-RQ-082",
+    "MI-RQ-090",
+    "MI-RQ-091",
+    "MI-RQ-092",
+    "MI-RQ-100",
+    "MI-RQ-101",
+    "MI-RQ-102",
+    "MI-RQ-103",
+    "MI-RQ-110",
+    "MI-RQ-111",
+    "MI-RQ-112",
+    "MI-RQ-120",
+    "MI-RQ-121",
+    "MI-RQ-122",
+    "MI-RQ-123",
+    "MI-RQ-130",
+    "MI-RQ-131",
+    "MI-RQ-200",
+    "MI-RQ-201",
+    "MI-RQ-202",
+    "MI-RQ-203",
+    "MI-RQ-210",
+    "MI-RQ-211",
+    "MI-RQ-212",
+    "MI-RQ-300",
+    "MI-RQ-301",
+    "MI-RQ-302",
+    "MI-RQ-303",
+    "MI-RQ-304",
+    "MI-RQ-305",
+    "ADR-001",
+    "ADR-002",
+    "ADR-003",
+    "ADR-004",
+    "ADR-005",
+    "ADR-006",
+    "ADR-007",
+    "ADR-008",
+    "ADR-009",
+    "ADR-010",
+    "ADR-011",
+    "ADR-012",
+    "ADR-013",
+    "ADR-014",
+    "ADR-015",
+    "ADR-016",
+    "ADR-017",
+    "ADR-018",
+    "ADR-019",
+    "ADR-020",
+    "ADR-021",
+    "ADR-022",
+    "ADR-023",
+    "ADR-024",
+    "ADR-025",
+    "ADR-026",
+    "ADR-027",
+    "ADR-028",
+    "ADR-029",
+    "ADR-030",
+    "ADR-031",
+    "ADR-032",
+    "ADR-033",
+    "ADR-034",
+    "ADR-035",
+    "ADR-036",
+    "ADR-037",
+    "ADR-038",
+    "ADR-039",
+    "ZV2-CR-001",
+    "ZV2-CR-002",
+    "ZV2-CR-003",
+    "ZV2-CR-004",
+    "ZV2-CR-005",
+    "ZV2-CR-006",
+    "ZV2-CR-007",
+    "ZV2-CR-008"
+  ],
+  "ids": {
+    "BR-001": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "tenant id ขอบเขต isolation และการแชร ข อม ล",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-002": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "external id tax id github id line id sap id ไม ม ว นเป น",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-003": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "ไม ม template picker",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-004": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "execution mode ม เพ ยง 7 โหมด canonical ห ามเพ มใน v1",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-005": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "ห ามใช tasks done tasks total เป น progress สากล",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-006": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "required gate ท ย งไม ผ าน cap progress ท 99 พร อม warning",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-007": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "แผนท import เป นข อม ลเท าน น",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-008": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "restore snapshot ต อง preview confirm เสมอ",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-009": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "ท ก intake surface ui excel agent api ต องจบท pipeline",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-010": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "sqlite is the sole transactional authority for file",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-011": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "a line event has exactly one reply owner when stack",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-012": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "tenant and business scope are server authority in",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-013": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "readiness is not activation golden evaluation database",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-014": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "an activation correlation owns at most one binding mutation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-015": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "line transport authentication proves event origin only",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-016": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "profile workspacemembership tenant business membership and",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-017": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "there is no bare edge a dependency edge cannot be created",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-018": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "team membership is never an input to an authorization",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-019": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "integration raw evidence is immutable authority for",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-001": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "จ ดการ scope hierarchy",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-002": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "scope selectors portfolio business workspace project จำ",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-003": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project crud archive soft delete mixed execution modes",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-004": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "workstream crud",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-005": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "neutral work model",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-006": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "milestones gates weighted required flag evidence json",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-007": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "dependencies 5 ชน ด ก น self cycle ประเม น blocked ready",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-008": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "repository records local metadata ผ กโปรเจกต แบบ many to",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-009": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "execution views 7 โหมดบนโมเดลกลาง global project scoped",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-010": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "progress ต อ workstream ตาม strategy evidence warnings",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-011": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project roll up ถ วงน ำหน ก σ ws w σw",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-012": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "planenvelope import",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-013": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "snapshot backup",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-014": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "audit log immutable ui browser",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-015": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "command palette ctrl k filters search",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-016": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "seed demo dataset idempotent ครบ 7 โหมด",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-017": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "ui wizard intake เร มจากเป าหมาย สร าง envelope เข า",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-018": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "excel template intake",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-019": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "enterprise api",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-020": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "adaptive shell ตามจำนวนธ รก จ single ไม ม switcher multi",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-021": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "identity resolution",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-022": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "line as an identity provider end to end",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-023": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "zuri backend slice crm core adr 007 p2",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-024": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "knowledge projection adr 007 p5",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-025": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "agent read only context contract adr 007 p6 gate e",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-026": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "agent write action gate adr 007 p7 gate f",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-027": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "end to end agent turn adr 007 p7",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-028": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "line webhook api route adr 007 p7 wiring",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-029": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "agent runtime ports adr 007 p6",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-030": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "persistence",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-031": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "viewer gate",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-032": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "home is the adr 008 entry journey",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-033": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "topbar contains zuri identity the viewed domain chip erp pm",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-034": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "breadcrumb is the scope switcher",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-035": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "overview is the selected business s operational home",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-036": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project team projects id team lists memberships in the",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-037": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project files projects id files manages metadata references",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-038": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "my profile profile shows the resolved local account",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-039": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "the base context bar maps portfolio tenant business to",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-040": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project work views",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-041": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "business overview renders the selected business s projects",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-042": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "hr people is a peer erp domain route key people with a",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-043": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project stores a direct nullable businessid owner plus",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-044": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "entry routing is split into a minimal landing a demo login",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-045": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "managed local file workspace",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-046": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "production viewer entry contract",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-047": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "curated business knowledge read contract",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-048": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "provider selection contract",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-049": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "evidence grounded answer",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-050": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "single reply line delivery",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-051": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "production supabase tenant isolation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-052": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "server owned line scope binding",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-053": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "phase 1 golden question evaluation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-054": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "controlled line canary readiness",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-055": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "controlled line activation and receipt",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-056": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "zuri branded entry landing",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-057": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "authorized agent context",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-058": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "file manager views",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-059": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "business strategy mutation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-060": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "business home",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-061": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "per business domain visibility",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-062": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "users permissions read scope",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-063": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project board",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-064": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "schedule",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-065": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "import target authorization",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-066": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "profile first onboarding",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-067": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "workspace collaboration boundary",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-068": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "human visible project execution roadmap",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-069": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "plan blueprint and human agent intake",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-070": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "stable execution domain goal risk tag trace and supporting",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-071": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "supabase data pipeline monitor and replay",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-072": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project manager mutation authorization",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-073": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "repository ownership",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-074": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "scope creation authorization",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-075": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "installation operator authority",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-076": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "product owner business role binding",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-077": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project inventory mvp",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-078": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "customer profile backfill contract",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-079": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "phase 1 line runtime connection cut over",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-080": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "platform integrations ui",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-081": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "raw external ingestion boundary",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-082": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "structure editing by direct manipulation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-083": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "edge creation by direct manipulation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-084": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "handoff contract on a dependency edge",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-085": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "contract gated release on the board",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-086": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "projects dashboard",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-087": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project priority",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-088": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project accountable owner pic",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-089": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "team as an organisational grouping",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-090": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "schema declaration for the live production auth tables",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-091": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "crm conversation inbox",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-092": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "market translation core",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-093": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "line reply delivery receipt",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-001": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "runtime offline สมบ รณ หล ง npm install sqlite ไม ม cloud",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-002": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "npm run build ผ านโดยไม ม error",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-003": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "responsive ถ ง 375px โดยไม ม horizontal scroll",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-004": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "keyboard",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-005": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "progress calculators deterministic pure no clock random",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-006": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "persistence ย ายไป postgres ได โดยไม แก semantics string",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-007": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "seed idempotent reset ได db",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-008": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "ui ท เพ มหร อแก ใน v2 ใช semantic component token ม state",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-009": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "local file operations are crash recoverable and portable",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-010": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "line business answers fail closed within a bounded request",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-011": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "production tenancy changes are migration first idempotent",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-012": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "activation evidence is deterministic versioned and redacted",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-013": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "binding activation and rollback are atomic idempotent and",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-014": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "authorization decisions are recomputed per turn and remain",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-015": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "phase 1 runtime source and secret resolution are explicit",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-016": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "platform integration management is bounded and secret safe",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-017": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "the line ingress is traceable end to end from one",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-018": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "market translation is deterministic and replay safe",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-001": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "superseded",
+      "retired_at": "2026-08-20",
+      "history": [
+        {
+          "anchor": "standalone repo ก อน integrate adr 001 superseded by adr 003",
+          "since": "2026-08-20",
+          "reason": "Already retired in docs/PRD-SDD-v1.0.md when this ledger was created; the retirement predates the ledger and its rationale lives in that row.",
+          "pre_ledger": true
+        }
+      ]
+    },
+    "SDD-002": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "persisted enums เป น string zod src lib validation enums js",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-003": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "uuid pk human code unique พร อม collision retry",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-004": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "soft delete deletedat version counter บน aggregate roots",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-005": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "progress calculators เป น pure function progresscache เป น",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-006": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "import commit ใน prisma transaction เด ยว upsert by code",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-007": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "ui เป น client fetch usefetch เร ยก api handlers ซ ง",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-008": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "javascript zod ท boundary ไม ใช typescript",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-009": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "unified intake",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-010": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "zuri heritage ui ใช css token 3 ช น primitive semantic",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-011": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "home derives its cards from the viewer gate plus the",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-012": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "topbar is navigation chrome not a scope editor removing its",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-013": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "breadcrumb scope links are deterministic page routes not",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-014": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "overview is business first a selected business renders only",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-015": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project team reuses membership rather than inventing a",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-016": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "projectfile is an additive sqlite schema change with an",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-017": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "membership domainkeysjson persists an allow list of domains",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-018": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "scopecontext keeps the existing identity fields but exposes",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-019": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "projecttabs is the project local boundary its work tab owns",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-020": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "business strategy is a read model over businessroadmap",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-021": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project ownership is direct through nullable businessid",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-022": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "route groups enforce the interface boundary",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-023": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "fileasset validated filelink form the portable file",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-024": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "a provider neutral sessionport resolves trusted request",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-025": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "the phase 1 line pilot is a ports and adapters vertical",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-026": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "supabase production authority uses a private zuri core",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-027": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "phase 1 activation uses three independent evidence ports",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-028": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "fr 055 adds a separate operator port",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-029": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "entryshell exposes a landing only full viewport variant",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-030": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "agent turns construct an immutable authcontext and resolve",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-031": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "file manager views are pure projections over the fr 045",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-032": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "business strategy writes live only in src modules project",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-033": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "business home is a non owning cross domain projection",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-034": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "the per business domain map is derived from the same",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-035": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "an administration surface derives its read scope from the",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-036": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "board and schedule are derived views over models other",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-037": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "import authorization is decided once on the resolved target",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-038": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "profile first onboarding is a pre business shell contract",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-039": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "execution roadmap is a composed human agent read contract",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-040": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "identity binding is explicit at every axis",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-041": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "execution trace identity is separate from business work",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-042": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "the smartgift source to supabase data pipeline is a server",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-043": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "the phase 1 runtime is composed in two stages",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-044": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "the integration management surface is a platform sub domain",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-045": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project inventory is one additive read only outer dto with",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-046": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "a canvas gesture is an intake surface and gets no write",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-047": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "projects overview is one composed read model behind one",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-048": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "observability is one emitter and one correlation id not",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-049": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "market translation is a ports and adapters seam",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-050": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "the conversation reader is one composed read model src",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-051": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "recording a reply is a separate narrow writer in the crm",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-001": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "cross tenant business guard assertworkspaceinscope",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-002": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "ไม execute code จาก imported plans strict zod",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-003": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "auditevent append only สำหร บท ก mutation สำค ญ",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-004": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "superseded",
+      "retired_at": "2026-08-20",
+      "history": [
+        {
+          "anchor": "mvp ไม ม customer pii ในระบบ",
+          "since": "2026-08-20",
+          "reason": "Already retired in docs/PRD-SDD-v1.0.md when this ledger was created; the retirement predates the ledger and its rationale lives in that row.",
+          "pre_ledger": true
+        }
+      ]
+    },
+    "SEC-005": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "pdpa",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-006": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "enterprise api ต องม token auth ต อ tenant ก อนเป ดใช จร ง",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-007": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "every local file operation must authorize tenant business",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-008": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "pre shell identity and authorization fail closed",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-009": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "public line knowledge access is server only and deny by",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-010": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "production line reads require both database enforced scope",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-011": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "activation tooling fails closed and never persists or",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-012": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "activation secrets are environment secret store only a",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-013": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "private msp retrieval is deny by default and policy before",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-014": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "provider neutral multi user onboarding still requires",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-015": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "production phase 1 runtime refuses local file vault",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-016": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "platform integration management refuses client selected",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-017": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "market translation fails closed on provenance scope",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-001": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "file manager",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-002": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "business home",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-003": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "execution planning",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-004": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "phase 1 line runtime connections",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-005": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project inventory",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-006": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "customer data backfill",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-007": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "pipeline builder",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-008": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "projects dashboard",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-009": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "crm conversation inbox",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-001": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "วาง tenant ผ ดตอน onboarding แยก tenant แล วอยากแชร crm ท",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-002": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "pdpa",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-003": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "enterprise เอา external id มาใช เป น code ตรง ๆ แล ว id ชนข",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-004": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "migration ค าง",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-005": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "restore snapshot ท บข อม ลโดยไม ต งใจ",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-006": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "superseded",
+      "retired_at": "2026-08-20",
+      "history": [
+        {
+          "anchor": "spec conflict agents md 1 ป ดแล ว 2026 08 11",
+          "since": "2026-08-20",
+          "reason": "Already retired in docs/appendices/E-risk-matrix.md when this ledger was created; the retirement predates the ledger and its rationale lives in that row.",
+          "pre_ledger": true
+        }
+      ]
+    },
+    "RSK-007": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "playwright pinned chromium ดาวน โหลดไม ได บนเคร องน",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-008": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "doc drift",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-009": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "sqlite writer lock เม อร น parallel tests",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-010": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "sqlite metadata and filesystem content diverge after crash",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-011": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "path traversal or junction reparse escape exposes files",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-012": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "hosted web request triggers a process file reveal on the",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-013": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "generated mock cleanup deletes human authored client files",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-014": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "disposable cache is treated as authority and serves stale",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-001": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "stable product domain identity",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-002": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "navigation projection",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-003": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "per business enablement",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-004": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "business isolation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-010": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "existing ingestion substrate",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-011": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "adapter placement",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-012": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "translation contract",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-013": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "translation idempotency",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-014": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "translation failure",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-015": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "worker compatibility",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-020": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "observation first market state",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-021": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "source lineage",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-022": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "provenance",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-023": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "temporal history",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-024": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "freshness",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-025": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "unknown is not false",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-030": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "candidate extraction",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-031": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "alias matching",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-032": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "gks resolution",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-033": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "confidence",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-034": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "unresolved state",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-040": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "external offer",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-041": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "listing intent",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-042": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "condition",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-043": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "offer lifecycle",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-050": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "price observation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-051": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "unit normalization",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-052": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "historical price",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-053": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "market distribution",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-054": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "fair market estimate",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-055": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "price anomaly",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-060": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "availability states",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-061": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "availability history",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-062": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "promotion observation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-070": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "watchlists",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-071": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "watch rules",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-072": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "matching",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-073": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "duplicate alert suppression",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-074": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "notification contract",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-075": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "trigger classes",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-080": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "supplier candidate",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-081": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "supplier evidence",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-082": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "procurement handoff",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-090": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "competitor registry",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-091": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "competitor correlation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-092": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "change detection",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-100": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "external demand signals",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-101": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "internal signal consumption",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-102": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "methodology metadata",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-103": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "observed versus inferred",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-110": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "governed category mapping",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-111": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "category aggregation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-112": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "opportunity risk signals",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-120": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "research run",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-121": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "evidence backed findings",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-122": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "confidence and insufficiency",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-123": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "reproducibility",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-130": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "unified market search",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-131": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "semantic supplementation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-200": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "trusted scope",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-201": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "secret isolation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-202": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "private source visibility",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-203": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "agent authorization",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-210": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "provenance completeness",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-211": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "confidence",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-212": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "comparable sample guard",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-300": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "modular monolith deployment",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-301": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "failure containment",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-302": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "idempotency",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-303": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "observability",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-304": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "auditability",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "MI-RQ-305": {
+      "family": "MI-RQ",
+      "source": "docs/domains/market-intelligence/SRS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "scale path",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-001": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-001-STANDALONE-ZURI-V2.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "build standalone before integrating with zuri",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-002": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-002-INTEGRATION-DIRECTION.md",
+      "status": "superseded",
+      "retired_at": "2026-08-20",
+      "history": [
+        {
+          "anchor": "ship project manager as a zuri v1 module promote to v2 on",
+          "since": "2026-08-20",
+          "reason": "Already retired in docs/decisions/ADR-002-INTEGRATION-DIRECTION.md when this ledger was created; the retirement predates the ledger and its rationale lives in that row.",
+          "pre_ledger": true
+        }
+      ]
+    },
+    "ADR-003": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-003-V2-REPLACES-V1-BY-REUSE.md",
+      "status": "superseded",
+      "retired_at": "2026-08-20",
+      "history": [
+        {
+          "anchor": "v2 replaces v1 by reusing it everything except auth",
+          "since": "2026-08-20",
+          "reason": "Already retired in docs/decisions/ADR-003-V2-REPLACES-V1-BY-REUSE.md when this ledger was created; the retirement predates the ledger and its rationale lives in that row.",
+          "pre_ledger": true
+        }
+      ]
+    },
+    "ADR-004": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-004-DOCUMENTATION-ARCHITECTURE.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "documentation architecture",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-005": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-005-V1-DOCUMENTATION-CORPUS.md",
+      "status": "superseded",
+      "retired_at": "2026-08-20",
+      "history": [
+        {
+          "anchor": "import v1 s documentation as a read only corpus with two id",
+          "since": "2026-08-20",
+          "reason": "Already retired in docs/decisions/ADR-005-V1-DOCUMENTATION-CORPUS.md when this ledger was created; the retirement predates the ledger and its rationale lives in that row.",
+          "pre_ledger": true
+        }
+      ]
+    },
+    "ADR-006": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-006-SHELL-LIFT-AND-SCOPE-WRAPPER.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "lift v1 s shell components and sitemap wrap them in v2 s",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-007": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-007-LINE-AI-STACK-SEQUENCING.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "line ai stack",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-008": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "business centric shell dual scope lens erp pm and entry flow",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-009": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "self governance",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-010": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-010-ZURI-HERITAGE-DESIGN-SYSTEM.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "adr 010",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-011": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "context bar and business scope ceiling",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-012": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project work views and dependency boundary",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-013": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "business first overview strategy and hr domain boundary",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-014": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project business ownership and space context",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-015": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "minimal entry demo login and business routing before",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-016": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "sqlite authority and managed local file workspace",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-017": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "production viewer session and viewer scoped entry read model",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-018": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "supabase production tenant isolation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-019": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-019-PHASE1-ACTIVATION-READINESS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "phase 1 activation readiness",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-020": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-020-CONTROLLED-LINE-BINDING-ACTIVATION-AND-RECEIPT.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "controlled line binding activation and receipt",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-021": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-021-ZURI-BRANDED-ENTRY-LANDING.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "zuri branded entry landing",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-022": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-022-MULTI-TENANT-MSP-VAULTS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "multi tenant principal scoped msp vaults",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-023": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "agent vault",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-024": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "zuri ai is a standalone product the replace by reuse",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-025": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "domain driven documentation architecture for a multi agent",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-026": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-026-AGENT-TOPOLOGY-FOR-THE-VISUAL-OFFICE.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "agent topology for the visual office",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-027": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "profile first and workspace first onboarding",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-028": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "human visible execution roadmap and shared plan intake",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-029": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "stable identity bindings for execution plans tags domains",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-030": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "supabase data pipeline observability and replay",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-031": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-031-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "phase 1 line runtime connection cut over",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-032": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "integration and secret manager management ui",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-033": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "customer scope and product owner authority",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-034": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-034-PROJECT-INVENTORY-READ-MODEL.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "project inventory read model boundary",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-035": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "the pipeline canvas",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-036": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-036-PROJECTS-OVERVIEW-AND-THE-FIELDS-IT-NEEDS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "projects overview and the fields it asks for that do not",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-037": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-037-TEAM-IS-AN-ORGANISATIONAL-GROUPING-NOT-AN-AUTHORITY.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "team is an organisational grouping never an authority",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-038": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "market intelligence is a first class zuri domain inside the",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-039": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "requirement ids are pinned by subject anchor",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ZV2-CR-001": {
+      "family": "ZV2-CR",
+      "source": "docs/changes/ZV2-CR-001-MANAGED-LOCAL-FILES-AND-CACHE.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "managed local files and cache",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ZV2-CR-002": {
+      "family": "ZV2-CR",
+      "source": "docs/changes/ZV2-CR-002-PRODUCTION-VIEWER-ENTRY-BOUNDARY.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "production viewer and entry boundary",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ZV2-CR-003": {
+      "family": "ZV2-CR",
+      "source": "docs/changes/ZV2-CR-003-LINE-BUSINESS-KNOWLEDGE-PILOT.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "line business knowledge pilot",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ZV2-CR-004": {
+      "family": "ZV2-CR",
+      "source": "docs/changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "supabase production tenant bootstrap",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ZV2-CR-005": {
+      "family": "ZV2-CR",
+      "source": "docs/changes/ZV2-CR-005-PHASE1-ACTIVATION-READINESS.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "phase 1 activation readiness",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ZV2-CR-006": {
+      "family": "ZV2-CR",
+      "source": "docs/changes/ZV2-CR-006-PHASE1-EXTERNAL-ACTIVATION.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "phase 1 external activation",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ZV2-CR-007": {
+      "family": "ZV2-CR",
+      "source": "docs/changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "interface inventory normalization and responsibility split",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ZV2-CR-008": {
+      "family": "ZV2-CR",
+      "source": "docs/changes/ZV2-CR-008-AGENT-VAULT-EPISTEMIC-MEMORY.md",
+      "status": "current",
+      "history": [
+        {
+          "anchor": "agent vault for private epistemic memory",
+          "since": "2026-08-20",
+          "reason": "declared"
+        }
+      ]
+    }
+  }
+}
