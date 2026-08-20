@@ -22,7 +22,7 @@ export async function GET(request) {
     status: 200,
     headers: {
       'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'Content-Disposition': 'attachment; filename="zuri-v2-plan-template.xlsx"',
+      'Content-Disposition': 'attachment; filename="zuri-ai-plan-template.xlsx"',
     },
   })
 }

@@ -7,12 +7,22 @@ import { Card, ErrorState, Field, PageHeader, SectionTitle, StatusPill } from '@
 import { useScope } from '@/context/ScopeContext'
 import { api, LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
 import { LLM_PROVIDER_CATALOG, providerByKey } from '@/platform/integrations/llm/provider-catalog'
+import { isSupabaseVaultSecretRef } from '@/platform/integrations/core/secret-manager'
+
+// FR-080 / NFR-008 — a value shaped like a raw secret (or any other non-reference
+// text) must be flagged the moment it is typed, not only after the server round
+// trip. `isSupabaseVaultSecretRef` is the same pattern the API/service enforce
+// (SDD-044), imported rather than re-declared so the client can never drift from
+// what the server actually accepts. The message never echoes the entered value —
+// a string shaped like a secret must not be restated inside the page (ADR-032 D2).
+const SECRET_REF_ERROR_ID = 'integration-secret-ref-error'
+const SECRET_REF_ERROR_TEXT = 'รูปแบบไม่ถูกต้อง — ต้องเป็น supabase-vault:<uuid> เท่านั้น ห้ามวางค่า secret จริงที่นี่'
 
 // @req FR-080 — Platform Integrations accepts only connection metadata and an
 // opaque Supabase Vault reference; raw credentials stay in the Vault dashboard.
 // @req FR-048 — the provider choices are derived from the port's allow-list,
 // never hand-copied, so the form cannot offer what the port would reject.
-// @spec ADR-032 D1-D4, SEC-016, SDD-044
+// @spec ADR-032 D1-D4, SEC-016, SDD-044, NFR-008
 // @tested tests/unit/fr080-ui-contract.test.js
 
 // FR-080 AC-075.3 — the health field, rendered as a state plus the reasons behind
@@ -91,8 +101,14 @@ export default function IntegrationsPage() {
   const [error, setError] = useState(null)
 
   const rows = useMemo(() => Array.isArray(integrations.data) ? integrations.data : [], [integrations.data])
+  const secretRefTrimmed = secretRef.trim()
+  // Empty stays valid — the reference is optional (FR-080). Client validation is
+  // a courtesy only: the service still re-checks the same shape and the resolver
+  // still fails closed, so relaxing or removing this never widens what is accepted.
+  const secretRefInvalid = secretRefTrimmed.length > 0 && !isSupabaseVaultSecretRef(secretRefTrimmed)
   const submit = async (event) => {
     event.preventDefault()
+    if (secretRefInvalid) return
     setBusy(true)
     setError(null)
     setMessage(null)
@@ -149,9 +165,22 @@ export default function IntegrationsPage() {
               <input className="input" value={model} onChange={(event) => setModel(event.target.value)} placeholder={`เช่น ${providerByKey(provider)?.modelHint ?? ''}`} required aria-label="Model" />
             </Field>
             <Field label="Supabase Vault reference" hint="ไม่ใช่ API key — ใส่เฉพาะ supabase-vault:<uuid> เท่านั้น">
-              <input className="input font-mono" value={secretRef} onChange={(event) => setSecretRef(event.target.value)} placeholder="supabase-vault:…" aria-label="Supabase Vault reference" />
+              <input
+                className="input font-mono"
+                value={secretRef}
+                onChange={(event) => setSecretRef(event.target.value)}
+                placeholder="supabase-vault:…"
+                aria-label="Supabase Vault reference"
+                aria-invalid={secretRefInvalid}
+                aria-describedby={secretRefInvalid ? SECRET_REF_ERROR_ID : undefined}
+              />
+              {secretRefInvalid && (
+                <p id={SECRET_REF_ERROR_ID} role="alert" className="mt-0.5 text-[10px] text-[var(--danger)]">
+                  {SECRET_REF_ERROR_TEXT}
+                </p>
+              )}
             </Field>
-            <button type="submit" className="btn btn-primary" disabled={busy || !businessId || !name.trim() || !model.trim()}>
+            <button type="submit" className="btn btn-primary" disabled={busy || !businessId || !name.trim() || !model.trim() || secretRefInvalid}>
               <KeyRound size={13} aria-hidden /> {busy ? 'กำลังบันทึก…' : 'บันทึก metadata'}
             </button>
           </form>

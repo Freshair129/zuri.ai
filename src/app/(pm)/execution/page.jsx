@@ -31,7 +31,7 @@ export default function ExecutionIndexPage() {
             <Card warm className="relative h-full overflow-hidden transition hover:-translate-y-0.5">
               <span className="absolute -right-5 -top-6 h-24 w-24 rounded-full bg-brand-tint opacity-55" aria-hidden />
               <p className="relative text-[9px] font-extrabold tracking-wide" style={{ color: 'var(--brand)' }}>
-                MODE {String(i + 1).padStart(2, '0')} · {MODE_SLUGS[e.slug]}
+                MODE {String(i + 1).padStart(2, '0')}
               </p>
               <p className="relative mt-1.5 text-sm font-bold">{MODE_LABELS[MODE_SLUGS[e.slug]]}</p>
               <p className="relative mt-1 text-[10px] leading-relaxed text-muted">{GRAMMAR[e.slug]}</p>

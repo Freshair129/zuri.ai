@@ -8,9 +8,19 @@ import { api, LoadingCard, useFetch } from '@/modules/project-manager/components
 
 // @req FR-078 — Business-scoped review UI exposes only redacted identifiers,
 // evidence flags and explicit decisions; it never displays source PII or writes
-// Customer rows directly.
+// Customer rows directly. A deployment where no review target is configured
+// is reported as an operator configuration gap, not a retryable server fault
+// — retrying an unconfigured target cannot change the outcome, so no Retry
+// button is offered for it.
 // @spec CDC-SG-CUSTOMER-DATA-001 v0.3.0B, ADR-018, ADR-033.
 // @tested tests/unit/customer-import-review-ui.test.js
+
+// Mirrors `CUSTOMER_REVIEW_TARGET_NOT_CONFIGURED` in
+// src/modules/crm/customer-import-review-store.js exactly (see the comment
+// there for why this is a hand-kept literal rather than an import: that
+// module pulls in `pg`, `node:fs` and Prisma, none of which belong in this
+// 'use client' page's browser bundle).
+const CUSTOMER_REVIEW_TARGET_NOT_CONFIGURED = 'Customer review target is not configured'
 
 const ACTIONS = [
   ['', 'ยังไม่ตัดสินใจ'],
@@ -139,6 +149,14 @@ export default function CustomerImportReviewsPage() {
 
   if (!businessId) return <Card><p className="text-sm text-muted">เลือก Business ก่อนเปิดคิว Customer Review</p></Card>
   if (queue.loading) return <LoadingCard />
+  if (queue.error === CUSTOMER_REVIEW_TARGET_NOT_CONFIGURED) {
+    return (
+      <ErrorState
+        title="Customer Review ยังไม่ได้ตั้งค่า"
+        detail="deployment นี้ยังไม่ได้ชี้ไปที่ review target — ผู้ดูแลระบบต้องตั้งค่า ZURI_CUSTOMER_REVIEW_DATABASE_URL (หรือ ZURI_CUSTOMER_REVIEW_MODE=local ในสภาพแวดล้อมที่ไม่ใช่ production) ก่อน หน้านี้จะใช้งานได้เองหลังตั้งค่าเสร็จ การลองใหม่ตอนนี้จะไม่ช่วย"
+      />
+    )
+  }
   if (queue.error) return <ErrorState title="โหลด Customer Review ไม่สำเร็จ" detail={queue.error} retry={queue.reload} />
 
   return (
