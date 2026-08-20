@@ -17,6 +17,11 @@ import { createLineWebhookPost } from '@/app/api/agent/line-webhook/route'
 //   results[].ok             false -> fall back to its own STACK_UNAVAILABLE_REPLY
 //   results[].response.text  the string it hands to the LINE Reply API
 //
+// Since FR-092 it reads two more, to report back what the customer received:
+//
+//   results[].conversationId    the conversation the turn resolved
+//   results[].inboundMessageId  the Message row the reply answers
+//
 // Nothing in this repository noticed if one of those were renamed — the other LINE
 // tests assert behaviour, not the wire shape — and the failure mode is silent: every
 // customer gets the transport's "unavailable" fallback instead of the answer, while
@@ -159,6 +164,50 @@ describe('LINE webhook response contract consumed by zuri-cli (BR-011)', () => {
     // unanswerable and replies STACK_UNAVAILABLE to every event in it
     expect(Array.isArray(json.results)).toBe(true)
     expect(typeof json.handled).toBe('number')
+  })
+
+  it('names the row a delivery receipt will quote back (FR-092)', async () => {
+    // The transport posts these two ids to `/api/agent/line-delivery` once the
+    // customer has actually received a reply. Before FR-092 they existed only in a
+    // log line, which no other process can read from — so the outbound half of every
+    // conversation was sent and then lost.
+    //
+    // Pinned here for the same reason as the four fields above: the consumer is in
+    // another repository, and a rename on this side would silently stop every reply
+    // from being recorded while both suites stayed green.
+    const json = await (await post(buildHandler(), batch([
+      textEvent('Uct-7', 'CT-1 ราคาเท่าไร', 'MCT-7', 'WEH-CT-7'),
+    ]))).json()
+    const matched = matchAsTransportDoes(json.results, textEvent('Uct-7', '', 'MCT-7', 'WEH-CT-7'))
+
+    expect(typeof matched.conversationId).toBe('string')
+    expect(matched.conversationId).not.toBe('')
+    expect(typeof matched.inboundMessageId).toBe('string')
+    expect(matched.inboundMessageId).not.toBe('')
+
+    // And still no reply token, on the path that now carries two more ids.
+    expect(JSON.stringify(json)).not.toContain(REPLY_TOKEN)
+  })
+
+  it('still names the row when the turn failed, which is when the fallback is sent', async () => {
+    // The failure path is the one that matters most here: `ok: false` is exactly when
+    // the transport substitutes STACK_UNAVAILABLE_REPLY, so a customer definitely
+    // received something. Ingest runs before anything that can fail, so the row
+    // exists — losing its id with the stack frame would leave that message unrecorded.
+    const handler = buildHandler({ knowledgeQuery: async () => { throw new Error('KNOWLEDGE_UNAVAILABLE') } })
+    const json = await (await post(handler, batch([
+      textEvent('Uct-8', 'CT-1 ราคาเท่าไร', 'MCT-8', 'WEH-CT-8'),
+    ]))).json()
+    const matched = matchAsTransportDoes(json.results, textEvent('Uct-8', '', 'MCT-8', 'WEH-CT-8'))
+
+    // Findable at all, which it was not before: the failure branch carried no
+    // `eventId`, so the transport's `find` returned undefined and the fallback was
+    // sent only because an unmatched result reads the same as a failed one.
+    expect(matched).toBeTruthy()
+    expect(matched.ok).toBe(false)
+    expect(typeof matched.inboundMessageId).toBe('string')
+    expect(matched.inboundMessageId).not.toBe('')
+    expect(typeof matched.conversationId).toBe('string')
   })
 
   it('adopts the correlation id format the transport actually mints', async () => {

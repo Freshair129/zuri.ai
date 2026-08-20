@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-19T23:40:27.041Z",
+  "generatedAt": "2026-08-20T00:47:55.415Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,8 +28,40 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 22,
+    "gapCount": 26,
     "gaps": [
+      {
+        "domain": "agent",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "agent",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-092",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-092 is partial",
+        "evidence": [
+          "src/app/api/agent/line-delivery/route.js",
+          "src/app/api/agent/line-webhook/route.js",
+          "src/modules/agent/turn.js",
+          "tests/integration/agent-turn.test.js",
+          "tests/integration/agent-webhook-route.test.js",
+          "tests/integration/line-oa-evidence-convergence.test.js",
+          "tests/integration/line-reply-record.test.js",
+          "tests/integration/line-webhook-transport-contract.test.js",
+          "tests/unit/reply-record-service.test.js"
+        ]
+      },
       {
         "domain": "crm",
         "id": "CONTRACT-001",
@@ -56,11 +88,28 @@
           "tests/e2e/fr060-business-home.spec.js",
           "tests/e2e/fr091-conversation-inbox.spec.js",
           "tests/integration/crm-conversation-inbox.test.js",
+          "tests/integration/line-reply-record.test.js",
           "tests/unit/command-palette-index.test.js",
           "tests/unit/conversation-read-model.test.js",
           "tests/unit/domain-navigation.test.js",
           "tests/unit/fr045-api-ui-contract.test.js",
           "tests/unit/fr091-inbox-ui-contract.test.js"
+        ]
+      },
+      {
+        "domain": "crm",
+        "id": "REQ-FR-092",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-092 is partial",
+        "evidence": [
+          "src/modules/crm/reply-record-service.js",
+          "tests/integration/agent-turn.test.js",
+          "tests/integration/agent-webhook-route.test.js",
+          "tests/integration/line-oa-evidence-convergence.test.js",
+          "tests/integration/line-reply-record.test.js",
+          "tests/integration/line-webhook-transport-contract.test.js",
+          "tests/unit/reply-record-service.test.js"
         ]
       },
       {
@@ -299,6 +348,7 @@
           "tests/e2e/fr060-business-home.spec.js",
           "tests/e2e/fr091-conversation-inbox.spec.js",
           "tests/integration/crm-conversation-inbox.test.js",
+          "tests/integration/line-reply-record.test.js",
           "tests/unit/command-palette-index.test.js",
           "tests/unit/conversation-read-model.test.js",
           "tests/unit/domain-navigation.test.js",
@@ -387,7 +437,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-053",
@@ -437,6 +487,24 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 11
+        },
+        {
+          "id": "FR-092",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 6,
+          "evidence": [
+            "src/app/api/agent/line-delivery/route.js",
+            "src/app/api/agent/line-webhook/route.js",
+            "src/modules/agent/turn.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/integration/line-reply-record.test.js",
+            "tests/integration/line-webhook-transport-contract.test.js",
+            "tests/unit/reply-record-service.test.js"
+          ]
         }
       ],
       "checks": {
@@ -453,9 +521,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
-            "openApiPaths": 75,
+            "routes": 2,
+            "inventoried": 2,
+            "openApiPaths": 76,
             "missingFromOpenApi": 0
           }
         },
@@ -469,12 +537,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -500,11 +574,17 @@
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -523,10 +603,40 @@
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-092",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-092 is partial",
+          "evidence": [
+            "src/app/api/agent/line-delivery/route.js",
+            "src/app/api/agent/line-webhook/route.js",
+            "src/modules/agent/turn.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/integration/line-reply-record.test.js",
+            "tests/integration/line-webhook-transport-contract.test.js",
+            "tests/unit/reply-record-service.test.js"
+          ]
+        }
+      ],
       "details": {
-        "routes": 1,
-        "apiRoutes": 1,
+        "routes": 2,
+        "apiRoutes": 2,
         "pageRoutes": 0,
         "ownedModels": 0,
         "featureNotes": 6
@@ -554,18 +664,35 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 9,
+          "testCount": 10,
           "evidence": [
             "src/modules/crm/conversation-read-model.js",
             "tests/e2e/fr041-business-first.spec.js",
             "tests/e2e/fr060-business-home.spec.js",
             "tests/e2e/fr091-conversation-inbox.spec.js",
             "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/line-reply-record.test.js",
             "tests/unit/command-palette-index.test.js",
             "tests/unit/conversation-read-model.test.js",
             "tests/unit/domain-navigation.test.js",
             "tests/unit/fr045-api-ui-contract.test.js",
             "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
+        },
+        {
+          "id": "FR-092",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 6,
+          "evidence": [
+            "src/modules/crm/reply-record-service.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/integration/line-reply-record.test.js",
+            "tests/integration/line-webhook-transport-contract.test.js",
+            "tests/unit/reply-record-service.test.js"
           ]
         }
       ],
@@ -646,6 +773,7 @@
         "docs/domains/crm/CHARTER.md",
         "docs/domains/crm/features/FR-078-customer-data-backfill-contract.md",
         "docs/domains/crm/features/FR-091-conversation-inbox.md",
+        "docs/domains/crm/features/FR-092-reply-delivery-receipt.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
@@ -676,11 +804,27 @@
             "tests/e2e/fr060-business-home.spec.js",
             "tests/e2e/fr091-conversation-inbox.spec.js",
             "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/line-reply-record.test.js",
             "tests/unit/command-palette-index.test.js",
             "tests/unit/conversation-read-model.test.js",
             "tests/unit/domain-navigation.test.js",
             "tests/unit/fr045-api-ui-contract.test.js",
             "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-092",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-092 is partial",
+          "evidence": [
+            "src/modules/crm/reply-record-service.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/integration/line-reply-record.test.js",
+            "tests/integration/line-webhook-transport-contract.test.js",
+            "tests/unit/reply-record-service.test.js"
           ]
         }
       ],
@@ -689,7 +833,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 8,
-        "featureNotes": 2
+        "featureNotes": 3
       }
     },
     "identity": {
@@ -831,7 +975,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 75,
+            "openApiPaths": 76,
             "missingFromOpenApi": 0
           }
         },
@@ -1175,7 +1319,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-054",
@@ -1866,7 +2010,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 9,
+          "testCount": 10,
           "evidence": [
             "src/app/(pm)/customer/conversations/page.jsx",
             "src/app/(pm)/customer/page.jsx",
@@ -1877,6 +2021,7 @@
             "tests/e2e/fr060-business-home.spec.js",
             "tests/e2e/fr091-conversation-inbox.spec.js",
             "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/line-reply-record.test.js",
             "tests/unit/command-palette-index.test.js",
             "tests/unit/conversation-read-model.test.js",
             "tests/unit/domain-navigation.test.js",
@@ -1908,7 +2053,7 @@
           "details": {
             "routes": 73,
             "inventoried": 73,
-            "openApiPaths": 75,
+            "openApiPaths": 76,
             "missingFromOpenApi": 0
           }
         },
@@ -2146,6 +2291,7 @@
             "tests/e2e/fr060-business-home.spec.js",
             "tests/e2e/fr091-conversation-inbox.spec.js",
             "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/line-reply-record.test.js",
             "tests/unit/command-palette-index.test.js",
             "tests/unit/conversation-read-model.test.js",
             "tests/unit/domain-navigation.test.js",

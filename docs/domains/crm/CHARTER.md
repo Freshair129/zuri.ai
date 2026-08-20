@@ -23,6 +23,11 @@ turn flows through before any agent work happens.
 - The LINE ingest seam (`line-ingest-service`) is the only place inbound
   messages become rows — the agent domain consumes conversations, it does not
   create them.
+- `reply-record-service` is the only place OUTBOUND messages become rows
+  (FR-092). It is deliberately a second, narrower writer rather than a
+  `direction: 'OUTBOUND'` call into the ingest seam: that seam creates a Person,
+  Customer and Conversation when absent, and a receipt naming a conversation
+  that does not exist is an error to report, never a reason to invent one.
 - Tenant-scoped: the same LINE user in another tenant is a different Customer
   (FR-023); nothing here may collapse that.
 - Does not decide identity or permissions — it asks identity to resolve who a
@@ -35,6 +40,10 @@ turn flows through before any agent work happens.
 - FR-078 owns the historical Customer Profile backfill contract. It defines
   source identity, entity resolution, PII boundaries and rollback gates; it
   does not authorize a write until its approvals and target-schema gate pass.
+- `recordLineReply` — the outbound writer (FR-092). Resolves the inbound
+  `Message` the reply answers and derives the conversation from that row, so the
+  conversation is never taken from the request and a cross-tenant attachment is
+  unsayable rather than merely refused. Idempotent per inbound message.
 - `getConversationInbox` / `getConversationThread` — the read side (FR-091).
   Read-only by construction: the module exports no writer, so the reader cannot
   become a second write path into the models the ingest seam owns. It answers

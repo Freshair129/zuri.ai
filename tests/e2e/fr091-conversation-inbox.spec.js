@@ -111,8 +111,14 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
   test('the CRM domain is navigable rather than a reserved slot', async ({ page }) => {
     await chooseBusiness(page)
     await page.goto('/customer')
-    await expect(page.getByRole('link', { name: 'Inbox' })).toBeVisible()
-    await page.getByRole('link', { name: 'Inbox' }).click()
+
+    // Scoped to the sidebar on purpose. `getByRole('link', { name: 'Inbox' })`
+    // matches by SUBSTRING, so it also finds the Dashboard's own `เปิด Inbox`
+    // button — two links, strict-mode violation. The first version of this test
+    // passed only because the Dashboard was sometimes still loading when the click
+    // landed, which is a race, not a pass.
+    const sidebar = page.getByRole('navigation').filter({ has: page.getByLabel('Inbox') })
+    await sidebar.getByLabel('Inbox').click()
     await expect(page).toHaveURL(/\/customer\/conversations/)
   })
 
