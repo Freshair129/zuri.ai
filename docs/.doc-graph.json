@@ -60,33 +60,9 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0",
-      "test:tests/unit/customer-import-review-store-contract.test.js",
-      "test:tests/unit/customer-import-review-ui.test.js",
-      "test:tests/unit/fr080-ui-contract.test.js",
-      "test:tests/unit/projects-dashboard-ui.test.js",
-      "code:src/app/(pm)/backup/page.jsx",
-      "code:src/app/(pm)/execution/page.jsx",
-      "code:src/app/(pm)/platform/customer-import-reviews/page.jsx",
-      "code:src/app/(pm)/platform/integrations/page.jsx",
-      "code:src/app/(pm)/projects/page.jsx",
-      "code:src/app/(pm)/projects/[projectId]/inventory/page.jsx",
-      "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
-      "code:src/app/(pm)/repositories/page.jsx",
-      "code:src/app/api/import/template/route.js",
-      "code:src/components/layouts/DomainBar.jsx",
-      "code:src/config/domains.js",
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/crm/customer-import-review-store.js",
-      "code:src/modules/project-manager/application/projects-dashboard-read-model.js",
-      "code:src/modules/project-manager/progress/strategies.js",
-      "code:src/modules/project-manager/views/execution/mode-bodies.jsx"
+      "test:tests/e2e/fr091-conversation-inbox.spec.js"
     ],
-    "added": [
-      "test:tests/unit/format-progress-percent.test.js",
-      "test:tests/unit/project-inventory-ui.test.js",
-      "test:tests/unit/repositories-page-ui-contract.test.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -160,7 +136,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/backup/page.jsx",
       "hash": "12a1ff19",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -254,7 +230,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/execution/page.jsx",
       "hash": "1bf9ea68",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-009"
@@ -380,7 +356,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/customer-import-reviews/page.jsx",
       "hash": "a15cc1d5",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-078"
@@ -395,7 +371,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
       "hash": "d3fd5ca2",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080",
@@ -572,7 +548,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/inventory/page.jsx",
       "hash": "c87db736",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-077"
@@ -663,7 +639,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
       "hash": "32e510eb",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-068"
@@ -761,7 +737,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/projects/page.jsx",
       "hash": "3c81cbc9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -786,7 +762,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/repositories/page.jsx",
       "hash": "a459cc14",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-008",
@@ -1600,7 +1576,7 @@
       "type": "code_file",
       "path": "src/app/api/import/template/route.js",
       "hash": "4ffd83cd",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-018"
@@ -2632,7 +2608,7 @@
       "type": "code_file",
       "path": "src/components/layouts/DomainBar.jsx",
       "hash": "6dee948d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-038",
@@ -2741,7 +2717,7 @@
       "type": "code_file",
       "path": "src/config/domains.js",
       "hash": "f1b54620",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -3007,7 +2983,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "2a9ecec3",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -3605,7 +3581,7 @@
       "type": "code_file",
       "path": "src/modules/crm/customer-import-review-store.js",
       "hash": "13e2c707",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-078"
@@ -4668,7 +4644,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/projects-dashboard-read-model.js",
       "hash": "b3e7e431",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086"
@@ -5180,7 +5156,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/progress/strategies.js",
       "hash": "15324b5d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-010"
@@ -5237,7 +5213,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/views/execution/mode-bodies.jsx",
       "hash": "5398e23c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-009"
@@ -6384,7 +6360,7 @@
       "version": "1.71.0b",
       "doc_status": "Draft",
       "hash": "f5058e12",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -10274,8 +10250,8 @@
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
-      "hash": "e43824e5",
-      "status": "current"
+      "hash": "d3154d6c",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -10905,14 +10881,14 @@
       "type": "test",
       "path": "tests/unit/customer-import-review-store-contract.test.js",
       "hash": "adbc799c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/customer-import-review-ui.test.js",
       "type": "test",
       "path": "tests/unit/customer-import-review-ui.test.js",
       "hash": "45dc8433",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/customer-profile-backfill-migration.test.js",
@@ -11290,7 +11266,7 @@
       "type": "test",
       "path": "tests/unit/fr080-ui-contract.test.js",
       "hash": "373623b6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr089-br018-team-grants-nothing.test.js",
@@ -11689,7 +11665,7 @@
       "type": "test",
       "path": "tests/unit/projects-dashboard-ui.test.js",
       "hash": "371c504b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/public-read-route-auth.test.js",
