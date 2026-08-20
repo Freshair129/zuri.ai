@@ -21,7 +21,7 @@
       "progressStrategy": "TASK_WEIGHT",
       "progressWeight": 2,
       "containers": [
-        { "code": "SPR-V2-MVP", "subtype": "SPRINT", "title": "MVP build (Phase 00-07)", "status": "DONE" },
+        { "code": "SPR-V2-MVP", "subtype": "SPRINT", "title": "MVP build (Phase 00-07)", "status": "ACTIVE" },
         { "code": "SPR-V2-INTAKE", "subtype": "SPRINT", "title": "Intake surfaces", "status": "ACTIVE" }
       ],
       "items": [
@@ -61,7 +61,7 @@
         { "code": "G-PREFLIGHT", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "Preflight WARN-1/2/3 closed (spec conflict resolved)", "status": "DONE", "weight": 1 },
         { "code": "G-GOVIBE-REG", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "GoVibe candidates dropped in .brain/inbound", "status": "DONE", "weight": 1 },
         { "code": "G-GOVIBE-PROMOTE", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "Promote candidates through GoVibe gks gate", "status": "PLANNED", "weight": 1 },
-        { "code": "G-DECISION-AB", "containerCode": "OPS-V2-GOV", "subtype": "APPROVAL", "title": "Owner decision: v1 module vs v2 foundation — decided A→B (ADR-002)", "status": "DONE", "weight": 2 },
+        { "code": "G-DECISION-AB", "containerCode": "OPS-V2-GOV", "subtype": "CHECKLIST_ITEM", "title": "Owner decision: v1 module vs v2 foundation — decided A→B (ADR-002)", "status": "DONE", "weight": 2 },
         { "code": "M-VOCAB", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "[cancelled by ADR-003] vocabulary adoption inside Zuri v1", "status": "CANCELLED", "weight": 1 },
         { "code": "M-BIZDIM", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "[cancelled by ADR-003] business dimension on new v1 tables", "status": "CANCELLED", "weight": 1 },
         { "code": "M-ADAPTER", "containerCode": "OPS-MERGE", "subtype": "CHECKLIST_ITEM", "title": "[cancelled by ADR-003] mount PM inside Zuri v1", "status": "CANCELLED", "weight": 1 },
