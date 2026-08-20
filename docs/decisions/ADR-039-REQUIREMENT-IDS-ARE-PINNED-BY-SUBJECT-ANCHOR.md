@@ -1,7 +1,7 @@
 ---
-version: "1.1.0"
+version: "1.2.0"
 created_at: "2026-08-20T11:10:00+07:00,CLAUDE"
-last_update: "2026-08-20T12:20:00+07:00,CLAUDE"
+last_update: "2026-08-20T19:44:17+07:00,ATHER"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -12,7 +12,9 @@ attributes:
 
 # ADR-039 — Requirement ids are pinned by subject anchor
 
-**Status:** Accepted (rev 1.1 — amended before merge after adversarial
+**Status:** Accepted (rev 1.2 — amended after merge to repay the stale-citation
+debt and add a review-only statement digest without changing the blocking
+anchor trade-off. Rev 1.1 was amended before merge after adversarial
 verification: `roster`, strict equality for the inheritance arm, word-boundary
 comparison, punctuation normalization, `--reword` / `--distinct`, a `declared_in`
 row that must name the id, narrower retirement reading, and registry lookup by
@@ -218,6 +220,18 @@ characters, including a status flipped by hand; the only exemption is a retireme
 that predates this ledger, which the genesis pass marks `pre_ledger` explicitly so
 the exemption is a fact in the file rather than a shape a hand edit can imitate.
 
+**D15 — The anchor remains blocking; the full statement digest is review-only.**
+Each pinned entry also records a SHA-256 `statement_digest` of its canonical
+full statement. If the digest changes while the subject anchor still matches,
+preflight emits an **INFO** finding with the old/new digest and the files that
+cite the id. It does not fail `--strict`, because the measured full-statement
+alternative fired 23 times with 17 false positives. A human acknowledges an
+intentional edit with `npm run docs:ids -- --review <ID> --reason "<sentence>"`;
+the one-time `--review-baseline` operation only fills missing digests and refuses
+to overwrite an existing one. An anchor move without a declared move remains a
+CRITICAL. The digest is a review witness, not a semantic equivalence proof and
+never a reason to skip the registry diff.
+
 **D10 — No new FR.** Governance tooling has never carried one. The five existing
 ratchet checks declared zero FRs between them, and `scripts/assert-tests-ran.mjs`
 — added for exactly this class of failure — carries no `@req` at all. An FR is a
@@ -268,14 +282,15 @@ future `MI-RQ` clause titled "Confidence" would be reported as inheriting one of
 them. That is a fair signal about the SRS, not a defect in the check — but it is
 recorded here so nobody discovers it as a surprise.
 
-**Ten stale citations exist today and this check does not fix them.** Seven
+**The ten stale citations recorded at the merge boundary are now repaid.** Seven
 registry traces-to cells (`NFR-015`, `NFR-016`, `SDD-043`, `SDD-044`, `SEC-015`,
 `SEC-016` all naming `FR-074`/`FR-075` where the subject is now
-`FR-079`/`FR-080`, plus §2.4 prose), and `src/modules/agent/line-channel-binding.js`,
-its test, and `src/modules/agent/line-binding-resolver.js`'s `@spec SDD-026`.
-Deciding that a citation is wrong requires comparing topics, which no decidable
-rule does — so Check 12 *reports* the citing files when something fires and never
-judges them. These ten are a one-time human sweep, tracked in the RCA.
+`FR-079`/`FR-080`, plus §2.4 prose), and the three LINE binding annotation sites
+were corrected in the follow-up cleanup. The historical mapping remains in the
+RCA so the debt is not laundered into a clean-looking baseline. Deciding that a
+citation is wrong still requires comparing topics, which no decidable rule does;
+Check 12 reports citing files and the digest adds a review signal, but neither
+pretends to judge semantic correctness.
 
 ## Consequences
 

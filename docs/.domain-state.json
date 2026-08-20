@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-20T11:52:53.218Z",
+  "generatedAt": "2026-08-20T12:54:21.903Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 21,
+    "gapCount": 22,
     "gaps": [
       {
         "domain": "agent",
@@ -43,6 +43,18 @@
         "severity": "medium",
         "check": "tests",
         "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-051",
+        "severity": "high",
+        "check": "requirements",
+        "summary": "FR-051 is not_implemented",
+        "evidence": [
+          "tests/unit/phase1-runtime-login-probe.test.js",
+          "tests/unit/postgres-business-knowledge.test.js",
+          "tests/unit/supabase-production-isolation.test.js"
+        ]
       },
       {
         "domain": "agent",
@@ -351,16 +363,21 @@
         {
           "id": "FR-051",
           "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 5
+          "status": "not_implemented",
+          "codeCount": 0,
+          "testCount": 3,
+          "evidence": [
+            "tests/unit/phase1-runtime-login-probe.test.js",
+            "tests/unit/postgres-business-knowledge.test.js",
+            "tests/unit/supabase-production-isolation.test.js"
+          ]
         },
         {
           "id": "FR-052",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 12
+          "codeCount": 4,
+          "testCount": 13
         },
         {
           "id": "FR-053",
@@ -538,6 +555,17 @@
           "severity": "medium",
           "check": "tests",
           "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-051",
+          "severity": "high",
+          "check": "requirements",
+          "summary": "FR-051 is not_implemented",
+          "evidence": [
+            "tests/unit/phase1-runtime-login-probe.test.js",
+            "tests/unit/postgres-business-knowledge.test.js",
+            "tests/unit/supabase-production-isolation.test.js"
+          ]
         },
         {
           "id": "REQ-FR-093",
@@ -1047,7 +1075,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-079",
@@ -1198,14 +1226,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 3
         },
         {
           "id": "FR-052",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-054",

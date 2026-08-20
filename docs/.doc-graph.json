@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 1059,
-    "total_edges": 3479,
+    "total_edges": 3475,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -61,7 +61,9 @@
   },
   "drift": {
     "changed": [
-      "test:tests/integration/line-reply-record.test.js"
+      "test:tests/unit/line-channel-binding.test.js",
+      "code:src/modules/agent/line-binding-resolver.js",
+      "code:src/modules/agent/line-channel-binding.js"
     ],
     "added": [],
     "removed": []
@@ -3238,14 +3240,13 @@
       "id": "code:src/modules/agent/line-binding-resolver.js",
       "type": "code_file",
       "path": "src/modules/agent/line-binding-resolver.js",
-      "hash": "ac26fc88",
-      "status": "current",
+      "hash": "6f856d0f",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-052"
         ],
         "@spec": [
-          "SDD-026",
           "SEC-010"
         ],
         "@tested": [
@@ -3257,14 +3258,13 @@
       "id": "code:src/modules/agent/line-channel-binding.js",
       "type": "code_file",
       "path": "src/modules/agent/line-channel-binding.js",
-      "hash": "a98aa9ce",
-      "status": "current",
+      "hash": "2f195a8e",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-051"
+          "FR-052"
         ],
         "@spec": [
-          "SDD-026",
           "BR-012",
           "SEC-010"
         ],
@@ -6443,7 +6443,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.80.0b",
       "doc_status": "Draft",
-      "hash": "c99ead86",
+      "hash": "7852cfe5",
       "status": "current"
     },
     {
@@ -8396,7 +8396,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Phase 1 runtime source and secret resolution are explicit, asynchronous, bounded and redacted: production accepts only the Supabase Vault-backed SecretManagerPort, never constructs the local file vault or consumes raw model credentials; selection is binding-scoped, cache entries are versioned and scoped by Tenant/Business with hard expiry, rotation/revocation purges immediately, and provider failures never trigger implicit fallback. FR-074 / ADR-031 contract, failure and security tests "
+      "row_text": "Phase 1 runtime source and secret resolution are explicit, asynchronous, bounded and redacted: production accepts only the Supabase Vault-backed SecretManagerPort, never constructs the local file vault or consumes raw model credentials; selection is binding-scoped, cache entries are versioned and scoped by Tenant/Business with hard expiry, rotation/revocation purges immediately, and provider failures never trigger implicit fallback. FR-079 / ADR-031 contract, failure and security tests "
     },
     {
       "id": "req:NFR-016",
@@ -8406,7 +8406,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Platform Integration management is bounded and secret-safe: UI/API actions use trusted Business scope, explicit async loading/error states, idempotency/version checks and redacted responses; raw secret material never crosses browser responses, Prisma, logs or audit events, and manager-unavailable states cannot report success. FR-075 / ADR-032 UI, API, redaction and accessibility gates "
+      "row_text": "Platform Integration management is bounded and secret-safe: UI/API actions use trusted Business scope, explicit async loading/error states, idempotency/version checks and redacted responses; raw secret material never crosses browser responses, Prisma, logs or audit events, and manager-unavailable states cannot report success. FR-080 / ADR-032 UI, API, redaction and accessibility gates "
     },
     {
       "id": "req:NFR-017",
@@ -8856,7 +8856,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "The Phase 1 runtime is composed in two stages: resolve the server-owned LINE binding and trusted Tenant/Business scope, then select one database-enforced active primary IntegrationConnection for `PHASE1_LINE_LLM` and resolve its opaque secret through an explicit runtime-source SecretManagerPort before constructing ModelProviderPort. Production and public LINE reject local vault/raw credentials/Ollama; local Ollama is exact-loopback only, no redirects or fallback; provider connection selection and secret material never cross the browser or LINE event contract. FR-074; ADR-018, ADR-019, ADR-020, ADR-031, NFR-015, SEC-015 "
+      "row_text": "The Phase 1 runtime is composed in two stages: resolve the server-owned LINE binding and trusted Tenant/Business scope, then select one database-enforced active primary IntegrationConnection for `PHASE1_LINE_LLM` and resolve its opaque secret through an explicit runtime-source SecretManagerPort before constructing ModelProviderPort. Production and public LINE reject local vault/raw credentials/Ollama; local Ollama is exact-loopback only, no redirects or fallback; provider connection selection and secret material never cross the browser or LINE event contract. FR-079; ADR-018, ADR-019, ADR-020, ADR-031, NFR-015, SEC-015 "
     },
     {
       "id": "req:SDD-044",
@@ -8866,7 +8866,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "The Integration management surface is a Platform sub-domain at `/platform/integrations`, composed from a trusted Business-scoped metadata read model and an implemented metadata create/list API. Runtime secret resolution is read-only through the Supabase Vault private resolver; the browser accepts only an opaque Vault UUID reference and returns redacted status. Provisioning/rotation and lifecycle promotion remain separate deferred contracts, and the UI cannot activate LINE routing. FR-075; ADR-031, ADR-032, FR-038, FR-061, FR-062, SEC-003, SEC-008, SEC-016, NFR-016 "
+      "row_text": "The Integration management surface is a Platform sub-domain at `/platform/integrations`, composed from a trusted Business-scoped metadata read model and an implemented metadata create/list API. Runtime secret resolution is read-only through the Supabase Vault private resolver; the browser accepts only an opaque Vault UUID reference and returns redacted status. Provisioning/rotation and lifecycle promotion remain separate deferred contracts, and the UI cannot activate LINE routing. FR-080; ADR-031, ADR-032, FR-038, FR-061, FR-062, SEC-003, SEC-008, SEC-016, NFR-016 "
     },
     {
       "id": "req:SDD-045",
@@ -9086,7 +9086,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Production Phase 1 runtime refuses local file-vault construction, raw `ZURI_MODEL_CREDENTIAL`, untrusted/client-selected Tenant/Business or connection ids, ambiguous/missing/expired/unauthorized/unavailable secrets, and Ollama/public-LINE selection. A database invariant permits at most one active primary `PHASE1_LINE_LLM` connection per Tenant/Business; rotation/revocation and rollback are audited without raw secret or PII. FR-074 / ADR-031 security gate "
+      "row_text": "Production Phase 1 runtime refuses local file-vault construction, raw `ZURI_MODEL_CREDENTIAL`, untrusted/client-selected Tenant/Business or connection ids, ambiguous/missing/expired/unauthorized/unavailable secrets, and Ollama/public-LINE selection. A database invariant permits at most one active primary `PHASE1_LINE_LLM` connection per Tenant/Business; rotation/revocation and rollback are audited without raw secret or PII. FR-079 / ADR-031 security gate "
     },
     {
       "id": "req:SEC-016",
@@ -9096,7 +9096,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Platform Integration management refuses client-selected scope/authority and never exposes or persists raw secret material. The implemented create/list path requires trusted owner authority, stores only an opaque Supabase Vault reference, and audits a redacted summary; resolver failure, ambiguous connection and unauthorized scope fail closed. Future write/rotate/revoke operations require a separate audited manager port. The UI cannot activate LINE routing or send a canary. FR-075 / ADR-032 security gate "
+      "row_text": "Platform Integration management refuses client-selected scope/authority and never exposes or persists raw secret material. The implemented create/list path requires trusted owner authority, stores only an opaque Supabase Vault reference, and audits a redacted summary; resolver failure, ambiguous connection and unauthorized scope fail closed. Future write/rotate/revoke operations require a separate audited manager port. The UI cannot activate LINE routing or send a canary. FR-080 / ADR-032 security gate "
     },
     {
       "id": "req:SEC-017",
@@ -10357,7 +10357,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md",
       "title": "ADR-039 — Requirement ids are pinned by subject anchor",
-      "hash": "b075865c",
+      "hash": "932a3d5f",
       "status": "current"
     },
     {
@@ -10764,7 +10764,7 @@
       "type": "test",
       "path": "tests/integration/line-reply-record.test.js",
       "hash": "83676d20",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/line-webhook-transport-contract.test.js",
@@ -11533,7 +11533,7 @@
       "id": "test:tests/unit/id-anchor-stability.test.js",
       "type": "test",
       "path": "tests/unit/id-anchor-stability.test.js",
-      "hash": "7010293b",
+      "hash": "d6a62eaa",
       "status": "current"
     },
     {
@@ -11589,8 +11589,8 @@
       "id": "test:tests/unit/line-channel-binding.test.js",
       "type": "test",
       "path": "tests/unit/line-channel-binding.test.js",
-      "hash": "e81dca9c",
-      "status": "current"
+      "hash": "2a19c386",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
@@ -16762,13 +16762,6 @@
     },
     {
       "from": "code:src/modules/agent/line-binding-resolver.js",
-      "to": "req:SDD-026",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-binding-resolver.js",
       "to": "req:SEC-010",
       "type": "follows",
       "status": "current",
@@ -16783,15 +16776,8 @@
     },
     {
       "from": "code:src/modules/agent/line-channel-binding.js",
-      "to": "req:FR-051",
+      "to": "req:FR-052",
       "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/agent/line-channel-binding.js",
-      "to": "req:SDD-026",
-      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -25498,13 +25484,6 @@
     },
     {
       "from": "test:tests/integration/agent-webhook-route.test.js",
-      "to": "req:FR-051",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-webhook-route.test.js",
       "to": "req:FR-052",
       "type": "verifies",
       "status": "current",
@@ -33555,14 +33534,7 @@
     },
     {
       "from": "test:tests/unit/line-channel-binding.test.js",
-      "to": "req:FR-051",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/line-channel-binding.test.js",
-      "to": "req:SDD-026",
+      "to": "req:FR-052",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

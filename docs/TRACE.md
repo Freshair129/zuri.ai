@@ -398,17 +398,17 @@
 ### FR-051 — Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event.
 
 - **Status:** n/a
-- **Code:** `src/modules/agent/line-channel-binding.js` · `src/modules/knowledge/postgres-business-knowledge.js`
-- **Follows:** BR-012, SDD-026, SEC-010
-- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/unit/line-channel-binding.test.js` · `tests/unit/phase1-runtime-login-probe.test.js` · `tests/unit/postgres-business-knowledge.test.js` · `tests/unit/supabase-production-isolation.test.js`
+- **Code:** `src/modules/knowledge/postgres-business-knowledge.js`
+- **Follows:** SDD-026, SEC-010
+- **Tests:** `tests/unit/phase1-runtime-login-probe.test.js` · `tests/unit/postgres-business-knowledge.test.js` · `tests/unit/supabase-production-isolation.test.js`
 
 ### FR-052 — Server-owned LINE scope binding: the webhook rejects client-selected Tenant/Business IDs and resolves scope only from an active, destination-bound, hash-verified LINE binding. Runtime connects through an unprivileged login and executes each read with `SET LOCAL ROLE zuri_line_smartgift_ro`.
 
 - **Status:** n/a
 - **Surface:** `/api/agent/line-webhook` (api)
-- **Code:** `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/line-binding-resolver.js` · `src/modules/agent/phase1-runtime.js` · `src/modules/knowledge/runtime-postgres-config.js` · `src/platform/integrations/providers/line/line-oa-evidence.js` · `src/platform/integrations/providers/line/line-oa-webhook.js`
+- **Code:** `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/line-binding-resolver.js` · `src/modules/agent/line-channel-binding.js` · `src/modules/agent/phase1-runtime.js` · `src/modules/knowledge/runtime-postgres-config.js` · `src/platform/integrations/providers/line/line-oa-evidence.js` · `src/platform/integrations/providers/line/line-oa-webhook.js`
 - **Follows:** BR-009, BR-011, BR-012, FR-081, NFR-017, SDD-009, SDD-025, SDD-026, SDD-027, SDD-044, SDD-048, SEC-001, SEC-009, SEC-010, SEC-011, SEC-016, docs/domains/integration/features/FR-081-raw-external-ingestion.md
-- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-cross-repo-round-trip.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-reply-record.test.js` · `tests/integration/line-webhook-unbound-production.test.js` · `tests/unit/line-binding-resolver.test.js` · `tests/unit/line-webhook-scope-fail-closed.test.js` · `tests/unit/phase1-business-agent-runtime.test.js` · `tests/unit/phase1-runtime-login-probe.test.js` · `tests/unit/platform/line-oa-webhook.test.js` · `tests/unit/runtime-postgres-config.test.js`
+- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-cross-repo-round-trip.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-reply-record.test.js` · `tests/integration/line-webhook-unbound-production.test.js` · `tests/unit/line-binding-resolver.test.js` · `tests/unit/line-channel-binding.test.js` · `tests/unit/line-webhook-scope-fail-closed.test.js` · `tests/unit/phase1-business-agent-runtime.test.js` · `tests/unit/phase1-runtime-login-probe.test.js` · `tests/unit/platform/line-oa-webhook.test.js` · `tests/unit/runtime-postgres-config.test.js`
 
 ### FR-053 — Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers.
 

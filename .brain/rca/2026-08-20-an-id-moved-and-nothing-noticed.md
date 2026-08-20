@@ -118,7 +118,7 @@ Replayed against real history it fires on `FR-051`, `SDD-026` and `SDD-049` — 
 on nothing else. Both events above are regression tests in
 `tests/unit/id-anchor-stability.test.js`.
 
-## What it does not fix, stated so nobody discovers it later
+## What it did not fix before the follow-up cleanup
 
 **A prefix-preserving repurpose still slips through.** The anchor is the leading
 noun phrase; editing a statement in place while keeping its opening words moves
@@ -130,8 +130,10 @@ exact statement hashing fires 23 times on this history with 17 false positives,
 which is a gate that gets learned as a chore. A reviewer still reads the registry
 diff of any PR that touches an already-merged id.
 
-**Ten stale citations are live on main today and this check does not repair
-them.** They are a one-time human sweep, listed here so the work is tracked:
+**Ten stale citations were live on main at the merge boundary and were not
+repaired by Check 12.** They are listed here as the historical debt record; the
+follow-up cleanup repairs exactly these sites without creating a baseline for a
+citation that was already wrong:
 
 | Where | Cites | Should be |
 |---|---|---|
@@ -146,6 +148,18 @@ them.** They are a one-time human sweep, listed here so the work is tracked:
 | `src/modules/agent/line-channel-binding.js:5` | `@spec SDD-026` | the current `SDD-026` is a different subject |
 | `tests/unit/line-channel-binding.test.js:5,6,17` | `FR-051`, `SDD-026` | `FR-052` |
 | `src/modules/agent/line-binding-resolver.js:5` | `@spec SDD-026` | partial mismatch, same drift |
+
+### Resolution
+
+The ten rows above were corrected in the post-merge cleanup. The registry rows
+now cite `FR-079`/`FR-080`, the LINE binding implementation and test cite
+`FR-052` with `ADR-018`, and no stale citation was added to the id ledger as a
+baseline. The guard's remaining prefix-preserving blind spot is addressed by
+ADR-039 rev 1.2: a canonical full-statement digest is stored as a review-only
+witness. A same-anchor digest change reports `INFO` with citation files; it does
+not become a merge blocker, preserving the measured 17/23 false-positive trade-
+off of a blocking full-text hash. The explicit writer review path is the only
+way to acknowledge a changed digest.
 
 The first seven are the residue of `af0a6f0d1` — a **correct**, deliberate,
 well-reasoned renumber that rewrote 102 references across 37 files plus 8 test

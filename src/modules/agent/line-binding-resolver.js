@@ -2,7 +2,7 @@ import crypto from 'node:crypto'
 import { z } from 'zod'
 
 // @req FR-052 — resolve LINE Tenant/Business scope only from an active persisted binding.
-// @spec SDD-026, SEC-010 — bearer and destination are HMACed before the database lookup.
+// @spec ADR-018, SEC-010 — bearer and destination are HMACed before the database lookup.
 // @tested tests/unit/line-binding-resolver.test.js
 
 const zResolverOptions = z.object({ pepper: z.string().min(32).max(512) }).strict()

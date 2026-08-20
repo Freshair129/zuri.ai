@@ -85,7 +85,7 @@ export function inheritedFrom(declared, pinned) {
 /**
  * Evaluate every arm against one snapshot.
  *
- * @param {Map} declared      id → { family, source, anchor, status } from collectDeclared(),
+ * @param {Map} declared      id → { family, source, anchor, statement_digest, status } from collectDeclared(),
  *                            carrying .duplicates and .missing from the same scan
  * @param {object} ledger     parsed docs/.id-ledger.json, or {} — a missing file
  *                            degrades to the STRICTEST state (nothing pinned),
@@ -199,6 +199,42 @@ export function evaluateIdStability({
         'If the subject genuinely stopped being true, retire it the SEC-004 way (strike the statement, say why in the status cell, then ' +
         'npm run docs:ids -- --supersede <ID> --reason "…") and take the next free number. Only if the number really must come to mean ' +
         'something else: npm run docs:ids -- --declare <ID> --reason "<sentence>". Never hand-edit an anchor in docs/.id-ledger.json')
+  }
+
+  // --- A1b: the subject stayed put, but the full statement changed. This is a
+  // REVIEW signal, deliberately not a gate: the measured full-text blocker was
+  // 23 fires with 17 false positives. The digest makes the prefix-preserving
+  // blind spot visible without teaching authors to bypass a noisy CRITICAL.
+  // `statement_digest_version` is the explicit opt-in written by the ledger
+  // migration; an old ledger is not allowed to claim it has coverage it does
+  // not yet carry.
+  if (ledger.statement_digest_version >= 1) {
+    const missingDigests = []
+    const changedDigests = []
+    for (const [id, d] of declared) {
+      const e = pinned[id]
+      if (!e || e.status === 'burnt') continue
+      if (!e.statement_digest) {
+        missingDigests.push(id)
+        continue
+      }
+      if (e.statement_digest !== d.statement_digest && sameAnchor(anchorOf(e), d.anchor)) {
+        changedDigests.push({ id, source: d.source, old: e.statement_digest, now: d.statement_digest })
+      }
+    }
+    if (missingDigests.length) {
+      emit('critical', `${missingDigests.length} pinned id(s) have no statement digest`, missingDigests.sort().join(', '), [ledgerPath],
+        'The review-only witness is enabled but incomplete. Run the explicit one-time migration `npm run docs:ids -- --review-baseline --reason "<sentence>"`; it fills missing digests and refuses to overwrite an existing one')
+    }
+    for (const change of changedDigests.sort((a, b) => a.id.localeCompare(b.id))) {
+      const cited = citersOf(change.id).filter((p) => p !== change.source)
+      const citationText = cited.length ? ` · citation files: ${cited.slice(0, 12).join(', ')}` : ' · no other citation files found'
+      emit('info', `${change.id} statement digest changed without an anchor move`,
+        `canonical SHA-256 ${change.old} → ${change.now}${citationText}`,
+        [...new Set([change.source, ledgerPath, ...cited])],
+        `Review the registry diff and acknowledge only an intentional same-subject edit with ` +
+          `npm run docs:ids -- --review ${change.id} --reason "<sentence>". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval`)
+    }
   }
 
   // --- A3: a declared id nobody pinned. The only thing standing between this
