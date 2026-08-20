@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { anchor, sameAnchor, identicalAnchor, collectDeclared, REGISTRIES } from '../../scripts/id-anchors.mjs'
+import { anchor, sameAnchor, identicalAnchor, statementDigest, collectDeclared, REGISTRIES } from '../../scripts/id-anchors.mjs'
 import { evaluateIdStability, inheritedFrom } from '../../scripts/id-stability.mjs'
 import { readCanonical } from '../../scripts/canonical-text.mjs'
 
@@ -44,7 +44,7 @@ const declare = (rows) => {
   const map = new Map(
     Object.entries(rows).map(([id, spec]) => {
       const { statement, family = id.slice(0, id.lastIndexOf('-')), source = PRD, status = 'current' } = typeof spec === 'string' ? { statement: spec } : spec
-      return [id, { id, family, source, statement, anchor: anchor(statement), status }]
+      return [id, { id, family, source, statement, anchor: anchor(statement), statement_digest: statementDigest(statement), status }]
     }),
   )
   map.duplicates = []
@@ -58,12 +58,13 @@ const pin = (rows) => ({
   ids: Object.fromEntries(
     Object.entries(rows).map(([id, spec]) => {
       const { statement, family = id.slice(0, id.lastIndexOf('-')), source = PRD, status = 'current', history, ...rest } = typeof spec === 'string' ? { statement: spec } : spec
-      return [id, { family, source, status, ...rest, history: history || [{ anchor: anchor(statement), since: '2026-08-20', reason: 'declared' }] }]
+      return [id, { family, source, status, statement_digest: statementDigest(statement), ...rest, history: history || [{ anchor: anchor(statement), since: '2026-08-20', reason: 'declared' }] }]
     }),
   ),
 })
 
 const criticals = (findings) => findings.filter((f) => f.severity === 'critical')
+const infos = (findings) => findings.filter((f) => f.severity === 'info')
 const titles = (findings) => criticals(findings).map((f) => f.title)
 
 // The two statements at the heart of the incident, quoted from the registry as
@@ -303,6 +304,51 @@ describe('what must NOT fire — the edits this registry does constantly', () =>
       ledger: pin({ [FR('090')]: base }),
     })
     expect(titles(findings).join(' ')).not.toContain('inherits the subject')
+  })
+})
+
+describe('the full statement digest is a review signal, not a gate', () => {
+  const before = 'Neutral universal work model: WorkContainer + WorkItem with weighted progress evidence'
+  const after = `${before}; the same view supports both global and project-scoped filters`
+
+  it('reports a same-anchor body change as INFO with citation evidence', () => {
+    const ledger = pin({ [FR('005')]: before })
+    ledger.statement_digest_version = 1
+    const findings = evaluateIdStability({
+      declared: declare({ [FR('005')]: after }),
+      ledger,
+      citersOf: (id) => (id === FR('005') ? ['tests/unit/work-model.test.js'] : []),
+    })
+    expect(criticals(findings)).toHaveLength(0)
+    const review = infos(findings).find((f) => f.title.includes('statement digest changed'))
+    expect(review).toBeTruthy()
+    expect(review.details).toContain(statementDigest(before))
+    expect(review.details).toContain(statementDigest(after))
+    expect(review.details).toContain('tests/unit/work-model.test.js')
+    expect(review.action).toContain(`--review ${FR('005')}`)
+  })
+
+  it('stays silent when the canonical statement is unchanged', () => {
+    const ledger = pin({ [FR('005')]: before })
+    ledger.statement_digest_version = 1
+    const findings = evaluateIdStability({ declared: declare({ [FR('005')]: before }), ledger })
+    expect(infos(findings).filter((f) => f.title.includes('statement digest'))).toHaveLength(0)
+  })
+
+  it('requires a digest for every pinned id once the witness is enabled', () => {
+    const ledger = pin({ [FR('005')]: before })
+    ledger.statement_digest_version = 1
+    delete ledger.ids[FR('005')].statement_digest
+    const findings = evaluateIdStability({ declared: declare({ [FR('005')]: before }), ledger })
+    expect(titles(findings)).toContain('1 pinned id(s) have no statement digest')
+  })
+
+  it('keeps an anchor move as CRITICAL and does not downgrade it to review', () => {
+    const ledger = pin({ [FR('005')]: before })
+    ledger.statement_digest_version = 1
+    const findings = evaluateIdStability({ declared: declare({ [FR('005')]: 'Outbound reply delivery receipts: a different subject' }), ledger })
+    expect(titles(findings)).toContain(`${FR('005')} changed subject without a declared move`)
+    expect(infos(findings).filter((f) => f.title.includes('statement digest'))).toHaveLength(0)
   })
 })
 
@@ -721,13 +767,15 @@ describe('the committed ledger describes the tree it was generated from', () => 
     expect(criticals(findings).map((f) => `${f.title} — ${f.details}`)).toEqual([])
   })
 
-  it('records anchors and never statements, so a reword past the window leaves no diff here', () => {
+  it('records anchors plus a review digest, never statements', () => {
     const serialized = JSON.stringify(ledger.ids)
-    // The full statement runs well past the anchor cap; only its head is stored.
+    // The full statement is represented by a digest, not copied into the ledger.
     // Storing whole statements would churn this file on all 23 reword events the
     // history contains, reintroducing the noise the anchor avoids.
     expect(serialized).not.toContain('and it holds no write path at all')
+    expect(ledger.statement_digest_version).toBe(1)
     for (const entry of Object.values(ledger.ids)) {
+      expect(entry.statement_digest).toMatch(/^[0-9a-f]{64}$/)
       for (const h of entry.history) expect(h.anchor.length).toBeLessThanOrEqual(60)
     }
   })
@@ -776,6 +824,21 @@ describe('the writer refuses to launder a repurpose', () => {
     const r = run(['--reword', SDD('050'), '--reason', SENTENCE])
     expect(r.code).toBe(1)
     expect(r.out).toContain('Nothing to record')
+  })
+
+  it('requires an explicit reason for the review-only digest path', () => {
+    const r = run(['--review', SDD('050')])
+    expect(r.code).toBe(1)
+    expect(r.out).toContain('--reason is required')
+  })
+
+  it('does not use review to rewrite an already current digest or baseline', () => {
+    const reviewed = run(['--review', SDD('050'), '--reason', SENTENCE])
+    expect(reviewed.code).toBe(1)
+    expect(reviewed.out).toContain('already has the current statement digest')
+    const baseline = run(['--review-baseline', '--reason', SENTENCE])
+    expect(baseline.code).toBe(1)
+    expect(baseline.out).toContain('baseline is already complete')
   })
 
   it('will not use --distinct on anything but a genuinely new id', () => {

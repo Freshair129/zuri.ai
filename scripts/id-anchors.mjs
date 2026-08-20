@@ -38,6 +38,7 @@
 //  3. It split table rows on every `|`, truncating any cell containing the
 //     correct markdown escape for a literal pipe (`\|`).
 
+import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { readCanonical } from './canonical-text.mjs'
@@ -56,6 +57,19 @@ const plainText = (statement) =>
     .replace(/\*\*/g, '')
     .replace(/`/g, '')
     .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+
+/**
+ * Canonical full statement for the review-only witness. Presentation markdown
+ * and whitespace are not meaning; punctuation and wording are. Unlike
+ * `anchor()`, this keeps the complete statement so a same-subject edit can be
+ * shown to a reviewer without turning the noisy full-text alternative into a
+ * blocking gate.
+ */
+export const canonicalStatement = (statement) => plainText(statement).replace(/\s+/gu, ' ').trim()
+
+/** SHA-256 of the canonical full statement; never used as a merge blocker. */
+export const statementDigest = (statement) =>
+  createHash('sha256').update(canonicalStatement(statement), 'utf8').digest('hex')
 
 /**
  * Words and numbers only, lowercased. Punctuation is normalized away rather than
@@ -277,6 +291,7 @@ function collectTable(root, reg, file, out, dups) {
       source: file,
       statement,
       anchor: anchor(statement),
+      statement_digest: statementDigest(statement),
       status,
       has_version_history: reg.has_version_history,
       draft: Boolean(reg.draft),
@@ -299,6 +314,7 @@ function collectBoldHeading(root, reg, file, out, dups) {
       source: file,
       statement: m[2].trim(),
       anchor: anchor(m[2]),
+      statement_digest: statementDigest(m[2]),
       status: 'current',
       has_version_history: reg.has_version_history,
       draft: Boolean(reg.draft),
@@ -327,6 +343,7 @@ function collectDocumentH1(root, reg, dir, out, dups) {
       source: `${dir}/${base}`,
       statement: title,
       anchor: anchor(title),
+      statement_digest: statementDigest(title),
       // A document states its own status; body prose churns on every amendment
       // and is never anchored.
       status: /\*\*Status:\*\*\s*Superseded/i.test(body) || /^status:\s*"?superseded/im.test(body) ? 'superseded' : 'current',

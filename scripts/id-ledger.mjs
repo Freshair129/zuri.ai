@@ -26,6 +26,16 @@
 //       had no honest remedy at all, and the only working path recorded the edit
 //       as a forbidden move.
 //
+//   node scripts/id-ledger.mjs --review <ID> --reason "<sentence>"
+//       A same-subject statement changed inside the anchor window. Update its
+//       review-only full-statement digest after reading the registry diff. It
+//       refuses an anchor move and never changes the pinned subject.
+//
+//   node scripts/id-ledger.mjs --review-baseline --reason "<sentence>"
+//       One-time migration for an existing ledger: fill missing review-only
+//       statement digests, but refuse to overwrite any digest already present.
+//       This is intentionally explicit and has no bulk refresh path.
+//
 //   node scripts/id-ledger.mjs --supersede <ID> --reason "<sentence>" [--declared-in <doc>#<version>]
 //       Record a retirement. The anchor does not move — a retirement stops a
 //       statement, it never hands its key to another one (the SEC-004 shape).
@@ -61,7 +71,7 @@ import { existsSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { readCanonical as read } from './canonical-text.mjs'
-import { collectDeclared, sameAnchor, REGISTRIES, BURNT_FAMILIES, NOT_IDS } from './id-anchors.mjs'
+import { collectDeclared, sameAnchor, statementDigest, REGISTRIES, BURNT_FAMILIES, NOT_IDS } from './id-anchors.mjs'
 import { inheritedFrom } from './id-stability.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
@@ -78,7 +88,7 @@ const PURPOSE = [
   'Preflight raises a CRITICAL when a recorded anchor moves, when a new id inherits an anchor already recorded for',
   'another id in its family, when a recorded id disappears from its registry, when an entry that was once pinned is',
   'no longer here, or when a burnt id is re-declared.',
-  'This file records anchors, never statements: rewording past the anchor window is free and leaves no diff here.',
+  'This file records anchors plus a review-only SHA-256 of the canonical full statement: a same-anchor digest change is INFO, never a merge blocker.',
   'Adding an id is routine — a "+" block. A "-" line on an id that already existed is the alarm, and so is a new',
   'history line under an id that already had one; neither may be committed without a sentence saying what changed and why.',
   '`roster` lists every id ever pinned and is never pruned: an id in `roster` with no entry in `ids` means an entry was',
@@ -107,7 +117,7 @@ const GENESIS_NOTE =
 
 function scaffold() {
   return {
-    version: '1.1.0',
+    version: '1.2.0',
     purpose: PURPOSE,
     recorded_at: TODAY,
     genesis_note: GENESIS_NOTE,
@@ -121,6 +131,8 @@ function scaffold() {
     })),
     not_ids: NOT_IDS,
     burnt_families: BURNT_FAMILIES,
+    statement_digest_version: 1,
+    statement_digest_baseline: { at: TODAY, reason: 'Initial review-only digest ledger.' },
     bulk_revisions: [],
     roster: [],
     ids: {},
@@ -135,6 +147,8 @@ export function loadLedger() {
 export function currentAnchor(entry) {
   return entry && entry.history && entry.history.length ? entry.history[entry.history.length - 1].anchor : null
 }
+
+const digestOf = (declaredEntry) => declaredEntry.statement_digest || statementDigest(declaredEntry.statement)
 
 const familyRank = (family) => {
   const i = REGISTRIES.findIndex((r) => r.families.includes(family))
@@ -161,6 +175,7 @@ const sortRoster = (roster) =>
   })
 
 function save(led) {
+  if (led.statement_digest_version >= 1) led.version = '1.2.0'
   led.purpose = PURPOSE
   led.genesis_note = GENESIS_NOTE
   led.registries = scaffold().registries
@@ -218,6 +233,7 @@ function writeNew(led, declared, { allowMoved = new Set(), allowDistinct = new S
         family: d.family,
         source: d.source,
         status: d.status,
+        ...(led.statement_digest_version >= 1 ? { statement_digest: digestOf(d) } : {}),
         ...(retiredAlready ? { retired_at: TODAY } : {}),
         history: [
           {
@@ -255,6 +271,8 @@ const declared = collectDeclared(ROOT)
 // ---- --declare / --reword / --supersede / --abandon / --distinct / --bulk ---
 const declareId = flag('--declare')
 const rewordId = flag('--reword')
+const reviewId = flag('--review')
+const reviewBaseline = argv.includes('--review-baseline')
 const supersedeId = flag('--supersede')
 const abandonId = flag('--abandon')
 const distinctId = flag('--distinct')
@@ -266,6 +284,58 @@ const allowDistinct = new Set()
 function needVersionPointer(entry) {
   const reg = REGISTRIES.find((r) => r.families.includes(entry.family))
   return Boolean(reg && reg.has_version_history)
+}
+
+if (reviewId && reviewBaseline) fail('--review and --review-baseline are separate operations; choose one.')
+
+if (reviewBaseline) {
+  const reason = requireReason(flag('--reason'))
+  const conflicting = []
+  const missing = []
+  for (const [id, d] of declared) {
+    const entry = led.ids[id]
+    if (!entry) continue
+    const digest = digestOf(d)
+    if (entry.statement_digest && entry.statement_digest !== digest) conflicting.push(id)
+    if (!entry.statement_digest) missing.push([id, digest])
+  }
+  if (conflicting.length) {
+    fail(
+      `existing statement digests differ for ${conflicting.join(', ')}. ` +
+        'Review each same-subject edit with --review <ID> --reason "<sentence>"; the baseline command never overwrites a witness.',
+    )
+  }
+  if (!missing.length && led.statement_digest_version >= 1) {
+    fail('the review-only digest baseline is already complete; nothing is missing to record.')
+  }
+  for (const [id, digest] of missing) led.ids[id].statement_digest = digest
+  led.statement_digest_version = 1
+  led.statement_digest_baseline = { at: TODAY, reason }
+  console.log(`id-ledger: review-only digest baseline recorded for ${missing.length} existing id(s)`)
+}
+
+if (reviewId) {
+  if (led.statement_digest_version < 1) {
+    fail('the review-only digest is not enabled yet; run --review-baseline --reason "<sentence>" once before --review.')
+  }
+  const d = declared.get(reviewId)
+  if (!d) fail(`${reviewId} is not declared anywhere in the tree — there is no statement to review.`)
+  const entry = led.ids[reviewId]
+  if (!entry) fail(`${reviewId} is not pinned yet. Run --write; a first declaration is not a review.`)
+  const reason = requireReason(flag('--reason'))
+  const before = currentAnchor(entry)
+  if (!sameAnchor(before, d.anchor)) {
+    fail(
+      `${reviewId} changed its subject anchor ("${before}" → "${d.anchor}"). ` +
+        'Use --reword or --declare for an anchor change; --review only acknowledges a same-subject body edit.',
+    )
+  }
+  const digest = digestOf(d)
+  if (entry.statement_digest === digest) fail(`${reviewId} already has the current statement digest. Nothing to review.`)
+  entry.statement_digest = digest
+  entry.statement_digest_reviewed_at = TODAY
+  entry.statement_digest_reason = reason
+  console.log(`id-ledger: ${reviewId} statement digest reviewed`)
 }
 
 if (declareId) {
@@ -281,6 +351,7 @@ if (declareId) {
   console.log(`  now: "${d.anchor}"`)
   console.log('  This is the move AGENTS.md §18 forbids. It is being recorded, not endorsed.')
   entry.history.push({ anchor: d.anchor, since: TODAY, reason, ...(declaredIn ? { declared_in: declaredIn } : {}) })
+  if (led.statement_digest_version >= 1) entry.statement_digest = digestOf(d)
   if (declaredIn) entry.declared_in = declaredIn
   else if (needVersionPointer(entry)) fail(`${declareId} lives in a registry with a version history — pass --declared-in <doc>#<version> naming the revision row that states this move.`)
   entry.status = d.status
@@ -311,6 +382,7 @@ if (rewordId) {
   console.log(`  was: "${before}"`)
   console.log(`  now: "${d.anchor}"`)
   entry.history.push({ anchor: d.anchor, since: TODAY, reason, kind: 'reword', ...(declaredIn ? { declared_in: declaredIn } : {}) })
+  if (led.statement_digest_version >= 1) entry.statement_digest = digestOf(d)
   entry.status = d.status
   allowMoved.add(rewordId)
 }
@@ -323,6 +395,7 @@ if (supersedeId) {
   // The anchor is repeated, not changed. That is what supersede MEANS here: the
   // statement stops being true, the number stays burnt, and nothing inherits it.
   entry.history.push({ anchor: currentAnchor(entry), since: TODAY, reason, ...(declaredIn ? { declared_in: declaredIn } : {}) })
+  if (led.statement_digest_version >= 1 && d) entry.statement_digest = digestOf(d)
   entry.status = 'superseded'
   entry.retired_at = TODAY
   if (declaredIn) entry.declared_in = declaredIn
@@ -361,6 +434,7 @@ if (distinctId) {
     family: d.family,
     source: d.source,
     status: d.status,
+    ...(led.statement_digest_version >= 1 ? { statement_digest: digestOf(d) } : {}),
     distinct_from: from,
     history: [{ anchor: d.anchor, since: TODAY, reason, kind: 'distinct' }],
   }

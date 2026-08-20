@@ -1,8 +1,8 @@
 import crypto from 'node:crypto'
 import { z } from 'zod'
 
-// @req FR-051 — resolve public LINE scope only from an active server-owned binding.
-// @spec SDD-026, BR-012, SEC-010
+// @req FR-052 — resolve public LINE scope only from an active server-owned binding.
+// @spec ADR-018, BR-012, SEC-010
 // @tested tests/unit/line-channel-binding.test.js, tests/integration/agent-webhook-route.test.js
 
 const zBinding = z.object({
