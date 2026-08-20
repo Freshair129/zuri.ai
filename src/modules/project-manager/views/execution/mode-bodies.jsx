@@ -7,7 +7,7 @@
 
 import { Card, SectionTitle, StatusPill, ProgressBar, DataTable, EmptyState } from '@/components/ui'
 import { WORK_STATUSES, MILESTONE_STATUSES, GATE_STATUSES } from '@/lib/validation/enums'
-import { activeItems } from '../../progress/strategies'
+import { activeItems, formatProgressPercent } from '../../progress/strategies'
 import StatusSelect from '../../components/StatusSelect'
 
 const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString())
@@ -335,7 +335,7 @@ export function ExpansionPortfolio({ workstream, reload, progress }) {
               <div key={d.name} className="flex items-center gap-2">
                 <span className="w-20 text-[10px] font-bold capitalize">{d.name}</span>
                 <div className="flex-1"><ProgressBar percent={d.percent} tone={d.percent === 100 ? 'green' : undefined} label={`${d.name} readiness`} /></div>
-                <span className="w-10 text-right text-[10px] font-semibold">{d.percent}%</span>
+                <span className="w-10 text-right text-[10px] font-semibold">{formatProgressPercent(d.percent)}</span>
               </div>
             ))}
           </div>

@@ -1,6 +1,6 @@
 // @req FR-010 — strategy-based progress with evidence + warnings
 // @spec BR-005, BR-006, SDD-005 — no global task ratio; open required gates cap at 99
-// @tested tests/unit/strategies.test.js
+// @tested tests/unit/strategies.test.js, tests/unit/format-progress-percent.test.js
 // Seven deterministic progress calculators.
 // Pure functions: input is pre-loaded workstream data, output is
 // { percent, evidence, warnings } — no I/O, no clock, no randomness.
@@ -18,6 +18,27 @@ const GATE_SATISFIED = new Set(SATISFIED_GATE_STATUSES)
 export function clampPercent(value) {
   if (!Number.isFinite(value)) return 0
   return Math.max(0, Math.min(100, Math.round(value * 10) / 10))
+}
+
+/**
+ * The one place a progress percent becomes display text.
+ *
+ * Every calculator already rounds to one decimal place (`clampPercent`), so
+ * the number itself was never the contradiction — the contradiction was three
+ * render sites each choosing their own presentation of that same number: an
+ * inline `Math.round(...)%` on the Dashboard list showed "58%" beside
+ * "58.3%" on the Project page and `/overview`, one click apart, for the
+ * identical underlying value. CLAUDE.md: "Never report a number a page would
+ * disagree with." A shared formula is not enough when only the formula and
+ * not the formatting is shared.
+ *
+ * Trailing `.0` is dropped for a whole number (`100%`, not `100.0%`) — the
+ * digit carries no information there — but kept whenever the value actually
+ * has a fractional part, so "58.3%" never silently becomes "58%".
+ */
+export function formatProgressPercent(percent) {
+  const p = clampPercent(percent)
+  return Number.isInteger(p) ? `${p}%` : `${p.toFixed(1)}%`
 }
 
 /**

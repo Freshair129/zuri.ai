@@ -23,10 +23,11 @@ import {
   PageHeader, Card, Kpi, ProgressBar, SectionTitle, DataTable, StatusPill,
   EmptyState, ErrorState, TruncationNotice,
 } from '@/components/ui'
-import { PROJECT_STATUSES, WORK_STATUSES, PROJECT_PRIORITIES } from '@/lib/validation/enums'
+import { PROJECT_STATUSES, WORK_STATUSES, PROJECT_PRIORITIES, PROJECT_STATUS_HIGHLIGHTS } from '@/lib/validation/enums'
 import { useScope } from '@/context/ScopeContext'
 import { useFetch, api, LoadingCard } from '@/modules/project-manager/components/useApi'
 import ProjectModal from '@/modules/project-manager/components/ProjectModal'
+import { formatProgressPercent } from '@/modules/project-manager/progress/strategies'
 
 export default function ProjectsPage() {
   return (
@@ -43,10 +44,11 @@ const titleCase = (value) => value.replace(/_/g, ' ').toLowerCase().replace(/^./
  * disclosed rather than dropped.
  *
  * ADR-036's Consequences make this the rule rather than a nicety: the ask named
- * three project statuses out of five and three work statuses out of seven, and a
- * band whose parts do not add up to the list beneath it teaches the reader to
- * distrust every figure on the page. `other` is therefore always rendered when
- * it is non-zero, and it expands to name what is in it.
+ * three project statuses out of five (PLANNED, ACTIVE, DONE — ON_HOLD and
+ * ARCHIVED are the remainder) and two work statuses out of seven (IN_PROGRESS,
+ * DONE), and a band whose parts do not add up to the list beneath it teaches
+ * the reader to distrust every figure on the page. `other` is therefore always
+ * rendered when it is non-zero, and it expands to name what is in it.
  */
 function CountCard({ label, counts, highlight, statuses }) {
   const [open, setOpen] = useState(false)
@@ -216,7 +218,15 @@ function ProjectsDashboardInner() {
             <CountCard
               label="Projects"
               counts={data.counts.projects}
-              highlight={['ACTIVE', 'DONE']}
+              // ADR-036 Consequences: PROJECT_STATUSES has five values and the
+              // ask names three — PLANNED, ACTIVE, DONE. ON_HOLD and ARCHIVED
+              // are the remainder the "Other" disclosure accounts for. Two
+              // highlighted statuses silently folded PLANNED into "Other",
+              // which is invisible until expanded — the exact "subset that
+              // does not sum" ADR-036 exists to forbid. The subset itself
+              // lives in enums.js (PROJECT_STATUS_HIGHLIGHTS), not as a
+              // literal here, so it cannot drift out of sync with it.
+              highlight={PROJECT_STATUS_HIGHLIGHTS}
               statuses={PROJECT_STATUSES}
             />
             <CountCard
@@ -294,8 +304,8 @@ function ProjectsDashboardInner() {
                 render: (p) => (
                   <span className="flex min-w-[110px] items-center gap-2">
                     <span className="flex-1"><ProgressBar percent={p.progress?.percent || 0} label={`${p.code} progress`} /></span>
-                    <span className="w-9 shrink-0 text-right text-[10px] font-bold tabular-nums">
-                      {Math.round(p.progress?.percent || 0)}%
+                    <span className="w-11 shrink-0 text-right text-[10px] font-bold tabular-nums">
+                      {formatProgressPercent(p.progress?.percent || 0)}
                     </span>
                   </span>
                 ),

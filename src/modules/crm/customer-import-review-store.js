@@ -7,8 +7,11 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 
 // @req FR-078 — the review queue is a server-owned adapter boundary over the
 // private target, with local Prisma fixtures and an explicit zuri_core runtime.
+// An unconfigured target throws a distinct, stable 503 (never a silent
+// fallback) so the surface can tell a deployment gap apart from a target that
+// is configured and failing.
 // @spec CDC-SG-CUSTOMER-DATA-001 v0.3.0B, ADR-018, ADR-033 D8.
-// @tested tests/unit/customer-import-review-service.test.js
+// @tested tests/unit/customer-import-review-service.test.js, tests/unit/customer-import-review-store-contract.test.js
 
 const { Pool } = pg
 
@@ -476,6 +479,17 @@ function runtimeSsl(env = process.env) {
   return { rejectUnauthorized: true, ca }
 }
 
+// Exported so the queue page can tell "no operator has pointed this
+// deployment at a review target yet" apart from "the target is configured
+// and something about talking to it failed" — the former is not fixable by
+// re-fetching, the latter might be. The page can't `import` this store to
+// reuse the constant (it is a 'use client' component; this file pulls in
+// `pg`, `node:fs` and the Prisma client, none of which belong in a browser
+// bundle), so `src/app/(pm)/platform/customer-import-reviews/page.jsx` keeps
+// this exact string in sync by hand — tests/unit/customer-import-review-ui.test.js
+// and tests/unit/customer-import-review-store-contract.test.js both assert on it.
+export const CUSTOMER_REVIEW_TARGET_NOT_CONFIGURED = 'Customer review target is not configured'
+
 export function createDefaultCustomerReviewStore({ env = process.env } = {}) {
   if (env.ZURI_CUSTOMER_REVIEW_DATABASE_URL) {
     defaultPool ||= new Pool({
@@ -487,7 +501,7 @@ export function createDefaultCustomerReviewStore({ env = process.env } = {}) {
     return createZuriCoreCustomerReviewStore({ pool: defaultPool })
   }
   if (env.NODE_ENV !== 'production' && env.ZURI_CUSTOMER_REVIEW_MODE === 'local') return createPrismaCustomerReviewStore()
-  throw storeError('Customer review target is not configured', 503)
+  throw storeError(CUSTOMER_REVIEW_TARGET_NOT_CONFIGURED, 503)
 }
 
 export {

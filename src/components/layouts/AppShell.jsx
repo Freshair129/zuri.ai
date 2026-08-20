@@ -39,7 +39,7 @@ export default function AppShell({ children }) {
           <footer className="flex h-7 items-center gap-3 border-t border-[var(--border)] bg-white px-3 text-[10px] text-[#7B8490]">
             <span style={{ color: 'var(--success)' }}>● local</span>
             <span>SQLite · offline-first</span>
-            <span className="ml-auto">zuri-v2</span>
+            <span className="ml-auto">zuri-ai</span>
           </footer>
         </div>
       </div>

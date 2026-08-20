@@ -29,7 +29,7 @@ export default function BackupPage() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `zuri-v2-snapshot-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`
+      a.download = `zuri-ai-snapshot-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`
       a.click()
       URL.revokeObjectURL(url)
     } catch (err) {

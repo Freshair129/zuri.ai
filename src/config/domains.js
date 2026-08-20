@@ -18,8 +18,8 @@ import {
 // topbar); Tier 3 = each domain's sub-domains (the left sidebar). The FIRST sub-domain
 // of every operational domain is its `Dashboard` entry — uniformly so since ADR-036 D1
 // gave Development the same shape as its peers (FR-086). Domains marked
-// `soon` are reserved slots — they lift from V1 per module at cutover (ADR-003),
-// hidden/disabled until then.
+// `soon` are reserved slots for modules not yet built (ADR-024 — zuri-ai is a
+// standalone product with no lift-at-cutover plan), hidden/disabled until then.
 export const DOMAINS = [
   {
     // @req FR-060 — Business Home is the shell-level cross-domain slot, first in
