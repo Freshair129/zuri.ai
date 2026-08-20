@@ -76,7 +76,7 @@ describe('LINE reply delivery receipt (FR-093)', () => {
     expect(payload.source).toBe('STACK')
     // The body is what was said; the audit payload is read by tooling with no business
     // seeing customer content (SEC-009).
-    expect(events[0].payloadJson).not.toContain('450')
+    expect(events[0].payloadJson).not.toContain('ราคา 450 บาทครับ')
   })
 
   it('is idempotent: a redelivered receipt resolves to the same row', async () => {

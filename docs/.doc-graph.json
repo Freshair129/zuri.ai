@@ -60,7 +60,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "test:tests/integration/line-reply-record.test.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -10761,8 +10763,8 @@
       "id": "test:tests/integration/line-reply-record.test.js",
       "type": "test",
       "path": "tests/integration/line-reply-record.test.js",
-      "hash": "20729356",
-      "status": "current"
+      "hash": "83676d20",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/line-webhook-transport-contract.test.js",
