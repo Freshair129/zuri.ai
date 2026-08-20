@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.1.0b |
+| **Version** | 1.2.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-08-18 |
+| **Last Updated** | 2026-08-20 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=39; operational_domain_keys=7; operational_subdomain_entries=22; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=41; operational_domain_keys=7; operational_subdomain_entries=23; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -98,7 +98,21 @@ the Business Home slot is excluded from this count.
 | `/files` | Managed Files | BusinessShell → Development / Files | Business/Project file metadata, reconcile, mount and safe content actions | empty, loading, error, capability-disabled, forbidden | implemented beta; `src/app/(pm)/files/page.jsx`, FR-045 |
 | `/repositories` | Repositories | BusinessShell → Development / Repositories | local repository metadata and Project links | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/repositories/page.jsx`, FR-008 |
 
-### 3.3 People and Platform domains
+### 3.3 CRM domain
+
+The `customer` domain key stopped being a reserved slot on 2026-08-20 (FR-091).
+`Customer`, `Conversation` and `Message` had been written by the LINE ingest
+seam since FR-023 while the domain advertised no page at all, so the product
+received messages it could not show anyone. Both interfaces are read-only: the
+reply belongs to the edge runtime that holds the channel (BR-011), and neither
+page can issue a write.
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/customer` | CRM Dashboard | BusinessShell → CRM / Dashboard | conversation, customer and per-direction message counts, active channels, most recent conversations | ready, empty, loading, error, no-business | implemented beta; `src/app/(pm)/customer/page.jsx`, FR-091 |
+| `/customer/conversations` | CRM Inbox | BusinessShell → CRM / Inbox | tenant-scoped conversation list with last-message preview, and the selected thread oldest-first | ready, empty, loading, error, forbidden, no-business; explicitly no reply state | implemented beta; `src/app/(pm)/customer/conversations/page.jsx`, FR-091 |
+
+### 3.4 People and Platform domains
 
 The operational registry has seven domain keys. Platform currently exposes seven
 page routes because its Dashboard and Settings navigation entries share
@@ -116,7 +130,7 @@ page routes because its Dashboard and Settings navigation entries share
 | `/audit` | Audit Log | BusinessShell → Platform / Audit | immutable audit event browser and filters | empty, loading, error, forbidden | implemented; `src/app/(pm)/audit/page.jsx`, FR-014 |
 | `/backup` | Backup | BusinessShell → Platform / Backup | snapshot export and preview-then-confirm restore | loading, validation, confirmation, error, forbidden | implemented; `src/app/(pm)/backup/page.jsx`, FR-013 |
 
-### 3.4 Workspace compatibility surfaces
+### 3.5 Workspace compatibility surfaces
 
 These pages remain routable Project Manager Space surfaces. They are not a second
 global collaboration Workspace authority; ADR-027's future onboarding surface is
@@ -127,7 +141,7 @@ separately documented.
 | `/workspaces` | Workspace list | BusinessShell → Development/Space compatibility | list and open Spaces | empty, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/page.jsx` |
 | `/workspaces/[workspaceId]` | Workspace detail | BusinessShell → Development/Space compatibility | Space metadata and related Projects | not found, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/[workspaceId]/page.jsx` |
 
-### 3.5 Project resource surfaces
+### 3.6 Project resource surfaces
 
 All rows below are nested in ProjectResourceShell. Project-local work views are
 not new global domains or new persistence aggregates.
@@ -223,6 +237,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.0b | 2026-08-20 | candidate | Registered the FR-091 CRM Dashboard and Inbox, the first reader surface over the LINE ingress, and reconciled the counts to 41 page routes / 23 subdomain entries | working-tree | ATHER |
 | 1.1.0b | 2026-08-18 | candidate | Added the FR-078 Customer Duplicate Review interface and reconciled the page/domain counts to the live registry | working-tree | ATHER |
 | 1.0.0b | 2026-08-18 | candidate | Executed CR-007: bounded the document to a canonical UI registry, reconciled 37 routes and explicit Business Home/domain counts, and added machine-checkable evidence | working-tree | ATHER |
 | 0.4.0 | 2026-08-14 | beta | FR-044/FR-046 shell boundary inventory before normalization | historical | ATHER |
