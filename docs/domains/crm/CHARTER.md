@@ -35,6 +35,11 @@ turn flows through before any agent work happens.
 - FR-078 owns the historical Customer Profile backfill contract. It defines
   source identity, entity resolution, PII boundaries and rollback gates; it
   does not authorize a write until its approvals and target-schema gate pass.
+- `getConversationInbox` / `getConversationThread` — the read side (FR-091).
+  Read-only by construction: the module exports no writer, so the reader cannot
+  become a second write path into the models the ingest seam owns. It answers
+  within the Tenant of a Business the viewer can see (BR-001) and never replies
+  — the reply belongs to the edge runtime (BR-011).
 - The FR-078 duplicate review queue stores only deterministic IDs, hashes,
   counts and boolean evidence flags. A Business-scoped Customer Data Reviewer
   may append a decision, but the queue never publishes a Customer or replays

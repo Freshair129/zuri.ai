@@ -39,7 +39,17 @@ test.describe('FR-060 Business Home', () => {
     }
     // Every reserved slot says so in words. If any of them ever renders a score,
     // this count changes and the test fails — which is the point.
-    await expect(page.getByText('Reserved — no module yet')).toHaveCount(4)
+    //
+    // @req FR-091 — three, not four, since 2026-08-20: CRM shipped pages and left
+    // the reserved set. It is still listed above because the row must remain on
+    // Business Home; what changed is which sentence it carries.
+    await expect(page.getByText('Reserved — no module yet')).toHaveCount(3)
+
+    // And CRM's new sentence is a stated absence, not a zero — the distinction
+    // this whole test exists to hold. Business Home does not yet read the crm
+    // domain for a signal, and says so rather than implying a measured nothing.
+    const crmRow = page.locator('li, div').filter({ hasText: /^CRM/ }).first()
+    await expect(crmRow).not.toContainText('Reserved — no module yet')
   })
 
   test('Development is a separate slot that roots at its own resource list', async ({ page }) => {

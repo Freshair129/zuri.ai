@@ -21,7 +21,7 @@ const { test } = require('@playwright/test')
 // sub-domain fails there instead of becoming the next flake.
 const ROUTES = [
   '/', '/login', '/businesses', '/overview', '/profile', '/workspaces',
-  '/commerce', '/customer',
+  '/commerce', '/customer', '/customer/conversations',
   '/growth', '/growth/campaigns',
   '/operations',
   '/people', '/people/directory',
