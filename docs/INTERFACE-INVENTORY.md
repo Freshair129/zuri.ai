@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=41; operational_domain_keys=7; operational_subdomain_entries=23; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=42; operational_domain_keys=7; operational_subdomain_entries=23; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -60,6 +60,7 @@ Landing → Login/demo boundary → trusted viewer resolution → Business Routi
 | **BusinessRoutingShell** | viewer exists but Business is not selected | `/businesses` | `src/app/(entry)/businesses/page.jsx` | displays only authorized Business choices |
 | **BusinessShell** | trusted viewer plus authorized `activeBusinessId` | `/overview` and Business domains | `src/app/(pm)/layout.jsx`, `BusinessShellGuard.jsx` | selection occurs before final chrome mounts |
 | **ProjectResourceShell** | BusinessShell plus opened `projectId` | `/projects/[projectId]/**` | `src/app/(pm)/projects/[projectId]/layout.jsx` | Project tabs remain inside the selected Business |
+| **PlatformControlShell** | trusted installation operator; no Business selection | `/control/**` | `src/app/(control)/layout.jsx` | no DomainBar, Business sidebar, Business context or Business navigation entry |
 
 `/overview` is Business Home's Dashboard and the BusinessShell root. It is not a
 Development sub-domain. Development starts at `/projects`.
@@ -130,7 +131,17 @@ page routes because its Dashboard and Settings navigation entries share
 | `/audit` | Audit Log | BusinessShell → Platform / Audit | immutable audit event browser and filters | empty, loading, error, forbidden | implemented; `src/app/(pm)/audit/page.jsx`, FR-014 |
 | `/backup` | Backup | BusinessShell → Platform / Backup | snapshot export and preview-then-confirm restore | loading, validation, confirmation, error, forbidden | implemented; `src/app/(pm)/backup/page.jsx`, FR-013 |
 
-### 3.5 Workspace compatibility surfaces
+### 3.5 Platform Control surface
+
+Platform Control is an installation-operator-only operational surface. It is not
+one of the seven Business domains, is not configured in `DOMAINS`, and does not
+require an active Business selection.
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/control/roadmap` | Platform Programme Roadmap | PlatformControlShell → programme plan snapshot | read-only six-phase / twelve-sprint / thirty-task plan, gates and deliverables | auth required, loading, forbidden, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/roadmap/page.jsx`, FR-094 / ADR-039 |
+
+### 3.6 Workspace compatibility surfaces
 
 These pages remain routable Project Manager Space surfaces. They are not a second
 global collaboration Workspace authority; ADR-027's future onboarding surface is
@@ -141,7 +152,7 @@ separately documented.
 | `/workspaces` | Workspace list | BusinessShell → Development/Space compatibility | list and open Spaces | empty, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/page.jsx` |
 | `/workspaces/[workspaceId]` | Workspace detail | BusinessShell → Development/Space compatibility | Space metadata and related Projects | not found, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/[workspaceId]/page.jsx` |
 
-### 3.6 Project resource surfaces
+### 3.7 Project resource surfaces
 
 All rows below are nested in ProjectResourceShell. Project-local work views are
 not new global domains or new persistence aggregates.
@@ -219,7 +230,7 @@ The current route evidence is:
 
 | Evidence | Current value | Check |
 |---|---:|---|
-| `src/app/**/page.jsx` | 38 page routes | preflight compares every derived URL to this registry |
+| `src/app/**/page.jsx` | 42 page routes | preflight compares every derived URL to this registry |
 | `src/config/domains.js` | 7 operational domains, 22 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
 | UI status | per-row, not a global completion claim | local implementation does not imply production provider/cutover readiness |
 
@@ -237,6 +248,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0b | 2026-08-20 | candidate | Added the installation-operator-only Platform Programme Roadmap outside the BusinessShell and reconciled the page count to 42 | working-tree | ATHER |
 | 1.2.0b | 2026-08-20 | candidate | Registered the FR-091 CRM Dashboard and Inbox, the first reader surface over the LINE ingress, and reconciled the counts to 41 page routes / 23 subdomain entries | working-tree | ATHER |
 | 1.1.0b | 2026-08-18 | candidate | Added the FR-078 Customer Duplicate Review interface and reconciled the page/domain counts to the live registry | working-tree | ATHER |
 | 1.0.0b | 2026-08-18 | candidate | Executed CR-007: bounded the document to a canonical UI registry, reconciled 37 routes and explicit Business Home/domain counts, and added machine-checkable evidence | working-tree | ATHER |

@@ -738,3 +738,11 @@
 - **Code:** `src/app/api/agent/line-delivery/route.js` · `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/turn.js` · `src/modules/crm/reply-record-service.js`
 - **Follows:** BR-011, BR-012, FR-052, NFR-017, SDD-026, SDD-048, SDD-051, SEC-001, SEC-010
 - **Tests:** `tests/integration/agent-turn.test.js` · `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-reply-record.test.js` · `tests/integration/line-webhook-transport-contract.test.js` · `tests/unit/reply-record-service.test.js`
+
+### FR-094 — Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The initial board is a static plan snapshot (six phases, twelve sprints, thirty tasks, eight gates and ten deliverables) carrying its supplied baseline and `draft` status. It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion.
+
+- **Status:** n/a
+- **Surface:** `/control/roadmap` (page)
+- **Code:** `src/app/(control)/control/roadmap/page.jsx` · `src/app/(control)/layout.jsx` · `src/components/layouts/PlatformControlGuard.jsx` · `src/components/layouts/PlatformControlShell.jsx` · `src/lib/platform-control-guard.js` · `src/modules/platform-control/components/ProgramRoadmapBoard.jsx` · `src/modules/platform-control/program-roadmap-data.js`
+- **Follows:** NFR-008, SDD-052, SEC-018
+- **Tests:** `tests/unit/platform-control-guard.test.js` · `tests/unit/platform-control-route-contract.test.js`

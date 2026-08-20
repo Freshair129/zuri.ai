@@ -26,3 +26,5 @@ docs/v1-inherited/
 # releases). Nothing here generates it; ignored so an external writer cannot
 # reintroduce it as tracked noise.
 JULES_REPORT.md
+
+.vercel

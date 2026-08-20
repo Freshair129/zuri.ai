@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-20T02:26:19.022Z",
+  "generatedAt": "2026-08-20T07:18:23.560Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -27,7 +27,7 @@
   ],
   "overall": {
     "status": "partial",
-    "domainCount": 7,
+    "domainCount": 8,
     "gapCount": 21,
     "gaps": [
       {
@@ -1411,6 +1411,94 @@
         "featureNotes": 1
       }
     },
+    "platform-control": {
+      "status": "verified",
+      "requirements": [
+        {
+          "id": "FR-094",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 2
+        }
+      ],
+      "checks": {
+        "ui": {
+          "status": "verified",
+          "evidence": [
+            "docs/INTERFACE-INVENTORY.md"
+          ],
+          "gaps": [],
+          "details": {
+            "routes": 1,
+            "inventoried": 1,
+            "missing": 0
+          }
+        },
+        "httpApi": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "mcp": {
+          "status": "verified",
+          "evidence": [
+            "src/app/api/mcp/route.js",
+            "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/project-manager-mcp.test.js"
+          ],
+          "gaps": []
+        },
+        "runtimeContract": {
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md",
+            "src/modules/project-manager/import/plan-schema.js"
+          ],
+          "gaps": []
+        },
+        "jsonSchema": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "database": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "authorization": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "tests": {
+          "status": "verified",
+          "evidence": [
+            "docs/TRACE.md"
+          ],
+          "gaps": []
+        }
+      },
+      "evidence": [
+        "docs/INTERFACE-INVENTORY.md",
+        "docs/TRACE.md",
+        "docs/domains/platform-control/CHARTER.md",
+        "docs/domains/platform-control/features/FR-094-platform-programme-roadmap.md",
+        "src/app/api/mcp/route.js",
+        "src/modules/project-manager/import/plan-schema.js",
+        "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/project-manager-mcp.test.js"
+      ],
+      "gaps": [],
+      "details": {
+        "routes": 1,
+        "apiRoutes": 0,
+        "pageRoutes": 1,
+        "ownedModels": 0,
+        "featureNotes": 1
+      }
+    },
     "project-manager": {
       "status": "partial",
       "requirements": [
@@ -1912,6 +2000,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 5
+        },
+        {
+          "id": "FR-094",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 2
         }
       ],
       "checks": {

@@ -52,6 +52,8 @@ Root Provider Layout
 │   └── /login
 ├── BusinessRoutingShell
 │   └── /businesses
+├── PlatformControlShell (requires isOperator; no Business scope)
+│   └── /control/roadmap
 └── BusinessShell (requires activeBusinessId)
     ├── /overview
     ├── /people
@@ -136,6 +138,9 @@ until their parity and BusinessModule gates are met.
 - URLs do not carry Portfolio/Tenant/Business ids; selection is ambient.
 - `/businesses` is the only Business selector in this slice.
 - `/overview` and Business domain routes require an authorized Business selection.
+- `/control/roadmap` requires a trusted installation operator but no Business
+  selection. It is outside `DOMAINS`; `isPlatform`, role and Business ownership
+  are insufficient. See ADR-039.
 - Missing viewer → `/login`.
 - Missing Business → `/businesses`.
 - Missing Profile → `/onboarding/profile` in the ADR-027 target flow.

@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1057,
-    "total_edges": 3478,
+    "total_nodes": 1073,
+    "total_edges": 3515,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 86,
-      "adr": 38,
-      "domain": 7,
+      "document": 87,
+      "adr": 39,
+      "domain": 8,
       "roadmap": 25,
       "feature": 9,
-      "route": 117,
+      "route": 118,
       "model": 53,
-      "requirement": 198,
-      "test": 245,
-      "code_file": 275
+      "requirement": 201,
+      "test": 247,
+      "code_file": 282
     },
     "coverage": {
-      "requirements": 198,
-      "fr_with_code": "100% (81/81)",
-      "fr_with_tests": "100% (81/81)",
-      "rules_anchored_in_code": "89% (76/85)",
+      "requirements": 201,
+      "fr_with_code": "100% (82/82)",
+      "fr_with_tests": "100% (82/82)",
+      "rules_anchored_in_code": "90% (78/87)",
       "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 275,
+      "annotated_code_files": 282,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -88,6 +88,40 @@
         "@tested": [
           "tests/e2e/smoke.spec.js",
           "tests/e2e/fr041-business-first.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(control)/control/roadmap/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(control)/control/roadmap/page.jsx",
+      "hash": "c049d2c4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-route-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(control)/layout.jsx",
+      "type": "code_file",
+      "path": "src/app/(control)/layout.jsx",
+      "hash": "b926f039",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-route-contract.test.js"
         ]
       }
     },
@@ -2674,6 +2708,42 @@
       }
     },
     {
+      "id": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/PlatformControlGuard.jsx",
+      "hash": "2a744b67",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@spec": [
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-guard.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/layouts/PlatformControlShell.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/PlatformControlShell.jsx",
+      "hash": "590b435b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@spec": [
+          "NFR-008"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-route-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/components/layouts/Sidebar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Sidebar.jsx",
@@ -2962,6 +3032,24 @@
         ],
         "@tested": [
           "tests/unit/observability-logger.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/platform-control-guard.js",
+      "type": "code_file",
+      "path": "src/lib/platform-control-guard.js",
+      "hash": "6b467c4e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@spec": [
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-guard.test.js"
         ]
       }
     },
@@ -4258,6 +4346,40 @@
         ],
         "@tested": [
           "tests/unit/people-directory.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "type": "code_file",
+      "path": "src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "hash": "2364fd7f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@spec": [
+          "SDD-052",
+          "NFR-008"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-route-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/platform-control/program-roadmap-data.js",
+      "type": "code_file",
+      "path": "src/modules/platform-control/program-roadmap-data.js",
+      "hash": "4676c4ee",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-route-contract.test.js"
         ]
       }
     },
@@ -6205,6 +6327,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-094-platform-programme-roadmap",
+      "type": "document",
+      "path": "docs/domains/platform-control/features/FR-094-platform-programme-roadmap.md",
+      "title": "FR-094 — Platform Programme Roadmap",
+      "hash": "e7105299",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -6231,7 +6361,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.2.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "1822697f",
+      "hash": "a0c3d8b8",
       "status": "current"
     },
     {
@@ -6441,7 +6571,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.78.0b",
       "doc_status": "Draft",
-      "hash": "ea7253f8",
+      "hash": "3a477063",
       "status": "current"
     },
     {
@@ -6495,7 +6625,7 @@
       "title": "Zuri — Route and Shell Sitemap",
       "version": "1.0.0",
       "doc_status": "draft",
-      "hash": "51728a12",
+      "hash": "89c301e8",
       "status": "current"
     },
     {
@@ -6740,6 +6870,26 @@
         "market-intelligence"
       ],
       "hash": "9e066efd",
+      "status": "current"
+    },
+    {
+      "id": "domain:platform-control",
+      "type": "domain",
+      "path": "docs/domains/platform-control/CHARTER.md",
+      "title": "Domain — platform-control",
+      "owns_models": [],
+      "owns_routes": [
+        "src/app/(control)/control/**"
+      ],
+      "owns_code": [
+        "src/modules/platform-control/**",
+        "src/components/layouts/PlatformControlShell.jsx",
+        "src/components/layouts/PlatformControlGuard.jsx"
+      ],
+      "modules": [
+        "platform-control"
+      ],
+      "hash": "876dabe3",
       "status": "current"
     },
     {
@@ -8247,6 +8397,16 @@
       "row_text": "LINE reply delivery receipt: the outbound half of a conversation becomes a row. Nothing has ever written a `Message` with `direction: 'OUTBOUND'` — the reply is assembled here, handed to the edge runtime, sent to the customer and then forgotten — so FR-091's inbox shows one side of every conversation and its `OUTBOUND` count is structurally zero. `POST /api/agent/line-delivery` accepts a batch of receipts from the transport owner, each naming the **inbound `Message.id` it answers** and the text that was **actually sent**. (a) The receipt comes from the edge runtime *after* a successful send and not from this side at hand-over, because the two differ: when the stack cannot answer, the transport sends its own fallback text, and recording what this side produced would record a message the customer never received (BR-011 — the reply owner is the one who knows). (b) Scope is resolved by the same seam as the webhook (FR-052), and the named inbound message must resolve inside that scope — a binding for one tenant can never attach a reply to another tenant's conversation (SEC-001). (c) Idempotent on `reply:<inboundMessageId>` as the message's external id, so a redelivered receipt resolves to the existing row: one inbound message has one reply, which is exactly what the LINE Reply API allows per token. (d) The row records the text the customer received; whether it came from the stack or from the transport's fallback is recorded on the audit event, not in the body, because the body is what was said and the provenance is a different fact. The webhook response gains `conversationId` and `inboundMessageId` so the transport has something to name — on the **failure** result as well as the success one, because a failed turn is precisely when the transport substitutes its own text and a customer certainly received something. That failure result also gains the `eventId` it never carried: the transport matches results to events by that field, so a failed result was previously unfindable and its fallback was sent only because an unmatched result and a failed one both read as \"not ok\". All additive; the four fields the transport already reads are untouched. 🔜 "
     },
     {
+      "id": "req:FR-094",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The initial board is a static plan snapshot (six phases, twelve sprints, thirty tasks, eight gates and ten deliverables) carrying its supplied baseline and `draft` status. It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The initial board is a static plan snapshot (six phases, twelve sprints, thirty tasks, eight gates and ten deliverables) carrying its supplied baseline and `draft` status. It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion. 🟢 implemented locally; operator-only static route, pending deployment evidence "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -8937,6 +9097,16 @@
       "row_text": "Recording a reply is a **separate, narrow writer** in the crm module (`reply-record-service`), not a `direction: 'OUTBOUND'` call into `ingestLineMessage`. The ingest seam creates a Person, a Customer and a Conversation when they are absent, and that is exactly wrong here: a receipt naming a conversation that does not exist is an error to report, never a reason to invent one. So the writer resolves the inbound `Message` first, derives the conversation from it, and refuses anything it cannot place — the conversation is never taken from the request, which is what makes cross-tenant attachment impossible rather than merely checked. It appends one row and one `AuditEvent` in a single transaction, exactly as the ingest seam does, and carries the same correlation id (SDD-048) so `webhook → turn → message → reply` remains one chain in the audit table. The route is a batch like the webhook: a per-receipt failure is captured with the stage that failed and never drops the rest, because a transport that has already sent three replies must be able to report all three. FR-093; FEAT-009, BR-011, BR-001, SEC-001, SDD-048, SDD-050, FR-023, FR-052, FR-091 "
     },
     {
+      "id": "req:SDD-052",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Platform Control mounts in its own App Router route group and resolves only the existing trusted viewer contract. The pure guard distinguishes loading, unauthenticated, forbidden and ready states before the board mounts; authorization calls Identity's `isInstallationOperator` predicate, so a visibility label or any composition of Business grants cannot accidentally become installation authority. The first programme board is imported at build time as a constant plan snapshot: it has no fetch, mutation, API route, persistence model or live-progress calculation.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Platform Control mounts in its own App Router route group and resolves only the existing trusted viewer contract. The pure guard distinguishes loading, unauthenticated, forbidden and ready states before the board mounts; authorization calls Identity's `isInstallationOperator` predicate, so a visibility label or any composition of Business grants cannot accidentally become installation authority. The first programme board is imported at build time as a constant plan snapshot: it has no fetch, mutation, API route, persistence model or live-progress calculation. FR-094; FR-075, ADR-039, NFR-008 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -9105,6 +9275,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope. FR-092 / ADR-038 security gate "
+    },
+    {
+      "id": "req:SEC-018",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Platform Control fails closed: the server route guard renders programme content only after a trusted viewer satisfies `isInstallationOperator`; unauthorised HTML contains no programme data. `isPlatform`, role labels, visible domains, visible Businesses and owned Businesses/Tenants are not authorization inputs. The static projection contains no Business/user data and has no write or API path.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Platform Control fails closed: the server route guard renders programme content only after a trusted viewer satisfies `isInstallationOperator`; unauthorised HTML contains no programme data. `isPlatform`, role labels, visible domains, visible Businesses and owned Businesses/Tenants are not authorization inputs. The static projection contains no Business/user data and has no write or API path. FR-094 / FR-075 / ADR-039 security gate "
     },
     {
       "id": "route:api:/api/agent/line-delivery",
@@ -9747,6 +9927,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/control/roadmap",
+      "type": "route",
+      "kind": "page",
+      "route": "/control/roadmap",
+      "path": "src/app/(control)/control/roadmap/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/customer",
       "type": "route",
       "kind": "page",
@@ -10348,6 +10536,14 @@
       "path": "docs/decisions/ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY.md",
       "title": "ADR-038 — Market Intelligence is a first-class Zuri domain inside the Modular Monolith",
       "hash": "e759691c",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-039-PLATFORM-CONTROL-SHELL",
+      "type": "adr",
+      "path": "docs/decisions/ADR-039-PLATFORM-CONTROL-SHELL.md",
+      "title": "ADR-039 — Platform Control is outside the Business Shell",
+      "hash": "cf75d8e0",
       "status": "current"
     },
     {
@@ -11166,7 +11362,7 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
-      "hash": "3b86cfe8",
+      "hash": "cd09510a",
       "status": "current"
     },
     {
@@ -11730,6 +11926,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/platform-control-guard.test.js",
+      "type": "test",
+      "path": "tests/unit/platform-control-guard.test.js",
+      "hash": "84d1544f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform-control-route-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/platform-control-route-contract.test.js",
+      "hash": "04080a7c",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/platform/integration-contracts.test.js",
       "type": "test",
       "path": "tests/unit/platform/integration-contracts.test.js",
@@ -12127,6 +12337,34 @@
       "from": "code:prisma/seed.js",
       "to": "req:NFR-007",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(control)/control/roadmap/page.jsx",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(control)/control/roadmap/page.jsx",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(control)/control/roadmap/page.jsx",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(control)/layout.jsx",
+      "to": "req:FR-094",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -15918,6 +16156,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlShell.jsx",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlShell.jsx",
+      "to": "req:NFR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/components/layouts/Sidebar.jsx",
       "to": "req:FR-039",
       "type": "implements",
@@ -16319,6 +16585,20 @@
     {
       "from": "code:src/lib/observability/logger.js",
       "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/platform-control-guard.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/platform-control-guard.js",
+      "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -17930,6 +18210,34 @@
       "from": "code:src/modules/people/components/PeopleDirectory.jsx",
       "to": "req:SDD-020",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "to": "req:NFR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/platform-control/program-roadmap-data.js",
+      "to": "req:FR-094",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -21315,6 +21623,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-094",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -21798,6 +22113,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-052",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -21925,6 +22247,13 @@
     },
     {
       "from": "req:SEC-017",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-018",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -22479,6 +22808,13 @@
     {
       "from": "route:page:/businesses",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/control/roadmap",
+      "to": "domain:platform-control",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -23774,6 +24110,48 @@
     {
       "from": "spec:ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY",
       "to": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-039-PLATFORM-CONTROL-SHELL",
+      "to": "req:FR-075",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-039-PLATFORM-CONTROL-SHELL",
+      "to": "req:FR-094",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-039-PLATFORM-CONTROL-SHELL",
+      "to": "req:NFR-008",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-039-PLATFORM-CONTROL-SHELL",
+      "to": "spec:ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-039-PLATFORM-CONTROL-SHELL",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-039-PLATFORM-CONTROL-SHELL",
+      "to": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
       "type": "relates",
       "status": "current",
       "source": "control-block"
@@ -34207,6 +34585,97 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "code:src/lib/platform-control-guard.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "code:src/app/(control)/control/roadmap/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "code:src/app/(control)/layout.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "code:src/components/layouts/PlatformControlShell.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "code:src/modules/platform-control/program-roadmap-data.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform/integration-contracts.test.js",
