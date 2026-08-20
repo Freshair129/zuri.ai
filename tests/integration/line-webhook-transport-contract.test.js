@@ -17,7 +17,7 @@ import { createLineWebhookPost } from '@/app/api/agent/line-webhook/route'
 //   results[].ok             false -> fall back to its own STACK_UNAVAILABLE_REPLY
 //   results[].response.text  the string it hands to the LINE Reply API
 //
-// Since FR-092 it reads two more, to report back what the customer received:
+// Since FR-093 it reads two more, to report back what the customer received:
 //
 //   results[].conversationId    the conversation the turn resolved
 //   results[].inboundMessageId  the Message row the reply answers
@@ -166,9 +166,9 @@ describe('LINE webhook response contract consumed by zuri-cli (BR-011)', () => {
     expect(typeof json.handled).toBe('number')
   })
 
-  it('names the row a delivery receipt will quote back (FR-092)', async () => {
+  it('names the row a delivery receipt will quote back (FR-093)', async () => {
     // The transport posts these two ids to `/api/agent/line-delivery` once the
-    // customer has actually received a reply. Before FR-092 they existed only in a
+    // customer has actually received a reply. Before FR-093 they existed only in a
     // log line, which no other process can read from — so the outbound half of every
     // conversation was sent and then lost.
     //

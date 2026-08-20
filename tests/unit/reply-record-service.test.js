@@ -1,8 +1,8 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
-// @req FR-092 — the receipt contract and the ordering that makes a cross-tenant
+// @req FR-093 — the receipt contract and the ordering that makes a cross-tenant
 // attachment unsayable, held without a database.
-// @spec SDD-050, SEC-001, BR-011
+// @spec SDD-051, SEC-001, BR-011
 
 const calls = { findFirst: 0, findUnique: 0, create: 0, transaction: 0 }
 let inboundRow = null

@@ -1,6 +1,6 @@
 // @req FR-091 — the CRM Inbox is reachable, renders what the LINE ingress wrote, and
 // offers no way to reply.
-// @spec SDD-049, BR-001, BR-011
+// @spec SDD-050, BR-001, BR-011
 // @tested tests/e2e/fr091-conversation-inbox.spec.js
 const { test, expect } = require('@playwright/test')
 

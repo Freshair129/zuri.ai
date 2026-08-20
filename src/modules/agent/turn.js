@@ -40,7 +40,7 @@ export async function handleAgentTurn(
   // 1. Ingest the inbound message (persists + resolves identity through the one seam).
   const inbound = await ingestLineMessage({ tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId, correlationId })
 
-  // @req FR-092 — everything below can fail, and when it does the transport still
+  // @req FR-093 — everything below can fail, and when it does the transport still
   // sends the customer its own fallback text. Recording that reply needs the row
   // ingest just wrote, so the row travels with the error instead of being lost with
   // the stack frame. Attached, never overwritten: an inner layer that already knows

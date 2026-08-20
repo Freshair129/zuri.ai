@@ -1,6 +1,6 @@
 ---
 domain: crm
-feature: FR-092
+feature: FR-093
 module: crm
 source: v2-native
 version: "0.1.0b"
@@ -9,7 +9,7 @@ last_update: "2026-08-20T00:00:00+07:00,ATHER"
 status: "beta"
 ---
 
-# FR-092 — LINE reply delivery receipt
+# FR-093 — LINE reply delivery receipt
 
 ## Why this exists
 

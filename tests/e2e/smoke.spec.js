@@ -35,7 +35,18 @@ test.describe('universal routes', () => {
     await page.goto('/projects')
     const projectLink = page.getByRole('link', { name: /Business 01.*Transformation Program/ }).first()
     await expect(projectLink).toBeVisible()
+    const projectHref = await projectLink.getAttribute('href')
+    const projectId = projectHref.split('/').pop()
+    // Project detail is a client-fetched page; wait for its exact read before
+    // asserting the hydrated heading rather than using navigation as readiness.
+    const detailResponse = page.waitForResponse((response) => {
+      const pathname = new URL(response.url()).pathname
+      return response.request().method() === 'GET'
+        && response.ok()
+        && pathname === `/api/projects/${projectId}`
+    })
     await projectLink.click()
+    await detailResponse
     await expect(page.getByRole('heading', { name: /Transformation Program/ })).toBeVisible()
     await expect(page.getByText('Project progress')).toBeVisible()
     await expect(page.getByText('WST-DATA', { exact: false }).first()).toBeVisible()

@@ -5,10 +5,10 @@ import { recordLineReply, zReplyReceipt } from '@/modules/crm/reply-record-servi
 import { logger as defaultLogger } from '@/lib/observability/logger'
 import { resolveCorrelationId } from '@/lib/observability/correlation'
 
-// @req FR-092 — the transport owner reports what it actually sent, and the reply
+// @req FR-093 — the transport owner reports what it actually sent, and the reply
 //   becomes a row. Until this route existed the outbound half of every conversation
 //   was delivered to the customer and then lost.
-// @spec SDD-050, BR-011 — the reply owner is the edge runtime; this is the seam where
+// @spec SDD-051, BR-011 — the reply owner is the edge runtime; this is the seam where
 //   it tells us what the customer received. Which matters because the two can differ:
 //   when the stack cannot answer, the transport sends its own fallback, and only the
 //   sender knows which text went out.

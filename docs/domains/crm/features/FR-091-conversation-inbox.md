@@ -80,7 +80,7 @@ conversation.
 That figure stayed on the page rather than being removed — removing it would have
 hidden the gap, and showing it is how the gap became visible at all.
 
-**Closed the same day by [FR-092](FR-092-reply-delivery-receipt.md).** The design
+**Closed the same day by [FR-093](FR-093-reply-delivery-receipt.md).** The design
 question this section left open — does the runtime report its reply back, or does
 `zuri-ai` record what it handed over — was settled by reading the runtime: when
 the stack cannot answer, the transport sends *its own* fallback text. The two

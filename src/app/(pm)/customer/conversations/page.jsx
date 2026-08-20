@@ -9,7 +9,7 @@ import { LoadingCard, useFetch } from '@/modules/project-manager/components/useA
 
 // @req FR-091 — the CRM Conversation Inbox: the first surface able to read what the
 // LINE ingress has been writing since FR-023.
-// @spec SDD-049, BR-001, BR-011, SDD-007
+// @spec SDD-050, BR-001, BR-011, SDD-007
 // @tested tests/unit/fr091-inbox-ui-contract.test.js, tests/e2e/fr091-conversation-inbox.spec.js
 //
 // There is no reply box on this page and its absence is the design (BR-011): the reply

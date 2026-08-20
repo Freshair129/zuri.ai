@@ -7,7 +7,7 @@ import { resolveCorrelationId } from '@/lib/observability/correlation'
 
 // @req FR-050 — return event-correlated verified reply text/skipReply state to the sole
 // LINE transport owner without receiving or consuming the LINE replyToken here.
-// @req FR-092 — the successful result also names the conversation and the inbound
+// @req FR-093 — the successful result also names the conversation and the inbound
 //   message row it created, which is what the transport quotes back on
 //   `POST /api/agent/line-delivery` once the customer has actually received a reply.
 // @spec BR-011 — zuri-cli is the sole LINE reply owner when stack answering is enabled.
@@ -232,7 +232,7 @@ export function createLineWebhookPost({
           skipReply: turn.response.skipReply === true,
           response: turn.response,
           evidence: evidenceResult,
-          // @req FR-092 — additive, and the only reason they are here: the transport
+          // @req FR-093 — additive, and the only reason they are here: the transport
           // needs something to name when it reports back what it actually sent. Both
           // were already computed and were previously visible only in a log line,
           // which is not a place another process can read from.
@@ -251,7 +251,7 @@ export function createLineWebhookPost({
         results.push({
           ok: false,
           correlationId,
-          // @req FR-092 — the transport matches results to events by `eventId`, and
+          // @req FR-093 — the transport matches results to events by `eventId`, and
           // this branch never carried one: a failed result was simply unfindable, and
           // the fallback got sent because an unmatched result and a failed one both
           // read as "not ok". That accident is now load-bearing — without the match
@@ -260,7 +260,7 @@ export function createLineWebhookPost({
           stage: 'TURN',
           error: err?.message || 'turn failed',
           evidence: evidenceResult,
-          // @req FR-092 — a failed turn is exactly when the transport sends the
+          // @req FR-093 — a failed turn is exactly when the transport sends the
           // customer its own fallback, so this is the branch where naming the row
           // matters most. Ingest runs first and usually succeeded; `err.inbound`
           // carries what it wrote. Null when the failure was the ingest itself —

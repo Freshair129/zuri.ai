@@ -7,9 +7,9 @@ import { createLineDeliveryPost } from '@/app/api/agent/line-delivery/route'
 import { getConversationThread } from '@/modules/crm/conversation-read-model'
 import { makeViewer } from '../factories/viewer'
 
-// @req FR-092 — the reply the customer received becomes a row, keyed to the message it
+// @req FR-093 — the reply the customer received becomes a row, keyed to the message it
 // answered, and cannot be attached across a tenant boundary.
-// @spec SDD-050, BR-011, SEC-001, SDD-048
+// @spec SDD-051, BR-011, SEC-001, SDD-048
 
 const quietLogger = { info() {}, warn() {}, error() {}, debug() {}, emit() {} }
 
@@ -26,7 +26,7 @@ const post = (handler, body, headers = {}) => handler(new Request('http://local/
 // webhook uses in the lab (SEC-010 closes it in production).
 const handler = () => createLineDeliveryPost({ runtimeFactory: async () => null, logger: quietLogger })
 
-describe('LINE reply delivery receipt (FR-092)', () => {
+describe('LINE reply delivery receipt (FR-093)', () => {
   beforeAll(async () => {
     const pfA = await createPortfolio({ name: 'Reply Group A', code: 'PF-REPLY-A' })
     tenantA = await createTenant({ portfolioId: pfA.id, name: 'Reply Tenant A', code: 'TNT-REPLY-A' })

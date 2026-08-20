@@ -5,7 +5,7 @@ import { DOMAINS, domainForPath } from '@/config/domains'
 
 // @req FR-091 — the CRM domain stops being a reserved slot, its two pages read through
 // the one authorized endpoint, and neither of them can reply.
-// @spec SDD-049, BR-001, BR-011, SEC-001
+// @spec SDD-050, BR-001, BR-011, SEC-001
 
 const inboxPage = () => readFileSync('src/app/(pm)/customer/conversations/page.jsx', 'utf8')
 const dashboardPage = () => readFileSync('src/app/(pm)/customer/page.jsx', 'utf8')

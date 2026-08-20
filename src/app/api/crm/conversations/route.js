@@ -6,7 +6,7 @@ import {
 } from '@/modules/crm/conversation-read-model'
 
 // @req FR-091 — the CRM Conversation Inbox list endpoint.
-// @spec SDD-049, BR-001, SEC-001, SDD-007
+// @spec SDD-050, BR-001, SEC-001, SDD-007
 // @tested tests/integration/crm-conversation-inbox.test.js
 //
 // GET only. There is no POST here and there is not meant to be one: the reply owner is

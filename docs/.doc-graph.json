@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1039,
-    "total_edges": 3456,
+    "total_nodes": 1057,
+    "total_edges": 3478,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 85,
+      "document": 86,
       "adr": 38,
       "domain": 7,
       "roadmap": 25,
       "feature": 9,
       "route": 117,
-      "model": 52,
-      "requirement": 193,
-      "test": 235,
-      "code_file": 274
+      "model": 53,
+      "requirement": 198,
+      "test": 245,
+      "code_file": 275
     },
     "coverage": {
-      "requirements": 193,
-      "fr_with_code": "100% (80/80)",
-      "fr_with_tests": "100% (80/80)",
-      "rules_anchored_in_code": "89% (73/82)",
-      "nfr_evidence_based": "17 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 274,
+      "requirements": 198,
+      "fr_with_code": "100% (81/81)",
+      "fr_with_tests": "100% (81/81)",
+      "rules_anchored_in_code": "89% (76/85)",
+      "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 275,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -38,7 +38,7 @@
         "FR-088",
         "FR-089",
         "FR-091",
-        "FR-092"
+        "FR-093"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -60,8 +60,29 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [],
+    "changed": [
+      "doc:A-api-spec",
+      "domain:crm",
+      "doc:FR-091-conversation-inbox",
+      "doc:FEATURES",
+      "doc:PRD-SDD-v1.0",
+      "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "test:tests/integration/line-webhook-transport-contract.test.js",
+      "test:tests/integration/openapi-docs.test.js",
+      "code:src/app/api/agent/line-webhook/route.js",
+      "code:src/modules/agent/turn.js",
+      "code:src/modules/project-manager/api-docs/openapi.js"
+    ],
+    "added": [
+      "doc:FR-093-reply-delivery-receipt",
+      "route:api:/api/agent/line-delivery",
+      "req:FR-093",
+      "req:SDD-051",
+      "test:tests/integration/line-reply-record.test.js",
+      "test:tests/unit/reply-record-service.test.js",
+      "code:src/app/api/agent/line-delivery/route.js",
+      "code:src/modules/crm/reply-record-service.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -155,14 +176,14 @@
       "id": "code:src/app/(pm)/customer/conversations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/customer/conversations/page.jsx",
-      "hash": "8c3d1950",
+      "hash": "25cac596",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-091"
         ],
         "@spec": [
-          "SDD-049",
+          "SDD-050",
           "BR-001",
           "BR-011",
           "SDD-007"
@@ -177,14 +198,14 @@
       "id": "code:src/app/(pm)/customer/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/customer/page.jsx",
-      "hash": "b1acc070",
+      "hash": "2de4f00d",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-091"
         ],
         "@spec": [
-          "SDD-049",
+          "SDD-050",
           "BR-001",
           "SDD-007"
         ],
@@ -854,14 +875,14 @@
       "id": "code:src/app/api/agent/line-delivery/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/line-delivery/route.js",
-      "hash": "c6b37032",
+      "hash": "b056f150",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-092"
+          "FR-093"
         ],
         "@spec": [
-          "SDD-050",
+          "SDD-051",
           "BR-011",
           "FR-052",
           "SEC-001",
@@ -878,12 +899,12 @@
       "id": "code:src/app/api/agent/line-webhook/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
-      "hash": "93f21983",
-      "status": "current",
+      "hash": "79d06e2e",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-050",
-          "FR-092",
+          "FR-093",
           "FR-028",
           "FR-052",
           "FR-081"
@@ -1195,14 +1216,14 @@
       "id": "code:src/app/api/crm/conversations/[id]/route.js",
       "type": "code_file",
       "path": "src/app/api/crm/conversations/[id]/route.js",
-      "hash": "3134c46f",
+      "hash": "f3c513e9",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-091"
         ],
         "@spec": [
-          "SDD-049",
+          "SDD-050",
           "BR-001",
           "SEC-001",
           "SDD-007"
@@ -1216,14 +1237,14 @@
       "id": "code:src/app/api/crm/conversations/route.js",
       "type": "code_file",
       "path": "src/app/api/crm/conversations/route.js",
-      "hash": "9bd13ebf",
+      "hash": "084b9efb",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-091"
         ],
         "@spec": [
-          "SDD-049",
+          "SDD-050",
           "BR-001",
           "SEC-001",
           "SDD-007"
@@ -3477,12 +3498,12 @@
       "id": "code:src/modules/agent/turn.js",
       "type": "code_file",
       "path": "src/modules/agent/turn.js",
-      "hash": "21cc7416",
-      "status": "current",
+      "hash": "5127c1e5",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-027",
-          "FR-092"
+          "FR-093"
         ],
         "@tested": [
           "tests/integration/agent-turn.test.js"
@@ -3567,14 +3588,14 @@
       "id": "code:src/modules/crm/conversation-read-model.js",
       "type": "code_file",
       "path": "src/modules/crm/conversation-read-model.js",
-      "hash": "f884171b",
+      "hash": "1336e6e2",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-091"
         ],
         "@spec": [
-          "SDD-049",
+          "SDD-050",
           "BR-001",
           "BR-011",
           "SEC-001",
@@ -3641,14 +3662,14 @@
       "id": "code:src/modules/crm/reply-record-service.js",
       "type": "code_file",
       "path": "src/modules/crm/reply-record-service.js",
-      "hash": "5cc306e1",
+      "hash": "be206ce6",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-092"
+          "FR-093"
         ],
         "@spec": [
-          "SDD-050",
+          "SDD-051",
           "BR-011",
           "SEC-001",
           "SDD-048"
@@ -4207,6 +4228,24 @@
       }
     },
     {
+      "id": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/application/market-observation-service.js",
+      "hash": "0a54664c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092",
+          "NFR-018"
+        ],
+        "@spec": [
+          "BR-019",
+          "SDD-049",
+          "SEC-017"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/people/application/people-service.js",
       "type": "code_file",
       "path": "src/modules/people/application/people-service.js",
@@ -4248,7 +4287,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "4f19113e",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019"
@@ -4305,7 +4344,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "cbc9be9b",
+      "hash": "6262dbb2",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4314,6 +4353,7 @@
           "FR-045",
           "FR-075",
           "FR-081",
+          "FR-092",
           "FR-090",
           "FR-089"
         ],
@@ -5378,7 +5418,7 @@
       "id": "code:src/platform/integrations/core/contracts.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/contracts.js",
-      "hash": "16db55c0",
+      "hash": "19fd7465",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5476,7 +5516,7 @@
       "id": "code:src/platform/integrations/core/raw-record-repository.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/raw-record-repository.js",
-      "hash": "c9fc53c4",
+      "hash": "e02f347c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5583,8 +5623,8 @@
       "title": "Appendix A — API Specification",
       "version": "1.12.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "f0a263b5",
-      "status": "current"
+      "hash": "7ef78677",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -5627,9 +5667,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.8.0",
+      "version": "1.9.0",
       "doc_status": "Draft",
-      "hash": "dadb2d5f",
+      "hash": "27db889c",
       "status": "current"
     },
     {
@@ -5711,8 +5751,8 @@
       "title": "Features (FEAT registry)",
       "version": "1.4.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "f57b372b",
-      "status": "current"
+      "hash": "4784ee45",
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -6166,15 +6206,23 @@
       "type": "document",
       "path": "docs/domains/crm/features/FR-091-conversation-inbox.md",
       "title": "FR-091 — CRM Conversation Inbox",
-      "hash": "b3860117",
+      "hash": "2598d013",
+      "status": "changed"
+    },
+    {
+      "id": "doc:FR-092-market-translation-core",
+      "type": "document",
+      "path": "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
+      "title": "FR-092 — Market translation core",
+      "hash": "6f8b46c8",
       "status": "current"
     },
     {
-      "id": "doc:FR-092-reply-delivery-receipt",
+      "id": "doc:FR-093-reply-delivery-receipt",
       "type": "document",
-      "path": "docs/domains/crm/features/FR-092-reply-delivery-receipt.md",
-      "title": "FR-092 — LINE reply delivery receipt",
-      "hash": "93a52d9c",
+      "path": "docs/domains/crm/features/FR-093-reply-delivery-receipt.md",
+      "title": "FR-093 — LINE reply delivery receipt",
+      "hash": "9de8d35b",
       "status": "current"
     },
     {
@@ -6412,10 +6460,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.71.0b",
+      "version": "1.78.0b",
       "doc_status": "Draft",
-      "hash": "9d95d011",
-      "status": "current"
+      "hash": "ea7253f8",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -6627,8 +6675,8 @@
       "modules": [
         "crm"
       ],
-      "hash": "abad8e46",
-      "status": "current"
+      "hash": "2386d97f",
+      "status": "changed"
     },
     {
       "id": "domain:identity",
@@ -6702,7 +6750,9 @@
       "type": "domain",
       "path": "docs/domains/market-intelligence/CHARTER.md",
       "title": "Domain — market-intelligence",
-      "owns_models": [],
+      "owns_models": [
+        "MarketObservation"
+      ],
       "owns_routes": [],
       "owns_code": [
         "src/modules/market-intelligence/**"
@@ -6710,7 +6760,7 @@
       "modules": [
         "market-intelligence"
       ],
-      "hash": "4b905c54",
+      "hash": "9e066efd",
       "status": "current"
     },
     {
@@ -6969,6 +7019,11 @@
     },
     {
       "id": "model:LocalWorkspaceMount",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:MarketObservation",
       "type": "model",
       "status": "current"
     },
@@ -7271,6 +7326,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Team membership is never an input to an authorization decision. A Team groups people; it does not grant, widen or imply any scope, role or domain visibility, and the identity resolver never reads it. Stated as a rule rather than left as an intention because a negative invariant holds only while something checks it — `Membership` is the authority record, and merging a grouping into it is what let a single unauthenticated POST mint business-owner authority on 2026-08-17. "
+    },
+    {
+      "id": "req:BR-019",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Integration raw evidence is immutable authority for external acquisition provenance. Market may derive observations from it but never rewrites, re-owns or treats translated payload fields as authority for Tenant/Business/connection/source scope.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Integration raw evidence is immutable authority for external acquisition provenance. Market may derive observations from it but never rewrites, re-owns or treats translated payload fields as authority for Tenant/Business/connection/source scope. FR-081, FR-092, ADR-038 "
     },
     {
       "id": "req:FR-001",
@@ -8186,6 +8251,16 @@
       "id": "req:FR-092",
       "type": "requirement",
       "family": "FR",
+      "label": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. 🟠 #76 implementation in progress "
+    },
+    {
+      "id": "req:FR-093",
+      "type": "requirement",
+      "family": "FR",
       "label": "LINE reply delivery receipt: the outbound half of a conversation becomes a row. Nothing has ever written a `Message` with `direction: 'OUTBOUND'` — the reply is assembled here, handed to the edge runtime, sent to the customer and then forgotten — so FR-091's inbox shows one side of every conversation and its `OUTBOUND` count is structurally zero. `POST /api/agent/line-delivery` accepts a batch of receipts from the transport owner, each naming the **inbound `Message.id` it answers** and the text that was **actually sent**. (a) The receipt comes from the edge runtime *after* a successful send and not from this side at hand-over, because the two differ: when the stack cannot answer, the transport sends its own fallback text, and recording what this side produced would record a message the customer never received (BR-011 — the reply owner is the one who knows). (b) Scope is resolved by the same seam as the webhook (FR-052), and the named inbound message must resolve inside that scope — a binding for one tenant can never attach a reply to another tenant's conversation (SEC-001). (c) Idempotent on `reply:<inboundMessageId>` as the message's external id, so a redelivered receipt resolves to the existing row: one inbound message has one reply, which is exactly what the LINE Reply API allows per token. (d) The row records the text the customer received; whether it came from the stack or from the transport's fallback is recorded on the audit event, not in the body, because the body is what was said and the provenance is a different fact. The webhook response gains `conversationId` and `inboundMessageId` so the transport has something to name — on the **failure** result as well as the success one, because a failed turn is precisely when the transport substitutes its own text and a customer certainly received something. That failure result also gains the `eventId` it never carried: the transport matches results to events by that field, so a failed result was previously unfindable and its fallback was sent only because an unmatched result and a failed one both read as \"not ok\". All additive; the four fields the transport already reads are untouched.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
@@ -8361,6 +8436,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "The LINE ingress is traceable end to end from one correlation id: every batch carries a correlation id — accepted from the trusted transport owner when it presents a well-formed one, generated otherwise — that appears on every structured record the request emits, on the HTTP response, and on the durable audit row for the message it produced, so an operator can join `webhook → identity → conversation → message` without archaeology. Records are emitted through one allowlisted emitter: message text, display names, bearer tokens, binding ids and reply tokens can never reach a log line, and a field the allowlist does not know is dropped and named rather than printed. Every rejected batch and every failed event emits a record naming the stage that failed; no failure is silent. FR-028/050/052/081 observability gate; SDD-048 "
+    },
+    {
+      "id": "req:NFR-018",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable. FR-092 tests + unique lineage persistence gate "
     },
     {
       "id": "req:SDD-001",
@@ -8846,6 +8931,16 @@
       "id": "req:SDD-049",
       "type": "requirement",
       "family": "SDD",
+      "label": "Market translation is a ports-and-adapters seam: a Market-specific explicit Business scope constructs the Integration raw read port; the translator produces a strict MarketObservation domain draft; Knowledge/GKS resolution is injected through governed registered reads; Market persistence atomically creates by unique lineage or returns the existing scoped row on replay. Source-specific adapters remain upstream in Integration.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Market translation is a ports-and-adapters seam: a Market-specific explicit Business scope constructs the Integration raw read port; the translator produces a strict MarketObservation domain draft; Knowledge/GKS resolution is injected through governed registered reads; Market persistence atomically creates by unique lineage or returns the existing scoped row on replay. Source-specific adapters remain upstream in Integration. FR-092, NFR-018, BR-019, SEC-017, ADR-038 "
+    },
+    {
+      "id": "req:SDD-050",
+      "type": "requirement",
+      "family": "SDD",
       "label": "The conversation reader is one composed read model (`src/modules/crm/conversation-read-model.js`) behind two routes, and it holds no write path at all. Its query count is **constant in the number of conversations**: the last message per conversation and the per-conversation message count each come from one grouped query over the page's conversation ids, never one query per row — the same N+1 discipline SDD-047 imposes on the Projects Dashboard, and the reason a read model exists here rather than a `include: { messages: true }` on the list. Authorization runs *before* composition: the viewer's Tenant is resolved from the selected Business, and a conversation owned by a Business outside `visibleBusinessIds` is excluded by the query, not filtered out of a result that was already fetched (SEC-001). `channel` and `direction` render from `enums.js` rather than from hand-copied literals. Message bodies are customer PII and reach the browser only inside this authorized response; they are never logged, and the observability emitter's allowlist (SDD-048) already refuses them.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
@@ -8853,14 +8948,14 @@
       "row_text": "The conversation reader is one composed read model (`src/modules/crm/conversation-read-model.js`) behind two routes, and it holds no write path at all. Its query count is **constant in the number of conversations**: the last message per conversation and the per-conversation message count each come from one grouped query over the page's conversation ids, never one query per row — the same N+1 discipline SDD-047 imposes on the Projects Dashboard, and the reason a read model exists here rather than a `include: { messages: true }` on the list. Authorization runs *before* composition: the viewer's Tenant is resolved from the selected Business, and a conversation owned by a Business outside `visibleBusinessIds` is excluded by the query, not filtered out of a result that was already fetched (SEC-001). `channel` and `direction` render from `enums.js` rather than from hand-copied literals. Message bodies are customer PII and reach the browser only inside this authorized response; they are never logged, and the observability emitter's allowlist (SDD-048) already refuses them. FR-091; FEAT-009, BR-001, BR-011, SEC-001, SEC-009, SDD-047, SDD-048, FR-023, FR-081 "
     },
     {
-      "id": "req:SDD-050",
+      "id": "req:SDD-051",
       "type": "requirement",
       "family": "SDD",
       "label": "Recording a reply is a **separate, narrow writer** in the crm module (`reply-record-service`), not a `direction: 'OUTBOUND'` call into `ingestLineMessage`. The ingest seam creates a Person, a Customer and a Conversation when they are absent, and that is exactly wrong here: a receipt naming a conversation that does not exist is an error to report, never a reason to invent one. So the writer resolves the inbound `Message` first, derives the conversation from it, and refuses anything it cannot place — the conversation is never taken from the request, which is what makes cross-tenant attachment impossible rather than merely checked. It appends one row and one `AuditEvent` in a single transaction, exactly as the ingest seam does, and carries the same correlation id (SDD-048) so `webhook → turn → message → reply` remains one chain in the audit table. The route is a batch like the webhook: a per-receipt failure is captured with the stage that failed and never drops the rest, because a transport that has already sent three replies must be able to report all three.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Recording a reply is a **separate, narrow writer** in the crm module (`reply-record-service`), not a `direction: 'OUTBOUND'` call into `ingestLineMessage`. The ingest seam creates a Person, a Customer and a Conversation when they are absent, and that is exactly wrong here: a receipt naming a conversation that does not exist is an error to report, never a reason to invent one. So the writer resolves the inbound `Message` first, derives the conversation from it, and refuses anything it cannot place — the conversation is never taken from the request, which is what makes cross-tenant attachment impossible rather than merely checked. It appends one row and one `AuditEvent` in a single transaction, exactly as the ingest seam does, and carries the same correlation id (SDD-048) so `webhook → turn → message → reply` remains one chain in the audit table. The route is a batch like the webhook: a per-receipt failure is captured with the stage that failed and never drops the rest, because a transport that has already sent three replies must be able to report all three. FR-092; FEAT-009, BR-011, BR-001, SEC-001, SDD-048, SDD-049, FR-023, FR-052, FR-091 "
+      "row_text": "Recording a reply is a **separate, narrow writer** in the crm module (`reply-record-service`), not a `direction: 'OUTBOUND'` call into `ingestLineMessage`. The ingest seam creates a Person, a Customer and a Conversation when they are absent, and that is exactly wrong here: a receipt naming a conversation that does not exist is an error to report, never a reason to invent one. So the writer resolves the inbound `Message` first, derives the conversation from it, and refuses anything it cannot place — the conversation is never taken from the request, which is what makes cross-tenant attachment impossible rather than merely checked. It appends one row and one `AuditEvent` in a single transaction, exactly as the ingest seam does, and carries the same correlation id (SDD-048) so `webhook → turn → message → reply` remains one chain in the audit table. The route is a batch like the webhook: a per-receipt failure is captured with the stage that failed and never drops the rest, because a transport that has already sent three replies must be able to report all three. FR-093; FEAT-009, BR-011, BR-001, SEC-001, SDD-048, SDD-050, FR-023, FR-052, FR-091 "
     },
     {
       "id": "req:SEC-001",
@@ -9021,6 +9116,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Platform Integration management refuses client-selected scope/authority and never exposes or persists raw secret material. The implemented create/list path requires trusted owner authority, stores only an opaque Supabase Vault reference, and audits a redacted summary; resolver failure, ambiguous connection and unauthorized scope fail closed. Future write/rotate/revoke operations require a separate audited manager port. The UI cannot activate LINE routing or send a canary. FR-075 / ADR-032 security gate "
+    },
+    {
+      "id": "req:SEC-017",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope. FR-092 / ADR-038 security gate "
     },
     {
       "id": "route:api:/api/agent/line-delivery",
@@ -10333,14 +10438,14 @@
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
-      "hash": "d3154d6c",
-      "status": "current"
+      "hash": "cbdbfe52",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
-      "hash": "3e214f24",
+      "hash": "81c637ad",
       "status": "current"
     },
     {
@@ -10410,7 +10515,7 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
-      "hash": "e3711d02",
+      "hash": "e9999e30",
       "status": "current"
     },
     {
@@ -10424,7 +10529,7 @@
       "id": "test:tests/integration/crm-conversation-inbox.test.js",
       "type": "test",
       "path": "tests/integration/crm-conversation-inbox.test.js",
-      "hash": "5c46fd16",
+      "hash": "553c125b",
       "status": "current"
     },
     {
@@ -10669,21 +10774,35 @@
       "id": "test:tests/integration/line-reply-record.test.js",
       "type": "test",
       "path": "tests/integration/line-reply-record.test.js",
-      "hash": "a3655742",
+      "hash": "20729356",
       "status": "current"
     },
     {
       "id": "test:tests/integration/line-webhook-transport-contract.test.js",
       "type": "test",
       "path": "tests/integration/line-webhook-transport-contract.test.js",
-      "hash": "bb8dd2bc",
-      "status": "current"
+      "hash": "6b98ee91",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/line-webhook-unbound-production.test.js",
       "type": "test",
       "path": "tests/integration/line-webhook-unbound-production.test.js",
       "hash": "31c3fc99",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/market-intelligence-gks-resolution.test.js",
+      "type": "test",
+      "path": "tests/integration/market-intelligence-gks-resolution.test.js",
+      "hash": "98e49d21",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/market-intelligence-persistence.test.js",
+      "type": "test",
+      "path": "tests/integration/market-intelligence-persistence.test.js",
+      "hash": "cea62aa8",
       "status": "current"
     },
     {
@@ -10698,7 +10817,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "93574ddd",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/plan-import-scope.test.js",
@@ -10928,7 +11047,7 @@
       "id": "test:tests/unit/conversation-read-model.test.js",
       "type": "test",
       "path": "tests/unit/conversation-read-model.test.js",
-      "hash": "b29c9876",
+      "hash": "721a55a7",
       "status": "current"
     },
     {
@@ -11369,7 +11488,7 @@
       "id": "test:tests/unit/fr091-inbox-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr091-inbox-ui-contract.test.js",
-      "hash": "ee403694",
+      "hash": "0c8dcc4f",
       "status": "current"
     },
     {
@@ -11485,6 +11604,55 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/market-intelligence-schema-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence-schema-migration.test.js",
+      "hash": "e39aa8b9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+      "hash": "e4f76e21",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-observation-domain.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-observation-domain.test.js",
+      "hash": "45abf9bf",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-observation-repository.test.js",
+      "hash": "1ae80100",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-observation-service.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-observation-service.test.js",
+      "hash": "ec6df85c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "hash": "8ae01f8a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/translate-raw-record.test.js",
+      "hash": "3c96ef1c",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/mode-default-subtype.test.js",
       "type": "test",
       "path": "tests/unit/mode-default-subtype.test.js",
@@ -11586,7 +11754,7 @@
       "id": "test:tests/unit/platform/integration-contracts.test.js",
       "type": "test",
       "path": "tests/unit/platform/integration-contracts.test.js",
-      "hash": "4d4e29ca",
+      "hash": "657c4423",
       "status": "current"
     },
     {
@@ -11601,6 +11769,13 @@
       "type": "test",
       "path": "tests/unit/platform/raw-ingest-service.test.js",
       "hash": "f426e0fa",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform/raw-record-repository-read.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/raw-record-repository-read.test.js",
+      "hash": "9f802b22",
       "status": "current"
     },
     {
@@ -11768,7 +11943,7 @@
       "id": "test:tests/unit/reply-record-service.test.js",
       "type": "test",
       "path": "tests/unit/reply-record-service.test.js",
-      "hash": "05c3b5cc",
+      "hash": "cdf047d5",
       "status": "current"
     },
     {
@@ -12076,7 +12251,7 @@
     },
     {
       "from": "code:src/app/(pm)/customer/conversations/page.jsx",
-      "to": "req:SDD-049",
+      "to": "req:SDD-050",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -12104,7 +12279,7 @@
     },
     {
       "from": "code:src/app/(pm)/customer/page.jsx",
-      "to": "req:SDD-049",
+      "to": "req:SDD-050",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -12846,7 +13021,7 @@
     },
     {
       "from": "code:src/app/api/agent/line-delivery/route.js",
-      "to": "req:FR-092",
+      "to": "req:FR-093",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -12867,7 +13042,7 @@
     },
     {
       "from": "code:src/app/api/agent/line-delivery/route.js",
-      "to": "req:SDD-050",
+      "to": "req:SDD-051",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -12930,7 +13105,7 @@
     },
     {
       "from": "code:src/app/api/agent/line-webhook/route.js",
-      "to": "req:FR-092",
+      "to": "req:FR-093",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -13511,7 +13686,7 @@
     },
     {
       "from": "code:src/app/api/crm/conversations/[id]/route.js",
-      "to": "req:SDD-049",
+      "to": "req:SDD-050",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -13546,7 +13721,7 @@
     },
     {
       "from": "code:src/app/api/crm/conversations/route.js",
-      "to": "req:SDD-049",
+      "to": "req:SDD-050",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -16864,7 +17039,7 @@
     },
     {
       "from": "code:src/modules/agent/turn.js",
-      "to": "req:FR-092",
+      "to": "req:FR-093",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -16976,7 +17151,7 @@
     },
     {
       "from": "code:src/modules/crm/conversation-read-model.js",
-      "to": "req:SDD-049",
+      "to": "req:SDD-050",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -17046,7 +17221,7 @@
     },
     {
       "from": "code:src/modules/crm/reply-record-service.js",
-      "to": "req:FR-092",
+      "to": "req:FR-093",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -17060,7 +17235,7 @@
     },
     {
       "from": "code:src/modules/crm/reply-record-service.js",
-      "to": "req:SDD-050",
+      "to": "req:SDD-051",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -17710,6 +17885,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:BR-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:NFR-018",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:SEC-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/people/application/people-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -17859,6 +18069,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-090",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-092",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -19944,7 +20161,7 @@
     },
     {
       "from": "feat:FEAT-009",
-      "to": "req:FR-092",
+      "to": "req:FR-093",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
@@ -20141,6 +20358,13 @@
     {
       "from": "model:LocalWorkspaceMount",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:MarketObservation",
+      "to": "domain:market-intelligence",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -20434,6 +20658,13 @@
     },
     {
       "from": "req:BR-018",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-019",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -21098,6 +21329,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-093",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -21211,6 +21449,13 @@
     },
     {
       "from": "req:NFR-017",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-018",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -21567,6 +21812,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-051",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -21687,6 +21939,13 @@
     },
     {
       "from": "req:SEC-016",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-017",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -24277,7 +24536,7 @@
     },
     {
       "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
-      "to": "req:SDD-049",
+      "to": "req:SDD-050",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -25187,7 +25446,7 @@
     },
     {
       "from": "test:tests/integration/agent-turn.test.js",
-      "to": "req:FR-092",
+      "to": "req:FR-093",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -25257,7 +25516,7 @@
     },
     {
       "from": "test:tests/integration/agent-webhook-route.test.js",
-      "to": "req:FR-092",
+      "to": "req:FR-093",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -25383,6 +25642,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -25474,7 +25740,7 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-inbox.test.js",
-      "to": "req:SDD-049",
+      "to": "req:SDD-050",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -26720,6 +26986,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -27455,7 +27728,7 @@
     },
     {
       "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
-      "to": "req:FR-092",
+      "to": "req:FR-093",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -27630,7 +27903,7 @@
     },
     {
       "from": "test:tests/integration/line-reply-record.test.js",
-      "to": "req:FR-092",
+      "to": "req:FR-093",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -27651,7 +27924,7 @@
     },
     {
       "from": "test:tests/integration/line-reply-record.test.js",
-      "to": "req:SDD-050",
+      "to": "req:SDD-051",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -27700,7 +27973,7 @@
     },
     {
       "from": "test:tests/integration/line-webhook-transport-contract.test.js",
-      "to": "req:FR-092",
+      "to": "req:FR-093",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -27729,6 +28002,13 @@
     {
       "from": "test:tests/integration/line-webhook-unbound-production.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/market-intelligence-persistence.test.js",
+      "to": "req:FR-092",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -29968,7 +30248,7 @@
     },
     {
       "from": "test:tests/unit/conversation-read-model.test.js",
-      "to": "req:SDD-049",
+      "to": "req:SDD-050",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -30886,6 +31166,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-090",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-092",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -32775,7 +33062,7 @@
     },
     {
       "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
-      "to": "req:SDD-049",
+      "to": "req:SDD-050",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -33301,6 +33588,41 @@
     {
       "from": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence-schema-migration.test.js",
+      "to": "req:BR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence-schema-migration.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence-schema-migration.test.js",
+      "to": "req:NFR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence-schema-migration.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence-schema-migration.test.js",
+      "to": "req:SEC-017",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -33990,6 +34312,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/raw-record-repository-read.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/playwright-database-bootstrap.test.js",
@@ -35267,7 +35596,7 @@
     },
     {
       "from": "test:tests/unit/reply-record-service.test.js",
-      "to": "req:FR-092",
+      "to": "req:FR-093",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -35281,7 +35610,7 @@
     },
     {
       "from": "test:tests/unit/reply-record-service.test.js",
-      "to": "req:SDD-050",
+      "to": "req:SDD-051",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

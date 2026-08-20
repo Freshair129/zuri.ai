@@ -878,6 +878,33 @@ CREATE TABLE "DeadLetterRecord" (
     CONSTRAINT "DeadLetterRecord_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "MarketObservation" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT,
+    "rawRecordId" TEXT NOT NULL,
+    "connectionId" TEXT NOT NULL,
+    "provider" TEXT NOT NULL,
+    "sourceEntityType" TEXT NOT NULL,
+    "externalId" TEXT NOT NULL,
+    "sourcePayloadHash" TEXT NOT NULL,
+    "sourceUri" TEXT,
+    "translationSchemaVersion" TEXT NOT NULL,
+    "observationType" TEXT NOT NULL,
+    "candidateJson" TEXT NOT NULL,
+    "canonicalProductRef" TEXT,
+    "canonicalCategoryRef" TEXT,
+    "resolutionStatus" TEXT NOT NULL,
+    "resolutionConfidence" DOUBLE PRECISION,
+    "observedAt" TIMESTAMP(3) NOT NULL,
+    "translatedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lineageKey" TEXT NOT NULL,
+
+    CONSTRAINT "MarketObservation_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Portfolio_code_key" ON "Portfolio"("code");
 
@@ -1327,6 +1354,21 @@ CREATE INDEX "DeadLetterRecord_ingestionRunId_idx" ON "DeadLetterRecord"("ingest
 
 -- CreateIndex
 CREATE INDEX "DeadLetterRecord_rawRecordId_idx" ON "DeadLetterRecord"("rawRecordId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketObservation_lineageKey_key" ON "MarketObservation"("lineageKey");
+
+-- CreateIndex
+CREATE INDEX "MarketObservation_tenantId_businessId_observedAt_idx" ON "MarketObservation"("tenantId", "businessId", "observedAt");
+
+-- CreateIndex
+CREATE INDEX "MarketObservation_tenantId_connectionId_provider_idx" ON "MarketObservation"("tenantId", "connectionId", "provider");
+
+-- CreateIndex
+CREATE INDEX "MarketObservation_rawRecordId_idx" ON "MarketObservation"("rawRecordId");
+
+-- CreateIndex
+CREATE INDEX "MarketObservation_canonicalProductRef_idx" ON "MarketObservation"("canonicalProductRef");
 
 -- AddForeignKey
 ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -2,10 +2,10 @@ import { z } from 'zod'
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 
-// @req FR-092 — the outbound half of a conversation becomes a row. Until this existed
+// @req FR-093 — the outbound half of a conversation becomes a row. Until this existed
 //   nothing anywhere wrote a Message with `direction: 'OUTBOUND'`: the reply was
 //   assembled, handed to the transport, sent to the customer and then forgotten.
-// @spec SDD-050, BR-011, SEC-001, SDD-048
+// @spec SDD-051, BR-011, SEC-001, SDD-048
 // @tested tests/integration/line-reply-record.test.js, tests/unit/reply-record-service.test.js
 //
 // WHY THIS IS NOT `ingestLineMessage({ direction: 'OUTBOUND' })`

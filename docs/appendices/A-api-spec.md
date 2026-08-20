@@ -122,7 +122,7 @@ evidence exist. There is intentionally no read-secret endpoint. The UI is owner-
 trusted viewer/Business ownership boundary and cannot activate a LINE binding or
 replace FR-053/054/055 canary evidence.
 
-## LINE reply delivery receipt (FR-092 / SDD-050)
+## LINE reply delivery receipt (FR-093 / SDD-051)
 
 The transport owner reports what it actually sent, after it has sent it. That
 ordering is the contract: when the stack cannot answer, the transport substitutes
@@ -136,11 +136,12 @@ its own fallback text, so only the sender knows which message the customer read
 The inbound message must resolve inside the caller's own scope, so a binding for
 one tenant cannot attach a reply to another tenant's conversation — the lookup is
 scoped rather than checked afterwards (SEC-001). `POST /api/agent/line-webhook`
-now returns `conversationId` and `inboundMessageId` on a successful result so the
-transport has something to quote back; the four fields it already consumed are
-unchanged.
+now returns `conversationId` and `inboundMessageId` on a result, success or
+failure, so the transport has something to quote back; the failure result also
+gains the `eventId` it never carried, without which the transport cannot match a
+result to its event at all. The four fields it already consumed are unchanged.
 
-## CRM conversation reader (FR-091 / SDD-049)
+## CRM conversation reader (FR-091 / SDD-050)
 
 The read side of the LINE ingress. Both endpoints are `GET` and the module
 behind them exports no writer: the reply owner is the edge runtime (BR-011) and
@@ -303,7 +304,6 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.12.0b | 2026-08-20 | candidate | Added the FR-092 LINE reply delivery receipt, the additive webhook response ids it quotes back, and updated the handler count to 76 | working-tree | ATHER |
 | 1.11.0b | 2026-08-20 | candidate | Added the FR-091 CRM conversation reader (list + thread) and updated the handler count to 75 | working-tree | ATHER |
 | 1.10.0b | 2026-08-18 | candidate | Added the protected PM MCP JSON-RPC route contract and exact current handler count | working-tree | ATHER |
 | 1.9.0b | 2026-08-18 | candidate | Added the FR-078 duplicate review queue API inventory and updated the route handler count to 66 | working-tree | ATHER |

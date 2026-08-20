@@ -18,7 +18,7 @@
 // production (SEC-010), so this script cannot be pointed at a production host and
 // quietly work.
 //
-// It also plays the OTHER half of the transport's job (FR-092): after the webhook
+// It also plays the OTHER half of the transport's job (FR-093): after the webhook
 // answers, it posts a delivery receipt for the reply it "sent". In the lab there is no
 // model, so the stack produces no text and the script sends its own — which is exactly
 // the `TRANSPORT_FALLBACK` case, marked as such rather than dressed up as an answer.
@@ -134,7 +134,7 @@ async function main() {
       if (result?.error) throw new Error(`event failed at stage ${result.stage}: ${result.error}`)
       posted += 1
 
-      // The transport's other half (FR-092), reported immediately rather than batched
+      // The transport's other half (FR-093), reported immediately rather than batched
       // at the end — which is both what the runtime does (it replies per event) and
       // what makes the thread read as a conversation: batching every receipt until
       // last put all three customer messages above all three shop replies.
