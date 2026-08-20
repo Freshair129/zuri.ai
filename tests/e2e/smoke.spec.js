@@ -1,4 +1,6 @@
 const { test, expect } = require('@playwright/test')
+// api() retries a lost connection, never an answer — see ./reconnecting-request.
+const { api } = require('./reconnecting-request')
 
 // E2E smoke: every major route renders with seeded data (npm run db:seed first).
 
@@ -87,10 +89,10 @@ test.describe('universal routes', () => {
     // upserts rather than through the services, so a fresh e2e database holds NO
     // AuditEvent rows — asserting on rows without creating one made the result
     // depend on which tests had already run.
-    const scope = await (await page.request.get('/api/scope')).json()
+    const scope = await (await api(page.request).get('/api/scope')).json()
     const workspace = (scope.workspaces || []).find((w) => w.code === 'WS-B01-MIG')
     expect(workspace, 'seeded Business workspace').toBeTruthy()
-    const created = await page.request.post('/api/projects', {
+    const created = await api(page.request).post('/api/projects', {
       data: { workspaceId: workspace.id, name: 'Audit probe', businessId: workspace.businessId },
     })
     expect(created.ok()).toBe(true)
@@ -159,7 +161,7 @@ test.describe('seven execution views', () => {
 test.describe('plan import', () => {
   test.beforeEach(async ({ page }) => enterBusiness(page))
   test('human form builds PlanEnvelope JSON and sends it through dry-run', async ({ page }) => {
-    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const resolved = await (await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
     await page.goto(`/projects/${resolved.id}/import`)
     await page.getByRole('button', { name: /สร้างแผนด้วยฟอร์ม/i }).first().click()
 
@@ -182,7 +184,7 @@ test.describe('plan import', () => {
   })
 
   test('dry run previews and rejects bad plans', async ({ page }) => {
-    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const resolved = await (await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
     await page.goto(`/projects/${resolved.id}/import`)
     const textarea = page.getByLabel('Plan envelope JSON')
     await textarea.fill(JSON.stringify({ schemaVersion: '1.0', project: { code: 'X', name: 'X' }, workstreams: [{ code: 'W', name: 'W', executionMode: 'NOT_A_MODE', progressStrategy: 'TASK_WEIGHT' }] }))
@@ -227,7 +229,7 @@ test.describe('FR-018 excel intake', () => {
     const xlsxProjectCode = `PRJ-E2E-XLSX-${Date.now()}`
 
     // Template endpoint serves a real workbook.
-    const res = await page.request.get('/api/import/template')
+    const res = await api(page.request).get('/api/import/template')
     expect(res.status()).toBe(200)
     expect(res.headers()['content-type']).toContain('spreadsheetml')
 
@@ -241,7 +243,7 @@ test.describe('FR-018 excel intake', () => {
 
     // Upload via the Import page inside a project context (direct URL —
     // the projects list reorders by updatedAt, so click-chaining races).
-    const resolved = await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+    const resolved = await (await api(page.request).get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
     await page.goto(`/projects/${resolved.id}/import`)
     await expect(page.getByText('Excel template')).toBeVisible()
     await page.getByLabel('อัปโหลดไฟล์ Excel ที่กรอกแล้ว').setInputFiles({
@@ -287,7 +289,7 @@ test.describe('FR-020 adaptive shell', () => {
   test.skip('single business: no switcher, no structure vocabulary, straight to the work', async ({ page }) => {
     // Same app, one-business dataset: the shell is inferred from the data, so
     // the fixture is the scope payload itself (route-level, no DB mutation).
-    const full = await (await page.request.get('/api/scope')).json()
+    const full = await (await api(page.request).get('/api/scope')).json()
     const sole = full.businesses[0]
     await page.route('**/api/scope', async (route) => {
       await route.fulfill({
@@ -373,7 +375,7 @@ test.describe('FR-019 enterprise API', () => {
   })
 
   test('publishes an OpenAPI contract generated from the live schema', async ({ request }) => {
-    const res = await request.get('/api/docs')
+    const res = await api(request).get('/api/docs')
     expect(res.status()).toBe(200)
     const doc = await res.json()
     expect(doc.openapi).toMatch(/^3\./)
@@ -386,23 +388,23 @@ test.describe('FR-019 enterprise API', () => {
   // what only an end-to-end request can prove is that the handler resolves a
   // viewer at all, rather than reading `workspaceId` out of the body and going.
   test('refuses an unauthenticated import instead of writing', async ({ request }) => {
-    const dry = await request.post('/api/import/dry-run', { data: { plan: plan() } })
+    const dry = await api(request).post('/api/import/dry-run', { data: { plan: plan() } })
     expect(dry.status()).toBe(401)
 
-    const commit = await request.post('/api/import/commit', { data: { plan: plan() } })
+    const commit = await api(request).post('/api/import/commit', { data: { plan: plan() } })
     expect(commit.status()).toBe(401)
 
     // The upload surface is the third route into the same pipeline, and it had
     // its own catch-all that would have reported a 401 as a 500.
-    const xlsx = await request.post('/api/import/xlsx', { multipart: { workspaceId: 'x' } })
+    const xlsx = await api(request).post('/api/import/xlsx', { multipart: { workspaceId: 'x' } })
     expect(xlsx.status()).toBe(401)
   })
 
   test('refuses an import above Business, naming the authority that does not exist', async ({ request }) => {
-    await request.post('/api/session/demo', { maxRedirects: 0 })
+    await api(request).post('/api/session/demo', { maxRedirects: 0 })
     // WS-PLATFORM is PORTFOLIO-scoped. No principal can hold authority there, so
     // this is refused for everyone — and says so, rather than denying silently.
-    const res = await request.post('/api/import/dry-run', {
+    const res = await api(request).post('/api/import/dry-run', {
       data: { plan: plan({}, 'WS-PLATFORM') },
     })
     const body = await res.json()
@@ -411,35 +413,35 @@ test.describe('FR-019 enterprise API', () => {
   })
 
   test('upserts by the customer core id and resolves it back', async ({ request }) => {
-    await request.post('/api/session/demo', { maxRedirects: 0 })
-    const dry = await (await request.post('/api/import/dry-run', { data: { plan: plan() } })).json()
+    await api(request).post('/api/session/demo', { maxRedirects: 0 })
+    const dry = await (await api(request).post('/api/import/dry-run', { data: { plan: plan() } })).json()
     expect(dry.valid).toBe(true)
 
-    const commit = await (await request.post('/api/import/commit', { data: { plan: plan() } })).json()
+    const commit = await (await api(request).post('/api/import/commit', { data: { plan: plan() } })).json()
     expect(commit.committed).toBe(true)
 
     // The customer asks with its own id and gets our internal id back.
-    const resolved = await (await request.get('/api/resolve?system=E2E_SAP&value=PS-E2E-88421')).json()
+    const resolved = await (await api(request).get('/api/resolve?system=E2E_SAP&value=PS-E2E-88421')).json()
     expect(resolved.type).toBe('PROJECT')
     expect(resolved.id).toBe(commit.projectId)
     expect(resolved.code).toBe('PRJ-E2E-ENTERPRISE')
 
     // Re-sending under a different code of theirs updates the same record.
     const renamed = plan({ code: 'PRJ-E2E-THEIR-CODE', name: 'E2E enterprise rollout v2' })
-    const second = await (await request.post('/api/import/commit', { data: { plan: renamed } })).json()
+    const second = await (await api(request).post('/api/import/commit', { data: { plan: renamed } })).json()
     expect(second.committed).toBe(true)
     expect(second.projectId).toBe(commit.projectId)
     expect(second.projectCode).toBe('PRJ-E2E-ENTERPRISE') // our namespace is untouched
   })
 
   test('rejects an unmapped external id instead of inventing one', async ({ request }) => {
-    await request.post('/api/session/demo', { maxRedirects: 0 })
-    const res = await request.get('/api/resolve?system=E2E_SAP&value=DOES-NOT-EXIST')
+    await api(request).post('/api/session/demo', { maxRedirects: 0 })
+    const res = await api(request).get('/api/resolve?system=E2E_SAP&value=DOES-NOT-EXIST')
     expect(res.status()).toBe(404)
     expect((await res.json()).error).toMatch(/not mapped/)
 
     // Half a lookup key is a client error, not a silent guess.
-    const partial = await request.get('/api/resolve?system=E2E_SAP')
+    const partial = await api(request).get('/api/resolve?system=E2E_SAP')
     expect(partial.status()).toBe(400)
   })
 })

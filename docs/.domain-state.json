@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-20T01:30:45.990Z",
+  "generatedAt": "2026-08-20T01:46:50.828Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 22,
+    "gapCount": 18,
     "gaps": [
       {
         "domain": "crm",
@@ -92,59 +92,6 @@
         "check": "requirements",
         "summary": "FR-067 is planned",
         "evidence": []
-      },
-      {
-        "domain": "integration",
-        "id": "CONTRACT-001",
-        "severity": "medium",
-        "check": "runtimeContract",
-        "summary": "At least one requirement in this domain is not fully code-and-test verified"
-      },
-      {
-        "domain": "integration",
-        "id": "TEST-001",
-        "severity": "medium",
-        "check": "tests",
-        "summary": "At least one requirement lacks complete code-and-test evidence"
-      },
-      {
-        "domain": "integration",
-        "id": "REQ-FR-079",
-        "severity": "high",
-        "check": "requirements",
-        "summary": "FR-079 is not_implemented",
-        "evidence": [
-          "tests/integration/agent-action-gate.test.js",
-          "tests/integration/agent-context.test.js",
-          "tests/unit/activation-readiness-integration.test.js",
-          "tests/unit/connection-health.test.js",
-          "tests/unit/fr079-credential-vault.test.js",
-          "tests/unit/fr079-runtime-cutover.test.js",
-          "tests/unit/fr079-schema-contract.test.js",
-          "tests/unit/fr079-supabase-migration.test.js",
-          "tests/unit/grounded-business-answer.test.js"
-        ]
-      },
-      {
-        "domain": "integration",
-        "id": "REQ-FR-081",
-        "severity": "high",
-        "check": "requirements",
-        "summary": "FR-081 is not_implemented",
-        "evidence": [
-          "tests/integration/agent-webhook-route.test.js",
-          "tests/integration/backup.test.js",
-          "tests/integration/fr075-restore-authorization.test.js",
-          "tests/integration/line-oa-connection-health.test.js",
-          "tests/integration/line-oa-evidence-convergence.test.js",
-          "tests/integration/platform/integration-persistence.test.js",
-          "tests/unit/fr045-backup-contract.test.js",
-          "tests/unit/fr079-runtime-cutover.test.js",
-          "tests/unit/platform/integration-contracts.test.js",
-          "tests/unit/platform/line-oa-webhook.test.js",
-          "tests/unit/platform/raw-ingest-service.test.js",
-          "tests/unit/platform/raw-record-repository-read.test.js"
-        ]
       },
       {
         "domain": "knowledge",
@@ -960,65 +907,77 @@
       }
     },
     "integration": {
-      "status": "partial",
+      "status": "verified",
       "requirements": [
         {
-          "id": "FR-079",
-          "declared": "n/a",
-          "status": "not_implemented",
-          "codeCount": 0,
-          "testCount": 9,
-          "evidence": [
-            "tests/integration/agent-action-gate.test.js",
-            "tests/integration/agent-context.test.js",
-            "tests/unit/activation-readiness-integration.test.js",
-            "tests/unit/connection-health.test.js",
-            "tests/unit/fr079-credential-vault.test.js",
-            "tests/unit/fr079-runtime-cutover.test.js",
-            "tests/unit/fr079-schema-contract.test.js",
-            "tests/unit/fr079-supabase-migration.test.js",
-            "tests/unit/grounded-business-answer.test.js"
-          ]
-        },
-        {
-          "id": "FR-080",
-          "declared": "n/a",
+          "id": "FR-028",
+          "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 8
         },
         {
+          "id": "FR-048",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 7
+        },
+        {
+          "id": "FR-052",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 11
+        },
+        {
+          "id": "FR-079",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 9
+        },
+        {
+          "id": "FR-080",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 8
+        },
+        {
           "id": "FR-081",
           "declared": "n/a",
-          "status": "not_implemented",
-          "codeCount": 0,
-          "testCount": 12,
-          "evidence": [
-            "tests/integration/agent-webhook-route.test.js",
-            "tests/integration/backup.test.js",
-            "tests/integration/fr075-restore-authorization.test.js",
-            "tests/integration/line-oa-connection-health.test.js",
-            "tests/integration/line-oa-evidence-convergence.test.js",
-            "tests/integration/platform/integration-persistence.test.js",
-            "tests/unit/fr045-backup-contract.test.js",
-            "tests/unit/fr079-runtime-cutover.test.js",
-            "tests/unit/platform/integration-contracts.test.js",
-            "tests/unit/platform/line-oa-webhook.test.js",
-            "tests/unit/platform/raw-ingest-service.test.js",
-            "tests/unit/platform/raw-record-repository-read.test.js"
-          ]
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 12
         }
       ],
       "checks": {
         "ui": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "docs/INTERFACE-INVENTORY.md"
+          ],
+          "gaps": [],
+          "details": {
+            "routes": 1,
+            "inventoried": 1,
+            "missing": 0
+          }
         },
         "httpApi": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "docs/appendices/A-api-spec.md",
+            "src/modules/project-manager/api-docs/openapi.js"
+          ],
+          "gaps": [],
+          "details": {
+            "routes": 1,
+            "inventoried": 1,
+            "openApiPaths": 75,
+            "missingFromOpenApi": 0
+          }
         },
         "mcp": {
           "status": "verified",
@@ -1030,18 +989,12 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": [
-            {
-              "id": "CONTRACT-001",
-              "severity": "medium",
-              "summary": "At least one requirement in this domain is not fully code-and-test verified"
-            }
-          ]
+          "gaps": []
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -1060,91 +1013,46 @@
           }
         },
         "authorization": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
+          "status": "verified",
+          "evidence": [
+            "docs/appendices/A-api-spec.md"
+          ],
+          "gaps": [],
+          "details": {
+            "mutations": 1,
+            "guardedMutations": 1,
+            "reads": 1,
+            "unguardedReads": 0
+          }
         },
         "tests": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": [
-            {
-              "id": "TEST-001",
-              "severity": "medium",
-              "summary": "At least one requirement lacks complete code-and-test evidence"
-            }
-          ]
+          "gaps": []
         }
       },
       "evidence": [
+        "docs/INTERFACE-INVENTORY.md",
         "docs/TRACE.md",
+        "docs/appendices/A-api-spec.md",
         "docs/domains/integration/CHARTER.md",
         "docs/domains/integration/features/FR-079-phase1-line-runtime-connection-cutover.md",
         "docs/domains/integration/features/FR-080-integration-secret-management-ui.md",
         "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
+        "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [
-        {
-          "id": "CONTRACT-001",
-          "severity": "medium",
-          "check": "runtimeContract",
-          "summary": "At least one requirement in this domain is not fully code-and-test verified"
-        },
-        {
-          "id": "TEST-001",
-          "severity": "medium",
-          "check": "tests",
-          "summary": "At least one requirement lacks complete code-and-test evidence"
-        },
-        {
-          "id": "REQ-FR-079",
-          "severity": "high",
-          "check": "requirements",
-          "summary": "FR-079 is not_implemented",
-          "evidence": [
-            "tests/integration/agent-action-gate.test.js",
-            "tests/integration/agent-context.test.js",
-            "tests/unit/activation-readiness-integration.test.js",
-            "tests/unit/connection-health.test.js",
-            "tests/unit/fr079-credential-vault.test.js",
-            "tests/unit/fr079-runtime-cutover.test.js",
-            "tests/unit/fr079-schema-contract.test.js",
-            "tests/unit/fr079-supabase-migration.test.js",
-            "tests/unit/grounded-business-answer.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-081",
-          "severity": "high",
-          "check": "requirements",
-          "summary": "FR-081 is not_implemented",
-          "evidence": [
-            "tests/integration/agent-webhook-route.test.js",
-            "tests/integration/backup.test.js",
-            "tests/integration/fr075-restore-authorization.test.js",
-            "tests/integration/line-oa-connection-health.test.js",
-            "tests/integration/line-oa-evidence-convergence.test.js",
-            "tests/integration/platform/integration-persistence.test.js",
-            "tests/unit/fr045-backup-contract.test.js",
-            "tests/unit/fr079-runtime-cutover.test.js",
-            "tests/unit/platform/integration-contracts.test.js",
-            "tests/unit/platform/line-oa-webhook.test.js",
-            "tests/unit/platform/raw-ingest-service.test.js",
-            "tests/unit/platform/raw-record-repository-read.test.js"
-          ]
-        }
-      ],
+      "gaps": [],
       "details": {
-        "routes": 0,
-        "apiRoutes": 0,
-        "pageRoutes": 0,
+        "routes": 2,
+        "apiRoutes": 1,
+        "pageRoutes": 1,
         "ownedModels": 8,
         "featureNotes": 3
       }
@@ -1633,13 +1541,6 @@
           "testCount": 43
         },
         {
-          "id": "FR-048",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 7
-        },
-        {
           "id": "FR-056",
           "declared": "n/a",
           "status": "verified",
@@ -1764,13 +1665,6 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 20
-        },
-        {
-          "id": "FR-080",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 2,
-          "testCount": 8
         },
         {
           "id": "FR-081",
@@ -1926,8 +1820,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 38,
-            "inventoried": 38,
+            "routes": 37,
+            "inventoried": 37,
             "missing": 0
           }
         },
@@ -1939,8 +1833,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 73,
-            "inventoried": 73,
+            "routes": 72,
+            "inventoried": 72,
             "openApiPaths": 75,
             "missingFromOpenApi": 0
           }
@@ -1982,8 +1876,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 21,
-            "present": 21
+            "models": 30,
+            "present": 30
           }
         },
         "authorization": {
@@ -1993,9 +1887,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 59,
-            "guardedMutations": 59,
-            "reads": 40,
+            "mutations": 58,
+            "guardedMutations": 58,
+            "reads": 39,
             "unguardedReads": 0
           }
         },
@@ -2188,10 +2082,10 @@
         }
       ],
       "details": {
-        "routes": 111,
-        "apiRoutes": 73,
-        "pageRoutes": 38,
-        "ownedModels": 21,
+        "routes": 109,
+        "apiRoutes": 72,
+        "pageRoutes": 37,
+        "ownedModels": 30,
         "featureNotes": 28
       }
     }
