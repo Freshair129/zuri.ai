@@ -2,6 +2,7 @@
 
 | Field | Value |
 |-------|-------|
+| **Version** | 1.0.0 |
 | **Status** | Auto-generated |
 | **Generator** | `scripts/doc-graph.mjs` (via doc-views) |
 

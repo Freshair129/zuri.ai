@@ -1,5 +1,7 @@
 ---
 domain: agent
+version: "0.1.0b"
+status: "candidate"
 module: src/modules/agent
 owns_models: []
 owns_routes:

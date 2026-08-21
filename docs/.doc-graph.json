@@ -117,7 +117,7 @@
       "id": "code:src/app/(pm)/audit/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/audit/page.jsx",
-      "hash": "86ba33c7",
+      "hash": "88122670",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3150,7 +3150,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "2a9ecec3",
+      "hash": "ee014562",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5958,7 +5958,9 @@
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "c433b608",
+      "version": "0.1.0b",
+      "doc_status": "Draft",
+      "hash": "59d2c2c1",
       "status": "current"
     },
     {
@@ -5986,7 +5988,9 @@
       "type": "document",
       "path": "docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md",
       "title": "Zuri Modular Monolith + Shared Database Architecture Specification",
-      "hash": "62d9c865",
+      "version": "0.1.0b",
+      "doc_status": "Draft",
+      "hash": "1e0816f5",
       "status": "current"
     },
     {
@@ -6004,7 +6008,7 @@
       "type": "document",
       "path": "docs/domains/market-intelligence/CONTEXT-MAP.md",
       "title": "Context map — Market Intelligence",
-      "hash": "8ae199b0",
+      "hash": "5e8b6c94",
       "status": "current"
     },
     {
@@ -6022,7 +6026,9 @@
       "type": "document",
       "path": "docs/DOMAIN-MODEL.md",
       "title": "Domain Model",
-      "hash": "a71c3e0d",
+      "version": "0.1.0b",
+      "doc_status": "Draft",
+      "hash": "e442d390",
       "status": "current"
     },
     {
@@ -6050,7 +6056,9 @@
       "type": "document",
       "path": "docs/EXECUTION-MODES.md",
       "title": "Seven Execution Modes",
-      "hash": "93f419cf",
+      "version": "1.0.0b",
+      "doc_status": "Candidate",
+      "hash": "08e75926",
       "status": "current"
     },
     {
@@ -6058,7 +6066,9 @@
       "type": "document",
       "path": "docs/prompts/EXTRACT-MSP.codex.md",
       "title": "Codex task — Extract MSP from GoVibe into a standalone repo `Freshair129/msp`",
-      "hash": "4c11d9b8",
+      "version": "0.1.0b",
+      "doc_status": "Candidate",
+      "hash": "f73ecd1b",
       "status": "current"
     },
     {
@@ -6979,7 +6989,7 @@
       "modules": [
         "agent"
       ],
-      "hash": "6d18ff36",
+      "hash": "417f49b7",
       "status": "current"
     },
     {
@@ -7002,7 +7012,7 @@
       "modules": [
         "crm"
       ],
-      "hash": "2386d97f",
+      "hash": "6acc502e",
       "status": "current"
     },
     {
@@ -7027,7 +7037,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "f0fafac2",
+      "hash": "6d66582a",
       "status": "current"
     },
     {
@@ -7061,7 +7071,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "d7d9a374",
+      "hash": "107fa8ff",
       "status": "current"
     },
     {
@@ -7075,7 +7085,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "c3dfb7e4",
+      "hash": "099da5f6",
       "status": "current"
     },
     {
@@ -7093,7 +7103,7 @@
       "modules": [
         "market-intelligence"
       ],
-      "hash": "9e066efd",
+      "hash": "b4c14d2f",
       "status": "current"
     },
     {
@@ -7149,7 +7159,7 @@
         "business",
         "people"
       ],
-      "hash": "8ab564dc",
+      "hash": "b430c657",
       "status": "current"
     },
     {
@@ -10795,7 +10805,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md",
       "title": "ADR-039 — Requirement ids are pinned by subject anchor",
-      "hash": "932a3d5f",
+      "hash": "79fe0467",
       "status": "current"
     },
     {
@@ -12015,7 +12025,7 @@
       "id": "test:tests/unit/id-anchor-stability.test.js",
       "type": "test",
       "path": "tests/unit/id-anchor-stability.test.js",
-      "hash": "d6a62eaa",
+      "hash": "f7b8d355",
       "status": "current"
     },
     {

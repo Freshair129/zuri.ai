@@ -1,5 +1,7 @@
 ---
 domain: identity
+version: "0.1.0b"
+status: "candidate"
 module: src/modules/identity
 owns_routes:
   - src/app/(entry)/**

@@ -9,197 +9,21 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 17,
+    "info": 0,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
-  "findings": [
-    {
-      "id": "I1",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "ARCHITECTURE-TARGET-MODULAR-MONOLITH.md",
-      "files": [
-        "docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I2",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "ARCHITECTURE.md",
-      "files": [
-        "docs/ARCHITECTURE.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I3",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "DOMAIN-MAP.md",
-      "files": [
-        "docs/DOMAIN-MAP.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I4",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "DOMAIN-MODEL.md",
-      "files": [
-        "docs/DOMAIN-MODEL.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I5",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
-      "files": [
-        "docs/domains/agent/CHARTER.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I6",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
-      "files": [
-        "docs/domains/crm/CHARTER.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I7",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
-      "files": [
-        "docs/domains/identity/CHARTER.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I8",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
-      "files": [
-        "docs/domains/integration/CHARTER.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I9",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
-      "files": [
-        "docs/domains/knowledge/CHARTER.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I10",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
-      "files": [
-        "docs/domains/market-intelligence/CHARTER.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I11",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "CONTEXT-MAP.md",
-      "files": [
-        "docs/domains/market-intelligence/CONTEXT-MAP.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I12",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "CHARTER.md",
-      "files": [
-        "docs/domains/project-manager/CHARTER.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I13",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "EXECUTION-MODES.md",
-      "files": [
-        "docs/EXECUTION-MODES.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I14",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version, Status",
-      "details": "EXTRACT-MSP.codex.md",
-      "files": [
-        "docs/prompts/EXTRACT-MSP.codex.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I15",
-      "severity": "info",
-      "check": "doc-control",
-      "title": "Missing control fields: Version",
-      "details": "TRACE.md",
-      "files": [
-        "docs/TRACE.md"
-      ],
-      "action": "Inherited spec pack — add a control block at its next revision"
-    },
-    {
-      "id": "I16",
-      "severity": "info",
-      "check": "enum-copy",
-      "title": "1 hand-copied enum list(s) remain (accepted debt)",
-      "details": "0 of them are INCOMPLETE copies — those are the ones that silently drop a value: ",
-      "files": [
-        "docs/.enum-copy-baseline.json"
-      ],
-      "action": "Derive from enums.js; the baseline may only shrink"
-    },
-    {
-      "id": "I17",
-      "severity": "info",
-      "check": "id-stability",
-      "title": "342 id(s) pinned across 10 families",
-      "details": "ADR 41 · BR 19 · FEAT 9 · FR 93 · MI-RQ 72 · NFR 18 · RSK 14 · SDD 51 · SEC 17 · ZV2-CR 8 · roster 342",
-      "files": [
-        "docs/.id-ledger.json"
-      ],
-      "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
-    }
-  ]
+  "health": {
+    "id-stability": [
+      {
+        "title": "342 id(s) pinned across 10 families",
+        "details": "ADR 41 · BR 19 · FEAT 9 · FR 93 · MI-RQ 72 · NFR 18 · RSK 14 · SDD 51 · SEC 17 · ZV2-CR 8 · roster 342",
+        "files": [
+          "docs/.id-ledger.json"
+        ],
+        "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
+      }
+    ]
+  },
+  "findings": []
 }

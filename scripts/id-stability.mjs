@@ -107,7 +107,7 @@ export function evaluateIdStability({
   ledgerPath = 'docs/.id-ledger.json',
 } = {}) {
   const out = []
-  const emit = (severity, title, details, files, action) => out.push({ severity, check: 'id-stability', title, details, files, action })
+  const emit = (severity, title, details, files, action, meta = {}) => out.push({ severity, check: 'id-stability', title, details, files, action, ...meta })
   const pinned = ledger.ids || {}
   const roster = ledger.roster || []
   const bulkById = new Map((ledger.bulk_revisions || []).map((b) => [b.id, b]))
@@ -415,15 +415,17 @@ export function evaluateIdStability({
         'citation agree, and rename the file if the id genuinely moved')
   }
 
-  // Health line, never gating. Proves the check ran over every family rather than
-  // degrading to zero, which is the failure mode a guard reading a missing
+  // Health record, never gating. Proves the check ran over every family rather
+  // than degrading to zero, which is the failure mode a guard reading a missing
   // baseline would otherwise have. The roster count is here so a ledger that
-  // shrank has a number to disagree with, not only a list.
+  // shrank has a number to disagree with, not only a list. Preflight stores this
+  // under report.health instead of counting a healthy tree as an INFO finding.
   const byFamily = {}
   for (const e of Object.values(pinned)) byFamily[e.family] = (byFamily[e.family] || 0) + 1
   emit('info', `${Object.keys(pinned).length} id(s) pinned across ${Object.keys(byFamily).length} families`,
     `${Object.entries(byFamily).sort().map(([f, n]) => `${f} ${n}`).join(' · ') || 'no ids pinned'} · roster ${roster.length}`, [ledgerPath],
-    'Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)')
+    'Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)',
+    { kind: 'health' })
 
   // A declaration that moved document is FREE — §18 says so in as many words — so
   // this is reported and never gated. Gating it would be the check contradicting

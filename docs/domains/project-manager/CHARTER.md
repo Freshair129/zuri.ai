@@ -1,5 +1,7 @@
 ---
 domain: project-manager
+version: "0.1.0b"
+status: "candidate"
 modules:
   - project-manager
   - business

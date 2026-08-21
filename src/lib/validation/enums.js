@@ -59,6 +59,17 @@ export const DEPENDENCY_ENDPOINT_TYPES = [
   'WORK_ITEM',
 ]
 
+// FR-014 — the Audit browser's entity vocabulary is deliberately separate from
+// WORKSPACE_SCOPE_TYPES: both currently contain PORTFOLIO/TENANT/BUSINESS, but
+// one names audit subjects and the other names workspace scope. Keeping this
+// list authoritative here lets the UI derive it without coupling the two
+// vocabularies or maintaining a hand-copied list at the call site.
+export const AUDIT_ENTITY_TYPES = Object.freeze([
+  ...DEPENDENCY_ENDPOINT_TYPES,
+  'DEPENDENCY', 'REPOSITORY', 'PROJECT_REPOSITORY', 'WORKSPACE', 'PORTFOLIO', 'TENANT',
+  'BUSINESS', 'BRANCH', 'LEGAL_ENTITY', 'SNAPSHOT',
+])
+
 export const PROJECT_STATUSES = ['PLANNED', 'ACTIVE', 'ON_HOLD', 'DONE', 'ARCHIVED']
 // @req FR-086 / ADR-036 Consequences — the subset of PROJECT_STATUSES the
 // Projects Dashboard's KPI band highlights; ON_HOLD and ARCHIVED are the
