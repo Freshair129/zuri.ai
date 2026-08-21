@@ -59,7 +59,7 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec"
+      "code:src/app/(pm)/platform/integrations/page.jsx"
     ],
     "added": [],
     "removed": []
@@ -369,8 +369,8 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "aba5c861",
-      "status": "current",
+      "hash": "eba3f53f",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080"
@@ -5953,7 +5953,7 @@
       "version": "1.16.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "260bfbb8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",

@@ -236,6 +236,8 @@ export default function IntegrationsPage() {
   const registryPath = `/api/platform/integrations/line-registry${businessId ? `?businessId=${encodeURIComponent(businessId)}` : ''}`
   const lineRegistry = useFetch(registryPath, [businessId, activeView, lineTab])
 
+  const heartbeat = useFetch('/api/agent/heartbeat', [activeView, lineTab])
+
   // Model form state
   const [provider, setProvider] = useState('openrouter')
   const [name, setName] = useState('Phase 1 LLM')
@@ -722,55 +724,85 @@ export default function IntegrationsPage() {
           {lineTab === 'EDGE_LLM' && (
             <div className="space-y-4">
               {/* Edge Runtime Security & Device Pairing Live Status */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
-                      <Radio size={20} className="animate-pulse" />
-                      <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                      </span>
-                    </div>
-                    <div>
+              {(() => {
+                const isOnline = Boolean(heartbeat.data?.activeOnline > 0)
+                const device = heartbeat.data?.devices?.[0]
+                return (
+                  <div className={`rounded-2xl border p-4 shadow-sm transition ${
+                    isOnline ? 'border-emerald-200 bg-white' : 'border-rose-200 bg-rose-50/30'
+                  }`}>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className={`relative flex h-10 w-10 items-center justify-center rounded-xl ${
+                          isOnline ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'
+                        }`}>
+                          <Radio size={20} className={isOnline ? 'animate-pulse' : ''} />
+                          {isOnline && (
+                            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-slate-900">
+                              {isOnline ? `Local Machine: ${device?.deviceId || 'Etoh-Workstation'}` : 'Edge Runtime ไม่ได้เปิดทำงาน'}
+                            </h3>
+                            {isOnline ? (
+                              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
+                                🟢 Online &amp; Heartbeat Active
+                              </span>
+                            ) : (
+                              <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-semibold text-rose-700 border border-rose-300">
+                                🔴 Offline (ยังไม่ได้รัน npm start ในเครื่อง)
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-muted">
+                            {isOnline ? (
+                              <>Device ID: <span className="font-mono font-semibold text-slate-700">{device?.deviceId}</span> · Engine: {device?.engine || 'Headless Claude Code'}</>
+                            ) : (
+                              <>ต้องเปิดรันคำสั่ง <code className="rounded bg-rose-100 px-1 py-0.5 font-mono text-rose-900">cd d:\workspace\zuri-edge-llm; npm start</code> บนเครื่อง Local จึงจะเริ่มตอบ LINE ได้</>
+                            )}
+                          </p>
+                        </div>
+                      </div>
                       <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bold text-slate-900">Local Machine Paired: Etoh-Workstation-01</h3>
-                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
-                          🟢 Online &amp; Heartbeat Active
+                        <button
+                          type="button"
+                          className="btn btn-secondary text-xs"
+                          onClick={() => {
+                            heartbeat.reload()
+                            if (isOnline) alert('Heartbeat Probe: เครื่อง Local ตอบรับปกติ Latency 2ms')
+                            else alert('Heartbeat Probe: ไม่พบสัญญาณจากเครื่อง Local กรุณารัน npm start ใน zuri-edge-llm')
+                          }}
+                        >
+                          <RefreshCw size={12} className="mr-1" /> ตรวจสอบสัญญาณ (Probe)
+                        </button>
+                        <span className="text-[11px] text-muted font-mono">
+                          {isOnline ? `Last Seen: ${new Date(device?.lastSeenAt).toLocaleTimeString()}` : 'สถานะ: Disconnected'}
                         </span>
                       </div>
-                      <p className="text-[11px] text-muted">
-                        Device ID: <span className="font-mono font-semibold text-slate-700">DEV-SMARTGIFT-PRIMARY</span> · Verified Handshake SHA256 Token
-                      </p>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-3 gap-2 border-t border-slate-100 pt-3 text-[11px] max-md:grid-cols-1">
+                      <div className="flex items-center gap-1.5 text-slate-600">
+                        <ShieldCheck size={14} className={isOnline ? 'text-emerald-600' : 'text-slate-400'} />
+                        <span>Security: {isOnline ? 'Zero-Trust Handshake Token' : 'Waiting for Pairing'}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-slate-600">
+                        <Sparkles size={14} className={isOnline ? 'text-amber-500' : 'text-slate-400'} />
+                        <span>Auth: Active .codex Local Session</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-slate-600">
+                        <Database size={14} className={isOnline ? 'text-blue-500' : 'text-slate-400'} />
+                        <span>Storage: 90 Days Daily Partitioning</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      className="btn btn-secondary text-xs"
-                      onClick={() => alert('Heartbeat Probe Ping: เครื่อง Local ตอบรับปกติ Latency 2ms')}
-                    >
-                      <RefreshCw size={12} className="mr-1" /> Ping Device
-                    </button>
-                    <span className="text-[11px] text-muted font-mono">Last Seen: เมื่อสักครู่</span>
-                  </div>
-                </div>
-
-                <div className="mt-3 grid grid-cols-3 gap-2 border-t border-slate-100 pt-3 text-[11px] max-md:grid-cols-1">
-                  <div className="flex items-center gap-1.5 text-slate-600">
-                    <ShieldCheck size={14} className="text-emerald-600" />
-                    <span>Security: Zero-Trust Device Token</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-slate-600">
-                    <Sparkles size={14} className="text-amber-500" />
-                    <span>Auth: Active .codex Local Session</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-slate-600">
-                    <Database size={14} className="text-blue-500" />
-                    <span>Storage: 90 Days Daily Partitioning</span>
-                  </div>
-                </div>
-              </div>
+                )
+              })()}
 
               <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
                 {/* Panel 1: Subscription Plan & Headless LLM Config */}
