@@ -746,7 +746,7 @@ export default function IntegrationsPage() {
               className={`btn text-xs font-semibold ${lineTab === 'EDGE_LLM' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setLineTab('EDGE_LLM')}
             >
-              <Sparkles size={14} className="mr-1.5 text-amber-500" /> ⚡ Local Edge LLM &amp; Disk Archive
+              <Sparkles size={14} className="mr-1.5 text-amber-500" /> ⚡ Zuri Edge Device &amp; Pairing
             </button>
             <button
               type="button"
