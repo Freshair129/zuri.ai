@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-21T07:30:58.754Z",
+  "generatedAt": "2026-08-21T07:37:31.397Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,8 +28,18 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 23,
+    "gapCount": 24,
     "gaps": [
+      {
+        "domain": "agent",
+        "id": "API-OPENAPI-001",
+        "severity": "high",
+        "check": "httpApi",
+        "summary": "API route is not represented in the machine-readable OpenAPI generator",
+        "evidence": [
+          "/api/agent/heartbeat"
+        ]
+      },
       {
         "domain": "agent",
         "id": "CONTRACT-001",
@@ -439,7 +449,7 @@
           "id": "FR-080",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
+          "codeCount": 2,
           "testCount": 9
         },
         {
@@ -475,17 +485,26 @@
           "gaps": []
         },
         "httpApi": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/appendices/A-api-spec.md",
             "src/modules/project-manager/api-docs/openapi.js"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "API-OPENAPI-001",
+              "severity": "high",
+              "summary": "API route is not represented in the machine-readable OpenAPI generator",
+              "evidence": [
+                "/api/agent/heartbeat"
+              ]
+            }
+          ],
           "details": {
-            "routes": 2,
-            "inventoried": 2,
+            "routes": 3,
+            "inventoried": 3,
             "openApiPaths": 82,
-            "missingFromOpenApi": 0
+            "missingFromOpenApi": 1
           }
         },
         "mcp": {
@@ -523,15 +542,15 @@
           "gaps": []
         },
         "authorization": {
-          "status": "unknown",
+          "status": "verified",
           "evidence": [
             "docs/appendices/A-api-spec.md"
           ],
           "gaps": [],
           "details": {
-            "mutations": 0,
-            "guardedMutations": 0,
-            "reads": 0,
+            "mutations": 1,
+            "guardedMutations": 1,
+            "reads": 1,
             "unguardedReads": 0
           }
         },
@@ -567,6 +586,15 @@
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [
+        {
+          "id": "API-OPENAPI-001",
+          "severity": "high",
+          "check": "httpApi",
+          "summary": "API route is not represented in the machine-readable OpenAPI generator",
+          "evidence": [
+            "/api/agent/heartbeat"
+          ]
+        },
         {
           "id": "CONTRACT-001",
           "severity": "medium",
@@ -609,8 +637,8 @@
         }
       ],
       "details": {
-        "routes": 2,
-        "apiRoutes": 2,
+        "routes": 3,
+        "apiRoutes": 3,
         "pageRoutes": 0,
         "ownedModels": 0,
         "featureNotes": 6

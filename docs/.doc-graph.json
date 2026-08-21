@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1104,
-    "total_edges": 3634,
+    "total_nodes": 1106,
+    "total_edges": 3638,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 7,
       "roadmap": 25,
       "feature": 9,
-      "route": 123,
+      "route": 124,
       "model": 59,
       "requirement": 198,
       "test": 261,
-      "code_file": 292
+      "code_file": 293
     },
     "coverage": {
       "requirements": 198,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (82/82)",
       "rules_anchored_in_code": "91% (77/85)",
       "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 292,
+      "annotated_code_files": 293,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -59,7 +59,7 @@
   },
   "drift": {
     "changed": [
-      "code:src/lib/db.js"
+      "doc:A-api-spec"
     ],
     "added": [],
     "removed": []
@@ -369,7 +369,7 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "82498db1",
+      "hash": "aba5c861",
       "status": "current",
       "annotations": {
         "@req": [
@@ -847,6 +847,24 @@
         ],
         "@tested": [
           "tests/e2e/smoke.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/agent/heartbeat/route.js",
+      "type": "code_file",
+      "path": "src/app/api/agent/heartbeat/route.js",
+      "hash": "00068aac",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-080"
+        ],
+        "@spec": [
+          "SEC-016"
+        ],
+        "@tested": [
+          "tests/unit/fr080-ui-contract.test.js"
         ]
       }
     },
@@ -3011,7 +3029,7 @@
       "type": "code_file",
       "path": "src/lib/db.js",
       "hash": "b4b5d2b9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-030",
@@ -5934,8 +5952,8 @@
       "title": "Appendix A — API Specification",
       "version": "1.16.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "027855e6",
-      "status": "current"
+      "hash": "260bfbb8",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -9467,6 +9485,14 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope. FR-092 / ADR-038 security gate "
+    },
+    {
+      "id": "route:api:/api/agent/heartbeat",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/agent/heartbeat",
+      "path": "src/app/api/agent/heartbeat/route.js",
+      "status": "current"
     },
     {
       "id": "route:api:/api/agent/line-delivery",
@@ -13512,6 +13538,20 @@
       "from": "code:src/app/(pm)/workspaces/page.jsx",
       "to": "req:FR-001",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/heartbeat/route.js",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/heartbeat/route.js",
+      "to": "req:SEC-016",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -22887,6 +22927,13 @@
       "type": "specifies",
       "status": "current",
       "source": "prd-registry"
+    },
+    {
+      "from": "route:api:/api/agent/heartbeat",
+      "to": "domain:agent",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
     },
     {
       "from": "route:api:/api/agent/line-delivery",
@@ -34098,6 +34145,13 @@
     {
       "from": "test:tests/unit/fr080-ui-contract.test.js",
       "to": "code:src/app/(pm)/platform/integrations/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr080-ui-contract.test.js",
+      "to": "code:src/app/api/agent/heartbeat/route.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"

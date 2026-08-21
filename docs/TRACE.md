@@ -626,8 +626,8 @@
 
 - **Feature:** FEAT-004 — Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution, local evaluation providers and secret-safe Platform management
 - **Status:** n/a
-- **Surface:** `/platform/integrations` (page) · `/api/platform/integrations/line-registry` (api) · `/api/platform/integrations` (api)
-- **Code:** `src/app/(pm)/platform/integrations/page.jsx` · `src/app/api/platform/integrations/line-registry/route.js` · `src/app/api/platform/integrations/route.js` · `src/modules/agent/phase1-runtime.js` · `src/modules/integration/application/integration-management-service.js` · `src/modules/integration/application/line-registry-service.js` · `src/platform/integrations/core/connection-health.js` · `src/platform/integrations/core/secret-manager.js`
+- **Surface:** `/platform/integrations` (page) · `/api/agent/heartbeat` (api) · `/api/platform/integrations/line-registry` (api) · `/api/platform/integrations` (api)
+- **Code:** `src/app/(pm)/platform/integrations/page.jsx` · `src/app/api/agent/heartbeat/route.js` · `src/app/api/platform/integrations/line-registry/route.js` · `src/app/api/platform/integrations/route.js` · `src/modules/agent/phase1-runtime.js` · `src/modules/integration/application/integration-management-service.js` · `src/modules/integration/application/line-registry-service.js` · `src/platform/integrations/core/connection-health.js` · `src/platform/integrations/core/secret-manager.js`
 - **Follows:** NFR-008, NFR-015, SDD-025, SDD-026, SDD-044, SEC-009, SEC-010, SEC-015, SEC-016
 - **Tests:** `tests/integration/line-oa-connection-health.test.js` · `tests/unit/connection-health.test.js` · `tests/unit/fr079-runtime-cutover.test.js` · `tests/unit/fr080-integration-management.test.js` · `tests/unit/fr080-runtime-wiring.test.js` · `tests/unit/fr080-supabase-vault.test.js` · `tests/unit/fr080-ui-contract.test.js` · `tests/unit/line-registry-service.test.js` · `tests/unit/phase1-business-agent-runtime.test.js`
 

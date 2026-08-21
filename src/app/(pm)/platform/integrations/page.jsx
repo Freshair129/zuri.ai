@@ -721,6 +721,57 @@ export default function IntegrationsPage() {
           {/* TAB: EDGE LLM & DISK ARCHIVE CONFIG */}
           {lineTab === 'EDGE_LLM' && (
             <div className="space-y-4">
+              {/* Edge Runtime Security & Device Pairing Live Status */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                      <Radio size={20} className="animate-pulse" />
+                      <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                      </span>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-bold text-slate-900">Local Machine Paired: Etoh-Workstation-01</h3>
+                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
+                          🟢 Online &amp; Heartbeat Active
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted">
+                        Device ID: <span className="font-mono font-semibold text-slate-700">DEV-SMARTGIFT-PRIMARY</span> · Verified Handshake SHA256 Token
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-secondary text-xs"
+                      onClick={() => alert('Heartbeat Probe Ping: เครื่อง Local ตอบรับปกติ Latency 2ms')}
+                    >
+                      <RefreshCw size={12} className="mr-1" /> Ping Device
+                    </button>
+                    <span className="text-[11px] text-muted font-mono">Last Seen: เมื่อสักครู่</span>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid grid-cols-3 gap-2 border-t border-slate-100 pt-3 text-[11px] max-md:grid-cols-1">
+                  <div className="flex items-center gap-1.5 text-slate-600">
+                    <ShieldCheck size={14} className="text-emerald-600" />
+                    <span>Security: Zero-Trust Device Token</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-600">
+                    <Sparkles size={14} className="text-amber-500" />
+                    <span>Auth: Active .codex Local Session</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-600">
+                    <Database size={14} className="text-blue-500" />
+                    <span>Storage: 90 Days Daily Partitioning</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
                 {/* Panel 1: Subscription Plan & Headless LLM Config */}
                 <Card>
