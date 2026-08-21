@@ -14,11 +14,14 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { Search } from 'lucide-react'
+import { Search, Plus, Sparkles, UploadCloud } from 'lucide-react'
 import { DataTable, StatusPill, EmptyState, ErrorState, TruncationNotice } from '@/components/ui'
 import { WORK_STATUSES, ITEM_SUBTYPES, MODE_LABELS } from '@/lib/validation/enums'
 import { useFetch, LoadingCard } from '../../components/useApi'
 import StatusSelect from '../../components/StatusSelect'
+import StandaloneTaskModal from '../../components/StandaloneTaskModal'
+import PlanModeCustomizerModal from '../../components/PlanModeCustomizerModal'
+import UploadPlanModal from '../../components/UploadPlanModal'
 
 /**
  * The Project cell of a global row: the project's code, linked into the same
@@ -93,11 +96,6 @@ export function buildWorkColumns({ projectId, onStatusChanged } = {}) {
     },
   ]
 }
-
-import { Plus, Sparkles, UploadCloud } from 'lucide-react'
-import StandaloneTaskModal from '../../components/StandaloneTaskModal'
-import PlanModeCustomizerModal from '../../components/PlanModeCustomizerModal'
-import UploadPlanModal from '../../components/UploadPlanModal'
 
 export default function AllWorkView({ projectId }) {
   const [q, setQ] = useState('')
