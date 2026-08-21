@@ -5,7 +5,7 @@ import {
   KeyRound, ShieldCheck, Users, MessageSquare, Clock, Plus,
   CheckCircle2, Search, ArrowLeft, ExternalLink, Settings, Sparkles,
   Bot, RefreshCw, AlertTriangle, Layers, Database, Mail, Folder,
-  Github, Globe, Radio, ChevronRight, Building2, Copy, Check
+  Github, Globe, Radio, ChevronRight, Building2, Copy, Check, Trash2
 } from 'lucide-react'
 
 import { Card, ErrorState, Field, PageHeader, SectionTitle, StatusPill } from '@/components/ui'
