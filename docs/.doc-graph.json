@@ -58,7 +58,12 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "code:src/app/api/work/route.js",
+      "code:src/app/api/workstreams/route.js",
+      "code:src/modules/project-manager/application/project-service.js",
+      "code:src/modules/project-manager/application/work-service.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -2505,8 +2510,8 @@
       "id": "code:src/app/api/work/route.js",
       "type": "code_file",
       "path": "src/app/api/work/route.js",
-      "hash": "297d7874",
-      "status": "current",
+      "hash": "2ebc21c5",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-005",
@@ -2569,8 +2574,8 @@
       "id": "code:src/app/api/workstreams/route.js",
       "type": "code_file",
       "path": "src/app/api/workstreams/route.js",
-      "hash": "a0a62338",
-      "status": "current",
+      "hash": "f21df537",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-004",
@@ -4836,8 +4841,8 @@
       "id": "code:src/modules/project-manager/application/project-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-service.js",
-      "hash": "f2afaf47",
-      "status": "current",
+      "hash": "7834cbac",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-003",
@@ -4996,8 +5001,8 @@
       "id": "code:src/modules/project-manager/application/work-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/work-service.js",
-      "hash": "7da81d6e",
-      "status": "current",
+      "hash": "7f6e9d93",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-005",

@@ -61,7 +61,12 @@ export async function GET(request) {
     const q = queryParams(request)
     if (q.projectId) await assertProjectVisible(q.projectId, viewer)
     if (q.workstreamId) await assertWorkstreamVisible(q.workstreamId, viewer)
-    if (!q.projectId && !q.workstreamId && !isInstallationOperator(viewer)) throw httpError(403, 'A Project or Workstream scope is required')
+    const allowedBusinessIds = isInstallationOperator(viewer)
+      ? undefined
+      : (viewer.visibleBusinessIds?.length ? viewer.visibleBusinessIds : undefined)
+    if (!q.projectId && !q.workstreamId && !isInstallationOperator(viewer) && !allowedBusinessIds) {
+      throw httpError(403, 'A Project or Workstream scope is required')
+    }
     return listWork({
       workstreamId: q.workstreamId || undefined,
       projectId: q.projectId || undefined,
@@ -69,6 +74,7 @@ export async function GET(request) {
       subtype: q.subtype || undefined,
       status: q.status || undefined,
       q: q.q || undefined,
+      businessIds: allowedBusinessIds,
     })
   })
 }

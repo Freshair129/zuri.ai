@@ -175,7 +175,7 @@ export const WORK_LIST_LIMIT = 500
  *   `truncated` is decided by asking for one row more than we will return —
  *   the only way to know there is a next row without counting the whole table.
  */
-export async function listWork({ workstreamId, projectId, subtype, status, q, executionMode } = {}) {
+export async function listWork({ workstreamId, projectId, subtype, status, q, executionMode, businessIds } = {}) {
   const where = { deletedAt: null }
   if (workstreamId) where.workstreamId = workstreamId
   if (subtype) where.subtype = subtype
@@ -188,6 +188,9 @@ export async function listWork({ workstreamId, projectId, subtype, status, q, ex
   where.workstream = { ...activeWorkstream() }
   if (projectId) where.workstream.projectId = projectId
   if (executionMode) where.workstream.executionMode = executionMode
+  if (businessIds && businessIds.length > 0 && !projectId && !workstreamId) {
+    where.workstream.project = { businessId: { in: businessIds } }
+  }
 
   const rows = await prisma.workItem.findMany({
     where,

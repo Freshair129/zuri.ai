@@ -37,8 +37,17 @@ export async function GET(request) {
     const viewer = await resolveRequestViewer(request)
     const q = queryParams(request)
     if (q.projectId) await assertProjectVisible(q.projectId, viewer)
-    else if (!isInstallationOperator(viewer)) throw httpError(403, 'A Project scope is required')
-    return listWorkstreams({ projectId: q.projectId || undefined, executionMode: q.executionMode || undefined })
+    const allowedBusinessIds = isInstallationOperator(viewer)
+      ? undefined
+      : (viewer.visibleBusinessIds?.length ? viewer.visibleBusinessIds : undefined)
+    if (!q.projectId && !isInstallationOperator(viewer) && !allowedBusinessIds) {
+      throw httpError(403, 'A Project scope is required')
+    }
+    return listWorkstreams({
+      projectId: q.projectId || undefined,
+      executionMode: q.executionMode || undefined,
+      businessIds: allowedBusinessIds,
+    })
   })
 }
 

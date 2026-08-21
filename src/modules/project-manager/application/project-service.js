@@ -286,10 +286,13 @@ export async function archiveWorkstream(id, { viewer } = {}) {
   return workstream
 }
 
-export async function listWorkstreams({ projectId, executionMode } = {}) {
+export async function listWorkstreams({ projectId, executionMode, businessIds } = {}) {
   const where = { deletedAt: null }
   if (projectId) where.projectId = projectId
   if (executionMode) where.executionMode = executionMode
+  if (businessIds && businessIds.length > 0 && !projectId) {
+    where.project = { businessId: { in: businessIds } }
+  }
   return prisma.workstream.findMany({
     where,
     orderBy: { code: 'asc' },
