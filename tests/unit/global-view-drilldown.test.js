@@ -61,20 +61,22 @@ describe('All Work — the Project column drills into the project-scoped view', 
     const globalKeys = columnKeys(buildWorkColumns({}))
     const scopedKeys = columnKeys(buildWorkColumns({ projectId: 'p-1' }))
     expect(globalKeys.filter((k) => k !== 'project')).toEqual(scopedKeys)
-    expect(scopedKeys).toEqual(['code', 'title', 'subtype', 'stream', 'mode', 'weight', 'status'])
+    expect(scopedKeys).toEqual(['code', 'title', 'subtype', 'stream', 'mode', 'actor', 'weight', 'status'])
   })
 
   it('links a global row to the same view scoped to its project', () => {
-    const cell = projectColumn(buildWorkColumns({})).render(workRow({ id: 'p-1', code: 'PRJ-A' }))
-    expect(isElement(cell)).toBe(true)
+    const wrapper = projectColumn(buildWorkColumns({})).render(workRow({ id: 'p-1', code: 'PRJ-A' }))
+    expect(isElement(wrapper)).toBe(true)
+    const link = Array.isArray(wrapper.props.children) ? wrapper.props.children[0] : wrapper.props.children
     // The same view, scoped — not the project home, not a different tab.
-    expect(cell.props.href).toBe('/projects/p-1/all-work')
-    expect(cell.props.children).toBe('PRJ-A')
+    expect(link.props.href).toBe('/projects/p-1/all-work')
+    expect(link.props.children).toBe('PRJ-A')
   })
 
   it('names the destination for a screen reader, not just the code', () => {
-    const cell = projectDrilldownCell(workRow({ id: 'p-1', code: 'PRJ-A' }))
-    expect(cell.props['aria-label']).toBe('View all work in project PRJ-A')
+    const wrapper = projectDrilldownCell(workRow({ id: 'p-1', code: 'PRJ-A' }))
+    const link = Array.isArray(wrapper.props.children) ? wrapper.props.children[0] : wrapper.props.children
+    expect(link.props['aria-label']).toBe('Filter all work to project PRJ-A')
   })
 
   it('degrades to plain text when the project id is absent', () => {

@@ -728,42 +728,42 @@ export default function IntegrationsPage() {
                 const isOnline = Boolean(heartbeat.data?.activeOnline > 0)
                 const device = heartbeat.data?.devices?.[0]
                 return (
-                  <div className={`rounded-2xl border p-4 shadow-sm transition ${
+                  <div className={`rounded-2xl border p-5 shadow-sm transition ${
                     isOnline ? 'border-emerald-200 bg-white' : 'border-rose-200 bg-rose-50/30'
                   }`}>
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className={`relative flex h-10 w-10 items-center justify-center rounded-xl ${
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-center gap-3.5">
+                        <div className={`relative flex h-12 w-12 items-center justify-center rounded-2xl ${
                           isOnline ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'
                         }`}>
-                          <Radio size={20} className={isOnline ? 'animate-pulse' : ''} />
+                          <Radio size={24} className={isOnline ? 'animate-pulse' : ''} />
                           {isOnline && (
-                            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
                             </span>
                           )}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-bold text-slate-900">
-                              {isOnline ? `Local Machine: ${device?.deviceId || 'Etoh-Workstation'}` : 'Edge Runtime ไม่ได้เปิดทำงาน'}
+                            <h3 className="text-base font-bold text-slate-900">
+                              {isOnline ? `Paired Device: ${device?.deviceId || 'DEV-SMARTGIFT-PRIMARY'}` : 'Edge Runtime ไม่ได้เชื่อมต่อ'}
                             </h3>
                             {isOnline ? (
-                              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
-                                🟢 Online &amp; Heartbeat Active
+                              <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
+                                🟢 Paired &amp; Heartbeat Active
                               </span>
                             ) : (
-                              <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-semibold text-rose-700 border border-rose-300">
-                                🔴 Offline (ยังไม่ได้รัน npm start ในเครื่อง)
+                              <span className="rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-700 border border-rose-300">
+                                🔴 Disconnected
                               </span>
                             )}
                           </div>
-                          <p className="text-[11px] text-muted">
+                          <p className="mt-0.5 text-xs text-muted">
                             {isOnline ? (
-                              <>Device ID: <span className="font-mono font-semibold text-slate-700">{device?.deviceId}</span> · Engine: {device?.engine || 'Headless Claude Code'}</>
+                              <>Engine: <span className="font-semibold text-slate-800">{device?.engine || 'GenesisBlock + Codex Luna 5.6'}</span> · Model: <code className="font-mono text-slate-700">{device?.model || 'gpt-5.6-luna'}</code></>
                             ) : (
-                              <>ต้องเปิดรันคำสั่ง <code className="rounded bg-rose-100 px-1 py-0.5 font-mono text-rose-900">cd d:\workspace\zuri-edge-llm; npm start</code> บนเครื่อง Local จึงจะเริ่มตอบ LINE ได้</>
+                              <>เปิดรันเครื่อง Local: <code className="rounded bg-rose-100 px-1.5 py-0.5 font-mono text-rose-900">start-edge-llm.bat</code> เพื่อเชื่อมต่อสถานะกับคลาวด์</>
                             )}
                           </p>
                         </div>
@@ -771,122 +771,75 @@ export default function IntegrationsPage() {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          className="btn btn-secondary text-xs"
+                          className="btn btn-secondary text-xs font-semibold"
                           onClick={() => {
                             heartbeat.reload()
-                            if (isOnline) alert('Heartbeat Probe: เครื่อง Local ตอบรับปกติ Latency 2ms')
-                            else alert('Heartbeat Probe: ไม่พบสัญญาณจากเครื่อง Local กรุณารัน npm start ใน zuri-edge-llm')
+                            if (isOnline) alert(`Heartbeat Verified: รับสัญญาณจาก ${device?.deviceId || 'Edge'} เมื่อ ${new Date(device?.lastSeenAt).toLocaleTimeString()}`)
+                            else alert('Heartbeat Probe: ไม่พบสัญญาณ Active จากเครื่อง Local')
                           }}
                         >
-                          <RefreshCw size={12} className="mr-1" /> ตรวจสอบสัญญาณ (Probe)
+                          <RefreshCw size={13} className="mr-1.5" /> ตรวจสอบสัญญาณ (Probe)
                         </button>
-                        <span className="text-[11px] text-muted font-mono">
-                          {isOnline ? `Last Seen: ${new Date(device?.lastSeenAt).toLocaleTimeString()}` : 'สถานะ: Disconnected'}
-                        </span>
+                        <a
+                          href="http://localhost:8787/gui"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-primary text-xs font-semibold flex items-center gap-1.5"
+                        >
+                          <Settings size={13} /> เปิด Local Edge GUI (Config) <ExternalLink size={11} />
+                        </a>
                       </div>
                     </div>
 
-                    <div className="mt-3 grid grid-cols-3 gap-2 border-t border-slate-100 pt-3 text-[11px] max-md:grid-cols-1">
-                      <div className="flex items-center gap-1.5 text-slate-600">
-                        <ShieldCheck size={14} className={isOnline ? 'text-emerald-600' : 'text-slate-400'} />
-                        <span>Security: {isOnline ? 'Zero-Trust Handshake Token' : 'Waiting for Pairing'}</span>
+                    <div className="mt-4 grid grid-cols-3 gap-3 border-t border-slate-100 pt-3.5 text-xs max-md:grid-cols-1">
+                      <div className="flex items-center gap-2 text-slate-700">
+                        <ShieldCheck size={16} className={isOnline ? 'text-emerald-600' : 'text-slate-400'} />
+                        <span>Pairing Key: <code className="font-mono font-bold text-slate-900">tok_edge_smartgift_sec_8849...</code></span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-slate-600">
-                        <Sparkles size={14} className={isOnline ? 'text-amber-500' : 'text-slate-400'} />
-                        <span>Auth: Active .codex Local Session</span>
+                      <div className="flex items-center gap-2 text-slate-700">
+                        <Database size={16} className={isOnline ? 'text-blue-600' : 'text-slate-400'} />
+                        <span>RAG Engine: <b>GenesisBlock Graph DB</b></span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-slate-600">
-                        <Database size={14} className={isOnline ? 'text-blue-500' : 'text-slate-400'} />
-                        <span>Storage: 90 Days Daily Partitioning</span>
+                      <div className="flex items-center gap-2 text-slate-700">
+                        <Sparkles size={16} className={isOnline ? 'text-amber-500' : 'text-slate-400'} />
+                        <span>Intelligence: <b>Codex CLI (Zero Token Cost)</b></span>
                       </div>
                     </div>
                   </div>
                 )
               })()}
 
-              <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
-                {/* Panel 1: Subscription Plan & Headless LLM Config */}
-                <Card>
-                  <SectionTitle caption="ตั้งค่า Local Edge LLM โดยใช้โควต้า Subscription Plan (.codex / Claude Code)">
-                    🧠 Subscription Plan &amp; Model Engine
-                  </SectionTitle>
-                  <div className="space-y-3 text-xs">
-                    <Field label="โหมดการทำงานของ LLM Engine (Execution Mode)">
-                      <select className="input font-semibold" defaultValue="HEADLESS_PLAN">
-                        <option value="HEADLESS_PLAN">⚡ Subscription Plan Quota (Claude Code / .codex Session - Zero Token Cost)</option>
-                        <option value="LOCAL_OLLAMA">🖥️ Local Inference (Ollama / Qwen 2.5 / DeepSeek - Free 100%)</option>
-                        <option value="OPENAI_COMPATIBLE">🌐 OpenAI Compatible Local Bridge (http://localhost:8080/v1)</option>
-                        <option value="API_FALLBACK">☁️ Cloud API Fallback (OpenRouter / Anthropic Direct)</option>
-                      </select>
-                    </Field>
-
-                    <Field label="ชื่อโมเดลหลัก (Primary Model Name)" hint="โมเดลที่ใช้ตอบคำถามลูกค้าและคิดราคาสินค้า">
-                      <input className="input font-mono" defaultValue="claude-3-7-sonnet" placeholder="เช่น claude-3-7-sonnet, qwen2.5:14b, gpt-4o" />
-                    </Field>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <Field label="Reasoning Effort">
-                        <select className="input" defaultValue="medium">
-                          <option value="low">Low (ตอบไวสุด)</option>
-                          <option value="medium">Medium (แนะนำ)</option>
-                          <option value="high">High (วิเคราะห์ราคาสูงสุด)</option>
-                        </select>
-                      </Field>
-                      <Field label="Max Agent Turns" hint="จำนวนรอบสูงสุดที่ Agent เรียก Tool">
-                        <input className="input font-mono" type="number" defaultValue="4" />
-                      </Field>
-                    </div>
-
-                    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3 text-amber-900">
-                      <div className="flex items-center gap-1.5 font-semibold">
-                        <CheckCircle2 size={14} className="text-amber-600" />
-                        <span>พบ Local Auth Session (.codex / Claude Session Active)</span>
-                      </div>
-                      <p className="mt-1 text-[11px] text-amber-800">
-                        ระบบจะตัดโควต้าจากแพ็กเกจ Subscription ประจำเดือนที่คุณล็อกอินไว้ในเครื่อง โดยไม่มีค่าใช้จ่าย API Token เพิ่มเติม
-                      </p>
-                    </div>
+              {/* Edge Local Management Callout */}
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5">
+                <div className="flex items-start justify-between gap-4 max-md:flex-col">
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                      <Settings size={16} className="text-slate-700" />
+                      Local Edge Configuration &amp; Storage Hub
+                    </h4>
+                    <p className="mt-1 text-xs text-slate-600 max-w-2xl leading-relaxed">
+                      การตั้งค่าความลับ (LINE Channel Secret, Access Tokens), การจัดเก็บ Log ประวัติแชทบน Hard Disk และการเลือก Persona ของ AI ถูกย้ายไปบริหารจัดการที่ <b>Local Edge LLM</b> โดยตรง เพื่อความปลอดภัยสูงสุด (Zero Data Leak to Cloud)
+                    </p>
                   </div>
-                </Card>
-
-                {/* Panel 2: Disk Storage & Chat History Archive */}
-                <Card>
-                  <SectionTitle caption="ตั้งค่าการบันทึกประวัติการแชทลูกค้าลงใน Local Hard Disk">
-                    💾 Disk Storage &amp; History Archive
-                  </SectionTitle>
-                  <div className="space-y-3 text-xs">
-                    <Field label="ตำแหน่งบันทึกประวัติแชทบนเครื่อง (History Root Directory)">
-                      <input className="input font-mono" defaultValue="./data/history" placeholder="./data/history" />
-                    </Field>
-
-                    <Field label="ระยะเวลาเก็บประวัติก่อนหมุนเวียนลบ (Retention Days)" hint="ระบบจะล้างข้อมูลเก่าอัตโนมัติเพื่อไม่ให้เปลืองพื้นที่ฮาร์ดดิสก์">
-                      <div className="flex items-center gap-2">
-                        <input className="input font-mono w-28" type="number" defaultValue="90" />
-                        <span className="text-muted">วัน (90 Days Daily JSONL Partitioning)</span>
-                      </div>
-                    </Field>
-
-                    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] p-3 space-y-2">
-                      <span className="font-semibold text-muted flex items-center gap-1">
-                        <Database size={13} /> โครงสร้างไฟล์ที่จัดเก็บบนเครื่อง:
-                      </span>
-                      <pre className="rounded bg-white p-2 font-mono text-[10px] text-slate-700 border border-[#ECEEF1]">
-{`data/history/
-  ├── smartgift-line-oa/
-  │     ├── 2026-08-20.jsonl (คำถาม-คำตอบ, ราคา, User ID)
-  │     └── 2026-08-21.jsonl
-  └── .dedupe.json (ระบบป้องกันข้อความซ้ำ)`}
-                      </pre>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2">
-                      <span className="text-[11px] text-muted">สถานะ Disk Storage: พร้อมทำงาน</span>
-                      <button type="button" className="btn btn-primary text-xs" onClick={() => alert('บันทึกการตั้งค่า Edge LLM & Disk Archive เรียบร้อยแล้ว')}>
-                        💾 บันทึกการตั้งค่า Edge Runtime
-                      </button>
-                    </div>
+                  <div className="flex flex-wrap gap-2 shrink-0">
+                    <a
+                      href="http://localhost:8787/gui"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn btn-secondary text-xs font-semibold flex items-center gap-1.5"
+                    >
+                      🖥️ Local Edge Web GUI
+                    </a>
+                    <a
+                      href="http://localhost:8787/graph"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn btn-secondary text-xs font-semibold flex items-center gap-1.5"
+                    >
+                      🌐 Live Graph Viewer
+                    </a>
                   </div>
-                </Card>
+                </div>
               </div>
             </div>
           )}
