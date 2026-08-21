@@ -10807,7 +10807,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md",
       "title": "ADR-041 — Zuri Edge Device Topology and Decoupled Local Governance",
-      "hash": "0b49d6ba",
+      "hash": "811f81ca",
       "status": "changed"
     },
     {

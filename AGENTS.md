@@ -16,8 +16,8 @@ repository** — the legacy zuri project, discontinued as far as this product is
 concerned ([ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)). Reading it
 as prior art is fine. Writing to it never is.
 
-`D:\workspace\zuri-command-agent` is the LINE OA transport this product's LINE
-surface talks to. Never read or copy its `.env` (secrets).
+`D:\workspace\zuri-edge-device` (`Freshair129/zuri-edge-device`) is the on-premise
+Zuri Edge Device runtime (ADR-041) this product talks to. Never read or copy its `.env` (secrets).
 
 > History (kept so old citations resolve): earlier revisions of this section moved
 > twice — first "standalone, do not copy" (ADR-001), then "copying is expected,

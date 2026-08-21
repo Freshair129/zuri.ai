@@ -42,7 +42,7 @@ To establish unambiguous, agent-agnostic semantics across all documentation, UI,
 
 ### D2 — Standalone Repository & Folder Identity
 
-The local workspace directory and repository are renamed to `zuri-edge-device` (`Freshair129/zuri-command-agent` / `zuri-edge-device`). All edge secrets (LINE Channel Secret, Access Tokens, DB paths) reside exclusively within the local `.env` and disk partitions of the Edge Device.
+The local workspace directory and repository are renamed to `zuri-edge-device` (`https://github.com/Freshair129/zuri-edge-device.git` at `D:\workspace\zuri-edge-device`). All edge secrets (LINE Channel Secret, Access Tokens, DB paths) reside exclusively within the local `.env` and disk partitions of the Edge Device.
 
 ### D3 — Cloud UI Boundary: Zero Secret Exposure
 
