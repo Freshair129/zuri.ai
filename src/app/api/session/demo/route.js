@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { LOCAL_DEMO_COOKIE, requireTrustedLocalDemo } from '@/modules/identity/session-port'
+import { LOCAL_DEMO_COOKIE, LIVE_SESSION_COOKIE, LIVE_OWNER_PRINCIPAL_ID, requireTrustedLocalDemo } from '@/modules/identity/session-port'
 
 // @req FR-046 — local demo entry is explicit and impossible in production.
 // @spec ADR-017, SDD-024, SEC-008
