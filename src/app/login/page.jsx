@@ -27,9 +27,9 @@ export default function LoginPage() {
         <p className="mt-2 text-sm leading-6 text-muted">Sign in as EtohGroup Business Owner to access your workspace and integrations.</p>
       </div>
 
-      <form action="/api/session/demo" method="post" className="mt-6">
+      <form action="/api/session/login" method="post" className="mt-6">
         <button type="submit" className="btn btn-primary inline-flex min-h-11 w-full justify-center">
-          Sign In as Owner (demo access)
+          Sign In as Owner
         </button>
       </form>
 

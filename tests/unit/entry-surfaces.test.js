@@ -34,14 +34,13 @@ describe('FR-044 entry surfaces', () => {
     expect(landingSource).not.toContain('Sidebar')
   })
 
-  it('keeps Login credential-free and creates its explicit local demo session through the server route', () => {
+  it('keeps Login credential-free and creates its explicit session through the server route', () => {
     expect(existsSync(loginPath)).toBe(true)
     const login = readFileSync(loginPath, 'utf8')
     expect(login).toContain('<EntryShell>')
-    expect(login).toContain('action="/api/session/demo"')
+    expect(login).toContain('action="/api/session/login"')
     expect(login).toContain('method="post"')
     expect((login.match(/href="\//g) || []).length).toBe(0)
-    expect(login).toContain('demo')
     const executableLogin = login.replace(/\/\/.*$/gm, '')
     expect(executableLogin).not.toContain('/api/viewer')
     expect(executableLogin).not.toContain('password')

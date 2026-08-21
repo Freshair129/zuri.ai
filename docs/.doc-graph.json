@@ -59,7 +59,8 @@
   },
   "drift": {
     "changed": [
-      "code:src/app/api/session/demo/route.js"
+      "test:tests/unit/entry-surfaces.test.js",
+      "test:tests/unit/fr046-api-ui-contract.test.js"
     ],
     "added": [],
     "removed": []
@@ -2383,7 +2384,7 @@
       "type": "code_file",
       "path": "src/app/api/session/demo/route.js",
       "hash": "d1482c7a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046"
@@ -11607,8 +11608,8 @@
       "id": "test:tests/unit/entry-surfaces.test.js",
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
-      "hash": "f3e76b36",
-      "status": "current"
+      "hash": "7e324b8e",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/format-progress-percent.test.js",
@@ -11698,8 +11699,8 @@
       "id": "test:tests/unit/fr046-api-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr046-api-ui-contract.test.js",
-      "hash": "62bd64f3",
-      "status": "current"
+      "hash": "91c414e3",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr046-entry-read-model.test.js",
