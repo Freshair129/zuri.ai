@@ -2,7 +2,10 @@ import { PrismaClient as PostgresPrismaClient } from '@zuri/prisma-postgres'
 import { randomUUID } from 'crypto'
 import { SMARTGIFT_PRODUCTS, SMARTGIFT_CATEGORIES, SMARTGIFT_POLICIES } from '../src/modules/knowledge/smartgift-knowledge-catalog.js'
 
-const url = 'postgresql://postgres.qcnmhyglarzcpudjorzc:Suanranger1295@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres'
+const url = process.env.DIRECT_URL || process.env.DATABASE_URL
+if (!url || !/^(postgres|postgresql):/i.test(url)) {
+  throw new Error('DIRECT_URL or DATABASE_URL must be a Postgres URL; refusing to run against an implicit or local database')
+}
 const prisma = new PostgresPrismaClient({ datasources: { db: { url } } })
 
 const BUSINESS_ID = '834fa869-62f3-431c-a287-e9a95e91175b' // SmartGift

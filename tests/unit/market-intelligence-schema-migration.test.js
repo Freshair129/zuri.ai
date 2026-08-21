@@ -38,8 +38,8 @@ describe('FR-092 MarketObservation schema and migration parity', () => {
   })
 
   it('records the additive production table and its generated rebuild artifacts', () => {
-    expect(migration).toContain('CREATE TABLE "MarketObservation"')
-    expect(migration).toContain('CREATE UNIQUE INDEX "MarketObservation_lineageKey_key"')
+    expect(migration).toMatch(/CREATE TABLE(?: IF NOT EXISTS)? "MarketObservation"/)
+    expect(migration).toMatch(/CREATE UNIQUE INDEX(?: IF NOT EXISTS)? "MarketObservation_lineageKey_key"/)
     expect(migration).toContain('ALTER TABLE "MarketObservation" ENABLE ROW LEVEL SECURITY')
     expect(migration).not.toMatch(/\b(?:DROP|ALTER)\s+TABLE\s+"(?:RawExternalRecord|IntegrationConnection)"/i)
     expect(initSql).toContain('CREATE TABLE "MarketObservation"')
