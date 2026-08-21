@@ -7,7 +7,7 @@ const { api } = require('./reconnecting-request')
 
 async function chooseBusiness(page) {
   await page.goto('/login')
-  await page.getByRole('button', { name: /demo login/i }).click()
+  await page.getByRole('button', { name: /sign in as owner/i }).click()
   await page.getByRole('button', { name: /Open Business Business 01/i }).click()
   await expect(page).toHaveURL(/overview/)
 }
@@ -27,7 +27,7 @@ test.describe('FR-045 Business File Manager', () => {
   })
 
   test('fails a Business aggregation request outside the viewer scope', async ({ request }) => {
-    await api(request).post('/api/session/demo', { maxRedirects: 0 })
+    await api(request).post('/api/session/login', { maxRedirects: 0 })
     const response = await api(request).get('/api/business/files?businessId=not-visible')
     expect(response.status()).toBe(400)
     expect((await response.json()).error).toMatch(/not visible/i)

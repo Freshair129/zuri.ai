@@ -22,7 +22,7 @@ test.describe('FR-044 entry to BusinessShell', () => {
     await expect(page.locator('[data-shell="entry"]')).toBeVisible()
     await expect(page.getByRole('navigation', { name: 'Domains' })).toHaveCount(0)
 
-    await page.getByRole('button', { name: /demo login/i }).click()
+    await page.getByRole('button', { name: /sign in as owner/i }).click()
     await expect(page).toHaveURL(/\/businesses$/)
     await expect(page.getByRole('heading', { name: 'Choose a Business' })).toBeVisible()
     await expect(page.getByRole('button', { name: /Open Business Business 01/i })).toBeVisible()
@@ -33,7 +33,7 @@ test.describe('FR-044 entry to BusinessShell', () => {
     await clearBusinessSelection(page)
     await page.goto('/overview')
     await expect(page).toHaveURL(/\/login$/)
-    await page.getByRole('button', { name: /demo login/i }).click()
+    await page.getByRole('button', { name: /sign in as owner/i }).click()
     await expect(page).toHaveURL(/\/businesses$/)
     await expect(page.getByRole('heading', { name: 'Choose a Business' })).toBeVisible()
 

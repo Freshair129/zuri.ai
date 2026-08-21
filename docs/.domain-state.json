@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-21T04:06:07.804Z",
+  "generatedAt": "2026-08-21T04:56:57.387Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -484,7 +484,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 83,
+            "openApiPaths": 82,
             "missingFromOpenApi": 0
           }
         },
@@ -631,7 +631,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-091",
@@ -918,14 +918,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-078",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "checks": {
@@ -951,7 +951,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 83,
+            "openApiPaths": 82,
             "missingFromOpenApi": 0
           }
         },
@@ -1156,7 +1156,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 83,
+            "openApiPaths": 82,
             "missingFromOpenApi": 0
           }
         },
@@ -1753,7 +1753,7 @@
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
-          "codeCount": 57,
+          "codeCount": 56,
           "testCount": 43
         },
         {
@@ -1887,7 +1887,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-081",
@@ -2039,9 +2039,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 78,
-            "inventoried": 78,
-            "openApiPaths": 83,
+            "routes": 77,
+            "inventoried": 77,
+            "openApiPaths": 82,
             "missingFromOpenApi": 0
           }
         },
@@ -2100,8 +2100,8 @@
             }
           ],
           "details": {
-            "mutations": 63,
-            "guardedMutations": 62,
+            "mutations": 62,
+            "guardedMutations": 61,
             "reads": 42,
             "unguardedReads": 0
           }
@@ -2279,8 +2279,8 @@
         }
       ],
       "details": {
-        "routes": 115,
-        "apiRoutes": 78,
+        "routes": 114,
+        "apiRoutes": 77,
         "pageRoutes": 37,
         "ownedModels": 30,
         "featureNotes": 28

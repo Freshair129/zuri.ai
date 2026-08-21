@@ -32,14 +32,12 @@ describe('FR-046 API and UI boundary', () => {
 
   it('issues the session cookie through explicit server session routes', () => {
     const login = read('src/app/login/page.jsx')
-    const demoRoute = read('src/app/api/session/demo/route.js')
     const loginRoute = read('src/app/api/session/login/route.js')
     const sessionPort = read('src/modules/identity/session-port.js')
     expect(login).toContain('action="/api/session/login"')
-    expect(demoRoute).toContain('requireTrustedLocalDemo()')
     expect(loginRoute).toContain('LIVE_SESSION_COOKIE')
     expect(sessionPort).toContain('ZURI_LOCAL_DEMO_AUTH')
-    expect(demoRoute).toContain('httpOnly: true')
+    expect(loginRoute).toContain('httpOnly: true')
   })
 
   it('has no API route that calls the pure viewer resolver without request identity', () => {

@@ -8,7 +8,7 @@ const { api } = require('./reconnecting-request')
 
 async function chooseBusiness(page, name = 'Business 01') {
   await page.goto('/login')
-  await page.getByRole('button', { name: /demo login/i }).click()
+  await page.getByRole('button', { name: /sign in as owner/i }).click()
   await page.getByRole('button', { name: new RegExp(`Open Business ${name}`) }).click()
   await expect(page).toHaveURL(/overview/)
 }
@@ -42,7 +42,7 @@ test.describe('FR-041/042 Business-first shell', () => {
   })
 
   test('strategy and people API contracts stay Business-scoped', async ({ request }) => {
-    await api(request).post('/api/session/demo', { maxRedirects: 0 })
+    await api(request).post('/api/session/login', { maxRedirects: 0 })
     const scope = await (await api(request).get('/api/scope')).json()
     const business = scope.businesses.find((item) => item.code === 'BUS-001')
     const strategy = await api(request).get(`/api/business/strategy?businessId=${business.id}`)

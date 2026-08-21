@@ -8,7 +8,7 @@ const { api } = require('./reconnecting-request')
 
 async function chooseBusiness(page, name = 'Business 01') {
   await page.goto('/login')
-  await page.getByRole('button', { name: /demo login/i }).click()
+  await page.getByRole('button', { name: /sign in as owner/i }).click()
   await page.getByRole('button', { name: new RegExp(`Open Business ${name}`) }).click()
   await expect(page).toHaveURL(/overview/)
 }

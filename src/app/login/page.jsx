@@ -2,7 +2,7 @@
 // @spec ADR-015, SDD-022 — no authentication, session, token, or credential handling in this slice.
 // @tested tests/unit/entry-surfaces.test.js, tests/unit/fr046-api-ui-contract.test.js
 import EntryShell from '@/components/layouts/EntryShell'
-// @req FR-046 — local demo entry creates an explicit server-owned session cookie.
+// @req FR-046 — owner entry creates an explicit server-owned session cookie.
 // @spec ADR-017, SDD-024, SEC-008
 // @tested tests/unit/fr046-api-ui-contract.test.js, tests/e2e/fr046-entry-contract.spec.js
 

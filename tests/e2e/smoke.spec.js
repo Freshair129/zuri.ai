@@ -9,7 +9,7 @@ const { api } = require('./reconnecting-request')
 // @tested tests/e2e/smoke.spec.js
 async function enterBusiness(page, name = 'Business 01') {
   await page.goto('/login')
-  await page.getByRole('button', { name: /demo login/i }).click()
+  await page.getByRole('button', { name: /sign in as owner/i }).click()
   await page.getByRole('button', { name: new RegExp(`Open Business ${name}`) }).click()
   await expect(page).toHaveURL(/overview/)
 }
@@ -401,7 +401,7 @@ test.describe('FR-019 enterprise API', () => {
   })
 
   test('refuses an import above Business, naming the authority that does not exist', async ({ request }) => {
-    await api(request).post('/api/session/demo', { maxRedirects: 0 })
+    await api(request).post('/api/session/login', { maxRedirects: 0 })
     // WS-PLATFORM is PORTFOLIO-scoped. No principal can hold authority there, so
     // this is refused for everyone — and says so, rather than denying silently.
     const res = await api(request).post('/api/import/dry-run', {
@@ -413,7 +413,7 @@ test.describe('FR-019 enterprise API', () => {
   })
 
   test('upserts by the customer core id and resolves it back', async ({ request }) => {
-    await api(request).post('/api/session/demo', { maxRedirects: 0 })
+    await api(request).post('/api/session/login', { maxRedirects: 0 })
     const dry = await (await api(request).post('/api/import/dry-run', { data: { plan: plan() } })).json()
     expect(dry.valid).toBe(true)
 
@@ -435,7 +435,7 @@ test.describe('FR-019 enterprise API', () => {
   })
 
   test('rejects an unmapped external id instead of inventing one', async ({ request }) => {
-    await api(request).post('/api/session/demo', { maxRedirects: 0 })
+    await api(request).post('/api/session/login', { maxRedirects: 0 })
     const res = await api(request).get('/api/resolve?system=E2E_SAP&value=DOES-NOT-EXIST')
     expect(res.status()).toBe(404)
     expect((await res.json()).error).toMatch(/not mapped/)

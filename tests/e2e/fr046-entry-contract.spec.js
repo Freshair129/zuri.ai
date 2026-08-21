@@ -11,7 +11,7 @@ test.describe('FR-046 production-shaped entry boundary', () => {
     await context.clearCookies()
   })
 
-  test('fails closed without a session and enters through the explicit demo session', async ({ page }) => {
+  test('fails closed without a session and enters through the owner session', async ({ page }) => {
     const unauthenticated = await api(page.request).get('/api/entry')
     expect(unauthenticated.status()).toBe(401)
     await expect(unauthenticated.json()).resolves.toEqual({ error: 'AUTH_REQUIRED' })
@@ -21,7 +21,7 @@ test.describe('FR-046 production-shaped entry boundary', () => {
 
     const entryRequests = []
     page.on('request', (request) => entryRequests.push(new URL(request.url()).pathname))
-    await page.getByRole('button', { name: /demo login/i }).click()
+    await page.getByRole('button', { name: /sign in as owner/i }).click()
     await expect(page).toHaveURL(/\/businesses$/)
     await expect(page.getByRole('heading', { name: 'Choose a Business' })).toBeVisible()
 
