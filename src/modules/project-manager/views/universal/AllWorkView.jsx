@@ -41,14 +41,22 @@ export function projectDrilldownCell(row) {
   const project = row?.workstream?.project
   const code = project?.code || ''
   if (!code || !project?.id) return code
+  const biz = project?.business
   return (
-    <Link
-      className="font-bold hover:text-brand-dark"
-      href={`/projects/${project.id}/all-work`}
-      aria-label={`View all work in project ${code}`}
-    >
-      {code}
-    </Link>
+    <div className="flex flex-col gap-0.5">
+      <Link
+        href={`/projects/${project.id}/all-work`}
+        className="font-semibold transition hover:underline"
+        aria-label={`Filter all work to project ${code}`}
+      >
+        {code}
+      </Link>
+      {biz?.name && (
+        <span className="inline-block w-fit rounded px-1.5 py-0.2 text-[9px] font-medium bg-slate-100 text-slate-700">
+          {biz.name}
+        </span>
+      )}
+    </div>
   )
 }
 
@@ -98,10 +106,13 @@ export function buildWorkColumns({ projectId, onStatusChanged } = {}) {
 }
 
 export default function AllWorkView({ projectId }) {
+  const [selectedBusinessId, setSelectedBusinessId] = useState('')
   const [q, setQ] = useState('')
   const [status, setStatus] = useState('')
   const [subtype, setSubtype] = useState('')
   const [mode, setMode] = useState('')
+
+  const { data: businesses } = useFetch('/api/businesses')
 
   const [taskModalOpen, setTaskModalOpen] = useState(false)
   const [planModalOpen, setPlanModalOpen] = useState(false)
@@ -109,6 +120,7 @@ export default function AllWorkView({ projectId }) {
 
   const params = new URLSearchParams()
   if (projectId) params.set('projectId', projectId)
+  if (selectedBusinessId) params.set('businessId', selectedBusinessId)
   if (status) params.set('status', status)
   if (subtype) params.set('subtype', subtype)
   if (mode) params.set('executionMode', mode)
@@ -158,6 +170,38 @@ export default function AllWorkView({ projectId }) {
           <span>Decoupled Tasks & Multi-Agent Planning</span>
         </div>
       </div>
+
+      {/* Business Scope Filter Tabs (Shown when in Global / Unscoped View) */}
+      {!projectId && businesses && businesses.length > 0 && (
+        <div className="mb-3 flex items-center gap-1.5 overflow-x-auto pb-1">
+          <button
+            type="button"
+            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+              selectedBusinessId === ''
+                ? 'bg-slate-900 text-white shadow-sm'
+                : 'bg-white border border-[#ECEEF1] text-slate-600 hover:bg-slate-50'
+            }`}
+            onClick={() => setSelectedBusinessId('')}
+          >
+            🏢 ทุกธุรกิจ (All Businesses)
+          </button>
+          {businesses.map((biz) => (
+            <button
+              key={biz.id}
+              type="button"
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+                selectedBusinessId === biz.id
+                  ? 'bg-amber-600 text-white shadow-sm'
+                  : 'bg-white border border-[#ECEEF1] text-slate-600 hover:bg-slate-50'
+              }`}
+              onClick={() => setSelectedBusinessId(biz.id)}
+            >
+              <span>{biz.name}</span>
+              <span className={`text-[10px] opacity-75`}>({biz.code})</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <label className="relative min-w-[200px] flex-1">

@@ -197,7 +197,22 @@ export async function listWork({ workstreamId, projectId, subtype, status, q, ex
     orderBy: { updatedAt: 'desc' },
     include: {
       workstream: {
-        select: { id: true, code: true, name: true, executionMode: true, projectId: true, project: { select: { id: true, code: true, name: true } } },
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          executionMode: true,
+          projectId: true,
+          project: {
+            select: {
+              id: true,
+              code: true,
+              name: true,
+              businessId: true,
+              business: { select: { id: true, code: true, name: true } },
+            },
+          },
+        },
       },
       container: { select: { id: true, code: true, title: true, subtype: true } },
     },

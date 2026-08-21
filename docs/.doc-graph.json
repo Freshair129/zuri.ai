@@ -59,6 +59,8 @@
   },
   "drift": {
     "changed": [
+      "code:src/app/api/work/route.js",
+      "code:src/modules/project-manager/application/work-service.js",
       "code:src/modules/project-manager/views/universal/AllWorkView.jsx"
     ],
     "added": [],
@@ -2507,8 +2509,8 @@
       "id": "code:src/app/api/work/route.js",
       "type": "code_file",
       "path": "src/app/api/work/route.js",
-      "hash": "2ebc21c5",
-      "status": "current",
+      "hash": "75c23da2",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-005",
@@ -4998,8 +5000,8 @@
       "id": "code:src/modules/project-manager/application/work-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/work-service.js",
-      "hash": "7f6e9d93",
-      "status": "current",
+      "hash": "f3912e31",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-005",
@@ -5562,7 +5564,7 @@
       "id": "code:src/modules/project-manager/views/universal/AllWorkView.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/views/universal/AllWorkView.jsx",
-      "hash": "43bf3a2f",
+      "hash": "b236c528",
       "status": "changed",
       "annotations": {
         "@req": [
