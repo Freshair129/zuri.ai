@@ -78,11 +78,20 @@ export function buildWorkColumns({ projectId, onStatusChanged } = {}) {
   ]
 }
 
+import { Plus, Sparkles, UploadCloud } from 'lucide-react'
+import StandaloneTaskModal from '../../components/StandaloneTaskModal'
+import PlanModeCustomizerModal from '../../components/PlanModeCustomizerModal'
+import UploadPlanModal from '../../components/UploadPlanModal'
+
 export default function AllWorkView({ projectId }) {
   const [q, setQ] = useState('')
   const [status, setStatus] = useState('')
   const [subtype, setSubtype] = useState('')
   const [mode, setMode] = useState('')
+
+  const [taskModalOpen, setTaskModalOpen] = useState(false)
+  const [planModalOpen, setPlanModalOpen] = useState(false)
+  const [uploadModalOpen, setUploadModalOpen] = useState(false)
 
   const params = new URLSearchParams()
   if (projectId) params.set('projectId', projectId)
@@ -106,6 +115,36 @@ export default function AllWorkView({ projectId }) {
 
   return (
     <div>
+      {/* Top Action Bar for Unbundled Work/Plan Intake */}
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#ECEEF1] bg-white p-3 shadow-sm">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="btn btn-primary flex items-center gap-1.5 text-xs font-semibold"
+            onClick={() => setTaskModalOpen(true)}
+          >
+            <Plus size={14} /> + New Task
+          </button>
+          <button
+            type="button"
+            className="btn flex items-center gap-1.5 text-xs font-semibold text-amber-900 border-amber-300 bg-amber-50 hover:bg-amber-100"
+            onClick={() => setPlanModalOpen(true)}
+          >
+            <Sparkles size={14} className="text-amber-600" /> ✨ Plan Mode (7 Execution Modes)
+          </button>
+          <button
+            type="button"
+            className="btn flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+            onClick={() => setUploadModalOpen(true)}
+          >
+            <UploadCloud size={14} /> 📥 Upload Plan (JSON/Excel)
+          </button>
+        </div>
+        <div className="text-[11px] text-muted">
+          <span>Decoupled Tasks & Multi-Agent Planning</span>
+        </div>
+      </div>
+
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <label className="relative min-w-[200px] flex-1">
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" aria-hidden />
@@ -149,9 +188,26 @@ export default function AllWorkView({ projectId }) {
         <DataTable
           columns={buildWorkColumns({ projectId, onStatusChanged: reload })}
           rows={rows}
-          empty={<EmptyState title="No work items match" hint="Adjust filters or add items from an execution view." />}
+          empty={<EmptyState title="No work items match" hint="Create a task or generate a custom execution plan above." />}
         />
       )}
+
+      {/* Modals */}
+      <StandaloneTaskModal
+        open={taskModalOpen}
+        onClose={() => setTaskModalOpen(false)}
+        onSaved={reload}
+      />
+      <PlanModeCustomizerModal
+        open={planModalOpen}
+        onClose={() => setPlanModalOpen(false)}
+        onGenerated={reload}
+      />
+      <UploadPlanModal
+        open={uploadModalOpen}
+        onClose={() => setUploadModalOpen(false)}
+        onUploaded={reload}
+      />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-21T05:05:32.720Z",
+  "generatedAt": "2026-08-21T06:40:56.112Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1543,7 +1543,7 @@
           "id": "FR-005",
           "declared": "done",
           "status": "verified",
-          "codeCount": 11,
+          "codeCount": 12,
           "testCount": 11
         },
         {
@@ -1571,7 +1571,7 @@
           "id": "FR-009",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
+          "codeCount": 6,
           "testCount": 7
         },
         {
@@ -1592,7 +1592,7 @@
           "id": "FR-012",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
+          "codeCount": 8,
           "testCount": 12
         },
         {
@@ -1620,14 +1620,14 @@
           "id": "FR-017",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
+          "codeCount": 6,
           "testCount": 5
         },
         {
           "id": "FR-018",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
+          "codeCount": 6,
           "testCount": 6
         },
         {

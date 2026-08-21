@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1101,
-    "total_edges": 3621,
+    "total_nodes": 1104,
+    "total_edges": 3634,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -17,7 +17,7 @@
       "model": 59,
       "requirement": 198,
       "test": 261,
-      "code_file": 289
+      "code_file": 292
     },
     "coverage": {
       "requirements": 198,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (82/82)",
       "rules_anchored_in_code": "91% (77/85)",
       "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 289,
+      "annotated_code_files": 292,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -59,12 +59,13 @@
   },
   "drift": {
     "changed": [
-      "code:src/app/api/work/route.js",
-      "code:src/app/api/workstreams/route.js",
-      "code:src/modules/project-manager/application/project-service.js",
-      "code:src/modules/project-manager/application/work-service.js"
+      "code:src/modules/project-manager/views/universal/AllWorkView.jsx"
     ],
-    "added": [],
+    "added": [
+      "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "code:src/modules/project-manager/components/UploadPlanModal.jsx"
+    ],
     "removed": []
   },
   "nodes": [
@@ -2511,7 +2512,7 @@
       "type": "code_file",
       "path": "src/app/api/work/route.js",
       "hash": "2ebc21c5",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-005",
@@ -2575,7 +2576,7 @@
       "type": "code_file",
       "path": "src/app/api/workstreams/route.js",
       "hash": "f21df537",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-004",
@@ -4842,7 +4843,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-service.js",
       "hash": "7834cbac",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-003",
@@ -5002,7 +5003,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/work-service.js",
       "hash": "7f6e9d93",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-005",
@@ -5088,6 +5089,25 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "hash": "ea34eb32",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-009",
+          "FR-012",
+          "FR-017"
+        ],
+        "@spec": [
+          "BR-003",
+          "BR-004",
+          "SDD-006"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/components/ProjectModal.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/ProjectModal.jsx",
@@ -5126,6 +5146,23 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "hash": "cbbab68f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-005",
+          "FR-017"
+        ],
+        "@spec": [
+          "BR-004",
+          "SEC-001"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/components/StrategyEditModals.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/StrategyEditModals.jsx",
@@ -5142,6 +5179,22 @@
         "@tested": [
           "tests/unit/fr059-strategy-edit-ui.test.js",
           "tests/e2e/fr059-strategy-edit.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/components/UploadPlanModal.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/UploadPlanModal.jsx",
+      "hash": "16bb0f6b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-012",
+          "FR-018"
+        ],
+        "@spec": [
+          "BR-009"
         ]
       }
     },
@@ -5513,8 +5566,8 @@
       "id": "code:src/modules/project-manager/views/universal/AllWorkView.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/views/universal/AllWorkView.jsx",
-      "hash": "3cdbf19f",
-      "status": "current",
+      "hash": "93b4f0c4",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-005"
@@ -19718,6 +19771,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "to": "req:BR-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "to": "req:BR-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "to": "req:FR-009",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "to": "req:FR-012",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "to": "req:FR-017",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
+      "to": "req:SDD-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/components/ProjectModal.jsx",
       "to": "req:FR-087",
       "type": "implements",
@@ -19774,6 +19869,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "to": "req:BR-004",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "to": "req:FR-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "to": "req:FR-017",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/components/StrategyEditModals.jsx",
       "to": "req:BR-001",
       "type": "follows",
@@ -19791,6 +19914,27 @@
       "from": "code:src/modules/project-manager/components/StrategyEditModals.jsx",
       "to": "req:NFR-004",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/UploadPlanModal.jsx",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/UploadPlanModal.jsx",
+      "to": "req:FR-012",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/UploadPlanModal.jsx",
+      "to": "req:FR-018",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },

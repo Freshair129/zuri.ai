@@ -43,7 +43,7 @@
 
 - **Status:** done
 - **Surface:** `/projects/[projectId]/all-work` (page) · `/work` (page) · `/api/containers/[id]` (api) · `/api/containers` (api) · `/api/work/[id]` (api) · `/api/work` (api)
-- **Code:** `src/app/(pm)/projects/[projectId]/all-work/page.jsx` · `src/app/(pm)/work/page.jsx` · `src/app/api/containers/[id]/route.js` · `src/app/api/containers/route.js` · `src/app/api/work/[id]/route.js` · `src/app/api/work/route.js` · `src/components/ui/index.jsx` · `src/modules/project-manager/application/active-filters.js` · `src/modules/project-manager/application/work-service.js` · `src/modules/project-manager/components/WorkViewTabs.jsx` · `src/modules/project-manager/views/KanbanBoard.jsx` · `src/modules/project-manager/views/universal/AllWorkView.jsx`
+- **Code:** `src/app/(pm)/projects/[projectId]/all-work/page.jsx` · `src/app/(pm)/work/page.jsx` · `src/app/api/containers/[id]/route.js` · `src/app/api/containers/route.js` · `src/app/api/work/[id]/route.js` · `src/app/api/work/route.js` · `src/components/ui/index.jsx` · `src/modules/project-manager/application/active-filters.js` · `src/modules/project-manager/application/work-service.js` · `src/modules/project-manager/components/StandaloneTaskModal.jsx` · `src/modules/project-manager/components/WorkViewTabs.jsx` · `src/modules/project-manager/views/KanbanBoard.jsx` · `src/modules/project-manager/views/universal/AllWorkView.jsx`
 - **Follows:** BR-001, BR-004, NFR-008, SDD-002, SDD-010, SDD-019, SDD-039, SEC-001, SEC-008
 - **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/fr072-work-service-authorization.test.js` · `tests/integration/project-core.test.js` · `tests/integration/work-listing-scope.test.js` · `tests/unit/authorization-seam-list-routes.test.js` · `tests/unit/authorization-seam-routes.test.js` · `tests/unit/design-system.test.js` · `tests/unit/global-view-drilldown.test.js` · `tests/unit/project-roadmap-ui.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/route-reachability.test.js`
 
@@ -75,8 +75,8 @@
 
 - **Status:** done
 - **Surface:** `/execution/[mode]` (page) · `/execution` (page) · `/projects/[projectId]/execution/[mode]` (page)
-- **Code:** `src/app/(pm)/execution/[mode]/page.jsx` · `src/app/(pm)/execution/page.jsx` · `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx` · `src/app/(pm)/projects/[projectId]/layout.jsx` · `src/modules/project-manager/views/execution/ExecutionModeView.jsx` · `src/modules/project-manager/views/execution/mode-bodies.jsx`
-- **Follows:** BR-001, SDD-019, SDD-042, SEC-001, SEC-008
+- **Code:** `src/app/(pm)/execution/[mode]/page.jsx` · `src/app/(pm)/execution/page.jsx` · `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx` · `src/app/(pm)/projects/[projectId]/layout.jsx` · `src/modules/project-manager/components/PlanModeCustomizerModal.jsx` · `src/modules/project-manager/views/execution/ExecutionModeView.jsx` · `src/modules/project-manager/views/execution/mode-bodies.jsx`
+- **Follows:** BR-001, BR-003, BR-004, SDD-006, SDD-019, SDD-042, SEC-001, SEC-008
 - **Tests:** `tests/e2e/smoke.spec.js` · `tests/unit/card-calculator-agreement.test.js` · `tests/unit/document-intake-ui.test.js` · `tests/unit/fr063-board-columns.test.js` · `tests/unit/pipeline-monitor-ui.test.js` · `tests/unit/project-execution-backpath.test.js` · `tests/unit/project-work-route.test.js`
 
 ### FR-010 — Progress ต่อ workstream ตาม strategy + evidence + warnings + "Explain" UI
@@ -99,8 +99,8 @@
 
 - **Status:** done
 - **Surface:** `/projects/[projectId]/import` (page) · `/api/import/commit` (api) · `/api/import/dry-run` (api)
-- **Code:** `src/app/(pm)/projects/[projectId]/import/page.jsx` · `src/app/(pm)/projects/[projectId]/layout.jsx` · `src/app/api/import/commit/route.js` · `src/app/api/import/dry-run/route.js` · `src/lib/validation/enums.js` · `src/modules/project-manager/components/ProjectTabs.jsx` · `src/modules/project-manager/import/plan-import-service.js` · `src/modules/project-manager/import/plan-schema.js`
-- **Follows:** BR-001, BR-004, BR-007, BR-009, FR-069, NFR-008, SDD-002, SDD-006, SDD-009, SDD-019, SDD-021, SDD-032, SDD-037, SEC-001, SEC-002, SEC-008
+- **Code:** `src/app/(pm)/projects/[projectId]/import/page.jsx` · `src/app/(pm)/projects/[projectId]/layout.jsx` · `src/app/api/import/commit/route.js` · `src/app/api/import/dry-run/route.js` · `src/lib/validation/enums.js` · `src/modules/project-manager/components/PlanModeCustomizerModal.jsx` · `src/modules/project-manager/components/ProjectTabs.jsx` · `src/modules/project-manager/components/UploadPlanModal.jsx` · `src/modules/project-manager/import/plan-import-service.js` · `src/modules/project-manager/import/plan-schema.js`
+- **Follows:** BR-001, BR-003, BR-004, BR-007, BR-009, FR-069, NFR-008, SDD-002, SDD-006, SDD-009, SDD-019, SDD-021, SDD-032, SDD-037, SEC-001, SEC-002, SEC-008
 - **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import-scope.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/plan-schema.test.js` · `tests/unit/plan-status-vocabulary.test.js` · `tests/unit/project-execution-backpath.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/route-reachability.test.js`
 
 ### FR-013 — Snapshot backup: export + import แบบ preview-then-confirm
@@ -137,15 +137,15 @@
 
 - **Status:** done
 - **Surface:** `/projects/new` (page) · `/api/projects/[id]/tree` (api)
-- **Code:** `src/app/(pm)/projects/new/page.jsx` · `src/app/api/projects/[id]/tree/route.js` · `src/modules/project-manager/components/HumanPlanBuilderModal.jsx` · `src/modules/project-manager/import/human-plan-builder.js`
-- **Follows:** BR-003, BR-009, SDD-006, SEC-001, SEC-008
+- **Code:** `src/app/(pm)/projects/new/page.jsx` · `src/app/api/projects/[id]/tree/route.js` · `src/modules/project-manager/components/HumanPlanBuilderModal.jsx` · `src/modules/project-manager/components/PlanModeCustomizerModal.jsx` · `src/modules/project-manager/components/StandaloneTaskModal.jsx` · `src/modules/project-manager/import/human-plan-builder.js`
+- **Follows:** BR-003, BR-004, BR-009, SDD-006, SEC-001, SEC-008
 - **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/project-core.test.js` · `tests/unit/authorization-seam-routes.test.js` · `tests/unit/human-plan-builder.test.js` · `tests/unit/mode-default-subtype.test.js`
 
 ### FR-018 — Excel template intake: generator จาก Zod schema + xlsx→envelope converter + error รายแถว
 
 - **Status:** done
 - **Surface:** `/api/import/template` (api) · `/api/import/xlsx` (api)
-- **Code:** `src/app/api/import/template/route.js` · `src/app/api/import/xlsx/route.js` · `src/modules/project-manager/components/ProjectTabs.jsx` · `src/modules/project-manager/import/xlsx-convert.js` · `src/modules/project-manager/import/xlsx-template.js`
+- **Code:** `src/app/api/import/template/route.js` · `src/app/api/import/xlsx/route.js` · `src/modules/project-manager/components/ProjectTabs.jsx` · `src/modules/project-manager/components/UploadPlanModal.jsx` · `src/modules/project-manager/import/xlsx-convert.js` · `src/modules/project-manager/import/xlsx-template.js`
 - **Follows:** BR-009, NFR-008, SDD-019, SDD-037, SEC-001, SEC-008
 - **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/plan-status-vocabulary.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/public-read-route-auth.test.js` · `tests/unit/route-reachability.test.js`
 
