@@ -17,12 +17,22 @@ function isPostgresUrl(value) {
   return typeof value === 'string' && /^(postgres|postgresql):/i.test(value.trim())
 }
 
+function normalizeSupabaseUrl(url) {
+  if (!url || typeof url !== 'string') return url
+  // Convert Supabase session pooler (port 5432) to transaction pooler (port 6543) with pgbouncer=true
+  if (url.includes('.pooler.supabase.com:5432')) {
+    const withPort = url.replace('.pooler.supabase.com:5432', '.pooler.supabase.com:6543')
+    return withPort.includes('pgbouncer=true') ? withPort : (withPort.includes('?') ? `${withPort}&pgbouncer=true` : `${withPort}?pgbouncer=true`)
+  }
+  return url
+}
+
 export function resolvePostgresUrl(env = process.env) {
   for (const key of POSTGRES_ENV_KEYS) {
-    if (isPostgresUrl(env[key])) return env[key].trim()
+    if (isPostgresUrl(env[key])) return normalizeSupabaseUrl(env[key].trim())
   }
 
-  return isPostgresUrl(env.DATABASE_URL) ? env.DATABASE_URL.trim() : null
+  return isPostgresUrl(env.DATABASE_URL) ? normalizeSupabaseUrl(env.DATABASE_URL.trim()) : null
 }
 
 export function requireProductionDatabaseUrl(env = process.env) {
