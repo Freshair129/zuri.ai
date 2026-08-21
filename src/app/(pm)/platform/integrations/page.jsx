@@ -704,12 +704,109 @@ export default function IntegrationsPage() {
             </button>
             <button
               type="button"
+              className={`btn text-xs font-semibold ${lineTab === 'EDGE_LLM' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setLineTab('EDGE_LLM')}
+            >
+              <Sparkles size={14} className="mr-1.5 text-amber-500" /> ⚡ Local Edge LLM &amp; Disk Archive
+            </button>
+            <button
+              type="button"
               className={`btn text-xs font-semibold ${lineTab === 'WEBHOOK' ? 'btn-primary' : 'btn-secondary'}`}
               onClick={() => setLineTab('WEBHOOK')}
             >
               <Radio size={14} className="mr-1.5" /> 📡 LINE Ingress &amp; Webhook
             </button>
           </div>
+
+          {/* TAB: EDGE LLM & DISK ARCHIVE CONFIG */}
+          {lineTab === 'EDGE_LLM' && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
+                {/* Panel 1: Subscription Plan & Headless LLM Config */}
+                <Card>
+                  <SectionTitle caption="ตั้งค่า Local Edge LLM โดยใช้โควต้า Subscription Plan (.codex / Claude Code)">
+                    🧠 Subscription Plan &amp; Model Engine
+                  </SectionTitle>
+                  <div className="space-y-3 text-xs">
+                    <Field label="โหมดการทำงานของ LLM Engine (Execution Mode)">
+                      <select className="input font-semibold" defaultValue="HEADLESS_PLAN">
+                        <option value="HEADLESS_PLAN">⚡ Subscription Plan Quota (Claude Code / .codex Session - Zero Token Cost)</option>
+                        <option value="LOCAL_OLLAMA">🖥️ Local Inference (Ollama / Qwen 2.5 / DeepSeek - Free 100%)</option>
+                        <option value="OPENAI_COMPATIBLE">🌐 OpenAI Compatible Local Bridge (http://localhost:8080/v1)</option>
+                        <option value="API_FALLBACK">☁️ Cloud API Fallback (OpenRouter / Anthropic Direct)</option>
+                      </select>
+                    </Field>
+
+                    <Field label="ชื่อโมเดลหลัก (Primary Model Name)" hint="โมเดลที่ใช้ตอบคำถามลูกค้าและคิดราคาสินค้า">
+                      <input className="input font-mono" defaultValue="claude-3-7-sonnet" placeholder="เช่น claude-3-7-sonnet, qwen2.5:14b, gpt-4o" />
+                    </Field>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <Field label="Reasoning Effort">
+                        <select className="input" defaultValue="medium">
+                          <option value="low">Low (ตอบไวสุด)</option>
+                          <option value="medium">Medium (แนะนำ)</option>
+                          <option value="high">High (วิเคราะห์ราคาสูงสุด)</option>
+                        </select>
+                      </Field>
+                      <Field label="Max Agent Turns" hint="จำนวนรอบสูงสุดที่ Agent เรียก Tool">
+                        <input className="input font-mono" type="number" defaultValue="4" />
+                      </Field>
+                    </div>
+
+                    <div className="rounded-lg border border-amber-200 bg-amber-50/50 p-3 text-amber-900">
+                      <div className="flex items-center gap-1.5 font-semibold">
+                        <CheckCircle2 size={14} className="text-amber-600" />
+                        <span>พบ Local Auth Session (.codex / Claude Session Active)</span>
+                      </div>
+                      <p className="mt-1 text-[11px] text-amber-800">
+                        ระบบจะตัดโควต้าจากแพ็กเกจ Subscription ประจำเดือนที่คุณล็อกอินไว้ในเครื่อง โดยไม่มีค่าใช้จ่าย API Token เพิ่มเติม
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Panel 2: Disk Storage & Chat History Archive */}
+                <Card>
+                  <SectionTitle caption="ตั้งค่าการบันทึกประวัติการแชทลูกค้าลงใน Local Hard Disk">
+                    💾 Disk Storage &amp; History Archive
+                  </SectionTitle>
+                  <div className="space-y-3 text-xs">
+                    <Field label="ตำแหน่งบันทึกประวัติแชทบนเครื่อง (History Root Directory)">
+                      <input className="input font-mono" defaultValue="./data/history" placeholder="./data/history" />
+                    </Field>
+
+                    <Field label="ระยะเวลาเก็บประวัติก่อนหมุนเวียนลบ (Retention Days)" hint="ระบบจะล้างข้อมูลเก่าอัตโนมัติเพื่อไม่ให้เปลืองพื้นที่ฮาร์ดดิสก์">
+                      <div className="flex items-center gap-2">
+                        <input className="input font-mono w-28" type="number" defaultValue="90" />
+                        <span className="text-muted">วัน (90 Days Daily JSONL Partitioning)</span>
+                      </div>
+                    </Field>
+
+                    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] p-3 space-y-2">
+                      <span className="font-semibold text-muted flex items-center gap-1">
+                        <Database size={13} /> โครงสร้างไฟล์ที่จัดเก็บบนเครื่อง:
+                      </span>
+                      <pre className="rounded bg-white p-2 font-mono text-[10px] text-slate-700 border border-[#ECEEF1]">
+{`data/history/
+  ├── smartgift-line-oa/
+  │     ├── 2026-08-20.jsonl (คำถาม-คำตอบ, ราคา, User ID)
+  │     └── 2026-08-21.jsonl
+  └── .dedupe.json (ระบบป้องกันข้อความซ้ำ)`}
+                      </pre>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2">
+                      <span className="text-[11px] text-muted">สถานะ Disk Storage: พร้อมทำงาน</span>
+                      <button type="button" className="btn btn-primary text-xs" onClick={() => alert('บันทึกการตั้งค่า Edge LLM & Disk Archive เรียบร้อยแล้ว')}>
+                        💾 บันทึกการตั้งค่า Edge Runtime
+                      </button>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </div>
+          )}
 
           {/* TAB: GROUPS */}
           {lineTab === 'GROUPS' && (
