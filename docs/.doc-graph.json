@@ -58,7 +58,10 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "test:tests/unit/application-schema-migration.test.js",
+      "test:tests/unit/market-intelligence-schema-migration.test.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -11402,8 +11405,8 @@
       "id": "test:tests/unit/application-schema-migration.test.js",
       "type": "test",
       "path": "tests/unit/application-schema-migration.test.js",
-      "hash": "78ea05a1",
-      "status": "current"
+      "hash": "128e8847",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/assert-tests-ran.test.js",
@@ -12102,8 +12105,8 @@
       "id": "test:tests/unit/market-intelligence-schema-migration.test.js",
       "type": "test",
       "path": "tests/unit/market-intelligence-schema-migration.test.js",
-      "hash": "e39aa8b9",
-      "status": "current"
+      "hash": "9e93cad7",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",

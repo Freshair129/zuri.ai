@@ -1,7 +1,10 @@
 import { PrismaClient as PostgresPrismaClient } from '@zuri/prisma-postgres'
 import { randomUUID } from 'crypto'
 
-const url = 'postgresql://postgres.qcnmhyglarzcpudjorzc:Suanranger1295@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres'
+const url = process.env.DIRECT_URL || process.env.DATABASE_URL
+if (!url || !/^(postgres|postgresql):/i.test(url)) {
+  throw new Error('DIRECT_URL or DATABASE_URL must be a Postgres URL; refusing to run against an implicit or local database')
+}
 const prisma = new PostgresPrismaClient({ datasources: { db: { url } } })
 
 const TENANT_ID = '77cdbe70-3111-4a04-922a-8059be99a8b0'
