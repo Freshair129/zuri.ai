@@ -854,7 +854,7 @@
       "id": "code:src/app/api/agent/heartbeat/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/heartbeat/route.js",
-      "hash": "269c1753",
+      "hash": "2279b1ed",
       "status": "changed",
       "annotations": {
         "@req": [
