@@ -822,6 +822,33 @@ export default function IntegrationsPage() {
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 shrink-0">
+                    <button
+                      type="button"
+                      className="btn btn-secondary text-xs font-semibold flex items-center gap-1.5"
+                      onClick={() => {
+                        const pairingData = {
+                          schema: "zuri.edge.pairing.v1",
+                          generatedAt: new Date().toISOString(),
+                          cloudEndpoint: "https://zuri-ai-woad.vercel.app",
+                          deviceId: "DEV-SMARTGIFT-PRIMARY",
+                          pairingToken: "tok_edge_smartgift_sec_88492019a",
+                          tenantCode: tenantCode,
+                          businessId: businessId,
+                          heartbeatIntervalSec: 15
+                        };
+                        const blob = new Blob([JSON.stringify(pairingData, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `zuri-edge-pairing-${selectedBusiness?.code || 'DEV'}.json`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                      }}
+                    >
+                      💾 Download Pairing (.json)
+                    </button>
                     <a
                       href="http://localhost:8787/gui"
                       target="_blank"
