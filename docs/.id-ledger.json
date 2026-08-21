@@ -419,6 +419,7 @@
     "ADR-038",
     "ADR-039",
     "ADR-040",
+    "ADR-041",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -4771,6 +4772,19 @@
       "history": [
         {
           "anchor": "codex mediated smartgift pipeline evidence bridge",
+          "since": "2026-08-21",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-041": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md",
+      "status": "current",
+      "statement_digest": "a2b7705a8465923aff8c3ebab12d0b69066bde5e47c39c8cd6b9be0e8ab40872",
+      "history": [
+        {
+          "anchor": "zuri edge device topology and decoupled local governance",
           "since": "2026-08-21",
           "reason": "declared"
         }

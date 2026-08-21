@@ -3,13 +3,13 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1106,
-    "total_edges": 3638,
+    "total_nodes": 1107,
+    "total_edges": 3644,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
       "document": 86,
-      "adr": 40,
+      "adr": 41,
       "domain": 7,
       "roadmap": 25,
       "feature": 9,
@@ -59,7 +59,7 @@
   },
   "drift": {
     "changed": [
-      "code:src/app/api/agent/heartbeat/route.js"
+      "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY"
     ],
     "added": [],
     "removed": []
@@ -369,7 +369,7 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "eba3f53f",
+      "hash": "b83936cc",
       "status": "current",
       "annotations": {
         "@req": [
@@ -855,7 +855,7 @@
       "type": "code_file",
       "path": "src/app/api/agent/heartbeat/route.js",
       "hash": "2279b1ed",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -4476,7 +4476,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "5ad3da5d",
+      "hash": "f22908e9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10803,6 +10803,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "type": "adr",
+      "path": "docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md",
+      "title": "ADR-041 — Zuri Edge Device Topology and Decoupled Local Governance",
+      "hash": "0b49d6ba",
+      "status": "changed"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -11247,7 +11255,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "44b1b98d",
+      "hash": "bb6f74cc",
       "status": "current"
     },
     {
@@ -11380,7 +11388,7 @@
       "id": "test:tests/unit/application-schema-migration.test.js",
       "type": "test",
       "path": "tests/unit/application-schema-migration.test.js",
-      "hash": "78ea05a1",
+      "hash": "128e8847",
       "status": "current"
     },
     {
@@ -11961,7 +11969,7 @@
       "id": "test:tests/unit/global-view-drilldown.test.js",
       "type": "test",
       "path": "tests/unit/global-view-drilldown.test.js",
-      "hash": "af981160",
+      "hash": "926bf99e",
       "status": "current"
     },
     {
@@ -24856,6 +24864,48 @@
     {
       "from": "spec:ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE",
       "to": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "to": "doc:FR-080-integration-secret-management-ui",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "to": "req:FR-080",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "to": "spec:ADR-031-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "to": "spec:ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "to": "spec:ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE",
       "type": "relates",
       "status": "current",
       "source": "control-block"
