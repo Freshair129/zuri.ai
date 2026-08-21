@@ -9,6 +9,12 @@ owns_models:
   - IntegrationConnection
   - IntegrationCredential
   - IngestionRun
+  - PipelineRun
+  - PipelineStep
+  - PipelineEventReceipt
+  - PipelineRecordEvent
+  - PipelineReconciliation
+  - PipelineGateDecision
   - RawExternalRecord
   - SyncCursor
   - ExternalEntityRef

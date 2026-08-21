@@ -66,7 +66,7 @@ describe('OpenAPI document', () => {
     expect(doc['x-zuri-route-inventory']).toMatchObject({
       source: 'src/app/api/**/route.js',
       pathCount: 83,
-      operationCount: 113,
+      operationCount: 114,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

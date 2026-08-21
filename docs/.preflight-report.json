@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 166,
+    "docs": 167,
     "routes": 83,
-    "test_files": 261
+    "test_files": 262
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 20,
+    "info": 17,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -182,26 +182,6 @@
     {
       "id": "I16",
       "severity": "info",
-      "check": "domain-spine",
-      "title": "Models not yet claimed by any charter: 6",
-      "details": "PipelineRun, PipelineStep, PipelineEventReceipt, PipelineRecordEvent, PipelineReconciliation, PipelineGateDecision",
-      "files": [],
-      "action": "Coverage debt — claim them as charters mature"
-    },
-    {
-      "id": "I17",
-      "severity": "info",
-      "check": "staleness",
-      "title": "Possibly stale test count",
-      "details": "\"| PHASE-ZV2-MVP | Build offline-first PM MVP (spec phases 00-07) | ACCEPTANCE-CRITERIA all PASS — MVP shipped \"",
-      "files": [
-        "docs/roadmap/ROADMAP.md"
-      ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 261 files"
-    },
-    {
-      "id": "I18",
-      "severity": "info",
       "check": "enum-copy",
       "title": "1 hand-copied enum list(s) remain (accepted debt)",
       "details": "0 of them are INCOMPLETE copies — those are the ones that silently drop a value: ",
@@ -211,22 +191,11 @@
       "action": "Derive from enums.js; the baseline may only shrink"
     },
     {
-      "id": "I19",
-      "severity": "info",
-      "check": "client-mutation",
-      "title": "7 file(s) still swallow a failed mutation (accepted debt)",
-      "details": "src/app/(pm)/projects/[projectId]/page.jsx:51 · src/app/(pm)/projects/[projectId]/repositories/page.jsx:107 · src/app/(pm)/projects/[projectId]/team/page.jsx:111 · src/app/(pm)/projects/page.jsx:344 · src/app/(pm)/workspaces/page.jsx:141 · src/modules/project-manager/components/ManagedFilesPanel.jsx:108 · src/modules/project-manager/views/universal/DependenciesView.jsx:127",
-      "files": [
-        "docs/.client-mutation-baseline.json"
-      ],
-      "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
-    },
-    {
-      "id": "I20",
+      "id": "I17",
       "severity": "info",
       "check": "id-stability",
-      "title": "341 id(s) pinned across 10 families",
-      "details": "ADR 40 · BR 19 · FEAT 9 · FR 93 · MI-RQ 72 · NFR 18 · RSK 14 · SDD 51 · SEC 17 · ZV2-CR 8 · roster 341",
+      "title": "342 id(s) pinned across 10 families",
+      "details": "ADR 41 · BR 19 · FEAT 9 · FR 93 · MI-RQ 72 · NFR 18 · RSK 14 · SDD 51 · SEC 17 · ZV2-CR 8 · roster 342",
       "files": [
         "docs/.id-ledger.json"
       ],

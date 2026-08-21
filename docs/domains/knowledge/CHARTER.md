@@ -14,10 +14,15 @@ operational data in its owning domain). Architecture spec §16–19.
 
 ## Boundaries
 
-- **Owns no Prisma models.** Its store is the production runtime's
+- **Owns no business-truth Prisma models.** Its store is the production runtime's
   `zuri_core.business_knowledge` behind the knowledge port
   (`postgres-business-knowledge`), plus the governed import built by
   `scripts/build_business_knowledge_import.py`.
+- The `PipelineRun`, `PipelineStep`, `PipelineEventReceipt`,
+  `PipelineRecordEvent`, `PipelineReconciliation` and `PipelineGateDecision`
+  ledger is owned by the integration platform. Knowledge owns the validation,
+  approval and promotion boundary that consumes pipeline evidence; it does not
+  own the execution ledger.
 - Knowledge enters through governed import/approval — never automatically from
   conversation (spec §19: MSP → candidate → validation → GKS, in that order).
 - Serves grounded answers to the agent domain through the knowledge contract;

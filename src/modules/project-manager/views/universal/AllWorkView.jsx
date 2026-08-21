@@ -106,13 +106,13 @@ export function buildWorkColumns({ projectId, onStatusChanged } = {}) {
 }
 
 export default function AllWorkView({ projectId }) {
+  const { data: scope } = useFetch('/api/scope')
+  const businesses = scope?.businesses || []
   const [selectedBusinessId, setSelectedBusinessId] = useState('')
   const [q, setQ] = useState('')
   const [status, setStatus] = useState('')
   const [subtype, setSubtype] = useState('')
   const [mode, setMode] = useState('')
-
-  const { data: businesses } = useFetch('/api/businesses')
 
   const [taskModalOpen, setTaskModalOpen] = useState(false)
   const [planModalOpen, setPlanModalOpen] = useState(false)

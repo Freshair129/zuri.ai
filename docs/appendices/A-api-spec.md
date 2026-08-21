@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.16.0b |
+| **Version** | 1.17.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-08-21 |
 
@@ -265,7 +265,7 @@ Files endpoints remain available through the compatibility boundary.
 | GET | `/api/resolve?system=&value=` | external ID → internal id via ExternalRef; 404 unmapped, 410 dangling (FR-019) |
 | POST | `/api/mcp` | MCP JSON-RPC transport for `initialize`, `notifications/initialized`, `tools/list`, and `tools/call`; resolves the trusted request viewer before any session or tool operation; requires `Mcp-Session-Id` after initialization; exposes `project_manager.*` plus the separate `data_pipeline.*` run/document/event/monitor/replay namespace (FR-069/FR-071) |
 | POST | `/api/agent/line-webhook` | Local-disabled compatibility: `{tenantId, businessId?, events[]}`. Enabled production contract: `{bindingId, destination, displayName?, events[]}` with strict rejection of caller `tenantId/businessId`; bearer + active binding resolve immutable scope before `handleAgentTurn` (FR-028/050/051) |
-| GET/POST | `/api/agent/heartbeat` | FR-080: Edge Device pairing and live heartbeat liveness probe; registers local worker status, engine, and query availability (ADR-032 / SEC-016) |
+| GET/POST/DELETE | `/api/agent/heartbeat` | FR-080: Edge Device pairing and live heartbeat liveness probe; registers local worker status, engine, and query availability; DELETE clears one or all local edge-device records (ADR-032 / SEC-016) |
 | GET | `/api/projects/[id]/tree` | nested project → part-projects → part-tasks → workpackages for the Structure Plan (WBS) canvas |
 
 ## SmartGift document intake (FR-071 — staging receiver)
@@ -313,7 +313,7 @@ that a Codex worker or Supabase apply executed.
 
 - every current API route handler is represented by a current path in this
   appendix;
-- the `route_handlers=82` marker matches the route-file enumeration;
+- the `route_handlers=83` marker matches the route-file enumeration;
 - the interface inventory separately covers every current page route and its
   published operational domain counts; and
 - generated graph/projection freshness is checked by `npm run docs:check`.
@@ -328,6 +328,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.17.0b | 2026-08-21 | candidate | Added DELETE `/api/agent/heartbeat` to the human and machine-readable API inventory; method-level drift is now covered by governance | working-tree | ATHER |
 | 1.16.0b | 2026-08-21 | candidate | Removed the retired `/api/session/demo` route from the current API inventory; handler count is 82 | working-tree | ATHER |
 | 1.15.0b | 2026-08-21 | candidate | Added the Codex-mediated FR-071 `data_pipeline.*` MCP bridge contract; route handler count remains 80 | working-tree | ATHER |
 | 1.14.0b | 2026-08-21 | candidate | Added the FR-071 full-pipeline tracking route contract and updated the handler count to 80 | working-tree | ATHER |

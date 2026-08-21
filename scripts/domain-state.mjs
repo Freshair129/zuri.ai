@@ -29,6 +29,8 @@ export const CHECK_NAMES = [
 ]
 
 const MUTATING_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE']
+const API_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']
+const PUBLIC_MUTATION_PATTERN = /@public-mutation\s+(POST|PUT|PATCH|DELETE)\s+FR-\d{3}\b/g
 const SOURCE_FILES = [
   'docs/PRD-SDD-v1.0.md',
   'docs/FEATURES.md',
@@ -201,7 +203,43 @@ function interfaceCheck(root, routes) {
   return check(status, evidence, gaps, { routes: pages.length, inventoried: statuses.length, missing: missing.length })
 }
 
-function apiCheck(root, routes) {
+const normalizeApiPath = (value) => value.replace(/\[([^\]]+)\]/g, '{$1}').replace(/\?.*$/, '')
+
+function exportedRouteMethods(body) {
+  return [...body.matchAll(/export\s+(?:(?:async\s+)?function\s+|const\s+)(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\b/g)].map((match) => match[1])
+}
+
+function documentedApiOperations(inventory) {
+  const operations = new Set()
+  for (const line of inventory.split(/\r?\n/)) {
+    if (!line.startsWith('|')) continue
+    const cells = line.split('|').map((cell) => cell.trim().replaceAll('`', ''))
+    const methodGroups = cells[1]?.split(',').map((group) => group.split('/').map((method) => method.trim().toUpperCase()).filter((method) => API_METHODS.includes(method))) || []
+    const routes = cells[2]?.split(',').map((route) => route.trim()).filter((route) => route.startsWith('/api/')) || []
+    if (!methodGroups.length || !routes.length) continue
+    if (routes.length === 1) {
+      for (const method of methodGroups.flat()) operations.add(`${method} ${normalizeApiPath(routes[0])}`)
+      continue
+    }
+    for (const [index, route] of routes.entries()) {
+      for (const method of (methodGroups[index] || [])) operations.add(`${method} ${normalizeApiPath(route)}`)
+    }
+  }
+  return operations
+}
+
+function openApiInventoryOperations(openapi) {
+  const operations = new Set()
+  const entryPattern = /\[\s*['"](\/api\/[^'"]+)['"]\s*,\s*\[([^\]]*)\]\s*\]/g
+  for (const match of openapi.matchAll(entryPattern)) {
+    const route = normalizeApiPath(match[1])
+    const methods = [...match[2].matchAll(/['"](GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)['"]/g)].map((method) => method[1])
+    for (const method of methods) operations.add(`${method} ${route}`)
+  }
+  return operations
+}
+
+export function apiCheck(root, routes) {
   const apis = routes.filter((route) => route.kind === 'api')
   if (!apis.length) return check('not_applicable')
 
@@ -214,21 +252,33 @@ function apiCheck(root, routes) {
       .filter((value) => value.startsWith('/api/')),
   )
   const missingFromInventory = apis.filter((route) => !inventoryPaths.has(route.route))
+  const routeOperations = new Set(
+    apis.flatMap((route) => exportedRouteMethods(readText(root, route.path)).map((method) => `${method} ${normalizeApiPath(route.route)}`)),
+  )
+  const appendixOperations = documentedApiOperations(inventory)
+  const missingOperationsFromInventory = [...routeOperations].filter((operation) => !appendixOperations.has(operation))
   const openapi = readText(root, 'src/modules/project-manager/api-docs/openapi.js')
   const openApiPaths = unique([
     ...[...openapi.matchAll(/path:\s*['"]([^'"]+)['"]/g)].map((match) => match[1]),
     ...[...openapi.matchAll(/\[\s*['"](\/api\/[^'"]+)['"]/g)].map((match) => match[1]),
   ].map((value) => value.replace(/\{([^}]+)\}/g, '[$1]')))
   const missingFromOpenApi = apis.filter((route) => !openApiPaths.includes(route.route))
+  const openApiOperations = openApiInventoryOperations(openapi)
+  const missingOperationsFromOpenApi = [...routeOperations].filter((operation) => !openApiOperations.has(operation))
   const gaps = []
   if (missingFromInventory.length) gaps.push(gap('API-INVENTORY-001', 'high', 'API route is not present in Appendix A', missingFromInventory.map((route) => route.route)))
+  if (missingOperationsFromInventory.length) gaps.push(gap('API-INVENTORY-002', 'high', 'API route method is not present in Appendix A', missingOperationsFromInventory))
   if (missingFromOpenApi.length) gaps.push(gap('API-OPENAPI-001', 'high', 'API route is not represented in the machine-readable OpenAPI generator', missingFromOpenApi.map((route) => route.route)))
-  const status = missingFromInventory.length || missingFromOpenApi.length ? 'partial' : 'verified'
+  if (missingOperationsFromOpenApi.length) gaps.push(gap('API-OPENAPI-002', 'high', 'API route method is not represented in the machine-readable OpenAPI generator', missingOperationsFromOpenApi))
+  const status = missingFromInventory.length || missingOperationsFromInventory.length || missingFromOpenApi.length || missingOperationsFromOpenApi.length ? 'partial' : 'verified'
   return check(status, ['docs/appendices/A-api-spec.md', 'src/modules/project-manager/api-docs/openapi.js'], gaps, {
     routes: apis.length,
     inventoried: apis.length - missingFromInventory.length,
     openApiPaths: openApiPaths.length,
     missingFromOpenApi: missingFromOpenApi.length,
+    operations: routeOperations.size,
+    missingOperationsFromInventory: missingOperationsFromInventory.length,
+    missingOperationsFromOpenApi: missingOperationsFromOpenApi.length,
   })
 }
 
@@ -289,22 +339,27 @@ function databaseCheck(root, domain) {
   return check('verified', ['prisma/schema.prisma'], [], { models: models.length, present: models.length })
 }
 
-function authorizationCheck(root, routes) {
+export function authorizationCheck(root, routes) {
   const apis = routes.filter((route) => route.kind === 'api')
   if (!apis.length) return check('not_applicable')
 
   let mutations = 0
   let guardedMutations = 0
+  let publicMutations = 0
+  const unguardedMutationMethods = []
   let reads = 0
   let unguardedReads = 0
   for (const route of apis) {
     const body = readText(root, route.path)
     const methods = [...body.matchAll(/export\s+async\s+function\s+(GET|POST|PUT|PATCH|DELETE)\b/g)].map((match) => match[1])
     const hasViewer = /resolveRequestViewer|requireTrusted|requireViewer|resolveViewer/.test(body)
+    const publicMutationMethods = new Set([...body.matchAll(PUBLIC_MUTATION_PATTERN)].map((match) => match[1]))
     for (const method of methods) {
       if (MUTATING_METHODS.includes(method)) {
         mutations += 1
         if (hasViewer) guardedMutations += 1
+        else if (publicMutationMethods.has(method)) publicMutations += 1
+        else unguardedMutationMethods.push(`${route.path}#${method}`)
       }
       if (method === 'GET') {
         reads += 1
@@ -315,10 +370,19 @@ function authorizationCheck(root, routes) {
 
   const evidence = ['docs/appendices/A-api-spec.md']
   const gaps = []
-  if (guardedMutations < mutations) gaps.push(gap('AUTH-001', 'high', 'At least one mutating route lacks a recognizable request viewer seam'))
+  if (unguardedMutationMethods.length) {
+    gaps.push(gap('AUTH-001', 'high', 'At least one mutating route lacks a recognizable request viewer seam', unguardedMutationMethods))
+  }
   if (unguardedReads) gaps.push(gap('AUTH-002', 'medium', 'At least one read route lacks a recognizable request viewer seam'))
-  const status = guardedMutations < mutations || unguardedReads ? 'partial' : mutations ? 'verified' : 'unknown'
-  return check(status, evidence, gaps, { mutations, guardedMutations, reads, unguardedReads })
+  const status = unguardedMutationMethods.length || unguardedReads ? 'partial' : mutations ? 'verified' : 'unknown'
+  return check(status, evidence, gaps, {
+    mutations,
+    guardedMutations,
+    publicMutations,
+    unguardedMutations: unguardedMutationMethods.length,
+    reads,
+    unguardedReads,
+  })
 }
 
 function testsCheck(requirements) {

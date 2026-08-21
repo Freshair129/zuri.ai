@@ -87,6 +87,7 @@ function NewDependencyModal({ open, onClose, onSaved }) {
 
 export default function DependenciesView({ projectId }) {
   const [open, setOpen] = useState(false)
+  const [actionError, setActionError] = useState(null)
   const url = projectId ? `/api/dependencies?projectId=${projectId}` : '/api/dependencies'
   const { data, loading, error, reload } = useFetch(url)
 
@@ -99,6 +100,7 @@ export default function DependenciesView({ projectId }) {
       </div>
       {loading && <LoadingCard />}
       {error && <ErrorState detail={error} retry={reload} />}
+      {actionError && <p className="mb-3 rounded-lg px-3 py-2 text-[11px]" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }} role="alert">{actionError}</p>}
       {!loading && !error && (!data || data.length === 0) && (
         <EmptyState title="No dependencies" hint="Link projects, streams, milestones, gates, containers or items to model blocking relations." />
       )}
@@ -124,8 +126,13 @@ export default function DependenciesView({ projectId }) {
               className="btn px-2 py-1"
               aria-label="Delete dependency"
               onClick={async () => {
-                await api(`/api/dependencies/${d.id}`, { method: 'DELETE' })
-                reload()
+                setActionError(null)
+                try {
+                  await api(`/api/dependencies/${d.id}`, { method: 'DELETE' })
+                  reload()
+                } catch (error) {
+                  setActionError(error.message)
+                }
               }}
             >
               <Trash2 size={12} aria-hidden />

@@ -3,6 +3,8 @@ import { LOCAL_DEMO_COOKIE, LIVE_SESSION_COOKIE, LIVE_OWNER_PRINCIPAL_ID } from 
 
 // @req FR-046 — login creates a server-owned session; local demo capability is
 // explicit and limited to non-production.
+// @public-mutation POST FR-046 — this entry stub is intentionally public; it
+// accepts no identity claims and sets only a server-owned session value.
 // @spec ADR-017, SDD-024, SEC-008
 // @tested tests/unit/fr046-api-ui-contract.test.js
 
