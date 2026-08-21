@@ -821,7 +821,7 @@ export default function IntegrationsPage() {
                             {isOnline ? (
                               <>Engine: <span className="font-semibold text-slate-800">{device?.engine || 'GenesisBlock + Codex Luna 5.6'}</span> · Model: <code className="font-mono text-slate-700">{device?.model || 'gpt-5.6-luna'}</code></>
                             ) : (
-                              <>เปิดรันเครื่อง Local: <code className="rounded bg-rose-100 px-1.5 py-0.5 font-mono text-rose-900">start-edge-llm.bat</code> เพื่อเชื่อมต่อสถานะกับคลาวด์</>
+                              <>เปิดรันเครื่อง Local: <code className="rounded bg-rose-100 px-1.5 py-0.5 font-mono text-rose-900">start-edge-device.bat</code> เพื่อเชื่อมต่อสถานะกับคลาวด์</>
                             )}
                           </p>
                         </div>
@@ -838,16 +838,14 @@ export default function IntegrationsPage() {
                         >
                           <RefreshCw size={13} className="mr-1.5" /> ตรวจสอบสัญญาณ (Probe)
                         </button>
-                        {isOnline && (
-                          <button
-                            type="button"
-                            className="btn btn-secondary text-xs font-semibold text-rose-600 hover:bg-rose-50 border-rose-200"
-                            onClick={() => deleteEdgeDevice(device?.deviceId)}
-                            title="ลบการเชื่อมต่ออุปกรณ์นี้ออกจาก Cloud"
-                          >
-                            <Trash2 size={13} className="mr-1.5 text-rose-500" /> ลบ Edge Runtime
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          className="btn btn-secondary text-xs font-semibold text-rose-600 hover:bg-rose-50 border-rose-200"
+                          onClick={() => deleteEdgeDevice(device?.deviceId)}
+                          title="ล้างสถานะและยกเลิกการจับคู่อุปกรณ์นี้ออกจาก Cloud"
+                        >
+                          <Trash2 size={13} className="mr-1.5 text-rose-500" /> ยกเลิกการจับคู่ (Unpair)
+                        </button>
                         <a
                           href="http://localhost:8787/gui"
                           target="_blank"
