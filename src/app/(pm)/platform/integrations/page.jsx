@@ -258,6 +258,43 @@ export default function IntegrationsPage() {
   const [groupMessage, setGroupMessage] = useState(null)
   const [groupError, setGroupError] = useState(null)
 
+  // Edge Device Pairing Key & Secret Generator State
+  const [generatedPairing, setGeneratedPairing] = useState(null)
+
+  const generateNewPairingKeys = () => {
+    const randomHex = (len = 16) => Array.from(crypto.getRandomValues(new Uint8Array(len))).map(b => b.toString(16).padStart(2, '0')).join('')
+    const deviceId = `DEV-${(selectedBusiness?.code || 'SMARTGIFT').replace(/[^A-Z0-9]/g, '')}-${randomHex(3).toUpperCase()}`
+    const token = `tok_edge_${(selectedBusiness?.code || 'smartgift').toLowerCase()}_${randomHex(12)}`
+    const secret = `sec_edge_${randomHex(24)}`
+    const payload = {
+      deviceId,
+      token,
+      secret,
+      tenantId,
+      tenantCode,
+      businessId,
+      businessCode: selectedBusiness?.code || 'BUS-SMARTGIFT',
+      businessName: selectedBusiness?.name || 'SmartGift',
+      apiBaseUrl: typeof window !== 'undefined' ? window.location.origin : 'https://zuri-ai-woad.vercel.app',
+      generatedAt: new Date().toISOString(),
+      instructions: 'นำ Token และ Secret นี้ไปบันทึกลงใน Zuri Edge Device Control GUI (:8787/gui) หรือไฟล์ .env'
+    }
+    setGeneratedPairing(payload)
+  }
+
+  const downloadPairingJson = () => {
+    if (!generatedPairing) return
+    const blob = new Blob([JSON.stringify(generatedPairing, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `zuri-edge-pairing-${generatedPairing.deviceId.toLowerCase()}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   // LINE User form state
   const [userDisplayName, setUserDisplayName] = useState('')
   const [lineUserId, setLineUserId] = useState('')
@@ -809,45 +846,25 @@ export default function IntegrationsPage() {
                 )
               })()}
 
-              {/* Edge Local Management Callout */}
+              {/* Edge Local Management & Pairing Generator */}
               <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5">
                 <div className="flex items-start justify-between gap-4 max-md:flex-col">
                   <div>
                     <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                      <Settings size={16} className="text-slate-700" />
-                      Local Edge Configuration &amp; Storage Hub
+                      <KeyRound size={16} className="text-[var(--brand)]" />
+                      Zero-Trust Edge Device Pairing Generator
                     </h4>
                     <p className="mt-1 text-xs text-slate-600 max-w-2xl leading-relaxed">
-                      การตั้งค่าความลับ (LINE Channel Secret, Access Tokens), การจัดเก็บ Log ประวัติแชทบน Hard Disk และการเลือก Persona ของ AI ถูกย้ายไปบริหารจัดการที่ <b>Local Edge LLM</b> โดยตรง เพื่อความปลอดภัยสูงสุด (Zero Data Leak to Cloud)
+                      สร้างรหัสคู่ <b>Pairing Token (Public Identifier)</b> และ <b>Pairing Secret (Private HMAC Key)</b> เพื่อนำไปใส่ใน Local Edge Device ระบบจะอนุญาตให้ดาวน์โหลดไฟล์ <code>.json</code> ได้เพียง 1 ครั้งเท่านั้นเพื่อความปลอดภัย
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 shrink-0">
                     <button
                       type="button"
-                      className="btn btn-secondary text-xs font-semibold flex items-center gap-1.5"
-                      onClick={() => {
-                        const pairingData = {
-                          schema: "zuri.edge.pairing.v1",
-                          generatedAt: new Date().toISOString(),
-                          cloudEndpoint: "https://zuri-ai-woad.vercel.app",
-                          deviceId: "DEV-SMARTGIFT-PRIMARY",
-                          pairingToken: "tok_edge_smartgift_sec_88492019a",
-                          tenantCode: tenantCode,
-                          businessId: businessId,
-                          heartbeatIntervalSec: 15
-                        };
-                        const blob = new Blob([JSON.stringify(pairingData, null, 2)], { type: 'application/json' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `zuri-edge-pairing-${selectedBusiness?.code || 'DEV'}.json`;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                      }}
+                      className="btn btn-primary text-xs font-semibold flex items-center gap-1.5"
+                      onClick={generateNewPairingKeys}
                     >
-                      💾 Download Pairing (.json)
+                      <Plus size={14} /> สร้าง Pairing Keys ใหม่
                     </button>
                     <a
                       href="http://localhost:8787/gui"
@@ -857,16 +874,55 @@ export default function IntegrationsPage() {
                     >
                       🖥️ Local Edge Web GUI
                     </a>
-                    <a
-                      href="http://localhost:8787/graph"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="btn btn-secondary text-xs font-semibold flex items-center gap-1.5"
-                    >
-                      🌐 Live Graph Viewer
-                    </a>
                   </div>
                 </div>
+
+                {/* Generated Keys Display & Download Panel */}
+                {generatedPairing && (
+                  <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50/60 p-4 animate-in fade-in slide-in-from-top-2">
+                    <div className="flex items-center justify-between gap-2 border-b border-amber-200/80 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck size={16} className="text-amber-700" />
+                        <span className="text-xs font-bold text-amber-900">
+                          คู่รหัสจับคู่ใหม่สำหรับ: {generatedPairing.deviceId} ({generatedPairing.businessName})
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="btn btn-primary text-xs font-semibold py-1 px-3 bg-amber-600 hover:bg-amber-700 flex items-center gap-1.5"
+                        onClick={downloadPairingJson}
+                      >
+                        📥 Download Pairing .json (1 ครั้ง)
+                      </button>
+                    </div>
+
+                    <div className="mt-3 space-y-2 text-xs">
+                      <div>
+                        <span className="font-semibold text-slate-700">Device ID:</span>
+                        <code className="ml-2 rounded bg-white px-2 py-0.5 font-mono text-slate-900 border border-amber-200">{generatedPairing.deviceId}</code>
+                      </div>
+                      <div>
+                        <span className="font-semibold text-slate-700">Edge Token (Public):</span>
+                        <code className="ml-2 rounded bg-white px-2 py-0.5 font-mono text-slate-900 border border-amber-200">{generatedPairing.token}</code>
+                      </div>
+                      <div>
+                        <span className="font-semibold text-slate-700">Edge Secret (Private Key - เก็บเป็นความลับ):</span>
+                        <code className="ml-2 rounded bg-white px-2 py-0.5 font-mono text-rose-700 font-bold border border-amber-200">{generatedPairing.secret}</code>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between border-t border-amber-200/60 pt-2 text-[11px] text-amber-800">
+                      <span>⚠️ กรุณาดาวน์โหลดหรือคัดลอกทันที หน้านี้จะไม่บันทึก Secret ลงฐานข้อมูลคลาวด์</span>
+                      <button
+                        type="button"
+                        className="text-amber-900 hover:underline font-semibold"
+                        onClick={() => setGeneratedPairing(null)}
+                      >
+                        ปิดหน้าต่างนี้
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
