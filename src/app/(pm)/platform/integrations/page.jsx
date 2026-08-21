@@ -785,14 +785,15 @@ export default function IntegrationsPage() {
               {(() => {
                 const isOnline = Boolean(heartbeat.data?.activeOnline > 0)
                 const device = heartbeat.data?.devices?.[0]
+                const isPaired = Boolean(device || isOnline)
                 return (
                   <div className={`rounded-2xl border p-5 shadow-sm transition ${
-                    isOnline ? 'border-emerald-200 bg-white' : 'border-rose-200 bg-rose-50/30'
+                    isOnline ? 'border-emerald-200 bg-white' : isPaired ? 'border-amber-200 bg-amber-50/20' : 'border-slate-200 bg-slate-50/40'
                   }`}>
                     <div className="flex flex-wrap items-center justify-between gap-4">
                       <div className="flex items-center gap-3.5">
                         <div className={`relative flex h-12 w-12 items-center justify-center rounded-2xl ${
-                          isOnline ? 'bg-emerald-500/10 text-emerald-600' : 'bg-rose-500/10 text-rose-600'
+                          isOnline ? 'bg-emerald-500/10 text-emerald-600' : isPaired ? 'bg-amber-500/10 text-amber-600' : 'bg-slate-200/60 text-slate-500'
                         }`}>
                           <Radio size={24} className={isOnline ? 'animate-pulse' : ''} />
                           {isOnline && (
@@ -805,23 +806,29 @@ export default function IntegrationsPage() {
                         <div>
                           <div className="flex items-center gap-2">
                             <h3 className="text-base font-bold text-slate-900">
-                              {isOnline ? `Paired Device: ${device?.deviceId || 'DEV-SMARTGIFT-PRIMARY'}` : 'Edge Runtime ไม่ได้เชื่อมต่อ'}
+                              {isOnline ? `Paired Device: ${device?.deviceId}` : isPaired ? `อุปกรณ์ที่เคยเชื่อมต่อ: ${device?.deviceId}` : 'ยังไม่ได้จับคู่ Edge Device ใดๆ'}
                             </h3>
                             {isOnline ? (
                               <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-200">
                                 🟢 Paired &amp; Heartbeat Active
                               </span>
+                            ) : isPaired ? (
+                              <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 border border-amber-300">
+                                🟠 Offline (ขาดการติดต่อ)
+                              </span>
                             ) : (
-                              <span className="rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-700 border border-rose-300">
-                                🔴 Disconnected
+                              <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-semibold text-slate-700 border border-slate-300">
+                                ⚪ Unpaired (ไม่มีอุปกรณ์)
                               </span>
                             )}
                           </div>
                           <p className="mt-0.5 text-xs text-muted">
                             {isOnline ? (
                               <>Engine: <span className="font-semibold text-slate-800">{device?.engine || 'GenesisBlock + Codex Luna 5.6'}</span> · Model: <code className="font-mono text-slate-700">{device?.model || 'gpt-5.6-luna'}</code></>
+                            ) : isPaired ? (
+                              <>อุปกรณ์ออฟไลน์ชั่วคราว: เปิดรัน <code className="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-amber-900">start-edge-device.bat</code> บนเครื่อง</>
                             ) : (
-                              <>เปิดรันเครื่อง Local: <code className="rounded bg-rose-100 px-1.5 py-0.5 font-mono text-rose-900">start-edge-device.bat</code> เพื่อเชื่อมต่อสถานะกับคลาวด์</>
+                              <>สร้างรหัส Pairing Keys ด้านล่าง แล้วนำไปใส่ใน <code className="rounded bg-slate-200 px-1.5 py-0.5 font-mono text-slate-800">start-edge-device.bat</code> หรือ Local GUI</>
                             )}
                           </p>
                         </div>
@@ -838,14 +845,16 @@ export default function IntegrationsPage() {
                         >
                           <RefreshCw size={13} className="mr-1.5" /> ตรวจสอบสัญญาณ (Probe)
                         </button>
-                        <button
-                          type="button"
-                          className="btn btn-secondary text-xs font-semibold text-rose-600 hover:bg-rose-50 border-rose-200"
-                          onClick={() => deleteEdgeDevice(device?.deviceId)}
-                          title="ล้างสถานะและยกเลิกการจับคู่อุปกรณ์นี้ออกจาก Cloud"
-                        >
-                          <Trash2 size={13} className="mr-1.5 text-rose-500" /> ยกเลิกการจับคู่ (Unpair)
-                        </button>
+                        {isPaired && (
+                          <button
+                            type="button"
+                            className="btn btn-secondary text-xs font-semibold text-rose-600 hover:bg-rose-50 border-rose-200"
+                            onClick={() => deleteEdgeDevice(device?.deviceId)}
+                            title="ล้างสถานะและยกเลิกการจับคู่อุปกรณ์นี้ออกจาก Cloud"
+                          >
+                            <Trash2 size={13} className="mr-1.5 text-rose-500" /> ยกเลิกการจับคู่ (Unpair)
+                          </button>
+                        )}
                         <a
                           href="http://localhost:8787/gui"
                           target="_blank"
@@ -859,8 +868,8 @@ export default function IntegrationsPage() {
 
                     <div className="mt-4 grid grid-cols-3 gap-3 border-t border-slate-100 pt-3.5 text-xs max-md:grid-cols-1">
                       <div className="flex items-center gap-2 text-slate-700">
-                        <ShieldCheck size={16} className={isOnline ? 'text-emerald-600' : 'text-slate-400'} />
-                        <span>Device Host: <code className="font-mono font-bold text-slate-900">{device?.deviceId || 'DEV-SMARTGIFT-PRIMARY'}</code></span>
+                        <ShieldCheck size={16} className={isOnline ? 'text-emerald-600' : isPaired ? 'text-amber-500' : 'text-slate-400'} />
+                        <span>Device Host: <code className="font-mono font-bold text-slate-900">{device?.deviceId || (isPaired ? 'Unknown Host' : 'None (Unpaired)')}</code></span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-700">
                         <Database size={16} className={isOnline ? 'text-blue-600' : 'text-slate-400'} />
