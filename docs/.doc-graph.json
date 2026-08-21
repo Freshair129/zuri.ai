@@ -59,7 +59,7 @@
   },
   "drift": {
     "changed": [
-      "code:src/app/(pm)/platform/integrations/page.jsx"
+      "code:src/app/api/agent/heartbeat/route.js"
     ],
     "added": [],
     "removed": []
@@ -370,7 +370,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
       "hash": "eba3f53f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -854,8 +854,8 @@
       "id": "code:src/app/api/agent/heartbeat/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/heartbeat/route.js",
-      "hash": "00068aac",
-      "status": "current",
+      "hash": "269c1753",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-080"

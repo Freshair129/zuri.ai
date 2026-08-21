@@ -30,9 +30,16 @@ const edgeDevices = globalForDevices.__zuriEdgeDevices
 
 export async function GET(request) {
   return handle(async () => {
-    const viewer = await resolveRequestViewer(request)
+    let viewerId = 'anonymous'
+    try {
+      const viewer = await resolveRequestViewer(request)
+      viewerId = viewer.principal.id
+    } catch {
+      // Allow unauthenticated status read for probe
+    }
+
     const devices = Array.from(edgeDevices.values()).map((dev) => {
-      const isRecent = Date.now() - new Date(dev.lastSeenAt).getTime() < 60000 // Within 60s
+      const isRecent = Date.now() - new Date(dev.lastSeenAt).getTime() < 120000 // Within 2 minutes
       return {
         ...dev,
         online: isRecent && dev.status === 'healthy',
@@ -40,7 +47,7 @@ export async function GET(request) {
     })
 
     return {
-      viewerId: viewer.principal.id,
+      viewerId,
       devices,
       count: devices.length,
       activeOnline: devices.filter((d) => d.online).length,
@@ -49,16 +56,16 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  return handle(async () => {
+  try {
     const body = await request.json()
     const parsed = zHeartbeatPayload.parse(body)
 
     const deviceRecord = {
       deviceId: parsed.deviceId,
       status: parsed.status,
-      engine: parsed.engine || 'Headless Claude Code (.codex Session)',
+      engine: parsed.engine || 'Headless Claude Code (Subscription Plan Bridge)',
       model: parsed.model || 'claude-3-7-sonnet',
-      registeredQueries: parsed.registeredQueries,
+      registeredQueries: parsed.registeredQueries || [],
       lastSeenAt: new Date().toISOString(),
       timestamp: parsed.timestamp || new Date().toISOString(),
       online: parsed.status === 'healthy',
@@ -66,10 +73,12 @@ export async function POST(request) {
 
     edgeDevices.set(parsed.deviceId, deviceRecord)
 
-    return {
+    return Response.json({
       acknowledged: true,
       deviceId: parsed.deviceId,
       receivedAt: new Date().toISOString(),
-    }
-  })
+    })
+  } catch (err) {
+    return Response.json({ error: err instanceof Error ? err.message : String(err) }, { status: 400 })
+  }
 }
