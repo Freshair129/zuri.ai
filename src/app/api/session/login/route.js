@@ -12,8 +12,9 @@ export async function POST(request) {
   response.cookies.set(LIVE_SESSION_COOKIE, LIVE_OWNER_PRINCIPAL_ID, {
     httpOnly: true,
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    secure: false,
     path: '/',
+    maxAge: 60 * 60 * 24 * 30, // 30 days
   })
   return response
 }

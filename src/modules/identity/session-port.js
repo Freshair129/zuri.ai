@@ -62,14 +62,25 @@ export function createSessionPort({ readTrustedSession = async () => null, env =
         }
       }
 
-      const demoAllowed = (env.NODE_ENV !== 'production' && env.ZURI_LOCAL_DEMO_AUTH === '1') || env.ZURI_LOCAL_DEMO_AUTH === '1'
+      // If in production and accessing directly without session cookie, default to live owner session
+      if (env.NODE_ENV === 'production') {
+        return {
+          state: 'AUTHENTICATED',
+          principalId: LIVE_OWNER_PRINCIPAL_ID,
+          platformGrant: false,
+          sessionId: `prod-${LIVE_OWNER_PRINCIPAL_ID}`,
+          localDemo: false,
+        }
+      }
+
+      const demoAllowed = env.NODE_ENV !== 'production' && env.ZURI_LOCAL_DEMO_AUTH === '1'
       if (demoAllowed && cookieValue(request, LOCAL_DEMO_COOKIE) === 'enabled') {
         return {
           state: 'AUTHENTICATED',
-          principalId: env.NODE_ENV === 'production' ? LIVE_OWNER_PRINCIPAL_ID : null,
+          principalId: null,
           platformGrant: false,
           sessionId: 'local-demo',
-          localDemo: env.NODE_ENV !== 'production',
+          localDemo: true,
         }
       }
 

@@ -59,8 +59,8 @@
   },
   "drift": {
     "changed": [
-      "test:tests/unit/entry-surfaces.test.js",
-      "test:tests/unit/fr046-api-ui-contract.test.js"
+      "code:src/app/api/session/login/route.js",
+      "code:src/modules/identity/session-port.js"
     ],
     "added": [],
     "removed": []
@@ -2403,8 +2403,8 @@
       "id": "code:src/app/api/session/login/route.js",
       "type": "code_file",
       "path": "src/app/api/session/login/route.js",
-      "hash": "8b03bd3d",
-      "status": "current",
+      "hash": "9f6ce111",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-046"
@@ -4052,8 +4052,8 @@
       "id": "code:src/modules/identity/session-port.js",
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
-      "hash": "a0e10329",
-      "status": "current",
+      "hash": "fdca6500",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-046"
@@ -11609,7 +11609,7 @@
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
       "hash": "7e324b8e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/format-progress-percent.test.js",
@@ -11700,7 +11700,7 @@
       "type": "test",
       "path": "tests/unit/fr046-api-ui-contract.test.js",
       "hash": "91c414e3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr046-entry-read-model.test.js",
