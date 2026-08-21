@@ -59,7 +59,7 @@
   },
   "drift": {
     "changed": [
-      "code:src/app/(pm)/platform/integrations/page.jsx"
+      "code:src/lib/db.js"
     ],
     "added": [],
     "removed": []
@@ -370,7 +370,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
       "hash": "82498db1",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -3010,8 +3010,8 @@
       "id": "code:src/lib/db.js",
       "type": "code_file",
       "path": "src/lib/db.js",
-      "hash": "ce6f8176",
-      "status": "current",
+      "hash": "2898119d",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-030",

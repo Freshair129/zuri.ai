@@ -51,8 +51,6 @@ export const prisma = globalForPrisma.__zuriPrisma ?? new RuntimePrismaClient(
   usePostgres && postgresUrl ? { datasources: { db: { url: postgresUrl } } } : undefined
 )
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.__zuriPrisma = prisma
-}
+globalForPrisma.__zuriPrisma = prisma
 
 export default prisma
