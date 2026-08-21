@@ -69,9 +69,9 @@ export async function buildViewerEntry({ viewer, db = prisma }) {
         name: business.tenant.name,
       },
       portfolio: {
-        id: business.tenant.portfolio.id,
-        code: business.tenant.portfolio.code,
-        name: business.tenant.portfolio.name,
+        id: business.tenant?.portfolio?.id || 'pf-default',
+        code: business.tenant?.portfolio?.code || 'PF-DEFAULT',
+        name: business.tenant?.portfolio?.name || 'Default Portfolio',
       },
     })),
   })

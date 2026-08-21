@@ -42,11 +42,19 @@ describe('Project Manager MCP transport', () => {
     expect(notification.status).toBe(204)
   })
 
-  it('tools/list exposes only implemented PlanEnvelope capabilities', async () => {
+  it('tools/list exposes the PlanEnvelope and approved data-pipeline capabilities', async () => {
     const { transport } = makeTransport()
     const sessionId = await initialized(transport)
     const response = await transport.handle({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} }, { viewer, sessionId })
-    expect(response.body.result.tools.map((tool) => tool.name)).toEqual(['project_manager.plan_dry_run', 'project_manager.plan_commit'])
+    expect(response.body.result.tools.map((tool) => tool.name)).toEqual([
+      'project_manager.plan_dry_run',
+      'project_manager.plan_commit',
+      'data_pipeline.run_create',
+      'data_pipeline.document_stage',
+      'data_pipeline.event_record',
+      'data_pipeline.monitor_read',
+      'data_pipeline.replay_request',
+    ])
   })
 
   it('tools/call success delegates the same viewer and PlanEnvelope to the intake service', async () => {

@@ -418,6 +418,7 @@
     "ADR-037",
     "ADR-038",
     "ADR-039",
+    "ADR-040",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -569,7 +570,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "ba8417ab89df36094c3c884598754c145448f60dbc4b9d7a014fe875337065b1"
+      "statement_digest": "0d92d7564f2a50f60a47ded9bf6b278a2b8eac8e0d19b4803881b190b1a27c0e",
+      "statement_digest_reviewed_at": "2026-08-21",
+      "statement_digest_reason": "Updated transport adapter name from zuri-cli to zuri.command-agent"
     },
     "BR-012": {
       "family": "BR",
@@ -2443,7 +2446,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "24b81be4f301da71157f680a10e4ab6d40eaed44f42f6ba3bcdbf38fd9023fe1"
+      "statement_digest": "25558ac046cd3ee3b536d441afe5e63ecf809ea6f678f5cd44c796ba34c34e94",
+      "statement_digest_reviewed_at": "2026-08-21",
+      "statement_digest_reason": "Updated transport adapter name from zuri-cli to zuri.command-agent"
     },
     "SDD-026": {
       "family": "SDD",
@@ -2482,7 +2487,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "2af077386401a1bd19b8f9b9ddda6c8783e7856bb07283c72efc8de66cf72942"
+      "statement_digest": "dd9fc1026d5c32081ce3cdb6231a97b61f803b3bf88f01d54d6d11790fb08aab",
+      "statement_digest_reviewed_at": "2026-08-21",
+      "statement_digest_reason": "Updated transport adapter name from zuri-cli to zuri.command-agent"
     },
     "SDD-029": {
       "family": "SDD",
@@ -4755,6 +4762,19 @@
         }
       ],
       "statement_digest": "5ccfcd6969cd5583a8bdbbabad7b495a734dcac24414ac80e2aa9ffcb1f922e9"
+    },
+    "ADR-040": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE.md",
+      "status": "current",
+      "statement_digest": "a3dcfda1957d350797589d2e65615310db3ab349610d1f1ae0b60a65610d3dee",
+      "history": [
+        {
+          "anchor": "codex mediated smartgift pipeline evidence bridge",
+          "since": "2026-08-21",
+          "reason": "declared"
+        }
+      ]
     },
     "ZV2-CR-001": {
       "family": "ZV2-CR",

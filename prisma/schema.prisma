@@ -33,24 +33,25 @@ model Tenant {
   updatedAt   DateTime @updatedAt
   version     Int      @default(1)
 
-  portfolio              Portfolio               @relation(fields: [portfolioId], references: [id])
-  businesses             Business[]
-  workspaces             Workspace[]
-  memberships            Membership[]
-  externalIdentities     ExternalIdentity[]
-  identityLinkTokens     IdentityLinkToken[]
-  customers              Customer[]
-  roleBindings           RoleBinding[]
-  customerImportBatches  CustomerImportBatch[]
+  portfolio                 Portfolio                  @relation(fields: [portfolioId], references: [id])
+  businesses                Business[]
+  workspaces                Workspace[]
+  memberships               Membership[]
+  externalIdentities        ExternalIdentity[]
+  identityLinkTokens        IdentityLinkToken[]
+  customers                 Customer[]
+  roleBindings              RoleBinding[]
+  customerImportBatches     CustomerImportBatch[]
   customerImportReviewCases CustomerImportReviewCase[]
-  localWorkspaceMounts   LocalWorkspaceMount[]
-  fileAssets             FileAsset[]
-  integrationConnections IntegrationConnection[]
-  ingestionRuns          IngestionRun[]
-  rawExternalRecords     RawExternalRecord[]
-  syncCursors            SyncCursor[]
-  externalEntityRefs     ExternalEntityRef[]
-  deadLetterRecords      DeadLetterRecord[]
+  localWorkspaceMounts      LocalWorkspaceMount[]
+  fileAssets                FileAsset[]
+  integrationConnections    IntegrationConnection[]
+  ingestionRuns             IngestionRun[]
+  rawExternalRecords        RawExternalRecord[]
+  syncCursors               SyncCursor[]
+  externalEntityRefs        ExternalEntityRef[]
+  deadLetterRecords         DeadLetterRecord[]
+  pipelineRuns              PipelineRun[]
 
   @@index([portfolioId])
 }
@@ -96,29 +97,30 @@ model Business {
   updatedAt     DateTime @updatedAt
   version       Int      @default(1)
 
-  tenant                 Tenant                  @relation(fields: [tenantId], references: [id])
-  legalEntity            LegalEntity?            @relation(fields: [legalEntityId], references: [id])
-  branches               Branch[]
-  workspaces             Workspace[]
-  memberships            Membership[]
+  tenant                    Tenant                     @relation(fields: [tenantId], references: [id])
+  legalEntity               LegalEntity?               @relation(fields: [legalEntityId], references: [id])
+  branches                  Branch[]
+  workspaces                Workspace[]
+  memberships               Membership[]
   // @req FR-089 — Teams are Business-scoped (ADR-037 D2).
-  teams                  Team[]
-  customers              Customer[]
-  roleBindings           RoleBinding[]
-  customerImportBatches  CustomerImportBatch[]
+  teams                     Team[]
+  customers                 Customer[]
+  roleBindings              RoleBinding[]
+  customerImportBatches     CustomerImportBatch[]
   customerImportReviewCases CustomerImportReviewCase[]
-  roadmaps               BusinessRoadmap[]
-  goals                  BusinessGoal[]
-  projects               Project[]
-  localWorkspaceMounts   LocalWorkspaceMount[]
-  fileAssets             FileAsset[]
-  integrationConnections IntegrationConnection[]
-  ingestionRuns          IngestionRun[]
-  rawExternalRecords     RawExternalRecord[]
-  syncCursors            SyncCursor[]
-  externalEntityRefs     ExternalEntityRef[]
-  deadLetterRecords      DeadLetterRecord[]
-  repositories           Repository[]
+  roadmaps                  BusinessRoadmap[]
+  goals                     BusinessGoal[]
+  projects                  Project[]
+  localWorkspaceMounts      LocalWorkspaceMount[]
+  fileAssets                FileAsset[]
+  integrationConnections    IntegrationConnection[]
+  ingestionRuns             IngestionRun[]
+  rawExternalRecords        RawExternalRecord[]
+  syncCursors               SyncCursor[]
+  externalEntityRefs        ExternalEntityRef[]
+  deadLetterRecords         DeadLetterRecord[]
+  repositories              Repository[]
+  pipelineRuns              PipelineRun[]
 
   @@index([tenantId])
 }
@@ -148,18 +150,18 @@ model Person {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  memberships        Membership[]
-  credential         PersonCredential?
-  passwordResetTokens PasswordResetToken[]
-  teamMemberships    TeamMembership[]
+  memberships                   Membership[]
+  credential                    PersonCredential?
+  passwordResetTokens           PasswordResetToken[]
+  teamMemberships               TeamMembership[]
   // @req FR-088 — Projects this Person is accountable for (PIC).
-  picProjects        Project[]          @relation("ProjectPic")
-  externalIdentities ExternalIdentity[]
-  identityLinkTokens IdentityLinkToken[]
-  customers          Customer[]
-  roleBindings       RoleBinding[]
-  customerImportApprovals CustomerImportBatch[] @relation("CustomerImportBatchApprover")
-  customerImportProvenance CustomerImportProvenance[] @relation("CustomerImportProvenancePerson")
+  picProjects                   Project[]                      @relation("ProjectPic")
+  externalIdentities            ExternalIdentity[]
+  identityLinkTokens            IdentityLinkToken[]
+  customers                     Customer[]
+  roleBindings                  RoleBinding[]
+  customerImportApprovals       CustomerImportBatch[]          @relation("CustomerImportBatchApprover")
+  customerImportProvenance      CustomerImportProvenance[]     @relation("CustomerImportProvenancePerson")
   customerImportReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionActor")
 }
 
@@ -295,16 +297,16 @@ model Project {
   updatedAt   DateTime  @updatedAt
   version     Int       @default(1)
 
-  business     Business?           @relation(fields: [businessId], references: [id])
-  workspace    Workspace           @relation(fields: [workspaceId], references: [id])
-  pic          Person?             @relation("ProjectPic", fields: [picPersonId], references: [id])
-  workstreams  Workstream[]
-  repositories ProjectRepository[]
-  files        ProjectFile[]
-  fileAssets   FileAsset[]
-  milestones   Milestone[]
-  gates        Gate[]
-  goalLinks    ProjectGoal[]
+  business           Business?           @relation(fields: [businessId], references: [id])
+  workspace          Workspace           @relation(fields: [workspaceId], references: [id])
+  pic                Person?             @relation("ProjectPic", fields: [picPersonId], references: [id])
+  workstreams        Workstream[]
+  repositories       ProjectRepository[]
+  files              ProjectFile[]
+  fileAssets         FileAsset[]
+  milestones         Milestone[]
+  gates              Gate[]
+  goalLinks          ProjectGoal[]
   planImportReceipts PlanImportReceipt[]
   teams              ProjectTeam[]
 
@@ -457,31 +459,31 @@ model ProjectGoal {
 }
 
 model Workstream {
-  id               String    @id @default(uuid())
-  code             String    @unique
-  projectId        String
-  name             String
-  executionMode    String
-  executionModeId  String?
+  id                      String    @id @default(uuid())
+  code                    String    @unique
+  projectId               String
+  name                    String
+  executionMode           String
+  executionModeId         String?
   // @req FR-090 — same reason as PersonCredential above: the column is live on
   // the Supabase database with a distinct value on every Workstream row, so
   // leaving it undeclared made a DROP COLUMN the diff's recommendation.
-  laneId           String?
-  executionContractId String?
-  contractVersion  String?
-  primaryDomainId  String?
-  supportingDomainIdsJson String @default("[]")
-  technicalOwnerDomainId String?
-  identityRefsJson String @default("{}")
-  progressStrategy String
-  progressWeight   Float     @default(1)
-  status           String    @default("PLANNED")
-  progressCache    Float     @default(0)
-  viewConfigJson   String    @default("{}")
-  deletedAt        DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  version          Int       @default(1)
+  laneId                  String?
+  executionContractId     String?
+  contractVersion         String?
+  primaryDomainId         String?
+  supportingDomainIdsJson String    @default("[]")
+  technicalOwnerDomainId  String?
+  identityRefsJson        String    @default("{}")
+  progressStrategy        String
+  progressWeight          Float     @default(1)
+  status                  String    @default("PLANNED")
+  progressCache           Float     @default(0)
+  viewConfigJson          String    @default("{}")
+  deletedAt               DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  version                 Int       @default(1)
 
   project    Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
   containers WorkContainer[]
@@ -499,20 +501,20 @@ model Workstream {
 // One receipt binds a client idempotency key to the exact normalized payload
 // and execution run. It is not a second Plan model.
 model PlanImportReceipt {
-  idempotencyKey   String   @id
-  payloadHash      String
-  executionRunId   String   @unique
-  executionStepId  String?
-  attemptId        String?
-  stepKey          String   @default("plan.import.commit")
-  status           String   @default("SUCCEEDED")
-  correlationId    String
-  schemaVersion    String
-  projectId        String
+  idempotencyKey          String   @id
+  payloadHash             String
+  executionRunId          String   @unique
+  executionStepId         String?
+  attemptId               String?
+  stepKey                 String   @default("plan.import.commit")
+  status                  String   @default("SUCCEEDED")
+  correlationId           String
+  schemaVersion           String
+  projectId               String
   replayOfExecutionRunId  String?
   replayOfExecutionStepId String?
-  auditEventId     String?
-  createdAt        DateTime @default(now())
+  auditEventId            String?
+  createdAt               DateTime @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -859,11 +861,11 @@ model Customer {
   deletedAt      DateTime?
   version        Int       @default(1)
 
-  tenant        Tenant         @relation(fields: [tenantId], references: [id])
-  business      Business?      @relation(fields: [businessId], references: [id])
-  person        Person         @relation(fields: [personId], references: [id])
-  conversations Conversation[]
-  importProvenance CustomerImportProvenance[] @relation("CustomerImportProvenanceCustomer")
+  tenant                Tenant                         @relation(fields: [tenantId], references: [id])
+  business              Business?                      @relation(fields: [businessId], references: [id])
+  person                Person                         @relation(fields: [personId], references: [id])
+  conversations         Conversation[]
+  importProvenance      CustomerImportProvenance[]     @relation("CustomerImportProvenanceCustomer")
   importReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionTargetCustomer")
 
   @@unique([tenantId, personId])
@@ -871,26 +873,26 @@ model Customer {
 }
 
 model CustomerImportBatch {
-  id                String   @id @default(uuid())
-  contractId        String
-  missionId         String
-  versionId         String
-  tenantId          String
-  businessId        String
-  sourceRef         String
-  snapshotSha256    String
-  sourceRowCount    Int
-  publishRowCount   Int      @default(0)
-  heldRowCount      Int      @default(0)
-  status            String
+  id                 String   @id @default(uuid())
+  contractId         String
+  missionId          String
+  versionId          String
+  tenantId           String
+  businessId         String
+  sourceRef          String
+  snapshotSha256     String
+  sourceRowCount     Int
+  publishRowCount    Int      @default(0)
+  heldRowCount       Int      @default(0)
+  status             String
   approvedByPersonId String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
-  business   Business @relation(fields: [businessId], references: [id])
-  approvedBy Person?  @relation("CustomerImportBatchApprover", fields: [approvedByPersonId], references: [id])
-  provenance CustomerImportProvenance[]
+  tenant      Tenant                     @relation(fields: [tenantId], references: [id])
+  business    Business                   @relation(fields: [businessId], references: [id])
+  approvedBy  Person?                    @relation("CustomerImportBatchApprover", fields: [approvedByPersonId], references: [id])
+  provenance  CustomerImportProvenance[]
   reviewCases CustomerImportReviewCase[]
 
   @@unique([contractId, missionId, versionId, snapshotSha256])
@@ -915,13 +917,13 @@ model CustomerImportProvenance {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  batch    CustomerImportBatch @relation(fields: [batchId], references: [id])
-  person   Person?             @relation("CustomerImportProvenancePerson", fields: [personId], references: [id])
-  customer Customer?           @relation("CustomerImportProvenanceCustomer", fields: [customerId], references: [id])
-  reviewCase CustomerImportReviewCase? @relation(fields: [reviewCaseId], references: [id])
-  reviewDecisions CustomerImportReviewDecision[]
-  reviewCaseId String?
-  reviewReasonCode String?
+  batch              CustomerImportBatch            @relation(fields: [batchId], references: [id])
+  person             Person?                        @relation("CustomerImportProvenancePerson", fields: [personId], references: [id])
+  customer           Customer?                      @relation("CustomerImportProvenanceCustomer", fields: [customerId], references: [id])
+  reviewCase         CustomerImportReviewCase?      @relation(fields: [reviewCaseId], references: [id])
+  reviewDecisions    CustomerImportReviewDecision[]
+  reviewCaseId       String?
+  reviewReasonCode   String?
   reviewEvidenceJson String?
 
   @@unique([sourceSystem, sourceTable, sourceRecordKey, snapshotSha256])
@@ -944,7 +946,7 @@ model CustomerImportReviewCase {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  batch     CustomerImportBatch           @relation(fields: [batchId], references: [id])
+  batch     CustomerImportBatch            @relation(fields: [batchId], references: [id])
   tenant    Tenant                         @relation(fields: [tenantId], references: [id])
   business  Business                       @relation(fields: [businessId], references: [id])
   items     CustomerImportProvenance[]
@@ -966,10 +968,10 @@ model CustomerImportReviewDecision {
   note              String?
   createdAt         DateTime @default(now())
 
-  reviewCase    CustomerImportReviewCase @relation(fields: [reviewCaseId], references: [id])
-  provenance    CustomerImportProvenance @relation(fields: [provenanceId], references: [id])
-  targetCustomer Customer?               @relation("CustomerImportReviewDecisionTargetCustomer", fields: [targetCustomerId], references: [id])
-  decidedBy     Person                    @relation("CustomerImportReviewDecisionActor", fields: [decidedByPersonId], references: [id])
+  reviewCase     CustomerImportReviewCase @relation(fields: [reviewCaseId], references: [id])
+  provenance     CustomerImportProvenance @relation(fields: [provenanceId], references: [id])
+  targetCustomer Customer?                @relation("CustomerImportReviewDecisionTargetCustomer", fields: [targetCustomerId], references: [id])
+  decidedBy      Person                   @relation("CustomerImportReviewDecisionActor", fields: [decidedByPersonId], references: [id])
 
   @@unique([provenanceId, decisionVersion])
   @@index([reviewCaseId, provenanceId, decisionVersion])
@@ -1029,6 +1031,204 @@ model AuditEvent {
 
   @@index([entityType, entityId])
   @@index([occurredAt])
+}
+
+// @req FR-071 — server-owned full data-pipeline execution ledger.
+// @spec ADR-030 D2-D6, SDD-042, SEC-003, SEC-008
+// @tested tests/unit/platform/pipeline-tracking-service.test.js, tests/unit/platform/pipeline-tracking-migration.test.js
+model PipelineRun {
+  id                       String    @id @default(uuid())
+  executionRunId           String    @unique
+  dataPipelineDefinitionId String
+  executionContractId      String
+  tenantId                 String
+  businessId               String?
+  status                   String    @default("QUEUED")
+  currentStageId           String?
+  sourceRef                String?
+  sourceSha256             String?
+  artifactRef              String?
+  artifactSha256           String?
+  bootstrapBatchId         String?
+  correlationId            String
+  idempotencyKey           String    @unique
+  requestHash              String
+  expectedCount            Int       @default(0)
+  actualCount              Int       @default(0)
+  insertedCount            Int       @default(0)
+  updatedCount             Int       @default(0)
+  unchangedCount           Int       @default(0)
+  failedCount              Int       @default(0)
+  rejectedCount            Int       @default(0)
+  duplicateCount           Int       @default(0)
+  tagIdsJson               String    @default("[]")
+  identityRefsJson         String    @default("{}")
+  primaryFailureCode       String?
+  primaryErrorRef          String?
+  primaryRetryable         Boolean?
+  auditEventId             String?
+  replayScope              String?
+  replayOfExecutionRunId   String?
+  replayOfExecutionStepId  String?
+  replayOfPipelineRecordId String?
+  startedAt                DateTime?
+  finishedAt               DateTime?
+  lastHeartbeatAt          DateTime?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+
+  tenant          Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business        Business?                @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  steps           PipelineStep[]
+  eventReceipts   PipelineEventReceipt[]   @relation("PipelineRunEventReceipts")
+  recordEvents    PipelineRecordEvent[]    @relation("PipelineRunRecordEvents")
+  reconciliations PipelineReconciliation[] @relation("PipelineRunReconciliations")
+  gateDecisions   PipelineGateDecision[]   @relation("PipelineRunGateDecisions")
+
+  @@index([tenantId, status])
+  @@index([businessId, status, createdAt])
+  @@index([correlationId])
+  @@index([replayOfExecutionRunId])
+}
+
+model PipelineStep {
+  id                      String    @id @default(uuid())
+  executionStepId         String    @unique
+  runId                   String
+  pipelineStageId         String
+  sequence                Int
+  attemptId               String    @unique
+  status                  String    @default("NOT_STARTED")
+  inputHash               String?
+  outputHash              String?
+  expectedCount           Int       @default(0)
+  actualCount             Int       @default(0)
+  insertedCount           Int       @default(0)
+  updatedCount            Int       @default(0)
+  unchangedCount          Int       @default(0)
+  failedCount             Int       @default(0)
+  skippedCount            Int       @default(0)
+  failureCode             String?
+  errorRef                String?
+  retryable               Boolean?
+  tagIdsJson              String    @default("[]")
+  identityRefsJson        String    @default("{}")
+  auditEventId            String?
+  replayOfExecutionStepId String?
+  startedAt               DateTime?
+  finishedAt              DateTime?
+  lastHeartbeatAt         DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  run             PipelineRun              @relation(fields: [runId], references: [id], onDelete: Cascade)
+  recordEvents    PipelineRecordEvent[]    @relation("PipelineStepRecordEvents")
+  reconciliations PipelineReconciliation[] @relation("PipelineStepReconciliations")
+
+  @@index([runId, pipelineStageId, sequence])
+  @@index([runId, status])
+}
+
+model PipelineEventReceipt {
+  id             String   @id @default(uuid())
+  runId          String
+  idempotencyKey String   @unique
+  eventType      String
+  eventHash      String
+  resultJson     String   @default("{}")
+  auditEventId   String?
+  createdAt      DateTime @default(now())
+
+  run PipelineRun @relation("PipelineRunEventReceipts", fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId, eventType])
+}
+
+model PipelineRecordEvent {
+  id                       String   @id @default(uuid())
+  runId                    String
+  stepId                   String?
+  attemptId                String
+  pipelineRecordId         String
+  sourceRecordKey          String?
+  sourceRowNumber          Int?
+  sourceSha256             String?
+  docId                    String?
+  picId                    String?
+  factId                   String?
+  sourceDocIdsJson         String   @default("[]")
+  sourcePicIdsJson         String   @default("[]")
+  destinationRecordId      String?
+  status                   String
+  failureCode              String?
+  errorRef                 String?
+  retryable                Boolean?
+  tagIdsJson               String   @default("[]")
+  identityRefsJson         String   @default("{}")
+  idempotencyKey           String   @unique
+  auditEventId             String?
+  replayOfPipelineRecordId String?
+  occurredAt               DateTime @default(now())
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  run  PipelineRun   @relation("PipelineRunRecordEvents", fields: [runId], references: [id], onDelete: Cascade)
+  step PipelineStep? @relation("PipelineStepRecordEvents", fields: [stepId], references: [id], onDelete: SetNull)
+
+  @@index([runId, status])
+  @@index([pipelineRecordId])
+  @@index([docId])
+  @@index([picId])
+  @@index([factId])
+}
+
+model PipelineReconciliation {
+  id              String   @id @default(uuid())
+  runId           String
+  stepId          String?
+  expectedCount   Int      @default(0)
+  actualCount     Int      @default(0)
+  insertedCount   Int      @default(0)
+  updatedCount    Int      @default(0)
+  unchangedCount  Int      @default(0)
+  rejectedCount   Int      @default(0)
+  duplicateCount  Int      @default(0)
+  sourceSha256    String?
+  artifactSha256  String?
+  stagingHash     String?
+  destinationHash String?
+  rlsProbeResult  String?
+  isolationResult String?
+  result          String
+  evidenceJson    String   @default("{}")
+  auditEventId    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  run  PipelineRun   @relation("PipelineRunReconciliations", fields: [runId], references: [id], onDelete: Cascade)
+  step PipelineStep? @relation("PipelineStepReconciliations", fields: [stepId], references: [id], onDelete: SetNull)
+
+  @@index([runId, result])
+  @@index([stepId])
+}
+
+model PipelineGateDecision {
+  id                String   @id @default(uuid())
+  runId             String
+  gateId            String?
+  status            String
+  required          Boolean  @default(true)
+  decidedByPersonId String?
+  reason            String?
+  evidenceJson      String   @default("{}")
+  auditEventId      String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  run PipelineRun @relation("PipelineRunGateDecisions", fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId, status])
+  @@index([gateId])
 }
 
 // @req FR-079 — provider-neutral Business-scoped runtime connection metadata.

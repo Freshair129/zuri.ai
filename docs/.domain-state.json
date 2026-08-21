@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-20T12:54:21.903Z",
+  "generatedAt": "2026-08-21T01:58:11.643Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -171,10 +171,24 @@
       {
         "domain": "knowledge",
         "id": "REQ-FR-071",
-        "severity": "medium",
+        "severity": "high",
         "check": "requirements",
-        "summary": "FR-071 is planned",
-        "evidence": []
+        "summary": "FR-071 is not_implemented",
+        "evidence": [
+          "tests/e2e/smoke.spec.js",
+          "tests/integration/openapi-docs.test.js",
+          "tests/unit/document-intake-ui.test.js",
+          "tests/unit/pipeline-mcp-transport.test.js",
+          "tests/unit/pipeline-monitor-ui.test.js",
+          "tests/unit/pipeline-tracking-route.test.js",
+          "tests/unit/platform/cloud-sot-agent.test.js",
+          "tests/unit/platform/document-intake-contract.test.js",
+          "tests/unit/platform/pipeline-tracking-contract.test.js",
+          "tests/unit/platform/pipeline-tracking-migration.test.js",
+          "tests/unit/platform/pipeline-tracking-service.test.js",
+          "tests/unit/project-manager-mcp.test.js",
+          "tests/unit/smartgift-document-intake-migration.test.js"
+        ]
       },
       {
         "domain": "project-manager",
@@ -323,7 +337,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-029",
@@ -344,7 +358,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 6
         },
         {
           "id": "FR-049",
@@ -358,7 +372,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-051",
@@ -377,7 +391,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-053",
@@ -419,7 +433,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-081",
@@ -463,7 +477,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 76,
+            "openApiPaths": 82,
             "missingFromOpenApi": 0
           }
         },
@@ -472,6 +486,7 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
@@ -541,6 +556,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [
@@ -663,6 +679,7 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
@@ -729,6 +746,7 @@
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [
@@ -926,7 +944,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 76,
+            "openApiPaths": 82,
             "missingFromOpenApi": 0
           }
         },
@@ -935,6 +953,7 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
@@ -1015,6 +1034,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [
@@ -1061,20 +1081,27 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-048",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 7
+          "codeCount": 1,
+          "testCount": 6
         },
         {
           "id": "FR-052",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
+          "testCount": 14
+        },
+        {
+          "id": "FR-071",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
           "testCount": 13
         },
         {
@@ -1088,8 +1115,8 @@
           "id": "FR-080",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 8
+          "codeCount": 7,
+          "testCount": 9
         },
         {
           "id": "FR-081",
@@ -1120,9 +1147,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
-            "openApiPaths": 76,
+            "routes": 2,
+            "inventoried": 2,
+            "openApiPaths": 82,
             "missingFromOpenApi": 0
           }
         },
@@ -1131,6 +1158,7 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
@@ -1166,9 +1194,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 1,
-            "guardedMutations": 1,
-            "reads": 1,
+            "mutations": 2,
+            "guardedMutations": 2,
+            "reads": 2,
             "unguardedReads": 0
           }
         },
@@ -1193,12 +1221,13 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [],
       "details": {
-        "routes": 2,
-        "apiRoutes": 1,
+        "routes": 3,
+        "apiRoutes": 2,
         "pageRoutes": 1,
         "ownedModels": 8,
         "featureNotes": 3
@@ -1211,8 +1240,8 @@
           "id": "FR-024",
           "declared": "done",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 6
+          "codeCount": 10,
+          "testCount": 8
         },
         {
           "id": "FR-047",
@@ -1233,7 +1262,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-054",
@@ -1244,10 +1273,25 @@
         },
         {
           "id": "FR-071",
-          "declared": "planned",
-          "status": "planned",
+          "declared": "n/a",
+          "status": "not_implemented",
           "codeCount": 0,
-          "testCount": 0
+          "testCount": 13,
+          "evidence": [
+            "tests/e2e/smoke.spec.js",
+            "tests/integration/openapi-docs.test.js",
+            "tests/unit/document-intake-ui.test.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
+            "tests/unit/pipeline-monitor-ui.test.js",
+            "tests/unit/pipeline-tracking-route.test.js",
+            "tests/unit/platform/cloud-sot-agent.test.js",
+            "tests/unit/platform/document-intake-contract.test.js",
+            "tests/unit/platform/pipeline-tracking-contract.test.js",
+            "tests/unit/platform/pipeline-tracking-migration.test.js",
+            "tests/unit/platform/pipeline-tracking-service.test.js",
+            "tests/unit/project-manager-mcp.test.js",
+            "tests/unit/smartgift-document-intake-migration.test.js"
+          ]
         }
       ],
       "checks": {
@@ -1266,6 +1310,7 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
@@ -1321,6 +1366,7 @@
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [
@@ -1338,10 +1384,24 @@
         },
         {
           "id": "REQ-FR-071",
-          "severity": "medium",
+          "severity": "high",
           "check": "requirements",
-          "summary": "FR-071 is planned",
-          "evidence": []
+          "summary": "FR-071 is not_implemented",
+          "evidence": [
+            "tests/e2e/smoke.spec.js",
+            "tests/integration/openapi-docs.test.js",
+            "tests/unit/document-intake-ui.test.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
+            "tests/unit/pipeline-monitor-ui.test.js",
+            "tests/unit/pipeline-tracking-route.test.js",
+            "tests/unit/platform/cloud-sot-agent.test.js",
+            "tests/unit/platform/document-intake-contract.test.js",
+            "tests/unit/platform/pipeline-tracking-contract.test.js",
+            "tests/unit/platform/pipeline-tracking-migration.test.js",
+            "tests/unit/platform/pipeline-tracking-service.test.js",
+            "tests/unit/project-manager-mcp.test.js",
+            "tests/unit/smartgift-document-intake-migration.test.js"
+          ]
         }
       ],
       "details": {
@@ -1379,6 +1439,7 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
@@ -1428,6 +1489,7 @@
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [],
@@ -1503,7 +1565,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 5
+          "testCount": 7
         },
         {
           "id": "FR-010",
@@ -1762,7 +1824,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-070",
@@ -1770,6 +1832,13 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 9
+        },
+        {
+          "id": "FR-071",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 8,
+          "testCount": 13
         },
         {
           "id": "FR-072",
@@ -1963,9 +2032,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 72,
-            "inventoried": 72,
-            "openApiPaths": 76,
+            "routes": 77,
+            "inventoried": 77,
+            "openApiPaths": 82,
             "missingFromOpenApi": 0
           }
         },
@@ -1974,6 +2043,7 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
@@ -2017,9 +2087,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 58,
-            "guardedMutations": 58,
-            "reads": 39,
+            "mutations": 62,
+            "guardedMutations": 62,
+            "reads": 42,
             "unguardedReads": 0
           }
         },
@@ -2076,6 +2146,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [
@@ -2189,8 +2260,8 @@
         }
       ],
       "details": {
-        "routes": 109,
-        "apiRoutes": 72,
+        "routes": 114,
+        "apiRoutes": 77,
         "pageRoutes": 37,
         "ownedModels": 30,
         "featureNotes": 28

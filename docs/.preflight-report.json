@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 165,
-    "routes": 76,
-    "test_files": 246
+    "docs": 166,
+    "routes": 82,
+    "test_files": 260
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 19,
+    "info": 20,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -182,16 +182,25 @@
     {
       "id": "I16",
       "severity": "info",
+      "check": "domain-spine",
+      "title": "Models not yet claimed by any charter: 6",
+      "details": "PipelineRun, PipelineStep, PipelineEventReceipt, PipelineRecordEvent, PipelineReconciliation, PipelineGateDecision",
+      "files": [],
+      "action": "Coverage debt — claim them as charters mature"
+    },
+    {
+      "id": "I17",
+      "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
       "details": "\"| PHASE-ZV2-MVP | Build offline-first PM MVP (spec phases 00-07) | ACCEPTANCE-CRITERIA all PASS — MVP shipped \"",
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 246 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 260 files"
     },
     {
-      "id": "I17",
+      "id": "I18",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 hand-copied enum list(s) remain (accepted debt)",
@@ -202,7 +211,7 @@
       "action": "Derive from enums.js; the baseline may only shrink"
     },
     {
-      "id": "I18",
+      "id": "I19",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -213,11 +222,11 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I19",
+      "id": "I20",
       "severity": "info",
       "check": "id-stability",
-      "title": "340 id(s) pinned across 10 families",
-      "details": "ADR 39 · BR 19 · FEAT 9 · FR 93 · MI-RQ 72 · NFR 18 · RSK 14 · SDD 51 · SEC 17 · ZV2-CR 8 · roster 340",
+      "title": "341 id(s) pinned across 10 families",
+      "details": "ADR 40 · BR 19 · FEAT 9 · FR 93 · MI-RQ 72 · NFR 18 · RSK 14 · SDD 51 · SEC 17 · ZV2-CR 8 · roster 341",
       "files": [
         "docs/.id-ledger.json"
       ],

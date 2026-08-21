@@ -4,8 +4,10 @@ import { createProjectManagerMcpTransport, jsonRpcError } from '@/modules/projec
 
 // @req FR-069 — expose the approved PlanEnvelope intake through MCP without a
 // second business or persistence path.
-// @spec ADR-029, SEC-001, SEC-008
-// @tested tests/unit/project-manager-mcp.test.js
+// @req FR-071 — expose the approved data_pipeline tools through the same
+// authenticated MCP session without a second persistence path.
+// @spec ADR-029, ADR-040, SEC-001, SEC-008
+// @tested tests/unit/project-manager-mcp.test.js, tests/unit/pipeline-mcp-transport.test.js
 
 export const dynamic = 'force-dynamic'
 const transport = createProjectManagerMcpTransport()

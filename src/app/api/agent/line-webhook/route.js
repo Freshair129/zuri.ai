@@ -109,9 +109,6 @@ export function createLineWebhookPost({
     let resolvedModel = phase1Ports?.model
     let modelResolved = !phase1Ports?.resolveModel
 
-    // FR-081 convergence. Resolved once per batch, from the scope the binding proved.
-    // `null` means this LINE channel has no IntegrationConnection yet, so there is no
-    // evidence lane to write to and the batch behaves exactly as it did before.
     const evidence = await evidenceRecorderFactory({
       tenantId: scope.tenantId,
       businessId: scope.businessId ?? null,
@@ -130,9 +127,6 @@ export function createLineWebhookPost({
         messageType: ev.message?.type,
         connectionId: evidence?.connectionId,
       }
-      // Evidence first, and for EVERY event — including the follow/unfollow/postback
-      // and non-text messages the turn skips. Those were previously discarded with no
-      // record at all; the envelope is the only place they are now durable.
       let evidenceResult = null
       if (evidence) {
         try {

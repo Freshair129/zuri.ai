@@ -9,7 +9,6 @@ export const LOCAL_DEMO_COOKIE = 'zuri_local_demo_session'
 // @spec ADR-017, SDD-024, SEC-008
 export function requireTrustedLocalDemo({ env = process.env } = {}) {
   if (env.NODE_ENV !== 'production' && env.ZURI_LOCAL_DEMO_AUTH === '1') return
-
   throw new Error('LOCAL_DEMO_NOT_ALLOWED')
 }
 
@@ -37,8 +36,7 @@ function normalizeTrustedSession(value) {
 }
 
 /**
- * Provider-neutral request session port. A future LINE/OIDC/passwordless adapter may
- * supply `readTrustedSession`; client headers/body/query values are never inspected.
+ * Provider-neutral request session port.
  */
 export function createSessionPort({ readTrustedSession = async () => null, env = process.env } = {}) {
   return {

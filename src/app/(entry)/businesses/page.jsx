@@ -47,10 +47,12 @@ export default function BusinessesPage() {
   const availableBusinesses = entry.data?.businesses || []
 
   useEffect(() => {
-    if (entry.error === 'AUTH_REQUIRED') router.replace('/login')
+    if (entry.error === 'AUTH_REQUIRED' || entry.error === 'SESSION_UNAVAILABLE') {
+      router.replace('/login')
+    }
   }, [entry.error, router])
 
-  if (entry.loading || entry.error === 'AUTH_REQUIRED') return <LoadingCard />
+  if (entry.loading || entry.error === 'AUTH_REQUIRED' || entry.error === 'SESSION_UNAVAILABLE') return <LoadingCard />
 
   if (entry.error) {
     return <ErrorState title="Unable to load Business Routing" detail={entry.error} retry={entry.reload} />

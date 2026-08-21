@@ -3,33 +3,32 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1059,
-    "total_edges": 3475,
+    "total_nodes": 1100,
+    "total_edges": 3618,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
       "document": 86,
-      "adr": 39,
+      "adr": 40,
       "domain": 7,
       "roadmap": 25,
       "feature": 9,
-      "route": 117,
-      "model": 53,
+      "route": 123,
+      "model": 59,
       "requirement": 198,
-      "test": 246,
-      "code_file": 275
+      "test": 260,
+      "code_file": 289
     },
     "coverage": {
       "requirements": 198,
-      "fr_with_code": "100% (81/81)",
-      "fr_with_tests": "100% (81/81)",
-      "rules_anchored_in_code": "89% (76/85)",
+      "fr_with_code": "100% (82/82)",
+      "fr_with_tests": "100% (82/82)",
+      "rules_anchored_in_code": "91% (77/85)",
       "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 275,
+      "annotated_code_files": 289,
       "fr_planned": [
         "FR-066",
         "FR-067",
-        "FR-071",
         "FR-082",
         "FR-083",
         "FR-084",
@@ -48,7 +47,6 @@
         "SDD-038",
         "SDD-040",
         "SDD-041",
-        "SDD-042",
         "SDD-046",
         "SEC-005",
         "SEC-014"
@@ -60,11 +58,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/unit/line-channel-binding.test.js",
-      "code:src/modules/agent/line-binding-resolver.js",
-      "code:src/modules/agent/line-channel-binding.js"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -99,7 +93,7 @@
       "id": "code:src/app/(entry)/businesses/page.jsx",
       "type": "code_file",
       "path": "src/app/(entry)/businesses/page.jsx",
-      "hash": "e86a6ba1",
+      "hash": "52f9de63",
       "status": "current",
       "annotations": {
         "@req": [
@@ -373,12 +367,11 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "d3fd5ca2",
+      "hash": "549de5ca",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-080",
-          "FR-048"
+          "FR-080"
         ],
         "@spec": [
           "SEC-016",
@@ -386,7 +379,8 @@
           "NFR-008"
         ],
         "@tested": [
-          "tests/unit/fr080-ui-contract.test.js"
+          "tests/unit/fr080-ui-contract.test.js",
+          "tests/unit/line-registry-service.test.js"
         ]
       }
     },
@@ -882,7 +876,7 @@
       "id": "code:src/app/api/agent/line-webhook/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
-      "hash": "79d06e2e",
+      "hash": "0c3aa8a4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1637,21 +1631,44 @@
       }
     },
     {
-      "id": "code:src/app/api/mcp/route.js",
+      "id": "code:src/app/api/ingest/documents/route.js",
       "type": "code_file",
-      "path": "src/app/api/mcp/route.js",
-      "hash": "621ca6a3",
+      "path": "src/app/api/ingest/documents/route.js",
+      "hash": "51f8bd76",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-069"
+          "FR-071"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/platform/cloud-sot-agent.test.js",
+          "tests/unit/document-intake-ui.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/mcp/route.js",
+      "type": "code_file",
+      "path": "src/app/api/mcp/route.js",
+      "hash": "5a20f461",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-069",
+          "FR-071"
         ],
         "@spec": [
           "SEC-001",
           "SEC-008"
         ],
         "@tested": [
-          "tests/unit/project-manager-mcp.test.js"
+          "tests/unit/project-manager-mcp.test.js",
+          "tests/unit/pipeline-mcp-transport.test.js"
         ]
       }
     },
@@ -1721,6 +1738,90 @@
       }
     },
     {
+      "id": "code:src/app/api/pipelines/runs/[executionRunId]/events/route.js",
+      "type": "code_file",
+      "path": "src/app/api/pipelines/runs/[executionRunId]/events/route.js",
+      "hash": "f65993dc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-071"
+        ],
+        "@spec": [
+          "SDD-042",
+          "SEC-003",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/openapi-docs.test.js",
+          "tests/unit/pipeline-tracking-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
+      "type": "code_file",
+      "path": "src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
+      "hash": "c02de9f3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-071"
+        ],
+        "@spec": [
+          "SDD-042",
+          "SEC-003",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/openapi-docs.test.js",
+          "tests/unit/pipeline-tracking-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/pipelines/runs/[executionRunId]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/pipelines/runs/[executionRunId]/route.js",
+      "hash": "5395cd6a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-071"
+        ],
+        "@spec": [
+          "SDD-042",
+          "SEC-003",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/openapi-docs.test.js",
+          "tests/unit/pipeline-tracking-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/pipelines/runs/route.js",
+      "type": "code_file",
+      "path": "src/app/api/pipelines/runs/route.js",
+      "hash": "480ca62b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-071"
+        ],
+        "@spec": [
+          "SDD-042",
+          "SEC-003",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/openapi-docs.test.js",
+          "tests/unit/pipeline-tracking-route.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/platform/customer-import-reviews/[caseId]/decisions/route.js",
       "type": "code_file",
       "path": "src/app/api/platform/customer-import-reviews/[caseId]/decisions/route.js",
@@ -1762,6 +1863,25 @@
         ],
         "@tested": [
           "tests/unit/customer-import-review-api.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/integrations/line-registry/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/integrations/line-registry/route.js",
+      "hash": "ad52e3ba",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-080"
+        ],
+        "@spec": [
+          "SEC-016",
+          "SDD-044"
+        ],
+        "@tested": [
+          "tests/unit/line-registry-service.test.js"
         ]
       }
     },
@@ -2724,7 +2844,7 @@
       "id": "code:src/components/ui/index.jsx",
       "type": "code_file",
       "path": "src/components/ui/index.jsx",
-      "hash": "1da104f1",
+      "hash": "bae37bd9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2889,7 +3009,7 @@
       "id": "code:src/lib/db.js",
       "type": "code_file",
       "path": "src/lib/db.js",
-      "hash": "6c61f59c",
+      "hash": "f4d90b39",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3241,7 +3361,7 @@
       "type": "code_file",
       "path": "src/modules/agent/line-binding-resolver.js",
       "hash": "6f856d0f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-052"
@@ -3259,7 +3379,7 @@
       "type": "code_file",
       "path": "src/modules/agent/line-channel-binding.js",
       "hash": "2f195a8e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-052"
@@ -3684,7 +3804,7 @@
       "id": "code:src/modules/identity/entry-read-model.js",
       "type": "code_file",
       "path": "src/modules/identity/entry-read-model.js",
-      "hash": "e7136485",
+      "hash": "6defe728",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3910,7 +4030,7 @@
       "id": "code:src/modules/identity/session-port.js",
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
-      "hash": "2d26895e",
+      "hash": "b774e1c5",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3989,6 +4109,25 @@
       }
     },
     {
+      "id": "code:src/modules/integration/application/line-registry-service.js",
+      "type": "code_file",
+      "path": "src/modules/integration/application/line-registry-service.js",
+      "hash": "55d683eb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-080"
+        ],
+        "@spec": [
+          "SEC-016",
+          "SDD-044"
+        ],
+        "@tested": [
+          "tests/unit/line-registry-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/business-contract.js",
       "type": "code_file",
       "path": "src/modules/knowledge/business-contract.js",
@@ -4004,6 +4143,24 @@
         ],
         "@tested": [
           "tests/unit/business-knowledge-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/gbdb-rag-service.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/gbdb-rag-service.js",
+      "hash": "802652e0",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-024"
+        ],
+        "@spec": [
+          "SDD-027"
+        ],
+        "@tested": [
+          "tests/unit/gbdb-rag-service.test.js"
         ]
       }
     },
@@ -4190,6 +4347,36 @@
       }
     },
     {
+      "id": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/smartgift-knowledge-catalog.js",
+      "hash": "d98f7c6e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-024"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/smartgift-rag-pipeline.js",
+      "hash": "70dd9b9b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-024"
+        ],
+        "@spec": [
+          "SDD-027"
+        ],
+        "@tested": [
+          "tests/unit/smartgift-rag-pipeline.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/supabase-business-knowledge.js",
       "type": "code_file",
       "path": "src/modules/knowledge/supabase-business-knowledge.js",
@@ -4267,7 +4454,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "4f19113e",
+      "hash": "abae9493",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4325,7 +4512,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "6262dbb2",
+      "hash": "3f256a35",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5188,18 +5375,20 @@
       "id": "code:src/modules/project-manager/mcp/transport.js",
       "type": "code_file",
       "path": "src/modules/project-manager/mcp/transport.js",
-      "hash": "084399aa",
+      "hash": "fdcee433",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-069"
+          "FR-069",
+          "FR-071"
         ],
         "@spec": [
           "SEC-001",
           "SEC-008"
         ],
         "@tested": [
-          "tests/unit/project-manager-mcp.test.js"
+          "tests/unit/project-manager-mcp.test.js",
+          "tests/unit/pipeline-mcp-transport.test.js"
         ]
       }
     },
@@ -5280,14 +5469,23 @@
       "id": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/views/execution/mode-bodies.jsx",
-      "hash": "5398e23c",
+      "hash": "d7d8e6f5",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-009"
+          "FR-009",
+          "FR-071"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001",
+          "SEC-008",
+          "SDD-042"
         ],
         "@tested": [
-          "tests/e2e/smoke.spec.js"
+          "tests/e2e/smoke.spec.js",
+          "tests/unit/document-intake-ui.test.js",
+          "tests/unit/pipeline-monitor-ui.test.js"
         ]
       }
     },
@@ -5378,6 +5576,24 @@
       }
     },
     {
+      "id": "code:src/platform/integrations/core/cloud-sot-agent.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/cloud-sot-agent.js",
+      "hash": "6103e508",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-071"
+        ],
+        "@spec": [
+          "FR-071"
+        ],
+        "@tested": [
+          "tests/unit/platform/cloud-sot-agent.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/platform/integrations/core/connection-health.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/connection-health.js",
@@ -5432,6 +5648,24 @@
       }
     },
     {
+      "id": "code:src/platform/integrations/core/document-intake-contract.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/document-intake-contract.js",
+      "hash": "432d500e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-071"
+        ],
+        "@spec": [
+          "FR-071"
+        ],
+        "@tested": [
+          "tests/unit/platform/document-intake-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/platform/integrations/core/idempotency.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/idempotency.js",
@@ -5470,6 +5704,46 @@
         ],
         "@tested": [
           "tests/unit/fr079-runtime-cutover.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/pipeline-tracking-contract.js",
+      "hash": "413445b7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-071"
+        ],
+        "@spec": [
+          "SDD-042",
+          "SEC-003",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/platform/pipeline-tracking-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/pipeline-tracking-service.js",
+      "hash": "3860df74",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-071"
+        ],
+        "@spec": [
+          "SDD-042",
+          "SEC-003",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/platform/pipeline-tracking-service.test.js"
         ]
       }
     },
@@ -5602,9 +5876,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.12.0b",
+      "version": "1.15.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "7ef78677",
+      "hash": "ab70c8d8",
       "status": "current"
     },
     {
@@ -5650,7 +5924,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.9.0",
       "doc_status": "Draft",
-      "hash": "27db889c",
+      "hash": "b8b79dbd",
       "status": "current"
     },
     {
@@ -6111,7 +6385,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md",
       "title": "FR-071 — Supabase data pipeline monitor and replay",
-      "hash": "ae4a211f",
+      "hash": "a457e793",
       "status": "current"
     },
     {
@@ -6443,7 +6717,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.80.0b",
       "doc_status": "Draft",
-      "hash": "7852cfe5",
+      "hash": "01c3ea1d",
       "status": "current"
     },
     {
@@ -7039,6 +7313,36 @@
       "status": "current"
     },
     {
+      "id": "model:PipelineEventReceipt",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PipelineGateDecision",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PipelineReconciliation",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PipelineRecordEvent",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PipelineRun",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PipelineStep",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:PlanImportReceipt",
       "type": "model",
       "status": "current"
@@ -7232,11 +7536,11 @@
       "id": "req:BR-011",
       "type": "requirement",
       "family": "BR",
-      "label": "A LINE event has exactly one reply owner. When stack answering is enabled, `zuri-cli` owns signature verification and Reply API transport while `zuri-ai` owns knowledge/provider/answer policy; the legacy local answer path must not also consume the same `replyToken`.",
+      "label": "A LINE event has exactly one reply owner. When stack answering is enabled, `zuri.command-agent` owns signature verification and Reply API transport while `zuri-ai` owns knowledge/provider/answer policy; the legacy local answer path must not also consume the same `replyToken`.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "A LINE event has exactly one reply owner. When stack answering is enabled, `zuri-cli` owns signature verification and Reply API transport while `zuri-ai` owns knowledge/provider/answer policy; the legacy local answer path must not also consume the same `replyToken`. "
+      "row_text": "A LINE event has exactly one reply owner. When stack answering is enabled, `zuri.command-agent` owns signature verification and Reply API transport while `zuri-ai` owns knowledge/provider/answer policy; the legacy local answer path must not also consume the same `replyToken`. "
     },
     {
       "id": "req:BR-012",
@@ -8024,9 +8328,9 @@
       "family": "FR",
       "label": "Supabase data pipeline monitor and replay: the governed SmartGift DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Supabase data pipeline monitor and replay: the governed SmartGift DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes. 🔜 design proposed; implementation pending "
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Supabase data pipeline monitor and replay: the governed SmartGift DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes. 🟠 server-owned ledger, Data Migration monitor and local Codex EVIDENCE_ONLY bridge implemented; non-production Supabase RLS/apply probe, canonical apply, Product/Customer promotion and publish remain pending "
     },
     {
       "id": "req:FR-072",
@@ -8672,11 +8976,11 @@
       "id": "req:SDD-025",
       "type": "requirement",
       "family": "SDD",
-      "label": "The Phase 1 LINE pilot is a ports-and-adapters vertical slice. `BusinessKnowledgeReadPort` owns registered bounded reads, `ModelProviderPort` owns normalized generation, and the grounded-answer service verifies evidence before returning reply text. `zuri-cli` remains the only LINE signature/reply transport. Supabase is operational relational storage; GenesisBlockDB/MSP/GKS are not Phase 1 dependencies.",
+      "label": "The Phase 1 LINE pilot is a ports-and-adapters vertical slice. `BusinessKnowledgeReadPort` owns registered bounded reads, `ModelProviderPort` owns normalized generation, and the grounded-answer service verifies evidence before returning reply text. `zuri.command-agent` remains the only LINE signature/reply transport. Supabase is operational relational storage; GenesisBlockDB/MSP/GKS are not Phase 1 dependencies.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "The Phase 1 LINE pilot is a ports-and-adapters vertical slice. `BusinessKnowledgeReadPort` owns registered bounded reads, `ModelProviderPort` owns normalized generation, and the grounded-answer service verifies evidence before returning reply text. `zuri-cli` remains the only LINE signature/reply transport. Supabase is operational relational storage; GenesisBlockDB/MSP/GKS are not Phase 1 dependencies. FR-047..050; ADR-007 amendment; ZV2-CR-003 "
+      "row_text": "The Phase 1 LINE pilot is a ports-and-adapters vertical slice. `BusinessKnowledgeReadPort` owns registered bounded reads, `ModelProviderPort` owns normalized generation, and the grounded-answer service verifies evidence before returning reply text. `zuri.command-agent` remains the only LINE signature/reply transport. Supabase is operational relational storage; GenesisBlockDB/MSP/GKS are not Phase 1 dependencies. FR-047..050; ADR-007 amendment; ZV2-CR-003 "
     },
     {
       "id": "req:SDD-026",
@@ -8702,11 +9006,11 @@
       "id": "req:SDD-028",
       "type": "requirement",
       "family": "SDD",
-      "label": "FR-055 adds a separate operator port: strict schemas feed a dry-run-default CLI, a dedicated database role performs one versioned CAS mutation plus append-only event, and a `zuri-cli` adapter imports only redacted hash-pinned transport evidence. Readiness, mutation and transport remain separate owners.",
+      "label": "FR-055 adds a separate operator port: strict schemas feed a dry-run-default CLI, a dedicated database role performs one versioned CAS mutation plus append-only event, and a `zuri.command-agent` adapter imports only redacted hash-pinned transport evidence. Readiness, mutation and transport remain separate owners.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "FR-055 adds a separate operator port: strict schemas feed a dry-run-default CLI, a dedicated database role performs one versioned CAS mutation plus append-only event, and a `zuri-cli` adapter imports only redacted hash-pinned transport evidence. Readiness, mutation and transport remain separate owners. FR-055; ADR-020 / ZV2-CR-006 "
+      "row_text": "FR-055 adds a separate operator port: strict schemas feed a dry-run-default CLI, a dedicated database role performs one versioned CAS mutation plus append-only event, and a `zuri.command-agent` adapter imports only redacted hash-pinned transport evidence. Readiness, mutation and transport remain separate owners. FR-055; ADR-020 / ZV2-CR-006 "
     },
     {
       "id": "req:SDD-029",
@@ -9397,6 +9701,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/ingest/documents",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/ingest/documents",
+      "path": "src/app/api/ingest/documents/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/mcp",
       "type": "route",
       "kind": "api",
@@ -9429,6 +9741,38 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/pipelines/runs",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/pipelines/runs",
+      "path": "src/app/api/pipelines/runs/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/pipelines/runs/[executionRunId]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/pipelines/runs/[executionRunId]",
+      "path": "src/app/api/pipelines/runs/[executionRunId]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/pipelines/runs/[executionRunId]/events",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/pipelines/runs/[executionRunId]/events",
+      "path": "src/app/api/pipelines/runs/[executionRunId]/events/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/pipelines/runs/[executionRunId]/replay",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/pipelines/runs/[executionRunId]/replay",
+      "path": "src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/platform/customer-import-reviews",
       "type": "route",
       "kind": "api",
@@ -9458,6 +9802,14 @@
       "kind": "api",
       "route": "/api/platform/integrations",
       "path": "src/app/api/platform/integrations/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/integrations/line-registry",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/integrations/line-registry",
+      "path": "src/app/api/platform/integrations/line-registry/route.js",
       "status": "current"
     },
     {
@@ -10285,7 +10637,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY.md",
       "title": "ADR-030 — Supabase data pipeline observability and replay",
-      "hash": "08537967",
+      "hash": "7ec5f3f7",
       "status": "current"
     },
     {
@@ -10358,6 +10710,14 @@
       "path": "docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md",
       "title": "ADR-039 — Requirement ids are pinned by subject anchor",
       "hash": "932a3d5f",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE.md",
+      "title": "ADR-040 — Codex-mediated SmartGift pipeline evidence bridge",
+      "hash": "1f0b38f7",
       "status": "current"
     },
     {
@@ -10805,7 +11165,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "93574ddd",
+      "hash": "6a0d0d05",
       "status": "current"
     },
     {
@@ -10890,6 +11250,13 @@
       "type": "test",
       "path": "tests/integration/scope-and-isolation.test.js",
       "hash": "831f4b6e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "type": "test",
+      "path": "tests/integration/smartgift-webhook-e2e.test.js",
+      "hash": "5ff8b690",
       "status": "current"
     },
     {
@@ -11163,6 +11530,13 @@
       "type": "test",
       "path": "tests/unit/doc-views.test.js",
       "hash": "d9f3a2a9",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/document-intake-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/document-intake-ui.test.js",
+      "hash": "738d11ae",
       "status": "current"
     },
     {
@@ -11488,6 +11862,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/gbdb-rag-service.test.js",
+      "type": "test",
+      "path": "tests/unit/gbdb-rag-service.test.js",
+      "hash": "937eb756",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/global-view-drilldown.test.js",
       "type": "test",
       "path": "tests/unit/global-view-drilldown.test.js",
@@ -11590,7 +11971,14 @@
       "type": "test",
       "path": "tests/unit/line-channel-binding.test.js",
       "hash": "2a19c386",
-      "status": "changed"
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/line-registry-service.test.js",
+      "type": "test",
+      "path": "tests/unit/line-registry-service.test.js",
+      "hash": "a763c151",
+      "status": "current"
     },
     {
       "id": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
@@ -11726,6 +12114,27 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/pipeline-mcp-transport.test.js",
+      "type": "test",
+      "path": "tests/unit/pipeline-mcp-transport.test.js",
+      "hash": "cbe38abf",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/pipeline-monitor-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/pipeline-monitor-ui.test.js",
+      "hash": "31baaeb2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/pipeline-tracking-route.test.js",
+      "type": "test",
+      "path": "tests/unit/pipeline-tracking-route.test.js",
+      "hash": "d1755c21",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/plan-schema.test.js",
       "type": "test",
       "path": "tests/unit/plan-schema.test.js",
@@ -11747,6 +12156,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/platform/cloud-sot-agent.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/cloud-sot-agent.test.js",
+      "hash": "9a430df7",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform/document-intake-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/document-intake-contract.test.js",
+      "hash": "6e3cd6b1",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/platform/integration-contracts.test.js",
       "type": "test",
       "path": "tests/unit/platform/integration-contracts.test.js",
@@ -11758,6 +12181,27 @@
       "type": "test",
       "path": "tests/unit/platform/line-oa-webhook.test.js",
       "hash": "66aadc34",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/pipeline-tracking-contract.test.js",
+      "hash": "4e763543",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform/pipeline-tracking-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/pipeline-tracking-migration.test.js",
+      "hash": "344befaf",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform/pipeline-tracking-service.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/pipeline-tracking-service.test.js",
+      "hash": "f0a64d2e",
       "status": "current"
     },
     {
@@ -11876,7 +12320,7 @@
       "id": "test:tests/unit/project-manager-mcp.test.js",
       "type": "test",
       "path": "tests/unit/project-manager-mcp.test.js",
-      "hash": "aabac6bb",
+      "hash": "9267d794",
       "status": "current"
     },
     {
@@ -12010,6 +12454,20 @@
       "type": "test",
       "path": "tests/unit/sidebar-visible-subdomains.test.js",
       "hash": "1ee87ebd",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/smartgift-document-intake-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/smartgift-document-intake-migration.test.js",
+      "hash": "16ba35c2",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/smartgift-rag-pipeline.test.js",
+      "type": "test",
+      "path": "tests/unit/smartgift-rag-pipeline.test.js",
+      "hash": "23fc80d5",
       "status": "current"
     },
     {
@@ -12430,13 +12888,6 @@
     {
       "from": "code:src/app/(pm)/platform/customer-import-reviews/page.jsx",
       "to": "req:FR-078",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/(pm)/platform/integrations/page.jsx",
-      "to": "req:FR-048",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -14381,8 +14832,43 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/ingest/documents/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/ingest/documents/route.js",
+      "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/ingest/documents/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/ingest/documents/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/mcp/route.js",
       "to": "req:FR-069",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/mcp/route.js",
+      "to": "req:FR-071",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -14507,6 +14993,118 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/pipelines/runs/[executionRunId]/events/route.js",
+      "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/[executionRunId]/events/route.js",
+      "to": "req:SDD-042",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/[executionRunId]/events/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/[executionRunId]/events/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
+      "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
+      "to": "req:SDD-042",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/[executionRunId]/route.js",
+      "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/[executionRunId]/route.js",
+      "to": "req:SDD-042",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/[executionRunId]/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/[executionRunId]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/route.js",
+      "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/route.js",
+      "to": "req:SDD-042",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/pipelines/runs/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/platform/customer-import-reviews/[caseId]/decisions/route.js",
       "to": "req:FR-078",
       "type": "implements",
@@ -14524,6 +15122,27 @@
       "from": "code:src/app/api/platform/customer-import-reviews/targets/route.js",
       "to": "req:FR-078",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/integrations/line-registry/route.js",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/integrations/line-registry/route.js",
+      "to": "req:SDD-044",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/integrations/line-registry/route.js",
+      "to": "req:SEC-016",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -17643,6 +18262,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/integration/application/line-registry-service.js",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/line-registry-service.js",
+      "to": "req:SDD-044",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/line-registry-service.js",
+      "to": "req:SEC-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/business-contract.js",
       "to": "req:FR-047",
       "type": "implements",
@@ -17659,6 +18299,20 @@
     {
       "from": "code:src/modules/knowledge/business-contract.js",
       "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/gbdb-rag-service.js",
+      "to": "req:FR-024",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/gbdb-rag-service.js",
+      "to": "req:SDD-027",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -17842,6 +18496,27 @@
       "from": "code:src/modules/knowledge/sink.js",
       "to": "req:FR-024",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
+      "to": "req:FR-024",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
+      "to": "req:FR-024",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
+      "to": "req:SDD-027",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -19506,6 +20181,13 @@
     },
     {
       "from": "code:src/modules/project-manager/mcp/transport.js",
+      "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/mcp/transport.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -19590,8 +20272,43 @@
     },
     {
       "from": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
       "to": "req:FR-009",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
+      "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
+      "to": "req:SDD-042",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
+      "to": "req:SEC-008",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -19666,6 +20383,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/platform/integrations/core/cloud-sot-agent.js",
+      "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/cloud-sot-agent.js",
+      "to": "req:FR-071",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/platform/integrations/core/connection-health.js",
       "to": "req:FR-080",
       "type": "implements",
@@ -19718,6 +20449,20 @@
       "from": "code:src/platform/integrations/core/credential-vault.js",
       "to": "req:FR-079",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/document-intake-contract.js",
+      "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/document-intake-contract.js",
+      "to": "req:FR-071",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -19787,6 +20532,62 @@
     {
       "from": "code:src/platform/integrations/core/integration-registry.js",
       "to": "req:SEC-015",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "to": "req:SDD-042",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "to": "req:SDD-042",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -22186,6 +22987,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/ingest/documents",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/mcp",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -22214,6 +23022,34 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/pipelines/runs/[executionRunId]/events",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/pipelines/runs/[executionRunId]/replay",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/pipelines/runs/[executionRunId]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/pipelines/runs",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/platform/customer-import-reviews/[caseId]/decisions",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -22230,6 +23066,13 @@
     {
       "from": "route:api:/api/platform/customer-import-reviews",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/integrations/line-registry",
+      "to": "domain:integration",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -23789,6 +24632,34 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE",
+      "to": "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE",
+      "to": "req:FR-071",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE",
+      "to": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE",
+      "to": "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -24882,6 +25753,13 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:FR-072",
       "type": "verifies",
       "status": "current",
@@ -24995,6 +25873,13 @@
     {
       "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:SDD-036",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -28046,6 +28931,34 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "code:src/app/api/pipelines/runs/[executionRunId]/events/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "code:src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "code:src/app/api/pipelines/runs/[executionRunId]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "code:src/app/api/pipelines/runs/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "tests",
       "status": "current",
@@ -28060,7 +28973,35 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:SDD-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -29009,6 +29950,48 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "req:BR-011",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "req:FR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "req:FR-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/smartgift-webhook-e2e.test.js",
+      "to": "req:SDD-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/work-listing-scope.test.js",
@@ -30490,6 +31473,62 @@
     {
       "from": "test:tests/unit/doc-views.test.js",
       "to": "req:FR-028",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/document-intake-ui.test.js",
+      "to": "code:src/app/api/ingest/documents/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/document-intake-ui.test.js",
+      "to": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/document-intake-ui.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/document-intake-ui.test.js",
+      "to": "req:FR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/document-intake-ui.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/document-intake-ui.test.js",
+      "to": "req:SDD-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/document-intake-ui.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/document-intake-ui.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -32897,13 +33936,6 @@
     },
     {
       "from": "test:tests/unit/fr080-ui-contract.test.js",
-      "to": "req:FR-048",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/fr080-ui-contract.test.js",
       "to": "req:FR-080",
       "type": "verifies",
       "status": "current",
@@ -33069,6 +34101,27 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/gbdb-rag-service.test.js",
+      "to": "code:src/modules/knowledge/gbdb-rag-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/gbdb-rag-service.test.js",
+      "to": "req:FR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/gbdb-rag-service.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/global-view-drilldown.test.js",
@@ -33547,6 +34600,55 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/line-registry-service.test.js",
+      "to": "code:src/app/(pm)/platform/integrations/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-registry-service.test.js",
+      "to": "code:src/app/api/platform/integrations/line-registry/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-registry-service.test.js",
+      "to": "code:src/modules/integration/application/line-registry-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/line-registry-service.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-registry-service.test.js",
+      "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-registry-service.test.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-registry-service.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
       "to": "req:BR-012",
       "type": "verifies",
@@ -34016,6 +35118,153 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/pipeline-mcp-transport.test.js",
+      "to": "code:src/app/api/mcp/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/pipeline-mcp-transport.test.js",
+      "to": "code:src/modules/project-manager/mcp/transport.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/pipeline-mcp-transport.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/pipeline-mcp-transport.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/pipeline-mcp-transport.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/pipeline-mcp-transport.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/pipeline-monitor-ui.test.js",
+      "to": "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/pipeline-monitor-ui.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/pipeline-monitor-ui.test.js",
+      "to": "req:FR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/pipeline-monitor-ui.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/pipeline-monitor-ui.test.js",
+      "to": "req:SDD-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/pipeline-monitor-ui.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/pipeline-monitor-ui.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/pipeline-tracking-route.test.js",
+      "to": "code:src/app/api/pipelines/runs/[executionRunId]/events/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/pipeline-tracking-route.test.js",
+      "to": "code:src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/pipeline-tracking-route.test.js",
+      "to": "code:src/app/api/pipelines/runs/[executionRunId]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/pipeline-tracking-route.test.js",
+      "to": "code:src/app/api/pipelines/runs/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/pipeline-tracking-route.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/pipeline-tracking-route.test.js",
+      "to": "req:SDD-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/pipeline-tracking-route.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/pipeline-tracking-route.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/plan-schema.test.js",
       "to": "code:src/lib/validation/enums.js",
       "type": "tests",
@@ -34205,6 +35454,76 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/platform/cloud-sot-agent.test.js",
+      "to": "code:src/app/api/ingest/documents/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/cloud-sot-agent.test.js",
+      "to": "code:src/platform/integrations/core/cloud-sot-agent.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/cloud-sot-agent.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/cloud-sot-agent.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/cloud-sot-agent.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/cloud-sot-agent.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/document-intake-contract.test.js",
+      "to": "code:src/platform/integrations/core/document-intake-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/document-intake-contract.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/document-intake-contract.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/document-intake-contract.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/platform/integration-contracts.test.js",
       "to": "code:src/platform/integrations/core/contracts.js",
       "type": "tests",
@@ -34266,6 +35585,97 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
+      "to": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
+      "to": "req:SDD-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-migration.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-migration.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-migration.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
+      "to": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
+      "to": "req:SDD-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/platform/raw-ingest-service.test.js",
@@ -35033,6 +36443,13 @@
     {
       "from": "test:tests/unit/project-manager-mcp.test.js",
       "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "req:FR-071",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -36058,6 +37475,48 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/smartgift-document-intake-migration.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/smartgift-document-intake-migration.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/smartgift-document-intake-migration.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/smartgift-rag-pipeline.test.js",
+      "to": "code:src/modules/knowledge/smartgift-rag-pipeline.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/smartgift-rag-pipeline.test.js",
+      "to": "req:FR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/smartgift-rag-pipeline.test.js",
+      "to": "req:SDD-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/strategies.test.js",

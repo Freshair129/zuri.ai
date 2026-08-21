@@ -76,8 +76,8 @@
 - **Status:** done
 - **Surface:** `/execution/[mode]` (page) · `/execution` (page) · `/projects/[projectId]/execution/[mode]` (page)
 - **Code:** `src/app/(pm)/execution/[mode]/page.jsx` · `src/app/(pm)/execution/page.jsx` · `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx` · `src/app/(pm)/projects/[projectId]/layout.jsx` · `src/modules/project-manager/views/execution/ExecutionModeView.jsx` · `src/modules/project-manager/views/execution/mode-bodies.jsx`
-- **Follows:** SDD-019
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/unit/card-calculator-agreement.test.js` · `tests/unit/fr063-board-columns.test.js` · `tests/unit/project-execution-backpath.test.js` · `tests/unit/project-work-route.test.js`
+- **Follows:** BR-001, SDD-019, SDD-042, SEC-001, SEC-008
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/unit/card-calculator-agreement.test.js` · `tests/unit/document-intake-ui.test.js` · `tests/unit/fr063-board-columns.test.js` · `tests/unit/pipeline-monitor-ui.test.js` · `tests/unit/project-execution-backpath.test.js` · `tests/unit/project-work-route.test.js`
 
 ### FR-010 — Progress ต่อ workstream ตาม strategy + evidence + warnings + "Explain" UI
 
@@ -189,9 +189,9 @@
 ### FR-024 — Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes
 
 - **Status:** done
-- **Code:** `src/modules/knowledge/genesisblockdb-sink.js` · `src/modules/knowledge/graph-query.js` · `src/modules/knowledge/index.js` · `src/modules/knowledge/live-facts.js` · `src/modules/knowledge/project-graph.js` · `src/modules/knowledge/query.js` · `src/modules/knowledge/sink.js`
+- **Code:** `src/modules/knowledge/gbdb-rag-service.js` · `src/modules/knowledge/genesisblockdb-sink.js` · `src/modules/knowledge/graph-query.js` · `src/modules/knowledge/index.js` · `src/modules/knowledge/live-facts.js` · `src/modules/knowledge/project-graph.js` · `src/modules/knowledge/query.js` · `src/modules/knowledge/sink.js` · `src/modules/knowledge/smartgift-knowledge-catalog.js` · `src/modules/knowledge/smartgift-rag-pipeline.js`
 - **Follows:** BR-001, SDD-027, SEC-001, SEC-011
-- **Tests:** `tests/integration/agent-runtime.test.js` · `tests/integration/knowledge-genesis-sink.test.js` · `tests/integration/knowledge-project.test.js` · `tests/integration/knowledge-query.test.js` · `tests/unit/activation-readiness-integration.test.js` · `tests/unit/runtime-isolation-probe.test.js`
+- **Tests:** `tests/integration/agent-runtime.test.js` · `tests/integration/knowledge-genesis-sink.test.js` · `tests/integration/knowledge-project.test.js` · `tests/integration/knowledge-query.test.js` · `tests/unit/activation-readiness-integration.test.js` · `tests/unit/gbdb-rag-service.test.js` · `tests/unit/runtime-isolation-probe.test.js` · `tests/unit/smartgift-rag-pipeline.test.js`
 
 ### FR-025 — Agent read-only context contract (ADR-007 P6, Gate E): `assembleAgentContext` binds a resolved principal (via the P3 gate) to Identity + MSP memory (**principal-keyed, not channel-keyed**) + GKS knowledge (FR-024) + Zuri **read-only** tools; a write-classified tool is refused at registration (Gate E→F boundary)
 
@@ -220,7 +220,7 @@
 - **Surface:** `/api/agent/line-webhook` (api)
 - **Code:** `src/app/api/agent/line-webhook/route.js` · `src/platform/integrations/providers/line/line-oa-evidence.js`
 - **Follows:** BR-009, BR-011, BR-012, FR-081, NFR-017, SDD-009, SDD-026, SDD-048, SEC-001, SEC-010, docs/domains/integration/features/FR-081-raw-external-ingestion.md
-- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-cross-repo-round-trip.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-failure-paths.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-webhook-transport-contract.test.js` · `tests/integration/line-webhook-unbound-production.test.js` · `tests/unit/doc-views.test.js`
+- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-cross-repo-round-trip.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-failure-paths.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-webhook-transport-contract.test.js` · `tests/integration/line-webhook-unbound-production.test.js` · `tests/integration/smartgift-webhook-e2e.test.js` · `tests/unit/doc-views.test.js`
 
 ### FR-029 — Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent
 
@@ -375,10 +375,9 @@
 
 - **Feature:** FEAT-004 — Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution, local evaluation providers and secret-safe Platform management
 - **Status:** n/a
-- **Surface:** `/platform/integrations` (page)
-- **Code:** `src/app/(pm)/platform/integrations/page.jsx` · `src/modules/agent/index.js` · `src/modules/agent/model-provider.js` · `src/modules/agent/openrouter-oauth.js` · `src/modules/agent/phase1-runtime.js` · `src/platform/integrations/llm/provider-catalog.js`
-- **Follows:** NFR-008, SDD-025, SDD-026, SDD-027, SDD-044, SEC-009, SEC-010, SEC-011, SEC-016
-- **Tests:** `tests/integration/agent-action-gate.test.js` · `tests/integration/agent-context.test.js` · `tests/unit/activation-readiness-integration.test.js` · `tests/unit/fr048-provider-catalog.test.js` · `tests/unit/fr080-ui-contract.test.js` · `tests/unit/model-provider-port.test.js` · `tests/unit/phase1-business-agent-runtime.test.js`
+- **Code:** `src/modules/agent/index.js` · `src/modules/agent/model-provider.js` · `src/modules/agent/openrouter-oauth.js` · `src/modules/agent/phase1-runtime.js` · `src/platform/integrations/llm/provider-catalog.js`
+- **Follows:** SDD-025, SDD-026, SDD-027, SDD-044, SEC-009, SEC-010, SEC-011, SEC-016
+- **Tests:** `tests/integration/agent-action-gate.test.js` · `tests/integration/agent-context.test.js` · `tests/unit/activation-readiness-integration.test.js` · `tests/unit/fr048-provider-catalog.test.js` · `tests/unit/model-provider-port.test.js` · `tests/unit/phase1-business-agent-runtime.test.js`
 
 ### FR-049 — Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient.
 
@@ -393,7 +392,7 @@
 - **Surface:** `/api/agent/line-webhook` (api)
 - **Code:** `src/app/api/agent/line-webhook/route.js`
 - **Follows:** BR-011, BR-012, NFR-017, SDD-026, SDD-048, SEC-010
-- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-cross-repo-round-trip.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-failure-paths.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-webhook-transport-contract.test.js`
+- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-cross-repo-round-trip.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-failure-paths.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-webhook-transport-contract.test.js` · `tests/integration/smartgift-webhook-e2e.test.js`
 
 ### FR-051 — Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event.
 
@@ -408,7 +407,7 @@
 - **Surface:** `/api/agent/line-webhook` (api)
 - **Code:** `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/line-binding-resolver.js` · `src/modules/agent/line-channel-binding.js` · `src/modules/agent/phase1-runtime.js` · `src/modules/knowledge/runtime-postgres-config.js` · `src/platform/integrations/providers/line/line-oa-evidence.js` · `src/platform/integrations/providers/line/line-oa-webhook.js`
 - **Follows:** BR-009, BR-011, BR-012, FR-081, NFR-017, SDD-009, SDD-025, SDD-026, SDD-027, SDD-044, SDD-048, SEC-001, SEC-009, SEC-010, SEC-011, SEC-016, docs/domains/integration/features/FR-081-raw-external-ingestion.md
-- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-cross-repo-round-trip.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-reply-record.test.js` · `tests/integration/line-webhook-unbound-production.test.js` · `tests/unit/line-binding-resolver.test.js` · `tests/unit/line-channel-binding.test.js` · `tests/unit/line-webhook-scope-fail-closed.test.js` · `tests/unit/phase1-business-agent-runtime.test.js` · `tests/unit/phase1-runtime-login-probe.test.js` · `tests/unit/platform/line-oa-webhook.test.js` · `tests/unit/runtime-postgres-config.test.js`
+- **Tests:** `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-cross-repo-round-trip.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-oa-golden-path.test.js` · `tests/integration/line-reply-record.test.js` · `tests/integration/line-webhook-unbound-production.test.js` · `tests/integration/smartgift-webhook-e2e.test.js` · `tests/unit/line-binding-resolver.test.js` · `tests/unit/line-channel-binding.test.js` · `tests/unit/line-webhook-scope-fail-closed.test.js` · `tests/unit/phase1-business-agent-runtime.test.js` · `tests/unit/phase1-runtime-login-probe.test.js` · `tests/unit/platform/line-oa-webhook.test.js` · `tests/unit/runtime-postgres-config.test.js`
 
 ### FR-053 — Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers.
 
@@ -540,7 +539,7 @@
 - **Surface:** `/api/mcp` (api)
 - **Code:** `src/app/api/mcp/route.js` · `src/modules/project-manager/components/HumanPlanBuilderModal.jsx` · `src/modules/project-manager/import/human-plan-builder.js` · `src/modules/project-manager/import/plan-import-service.js` · `src/modules/project-manager/import/plan-schema.js` · `src/modules/project-manager/mcp/transport.js`
 - **Follows:** BR-001, BR-003, BR-004, BR-007, BR-009, FR-069, SDD-002, SDD-006, SDD-009, SDD-021, SDD-037, SEC-001, SEC-002, SEC-008
-- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/unit/domain-state.test.js` · `tests/unit/human-plan-builder.test.js` · `tests/unit/plan-schema.test.js` · `tests/unit/plan-status-vocabulary.test.js` · `tests/unit/project-manager-mcp.test.js`
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/external-ref-import.test.js` · `tests/integration/import-target-authorization.test.js` · `tests/integration/plan-import.test.js` · `tests/integration/project-business-binding.test.js` · `tests/unit/domain-state.test.js` · `tests/unit/human-plan-builder.test.js` · `tests/unit/pipeline-mcp-transport.test.js` · `tests/unit/plan-schema.test.js` · `tests/unit/plan-status-vocabulary.test.js` · `tests/unit/project-manager-mcp.test.js`
 
 ### FR-070 — Stable execution, domain, goal, risk, tag, trace and supporting identities: every committed Execution Plan exposes canonical `executionModeId`, `executionContractId`, `planId` (= Workstream UUID), domain bindings, authorized `goal_id`/`goalIds[]`, resolved `risk_id`/`riskIds[]` when available, `containerId` plus a mode-valid period alias, `workItemId` plus a mode-valid item alias and `tagId` references; applicable `node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id` and `tool_id` references are owner-resolved and remain distinct from execution trace IDs.
 
@@ -552,10 +551,11 @@
 
 ### FR-071 — Supabase data pipeline monitor and replay: the governed SmartGift DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes.
 
-- **Status:** planned
-- **Code:** —
-- **Follows:** —
-- **Tests:** —
+- **Status:** n/a
+- **Surface:** `/api/ingest/documents` (api) · `/api/mcp` (api) · `/api/pipelines/runs/[executionRunId]/events` (api) · `/api/pipelines/runs/[executionRunId]/replay` (api) · `/api/pipelines/runs/[executionRunId]` (api) · `/api/pipelines/runs` (api)
+- **Code:** `src/app/api/ingest/documents/route.js` · `src/app/api/mcp/route.js` · `src/app/api/pipelines/runs/[executionRunId]/events/route.js` · `src/app/api/pipelines/runs/[executionRunId]/replay/route.js` · `src/app/api/pipelines/runs/[executionRunId]/route.js` · `src/app/api/pipelines/runs/route.js` · `src/modules/project-manager/mcp/transport.js` · `src/modules/project-manager/views/execution/mode-bodies.jsx` · `src/platform/integrations/core/cloud-sot-agent.js` · `src/platform/integrations/core/document-intake-contract.js` · `src/platform/integrations/core/pipeline-tracking-contract.js` · `src/platform/integrations/core/pipeline-tracking-service.js`
+- **Follows:** BR-001, FR-071, SDD-042, SEC-001, SEC-003, SEC-008
+- **Tests:** `tests/e2e/smoke.spec.js` · `tests/integration/openapi-docs.test.js` · `tests/unit/document-intake-ui.test.js` · `tests/unit/pipeline-mcp-transport.test.js` · `tests/unit/pipeline-monitor-ui.test.js` · `tests/unit/pipeline-tracking-route.test.js` · `tests/unit/platform/cloud-sot-agent.test.js` · `tests/unit/platform/document-intake-contract.test.js` · `tests/unit/platform/pipeline-tracking-contract.test.js` · `tests/unit/platform/pipeline-tracking-migration.test.js` · `tests/unit/platform/pipeline-tracking-service.test.js` · `tests/unit/project-manager-mcp.test.js` · `tests/unit/smartgift-document-intake-migration.test.js`
 
 ### FR-072 — Project-Manager mutation authorization: every mutating route repaid from `docs/.route-viewer-baseline.json` resolves a request viewer and the service behind it refuses the write unless `ownsBusiness(viewer, <governing Business>)`, where the governing Business is derived from the target's Space (`workspace.businessId`; for Project-scoped targets via the Project's Space per FR-043; for a Dependency, the governing Business of **both** endpoints; for a Project moved between Spaces, the authority of **both** the current governing Business and the destination Space). (a) A Business-governed target that is not owned answers exactly as a nonexistent one, so a refusal is never an enumeration oracle over another tenant's ids. (b) A target governed above Business (a Project in a PORTFOLIO/TENANT Space, a non-BUSINESS-scoped Workspace) is refused for **every** principal with a reason naming the missing authority — this requirement deliberately does **not** invent authority above Business; enabling such writes requires a prior FR that makes that authority holdable (FR-066/FR-067 direction), per the FR-065 precedent. Routes whose authorization question no declared rule answers (`/api/scope`, `/api/backup/import`) are out of scope and remain recorded debt in `docs/.route-viewer-baseline.json`, each with the missing decision named. (`/api/repositories` and `/api/repositories/[id]` were answered by FR-073 and repaid.)
 
@@ -626,10 +626,10 @@
 
 - **Feature:** FEAT-004 — Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution, local evaluation providers and secret-safe Platform management
 - **Status:** n/a
-- **Surface:** `/platform/integrations` (page) · `/api/platform/integrations` (api)
-- **Code:** `src/app/(pm)/platform/integrations/page.jsx` · `src/app/api/platform/integrations/route.js` · `src/modules/agent/phase1-runtime.js` · `src/modules/integration/application/integration-management-service.js` · `src/platform/integrations/core/connection-health.js` · `src/platform/integrations/core/secret-manager.js`
+- **Surface:** `/platform/integrations` (page) · `/api/platform/integrations/line-registry` (api) · `/api/platform/integrations` (api)
+- **Code:** `src/app/(pm)/platform/integrations/page.jsx` · `src/app/api/platform/integrations/line-registry/route.js` · `src/app/api/platform/integrations/route.js` · `src/modules/agent/phase1-runtime.js` · `src/modules/integration/application/integration-management-service.js` · `src/modules/integration/application/line-registry-service.js` · `src/platform/integrations/core/connection-health.js` · `src/platform/integrations/core/secret-manager.js`
 - **Follows:** NFR-008, NFR-015, SDD-025, SDD-026, SDD-044, SEC-009, SEC-010, SEC-015, SEC-016
-- **Tests:** `tests/integration/line-oa-connection-health.test.js` · `tests/unit/connection-health.test.js` · `tests/unit/fr079-runtime-cutover.test.js` · `tests/unit/fr080-integration-management.test.js` · `tests/unit/fr080-runtime-wiring.test.js` · `tests/unit/fr080-supabase-vault.test.js` · `tests/unit/fr080-ui-contract.test.js` · `tests/unit/phase1-business-agent-runtime.test.js`
+- **Tests:** `tests/integration/line-oa-connection-health.test.js` · `tests/unit/connection-health.test.js` · `tests/unit/fr079-runtime-cutover.test.js` · `tests/unit/fr080-integration-management.test.js` · `tests/unit/fr080-runtime-wiring.test.js` · `tests/unit/fr080-supabase-vault.test.js` · `tests/unit/fr080-ui-contract.test.js` · `tests/unit/line-registry-service.test.js` · `tests/unit/phase1-business-agent-runtime.test.js`
 
 ### FR-081 — Raw external ingestion boundary: every acquisition channel (webhook, pull, file, manual) converges on one normalized ingestion envelope carrying tenant, Business, connection, provider, lane, entity type, external id, source type and schema version, and a channel is added as an adapter rather than a second raw-write path. (a) Ingestion identity is `sha256(tenantId, connectionId, entityType, externalId, payloadHash)` over a canonically serialized payload, so a re-delivered event resolves to `UNCHANGED` instead of a duplicate row; the external id contributes to that identity and is never itself a key (BR-002). (b) Raw records are read and written only through a repository bound to one tenant/connection scope, which refuses a row outside it rather than filtering afterwards (SEC-001), and a referenced Business or IngestionRun must itself resolve inside that scope. (c) Raw ingestion persists the source payload verbatim and never writes domain truth: translation into business entities is a separate later path, so a failed translation cannot corrupt the evidence it was derived from. (d) A run records its own counts and terminal state, and a failure is preserved as a DeadLetterRecord naming the failing stage and owner rather than being retried silently. This requirement declares the ingestion substrate only; no scheduler, no translation ACL and no reader surface is in scope.
 
