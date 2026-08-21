@@ -92,3 +92,23 @@ export async function POST(request) {
     return Response.json({ error: err instanceof Error ? err.message : String(err) }, { status: 200 })
   }
 }
+
+export async function DELETE(request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const deviceId = searchParams.get('deviceId')
+    if (deviceId) {
+      edgeDevices.delete(deviceId)
+    } else {
+      edgeDevices.clear()
+    }
+    return Response.json({
+      success: true,
+      deleted: deviceId || 'all',
+      remaining: edgeDevices.size,
+      timestamp: new Date().toISOString()
+    })
+  } catch (err) {
+    return Response.json({ error: err instanceof Error ? err.message : String(err) }, { status: 200 })
+  }
+}

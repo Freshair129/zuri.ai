@@ -260,10 +260,14 @@ export default function IntegrationsPage() {
 
   // Edge Device Pairing Key & Secret Generator State
   const [generatedPairing, setGeneratedPairing] = useState(null)
+  const [customDeviceName, setCustomDeviceName] = useState('')
 
   const generateNewPairingKeys = () => {
     const randomHex = (len = 16) => Array.from(crypto.getRandomValues(new Uint8Array(len))).map(b => b.toString(16).padStart(2, '0')).join('')
-    const deviceId = `DEV-${(selectedBusiness?.code || 'SMARTGIFT').replace(/[^A-Z0-9]/g, '')}-${randomHex(3).toUpperCase()}`
+    const cleanMachineName = customDeviceName.trim()
+      ? customDeviceName.trim().replace(/[^a-zA-Z0-9_-]/g, '-').toUpperCase()
+      : `DEV-${(selectedBusiness?.code || 'SMARTGIFT').replace(/[^A-Z0-9]/g, '')}-${randomHex(3).toUpperCase()}`
+    const deviceId = cleanMachineName
     const token = `tok_edge_${(selectedBusiness?.code || 'smartgift').toLowerCase()}_${randomHex(12)}`
     const secret = `sec_edge_${randomHex(24)}`
     const payload = {
@@ -280,6 +284,23 @@ export default function IntegrationsPage() {
       instructions: 'นำ Token และ Secret นี้ไปบันทึกลงใน Zuri Edge Device Control GUI (:8787/gui) หรือไฟล์ .env'
     }
     setGeneratedPairing(payload)
+  }
+
+  const deleteEdgeDevice = async (deviceId) => {
+    if (!confirm(`คุณต้องการลบการเชื่อมต่อ Edge Runtime (${deviceId || 'ทั้งหมด'}) ออกจากระบบใช่หรือไม่?`)) return
+    try {
+      const res = await fetch(`/api/agent/heartbeat${deviceId ? `?deviceId=${encodeURIComponent(deviceId)}` : ''}`, {
+        method: 'DELETE'
+      })
+      if (res.ok) {
+        alert('✅ ลบการเชื่อมต่อ Edge Runtime เรียบร้อยแล้ว')
+        heartbeat.reload()
+      } else {
+        alert('❌ ไม่สามารถลบได้')
+      }
+    } catch (err) {
+      alert('Error: ' + err.message)
+    }
   }
 
   const downloadPairingJson = () => {
@@ -817,6 +838,16 @@ export default function IntegrationsPage() {
                         >
                           <RefreshCw size={13} className="mr-1.5" /> ตรวจสอบสัญญาณ (Probe)
                         </button>
+                        {isOnline && (
+                          <button
+                            type="button"
+                            className="btn btn-secondary text-xs font-semibold text-rose-600 hover:bg-rose-50 border-rose-200"
+                            onClick={() => deleteEdgeDevice(device?.deviceId)}
+                            title="ลบการเชื่อมต่ออุปกรณ์นี้ออกจาก Cloud"
+                          >
+                            <Trash2 size={13} className="mr-1.5 text-rose-500" /> ลบ Edge Runtime
+                          </button>
+                        )}
                         <a
                           href="http://localhost:8787/gui"
                           target="_blank"
@@ -831,7 +862,7 @@ export default function IntegrationsPage() {
                     <div className="mt-4 grid grid-cols-3 gap-3 border-t border-slate-100 pt-3.5 text-xs max-md:grid-cols-1">
                       <div className="flex items-center gap-2 text-slate-700">
                         <ShieldCheck size={16} className={isOnline ? 'text-emerald-600' : 'text-slate-400'} />
-                        <span>Pairing Key: <code className="font-mono font-bold text-slate-900">tok_edge_smartgift_sec_8849...</code></span>
+                        <span>Device Host: <code className="font-mono font-bold text-slate-900">{device?.deviceId || 'DEV-SMARTGIFT-PRIMARY'}</code></span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-700">
                         <Database size={16} className={isOnline ? 'text-blue-600' : 'text-slate-400'} />
@@ -858,19 +889,27 @@ export default function IntegrationsPage() {
                       สร้างรหัสคู่ <b>Pairing Token (Public Identifier)</b> และ <b>Pairing Secret (Private HMAC Key)</b> เพื่อนำไปใส่ใน Local Edge Device ระบบจะอนุญาตให้ดาวน์โหลดไฟล์ <code>.json</code> ได้เพียง 1 ครั้งเท่านั้นเพื่อความปลอดภัย
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-2 shrink-0">
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <input
+                      type="text"
+                      className="input text-xs font-mono h-8 w-44"
+                      placeholder="ชื่อเครื่อง (เช่น DESKTOP-PC)"
+                      value={customDeviceName}
+                      onChange={(e) => setCustomDeviceName(e.target.value)}
+                      title="ระบุชื่อจริงของเครื่อง (Hostname) หรือเว้นว่างเพื่อสุ่มชื่อ"
+                    />
                     <button
                       type="button"
-                      className="btn btn-primary text-xs font-semibold flex items-center gap-1.5"
+                      className="btn btn-primary text-xs font-semibold flex items-center gap-1.5 h-8"
                       onClick={generateNewPairingKeys}
                     >
-                      <Plus size={14} /> สร้าง Pairing Keys ใหม่
+                      <Plus size={14} /> สร้าง Pairing Keys
                     </button>
                     <a
                       href="http://localhost:8787/gui"
                       target="_blank"
                       rel="noreferrer"
-                      className="btn btn-secondary text-xs font-semibold flex items-center gap-1.5"
+                      className="btn btn-secondary text-xs font-semibold flex items-center gap-1.5 h-8"
                     >
                       🖥️ Local Edge Web GUI
                     </a>
