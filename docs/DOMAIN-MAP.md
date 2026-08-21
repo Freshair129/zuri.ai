@@ -2,6 +2,7 @@
 
 | Field | Value |
 |-------|-------|
+| **Version** | 1.0.0 |
 | **Status** | Auto-generated |
 | **Generator** | `scripts/doc-graph.mjs` (via doc-views) |
 
@@ -50,7 +51,7 @@ Charter: [docs/domains/integration/CHARTER.md](domains/integration/CHARTER.md)
 | | |
 |---|---|
 | Modules | `src/modules/integration` |
-| Models owned | IntegrationProvider, IntegrationConnection, IntegrationCredential, IngestionRun, RawExternalRecord, SyncCursor, ExternalEntityRef, DeadLetterRecord |
+| Models owned | IntegrationProvider, IntegrationConnection, IntegrationCredential, IngestionRun, PipelineRun, PipelineStep, PipelineEventReceipt, PipelineRecordEvent, PipelineReconciliation, PipelineGateDecision, RawExternalRecord, SyncCursor, ExternalEntityRef, DeadLetterRecord |
 | Routes owned | 3 (2 api · 1 pages) |
 | FRs implemented in lane | FR-080 |
 

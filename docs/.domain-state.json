@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-21T07:51:09.095Z",
+  "generatedAt": "2026-08-21T14:20:02.063Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,18 +28,8 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 24,
+    "gapCount": 22,
     "gaps": [
-      {
-        "domain": "agent",
-        "id": "API-OPENAPI-001",
-        "severity": "high",
-        "check": "httpApi",
-        "summary": "API route is not represented in the machine-readable OpenAPI generator",
-        "evidence": [
-          "/api/agent/heartbeat"
-        ]
-      },
       {
         "domain": "agent",
         "id": "CONTRACT-001",
@@ -206,13 +196,6 @@
         "severity": "medium",
         "check": "runtimeContract",
         "summary": "At least one requirement in this domain is not fully code-and-test verified"
-      },
-      {
-        "domain": "project-manager",
-        "id": "AUTH-001",
-        "severity": "high",
-        "check": "authorization",
-        "summary": "At least one mutating route lacks a recognizable request viewer seam"
       },
       {
         "domain": "project-manager",
@@ -485,26 +468,20 @@
           "gaps": []
         },
         "httpApi": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/appendices/A-api-spec.md",
             "src/modules/project-manager/api-docs/openapi.js"
           ],
-          "gaps": [
-            {
-              "id": "API-OPENAPI-001",
-              "severity": "high",
-              "summary": "API route is not represented in the machine-readable OpenAPI generator",
-              "evidence": [
-                "/api/agent/heartbeat"
-              ]
-            }
-          ],
+          "gaps": [],
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 82,
-            "missingFromOpenApi": 1
+            "openApiPaths": 83,
+            "missingFromOpenApi": 0,
+            "operations": 5,
+            "missingOperationsFromInventory": 0,
+            "missingOperationsFromOpenApi": 0
           }
         },
         "mcp": {
@@ -548,8 +525,10 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 1,
-            "guardedMutations": 1,
+            "mutations": 2,
+            "guardedMutations": 2,
+            "publicMutations": 0,
+            "unguardedMutations": 0,
             "reads": 1,
             "unguardedReads": 0
           }
@@ -586,15 +565,6 @@
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [
-        {
-          "id": "API-OPENAPI-001",
-          "severity": "high",
-          "check": "httpApi",
-          "summary": "API route is not represented in the machine-readable OpenAPI generator",
-          "evidence": [
-            "/api/agent/heartbeat"
-          ]
-        },
         {
           "id": "CONTRACT-001",
           "severity": "medium",
@@ -890,7 +860,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-059",
@@ -979,8 +949,11 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 82,
-            "missingFromOpenApi": 0
+            "openApiPaths": 83,
+            "missingFromOpenApi": 0,
+            "operations": 1,
+            "missingOperationsFromInventory": 0,
+            "missingOperationsFromOpenApi": 0
           }
         },
         "mcp": {
@@ -1032,6 +1005,8 @@
           "details": {
             "mutations": 0,
             "guardedMutations": 0,
+            "publicMutations": 0,
+            "unguardedMutations": 0,
             "reads": 1,
             "unguardedReads": 0
           }
@@ -1184,8 +1159,11 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 82,
-            "missingFromOpenApi": 0
+            "openApiPaths": 83,
+            "missingFromOpenApi": 0,
+            "operations": 4,
+            "missingOperationsFromInventory": 0,
+            "missingOperationsFromOpenApi": 0
           }
         },
         "mcp": {
@@ -1218,8 +1196,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 8,
-            "present": 8
+            "models": 14,
+            "present": 14
           }
         },
         "authorization": {
@@ -1231,6 +1209,8 @@
           "details": {
             "mutations": 2,
             "guardedMutations": 2,
+            "publicMutations": 0,
+            "unguardedMutations": 0,
             "reads": 2,
             "unguardedReads": 0
           }
@@ -1264,7 +1244,7 @@
         "routes": 3,
         "apiRoutes": 2,
         "pageRoutes": 1,
-        "ownedModels": 8,
+        "ownedModels": 14,
         "featureNotes": 3
       }
     },
@@ -1558,7 +1538,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-004",
@@ -1649,7 +1629,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-018",
@@ -1782,7 +1762,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 56,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-056",
@@ -2069,8 +2049,11 @@
           "details": {
             "routes": 77,
             "inventoried": 77,
-            "openApiPaths": 82,
-            "missingFromOpenApi": 0
+            "openApiPaths": 83,
+            "missingFromOpenApi": 0,
+            "operations": 104,
+            "missingOperationsFromInventory": 0,
+            "missingOperationsFromOpenApi": 0
           }
         },
         "mcp": {
@@ -2116,20 +2099,16 @@
           }
         },
         "authorization": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/appendices/A-api-spec.md"
           ],
-          "gaps": [
-            {
-              "id": "AUTH-001",
-              "severity": "high",
-              "summary": "At least one mutating route lacks a recognizable request viewer seam"
-            }
-          ],
+          "gaps": [],
           "details": {
             "mutations": 62,
             "guardedMutations": 61,
+            "publicMutations": 1,
+            "unguardedMutations": 0,
             "reads": 42,
             "unguardedReads": 0
           }
@@ -2196,12 +2175,6 @@
           "severity": "medium",
           "check": "runtimeContract",
           "summary": "At least one requirement in this domain is not fully code-and-test verified"
-        },
-        {
-          "id": "AUTH-001",
-          "severity": "high",
-          "check": "authorization",
-          "summary": "At least one mutating route lacks a recognizable request viewer seam"
         },
         {
           "id": "TEST-001",

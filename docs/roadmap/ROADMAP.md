@@ -23,7 +23,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 
 | Phase | Goal | Exit Criteria | Status | Progress |
 | --- | --- | --- | --- | --- |
-| PHASE-ZV2-MVP | Build offline-first PM MVP (spec phases 00-07) | ACCEPTANCE-CRITERIA all PASS — MVP shipped at 75 Vitest + 20 Playwright; suite now 129 + 28 (FINAL.md addendum) | done | 100 |
+| PHASE-ZV2-MVP | Build offline-first PM MVP (spec phases 00-07) | ACCEPTANCE-CRITERIA all PASS — MVP shipped; current test evidence is tracked by the generated governance report | done | 100 |
 | PHASE-ZV2-GOV | 3-layer docs, doc-graph, @req annotations, GoVibe registration | preflight 9 PASS / 0 WARN; candidates in GoVibe .brain/inbound | done | 100 |
 | PHASE-ZV2-INTAKE | Intake surfaces: UI wizard, Excel template, Enterprise API, adaptive shell | FR-017..FR-020 implemented + tested through the unified pipeline | done | 100 |
 | PHASE-ZV2-DECIDE | Zuri v1 module merge vs Zuri v2 foundation decision | Owner decision recorded per ZURI-INTEGRATION-ASSESSMENT.md | done | 100 |

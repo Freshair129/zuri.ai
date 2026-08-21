@@ -335,6 +335,13 @@ describe('the full statement digest is a review signal, not a gate', () => {
     expect(infos(findings).filter((f) => f.title.includes('statement digest'))).toHaveLength(0)
   })
 
+  it('marks a healthy pinned roster as report health, not an actionable finding', () => {
+    const findings = evaluateIdStability({ declared: declare({ [FR('005')]: before }), ledger: pin({ [FR('005')]: before }) })
+    const health = findings.find((f) => f.kind === 'health')
+    expect(health).toMatchObject({ kind: 'health', severity: 'info', check: 'id-stability' })
+    expect(health.details).toContain('roster 1')
+  })
+
   it('requires a digest for every pinned id once the witness is enabled', () => {
     const ledger = pin({ [FR('005')]: before })
     ledger.statement_digest_version = 1

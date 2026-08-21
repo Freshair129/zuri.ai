@@ -7,6 +7,11 @@
 
 # Zuri Modular Monolith + Shared Database Architecture Specification
 
+| Field | Value |
+|-------|-------|
+| **Version** | 0.1.0b |
+| **Status** | Draft |
+
 **Document Type:** Architecture Specification  
 **System:** Zuri Platform  
 **Status:** Draft v0.1  

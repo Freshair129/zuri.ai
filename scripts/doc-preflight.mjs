@@ -25,8 +25,14 @@ const GRAPH = path.join(ROOT, 'docs', '.doc-graph.json')
 const read = readCanonical
 const rel = (p) => path.relative(ROOT, p).split(path.sep).join('/')
 const findings = []
+const health = {}
 const add = (severity, check, title, details, files = [], action = '') =>
   findings.push({ id: `${severity[0].toUpperCase()}${findings.length + 1}`, severity, check, title, details, files, action })
+
+const recordHealth = (entry) => {
+  if (!health[entry.check]) health[entry.check] = []
+  health[entry.check].push({ title: entry.title, details: entry.details, files: entry.files, action: entry.action })
+}
 
 function walk(dir, ext, out = []) {
   if (!existsSync(dir)) return out
@@ -1023,7 +1029,8 @@ const ID_LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
     namedFiles,
     ledgerPath: rel(ID_LEDGER),
   })) {
-    add(f.severity, f.check, f.title, f.details, f.files, f.action)
+    if (f.kind === 'health') recordHealth(f)
+    else add(f.severity, f.check, f.title, f.details, f.files, f.action)
   }
 }
 
@@ -1040,6 +1047,7 @@ const report = {
     overall: counts.critical ? 'CRITICAL' : counts.warning ? 'WARN' : 'PASS',
   },
   trust_hierarchy: 'code > SDD > PRD — when they disagree, the downstream artefact wins',
+  health,
   findings,
 }
 writeFileSync(REPORT, JSON.stringify(report, null, 2) + '\n')
@@ -1047,5 +1055,7 @@ writeFileSync(REPORT, JSON.stringify(report, null, 2) + '\n')
 console.log(`docs ${allDocs.length} · routes ${routes.length} · test files ${testCount}`)
 console.log(`critical ${report.summary.critical} · warning ${report.summary.warning} · info ${report.summary.info} → ${report.summary.overall}`)
 for (const f of findings) console.log(`  [${f.severity.toUpperCase()}] ${f.check}: ${f.title} — ${f.details}`)
+for (const entries of Object.values(health)) for (const f of entries)
+  console.log(`  [HEALTH] ${f.title} — ${f.details}`)
 
 if (process.argv.includes('--strict') && report.summary.critical > 0) process.exit(1)

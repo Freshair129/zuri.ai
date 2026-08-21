@@ -1,6 +1,7 @@
 ---
 domain: market-intelligence
 doc_type: context-map
+version: "0.1.0b"
 status: proposed
 state_issue: 74
 ---

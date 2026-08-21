@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1107,
-    "total_edges": 3644,
+    "total_nodes": 1108,
+    "total_edges": 3653,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 124,
       "model": 59,
       "requirement": 198,
-      "test": 261,
+      "test": 262,
       "code_file": 293
     },
     "coverage": {
@@ -58,9 +58,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -119,7 +117,7 @@
       "id": "code:src/app/(pm)/audit/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/audit/page.jsx",
-      "hash": "86ba33c7",
+      "hash": "88122670",
       "status": "current",
       "annotations": {
         "@req": [
@@ -369,7 +367,7 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "b83936cc",
+      "hash": "45973a5c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -607,7 +605,7 @@
       "id": "code:src/app/(pm)/projects/[projectId]/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/page.jsx",
-      "hash": "bf2a19cd",
+      "hash": "0d1a99db",
       "status": "current",
       "annotations": {
         "@req": [
@@ -625,7 +623,7 @@
       "id": "code:src/app/(pm)/projects/[projectId]/repositories/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/repositories/page.jsx",
-      "hash": "5e858d9a",
+      "hash": "5d2b4629",
       "status": "current",
       "annotations": {
         "@req": [
@@ -675,7 +673,7 @@
       "id": "code:src/app/(pm)/projects/[projectId]/team/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/team/page.jsx",
-      "hash": "dafa0472",
+      "hash": "c3b48577",
       "status": "current",
       "annotations": {
         "@req": [
@@ -735,7 +733,7 @@
       "id": "code:src/app/(pm)/projects/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/page.jsx",
-      "hash": "3c81cbc9",
+      "hash": "0ab2e5c3",
       "status": "current",
       "annotations": {
         "@req": [
@@ -839,7 +837,7 @@
       "id": "code:src/app/(pm)/workspaces/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/workspaces/page.jsx",
-      "hash": "d8e868f8",
+      "hash": "1d22897a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -854,7 +852,7 @@
       "id": "code:src/app/api/agent/heartbeat/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/heartbeat/route.js",
-      "hash": "2279b1ed",
+      "hash": "f2a474d7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2400,7 +2398,7 @@
       "id": "code:src/app/api/session/login/route.js",
       "type": "code_file",
       "path": "src/app/api/session/login/route.js",
-      "hash": "169ed8ae",
+      "hash": "26668d54",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3152,7 +3150,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "2a9ecec3",
+      "hash": "ee014562",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4476,7 +4474,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "f22908e9",
+      "hash": "aff775d7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5084,7 +5082,7 @@
       "id": "code:src/modules/project-manager/components/ManagedFilesPanel.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/ManagedFilesPanel.jsx",
-      "hash": "d4a62d8c",
+      "hash": "9d4d3ef3",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5106,7 +5104,7 @@
       "id": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
-      "hash": "ea34eb32",
+      "hash": "9f15b14d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5163,7 +5161,7 @@
       "id": "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/StandaloneTaskModal.jsx",
-      "hash": "cbbab68f",
+      "hash": "447a35de",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5580,7 +5578,7 @@
       "id": "code:src/modules/project-manager/views/universal/AllWorkView.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/views/universal/AllWorkView.jsx",
-      "hash": "b236c528",
+      "hash": "c91ee28f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5950,9 +5948,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.16.0b",
+      "version": "1.17.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "260bfbb8",
+      "hash": "c7afec94",
       "status": "current"
     },
     {
@@ -5960,7 +5958,9 @@
       "type": "document",
       "path": "docs/ARCHITECTURE.md",
       "title": "Architecture",
-      "hash": "c433b608",
+      "version": "0.1.0b",
+      "doc_status": "Draft",
+      "hash": "59d2c2c1",
       "status": "current"
     },
     {
@@ -5988,7 +5988,9 @@
       "type": "document",
       "path": "docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md",
       "title": "Zuri Modular Monolith + Shared Database Architecture Specification",
-      "hash": "62d9c865",
+      "version": "0.1.0b",
+      "doc_status": "Draft",
+      "hash": "1e0816f5",
       "status": "current"
     },
     {
@@ -6006,7 +6008,7 @@
       "type": "document",
       "path": "docs/domains/market-intelligence/CONTEXT-MAP.md",
       "title": "Context map — Market Intelligence",
-      "hash": "8ae199b0",
+      "hash": "5e8b6c94",
       "status": "current"
     },
     {
@@ -6024,7 +6026,9 @@
       "type": "document",
       "path": "docs/DOMAIN-MODEL.md",
       "title": "Domain Model",
-      "hash": "a71c3e0d",
+      "version": "0.1.0b",
+      "doc_status": "Draft",
+      "hash": "e442d390",
       "status": "current"
     },
     {
@@ -6052,7 +6056,9 @@
       "type": "document",
       "path": "docs/EXECUTION-MODES.md",
       "title": "Seven Execution Modes",
-      "hash": "93f419cf",
+      "version": "1.0.0b",
+      "doc_status": "Candidate",
+      "hash": "08e75926",
       "status": "current"
     },
     {
@@ -6060,7 +6066,9 @@
       "type": "document",
       "path": "docs/prompts/EXTRACT-MSP.codex.md",
       "title": "Codex task — Extract MSP from GoVibe into a standalone repo `Freshair129/msp`",
-      "hash": "4c11d9b8",
+      "version": "0.1.0b",
+      "doc_status": "Candidate",
+      "hash": "f73ecd1b",
       "status": "current"
     },
     {
@@ -6827,7 +6835,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: Zuri v2 Lab — Project Manager",
-      "hash": "b2c54d79",
+      "hash": "6536c662",
       "status": "current"
     },
     {
@@ -6981,7 +6989,7 @@
       "modules": [
         "agent"
       ],
-      "hash": "6d18ff36",
+      "hash": "417f49b7",
       "status": "current"
     },
     {
@@ -7004,7 +7012,7 @@
       "modules": [
         "crm"
       ],
-      "hash": "2386d97f",
+      "hash": "6acc502e",
       "status": "current"
     },
     {
@@ -7029,7 +7037,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "f0fafac2",
+      "hash": "6d66582a",
       "status": "current"
     },
     {
@@ -7042,6 +7050,12 @@
         "IntegrationConnection",
         "IntegrationCredential",
         "IngestionRun",
+        "PipelineRun",
+        "PipelineStep",
+        "PipelineEventReceipt",
+        "PipelineRecordEvent",
+        "PipelineReconciliation",
+        "PipelineGateDecision",
         "RawExternalRecord",
         "SyncCursor",
         "ExternalEntityRef",
@@ -7057,7 +7071,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "700dcbf0",
+      "hash": "107fa8ff",
       "status": "current"
     },
     {
@@ -7071,7 +7085,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "65d305aa",
+      "hash": "099da5f6",
       "status": "current"
     },
     {
@@ -7089,7 +7103,7 @@
       "modules": [
         "market-intelligence"
       ],
-      "hash": "9e066efd",
+      "hash": "b4c14d2f",
       "status": "current"
     },
     {
@@ -7145,7 +7159,7 @@
         "business",
         "people"
       ],
-      "hash": "8ab564dc",
+      "hash": "b430c657",
       "status": "current"
     },
     {
@@ -10791,7 +10805,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md",
       "title": "ADR-039 — Requirement ids are pinned by subject anchor",
-      "hash": "932a3d5f",
+      "hash": "79fe0467",
       "status": "current"
     },
     {
@@ -10808,7 +10822,7 @@
       "path": "docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md",
       "title": "ADR-041 — Zuri Edge Device Topology and Decoupled Local Governance",
       "hash": "811f81ca",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -11255,7 +11269,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "bb6f74cc",
+      "hash": "6e8b3cb9",
       "status": "current"
     },
     {
@@ -11388,7 +11402,7 @@
       "id": "test:tests/unit/application-schema-migration.test.js",
       "type": "test",
       "path": "tests/unit/application-schema-migration.test.js",
-      "hash": "128e8847",
+      "hash": "78ea05a1",
       "status": "current"
     },
     {
@@ -11647,7 +11661,7 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
-      "hash": "3b86cfe8",
+      "hash": "cf52cf89",
       "status": "current"
     },
     {
@@ -12011,7 +12025,7 @@
       "id": "test:tests/unit/id-anchor-stability.test.js",
       "type": "test",
       "path": "tests/unit/id-anchor-stability.test.js",
-      "hash": "d6a62eaa",
+      "hash": "f7b8d355",
       "status": "current"
     },
     {
@@ -12565,6 +12579,13 @@
       "type": "test",
       "path": "tests/unit/smartgift-rag-pipeline.test.js",
       "hash": "23fc80d5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/standalone-task-modal-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/standalone-task-modal-contract.test.js",
+      "hash": "0518a4f1",
       "status": "current"
     },
     {
@@ -21392,6 +21413,48 @@
     {
       "from": "model:Person",
       "to": "domain:crm",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PipelineEventReceipt",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PipelineGateDecision",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PipelineReconciliation",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PipelineRecordEvent",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PipelineRun",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PipelineStep",
+      "to": "domain:integration",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -31919,6 +31982,13 @@
     },
     {
       "from": "test:tests/unit/domain-state.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-state.test.js",
       "to": "req:FR-069",
       "type": "verifies",
       "status": "current",
@@ -37796,6 +37866,20 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/standalone-task-modal-contract.test.js",
+      "to": "req:FR-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/standalone-task-modal-contract.test.js",
+      "to": "req:FR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/strategies.test.js",

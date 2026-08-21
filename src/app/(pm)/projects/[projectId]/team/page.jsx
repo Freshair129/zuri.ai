@@ -107,11 +107,10 @@ export default function ProjectTeamPage() {
               className="space-y-3"
               onSubmit={(event) => {
                 event.preventDefault()
-                mutate(async () => {
-                  await api(`/api/projects/${projectId}/team`, { method: 'POST', body: { personId, role } })
+                mutate(() => api(`/api/projects/${projectId}/team`, { method: 'POST', body: { personId, role } }).then(() => {
                   setPersonId('')
                   setRole('MEMBER')
-                })
+                }))
               }}
             >
               <select className="input" value={personId} onChange={(event) => setPersonId(event.target.value)} aria-label="Person to add">

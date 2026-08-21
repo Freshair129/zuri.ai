@@ -1,5 +1,7 @@
 ---
 domain: crm
+version: "0.1.0b"
+status: "candidate"
 module: src/modules/crm
 owns_models:
   - Person

@@ -51,9 +51,10 @@ const PRESET_EXAMPLES = {
 }
 
 export default function PlanModeCustomizerModal({ open, onClose, onGenerated }) {
-  const { data: businesses } = useFetch('/api/businesses')
-  const { data: workspaces } = useFetch('/api/workspaces')
+  const { data: scope } = useFetch('/api/scope')
   const { data: viewer } = useFetch('/api/viewer')
+  const businesses = scope?.businesses || []
+  const workspaces = scope?.workspaces || []
 
   const [objective, setObjective] = useState('')
   const [description, setDescription] = useState('')
