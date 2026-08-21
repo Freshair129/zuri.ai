@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-21T03:43:47.933Z",
+  "generatedAt": "2026-08-21T03:47:25.757Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 24,
+    "gapCount": 23,
     "gaps": [
       {
         "domain": "agent",
@@ -188,16 +188,6 @@
           "tests/unit/platform/pipeline-tracking-service.test.js",
           "tests/unit/project-manager-mcp.test.js",
           "tests/unit/smartgift-document-intake-migration.test.js"
-        ]
-      },
-      {
-        "domain": "project-manager",
-        "id": "API-OPENAPI-001",
-        "severity": "high",
-        "check": "httpApi",
-        "summary": "API route is not represented in the machine-readable OpenAPI generator",
-        "evidence": [
-          "/api/session/login"
         ]
       },
       {
@@ -494,7 +484,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 82,
+            "openApiPaths": 83,
             "missingFromOpenApi": 0
           }
         },
@@ -961,7 +951,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 82,
+            "openApiPaths": 83,
             "missingFromOpenApi": 0
           }
         },
@@ -1166,7 +1156,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 82,
+            "openApiPaths": 83,
             "missingFromOpenApi": 0
           }
         },
@@ -2042,26 +2032,17 @@
           }
         },
         "httpApi": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/appendices/A-api-spec.md",
             "src/modules/project-manager/api-docs/openapi.js"
           ],
-          "gaps": [
-            {
-              "id": "API-OPENAPI-001",
-              "severity": "high",
-              "summary": "API route is not represented in the machine-readable OpenAPI generator",
-              "evidence": [
-                "/api/session/login"
-              ]
-            }
-          ],
+          "gaps": [],
           "details": {
             "routes": 78,
             "inventoried": 78,
-            "openApiPaths": 82,
-            "missingFromOpenApi": 1
+            "openApiPaths": 83,
+            "missingFromOpenApi": 0
           }
         },
         "mcp": {
@@ -2182,15 +2163,6 @@
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [
-        {
-          "id": "API-OPENAPI-001",
-          "severity": "high",
-          "check": "httpApi",
-          "summary": "API route is not represented in the machine-readable OpenAPI generator",
-          "evidence": [
-            "/api/session/login"
-          ]
-        },
         {
           "id": "CONTRACT-001",
           "severity": "medium",

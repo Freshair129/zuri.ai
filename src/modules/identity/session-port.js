@@ -15,7 +15,12 @@ export function requireTrustedLocalDemo({ env = process.env } = {}) {
 }
 
 function cookieValue(request, name) {
-  const header = request?.headers?.get?.('cookie') || ''
+  if (request?.cookies?.get) {
+    const cookie = request.cookies.get(name)
+    if (typeof cookie === 'string') return cookie
+    if (cookie?.value) return cookie.value
+  }
+  const header = (typeof request?.headers?.get === 'function' ? request.headers.get('cookie') : request?.headers?.cookie) || ''
   for (const part of header.split(';')) {
     const [key, ...value] = part.trim().split('=')
     if (key === name) return decodeURIComponent(value.join('='))

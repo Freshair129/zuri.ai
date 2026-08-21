@@ -59,16 +59,9 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/app/api/session/demo/route.js",
-      "code:src/app/login/page.jsx",
-      "code:src/modules/identity/session-port.js"
+      "code:src/app/api/session/demo/route.js"
     ],
-    "added": [
-      "route:api:/api/session/login",
-      "code:src/app/api/session/login/route.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -2389,7 +2382,7 @@
       "id": "code:src/app/api/session/demo/route.js",
       "type": "code_file",
       "path": "src/app/api/session/demo/route.js",
-      "hash": "dadde7a0",
+      "hash": "d1482c7a",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -2639,7 +2632,7 @@
       "type": "code_file",
       "path": "src/app/login/page.jsx",
       "hash": "75711b19",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
@@ -4058,8 +4051,8 @@
       "id": "code:src/modules/identity/session-port.js",
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
-      "hash": "d2aaeccb",
-      "status": "changed",
+      "hash": "a0e10329",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046"
@@ -4482,7 +4475,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "abae9493",
+      "hash": "ec0118d0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5907,7 +5900,7 @@
       "version": "1.15.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "5772cab0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -11202,7 +11195,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "ffd41b78",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/plan-import-scope.test.js",

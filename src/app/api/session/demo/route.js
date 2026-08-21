@@ -19,5 +19,11 @@ export async function POST(request) {
     secure: false,
     path: '/',
   })
+  response.cookies.set(LIVE_SESSION_COOKIE, LIVE_OWNER_PRINCIPAL_ID, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: false,
+    path: '/',
+  })
   return response
 }
