@@ -67,6 +67,22 @@ export function buildWorkColumns({ projectId, onStatusChanged } = {}) {
     { key: 'stream', label: 'Stream', render: (r) => `${r.workstream?.code || ''}` },
     ...(projectId ? [] : [{ key: 'project', label: 'Project', render: projectDrilldownCell }]),
     { key: 'mode', label: 'Mode', render: (r) => MODE_LABELS[r.workstream?.executionMode] || '' },
+    {
+      key: 'actor',
+      label: 'Delegator / Approver',
+      render: (r) => {
+        const creator = r.metadata?.createdBy || r.metadata?.delegator || r.assigneeRef || '—'
+        const approver = r.metadata?.approver
+        return (
+          <div className="text-[10px] leading-tight">
+            <span className="font-semibold text-slate-800">{creator}</span>
+            {approver ? (
+              <span className="block text-[9px] text-amber-700">✓ {approver}</span>
+            ) : null}
+          </div>
+        )
+      },
+    },
     { key: 'weight', label: 'Weight' },
     {
       key: 'status',

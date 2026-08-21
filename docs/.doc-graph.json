@@ -61,11 +61,7 @@
     "changed": [
       "code:src/modules/project-manager/views/universal/AllWorkView.jsx"
     ],
-    "added": [
-      "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
-      "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
-      "code:src/modules/project-manager/components/UploadPlanModal.jsx"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -5566,7 +5562,7 @@
       "id": "code:src/modules/project-manager/views/universal/AllWorkView.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/views/universal/AllWorkView.jsx",
-      "hash": "93b4f0c4",
+      "hash": "7b83ea41",
       "status": "changed",
       "annotations": {
         "@req": [
