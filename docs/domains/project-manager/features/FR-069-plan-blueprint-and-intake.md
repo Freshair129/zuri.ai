@@ -124,9 +124,23 @@ Agent JSON ─┘
               → AuditEvent + provenance
 ```
 
-The transport for Agent submission (API, MCP or another adapter) is deliberately
-out of scope for this feature. It must not create a second plan shape. The
-application remains usable when no Agent is connected.
+The transport choice remains outside this feature's product contract, but the
+current protected MCP adapter implements the local Agent execution loop with
+the same server-owned records:
+
+```text
+project_manager.plan_commit
+  → project_manager.work_read(projectId | workstreamId)
+  → project_manager.work_status_update(workItemId, status)
+  → project_manager.work_read(...)   # Agent confirmation
+```
+
+`work_read` requires an explicit Project or Workstream scope and applies the
+authenticated viewer's read boundary. `work_status_update` accepts only the
+canonical WorkItem status vocabulary and delegates to the existing authorized
+mutation plus AuditEvent path. These tools do not accept caller-supplied
+Business/Tenant authority, execute imported code, or create a second plan
+shape. The application remains usable when no Agent is connected.
 
 ## Seven execution-plan contracts
 
