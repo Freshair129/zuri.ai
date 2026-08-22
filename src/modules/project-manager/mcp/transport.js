@@ -3,6 +3,9 @@ import {
   commitPlan as defaultCommitPlan,
   dryRunPlan as defaultDryRunPlan,
 } from '@/modules/project-manager/import/plan-import-service'
+import { listWorkForViewer as defaultListWorkForViewer } from '@/modules/project-manager/application/work-read-service'
+import { updateItem as defaultUpdateWorkItem } from '@/modules/project-manager/application/work-service'
+import { EXECUTION_MODES, WORK_STATUSES } from '@/lib/validation/enums'
 import {
   createPipelineRunFromWorker as defaultCreatePipelineRunFromWorker,
   getPipelineMonitor as defaultGetPipelineMonitor,
@@ -21,6 +24,8 @@ import { stageDocumentIntakeForPipeline as defaultStageDocumentIntakeForPipeline
 export const MCP_PROTOCOL_VERSION = '2024-11-05'
 
 const PROJECT_MANAGER_ARGUMENT_KEYS = new Set(['plan', 'workspaceId'])
+const WORK_READ_ARGUMENT_KEYS = new Set(['projectId', 'workstreamId', 'executionMode', 'subtype', 'status', 'q'])
+const WORK_STATUS_UPDATE_ARGUMENT_KEYS = new Set(['workItemId', 'status'])
 const RUN_CREATE_ARGUMENT_KEYS = new Set([
   'businessCode', 'dataPipelineDefinitionId', 'executionContractId', 'sourceRef',
   'sourceSha256', 'artifactRef', 'artifactSha256', 'expectedCount', 'bootstrapBatchId',
@@ -61,6 +66,34 @@ const TOOL_DEFINITIONS = [
     properties: {
       plan: { type: 'object', description: 'PlanEnvelope data validated by the Project Manager contract.' },
       workspaceId: { type: 'string', description: 'Optional server-resolved target workspace id.' },
+    },
+  },
+  {
+    name: 'project_manager.work_read',
+    description: 'Read scope-filtered WorkItems for a Project or Workstream.',
+    handler: 'workRead',
+    readOnly: true,
+    argumentKeys: WORK_READ_ARGUMENT_KEYS,
+    required: [],
+    properties: {
+      projectId: { type: 'string', description: 'Project id; mutually exclusive with workstreamId.' },
+      workstreamId: { type: 'string', description: 'Workstream id; mutually exclusive with projectId.' },
+      executionMode: { type: 'string', enum: EXECUTION_MODES },
+      subtype: { type: 'string' },
+      status: { type: 'string', enum: WORK_STATUSES },
+      q: { type: 'string', description: 'Optional title/code search text.' },
+    },
+  },
+  {
+    name: 'project_manager.work_status_update',
+    description: 'Update one WorkItem status through the authorized Project Manager mutation service.',
+    handler: 'workStatusUpdate',
+    readOnly: false,
+    argumentKeys: WORK_STATUS_UPDATE_ARGUMENT_KEYS,
+    required: ['workItemId', 'status'],
+    properties: {
+      workItemId: { type: 'string' },
+      status: { type: 'string', enum: WORK_STATUSES },
     },
   },
   {
@@ -182,10 +215,36 @@ function validateToolArguments(name, rawArguments) {
   for (const key of tool.required || []) {
     if (args[key] === undefined) throw new Error(`${name} requires arguments.${key}`)
   }
-  if (name.startsWith('project_manager.')) {
+  if (name === 'project_manager.plan_dry_run' || name === 'project_manager.plan_commit') {
     if (!isRecord(args.plan)) throw new Error(`${name} requires a PlanEnvelope object in arguments.plan`)
     if (args.workspaceId !== undefined && typeof args.workspaceId !== 'string') {
       throw new Error('arguments.workspaceId must be a string when provided')
+    }
+  }
+  if (name === 'project_manager.work_read') {
+    const hasProjectId = args.projectId !== undefined
+    const hasWorkstreamId = args.workstreamId !== undefined
+    if (hasProjectId === hasWorkstreamId) {
+      throw new Error('project_manager.work_read requires exactly one of arguments.projectId or arguments.workstreamId')
+    }
+    for (const key of ['projectId', 'workstreamId', 'executionMode', 'subtype', 'status', 'q']) {
+      if (args[key] !== undefined && typeof args[key] !== 'string') {
+        throw new Error(`arguments.${key} must be a string when provided`)
+      }
+    }
+    if (args.status !== undefined && !WORK_STATUSES.includes(args.status)) {
+      throw new Error(`Unsupported WorkItem status: ${args.status}`)
+    }
+    if (args.executionMode !== undefined && !EXECUTION_MODES.includes(args.executionMode)) {
+      throw new Error(`Unsupported execution mode: ${args.executionMode}`)
+    }
+  }
+  if (name === 'project_manager.work_status_update') {
+    if (typeof args.workItemId !== 'string' || !args.workItemId) {
+      throw new Error('project_manager.work_status_update requires arguments.workItemId')
+    }
+    if (typeof args.status !== 'string' || !WORK_STATUSES.includes(args.status)) {
+      throw new Error('project_manager.work_status_update requires a valid WorkItem status')
     }
   }
   if (name === 'data_pipeline.run_create' && typeof args.businessCode !== 'string') {
@@ -248,9 +307,16 @@ function protocolFailure(id, status, code, message) {
 export function createProjectManagerMcpTransport({
   dryRunPlan = defaultDryRunPlan,
   commitPlan = defaultCommitPlan,
+  work = {},
   pipeline = {},
   sessionIdFactory = () => randomUUID(),
 } = {}) {
+  const workServices = {
+    readWork: defaultListWorkForViewer,
+    updateWorkStatus: async (workItemId, status, { viewer } = {}) =>
+      defaultUpdateWorkItem(workItemId, { status }, { viewer }),
+    ...work,
+  }
   const pipelineServices = {
     createPipelineRunFromWorker: defaultCreatePipelineRunFromWorker,
     stageDocumentIntakeForPipeline: defaultStageDocumentIntakeForPipeline,
@@ -314,6 +380,10 @@ export function createProjectManagerMcpTransport({
           result = await dryRunPlan(args.plan, { workspaceId: args.workspaceId, viewer })
         } else if (tool.handler === 'commit') {
           result = await commitPlan(args.plan, { workspaceId: args.workspaceId, viewer })
+        } else if (tool.handler === 'workRead') {
+          result = await workServices.readWork(args, { viewer })
+        } else if (tool.handler === 'workStatusUpdate') {
+          result = await workServices.updateWorkStatus(args.workItemId, args.status, { viewer })
         } else if (tool.handler === 'pipeline.runCreate') {
           result = await pipelineServices.createPipelineRunFromWorker(args, { viewer })
         } else if (tool.handler === 'pipeline.documentStage') {

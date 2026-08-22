@@ -8,6 +8,7 @@ import {
   createWorkspace,
 } from '../factories/scope'
 import { listWork, WORK_LIST_LIMIT } from '@/modules/project-manager/application/work-service'
+import { listWorkForViewer } from '@/modules/project-manager/application/work-read-service'
 import { archiveWorkstream } from '@/modules/project-manager/application/project-service'
 import { computeProjectProgress } from '@/modules/project-manager/application/progress-service'
 import { activeWorkstream } from '@/modules/project-manager/application/active-filters'
@@ -34,11 +35,15 @@ import { makeViewer } from '../factories/viewer'
 let project
 let liveStream
 let archivedStream
+let reader
+let outsideReader
 
 beforeAll(async () => {
   const portfolio = await createPortfolio({ name: 'WLS', code: 'PF-WLS' })
   const tenant = await createTenant({ portfolioId: portfolio.id, name: 'WLS T', code: 'TNT-WLS' })
   const business = await createBusiness({ tenantId: tenant.id, name: 'WLS B', code: 'BUS-WLS' })
+  reader = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [] })
+  outsideReader = makeViewer({ visibleBusinessIds: [], ownedBusinessIds: [] })
   const workspace = await createWorkspace({
     name: 'WLS WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-WLS',
   })
@@ -99,6 +104,28 @@ describe('the browser and the calculators share one population', () => {
     })
     const { items } = await listWork({ projectId: project.id })
     expect(items.map((i) => i.code)).toContain('WI-WLS-PLANNED')
+  })
+})
+
+describe('the viewer-aware Work read boundary', () => {
+  it('lets a visible member read by Project or Workstream scope', async () => {
+    const projectResult = await listWorkForViewer(
+      { projectId: project.id, status: 'DONE' },
+      { viewer: reader },
+    )
+    expect(projectResult.items.map((item) => item.code)).toContain('WI-WLS-LIVE')
+
+    const workstreamResult = await listWorkForViewer(
+      { workstreamId: liveStream.id },
+      { viewer: reader },
+    )
+    expect(workstreamResult.items.map((item) => item.code)).toContain('WI-WLS-LIVE')
+  })
+
+  it('hides a Project from a viewer without Business visibility', async () => {
+    await expect(
+      listWorkForViewer({ projectId: project.id }, { viewer: outsideReader }),
+    ).rejects.toMatchObject({ status: 404, message: 'Project not found' })
   })
 })
 
