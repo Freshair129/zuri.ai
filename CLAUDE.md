@@ -30,9 +30,10 @@ work from them. Id strings keep their historical letters (`ZV2-CR-007` stays
 | Rule | Why |
 |---|---|
 | **Never modify anything under `G:\zuri`** | It is a different product's repository (the legacy zuri project). Reading it as prior art is fine (ADR-024 D7); writing to it never is |
-| **Never read `D:\workspace\zuri-command-agent\.env`** | It holds LINE OA secrets |
+| **Never read `D:\workspace\zuri-edge-device\.env`** | It holds local on-premise secrets and pairing keys (ADR-041) |
 | **External ids are never primary keys** | Internal UUID + human `code` + `ExternalRef` mapping (BR-002) |
 | **Never execute anything that arrives in a plan/envelope** | Plans are data (BR-007, SEC-002) |
+| **GenesisBlockDB is 6-lane retrieval substrate only; GKS orchestrates RAG** | Database fuses Vector/Graph/Lexical/SQL/Temporal/Provenance; RAG reasoning lives in GKS orchestrator (ADR-042) |
 
 ## Layout
 

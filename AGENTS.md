@@ -485,3 +485,12 @@ modes it forbids:
 1. inferring absence from a search miss instead of an authoritative enumeration;
 2. letting an earlier hypothesis survive after newer repository evidence
    contradicts it — the last enumeration wins, not the first guess.
+
+### 22. Knowledge & Retrieval Architecture: GKS and GenesisBlockDB Boundary
+
+Set by [ADR-041](docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md) and [ADR-042](docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md).
+
+1. **GenesisBlockDB is the 6-lane retrieval substrate only**: Vector (HNSW), Lexical, Property Graph, Relational SQLite, Bitemporal, and Provenance. It does not hold agent cognitive logic, prompt templates, or application workflows.
+2. **GKS (Genesis Knowledge System) is the RAG Intelligence Layer**: GKS orchestrates Query Planning, Adaptive Routing, Multi-hop Planning, Reranking, and Evidence/Citation Verification via `query-ir.v1`.
+3. **Zuri-AI is the business execution client**: Zuri-AI and Zuri Edge Device consume knowledge from GKS / GenesisBlockDB over standard REST / MCP (`:8888`) without maintaining dual-write vector or graph database stacks.
+
