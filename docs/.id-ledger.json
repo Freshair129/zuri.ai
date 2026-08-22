@@ -4963,14 +4963,16 @@
       "family": "ADR",
       "source": "docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md",
       "status": "current",
-      "statement_digest": "0e4b3be1909cb0f697114957f50d780bfaf1685ad482509c7f53d97e7368d3ba",
+      "statement_digest": "294ce357559f87a0f9387bcbe27f312dfef0cea9a3612de892e48bf94386d6a0",
       "history": [
         {
           "anchor": "decoupled standalone knowledge and graphrag service",
           "since": "2026-08-22",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-08-22",
+      "statement_digest_reason": "ADR-042 expanded the same retrieval-service decision to record the six-lane Genesis Retrieval Fabric topology and its query-ir.v1 boundary."
     },
     "ADR-043": {
       "family": "ADR",
