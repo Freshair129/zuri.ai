@@ -59,10 +59,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
-      "doc:PLAN-FR-097-VERIFIED-CHANNEL-ONBOARDING"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -6937,7 +6934,7 @@
       "path": "docs/roadmap/PLAN-FR-097-VERIFIED-CHANNEL-ONBOARDING.md",
       "title": "Phase 1 proposal — verified channel onboarding",
       "hash": "9794c3a2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
@@ -11130,7 +11127,7 @@
       "path": "docs/decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md",
       "title": "ADR-045 — Canonical Identity and Access Management Boundary",
       "hash": "81a89df0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",

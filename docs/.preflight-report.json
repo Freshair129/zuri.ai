@@ -9,7 +9,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 21,
+    "info": 20,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -223,19 +223,6 @@
     },
     {
       "id": "I20",
-      "severity": "info",
-      "check": "id-stability",
-      "title": "ADR-042 statement digest changed without an anchor move",
-      "details": "canonical SHA-256 0e4b3be1909cb0f697114957f50d780bfaf1685ad482509c7f53d97e7368d3ba → 294ce357559f87a0f9387bcbe27f312dfef0cea9a3612de892e48bf94386d6a0 · citation files: docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md",
-      "files": [
-        "docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md",
-        "docs/.id-ledger.json",
-        "docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md"
-      ],
-      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review ADR-042 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
-    },
-    {
-      "id": "I21",
       "severity": "info",
       "check": "id-stability",
       "title": "356 id(s) pinned across 10 families",
