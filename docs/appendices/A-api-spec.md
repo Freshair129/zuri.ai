@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.16.0b |
+| **Version** | 1.18.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-08-22 |
+| **Last Updated** | 2026-08-23 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass
@@ -267,7 +267,7 @@ Files endpoints remain available through the compatibility boundary.
 | GET | `/api/import/template` | generate Excel template จาก Zod schema (FR-018) |
 | GET | `/api/docs` | OpenAPI 3 spec generated from the live Zod schemas (FR-019) |
 | GET | `/api/resolve?system=&value=` | external ID → internal id via ExternalRef; 404 unmapped, 410 dangling (FR-019) |
-| POST | `/api/mcp` | MCP JSON-RPC transport for `initialize`, `notifications/initialized`, `tools/list`, and `tools/call`; resolves the trusted request viewer before any session or tool operation; requires `Mcp-Session-Id` after initialization; exposes `project_manager.*` plus the separate `data_pipeline.*` run/document/event/monitor/replay namespace (FR-069/FR-071) |
+| POST | `/api/mcp` | MCP JSON-RPC transport for `initialize`, `notifications/initialized`, `tools/list`, and `tools/call`; resolves the trusted request viewer before any session or tool operation; requires `Mcp-Session-Id` after initialization; exposes `project_manager.plan_dry_run`, `project_manager.plan_commit`, scoped `project_manager.work_read`, and authorized `project_manager.work_status_update`, plus the separate `data_pipeline.*` run/document/event/monitor/replay namespace (FR-069/FR-071) |
 | POST | `/api/agent/line-webhook` | Local-disabled compatibility: `{tenantId, businessId?, events[]}`. Enabled production contract: `{bindingId, destination, displayName?, events[]}` with strict rejection of caller `tenantId/businessId`; bearer + active binding resolve immutable scope before `handleAgentTurn` (FR-028/050/051) |
 | GET/POST | `/api/agent/heartbeat` | FR-080: Edge Device pairing and live heartbeat liveness probe; registers local worker status, engine, and query availability (ADR-032 / SEC-016) |
 | GET | `/api/projects/[id]/tree` | nested project → part-projects → part-tasks → workpackages for the Structure Plan (WBS) canvas |
@@ -332,6 +332,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.18.0b | 2026-08-23 | candidate | Added the scoped PM MCP work read/status loop after PlanEnvelope commit; route handler count remains 84 | working-tree | ATHER |
 | 1.17.0b | 2026-08-22 | candidate | Replaced credential-free session login with `/api/auth/login` and `/api/auth/logout`, signed sessions, and updated the handler count to 84 | working-tree | ATHER |
 | 1.16.0b | 2026-08-21 | candidate | Removed the retired `/api/session/demo` route from the current API inventory; handler count is 82 | working-tree | ATHER |
 | 1.15.0b | 2026-08-21 | candidate | Added the Codex-mediated FR-071 `data_pipeline.*` MCP bridge contract; route handler count remains 80 | working-tree | ATHER |

@@ -1,8 +1,12 @@
 import prisma from '@/lib/db'
 import { resolveLinePrincipal } from '@/modules/identity/gate'
+import { resolveAuthorizationContext } from '@/modules/identity/authorization-context'
+import { channelIdentityIsVerified } from '@/modules/identity/channel-identity'
 
-// @req FR-057 — build the server-derived authorization context before private MSP retrieval.
-// @spec ADR-022, SDD-030, BR-015, SEC-013 — transport identity is not business authority;
+// @req FR-057, FR-096, FR-098 — build the server-derived authorization context before private MSP retrieval.
+// @req FR-097 — private authority requires an ACTIVE ChannelIdentity, not merely a
+//   verified legacy ExternalIdentity row.
+// @spec ADR-022, ADR-044, ADR-045, SDD-030, SDD-052, BR-015, BR-020, SEC-013, SEC-018 — transport identity is not business authority;
 //   model/client/thread values cannot widen the authorized vault set.
 // @tested tests/integration/agent-multi-principal.test.js
 
@@ -109,12 +113,20 @@ export async function resolveAgentAuthorization({
   consent = 'UNKNOWN',
   serverScope = {},
 } = {}) {
-  const principal = await resolveLinePrincipal({ tenantId, lineUserId, displayName })
-  const resolvedScope = await resolvePersistedScope({ tenantId, businessId, serverScope })
-  const memberships = await prisma.membership.findMany({
-    where: { tenantId, personId: principal.personId },
-    select: { id: true, businessId: true, role: true },
+  const principal = await resolveLinePrincipal({
+    tenantId,
+    lineUserId,
+    channelAccountId: clean(serverScope.channelAccountId) ?? undefined,
+    displayName,
   })
+  const resolvedScope = await resolvePersistedScope({ tenantId, businessId, serverScope })
+  const authorizationContext = await resolveAuthorizationContext({
+    personId: principal.personId,
+    tenantId,
+    businessId: resolvedScope.businessId,
+    action: capability ?? 'READ',
+  })
+  const memberships = authorizationContext.memberships
 
   const customer = principal.customerId
     ? await prisma.customer.findUnique({
@@ -123,14 +135,16 @@ export async function resolveAgentAuthorization({
       })
     : null
 
-  const staffScope = memberships.some((membership) => membershipAllowsBusiness(membership, resolvedScope.businessId))
+  const staffScope = authorizationContext.decision.allowed && memberships.some((membership) => membershipAllowsBusiness(membership, resolvedScope.businessId))
   const customerScope = Boolean(
     customer &&
       customer.tenantId === tenantId &&
       !customer.deletedAt &&
       (resolvedScope.businessId ? customer.businessId === null || customer.businessId === resolvedScope.businessId : customer.businessId === null),
   )
-  const identityVerified = Boolean(principal.verifiedAt && principal.linkedAt)
+  const identityVerified = principal.channelIdentity
+    ? channelIdentityIsVerified(principal.channelIdentity)
+    : Boolean(principal.verifiedAt && principal.linkedAt)
   const knownPrincipal = principal.principalType !== 'UNKNOWN' && (staffScope || customerScope)
   const transportVerified = serverScope.transportVerified === true
   const privateMemoryAllowed = transportVerified && identityVerified && resolvedScope.authorized && knownPrincipal
@@ -213,11 +227,17 @@ export async function resolveAgentAuthorization({
       privateMemoryAllowed,
       mspAuthorization,
     }),
+    authorization: Object.freeze({
+      decision: authorizationContext.decision,
+      roles: authorizationContext.roles,
+      permissions: authorizationContext.permissions,
+    }),
   })
 
   return {
     principal,
     authContext,
+    authorizationContext,
     authorizedVaults: allowedVaults,
     policy: authContext.policy,
   }

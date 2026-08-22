@@ -16,6 +16,8 @@ import { resolveCorrelationId } from '@/lib/observability/correlation'
 //   here; each text message becomes one end-to-end agent turn (FR-027) at Gate E.
 // @req FR-052 — production scope comes only from an active server-owned LINE binding;
 //   client-selected tenantId/businessId is rejected before persistence or model work.
+// @req FR-097 — the resolved binding's server-owned channel namespace is passed into
+//   the identity and authorization seams; the webhook payload cannot select it.
 // @req FR-081 — this is the LINE acquisition channel, so it converges on the one
 //   normalized ingestion envelope: every event becomes raw evidence through the shared
 //   adapter before anything interprets it. There is no second raw-write path.
@@ -200,7 +202,8 @@ export function createLineWebhookPost({
           model: resolvedModel,
           serverScope: {
             transportVerified: Boolean(phase1Ports),
-            bindingId: scope.id ?? null,
+            bindingId: scope.id ?? scope.bindingId ?? null,
+            channelAccountId: scope.channelAccountId ?? scope.code ?? scope.bindingId ?? undefined,
             businessId: scope.businessId ?? null,
           },
         })

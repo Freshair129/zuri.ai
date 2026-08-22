@@ -122,10 +122,50 @@ CREATE TABLE "Membership" (
     "branchId" TEXT,
     "employeeRef" TEXT,
     "role" TEXT NOT NULL DEFAULT 'OWNER',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "domainKeysJson" TEXT NOT NULL DEFAULT '[]',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "Membership_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Session" (
+    "id" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "tokenHash" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "assurance" TEXT NOT NULL DEFAULT 'PASSWORD',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "lastSeenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "revokedAt" TIMESTAMP(3),
+    "revokeReason" TEXT,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ChannelIdentity" (
+    "id" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "channel" TEXT NOT NULL,
+    "channelAccountId" TEXT NOT NULL,
+    "providerSubject" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "verifiedAt" TIMESTAMP(3),
+    "linkedAt" TIMESTAMP(3),
+    "revokedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "ChannelIdentity_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -709,6 +749,175 @@ CREATE TABLE "AuditEvent" (
 );
 
 -- CreateTable
+CREATE TABLE "PipelineRun" (
+    "id" TEXT NOT NULL,
+    "executionRunId" TEXT NOT NULL,
+    "dataPipelineDefinitionId" TEXT NOT NULL,
+    "executionContractId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'QUEUED',
+    "currentStageId" TEXT,
+    "sourceRef" TEXT,
+    "sourceSha256" TEXT,
+    "artifactRef" TEXT,
+    "artifactSha256" TEXT,
+    "bootstrapBatchId" TEXT,
+    "correlationId" TEXT NOT NULL,
+    "idempotencyKey" TEXT NOT NULL,
+    "requestHash" TEXT NOT NULL,
+    "expectedCount" INTEGER NOT NULL DEFAULT 0,
+    "actualCount" INTEGER NOT NULL DEFAULT 0,
+    "insertedCount" INTEGER NOT NULL DEFAULT 0,
+    "updatedCount" INTEGER NOT NULL DEFAULT 0,
+    "unchangedCount" INTEGER NOT NULL DEFAULT 0,
+    "failedCount" INTEGER NOT NULL DEFAULT 0,
+    "rejectedCount" INTEGER NOT NULL DEFAULT 0,
+    "duplicateCount" INTEGER NOT NULL DEFAULT 0,
+    "tagIdsJson" TEXT NOT NULL DEFAULT '[]',
+    "identityRefsJson" TEXT NOT NULL DEFAULT '{}',
+    "primaryFailureCode" TEXT,
+    "primaryErrorRef" TEXT,
+    "primaryRetryable" BOOLEAN,
+    "auditEventId" TEXT,
+    "replayScope" TEXT,
+    "replayOfExecutionRunId" TEXT,
+    "replayOfExecutionStepId" TEXT,
+    "replayOfPipelineRecordId" TEXT,
+    "startedAt" TIMESTAMP(3),
+    "finishedAt" TIMESTAMP(3),
+    "lastHeartbeatAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PipelineRun_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PipelineStep" (
+    "id" TEXT NOT NULL,
+    "executionStepId" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "pipelineStageId" TEXT NOT NULL,
+    "sequence" INTEGER NOT NULL,
+    "attemptId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'NOT_STARTED',
+    "inputHash" TEXT,
+    "outputHash" TEXT,
+    "expectedCount" INTEGER NOT NULL DEFAULT 0,
+    "actualCount" INTEGER NOT NULL DEFAULT 0,
+    "insertedCount" INTEGER NOT NULL DEFAULT 0,
+    "updatedCount" INTEGER NOT NULL DEFAULT 0,
+    "unchangedCount" INTEGER NOT NULL DEFAULT 0,
+    "failedCount" INTEGER NOT NULL DEFAULT 0,
+    "skippedCount" INTEGER NOT NULL DEFAULT 0,
+    "failureCode" TEXT,
+    "errorRef" TEXT,
+    "retryable" BOOLEAN,
+    "tagIdsJson" TEXT NOT NULL DEFAULT '[]',
+    "identityRefsJson" TEXT NOT NULL DEFAULT '{}',
+    "auditEventId" TEXT,
+    "replayOfExecutionStepId" TEXT,
+    "startedAt" TIMESTAMP(3),
+    "finishedAt" TIMESTAMP(3),
+    "lastHeartbeatAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PipelineStep_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PipelineEventReceipt" (
+    "id" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "idempotencyKey" TEXT NOT NULL,
+    "eventType" TEXT NOT NULL,
+    "eventHash" TEXT NOT NULL,
+    "resultJson" TEXT NOT NULL DEFAULT '{}',
+    "auditEventId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "PipelineEventReceipt_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PipelineRecordEvent" (
+    "id" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "stepId" TEXT,
+    "attemptId" TEXT NOT NULL,
+    "pipelineRecordId" TEXT NOT NULL,
+    "sourceRecordKey" TEXT,
+    "sourceRowNumber" INTEGER,
+    "sourceSha256" TEXT,
+    "docId" TEXT,
+    "picId" TEXT,
+    "factId" TEXT,
+    "sourceDocIdsJson" TEXT NOT NULL DEFAULT '[]',
+    "sourcePicIdsJson" TEXT NOT NULL DEFAULT '[]',
+    "destinationRecordId" TEXT,
+    "status" TEXT NOT NULL,
+    "failureCode" TEXT,
+    "errorRef" TEXT,
+    "retryable" BOOLEAN,
+    "tagIdsJson" TEXT NOT NULL DEFAULT '[]',
+    "identityRefsJson" TEXT NOT NULL DEFAULT '{}',
+    "idempotencyKey" TEXT NOT NULL,
+    "auditEventId" TEXT,
+    "replayOfPipelineRecordId" TEXT,
+    "occurredAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PipelineRecordEvent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PipelineReconciliation" (
+    "id" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "stepId" TEXT,
+    "expectedCount" INTEGER NOT NULL DEFAULT 0,
+    "actualCount" INTEGER NOT NULL DEFAULT 0,
+    "insertedCount" INTEGER NOT NULL DEFAULT 0,
+    "updatedCount" INTEGER NOT NULL DEFAULT 0,
+    "unchangedCount" INTEGER NOT NULL DEFAULT 0,
+    "rejectedCount" INTEGER NOT NULL DEFAULT 0,
+    "duplicateCount" INTEGER NOT NULL DEFAULT 0,
+    "sourceSha256" TEXT,
+    "artifactSha256" TEXT,
+    "stagingHash" TEXT,
+    "destinationHash" TEXT,
+    "rlsProbeResult" TEXT,
+    "isolationResult" TEXT,
+    "result" TEXT NOT NULL,
+    "evidenceJson" TEXT NOT NULL DEFAULT '{}',
+    "auditEventId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PipelineReconciliation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PipelineGateDecision" (
+    "id" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "gateId" TEXT,
+    "status" TEXT NOT NULL,
+    "required" BOOLEAN NOT NULL DEFAULT true,
+    "decidedByPersonId" TEXT,
+    "reason" TEXT,
+    "evidenceJson" TEXT NOT NULL DEFAULT '{}',
+    "auditEventId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PipelineGateDecision_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "IntegrationProvider" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
@@ -960,7 +1169,31 @@ CREATE INDEX "PasswordResetToken_token_idx" ON "PasswordResetToken"("token");
 CREATE INDEX "Membership_personId_idx" ON "Membership"("personId");
 
 -- CreateIndex
+CREATE INDEX "Membership_personId_status_idx" ON "Membership"("personId", "status");
+
+-- CreateIndex
 CREATE INDEX "Membership_tenantId_idx" ON "Membership"("tenantId");
+
+-- CreateIndex
+CREATE INDEX "Membership_tenantId_status_idx" ON "Membership"("tenantId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Session_tokenHash_key" ON "Session"("tokenHash");
+
+-- CreateIndex
+CREATE INDEX "Session_personId_status_idx" ON "Session"("personId", "status");
+
+-- CreateIndex
+CREATE INDEX "Session_expiresAt_status_idx" ON "Session"("expiresAt", "status");
+
+-- CreateIndex
+CREATE INDEX "ChannelIdentity_personId_status_idx" ON "ChannelIdentity"("personId", "status");
+
+-- CreateIndex
+CREATE INDEX "ChannelIdentity_tenantId_status_idx" ON "ChannelIdentity"("tenantId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ChannelIdentity_tenantId_channel_channelAccountId_providerS_key" ON "ChannelIdentity"("tenantId", "channel", "channelAccountId", "providerSubject");
 
 -- CreateIndex
 CREATE INDEX "RoleBinding_tenantId_businessId_status_idx" ON "RoleBinding"("tenantId", "businessId", "status");
@@ -1278,6 +1511,72 @@ CREATE INDEX "AuditEvent_entityType_entityId_idx" ON "AuditEvent"("entityType", 
 CREATE INDEX "AuditEvent_occurredAt_idx" ON "AuditEvent"("occurredAt");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "PipelineRun_executionRunId_key" ON "PipelineRun"("executionRunId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PipelineRun_idempotencyKey_key" ON "PipelineRun"("idempotencyKey");
+
+-- CreateIndex
+CREATE INDEX "PipelineRun_tenantId_status_idx" ON "PipelineRun"("tenantId", "status");
+
+-- CreateIndex
+CREATE INDEX "PipelineRun_businessId_status_createdAt_idx" ON "PipelineRun"("businessId", "status", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "PipelineRun_correlationId_idx" ON "PipelineRun"("correlationId");
+
+-- CreateIndex
+CREATE INDEX "PipelineRun_replayOfExecutionRunId_idx" ON "PipelineRun"("replayOfExecutionRunId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PipelineStep_executionStepId_key" ON "PipelineStep"("executionStepId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PipelineStep_attemptId_key" ON "PipelineStep"("attemptId");
+
+-- CreateIndex
+CREATE INDEX "PipelineStep_runId_pipelineStageId_sequence_idx" ON "PipelineStep"("runId", "pipelineStageId", "sequence");
+
+-- CreateIndex
+CREATE INDEX "PipelineStep_runId_status_idx" ON "PipelineStep"("runId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PipelineEventReceipt_idempotencyKey_key" ON "PipelineEventReceipt"("idempotencyKey");
+
+-- CreateIndex
+CREATE INDEX "PipelineEventReceipt_runId_eventType_idx" ON "PipelineEventReceipt"("runId", "eventType");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PipelineRecordEvent_idempotencyKey_key" ON "PipelineRecordEvent"("idempotencyKey");
+
+-- CreateIndex
+CREATE INDEX "PipelineRecordEvent_runId_status_idx" ON "PipelineRecordEvent"("runId", "status");
+
+-- CreateIndex
+CREATE INDEX "PipelineRecordEvent_pipelineRecordId_idx" ON "PipelineRecordEvent"("pipelineRecordId");
+
+-- CreateIndex
+CREATE INDEX "PipelineRecordEvent_docId_idx" ON "PipelineRecordEvent"("docId");
+
+-- CreateIndex
+CREATE INDEX "PipelineRecordEvent_picId_idx" ON "PipelineRecordEvent"("picId");
+
+-- CreateIndex
+CREATE INDEX "PipelineRecordEvent_factId_idx" ON "PipelineRecordEvent"("factId");
+
+-- CreateIndex
+CREATE INDEX "PipelineReconciliation_runId_result_idx" ON "PipelineReconciliation"("runId", "result");
+
+-- CreateIndex
+CREATE INDEX "PipelineReconciliation_stepId_idx" ON "PipelineReconciliation"("stepId");
+
+-- CreateIndex
+CREATE INDEX "PipelineGateDecision_runId_status_idx" ON "PipelineGateDecision"("runId", "status");
+
+-- CreateIndex
+CREATE INDEX "PipelineGateDecision_gateId_idx" ON "PipelineGateDecision"("gateId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "IntegrationProvider_code_key" ON "IntegrationProvider"("code");
 
 -- CreateIndex
@@ -1405,6 +1704,15 @@ ALTER TABLE "Membership" ADD CONSTRAINT "Membership_businessId_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "Membership" ADD CONSTRAINT "Membership_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branch"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Session" ADD CONSTRAINT "Session_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ChannelIdentity" ADD CONSTRAINT "ChannelIdentity_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ChannelIdentity" ADD CONSTRAINT "ChannelIdentity_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "RoleBinding" ADD CONSTRAINT "RoleBinding_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -1603,6 +1911,33 @@ ALTER TABLE "Conversation" ADD CONSTRAINT "Conversation_customerId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PipelineRun" ADD CONSTRAINT "PipelineRun_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PipelineRun" ADD CONSTRAINT "PipelineRun_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PipelineStep" ADD CONSTRAINT "PipelineStep_runId_fkey" FOREIGN KEY ("runId") REFERENCES "PipelineRun"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PipelineEventReceipt" ADD CONSTRAINT "PipelineEventReceipt_runId_fkey" FOREIGN KEY ("runId") REFERENCES "PipelineRun"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PipelineRecordEvent" ADD CONSTRAINT "PipelineRecordEvent_runId_fkey" FOREIGN KEY ("runId") REFERENCES "PipelineRun"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PipelineRecordEvent" ADD CONSTRAINT "PipelineRecordEvent_stepId_fkey" FOREIGN KEY ("stepId") REFERENCES "PipelineStep"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PipelineReconciliation" ADD CONSTRAINT "PipelineReconciliation_runId_fkey" FOREIGN KEY ("runId") REFERENCES "PipelineRun"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PipelineReconciliation" ADD CONSTRAINT "PipelineReconciliation_stepId_fkey" FOREIGN KEY ("stepId") REFERENCES "PipelineStep"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PipelineGateDecision" ADD CONSTRAINT "PipelineGateDecision_runId_fkey" FOREIGN KEY ("runId") REFERENCES "PipelineRun"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "IntegrationConnection" ADD CONSTRAINT "IntegrationConnection_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

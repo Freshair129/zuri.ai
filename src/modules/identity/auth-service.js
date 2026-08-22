@@ -1,9 +1,10 @@
-import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto'
+import { createHash, createHmac, randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'node:crypto'
 import prisma from '@/lib/db'
 
-// @req FR-046 — credential login verifies PersonCredential and issues a signed session.
-// @spec ADR-017, SDD-024, SEC-008
-// @tested tests/unit/auth-service.test.js, tests/unit/fr046-auth-route.test.js
+// @req FR-046, FR-095 — credential login verifies PersonCredential and issues a signed,
+// persisted, revocable session.
+// @spec ADR-017, ADR-045 D2, SDD-024, SDD-052, SEC-008, SEC-018
+// @tested tests/unit/auth-service.test.js, tests/unit/iam-session.test.js, tests/unit/fr046-auth-route.test.js
 
 export const AUTH_SESSION_COOKIE = 'zuri_session'
 export const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60
@@ -13,6 +14,11 @@ const PASSWORD_HASH_PREFIX = 'scrypt'
 const PASSWORD_KEY_LENGTH = 64
 const PASSWORD_SALT_BYTES = 16
 const MIN_SESSION_SECRET_LENGTH = 32
+
+export function hashSessionToken(token) {
+  if (typeof token !== 'string' || !token) throw new Error('SESSION_TOKEN_REQUIRED')
+  return createHash('sha256').update(token, 'utf8').digest('hex')
+}
 
 export function requireSessionSecret(env = process.env) {
   const secret = env.ZURI_SESSION_SECRET
@@ -60,7 +66,7 @@ function sign(value, secret) {
   return createHmac('sha256', secret).update(value).digest('base64url')
 }
 
-export function generateSessionToken(principalId, { secret, now = Date.now() } = {}) {
+export function generateSessionToken(principalId, { secret, now = Date.now(), sessionId = null } = {}) {
   if (typeof principalId !== 'string' || !principalId.trim()) throw new Error('SESSION_PRINCIPAL_REQUIRED')
   const sessionSecret = secret ?? requireSessionSecret()
   const issuedAt = Math.floor(now / 1000)
@@ -68,6 +74,7 @@ export function generateSessionToken(principalId, { secret, now = Date.now() } =
     sub: principalId,
     iat: issuedAt,
     exp: issuedAt + SESSION_MAX_AGE_SECONDS,
+    ...(typeof sessionId === 'string' && sessionId.trim() ? { sid: sessionId.trim() } : {}),
   })
   return `${SESSION_PREFIX}.${payload}.${sign(payload, sessionSecret)}`
 }
@@ -95,9 +102,75 @@ export function verifySessionToken(token, { secret, now = Date.now() } = {}) {
 
   return {
     principalId: payload.sub,
+    sessionId: typeof payload.sid === 'string' && payload.sid.trim() ? payload.sid : null,
     issuedAt: payload.iat,
     expiresAt: payload.exp,
   }
+}
+
+export async function persistSession({ token, sessionId, personId, db = prisma, env = process.env, secret, now = Date.now(), assurance = 'PASSWORD' } = {}) {
+  if (typeof db.session?.create !== 'function') return null
+  const sessionSecret = secret ?? requireSessionSecret(env)
+  const verified = verifySessionToken(token, { secret: sessionSecret, now })
+  if (!verified || verified.sessionId !== sessionId || verified.principalId !== personId) {
+    throw new Error('SESSION_PERSISTENCE_INVALID')
+  }
+
+  return db.session.create({
+    data: {
+      id: sessionId,
+      personId,
+      tokenHash: hashSessionToken(token),
+      status: 'ACTIVE',
+      assurance,
+      createdAt: new Date(now),
+      lastSeenAt: new Date(now),
+      expiresAt: new Date(verified.expiresAt * 1000),
+    },
+  })
+}
+
+export async function revokeSessionToken(token, {
+  db = prisma,
+  env = process.env,
+  now = Date.now(),
+  reason = 'LOGOUT',
+} = {}) {
+  if (typeof db.session?.updateMany !== 'function') return false
+  const session = verifySessionToken(token, { secret: requireSessionSecret(env), now })
+  if (!session?.sessionId) return false
+
+  const result = await db.session.updateMany({
+    where: {
+      id: session.sessionId,
+      personId: session.principalId,
+      tokenHash: hashSessionToken(token),
+      status: 'ACTIVE',
+    },
+    data: {
+      status: 'REVOKED',
+      revokedAt: new Date(now),
+      revokeReason: reason,
+      version: { increment: 1 },
+    },
+  })
+  return result.count > 0
+}
+
+export async function revokeAllSessions(personId, { db = prisma, now = Date.now(), reason = 'LOGOUT_ALL' } = {}) {
+  if (typeof db.session?.updateMany !== 'function') return 0
+  if (typeof personId !== 'string' || !personId.trim()) throw new Error('SESSION_PRINCIPAL_REQUIRED')
+
+  const result = await db.session.updateMany({
+    where: { personId, status: 'ACTIVE' },
+    data: {
+      status: 'REVOKED',
+      revokedAt: new Date(now),
+      revokeReason: reason,
+      version: { increment: 1 },
+    },
+  })
+  return result.count
 }
 
 /**
@@ -118,9 +191,22 @@ export async function authenticateUser({ username, password, db = prisma, env = 
     return { success: false, error: 'INVALID_CREDENTIALS' }
   }
 
+  const sessionId = randomUUID()
+  const token = generateSessionToken(person.id, { secret: requireSessionSecret(env), sessionId })
+  await persistSession({
+    token,
+    sessionId,
+    personId: person.id,
+    db,
+    env,
+    secret: requireSessionSecret(env),
+    now: Date.now(),
+  })
+
   return {
     success: true,
-    token: generateSessionToken(person.id, { secret: requireSessionSecret(env) }),
+    token,
+    sessionId,
     user: { id: person.id, code: person.code, displayName: person.displayName },
   }
 }

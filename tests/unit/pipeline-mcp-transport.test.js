@@ -50,6 +50,8 @@ describe('Codex data_pipeline MCP bridge', () => {
     expect(response.body.result.tools.map((tool) => tool.name)).toEqual([
       'project_manager.plan_dry_run',
       'project_manager.plan_commit',
+      'project_manager.work_read',
+      'project_manager.work_status_update',
       'data_pipeline.run_create',
       'data_pipeline.document_stage',
       'data_pipeline.event_record',

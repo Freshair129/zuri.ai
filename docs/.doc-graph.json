@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1114,
-    "total_edges": 3672,
+    "total_nodes": 1139,
+    "total_edges": 3852,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 86,
-      "adr": 43,
+      "document": 87,
+      "adr": 44,
       "domain": 7,
-      "roadmap": 25,
-      "feature": 9,
+      "roadmap": 27,
+      "feature": 10,
       "route": 125,
-      "model": 59,
-      "requirement": 198,
-      "test": 263,
-      "code_file": 295
+      "model": 61,
+      "requirement": 207,
+      "test": 269,
+      "code_file": 298
     },
     "coverage": {
-      "requirements": 198,
-      "fr_with_code": "100% (82/82)",
-      "fr_with_tests": "100% (82/82)",
-      "rules_anchored_in_code": "91% (77/85)",
-      "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 295,
+      "requirements": 207,
+      "fr_with_code": "100% (86/86)",
+      "fr_with_tests": "100% (86/86)",
+      "rules_anchored_in_code": "91% (80/88)",
+      "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 298,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -37,7 +37,8 @@
         "FR-088",
         "FR-089",
         "FR-091",
-        "FR-093"
+        "FR-093",
+        "FR-097"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -59,9 +60,7 @@
   },
   "drift": {
     "changed": [],
-    "added": [
-      "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -896,7 +895,7 @@
       "id": "code:src/app/api/agent/line-webhook/route.js",
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
-      "hash": "0c3aa8a4",
+      "hash": "abea824d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -904,6 +903,7 @@
           "FR-093",
           "FR-028",
           "FR-052",
+          "FR-097",
           "FR-081"
         ],
         "@spec": [
@@ -964,18 +964,22 @@
       "id": "code:src/app/api/auth/logout/route.js",
       "type": "code_file",
       "path": "src/app/api/auth/logout/route.js",
-      "hash": "61d7b77e",
+      "hash": "a17e355d",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-046"
+          "FR-046",
+          "FR-095"
         ],
         "@spec": [
           "SDD-024",
-          "SEC-008"
+          "SDD-052",
+          "SEC-008",
+          "SEC-018"
         ],
         "@tested": [
-          "tests/unit/fr046-auth-route.test.js"
+          "tests/unit/fr046-auth-route.test.js",
+          "tests/unit/iam-session.test.js"
         ]
       }
     },
@@ -2545,7 +2549,7 @@
       "id": "code:src/app/api/work/route.js",
       "type": "code_file",
       "path": "src/app/api/work/route.js",
-      "hash": "75c23da2",
+      "hash": "0fe9029a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3158,7 +3162,7 @@
       "id": "code:src/lib/validation/entities.js",
       "type": "code_file",
       "path": "src/lib/validation/entities.js",
-      "hash": "fbadf32b",
+      "hash": "2a98b0fa",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3196,11 +3200,13 @@
       "id": "code:src/modules/agent/action-gate.js",
       "type": "code_file",
       "path": "src/modules/agent/action-gate.js",
-      "hash": "a4727da5",
+      "hash": "9ae10168",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-026"
+          "FR-026",
+          "FR-096",
+          "FR-098"
         ],
         "@spec": [
           "BR-009",
@@ -3236,16 +3242,22 @@
       "id": "code:src/modules/agent/auth-context.js",
       "type": "code_file",
       "path": "src/modules/agent/auth-context.js",
-      "hash": "fb838f24",
+      "hash": "ff5d4669",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-057"
+          "FR-057",
+          "FR-096",
+          "FR-098",
+          "FR-097"
         ],
         "@spec": [
           "SDD-030",
+          "SDD-052",
           "BR-015",
-          "SEC-013"
+          "BR-020",
+          "SEC-013",
+          "SEC-018"
         ],
         "@tested": [
           "tests/integration/agent-multi-principal.test.js"
@@ -3276,12 +3288,14 @@
       "id": "code:src/modules/agent/context.js",
       "type": "code_file",
       "path": "src/modules/agent/context.js",
-      "hash": "ede44d8c",
+      "hash": "c5e826ca",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-025",
-          "FR-057"
+          "FR-057",
+          "FR-096",
+          "FR-098"
         ],
         "@tested": [
           "tests/integration/agent-context.test.js",
@@ -3402,14 +3416,17 @@
       "id": "code:src/modules/agent/line-binding-resolver.js",
       "type": "code_file",
       "path": "src/modules/agent/line-binding-resolver.js",
-      "hash": "6f856d0f",
+      "hash": "37ed43dc",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-052"
+          "FR-052",
+          "FR-097"
         ],
         "@spec": [
-          "SEC-010"
+          "SEC-010",
+          "BR-020",
+          "SEC-018"
         ],
         "@tested": [
           "tests/unit/line-binding-resolver.test.js"
@@ -3420,15 +3437,18 @@
       "id": "code:src/modules/agent/line-channel-binding.js",
       "type": "code_file",
       "path": "src/modules/agent/line-channel-binding.js",
-      "hash": "2f195a8e",
+      "hash": "4a450631",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-052"
+          "FR-052",
+          "FR-097"
         ],
         "@spec": [
           "BR-012",
-          "SEC-010"
+          "SEC-010",
+          "BR-020",
+          "SEC-018"
         ],
         "@tested": [
           "tests/unit/line-channel-binding.test.js",
@@ -3626,11 +3646,13 @@
       "id": "code:src/modules/agent/tools.js",
       "type": "code_file",
       "path": "src/modules/agent/tools.js",
-      "hash": "5ddbe186",
+      "hash": "22c314b0",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-025"
+          "FR-025",
+          "FR-096",
+          "FR-098"
         ],
         "@tested": [
           "tests/integration/agent-tools.test.js"
@@ -3641,12 +3663,17 @@
       "id": "code:src/modules/agent/turn.js",
       "type": "code_file",
       "path": "src/modules/agent/turn.js",
-      "hash": "5127c1e5",
+      "hash": "672efb98",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-027",
+          "FR-097",
           "FR-093"
+        ],
+        "@spec": [
+          "BR-020",
+          "SEC-018"
         ],
         "@tested": [
           "tests/integration/agent-turn.test.js"
@@ -3785,13 +3812,16 @@
       "id": "code:src/modules/crm/line-ingest-service.js",
       "type": "code_file",
       "path": "src/modules/crm/line-ingest-service.js",
-      "hash": "f55a0acd",
+      "hash": "8682592d",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-023"
+          "FR-023",
+          "FR-097"
         ],
         "@spec": [
+          "BR-020",
+          "SEC-018",
           "BR-001",
           "SEC-001",
           "NFR-017"
@@ -3827,19 +3857,65 @@
       "id": "code:src/modules/identity/auth-service.js",
       "type": "code_file",
       "path": "src/modules/identity/auth-service.js",
-      "hash": "2e74cb68",
+      "hash": "26b0e3ef",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-046"
+          "FR-046",
+          "FR-095"
         ],
         "@spec": [
           "SDD-024",
-          "SEC-008"
+          "SDD-052",
+          "SEC-008",
+          "SEC-018"
         ],
         "@tested": [
           "tests/unit/auth-service.test.js",
+          "tests/unit/iam-session.test.js",
           "tests/unit/fr046-auth-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/authorization-context.js",
+      "type": "code_file",
+      "path": "src/modules/identity/authorization-context.js",
+      "hash": "57e6fc4c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-096",
+          "FR-098"
+        ],
+        "@spec": [
+          "SDD-052",
+          "BR-020",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/authorization-context.test.js",
+          "tests/integration/iam-authorization.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/channel-identity.js",
+      "type": "code_file",
+      "path": "src/modules/identity/channel-identity.js",
+      "hash": "fb1f2adf",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-097"
+        ],
+        "@spec": [
+          "BR-020",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/channel-identity.test.js"
         ]
       }
     },
@@ -3847,7 +3923,7 @@
       "id": "code:src/modules/identity/classify-principal.js",
       "type": "code_file",
       "path": "src/modules/identity/classify-principal.js",
-      "hash": "bb78b5e9",
+      "hash": "27d3d8f6",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3886,11 +3962,12 @@
       "id": "code:src/modules/identity/erase-principal.js",
       "type": "code_file",
       "path": "src/modules/identity/erase-principal.js",
-      "hash": "2ad5cf6b",
+      "hash": "d520c5a4",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-022"
+          "FR-022",
+          "FR-095"
         ],
         "@spec": [
           "SEC-003"
@@ -3919,14 +3996,17 @@
       "id": "code:src/modules/identity/link-line-identity.js",
       "type": "code_file",
       "path": "src/modules/identity/link-line-identity.js",
-      "hash": "38b1e276",
+      "hash": "5259bcbb",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-022"
+          "FR-022",
+          "FR-097"
         ],
         "@spec": [
-          "BR-002"
+          "BR-002",
+          "BR-020",
+          "SEC-018"
         ],
         "@tested": [
           "tests/integration/identity-link.test.js"
@@ -4044,15 +4124,18 @@
       "id": "code:src/modules/identity/resolve-line-identity.js",
       "type": "code_file",
       "path": "src/modules/identity/resolve-line-identity.js",
-      "hash": "1b3bcb24",
+      "hash": "107fdd51",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-021"
+          "FR-021",
+          "FR-097"
         ],
         "@spec": [
           "BR-001",
-          "SEC-001"
+          "SEC-001",
+          "BR-020",
+          "SEC-018"
         ],
         "@tested": [
           "tests/integration/identity-resolve.test.js"
@@ -4063,7 +4146,7 @@
       "id": "code:src/modules/identity/resolve-viewer.js",
       "type": "code_file",
       "path": "src/modules/identity/resolve-viewer.js",
-      "hash": "4f2f57db",
+      "hash": "e592c263",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4092,18 +4175,23 @@
       "id": "code:src/modules/identity/session-port.js",
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
-      "hash": "78d354c7",
+      "hash": "cc3cff76",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-046"
+          "FR-046",
+          "FR-095",
+          "FR-096"
         ],
         "@spec": [
           "SDD-024",
-          "SEC-008"
+          "SDD-052",
+          "SEC-008",
+          "SEC-018"
         ],
         "@tested": [
-          "tests/unit/fr046-session-port.test.js"
+          "tests/unit/fr046-session-port.test.js",
+          "tests/unit/iam-session.test.js"
         ]
       }
     },
@@ -4574,7 +4662,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "3f256a35",
+      "hash": "52876f87",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4585,6 +4673,7 @@
           "FR-081",
           "FR-092",
           "FR-090",
+          "FR-095",
           "FR-089"
         ],
         "@spec": [
@@ -5053,6 +5142,29 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/application/work-read-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/work-read-service.js",
+      "hash": "6627e2a9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-005",
+          "FR-046",
+          "FR-068"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/project-manager-mcp.test.js",
+          "tests/unit/authorization-seam-list-routes.test.js",
+          "tests/integration/work-listing-scope.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/application/work-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/work-service.js",
@@ -5489,7 +5601,7 @@
       "id": "code:src/modules/project-manager/mcp/transport.js",
       "type": "code_file",
       "path": "src/modules/project-manager/mcp/transport.js",
-      "hash": "fdcee433",
+      "hash": "cc1b314c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5990,9 +6102,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.16.0b",
+      "version": "1.18.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "3a3ffa94",
+      "hash": "e2afde0f",
       "status": "current"
     },
     {
@@ -6036,9 +6148,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.9.0",
+      "version": "1.10.0",
       "doc_status": "Draft",
-      "hash": "b8b79dbd",
+      "hash": "6b1173ed",
       "status": "current"
     },
     {
@@ -6074,7 +6186,7 @@
       "title": "Appendix E — Risk Matrix",
       "version": "1.1.0",
       "doc_status": "Draft",
-      "hash": "1f0a6e88",
+      "hash": "f1f50bb9",
       "status": "current"
     },
     {
@@ -6118,9 +6230,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.5.0b",
+      "version": "1.6.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "77336ab8",
+      "hash": "6f8a3998",
       "status": "current"
     },
     {
@@ -6483,7 +6595,7 @@
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
       "title": "FR-069 — Plan Blueprint and Human/Agent intake with stable references",
-      "hash": "d24d972f",
+      "hash": "c64a7c59",
       "status": "current"
     },
     {
@@ -6592,6 +6704,16 @@
       "path": "docs/domains/crm/features/FR-093-reply-delivery-receipt.md",
       "title": "FR-093 — LINE reply delivery receipt",
       "hash": "9de8d35b",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-094-production-iam-boundary",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-094-production-iam-boundary.md",
+      "title": "FR-094..FR-098 — Production Identity and Access Management",
+      "version": "0.1.0b",
+      "doc_status": "P0 implemented locally; provider and production migration gates open",
+      "hash": "8974432d",
       "status": "current"
     },
     {
@@ -6799,6 +6921,22 @@
       "status": "current"
     },
     {
+      "id": "doc:PLAN-FR-094-PRODUCTION-IAM",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-FR-094-PRODUCTION-IAM.md",
+      "title": "Implementation plan — Issue #99 production IAM",
+      "hash": "9dbcafdf",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-FR-097-VERIFIED-CHANNEL-ONBOARDING",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-FR-097-VERIFIED-CHANNEL-ONBOARDING.md",
+      "title": "Phase 1 proposal — verified channel onboarding",
+      "hash": "9794c3a2",
+      "status": "current"
+    },
+    {
       "id": "doc:PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT",
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-NEXT-BUSINESS-NAVIGATION-AND-VIEWER-CONTRACT.md",
@@ -6829,9 +6967,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.80.0b",
+      "version": "1.82.0b",
       "doc_status": "Draft",
-      "hash": "1b41966e",
+      "hash": "132bd9bd",
       "status": "current"
     },
     {
@@ -7058,7 +7196,9 @@
         "ExternalRef",
         "RoleBinding",
         "PersonCredential",
-        "PasswordResetToken"
+        "PasswordResetToken",
+        "Session",
+        "ChannelIdentity"
       ],
       "owns_routes": [
         "src/app/(entry)/**",
@@ -7069,7 +7209,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "f0fafac2",
+      "hash": "49531934",
       "status": "current"
     },
     {
@@ -7252,6 +7392,13 @@
       "status": "current"
     },
     {
+      "id": "feat:FEAT-010",
+      "type": "feature",
+      "label": "Production Identity & Access Management — canonical Person/channel identity, persisted sessions, active Membership lifecycle, shared policy enforcement and agent/tool scope isolation",
+      "declared": "building",
+      "status": "current"
+    },
+    {
       "id": "model:AuditEvent",
       "type": "model",
       "status": "current"
@@ -7278,6 +7425,11 @@
     },
     {
       "id": "model:BusinessRoadmapHorizon",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ChannelIdentity",
       "type": "model",
       "status": "current"
     },
@@ -7503,6 +7655,11 @@
     },
     {
       "id": "model:RoleBinding",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Session",
       "type": "model",
       "status": "current"
     },
@@ -7735,6 +7892,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Integration raw evidence is immutable authority for external acquisition provenance. Market may derive observations from it but never rewrites, re-owns or treats translated payload fields as authority for Tenant/Business/connection/source scope. FR-081, FR-092, ADR-038 "
+    },
+    {
+      "id": "req:BR-020",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Person is the canonical internal principal; provider/channel subjects are namespaced external attributes. Only active Membership and scope-valid RoleBinding records grant authority, and client, prompt, model or tool values may attenuate but never widen server-owned scope.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Person is the canonical internal principal; provider/channel subjects are namespaced external attributes. Only active Membership and scope-valid RoleBinding records grant authority, and client, prompt, model or tool values may attenuate but never widen server-owned scope. FR-094..098, ADR-045 "
     },
     {
       "id": "req:FR-001",
@@ -8667,6 +8834,56 @@
       "row_text": "LINE reply delivery receipt: the outbound half of a conversation becomes a row. Nothing has ever written a `Message` with `direction: 'OUTBOUND'` — the reply is assembled here, handed to the edge runtime, sent to the customer and then forgotten — so FR-091's inbox shows one side of every conversation and its `OUTBOUND` count is structurally zero. `POST /api/agent/line-delivery` accepts a batch of receipts from the transport owner, each naming the **inbound `Message.id` it answers** and the text that was **actually sent**. (a) The receipt comes from the edge runtime *after* a successful send and not from this side at hand-over, because the two differ: when the stack cannot answer, the transport sends its own fallback text, and recording what this side produced would record a message the customer never received (BR-011 — the reply owner is the one who knows). (b) Scope is resolved by the same seam as the webhook (FR-052), and the named inbound message must resolve inside that scope — a binding for one tenant can never attach a reply to another tenant's conversation (SEC-001). (c) Idempotent on `reply:<inboundMessageId>` as the message's external id, so a redelivered receipt resolves to the existing row: one inbound message has one reply, which is exactly what the LINE Reply API allows per token. (d) The row records the text the customer received; whether it came from the stack or from the transport's fallback is recorded on the audit event, not in the body, because the body is what was said and the provenance is a different fact. The webhook response gains `conversationId` and `inboundMessageId` so the transport has something to name — on the **failure** result as well as the success one, because a failed turn is precisely when the transport substitutes its own text and a customer certainly received something. That failure result also gains the `eventId` it never carried: the transport matches results to events by that field, so a failed result was previously unfindable and its fallback was sent only because an unmatched result and a failed one both read as \"not ok\". All additive; the four fields the transport already reads are untouched. 🔜 "
     },
     {
+      "id": "req:FR-094",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Canonical IAM principal: every trusted provider, credential or channel identity resolves to one internal `Person` through a namespaced external binding; unknown, revoked, ambiguous or duplicate subjects never receive private authority, and only active Membership/RoleBinding records contribute to scope or permission.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Canonical IAM principal: every trusted provider, credential or channel identity resolves to one internal `Person` through a namespaced external binding; unknown, revoked, ambiguous or duplicate subjects never receive private authority, and only active Membership/RoleBinding records contribute to scope or permission. 🟠 Issue #99 Phase 0 P0 "
+    },
+    {
+      "id": "req:FR-095",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Persisted session lifecycle: successful login creates a revocable Session bound to Person with an opaque-token hash; every protected request checks live status and expiry, and logout, Person erasure, Membership suspension or explicit revocation denies the next request.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Persisted session lifecycle: successful login creates a revocable Session bound to Person with an opaque-token hash; every protected request checks live status and expiry, and logout, Person erasure, Membership suspension or explicit revocation denies the next request. 🟠 Issue #99 Phase 0 P0 "
+    },
+    {
+      "id": "req:FR-096",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Shared policy enforcement: Web/API requests, agent turns, actions and tools resolve trusted principal, scope, membership and permission before protected work; payload, prompt, model output and tool arguments cannot widen server-owned authority.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Shared policy enforcement: Web/API requests, agent turns, actions and tools resolve trusted principal, scope, membership and permission before protected work; payload, prompt, model output and tool arguments cannot widen server-owned authority. 🟠 Issue #99 Phase 0 P0 "
+    },
+    {
+      "id": "req:FR-097",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Verified channel onboarding: a valid LINE signature proves transport origin only; a new channel subject remains pending until server-owned linking/onboarding and active Membership authorize private data or staff capability.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Verified channel onboarding: a valid LINE signature proves transport origin only; a new channel subject remains pending until server-owned linking/onboarding and active Membership authorize private data or staff capability. 🔜 provider gate "
+    },
+    {
+      "id": "req:FR-098",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Agent/tool/MSP authorization: every retrieval, action and tool call consumes the immutable shared authorization context, uses only server-resolved resource/vault identifiers, audits denial without secrets or customer content, and fails closed before side effects.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Agent/tool/MSP authorization: every retrieval, action and tool call consumes the immutable shared authorization context, uses only server-resolved resource/vault identifiers, audits denial without secrets or customer content, and fails closed before side effects. 🟠 Issue #99 Phase 0 P0 "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -8845,6 +9062,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable. FR-092 tests + unique lineage persistence gate "
+    },
+    {
+      "id": "req:NFR-019",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "IAM decisions are recomputed from trusted server state per request/turn, remain bounded and auditable across restart, horizontal instances, session revocation and Membership revocation, and never perform protected reads or writes after a deny decision.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "IAM decisions are recomputed from trusted server state per request/turn, remain bounded and auditable across restart, horizontal instances, session revocation and Membership revocation, and never perform protected reads or writes after a deny decision. FR-094..098 / ADR-045 security gate "
     },
     {
       "id": "req:SDD-001",
@@ -9357,6 +9584,16 @@
       "row_text": "Recording a reply is a **separate, narrow writer** in the crm module (`reply-record-service`), not a `direction: 'OUTBOUND'` call into `ingestLineMessage`. The ingest seam creates a Person, a Customer and a Conversation when they are absent, and that is exactly wrong here: a receipt naming a conversation that does not exist is an error to report, never a reason to invent one. So the writer resolves the inbound `Message` first, derives the conversation from it, and refuses anything it cannot place — the conversation is never taken from the request, which is what makes cross-tenant attachment impossible rather than merely checked. It appends one row and one `AuditEvent` in a single transaction, exactly as the ingest seam does, and carries the same correlation id (SDD-048) so `webhook → turn → message → reply` remains one chain in the audit table. The route is a batch like the webhook: a per-receipt failure is captured with the stage that failed and never drops the rest, because a transport that has already sent three replies must be able to report all three. FR-093; FEAT-009, BR-011, BR-001, SEC-001, SDD-048, SDD-050, FR-023, FR-052, FR-091 "
     },
     {
+      "id": "req:SDD-052",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "IAM is an identity-domain modular-monolith boundary: a persisted Session is the live browser authority, active Membership/RoleBinding rows form the scope input, and one `resolveAuthorizationContext`/`authorizeScope` policy seam is called before Web/API, agent and tool work. Provider and MSP adapters consume the resolved context but cannot replace or widen it.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "IAM is an identity-domain modular-monolith boundary: a persisted Session is the live browser authority, active Membership/RoleBinding rows form the scope input, and one `resolveAuthorizationContext`/`authorizeScope` policy seam is called before Web/API, agent and tool work. Provider and MSP adapters consume the resolved context but cannot replace or widen it. FR-094..098, NFR-019, BR-020, SEC-018, ADR-045 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -9525,6 +9762,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope. FR-092 / ADR-038 security gate "
+    },
+    {
+      "id": "req:SEC-018",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "IAM fails closed on identity, session and scope ambiguity: external subjects, cookies, payloads, prompts, model output and tool arguments cannot establish or widen authority; live Session/Membership/RoleBinding state is checked before protected work, and audit payloads exclude tokens, secrets and customer content.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "IAM fails closed on identity, session and scope ambiguity: external subjects, cookies, payloads, prompts, model output and tool arguments cannot establish or widen authority; live Session/Membership/RoleBinding state is checked before protected work, and audit payloads exclude tokens, secrets and customer content. FR-094..098 / ADR-045 security gate "
     },
     {
       "id": "route:api:/api/agent/heartbeat",
@@ -10875,6 +11122,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
+      "type": "adr",
+      "path": "docs/decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md",
+      "title": "ADR-045 — Canonical Identity and Access Management Boundary",
+      "hash": "81a89df0",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -10962,7 +11217,7 @@
       "id": "test:tests/integration/agent-action-gate.test.js",
       "type": "test",
       "path": "tests/integration/agent-action-gate.test.js",
-      "hash": "7f76238d",
+      "hash": "66f36487",
       "status": "current"
     },
     {
@@ -11019,6 +11274,13 @@
       "type": "test",
       "path": "tests/integration/backup.test.js",
       "hash": "e9999e30",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/channel-identity.test.js",
+      "type": "test",
+      "path": "tests/integration/channel-identity.test.js",
+      "hash": "d5198f73",
       "status": "current"
     },
     {
@@ -11145,6 +11407,13 @@
       "type": "test",
       "path": "tests/integration/fr089-team-scope.test.js",
       "hash": "8356e783",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/iam-authorization.test.js",
+      "type": "test",
+      "path": "tests/integration/iam-authorization.test.js",
+      "hash": "2c66e975",
       "status": "current"
     },
     {
@@ -11417,7 +11686,7 @@
       "id": "test:tests/integration/work-listing-scope.test.js",
       "type": "test",
       "path": "tests/integration/work-listing-scope.test.js",
-      "hash": "08376414",
+      "hash": "206e2f3f",
       "status": "current"
     },
     {
@@ -11467,6 +11736,13 @@
       "type": "test",
       "path": "tests/unit/auth-service.test.js",
       "hash": "dfd72ac1",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/authorization-context.test.js",
+      "type": "test",
+      "path": "tests/unit/authorization-context.test.js",
+      "hash": "d30f514c",
       "status": "current"
     },
     {
@@ -11530,6 +11806,20 @@
       "type": "test",
       "path": "tests/unit/business-strategy-service.test.js",
       "hash": "0dab6997",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/canonical-iam-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/canonical-iam-migration.test.js",
+      "hash": "074b44c4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/canonical-iam-runtime-role-cutover.test.js",
+      "type": "test",
+      "path": "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+      "hash": "d72d4a23",
       "status": "current"
     },
     {
@@ -12086,6 +12376,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/iam-session.test.js",
+      "type": "test",
+      "path": "tests/unit/iam-session.test.js",
+      "hash": "e00af0e9",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/id-anchor-stability.test.js",
       "type": "test",
       "path": "tests/unit/id-anchor-stability.test.js",
@@ -12131,7 +12428,7 @@
       "id": "test:tests/unit/line-binding-resolver.test.js",
       "type": "test",
       "path": "tests/unit/line-binding-resolver.test.js",
-      "hash": "3af9c748",
+      "hash": "07c18f76",
       "status": "current"
     },
     {
@@ -12145,7 +12442,7 @@
       "id": "test:tests/unit/line-channel-binding.test.js",
       "type": "test",
       "path": "tests/unit/line-channel-binding.test.js",
-      "hash": "2a19c386",
+      "hash": "605ccffc",
       "status": "current"
     },
     {
@@ -12292,7 +12589,7 @@
       "id": "test:tests/unit/pipeline-mcp-transport.test.js",
       "type": "test",
       "path": "tests/unit/pipeline-mcp-transport.test.js",
-      "hash": "cbe38abf",
+      "hash": "8cbad74c",
       "status": "current"
     },
     {
@@ -12495,7 +12792,7 @@
       "id": "test:tests/unit/project-manager-mcp.test.js",
       "type": "test",
       "path": "tests/unit/project-manager-mcp.test.js",
-      "hash": "9267d794",
+      "hash": "0f1779e4",
       "status": "current"
     },
     {
@@ -13748,6 +14045,13 @@
     },
     {
       "from": "code:src/app/api/agent/line-webhook/route.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/agent/line-webhook/route.js",
       "to": "req:NFR-017",
       "type": "follows",
       "status": "current",
@@ -13832,6 +14136,13 @@
     },
     {
       "from": "code:src/app/api/auth/logout/route.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/logout/route.js",
       "to": "req:SDD-024",
       "type": "follows",
       "status": "current",
@@ -13839,7 +14150,21 @@
     },
     {
       "from": "code:src/app/api/auth/logout/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/logout/route.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/logout/route.js",
+      "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -17283,6 +17608,20 @@
     },
     {
       "from": "code:src/modules/agent/action-gate.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/action-gate.js",
+      "to": "req:FR-098",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/action-gate.js",
       "to": "req:SDD-009",
       "type": "follows",
       "status": "current",
@@ -17332,7 +17671,35 @@
     },
     {
       "from": "code:src/modules/agent/auth-context.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/auth-context.js",
       "to": "req:FR-057",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/auth-context.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/auth-context.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/auth-context.js",
+      "to": "req:FR-098",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -17346,7 +17713,21 @@
     },
     {
       "from": "code:src/modules/agent/auth-context.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/auth-context.js",
       "to": "req:SEC-013",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/auth-context.js",
+      "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -17389,6 +17770,20 @@
     {
       "from": "code:src/modules/agent/context.js",
       "to": "req:FR-057",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/context.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/context.js",
+      "to": "req:FR-098",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -17584,6 +17979,13 @@
     },
     {
       "from": "code:src/modules/agent/line-binding-resolver.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-resolver.js",
       "to": "req:FR-052",
       "type": "implements",
       "status": "current",
@@ -17591,7 +17993,21 @@
     },
     {
       "from": "code:src/modules/agent/line-binding-resolver.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-resolver.js",
       "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-binding-resolver.js",
+      "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -17605,6 +18021,13 @@
     },
     {
       "from": "code:src/modules/agent/line-channel-binding.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-channel-binding.js",
       "to": "req:FR-052",
       "type": "implements",
       "status": "current",
@@ -17612,7 +18035,21 @@
     },
     {
       "from": "code:src/modules/agent/line-channel-binding.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-channel-binding.js",
       "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/line-channel-binding.js",
+      "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -17842,6 +18279,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/agent/tools.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/tools.js",
+      "to": "req:FR-098",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/turn.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/agent/turn.js",
       "to": "req:FR-027",
       "type": "implements",
@@ -17852,6 +18310,20 @@
       "from": "code:src/modules/agent/turn.js",
       "to": "req:FR-093",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/turn.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/agent/turn.js",
+      "to": "req:SEC-018",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -18004,7 +18476,21 @@
     },
     {
       "from": "code:src/modules/crm/line-ingest-service.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/line-ingest-service.js",
       "to": "req:FR-023",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/line-ingest-service.js",
+      "to": "req:FR-097",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -18019,6 +18505,13 @@
     {
       "from": "code:src/modules/crm/line-ingest-service.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/line-ingest-service.js",
+      "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -18067,6 +18560,13 @@
     },
     {
       "from": "code:src/modules/identity/auth-service.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/auth-service.js",
       "to": "req:SDD-024",
       "type": "follows",
       "status": "current",
@@ -18074,7 +18574,84 @@
     },
     {
       "from": "code:src/modules/identity/auth-service.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/auth-service.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/auth-service.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/authorization-context.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/authorization-context.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/authorization-context.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/authorization-context.js",
+      "to": "req:FR-098",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/authorization-context.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/authorization-context.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/channel-identity.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/channel-identity.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/channel-identity.js",
+      "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -18130,6 +18707,13 @@
     },
     {
       "from": "code:src/modules/identity/erase-principal.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/erase-principal.js",
       "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
@@ -18151,8 +18735,29 @@
     },
     {
       "from": "code:src/modules/identity/link-line-identity.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/link-line-identity.js",
       "to": "req:FR-022",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/link-line-identity.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/link-line-identity.js",
+      "to": "req:SEC-018",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -18284,6 +18889,13 @@
     },
     {
       "from": "code:src/modules/identity/resolve-line-identity.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-line-identity.js",
       "to": "req:FR-021",
       "type": "implements",
       "status": "current",
@@ -18291,7 +18903,21 @@
     },
     {
       "from": "code:src/modules/identity/resolve-line-identity.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-line-identity.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-line-identity.js",
+      "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -18382,6 +19008,20 @@
     },
     {
       "from": "code:src/modules/identity/session-port.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/session-port.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/session-port.js",
       "to": "req:SDD-024",
       "type": "follows",
       "status": "current",
@@ -18389,7 +19029,21 @@
     },
     {
       "from": "code:src/modules/identity/session-port.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/session-port.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/session-port.js",
+      "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -18964,6 +19618,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-095",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -19782,6 +20443,41 @@
     },
     {
       "from": "code:src/modules/project-manager/application/team-service.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-read-service.js",
+      "to": "req:FR-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-read-service.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-read-service.js",
+      "to": "req:FR-068",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-read-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-read-service.js",
       "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
@@ -21272,6 +21968,41 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-010",
+      "to": "req:FR-094",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-010",
+      "to": "req:FR-095",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-010",
+      "to": "req:FR-096",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-010",
+      "to": "req:FR-097",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-010",
+      "to": "req:FR-098",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:AuditEvent",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -21309,6 +22040,13 @@
     {
       "from": "model:BusinessRoadmapHorizon",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ChannelIdentity",
+      "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -21587,6 +22325,13 @@
       "source": "charter"
     },
     {
+      "from": "model:Session",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:SyncCursor",
       "to": "domain:integration",
       "type": "owned_by",
@@ -21770,6 +22515,13 @@
     },
     {
       "from": "req:BR-019",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-020",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -22441,6 +23193,41 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-094",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-095",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-096",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-097",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-098",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -22561,6 +23348,13 @@
     },
     {
       "from": "req:NFR-018",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-019",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -22924,6 +23718,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-052",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -23051,6 +23852,13 @@
     },
     {
       "from": "req:SEC-017",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-018",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -25101,6 +25909,41 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
+      "to": "spec:ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
+      "to": "spec:ADR-022-MULTI-TENANT-MSP-VAULTS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
+      "to": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -26495,6 +27338,20 @@
     },
     {
       "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
+      "to": "req:FR-098",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-action-gate.test.js",
       "to": "req:SDD-009",
       "type": "verifies",
       "status": "current",
@@ -26607,6 +27464,20 @@
     },
     {
       "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
+      "to": "req:FR-098",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-context.test.js",
       "to": "req:SDD-027",
       "type": "verifies",
       "status": "current",
@@ -26670,6 +27541,13 @@
     },
     {
       "from": "test:tests/integration/agent-multi-principal.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-multi-principal.test.js",
       "to": "req:FR-025",
       "type": "verifies",
       "status": "current",
@@ -26684,6 +27562,27 @@
     },
     {
       "from": "test:tests/integration/agent-multi-principal.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-multi-principal.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-multi-principal.test.js",
+      "to": "req:FR-098",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-multi-principal.test.js",
       "to": "req:SDD-030",
       "type": "verifies",
       "status": "current",
@@ -26691,10 +27590,24 @@
     },
     {
       "from": "test:tests/integration/agent-multi-principal.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-multi-principal.test.js",
       "to": "req:SEC-013",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-multi-principal.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/agent-runtime.test.js",
@@ -26746,11 +27659,32 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/agent-tools.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-tools.test.js",
+      "to": "req:FR-098",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/agent-turn.test.js",
       "to": "code:src/modules/agent/turn.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-turn.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/agent-turn.test.js",
@@ -26762,6 +27696,20 @@
     {
       "from": "test:tests/integration/agent-turn.test.js",
       "to": "req:FR-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-turn.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-turn.test.js",
+      "to": "req:SEC-018",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -26790,6 +27738,13 @@
     {
       "from": "test:tests/integration/agent-webhook-route.test.js",
       "to": "req:BR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:BR-020",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -26831,6 +27786,13 @@
     },
     {
       "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
       "to": "req:NFR-017",
       "type": "verifies",
       "status": "current",
@@ -26853,6 +27815,13 @@
     {
       "from": "test:tests/integration/agent-webhook-route.test.js",
       "to": "req:SEC-010",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-webhook-route.test.js",
+      "to": "req:SEC-018",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -26957,6 +27926,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -26968,6 +27944,34 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/channel-identity.test.js",
+      "to": "code:src/modules/identity/channel-identity.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/channel-identity.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/channel-identity.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/channel-identity.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/controlled-line-activation.postgres.test.js",
@@ -28301,6 +29305,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -28412,6 +29423,55 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/iam-authorization.test.js",
+      "to": "code:src/modules/identity/authorization-context.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/iam-authorization.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/iam-authorization.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/iam-authorization.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/iam-authorization.test.js",
+      "to": "req:FR-098",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/iam-authorization.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/iam-authorization.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/identity-classify.test.js",
       "to": "code:src/modules/identity/classify-principal.js",
       "type": "tests",
@@ -28452,6 +29512,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/identity-erase.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/identity-erase.test.js",
@@ -28497,10 +29564,31 @@
     },
     {
       "from": "test:tests/integration/identity-link.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-link.test.js",
       "to": "req:FR-022",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/identity-link.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-link.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/identity-resolve.test.js",
@@ -28518,6 +29606,13 @@
     },
     {
       "from": "test:tests/integration/identity-resolve.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-resolve.test.js",
       "to": "req:FR-021",
       "type": "verifies",
       "status": "current",
@@ -28525,7 +29620,21 @@
     },
     {
       "from": "test:tests/integration/identity-resolve.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-resolve.test.js",
       "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-resolve.test.js",
+      "to": "req:SEC-018",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -28868,6 +29977,13 @@
     },
     {
       "from": "test:tests/integration/line-ingest.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-ingest.test.js",
       "to": "req:FR-021",
       "type": "verifies",
       "status": "current",
@@ -28882,6 +29998,13 @@
     },
     {
       "from": "test:tests/integration/line-ingest.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-ingest.test.js",
       "to": "req:NFR-017",
       "type": "verifies",
       "status": "current",
@@ -28890,6 +30013,13 @@
     {
       "from": "test:tests/integration/line-ingest.test.js",
       "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-ingest.test.js",
+      "to": "req:SEC-018",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -29037,6 +30167,13 @@
     {
       "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
       "to": "req:FR-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-oa-evidence-convergence.test.js",
+      "to": "req:FR-097",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -30443,6 +31580,13 @@
     },
     {
       "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "code:src/modules/project-manager/application/work-read-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
       "to": "code:src/modules/project-manager/application/work-service.js",
       "type": "tests",
       "status": "current",
@@ -30482,6 +31626,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/work-listing-scope.test.js",
@@ -30821,6 +31979,13 @@
     },
     {
       "from": "test:tests/unit/auth-service.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/auth-service.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -30828,10 +31993,87 @@
     },
     {
       "from": "test:tests/unit/auth-service.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/auth-service.test.js",
       "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/auth-service.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-context.test.js",
+      "to": "code:src/modules/identity/authorization-context.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-context.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-context.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-context.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-context.test.js",
+      "to": "req:FR-098",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-context.test.js",
+      "to": "req:NFR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-context.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-context.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "code:src/modules/project-manager/application/work-read-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
     },
     {
       "from": "test:tests/unit/authorization-seam-list-routes.test.js",
@@ -30888,6 +32130,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/authorization-seam-list-routes.test.js",
@@ -31515,6 +32764,111 @@
     {
       "from": "test:tests/unit/business-strategy-service.test.js",
       "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-migration.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-migration.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-migration.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-migration.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-migration.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-migration.test.js",
+      "to": "req:FR-098",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-migration.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-migration.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-runtime-role-cutover.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-runtime-role-cutover.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-runtime-role-cutover.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-runtime-role-cutover.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-runtime-role-cutover.test.js",
+      "to": "req:FR-098",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-runtime-role-cutover.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/canonical-iam-runtime-role-cutover.test.js",
+      "to": "req:SEC-018",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -32697,6 +34051,13 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -33341,6 +34702,13 @@
     },
     {
       "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -33348,10 +34716,24 @@
     },
     {
       "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
       "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr046-entry-read-model.test.js",
@@ -33404,6 +34786,20 @@
     },
     {
       "from": "test:tests/unit/fr046-session-port.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-session-port.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-session-port.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -33411,10 +34807,24 @@
     },
     {
       "from": "test:tests/unit/fr046-session-port.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-session-port.test.js",
       "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr046-session-port.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr048-provider-catalog.test.js",
@@ -34880,6 +36290,83 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "code:src/app/api/auth/logout/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "code:src/modules/identity/auth-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "code:src/modules/identity/session-port.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "req:NFR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/ids.test.js",
       "to": "code:src/lib/ids.js",
       "type": "tests",
@@ -35070,10 +36557,24 @@
     },
     {
       "from": "test:tests/unit/line-binding-resolver.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-binding-resolver.test.js",
       "to": "req:FR-052",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-binding-resolver.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/line-binding-resolver.test.js",
@@ -35088,6 +36589,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-binding-resolver.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/line-canary-preflight.test.js",
@@ -35140,6 +36648,13 @@
     },
     {
       "from": "test:tests/unit/line-channel-binding.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-channel-binding.test.js",
       "to": "req:FR-052",
       "type": "verifies",
       "status": "current",
@@ -35147,10 +36662,24 @@
     },
     {
       "from": "test:tests/unit/line-channel-binding.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-channel-binding.test.js",
       "to": "req:SEC-010",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/line-channel-binding.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/line-registry-service.test.js",
@@ -36988,10 +38517,38 @@
     },
     {
       "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "code:src/modules/project-manager/application/work-read-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
       "to": "code:src/modules/project-manager/mcp/transport.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "req:FR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/project-manager-mcp.test.js",
