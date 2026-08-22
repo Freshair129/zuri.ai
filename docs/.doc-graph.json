@@ -3,13 +3,13 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1113,
-    "total_edges": 3667,
+    "total_nodes": 1114,
+    "total_edges": 3672,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
       "document": 86,
-      "adr": 42,
+      "adr": 43,
       "domain": 7,
       "roadmap": 25,
       "feature": 9,
@@ -58,10 +58,10 @@
     }
   },
   "drift": {
-    "changed": [
-      "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE"
+    "changed": [],
+    "added": [
+      "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE"
     ],
-    "added": [],
     "removed": []
   },
   "nodes": [
@@ -10864,7 +10864,15 @@
       "path": "docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md",
       "title": "ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service: Genesis Retrieval Fabric Architecture",
       "hash": "5b99dcce",
-      "status": "changed"
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md",
+      "title": "ADR-043 — Four-Tier Cognitive Architecture: Zuri-AI, MSP, GKS, and GenesisBlockDB",
+      "hash": "253ffd63",
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -25053,6 +25061,41 @@
     {
       "from": "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE",
       "to": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "to": "doc:FR-080-integration-secret-management-ui",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "to": "req:FR-080",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "to": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
+      "to": "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE",
       "type": "relates",
       "status": "current",
       "source": "control-block"

@@ -33,7 +33,7 @@ work from them. Id strings keep their historical letters (`ZV2-CR-007` stays
 | **Never read `D:\workspace\zuri-edge-device\.env`** | It holds local on-premise secrets and pairing keys (ADR-041) |
 | **External ids are never primary keys** | Internal UUID + human `code` + `ExternalRef` mapping (BR-002) |
 | **Never execute anything that arrives in a plan/envelope** | Plans are data (BR-007, SEC-002) |
-| **GenesisBlockDB is 6-lane retrieval substrate only; GKS orchestrates RAG** | Database fuses Vector/Graph/Lexical/SQL/Temporal/Provenance; RAG reasoning lives in GKS orchestrator (ADR-042) |
+| **GenesisBlockDB is 6-lane substrate; MSP governs memory/sessions; GKS orchestrates RAG** | Four-tier cognitive stack separates Execution (Tier 1) → Memory (Tier 2/MSP) → Knowledge (Tier 3/GKS) → Substrate (Tier 4/GenesisBlockDB) (ADR-041..043) |
 
 ## Layout
 

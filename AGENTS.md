@@ -486,11 +486,13 @@ modes it forbids:
 2. letting an earlier hypothesis survive after newer repository evidence
    contradicts it — the last enumeration wins, not the first guess.
 
-### 22. Knowledge & Retrieval Architecture: GKS and GenesisBlockDB Boundary
+### 22. Knowledge & Retrieval Architecture: Four-Tier Cognitive Stack
 
-Set by [ADR-041](docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md) and [ADR-042](docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md).
+Set by [ADR-041](docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md), [ADR-042](docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md), and [ADR-043](docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md).
 
-1. **GenesisBlockDB is the 6-lane retrieval substrate only**: Vector (HNSW), Lexical, Property Graph, Relational SQLite, Bitemporal, and Provenance. It does not hold agent cognitive logic, prompt templates, or application workflows.
-2. **GKS (Genesis Knowledge System) is the RAG Intelligence Layer**: GKS orchestrates Query Planning, Adaptive Routing, Multi-hop Planning, Reranking, and Evidence/Citation Verification via `query-ir.v1`.
-3. **Zuri-AI is the business execution client**: Zuri-AI and Zuri Edge Device consume knowledge from GKS / GenesisBlockDB over standard REST / MCP (`:8888`) without maintaining dual-write vector or graph database stacks.
+1. **Tier 1 (Zuri-AI & Edge Device)**: Business Execution Client (LINE/Console/Workflows).
+2. **Tier 2 (MSP — `D:\msp`)**: Agent Session Control & Memory Policy (Episodic scratchpads, token budget, vault gates, H0-H4 access ceilings).
+3. **Tier 3 (GKS — `D:\gks`)**: Canonical Knowledge Authority & RAG Orchestrator (Entity identity, ontology, deduplication, scoped search, R0-R6 radius).
+4. **Tier 4 (GenesisBlockDB)**: 6-lane hybrid retrieval substrate only (Vector, Lexical, Graph, SQLite, Bitemporal, Provenance via `query-ir.v1`).
+
 

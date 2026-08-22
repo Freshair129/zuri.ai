@@ -421,6 +421,7 @@
     "ADR-040",
     "ADR-041",
     "ADR-042",
+    "ADR-043",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -4811,6 +4812,19 @@
       "history": [
         {
           "anchor": "decoupled standalone knowledge and graphrag service",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-043": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md",
+      "status": "current",
+      "statement_digest": "5c70491402bd0e616d8ac5cfe14cbc445a2264211cd6cab96254cffb0f2f3a59",
+      "history": [
+        {
+          "anchor": "four tier cognitive architecture",
           "since": "2026-08-22",
           "reason": "declared"
         }
