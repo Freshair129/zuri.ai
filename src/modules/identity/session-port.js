@@ -2,17 +2,7 @@
 // @spec ADR-017, SDD-024, SEC-008
 // @tested tests/unit/fr046-session-port.test.js
 
-export const LOCAL_DEMO_COOKIE = 'zuri_local_demo_session'
-export const LIVE_SESSION_COOKIE = 'zuri_session'
-export const LIVE_OWNER_PRINCIPAL_ID = '2eb143ad-ed64-4491-bcc6-2784ed7a9364'
-
-// @req FR-046 — the pre-session demo bootstrap is a server-owned capability,
-// available only in an explicitly enabled non-production environment.
-// @spec ADR-017, SDD-024, SEC-008
-export function requireTrustedLocalDemo({ env = process.env } = {}) {
-  if (env.NODE_ENV !== 'production' && env.ZURI_LOCAL_DEMO_AUTH === '1') return
-  throw new Error('LOCAL_DEMO_NOT_ALLOWED')
-}
+import { AUTH_SESSION_COOKIE, verifySessionToken } from './auth-service'
 
 function cookieValue(request, name) {
   if (request?.cookies?.get) {
@@ -38,7 +28,6 @@ function normalizeTrustedSession(value) {
     principalId: value.principalId,
     platformGrant: value.platformGrant === true,
     sessionId: typeof value.sessionId === 'string' ? value.sessionId : null,
-    localDemo: false,
   }
 }
 
@@ -51,25 +40,15 @@ export function createSessionPort({ readTrustedSession = async () => null, env =
       const trusted = normalizeTrustedSession(await readTrustedSession(request))
       if (trusted) return trusted
 
-      const liveCookie = cookieValue(request, LIVE_SESSION_COOKIE)
-      if (liveCookie) {
+      const sessionCookie = cookieValue(request, AUTH_SESSION_COOKIE)
+      if (sessionCookie) {
+        const session = verifySessionToken(sessionCookie, { secret: env.ZURI_SESSION_SECRET })
+        if (!session) return { state: 'UNAUTHENTICATED' }
         return {
           state: 'AUTHENTICATED',
-          principalId: liveCookie,
+          principalId: session.principalId,
           platformGrant: false,
-          sessionId: `live-${liveCookie}`,
-          localDemo: false,
-        }
-      }
-
-      const demoAllowed = env.NODE_ENV !== 'production' && env.ZURI_LOCAL_DEMO_AUTH === '1'
-      if (demoAllowed && cookieValue(request, LOCAL_DEMO_COOKIE) === 'enabled') {
-        return {
-          state: 'AUTHENTICATED',
-          principalId: null,
-          platformGrant: false,
-          sessionId: 'local-demo',
-          localDemo: true,
+          sessionId: `session-${session.issuedAt}-${session.expiresAt}`,
         }
       }
 

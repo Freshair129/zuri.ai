@@ -93,7 +93,6 @@ export default function WorkspacesPage() {
   const scope = useScope()
   const [modal, setModal] = useState(false)
   const [editing, setEditing] = useState(null)
-  const [actionError, setActionError] = useState(null)
 
   // FR-020 — scope is described in business words; tenant never surfaces here.
   const label = (ws) => {
@@ -114,7 +113,6 @@ export default function WorkspacesPage() {
           </button>
         }
       />
-      {actionError && <p className="mb-3 rounded-lg px-3 py-2 text-[11px]" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }} role="alert">{actionError}</p>}
       {scope.scopedWorkspaces.length === 0 ? (
         <EmptyState title="No spaces" hint="Run npm run db:seed for the demo dataset, or create a Space." />
       ) : (
@@ -140,13 +138,8 @@ export default function WorkspacesPage() {
                   aria-label={`Archive ${ws.code}`}
                   onClick={async () => {
                     if (window.confirm(`Archive workspace ${ws.code}?`)) {
-                      setActionError(null)
-                      try {
-                        await api(`/api/workspaces/${ws.id}`, { method: 'DELETE' })
-                        scope.refresh()
-                      } catch (error) {
-                        setActionError(error.message)
-                      }
+                      await api(`/api/workspaces/${ws.id}`, { method: 'DELETE' })
+                      scope.refresh()
                     }
                   }}
                 >

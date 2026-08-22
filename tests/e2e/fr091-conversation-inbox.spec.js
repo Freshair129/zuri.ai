@@ -3,10 +3,10 @@
 // @spec SDD-050, BR-001, BR-011
 // @tested tests/e2e/fr091-conversation-inbox.spec.js
 const { test, expect } = require('@playwright/test')
+const { loginAsOwner } = require('./e2e-auth')
 
 async function chooseBusiness(page, name = 'Business 01') {
-  await page.goto('/login')
-  await page.getByRole('button', { name: /sign in as owner/i }).click()
+  await loginAsOwner(page)
   await page.getByRole('button', { name: new RegExp(`Open Business ${name}`) }).click()
   await expect(page).toHaveURL(/overview/)
 }

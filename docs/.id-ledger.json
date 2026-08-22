@@ -420,6 +420,7 @@
     "ADR-039",
     "ADR-040",
     "ADR-041",
+    "ADR-042",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -1080,7 +1081,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "84a36e09f17878df814035ec17c4d008ff084525cd3bcd2cfa0f48c314605985"
+      "statement_digest": "0059fe56e90aeac428b4ae49661087c580cb2f168f0516befa376a0b71af8731",
+      "statement_digest_reviewed_at": "2026-08-22",
+      "statement_digest_reason": "Replace the credential-free owner fallback with fail-closed authenticated viewer resolution."
     },
     "FR-032": {
       "family": "FR",
@@ -1249,7 +1252,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "1d0ea0224d3b7f95e9174e1494980e4085283a681c74974e1d33e2175557d647"
+      "statement_digest": "f73eccd1c10bbaf923393c7ca0f3e1e8dbcfee8d464e5a222104377a48ca206c",
+      "statement_digest_reviewed_at": "2026-08-22",
+      "statement_digest_reason": "Keep the routing requirement while documenting credential Login as the current implementation."
     },
     "FR-045": {
       "family": "FR",
@@ -1652,7 +1657,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "df395561b8f6128f10bd309f3b432db0f5c93827e10f51ac6022f9c418bfa418"
+      "statement_digest": "75fe5d1df4b462e121ac7326134b406b06fb53ffbee29aac376c96c35f0ac5cd",
+      "statement_digest_reviewed_at": "2026-08-22",
+      "statement_digest_reason": "Limit installation-wide operator authority to a server-held platform grant, never ordinary ownership."
     },
     "FR-076": {
       "family": "FR",
@@ -2568,7 +2575,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "cb08e049924ec1932b3d24076d15ed49e43165b706829816ca6b3648237fe1a8"
+      "statement_digest": "486a8a44d88f2dd62bd45c8063d619542fac278c60edce7ec13cc0a308a0f32b",
+      "statement_digest_reviewed_at": "2026-08-22",
+      "statement_digest_reason": "Derive per-Business domain maps from authenticated membership or trusted platform branches without local fallback."
     },
     "SDD-035": {
       "family": "SDD",
@@ -2895,7 +2904,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "ef26f86fca7897acb094b2067155b0b682b5c45077b33a9e21a130444178d14c"
+      "statement_digest": "cbc94edfe8a0889a2ffb5984dbecfd11d58a05406bd24a7bdf072f2a03da3ea0",
+      "statement_digest_reviewed_at": "2026-08-22",
+      "statement_digest_reason": "Require trusted authenticated session state and remove seeded-owner and client identity bypass paths."
     },
     "SEC-009": {
       "family": "SEC",
@@ -2973,7 +2984,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "527ede2990b28cb739c26ae8977214060d9376819d674d0c3ca8c2b0c81d28a4"
+      "statement_digest": "305d94fabbd8073f9ec9cdf6222a892509c675cad5d5ebaccadf44de72e2eec6",
+      "statement_digest_reviewed_at": "2026-08-22",
+      "statement_digest_reason": "Ensure multi-user onboarding authentication never activates a seeded-owner demo fallback."
     },
     "SEC-015": {
       "family": "SEC",
@@ -4786,6 +4799,19 @@
         {
           "anchor": "zuri edge device topology and decoupled local governance",
           "since": "2026-08-21",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-042": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md",
+      "status": "current",
+      "statement_digest": "0e4b3be1909cb0f697114957f50d780bfaf1685ad482509c7f53d97e7368d3ba",
+      "history": [
+        {
+          "anchor": "decoupled standalone knowledge and graphrag service",
+          "since": "2026-08-22",
           "reason": "declared"
         }
       ]

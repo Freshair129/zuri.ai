@@ -164,7 +164,6 @@ function ProjectsDashboardInner() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState(null)
   const [q, setQ] = useState('')
-  const [actionError, setActionError] = useState(null)
 
   // Single-business installs are scoped implicitly — the shell resolves it (FR-020).
   // A picked workspace wins: group-level workspaces belong to no single business.
@@ -212,7 +211,6 @@ function ProjectsDashboardInner() {
 
       {loading && <LoadingCard />}
       {error && <ErrorState detail={error} retry={reload} />}
-      {actionError && <p className="mb-3 rounded-lg px-3 py-2 text-[11px]" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }} role="alert">{actionError}</p>}
 
       {!loading && !error && data && (
         <>
@@ -343,14 +341,9 @@ function ProjectsDashboardInner() {
                       onClick={async (e) => {
                         e.stopPropagation()
                         if (window.confirm(`Archive ${p.code}? It disappears from active lists.`)) {
-                          setActionError(null)
-                          try {
-                            await api(`/api/projects/${p.id}`, { method: 'DELETE' })
-                            reload()
-                            scope.refresh()
-                          } catch (error) {
-                            setActionError(error.message)
-                          }
+                          await api(`/api/projects/${p.id}`, { method: 'DELETE' })
+                          reload()
+                          scope.refresh()
                         }
                       }}
                     >

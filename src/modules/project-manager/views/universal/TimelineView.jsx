@@ -9,6 +9,7 @@
 
 import { differenceInDays, format, max, min } from 'date-fns'
 import { Card, StatusPill, EmptyState, ErrorState } from '@/components/ui'
+import { useScope } from '@/context/ScopeContext'
 import { useFetch, LoadingCard } from '../../components/useApi'
 
 function Bar({ label, start, end, rangeStart, rangeEnd, status, percent }) {
@@ -39,7 +40,12 @@ function Bar({ label, start, end, rangeStart, rangeEnd, status, percent }) {
 }
 
 export default function TimelineView({ projectId }) {
-  const url = projectId ? `/api/projects/${projectId}` : '/api/projects?view=timeline'
+  const scope = useScope()
+  const businessId = scope.shell.activeBusinessId
+  const params = new URLSearchParams()
+  params.set('view', 'timeline')
+  if (businessId) params.set('businessId', businessId)
+  const url = projectId ? `/api/projects/${projectId}` : businessId ? `/api/projects?${params.toString()}` : null
   const { data, loading, error, reload } = useFetch(url)
 
   if (loading) return <LoadingCard />

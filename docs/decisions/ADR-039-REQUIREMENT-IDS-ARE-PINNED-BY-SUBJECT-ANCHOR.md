@@ -1,7 +1,7 @@
 ---
-version: "1.3.0"
+version: "1.2.0"
 created_at: "2026-08-20T11:10:00+07:00,CLAUDE"
-last_update: "2026-08-21T00:00:00+07:00,ATHER"
+last_update: "2026-08-20T19:44:17+07:00,ATHER"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -12,8 +12,7 @@ attributes:
 
 # ADR-039 — Requirement ids are pinned by subject anchor
 
-**Status:** Accepted (rev 1.3 — amended to keep the healthy id roster as report
-health metadata rather than an INFO finding; rev 1.2 amended after merge to repay the stale-citation
+**Status:** Accepted (rev 1.2 — amended after merge to repay the stale-citation
 debt and add a review-only statement digest without changing the blocking
 anchor trade-off. Rev 1.1 was amended before merge after adversarial
 verification: `roster`, strict equality for the inheritance arm, word-boundary
@@ -297,10 +296,8 @@ pretends to judge semantic correctness.
 
 - `npm run govern` gains ~1 second on a healthy tree; the blast-radius scan runs
   only once something has already fired.
-- `docs/.preflight-report.json` records the healthy roster under
-  `health.id-stability`; it is visible evidence that every family was checked,
-  but it is not counted as an INFO finding. Only actionable review signals and
-  blocking findings contribute to the summary.
+- `docs/.preflight-report.json` gains one INFO health line per run, consistent
+  with the 19 INFO findings already on a clean tree.
 - Two structural gaps close as a side effect: a **second** `| SDD-049 |` row in
   the PRD was invisible (`doc-graph.mjs` keeps the first and silently drops the
   rest, and no guard covered PRD rows) — Check 12 now reports the dropped row and

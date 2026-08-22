@@ -32,11 +32,13 @@ describe('FR-046 API and UI boundary', () => {
 
   it('issues the session cookie through explicit server session routes', () => {
     const login = read('src/app/login/page.jsx')
-    const loginRoute = read('src/app/api/session/login/route.js')
+    const loginRoute = read('src/app/api/auth/login/route.js')
     const sessionPort = read('src/modules/identity/session-port.js')
-    expect(login).toContain('action="/api/session/login"')
-    expect(loginRoute).toContain('LIVE_SESSION_COOKIE')
-    expect(sessionPort).toContain('ZURI_LOCAL_DEMO_AUTH')
+    expect(login).toContain('action="/api/auth/login"')
+    expect(loginRoute).toContain('AUTH_SESSION_COOKIE')
+    expect(sessionPort).toContain('verifySessionToken')
+    expect(sessionPort).not.toContain('ZURI_LOCAL_DEMO_AUTH')
+    expect(sessionPort).not.toContain('LOCAL_DEMO_COOKIE')
     expect(loginRoute).toContain('httpOnly: true')
   })
 

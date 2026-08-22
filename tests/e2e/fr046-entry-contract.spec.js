@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test')
+const { loginAsOwner } = require('./e2e-auth')
 
-// @req FR-046 — browser entry requires an explicit local session and one viewer-scoped response.
+// @req FR-046 — browser entry requires an explicit signed credential session and one viewer-scoped response.
 // @spec ADR-017, SDD-024, SEC-008
 // @tested tests/e2e/fr046-entry-contract.spec.js
 // api() retries a lost connection, never an answer — see ./reconnecting-request.
@@ -21,7 +22,7 @@ test.describe('FR-046 production-shaped entry boundary', () => {
 
     const entryRequests = []
     page.on('request', (request) => entryRequests.push(new URL(request.url()).pathname))
-    await page.getByRole('button', { name: /sign in as owner/i }).click()
+    await loginAsOwner(page)
     await expect(page).toHaveURL(/\/businesses$/)
     await expect(page.getByRole('heading', { name: 'Choose a Business' })).toBeVisible()
 

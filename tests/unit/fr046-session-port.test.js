@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createSessionPort, LOCAL_DEMO_COOKIE } from '@/modules/identity/session-port'
+import { generateSessionToken } from '@/modules/identity/auth-service'
+import { createSessionPort } from '@/modules/identity/session-port'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 
 // @req FR-046 — request identity is server-owned and production fails closed.
@@ -21,7 +22,6 @@ describe('FR-046 trusted request session', () => {
     expect(resolve).toHaveBeenCalledWith(expect.objectContaining({
       principalId: 'person-dev',
       platformGrant: true,
-      allowDevelopmentFallback: false,
     }))
     expect(JSON.stringify(resolve.mock.calls)).not.toContain('forged')
   })
@@ -61,15 +61,32 @@ describe('FR-046 trusted request session', () => {
     })
   })
 
-  it('allows the local demo cookie only behind an explicit non-production capability', async () => {
-    const resolve = vi.fn(async () => ({ principal: { id: 'local-owner' }, role: 'OWNER' }))
-    const cookie = `${LOCAL_DEMO_COOKIE}=enabled`
-    const enabled = createSessionPort({ env: { NODE_ENV: 'development', ZURI_LOCAL_DEMO_AUTH: '1' } })
+  it('resolves only a valid signed credential session cookie', async () => {
+    const secret = 'test-session-secret-that-is-long-enough-123456'
+    const token = generateSessionToken('person-1', { secret, now: Date.now() })
+    const resolve = vi.fn(async (input) => ({ principal: { id: input.principalId }, role: 'OWNER' }))
+    const sessionPort = createSessionPort({ env: { NODE_ENV: 'development', ZURI_SESSION_SECRET: secret } })
 
-    await resolveRequestViewer(requestWith({ cookie }), { sessionPort: enabled, resolve })
-    expect(resolve).toHaveBeenCalledWith(expect.objectContaining({ allowDevelopmentFallback: true }))
+    await resolveRequestViewer(requestWith({ cookie: `zuri_session=${token}` }), { sessionPort, resolve })
 
-    const production = createSessionPort({ env: { NODE_ENV: 'production', ZURI_LOCAL_DEMO_AUTH: '1' } })
-    await expect(resolveRequestViewer(requestWith({ cookie }), { sessionPort: production, resolve })).rejects.toMatchObject({ status: 401 })
+    expect(resolve).toHaveBeenCalledWith(expect.objectContaining({
+      principalId: 'person-1',
+      platformGrant: false,
+    }))
+  })
+
+  it('rejects tampered, expired, and legacy demo cookies', async () => {
+    const secret = 'test-session-secret-that-is-long-enough-123456'
+    const valid = generateSessionToken('person-1', { secret, now: Date.now() })
+    const sessionPort = createSessionPort({
+      env: { NODE_ENV: 'development', ZURI_SESSION_SECRET: secret, ZURI_LOCAL_DEMO_AUTH: '1' },
+    })
+    const resolve = vi.fn()
+
+    await expect(resolveRequestViewer(requestWith({ cookie: `zuri_session=${valid}tampered` }), { sessionPort, resolve }))
+      .rejects.toMatchObject({ status: 401, message: 'AUTH_REQUIRED' })
+    await expect(resolveRequestViewer(requestWith({ cookie: 'zuri_local_demo_session=enabled' }), { sessionPort, resolve }))
+      .rejects.toMatchObject({ status: 401, message: 'AUTH_REQUIRED' })
+    expect(resolve).not.toHaveBeenCalled()
   })
 })

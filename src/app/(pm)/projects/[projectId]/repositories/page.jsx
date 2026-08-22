@@ -61,7 +61,6 @@ function LinkRepoModal({ open, onClose, projectId, repos, onSaved }) {
 export default function ProjectRepositoriesPage() {
   const { projectId } = useParams()
   const [linkOpen, setLinkOpen] = useState(false)
-  const [actionError, setActionError] = useState(null)
   const project = useFetch(`/api/projects/${projectId}`)
   const repos = useFetch('/api/repositories')
 
@@ -82,7 +81,6 @@ export default function ProjectRepositoriesPage() {
           </button>
         }
       />
-      {actionError && <p className="mb-3 rounded-lg px-3 py-2 text-[11px]" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }} role="alert">{actionError}</p>}
       {links.length === 0 ? (
         <EmptyState title="No repositories linked" hint="Register repositories under the Repos module, then link them here with a role." />
       ) : (
@@ -106,13 +104,8 @@ export default function ProjectRepositoriesPage() {
                   className="btn px-2 py-1"
                   aria-label="Unlink"
                   onClick={async () => {
-                    setActionError(null)
-                    try {
-                      await api(`/api/repositories/link/${link.id}`, { method: 'DELETE' })
-                      project.reload()
-                    } catch (error) {
-                      setActionError(error.message)
-                    }
+                    await api(`/api/repositories/link/${link.id}`, { method: 'DELETE' })
+                    project.reload()
                   }}
                 >
                   <Unlink size={12} aria-hidden />

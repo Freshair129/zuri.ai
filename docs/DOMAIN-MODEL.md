@@ -1,10 +1,5 @@
 # Domain Model
 
-| Field | Value |
-|-------|-------|
-| **Version** | 0.1.0b |
-| **Status** | Draft |
-
 ## Identity vocabulary
 
 | Concept | Purpose |

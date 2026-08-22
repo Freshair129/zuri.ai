@@ -9,15 +9,10 @@ import { Modal, Field } from '@/components/ui'
 import { ITEM_SUBTYPES, WORK_STATUSES } from '@/lib/validation/enums'
 import { api, useFetch } from './useApi'
 
-export function projectItemsFromResponse(payload) {
-  return Array.isArray(payload) ? payload : payload?.items || []
-}
-
 export default function StandaloneTaskModal({ open, onClose, onSaved }) {
-  const { data: scope } = useFetch('/api/scope')
+  const { data: businesses } = useFetch('/api/businesses')
+  const { data: projects } = useFetch('/api/projects')
   const { data: viewer } = useFetch('/api/viewer')
-  const businesses = scope?.businesses || []
-  const projects = projectItemsFromResponse(scope?.projects)
 
   const [businessId, setBusinessId] = useState('')
   const [projectId, setProjectId] = useState('')
@@ -42,7 +37,7 @@ export default function StandaloneTaskModal({ open, onClose, onSaved }) {
     }
   }, [open, businesses, viewer])
 
-  const filteredProjects = projects.filter((p) => !businessId || p.businessId === businessId)
+  const filteredProjects = (projects || []).filter((p) => !businessId || p.businessId === businessId)
 
   const submit = async (e) => {
     e.preventDefault()

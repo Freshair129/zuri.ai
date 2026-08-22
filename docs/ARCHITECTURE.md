@@ -1,10 +1,5 @@
 # Architecture
 
-| Field | Value |
-|-------|-------|
-| **Version** | 0.1.0b |
-| **Status** | Draft |
-
 > The **three-layer** and **system** diagrams live in
 > [ARCHITECTURE-DIAGRAMS.md](ARCHITECTURE-DIAGRAMS.md). This document keeps the
 > domain-shaped views below (context chain, execution hierarchy, progress engine,

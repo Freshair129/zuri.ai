@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-21T21:51:22.919Z",
+  "generatedAt": "2026-08-22T00:58:44.890Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 22,
+    "gapCount": 23,
     "gaps": [
       {
         "domain": "agent",
@@ -196,6 +196,13 @@
         "severity": "medium",
         "check": "runtimeContract",
         "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "project-manager",
+        "id": "AUTH-001",
+        "severity": "high",
+        "check": "authorization",
+        "summary": "At least one mutating route lacks a recognizable request viewer seam"
       },
       {
         "domain": "project-manager",
@@ -477,11 +484,8 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 83,
-            "missingFromOpenApi": 0,
-            "operations": 5,
-            "missingOperationsFromInventory": 0,
-            "missingOperationsFromOpenApi": 0
+            "openApiPaths": 84,
+            "missingFromOpenApi": 0
           }
         },
         "mcp": {
@@ -527,8 +531,6 @@
           "details": {
             "mutations": 2,
             "guardedMutations": 2,
-            "publicMutations": 0,
-            "unguardedMutations": 0,
             "reads": 1,
             "unguardedReads": 0
           }
@@ -859,7 +861,7 @@
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
+          "codeCount": 7,
           "testCount": 44
         },
         {
@@ -949,11 +951,8 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 83,
-            "missingFromOpenApi": 0,
-            "operations": 1,
-            "missingOperationsFromInventory": 0,
-            "missingOperationsFromOpenApi": 0
+            "openApiPaths": 84,
+            "missingFromOpenApi": 0
           }
         },
         "mcp": {
@@ -1005,8 +1004,6 @@
           "details": {
             "mutations": 0,
             "guardedMutations": 0,
-            "publicMutations": 0,
-            "unguardedMutations": 0,
             "reads": 1,
             "unguardedReads": 0
           }
@@ -1159,11 +1156,8 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 83,
-            "missingFromOpenApi": 0,
-            "operations": 4,
-            "missingOperationsFromInventory": 0,
-            "missingOperationsFromOpenApi": 0
+            "openApiPaths": 84,
+            "missingFromOpenApi": 0
           }
         },
         "mcp": {
@@ -1196,8 +1190,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 14,
-            "present": 14
+            "models": 8,
+            "present": 8
           }
         },
         "authorization": {
@@ -1209,8 +1203,6 @@
           "details": {
             "mutations": 2,
             "guardedMutations": 2,
-            "publicMutations": 0,
-            "unguardedMutations": 0,
             "reads": 2,
             "unguardedReads": 0
           }
@@ -1244,7 +1236,7 @@
         "routes": 3,
         "apiRoutes": 2,
         "pageRoutes": 1,
-        "ownedModels": 14,
+        "ownedModels": 8,
         "featureNotes": 3
       }
     },
@@ -1538,7 +1530,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 12
+          "testCount": 11
         },
         {
           "id": "FR-004",
@@ -1559,14 +1551,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-007",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-008",
@@ -1629,7 +1621,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 6
+          "testCount": 5
         },
         {
           "id": "FR-018",
@@ -1761,7 +1753,7 @@
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
-          "codeCount": 56,
+          "codeCount": 57,
           "testCount": 44
         },
         {
@@ -1818,7 +1810,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-065",
@@ -2047,13 +2039,10 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 77,
-            "inventoried": 77,
-            "openApiPaths": 83,
-            "missingFromOpenApi": 0,
-            "operations": 104,
-            "missingOperationsFromInventory": 0,
-            "missingOperationsFromOpenApi": 0
+            "routes": 78,
+            "inventoried": 78,
+            "openApiPaths": 84,
+            "missingFromOpenApi": 0
           }
         },
         "mcp": {
@@ -2099,16 +2088,20 @@
           }
         },
         "authorization": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/appendices/A-api-spec.md"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "AUTH-001",
+              "severity": "high",
+              "summary": "At least one mutating route lacks a recognizable request viewer seam"
+            }
+          ],
           "details": {
-            "mutations": 62,
+            "mutations": 63,
             "guardedMutations": 61,
-            "publicMutations": 1,
-            "unguardedMutations": 0,
             "reads": 42,
             "unguardedReads": 0
           }
@@ -2175,6 +2168,12 @@
           "severity": "medium",
           "check": "runtimeContract",
           "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "AUTH-001",
+          "severity": "high",
+          "check": "authorization",
+          "summary": "At least one mutating route lacks a recognizable request viewer seam"
         },
         {
           "id": "TEST-001",
@@ -2280,8 +2279,8 @@
         }
       ],
       "details": {
-        "routes": 114,
-        "apiRoutes": 77,
+        "routes": 115,
+        "apiRoutes": 78,
         "pageRoutes": 37,
         "ownedModels": 30,
         "featureNotes": 28

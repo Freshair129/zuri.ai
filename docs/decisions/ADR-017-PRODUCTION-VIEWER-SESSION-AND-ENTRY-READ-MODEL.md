@@ -1,10 +1,10 @@
 # ADR-017 — Production viewer session and viewer-scoped entry read model
 
-**Status:** Accepted — implemented beta
+**Status:** Accepted — implemented beta; amended for credential login
 
 | Field | Value |
 |---|---|
-| **Version** | 0.2.0b |
+| **Version** | 0.3.0b |
 | **Date** | 2026-08-14 |
 | **Risk** | HIGH — authentication trust boundary and cross-tenant disclosure |
 | **Amends** | ADR-015 D3-D5; SDD-011; Appendix A entry contract |
@@ -13,15 +13,15 @@
 ## Context
 
 The FR-044 routing proof loads `GET /api/viewer` and the broad `GET /api/scope`
-independently, then intersects their results in the browser. That is acceptable for
-the explicit local demo, but it is not a production authorization boundary: an
+independently, then intersects their results in the browser. That was acceptable for
+the historical local demo, but it is not a production authorization boundary: an
 unauthorized Business and its Portfolio/Tenant ancestry can already be disclosed by
 the scope response before the client hides it.
 
-`resolveViewer()` is already the canonical RBAC resolver, but the current route calls
-it without a trusted request identity. In non-production this intentionally falls
-back to the seeded owner. Production must instead resolve a server-authenticated
-principal and must fail closed when no trusted session exists.
+`resolveViewer()` is already the canonical RBAC resolver, and the runtime now resolves
+it from a server-authenticated principal issued by `PersonCredential`. Missing,
+invalid, tampered or expired sessions fail closed; no seeded-owner or local-demo
+fallback remains.
 
 ## Decision
 
@@ -57,21 +57,26 @@ or `platformGrant` from query parameters, request bodies, ordinary headers, or c
 storage. `platformGrant` is server-held session authority and remains distinct from
 Business Membership.
 
-The concrete login provider and session persistence mechanism are separate decisions.
-This ADR defines the consumer contract they must satisfy; it does not silently choose
-password, LINE Login, OIDC, or a hosted vendor.
+The provider-neutral seam remains the consumer contract. The local MVP concrete
+provider is persisted `PersonCredential` verification with a signed HMAC session
+cookie; LINE Login, OIDC and hosted providers remain future adapters rather than
+implicit alternatives.
 
-### D3 — Explicit local demo capability
+### D3 — Credential login and signed session
 
-The seeded-owner fallback remains available only when all are true:
+`POST /api/auth/login` accepts an email or account code and password. It verifies the
+server-side `PersonCredential` using scrypt and, only on success, issues a signed,
+expiring HttpOnly `zuri_session` cookie. Missing or invalid credentials return a
+generic `401` and do not issue a cookie. `POST /api/auth/logout` clears the cookie.
 
-1. runtime is not production;
-2. an explicit local-demo capability is enabled; and
-3. the caller uses the local demo entry flow.
+The session-signing secret is required configuration (`ZURI_SESSION_SECRET`, at least
+32 characters); it has no development default. The session carries only the principal
+identity and expiry, and `SessionPort` verifies the signature before calling
+`resolveViewer()`.
 
-Production and capability-disabled environments return `401 AUTH_REQUIRED`; they do
-not infer an owner or silently widen access. Tests must prove that `NODE_ENV=production`
-cannot activate the fallback even if a client sends forged identity fields.
+There is no local-demo capability, seeded-owner identity fallback or client-controlled
+principal path. Tests use an isolated explicit credential and signing secret only in
+the test process.
 
 ### D4 — Response minimization
 
@@ -139,12 +144,14 @@ must not reveal whether a hidden Business, Person, or session identifier exists.
 ## Approval and implementation gate
 
 The owner approved ADR-017, FR-046, SDD-024, SEC-008 and ZV2-CR-002 on 2026-08-14.
-The provider-neutral seam and explicit non-production demo cookie are implemented;
-selection of a real login provider or persisted session model still requires a new decision.
+The provider-neutral seam and persisted credential-backed signed session are
+implemented. Hosted provider selection, recovery, MFA and device management remain
+separate decisions.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.0b | 2026-08-22 | beta | Amended the viewer session boundary with PersonCredential login/logout and removed the local-demo fallback | working-tree | ATHER |
 | 0.1.0b | 2026-08-14 | candidate | Proposed trusted request-viewer seam and minimal `/api/entry` read model | pending | ATHER |
 | 0.2.0b | 2026-08-14 | beta | Owner approved; contract implemented and verified without choosing a login provider | pending | ATHER |

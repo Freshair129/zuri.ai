@@ -4,15 +4,15 @@
 // @spec BR-001, SDD-032
 // @tested tests/e2e/fr059-strategy-edit.spec.js
 const { test, expect } = require('@playwright/test')
+const { loginAsOwner } = require('./e2e-auth')
 
 async function chooseBusiness(page, name = 'Business 01') {
-  await page.goto('/login')
-  await page.getByRole('button', { name: /sign in as owner/i }).click()
+  await loginAsOwner(page)
   await page.getByRole('button', { name: new RegExp(`Open Business ${name}`) }).click()
   await expect(page).toHaveURL(/overview/)
 }
 
-// T4 — Business 01 is the only Business the demo viewer can see/reach (seed.js
+// T4 — Business 01 is the only Business the authenticated E2E account can see/reach (seed.js
 // grants no membership for BUS-002..004), and PRJ-B01-TRANSFORM is the only
 // Project in it, so both are shared with every other e2e spec — there is no
 // free Business/Project to redirect to. Isolation instead comes from giving

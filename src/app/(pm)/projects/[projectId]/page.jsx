@@ -20,7 +20,6 @@ export default function ProjectDetailPage() {
   const [wsModal, setWsModal] = useState(false)
   const [editWs, setEditWs] = useState(null)
   const [editProject, setEditProject] = useState(false)
-  const [actionError, setActionError] = useState(null)
   const project = useFetch(`/api/projects/${projectId}`)
   const progress = useFetch(`/api/progress/project/${projectId}`)
 
@@ -49,13 +48,8 @@ export default function ProjectDetailPage() {
               className="btn flex items-center gap-1"
               onClick={async () => {
                 if (window.confirm(`Archive ${p.code}?`)) {
-                  setActionError(null)
-                  try {
-                    await api(`/api/projects/${p.id}`, { method: 'DELETE' })
-                    window.location.href = '/projects'
-                  } catch (error) {
-                    setActionError(error.message)
-                  }
+                  await api(`/api/projects/${p.id}`, { method: 'DELETE' })
+                  window.location.href = '/projects'
                 }
               }}
             >
@@ -64,7 +58,6 @@ export default function ProjectDetailPage() {
           </>
         }
       />
-      {actionError && <p className="mb-3 rounded-lg px-3 py-2 text-[11px]" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }} role="alert">{actionError}</p>}
 
       <Card warm className="mb-4">
         <SectionTitle caption="Weighted roll-up: Σ(workstream % × weight) / Σ(weight)">Project progress</SectionTitle>

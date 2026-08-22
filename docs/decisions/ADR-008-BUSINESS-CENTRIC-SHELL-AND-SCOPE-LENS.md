@@ -80,7 +80,8 @@ login → RBAC (Membership + role) → Home (/)  → Business Overview (root) �
                                      (adaptive via deriveShell: one company ⇒ skip to Business)
 ```
 - **RBAC** decides which businesses/domains a principal sees (Membership = staff; ADR-007 P3
-  identity gate feeds this). Today's shell uses a demo identity ("LO") until real auth lands.
+  identity gate feeds this). The shell requires an authenticated principal from the
+  signed session boundary; Membership still decides the visible Businesses/domains.
 - **Home (`/`)** is the entrance: pick or create a Company, then a Business. Single-company
   owners skip straight to the Business picker (FR-020 adaptivity, one level up).
 - **Business Overview** is the cross-domain root; `/overview` narrows to the **Projects domain

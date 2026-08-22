@@ -1,10 +1,5 @@
 # Codex task — Extract MSP from GoVibe into a standalone repo `Freshair129/msp`
 
-| Field | Value |
-|-------|-------|
-| **Version** | 0.1.0b |
-| **Status** | Candidate |
-
 You are extracting the Mission State Protocol (MSP) memory runtime out of the GoVibe
 monorepo into its own standalone repository. This is **packaging and dependency
 cleanup, not a rewrite** — the logic, wire protocol, storage format and public

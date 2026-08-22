@@ -105,7 +105,7 @@ export default function ManagedFilesPanel({ businessId, projectId = null, busine
       groups={groups}
       renderAsset={(asset) => <Card key={asset.id}>
         <div className="flex items-start gap-3"><FileText size={20} className="text-[var(--brand-dark)]" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-bold">{asset.name}</p><p className="text-[10px] text-muted">{asset.code} · {asset.storageKind} · {bytes(asset.size)} · {asset.state}</p>{asset.relativePath && <p className="truncate text-[10px] text-muted">{asset.relativePath}</p>}</div>
-          <button className="btn px-2" type="button" aria-label={`Delete ${asset.name}`} onClick={async () => { if (window.confirm(`Delete metadata for ${asset.name}?`)) { try { await api(`/api/files/${asset.id}`, { method: 'DELETE' }); files.reload() } catch (error) { setMessage(error.message) } } }}><Trash2 size={13} /></button></div>
+          <button className="btn px-2" type="button" aria-label={`Delete ${asset.name}`} onClick={async () => { if (window.confirm(`Delete metadata for ${asset.name}?`)) { await api(`/api/files/${asset.id}`, { method: 'DELETE' }); files.reload() } }}><Trash2 size={13} /></button></div>
         <div className="mt-3 flex flex-wrap gap-2">
           {asset.externalUrl && <a className="btn text-[11px]" href={asset.externalUrl} target="_blank" rel="noreferrer"><ExternalLink size={13} /> Open</a>}
           {asset.storageKind === 'LOCAL_FILE' && asset.state === 'ACTIVE' && <a className="btn text-[11px]" href={`/api/files/${asset.id}/content`} target="_blank"><FileText size={13} /> View</a>}

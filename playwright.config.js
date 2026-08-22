@@ -5,6 +5,7 @@ const path = require('path')
 // place, so the web server and the seeder cannot disagree, and a second worktree
 // does not collide with the first. The primary checkout still runs on :3100.
 const { e2eTarget } = require('./tests/e2e/e2e-target')
+const { E2E_PASSWORD, E2E_SESSION_SECRET } = require('./tests/e2e/e2e-auth')
 
 const target = e2eTarget()
 
@@ -99,7 +100,8 @@ module.exports = defineConfig({
       // database are the same database by construction rather than by two
       // literals that happen to match.
       DATABASE_URL: target.databaseUrl,
-      ZURI_LOCAL_DEMO_AUTH: '1',
+      ZURI_SESSION_SECRET: E2E_SESSION_SECRET,
+      ZURI_SEED_OWNER_PASSWORD: E2E_PASSWORD,
     },
   },
 })

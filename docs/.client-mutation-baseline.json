@@ -2,5 +2,13 @@
   "version": "1.0.0",
   "purpose": "Client files calling `await api(...)` outside any try/catch, recorded as accepted debt on 2026-08-17. A mutation that cannot report its own failure reports success by saying nothing — the PermissionRow defect, found at twelve more sites. This list may only shrink: preflight raises a CRITICAL for any file not listed here. Never add an entry to silence a new one. See .brain/reviews/pm-triage-2026-08-17.md §S4.",
   "recorded_at": "2026-08-17",
-  "files": []
+  "files": [
+    "src/app/(pm)/projects/[projectId]/page.jsx",
+    "src/app/(pm)/projects/[projectId]/repositories/page.jsx",
+    "src/app/(pm)/projects/[projectId]/team/page.jsx",
+    "src/app/(pm)/projects/page.jsx",
+    "src/app/(pm)/workspaces/page.jsx",
+    "src/modules/project-manager/components/ManagedFilesPanel.jsx",
+    "src/modules/project-manager/views/universal/DependenciesView.jsx"
+  ]
 }

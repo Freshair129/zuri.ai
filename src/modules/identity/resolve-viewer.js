@@ -4,7 +4,7 @@ import { permissionsForRoles, ROLE_PERMISSIONS, ROLE_SCOPE_BUSINESS } from './rb
 
 // @req FR-031 — all future shell visibility starts from one resolved viewer scope.
 // @spec ADR-008 §D4, docs/features/FR-031-viewer-gate.md — DEV is a platform grant,
-// never a widened business Membership; the local fallback exists only in development.
+// never a widened business Membership.
 // @tested tests/unit/viewer-gate.test.js
 // @req FR-038 — MEMBER domain allow-lists are interpreted here, never by a UI checkbox.
 // @spec SDD-017 — OWNER and platform DEV remain role-bound all-domain grants.
@@ -23,7 +23,6 @@ import { permissionsForRoles, ROLE_PERMISSIONS, ROLE_SCOPE_BUSINESS } from './rb
 // @spec SDD-034 — every branch below fills `domainsByBusinessId`.
 // @tested tests/unit/fr061-per-business-domain-visibility.test.js
 
-const LOCAL_OWNER_CODE = 'PER-OWNER'
 export { VIEWER_DOMAINS }
 
 const unique = (values) => [...new Set(values.filter(Boolean))]
@@ -44,9 +43,8 @@ async function allBusinessIds(db) {
 }
 
 async function resolvePrincipal(db, principalId) {
-  const where = principalId ? { id: principalId } : { code: LOCAL_OWNER_CODE }
-  const principal = await db.person.findUnique({ where, select: { id: true, code: true, displayName: true } })
-  if (!principal) throw new Error(principalId ? 'Viewer principal was not found' : 'Local development owner was not found')
+  const principal = await db.person.findUnique({ where: { id: principalId }, select: { id: true, code: true, displayName: true } })
+  if (!principal) throw new Error('Viewer principal was not found')
   return principal
 }
 
@@ -104,22 +102,21 @@ async function resolveRoleBindings(db, principalId, visibleBusinessIds) {
 }
 
 /**
- * Resolve the authenticated (or local-development) viewer into the access shape
+ * Resolve the authenticated viewer into the access shape
  * consumed by the ADR-008 Home journey and later route guards.
  *
  * `platformGrant` is trusted input from the future auth provider. It is deliberately
  * not derived from Membership, because DEV is cross-tenant while Membership is not.
  *
- * @param {{ principalId?: string, platformGrant?: boolean, allowDevelopmentFallback?: boolean, db?: import('@prisma/client').PrismaClient }} [input]
+ * @param {{ principalId?: string, platformGrant?: boolean, db?: import('@prisma/client').PrismaClient }} [input]
  * @returns {Promise<{principal: {id:string,code:string,displayName:string}, role:'OWNER'|'MEMBER'|'DEV', visibleBusinessIds:string[], ownedBusinessIds:string[], domainsByBusinessId:Record<string,string[]>, visibleDomains:string[], rolesByBusinessId:Record<string,string[]>, permissionsByBusinessId:Record<string,string[]>, isPlatform:boolean}>}
  */
 export async function resolveViewer({
   principalId = null,
   platformGrant = false,
-  allowDevelopmentFallback = process.env.NODE_ENV !== 'production',
   db = prisma,
 } = {}) {
-  if (!principalId && !allowDevelopmentFallback) {
+  if (!principalId) {
     throw new Error('Viewer principal is required')
   }
 
@@ -150,42 +147,6 @@ export async function resolveViewer({
       // @req FR-075 — but it IS the installation-wide capability. A different
       // *scope* of authority, not a larger amount of the ownership above, which
       // is why these two fields sit side by side and disagree.
-      isOperator: true,
-    }
-  }
-
-  // There is no authenticated principal yet, so the local development owner can
-  // exercise every shell path. This branch is unavailable to production callers.
-  if (!principalId) {
-    const businessIds = await allBusinessIds(db)
-    const roleBindings = await resolveRoleBindings(db, principal.id, businessIds)
-    // Two independently owned arrays, not the same object twice: no consumer
-    // mutates either today, but sharing one array between visibleBusinessIds
-    // and ownedBusinessIds is an invisible coupling — a future mutation of
-    // one would silently corrupt the other.
-    // Derived from the Businesses already being read rather than a second query
-    // against `db.tenant`: this branch is exercised with a hand-built `db`
-    // double that implements only what the resolver actually needs, and adding a
-    // model to that surface is a cost paid by every caller of the double.
-    const tenantIds = unique(
-      (await db.business.findMany({ select: { id: true, tenantId: true } })).map((business) => business.tenantId)
-    )
-    return {
-      principal,
-      role: 'OWNER',
-      visibleBusinessIds: [...businessIds],
-      ownedBusinessIds: [...businessIds],
-      domainsByBusinessId: allDomainsFor(businessIds),
-      visibleDomains: [...VIEWER_DOMAINS],
-      ...roleBindings,
-      isPlatform: false,
-      // @req FR-074 — the local owner already owns every Business; owning every
-      // Tenant is the same statement one level up, not a widening.
-      ownedTenantIds: tenantIds,
-      // @req FR-075 — this branch IS the single local installation, so its
-      // session is that installation's operator. ADR-016 designs local backup
-      // around exactly this premise; without it, the shipped restore page would
-      // work for nobody in local mode.
       isOperator: true,
     }
   }

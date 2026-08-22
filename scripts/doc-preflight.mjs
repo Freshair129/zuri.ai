@@ -25,14 +25,8 @@ const GRAPH = path.join(ROOT, 'docs', '.doc-graph.json')
 const read = readCanonical
 const rel = (p) => path.relative(ROOT, p).split(path.sep).join('/')
 const findings = []
-const health = {}
 const add = (severity, check, title, details, files = [], action = '') =>
   findings.push({ id: `${severity[0].toUpperCase()}${findings.length + 1}`, severity, check, title, details, files, action })
-
-const recordHealth = (entry) => {
-  if (!health[entry.check]) health[entry.check] = []
-  health[entry.check].push({ title: entry.title, details: entry.details, files: entry.files, action: entry.action })
-}
 
 function walk(dir, ext, out = []) {
   if (!existsSync(dir)) return out
@@ -831,15 +825,16 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
 {
   const MUTATING = /export\s+async\s+function\s+(POST|PATCH|PUT|DELETE)\b/
   const RESOLVES = /resolveRequestViewer|resolveViewer/
-  // Structurally exempt, not baselined debt: an endpoint that *creates* the
-  // session cannot require one to already exist. This is the only such case, and
-  // it is an exemption rather than a baseline entry because it will never be
-  // "repaid" — the day it resolves a viewer is the day it is broken.
-  const IS_SESSION_ENDPOINT = (p) => p.split('/').includes('session')
+  // Structurally exempt, not baselined debt: authentication lifecycle endpoints
+  // establish or clear the session and therefore cannot require a viewer first.
+  // They are exemptions rather than baseline entries because resolving a viewer
+  // there would be a broken authentication boundary.
+  const IS_AUTH_LIFECYCLE_ENDPOINT = (p) =>
+    p.includes('/api/auth/login/') || p.includes('/api/auth/logout/') || p.split('/').includes('session')
   const offenders = []
   for (const file of walk(path.join(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue
-    if (IS_SESSION_ENDPOINT(rel(file))) continue
+    if (IS_AUTH_LIFECYCLE_ENDPOINT(rel(file))) continue
     const body = read(file)
     if (!MUTATING.test(body)) continue
     if (RESOLVES.test(body)) continue
@@ -1029,8 +1024,7 @@ const ID_LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
     namedFiles,
     ledgerPath: rel(ID_LEDGER),
   })) {
-    if (f.kind === 'health') recordHealth(f)
-    else add(f.severity, f.check, f.title, f.details, f.files, f.action)
+    add(f.severity, f.check, f.title, f.details, f.files, f.action)
   }
 }
 
@@ -1047,7 +1041,6 @@ const report = {
     overall: counts.critical ? 'CRITICAL' : counts.warning ? 'WARN' : 'PASS',
   },
   trust_hierarchy: 'code > SDD > PRD — when they disagree, the downstream artefact wins',
-  health,
   findings,
 }
 writeFileSync(REPORT, JSON.stringify(report, null, 2) + '\n')
@@ -1055,7 +1048,5 @@ writeFileSync(REPORT, JSON.stringify(report, null, 2) + '\n')
 console.log(`docs ${allDocs.length} · routes ${routes.length} · test files ${testCount}`)
 console.log(`critical ${report.summary.critical} · warning ${report.summary.warning} · info ${report.summary.info} → ${report.summary.overall}`)
 for (const f of findings) console.log(`  [${f.severity.toUpperCase()}] ${f.check}: ${f.title} — ${f.details}`)
-for (const entries of Object.values(health)) for (const f of entries)
-  console.log(`  [HEALTH] ${f.title} — ${f.details}`)
 
 if (process.argv.includes('--strict') && report.summary.critical > 0) process.exit(1)

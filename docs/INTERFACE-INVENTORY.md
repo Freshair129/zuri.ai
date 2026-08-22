@@ -50,7 +50,7 @@ or `appendices/D-traceability.md`.
 The current entry journey is:
 
 ```text
-Landing → Login/demo boundary → trusted viewer resolution → Business Routing
+Landing → credential Login → signed viewer resolution → Business Routing
 → Business Home/BusinessShell → domain → sub-domain → Project resource
 ```
 
@@ -76,7 +76,7 @@ mean production identity, external providers or cutover gates are complete.
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/` | Landing | EntryShell | product entry, continue to login/demo boundary | initial, loading, local/offline-safe | implemented; `src/app/(entry)/page.jsx` |
-| `/login` | Login stub | EntryShell | explicit local demo transition; no real credential provider | ready, disabled-in-production, error | implemented beta; `src/app/(entry)/login/page.jsx`, FR-044/046 |
+| `/login` | Credential Login | EntryShell | email/account-code and password authentication, then Business Routing | ready, invalid credentials, unavailable session, error | implemented beta; `src/app/login/page.jsx`, `/api/auth/login`, FR-046 |
 | `/businesses` | Business Routing | BusinessRoutingShell | list authorized Businesses and select one | auth required, empty Business scope, loading, error | implemented beta; `src/app/(entry)/businesses/page.jsx`, `GET /api/entry` |
 | `/overview` | Business Home Dashboard | BusinessShell; shell-level cross-domain projection | Business briefing, KPI/health, strategy and attention links | Business required, ready, forbidden, loading, empty, error, offline | implemented beta; `src/app/(pm)/overview/page.jsx`, FR-060 |
 

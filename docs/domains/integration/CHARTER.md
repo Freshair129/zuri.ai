@@ -1,7 +1,5 @@
 ---
 domain: integration
-version: "0.1.0b"
-status: "candidate"
 module: src/modules/integration
 owns_routes:
   - src/app/(pm)/platform/integrations/**
@@ -11,12 +9,6 @@ owns_models:
   - IntegrationConnection
   - IntegrationCredential
   - IngestionRun
-  - PipelineRun
-  - PipelineStep
-  - PipelineEventReceipt
-  - PipelineRecordEvent
-  - PipelineReconciliation
-  - PipelineGateDecision
   - RawExternalRecord
   - SyncCursor
   - ExternalEntityRef

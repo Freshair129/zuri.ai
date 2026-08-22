@@ -30,7 +30,6 @@ describe('FR-046 viewer-scoped entry integration', () => {
 
     const viewer = await resolveViewer({
       principalId: person.id,
-      allowDevelopmentFallback: false,
       db: prisma,
     })
     const entry = await buildViewerEntry({ viewer, db: prisma })

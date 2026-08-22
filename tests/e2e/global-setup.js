@@ -2,6 +2,7 @@ const { execSync } = require('node:child_process')
 const { existsSync, rmSync } = require('node:fs')
 const path = require('node:path')
 const { e2eTarget } = require('./e2e-target')
+const { E2E_PASSWORD, E2E_SESSION_SECRET } = require('./e2e-auth')
 
 // @req FR-046 — Playwright owns an isolated, seeded SQLite authority.
 // @spec ADR-017, SDD-024, SEC-008
@@ -26,6 +27,8 @@ module.exports = function globalSetup() {
   const env = {
     ...process.env,
     DATABASE_URL: target.databaseUrl,
+    ZURI_SESSION_SECRET: E2E_SESSION_SECRET,
+    ZURI_SEED_OWNER_PASSWORD: E2E_PASSWORD,
     RUST_LOG: /(?:trace|debug|info)/.test(inheritedRustLog) ? process.env.RUST_LOG : 'info',
   }
   execSync('npx prisma db push --skip-generate', { cwd: repositoryRoot, env, stdio: 'inherit' })

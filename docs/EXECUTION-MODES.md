@@ -1,10 +1,5 @@
 # Seven Execution Modes
 
-| Field | Value |
-|-------|-------|
-| **Version** | 1.0.0b |
-| **Status** | Candidate |
-
 ## Core rule
 
 Execution mode belongs to a Workstream.

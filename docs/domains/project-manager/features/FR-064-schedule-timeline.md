@@ -9,7 +9,7 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | Declared — describes behaviour already shipped; awaiting its code anchor |
 | **Date** | 2026-08-17 |
 | **Relates to** | FR-003 (Project dates), FR-006 (Milestone dates), FR-009 (the global + project-scoped precedent), SDD-019, SDD-036 |
@@ -42,7 +42,12 @@ the "it is part of the tab shell" argument is weaker here than for Board.
 
 ## What it actually does
 
-`TimelineView` is pure rendering over data other requirements own:
+`TimelineView` is pure rendering over data other requirements own. The global
+route sends the selected Business scope; a normal viewer never falls back to an
+installation-wide timeline. The project route remains an explicit Project
+scope.
+
+The component renders:
 
 - a bar per Project from `Project.startAt` → `targetAt`
 - markers from `Milestone.targetAt`
@@ -56,7 +61,8 @@ refused to render a figure it could not source.
 
 ## Scope
 
-**In:** the month-grid render, both scopes, read-only.
+**In:** the month-grid render, selected-Business global scope and explicit
+Project scope, read-only.
 
 **Out:** editing dates by dragging a bar; dependency arrows between bars;
 critical path; baseline-versus-actual; export. Each is new behaviour and needs

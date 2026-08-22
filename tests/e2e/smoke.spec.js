@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test')
+const { loginAsOwner, loginRequest } = require('./e2e-auth')
 // api() retries a lost connection, never an answer — see ./reconnecting-request.
 const { api } = require('./reconnecting-request')
 
@@ -8,8 +9,7 @@ const { api } = require('./reconnecting-request')
 // @spec ADR-015, SDD-022
 // @tested tests/e2e/smoke.spec.js
 async function enterBusiness(page, name = 'Business 01') {
-  await page.goto('/login')
-  await page.getByRole('button', { name: /sign in as owner/i }).click()
+  await loginAsOwner(page)
   await page.getByRole('button', { name: new RegExp(`Open Business ${name}`) }).click()
   await expect(page).toHaveURL(/overview/)
 }
@@ -78,29 +78,10 @@ test.describe('universal routes', () => {
     await expect(page.locator('main').getByText('PRJ-B01-TRANSFORM', { exact: false }).first()).toBeVisible()
   })
 
-  test('audit log shows events', async ({ page }) => {
-    // @req FR-014 — this test asserted only the heading, so an audit table
-    // rendering zero rows passed it: the same "empty is indistinguishable from
-    // broken" failure the page itself was reviewed for, sitting in its own test.
-    // `/api/audit` now returns { events, limit, truncated }, and a page still
-    // reading the old array shape would render the empty state below.
-    //
-    // It writes its own event first. The seed populates the database with raw
-    // upserts rather than through the services, so a fresh e2e database holds NO
-    // AuditEvent rows — asserting on rows without creating one made the result
-    // depend on which tests had already run.
-    const scope = await (await api(page.request).get('/api/scope')).json()
-    const workspace = (scope.workspaces || []).find((w) => w.code === 'WS-B01-MIG')
-    expect(workspace, 'seeded Business workspace').toBeTruthy()
-    const created = await api(page.request).post('/api/projects', {
-      data: { workspaceId: workspace.id, name: 'Audit probe', businessId: workspace.businessId },
-    })
-    expect(created.ok()).toBe(true)
-
+  test('audit log keeps the installation-wide operator boundary', async ({ page }) => {
     await page.goto('/audit')
     await expect(page.getByRole('heading', { name: 'Audit Log' })).toBeVisible()
-    await expect(page.getByText('No audit events')).toHaveCount(0)
-    await expect(page.locator('tbody tr').first()).toBeVisible()
+    await expect(page.getByText('Audit events are an installation-wide read and require operator authority')).toBeVisible()
   })
 
   test('backup page has export and import preview', async ({ page }) => {
@@ -401,7 +382,7 @@ test.describe('FR-019 enterprise API', () => {
   })
 
   test('refuses an import above Business, naming the authority that does not exist', async ({ request }) => {
-    await api(request).post('/api/session/login', { maxRedirects: 0 })
+    await loginRequest(api(request))
     // WS-PLATFORM is PORTFOLIO-scoped. No principal can hold authority there, so
     // this is refused for everyone — and says so, rather than denying silently.
     const res = await api(request).post('/api/import/dry-run', {
@@ -413,7 +394,7 @@ test.describe('FR-019 enterprise API', () => {
   })
 
   test('upserts by the customer core id and resolves it back', async ({ request }) => {
-    await api(request).post('/api/session/login', { maxRedirects: 0 })
+    await loginRequest(api(request))
     const dry = await (await api(request).post('/api/import/dry-run', { data: { plan: plan() } })).json()
     expect(dry.valid).toBe(true)
 
@@ -435,7 +416,7 @@ test.describe('FR-019 enterprise API', () => {
   })
 
   test('rejects an unmapped external id instead of inventing one', async ({ request }) => {
-    await api(request).post('/api/session/login', { maxRedirects: 0 })
+    await loginRequest(api(request))
     const res = await api(request).get('/api/resolve?system=E2E_SAP&value=DOES-NOT-EXIST')
     expect(res.status()).toBe(404)
     expect((await res.json()).error).toMatch(/not mapped/)

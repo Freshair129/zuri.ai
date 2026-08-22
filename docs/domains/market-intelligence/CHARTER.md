@@ -1,7 +1,5 @@
 ---
 domain: market-intelligence
-version: "0.1.0b"
-status: "candidate"
 module: src/modules/market-intelligence
 owns_models:
   - MarketObservation

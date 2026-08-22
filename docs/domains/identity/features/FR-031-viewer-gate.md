@@ -16,8 +16,8 @@ source: v2-native
 
 ## Decision
 
-`resolveViewer()` is the single read-only seam between a future authenticated session
-and the business-centric shell. It returns:
+`resolveViewer()` is the single read-only seam between the authenticated server
+session and the business-centric shell. It returns:
 
 ```js
 { principal, role, visibleBusinessIds, ownedBusinessIds, domainsByBusinessId, visibleDomains, isPlatform }
@@ -29,8 +29,8 @@ are *per-principal* answers that consumers read as *per-Business* ones:
 [FR-061](FR-061-per-business-domain-visibility.md) and the
 [incident](../../../../.brain/rca/2026-08-16-global-role-is-not-per-business-authority.md).
 
-The resolver does not add authentication, new persistence, or UI guards in this slice.
-Those consumers are introduced by the later Home and permissions steps.
+The resolver consumes the principal established by the server session; it does not
+accept client identity fields or invent a principal when authentication is absent.
 
 ## Access rules
 
@@ -41,8 +41,9 @@ Those consumers are introduced by the later Home and permissions steps.
 - `DEV` is a trusted platform grant supplied by the authentication layer. It sees all
   tenants and businesses, is never represented as a business Membership, and later
   privileged actions must be audited.
-- In local development only, absent session identity resolves to the seeded local owner
-  with all businesses and domains. Production callers must supply a principal.
+- Absent or invalid session identity fails closed before scope resolution. A platform
+  grant must be supplied by the trusted server session; it is never derived from a
+  seeded account or Membership.
 
 ## Rationale
 

@@ -85,19 +85,19 @@ export default function SettingsPage() {
   const scope = useScope()
   return (
     <div>
-      <PageHeader eyebrow="Settings" title="Settings" subtitle="Local demo identity, execution-mode reference, and data utilities." />
+      <PageHeader eyebrow="Settings" title="Settings" subtitle="Authenticated account, execution-mode reference, and data utilities." />
       <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
         <AddBusinessCard scope={scope} />
         <Card>
-          <SectionTitle caption="MVP runs with a local demo identity — no production login">Identity</SectionTitle>
-          <p className="text-xs">Signed in as <b>Local Owner</b> (demo). Memberships are seeded for TNT-001 / BUS-001.</p>
+          <SectionTitle caption="Your account and current Business memberships">Identity</SectionTitle>
+          <p className="text-xs">Your signed-in account is governed by server-side credentials and memberships.</p>
           <p className="mt-2 text-[10px] text-muted">
-            Production auth, LINE, and cloud sync are intentionally out of MVP scope.
+            LINE identity links and cloud sync are managed separately from this account session.
           </p>
         </Card>
         <Card>
           <SectionTitle caption="Reset and reseed the local SQLite database from the terminal">Data utilities</SectionTitle>
-          <p className="mb-2 text-[11px] text-muted">Idempotent demo seed (safe to re-run):</p>
+          <p className="mb-2 text-[11px] text-muted">Idempotent sample data seed (safe to re-run):</p>
           <code className="block rounded-lg bg-[#1F2937] p-2.5 text-[10px] text-[#D9E0E8]">npm run db:seed</code>
           <p className="mb-2 mt-3 text-[11px] text-muted">Full reset (drops all local data, then reseeds):</p>
           <code className="block rounded-lg bg-[#1F2937] p-2.5 text-[10px] text-[#D9E0E8]">npm run db:reset</code>
