@@ -58,7 +58,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE"
+    ],
     "added": [],
     "removed": []
   },
@@ -10860,9 +10862,9 @@
       "id": "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE",
       "type": "adr",
       "path": "docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md",
-      "title": "ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service",
-      "hash": "0df488d9",
-      "status": "current"
+      "title": "ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service: Genesis Retrieval Fabric Architecture",
+      "hash": "5b99dcce",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",

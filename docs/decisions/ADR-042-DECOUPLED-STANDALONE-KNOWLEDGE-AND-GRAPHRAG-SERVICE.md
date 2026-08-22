@@ -1,4 +1,4 @@
-# ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service
+# ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service: Genesis Retrieval Fabric Architecture
 
 **Status:** Approved  
 **Date:** 2026-08-22  
@@ -7,49 +7,69 @@
 
 ## Context
 
-The Knowledge Graph and Hybrid Retrieval (RAG) capabilities were originally embedded directly within the `zuri-edge-device` process. While effective for single-process evaluation, embedding the GenesisBlock C++ Graph Database within a specific application creates several architectural constraints:
+Previous architectures conflated storage retrieval with higher-level reasoning, attempting either to embed graph databases into application processes or to build disparate, stitched-together databases (e.g. Postgres + Qdrant + Neo4j + Elasticsearch + EventStore).
 
-1. **Process Coupling & Failure Blast Radius:** If a conversational webhook worker crashes or restarts, embedded database handles can experience lock contention or service interruption.
-2. **Lack of Multi-Client Sharing (Self-Hosted Hub):** In an enterprise on-premise deployment, multiple internal consumers (LINE bot workers, web search portals, ERP synchronizers, and team-internal LLM frontends such as Dify/Open-WebUI) require simultaneous access to the same canonical product catalog and customer knowledge graph.
-3. **Hardware & Resource Specialization:** Graph traversal and 384-dim vector similarity calculations benefit from independent memory caching and dedicated background ingestion queues without blocking HTTP ingress webhooks.
+In modern agentic enterprise systems, a strict boundary must exist between **Retrieval Substrate (Storage & Fusion)** and **RAG Intelligence (Reasoning & Orchestration)**. GenesisBlockDB is already architected with hybrid vector, property graph, relational projection, lexical indexing, bitemporal history, and causal provenance under a single in-process durability boundary.
 
 ## Decision
 
-### D1 — Decouple RAG into a Standalone Service (`zuri-rag-service`)
+### D1 — Three-Tier Retrieval & Agent Topology
 
-We decouple the Knowledge Base and GraphRAG engine into an independent, lightweight standalone microservice (`zuri-rag-service`) running on dedicated local port `:8888` (configurable):
+We formalize a clean separation into three distinct layers:
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│ 🌐 ZURI KNOWLEDGE & RAG SERVICE (:8888)                      │
-│    - Engine: GenesisBlock Graph & Vector Database Engine    │
-│    - Store: 994 Catalog Products, Categories, Specs, Memory  │
-│    - Interfaces: REST API, JSON Query Endpoints, Graph Viewer│
-└──────────────────────────────┬──────────────────────────────┘
-                               │
-            ┌──────────────────┼──────────────────┐
-            │ (Localhost/LAN)  │                  │
-            ▼                  ▼                  ▼
-┌──────────────────────┐ ┌──────────────┐ ┌──────────────────┐
-│ 🏢 Zuri Edge Device  │ │ 💻 Web App   │ │ 👥 Team Services │
-│    (LINE Bot :8787)  │ │    (Catalog) │ │    (Dify / API)  │
-└──────────────────────┘ └──────────────┘ └──────────────────┘
+                    Application / Agent (Zuri-AI, GoVibe, NotiKeeper)
+                                          │
+                                          ▼
+                    RAG Intelligence & Orchestration Layer (GKS)
+                 ┌──────────────────────────────────────────────┐
+                 │ • Query Planner & Adaptive Router            │
+                 │ • Multi-hop & Agentic Planning               │
+                 │ • Cross-Encoder Reranker                     │
+                 │ • Evidence Package Builder & Verifier        │
+                 └──────────────────────┬───────────────────────┘
+                                        │
+                                        ▼ (Typed Query IR: query-ir.v1)
+              ┌─────────────────── GenesisBlockDB ───────────────────┐
+              │                                                      │
+              │  1. Vector / HNSW (Semantic Similarity)             │
+              │  2. Lexical (Keyword & Exact Match)                 │
+              │  3. Property Graph (Relationships & Multi-hop)       │
+              │  4. Relational / SQLite (Property Filtering)         │
+              │  5. Bitemporal (Historical & Time-travel Facts)      │
+              │  6. Provenance (Causality & Event Journal)          │
+              │                                                      │
+              │  ⚡ In-Engine Fusion & Single Durability Boundary    │
+              └──────────────────────────────────────────────────────┘
 ```
 
-### D2 — Standard REST Interface Contract
+### D2 — GenesisBlockDB as the 6-Lane Retrieval Substrate
 
-The standalone RAG service exposes standardized JSON endpoints:
-- `GET /health` — Service liveness, node counts, edge counts, and memory status.
-- `POST /api/rag/search` — Hybrid Graph Traversal & Vector Similarity search query.
-- `POST /api/rag/ingest` — Incremental or full ingestion of catalog items.
-- `GET /api/rag/graph` — Full graph topology representation for visual inspection (`/graph`).
+GenesisBlockDB acts strictly as the **Retrieval Substrate** responsible for executing fused multi-lane queries via Typed Query IR (`query-ir.v1`):
 
-### D3 — Client Adapters in Edge Runtime
+| Lane | Substrate Capability | Purpose in RAG |
+|---|---|---|
+| **1. Semantic RAG** | HNSW Vector Index | Semantic & Intent Similarity |
+| **2. Lexical RAG** | Tokenized Text Index | Exact keywords, SKUs, and codes |
+| **3. Graph RAG** | Property Graph Nodes/Edges | Entity relations and multi-hop traversal |
+| **4. Structured RAG** | SQLite Projection | Exact property filters and ranges |
+| **5. Temporal RAG** | Bitemporal Timeline (`valid_at`, `tx_as_of`) | Point-in-time facts before/after events |
+| **6. Provenance RAG** | Journal & Causality Log | Source verification and lineage audit |
 
-`zuri-edge-device` and other client applications query the Knowledge Base via a resilient HTTP adapter (`GenesisRagClient`) with automatic retries, fallback caching, and zero direct filesystem lock coupling.
+### D3 — What Does NOT Belong in GenesisBlockDB (RAG Intelligence Layer)
+
+Higher-order cognitive tasks are strictly isolated into the **RAG Orchestrator Layer** above the database:
+- Adaptive RAG / Agentic RAG / Self-RAG / Corrective RAG
+- Query Decomposition & Query Rewriting
+- Cross-Encoder Reranking & Context Compression
+- Citation Composition & Arithmetic / Hallucination Verification
+
+### D4 — Multi-Client Sharing via Genesis Knowledge System (GKS)
+
+GenesisBlockDB serves as a client-neutral retrieval backend shared across multiple consumers (Zuri-AI, GoVibe, NotiKeeper, external LLM agents) over standard REST/IPC/MCP endpoints on port `:8888` without dual-writing across multiple database stacks.
 
 ## Consequences
 
-- **Reusability & Interoperability:** Any system or team member in the local network can query the company's knowledge base via standard REST.
-- **Resilience:** The GenesisBlock store remains online independently of downstream webhook restarts.
-- **Zero-Trust Compliance:** Data remains 100% on-premise without external cloud API dependencies.
+- **Substrate Purity:** GenesisBlockDB remains a pure, high-performance generic database engine without embedding business workflows or agent prompts.
+- **Architectural Simplicity:** Eliminates the operational complexity and failure modes of maintaining 4–5 separate specialized database systems.
+- **Agent Empowerment:** Upstream LLMs and agents leverage a single unified query contract (`query-ir.v1`) to retrieve evidence across semantic, relational, and temporal dimensions simultaneously.
