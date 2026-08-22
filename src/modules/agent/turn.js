@@ -12,6 +12,9 @@ import { answerBusinessQuestion } from './grounded-business-answer'
 //   in-memory defaults (tests/demo) or the real MSP/GenesisBlockDB adapters.
 // @spec Gate E→F — a denied or step-up-needing action degrades to a graceful response,
 //   it never crashes the turn; only programmer errors (unknown action) propagate.
+// @req FR-097 — the turn receives the channel namespace only from the trusted server
+//   scope and carries it into the canonical ingest/authorization seams.
+// @spec ADR-044, ADR-045 D1/D5-D6, BR-020, SEC-018
 // @tested tests/integration/agent-turn.test.js
 
 const GRACEFUL = /^(AGENT_ACTION_DENIED|STEP_UP_REQUIRED)/
@@ -38,7 +41,17 @@ export async function handleAgentTurn(
     zHandleAgentTurnInput.parse(input)
 
   // 1. Ingest the inbound message (persists + resolves identity through the one seam).
-  const inbound = await ingestLineMessage({ tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId, correlationId })
+  const inbound = await ingestLineMessage({
+    tenantId,
+    businessId,
+    lineUserId,
+    channelAccountId: serverScope?.channelAccountId,
+    displayName,
+    threadId,
+    text,
+    externalMessageId,
+    correlationId,
+  })
 
   // @req FR-093 — everything below can fail, and when it does the transport still
   // sends the customer its own fallback text. Recording that reply needs the row

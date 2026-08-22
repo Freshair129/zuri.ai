@@ -3,8 +3,8 @@ import { memoryKey, createInMemoryMemory } from './memory-port'
 import { defaultReadOnlyTools } from './tools'
 import { resolveAgentAuthorization } from './auth-context'
 
-// @req FR-025, FR-057 — assemble settled identity, policy-filtered memory and knowledge.
-// @spec ADR-007 §P6 / ADR-022 / Gate E — authorization and vault selection happen before
+// @req FR-025, FR-057, FR-096, FR-098 — assemble settled identity, policy-filtered memory and knowledge.
+// @spec ADR-007 §P6 / ADR-022 / ADR-045 / Gate E — authorization and vault selection happen before
 //   retrieval; the model receives no raw scope authority.
 // @tested tests/integration/agent-context.test.js, tests/integration/agent-multi-principal.test.js
 
@@ -92,7 +92,7 @@ export async function assembleAgentContext({
     authContext,
   })
 
-  const toolList = (tools ?? defaultReadOnlyTools()).list()
+  const toolList = (tools ?? defaultReadOnlyTools({ authorization })).list()
 
   return {
     identity,

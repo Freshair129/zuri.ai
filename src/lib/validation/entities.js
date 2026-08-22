@@ -65,6 +65,7 @@ export const zBusinessInGroupInput = z.object({
 export const zResolveLineIdentityInput = z.object({
   tenantId: z.string().min(1),
   lineUserId: z.string().min(1),
+  channelAccountId: z.string().min(1).optional(),
   displayName: z.string().optional(),
 })
 
@@ -73,6 +74,7 @@ export const zIngestLineMessageInput = z.object({
   tenantId: z.string().min(1),
   businessId: z.string().optional(),
   lineUserId: z.string().min(1),
+  channelAccountId: z.string().min(1).optional(),
   displayName: z.string().optional(),
   threadId: z.string().min(1),
   text: z.string(),
@@ -94,6 +96,7 @@ export const zIssueLinkTokenInput = z.object({
 export const zRedeemLinkTokenInput = z.object({
   tenantId: z.string().min(1),
   token: z.string().min(1),
+  channelAccountId: z.string().min(1).optional(),
   lineUserId: z.string().min(1),
   displayName: z.string().optional(),
   merge: z.boolean().default(false),

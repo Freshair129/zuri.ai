@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-22T00:58:44.890Z",
+  "generatedAt": "2026-08-22T23:31:17.068Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 23,
+    "gapCount": 26,
     "gaps": [
       {
         "domain": "agent",
@@ -72,6 +72,32 @@
           "tests/integration/line-reply-record.test.js",
           "tests/integration/line-webhook-transport-contract.test.js",
           "tests/unit/reply-record-service.test.js"
+        ]
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-097",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-097 is partial",
+        "evidence": [
+          "src/app/api/agent/line-webhook/route.js",
+          "src/modules/agent/auth-context.js",
+          "src/modules/agent/line-binding-resolver.js",
+          "src/modules/agent/line-channel-binding.js",
+          "src/modules/agent/turn.js",
+          "tests/integration/agent-multi-principal.test.js",
+          "tests/integration/agent-turn.test.js",
+          "tests/integration/agent-webhook-route.test.js",
+          "tests/integration/channel-identity.test.js",
+          "tests/integration/identity-link.test.js",
+          "tests/integration/identity-resolve.test.js",
+          "tests/integration/line-ingest.test.js",
+          "tests/integration/line-oa-evidence-convergence.test.js",
+          "tests/unit/canonical-iam-migration.test.js",
+          "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+          "tests/unit/line-binding-resolver.test.js",
+          "tests/unit/line-channel-binding.test.js"
         ]
       },
       {
@@ -125,6 +151,28 @@
         ]
       },
       {
+        "domain": "crm",
+        "id": "REQ-FR-097",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-097 is partial",
+        "evidence": [
+          "src/modules/crm/line-ingest-service.js",
+          "tests/integration/agent-multi-principal.test.js",
+          "tests/integration/agent-turn.test.js",
+          "tests/integration/agent-webhook-route.test.js",
+          "tests/integration/channel-identity.test.js",
+          "tests/integration/identity-link.test.js",
+          "tests/integration/identity-resolve.test.js",
+          "tests/integration/line-ingest.test.js",
+          "tests/integration/line-oa-evidence-convergence.test.js",
+          "tests/unit/canonical-iam-migration.test.js",
+          "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+          "tests/unit/line-binding-resolver.test.js",
+          "tests/unit/line-channel-binding.test.js"
+        ]
+      },
+      {
         "domain": "identity",
         "id": "CONTRACT-001",
         "severity": "medium",
@@ -153,6 +201,30 @@
         "check": "requirements",
         "summary": "FR-067 is planned",
         "evidence": []
+      },
+      {
+        "domain": "identity",
+        "id": "REQ-FR-097",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-097 is partial",
+        "evidence": [
+          "src/modules/identity/channel-identity.js",
+          "src/modules/identity/link-line-identity.js",
+          "src/modules/identity/resolve-line-identity.js",
+          "tests/integration/agent-multi-principal.test.js",
+          "tests/integration/agent-turn.test.js",
+          "tests/integration/agent-webhook-route.test.js",
+          "tests/integration/channel-identity.test.js",
+          "tests/integration/identity-link.test.js",
+          "tests/integration/identity-resolve.test.js",
+          "tests/integration/line-ingest.test.js",
+          "tests/integration/line-oa-evidence-convergence.test.js",
+          "tests/unit/canonical-iam-migration.test.js",
+          "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+          "tests/unit/line-binding-resolver.test.js",
+          "tests/unit/line-channel-binding.test.js"
+        ]
       },
       {
         "domain": "knowledge",
@@ -466,6 +538,46 @@
             "tests/integration/line-webhook-transport-contract.test.js",
             "tests/unit/reply-record-service.test.js"
           ]
+        },
+        {
+          "id": "FR-096",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 10
+        },
+        {
+          "id": "FR-097",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 12,
+          "evidence": [
+            "src/app/api/agent/line-webhook/route.js",
+            "src/modules/agent/auth-context.js",
+            "src/modules/agent/line-binding-resolver.js",
+            "src/modules/agent/line-channel-binding.js",
+            "src/modules/agent/turn.js",
+            "tests/integration/agent-multi-principal.test.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/channel-identity.test.js",
+            "tests/integration/identity-link.test.js",
+            "tests/integration/identity-resolve.test.js",
+            "tests/integration/line-ingest.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/unit/canonical-iam-migration.test.js",
+            "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+            "tests/unit/line-binding-resolver.test.js",
+            "tests/unit/line-channel-binding.test.js"
+          ]
+        },
+        {
+          "id": "FR-098",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 8
         }
       ],
       "checks": {
@@ -606,6 +718,31 @@
             "tests/integration/line-webhook-transport-contract.test.js",
             "tests/unit/reply-record-service.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-097",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-097 is partial",
+          "evidence": [
+            "src/app/api/agent/line-webhook/route.js",
+            "src/modules/agent/auth-context.js",
+            "src/modules/agent/line-binding-resolver.js",
+            "src/modules/agent/line-channel-binding.js",
+            "src/modules/agent/turn.js",
+            "tests/integration/agent-multi-principal.test.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/channel-identity.test.js",
+            "tests/integration/identity-link.test.js",
+            "tests/integration/identity-resolve.test.js",
+            "tests/integration/line-ingest.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/unit/canonical-iam-migration.test.js",
+            "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+            "tests/unit/line-binding-resolver.test.js",
+            "tests/unit/line-channel-binding.test.js"
+          ]
         }
       ],
       "details": {
@@ -667,6 +804,28 @@
             "tests/integration/line-reply-record.test.js",
             "tests/integration/line-webhook-transport-contract.test.js",
             "tests/unit/reply-record-service.test.js"
+          ]
+        },
+        {
+          "id": "FR-097",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 12,
+          "evidence": [
+            "src/modules/crm/line-ingest-service.js",
+            "tests/integration/agent-multi-principal.test.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/channel-identity.test.js",
+            "tests/integration/identity-link.test.js",
+            "tests/integration/identity-resolve.test.js",
+            "tests/integration/line-ingest.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/unit/canonical-iam-migration.test.js",
+            "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+            "tests/unit/line-binding-resolver.test.js",
+            "tests/unit/line-channel-binding.test.js"
           ]
         }
       ],
@@ -802,6 +961,27 @@
             "tests/integration/line-webhook-transport-contract.test.js",
             "tests/unit/reply-record-service.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-097",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-097 is partial",
+          "evidence": [
+            "src/modules/crm/line-ingest-service.js",
+            "tests/integration/agent-multi-principal.test.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/channel-identity.test.js",
+            "tests/integration/identity-link.test.js",
+            "tests/integration/identity-resolve.test.js",
+            "tests/integration/line-ingest.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/unit/canonical-iam-migration.test.js",
+            "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+            "tests/unit/line-binding-resolver.test.js",
+            "tests/unit/line-channel-binding.test.js"
+          ]
         }
       ],
       "details": {
@@ -862,7 +1042,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 44
+          "testCount": 47
         },
         {
           "id": "FR-059",
@@ -926,6 +1106,58 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 21
+        },
+        {
+          "id": "FR-094",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 4
+        },
+        {
+          "id": "FR-095",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 10
+        },
+        {
+          "id": "FR-096",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 10
+        },
+        {
+          "id": "FR-097",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 12,
+          "evidence": [
+            "src/modules/identity/channel-identity.js",
+            "src/modules/identity/link-line-identity.js",
+            "src/modules/identity/resolve-line-identity.js",
+            "tests/integration/agent-multi-principal.test.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/channel-identity.test.js",
+            "tests/integration/identity-link.test.js",
+            "tests/integration/identity-resolve.test.js",
+            "tests/integration/line-ingest.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/unit/canonical-iam-migration.test.js",
+            "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+            "tests/unit/line-binding-resolver.test.js",
+            "tests/unit/line-channel-binding.test.js"
+          ]
+        },
+        {
+          "id": "FR-098",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 8
         }
       ],
       "checks": {
@@ -991,8 +1223,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 6,
-            "present": 6
+            "models": 8,
+            "present": 8
           }
         },
         "authorization": {
@@ -1036,6 +1268,7 @@
         "docs/domains/identity/features/FR-066-profile-first-workspace-onboarding.md",
         "docs/domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md",
         "docs/domains/identity/features/FR-076-product-owner-business-assignment.md",
+        "docs/domains/identity/features/FR-094-production-iam-boundary.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1070,14 +1303,37 @@
           "check": "requirements",
           "summary": "FR-067 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-097",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-097 is partial",
+          "evidence": [
+            "src/modules/identity/channel-identity.js",
+            "src/modules/identity/link-line-identity.js",
+            "src/modules/identity/resolve-line-identity.js",
+            "tests/integration/agent-multi-principal.test.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/channel-identity.test.js",
+            "tests/integration/identity-link.test.js",
+            "tests/integration/identity-resolve.test.js",
+            "tests/integration/line-ingest.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/unit/canonical-iam-migration.test.js",
+            "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+            "tests/unit/line-binding-resolver.test.js",
+            "tests/unit/line-channel-binding.test.js"
+          ]
         }
       ],
       "details": {
         "routes": 3,
         "apiRoutes": 1,
         "pageRoutes": 2,
-        "ownedModels": 6,
-        "featureNotes": 9
+        "ownedModels": 8,
+        "featureNotes": 10
       }
     },
     "integration": {
@@ -1543,8 +1799,8 @@
           "id": "FR-005",
           "declared": "done",
           "status": "verified",
-          "codeCount": 12,
-          "testCount": 11
+          "codeCount": 13,
+          "testCount": 12
         },
         {
           "id": "FR-006",
@@ -1753,8 +2009,8 @@
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
-          "codeCount": 57,
-          "testCount": 44
+          "codeCount": 58,
+          "testCount": 47
         },
         {
           "id": "FR-056",
@@ -1823,8 +2079,8 @@
           "id": "FR-068",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 5
+          "codeCount": 5,
+          "testCount": 8
         },
         {
           "id": "FR-069",
@@ -2016,6 +2272,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 5
+        },
+        {
+          "id": "FR-095",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 10
         }
       ],
       "checks": {

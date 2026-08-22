@@ -1,9 +1,10 @@
 import prisma from '@/lib/db'
 import { queryKnowledge } from '@/modules/knowledge'
+import { authorizeScope } from '@/modules/identity/authorization-context'
 
-// @req FR-025 — the read-only tool registry the agent binds to at Gate E: search /
+// @req FR-025, FR-096, FR-098 — the read-only tool registry the agent binds to at Gate E: search /
 //   read / recommend / answer only. No write tool can be registered until Gate F.
-// @spec ADR-007 §P6 / Gate E — until Gate F the agent may NOT refund / cancel /
+// @spec ADR-007 §P6 / ADR-045 / Gate E — until Gate F the agent may NOT refund / cancel /
 //   update customer / create payment / modify order. `register` enforces this at the
 //   seam: a descriptor whose readOnly !== true is rejected outright.
 // @tested tests/integration/agent-tools.test.js
@@ -57,15 +58,48 @@ export function createToolRegistry() {
  * (ADR-007 P6) binds the agent to these, it does not add behaviour here.
  * @returns {ToolRegistry}
  */
-export function defaultReadOnlyTools() {
+function requireToolAuthorization(authorization, customerId = null) {
+  const context = authorization?.authorizationContext
+  if (!context) throw new Error('TOOL_AUTHORIZATION_REQUIRED')
+
+  const principalCustomerId = authorization.principal?.customerId
+  const ownerPersonId = customerId && principalCustomerId === customerId
+    ? context.actor?.personId
+    : null
+  const decision = authorizeScope(context, {
+    action: 'READ',
+    businessId: context.scope?.businessId,
+    ownerPersonId,
+  })
+  if (!decision.allowed) throw new Error(`TOOL_AUTHORIZATION_DENIED: ${decision.reason}`)
+
+  return {
+    tenantId: context.scope.tenantId,
+    businessId: context.scope.businessId,
+    principalId: context.actor.personId,
+  }
+}
+
+function scopedBusinessFilter(businessId) {
+  return businessId
+    ? { OR: [{ businessId: null }, { businessId }] }
+    : undefined
+}
+
+export function defaultReadOnlyTools({ authorization } = {}) {
   const registry = createToolRegistry()
 
   registry.register({
     name: 'answer_from_knowledge',
     readOnly: true,
     description: 'Answer using the GKS knowledge graph for a principal (read-only).',
-    async handler({ tenantId, principalId }) {
-      return queryKnowledge({ tenantId, principalId })
+    async handler() {
+      const scope = requireToolAuthorization(authorization)
+      return queryKnowledge({
+        tenantId: scope.tenantId,
+        businessId: scope.businessId,
+        principalId: scope.principalId,
+      })
     },
   })
 
@@ -73,9 +107,16 @@ export function defaultReadOnlyTools() {
     name: 'read_customer_profile',
     readOnly: true,
     description: 'Read a customer profile within the tenant (read-only).',
-    async handler({ tenantId, customerId }) {
+    async handler({ customerId }) {
       if (!customerId) return null
-      return prisma.customer.findFirst({ where: { id: customerId, tenantId } })
+      const scope = requireToolAuthorization(authorization, customerId)
+      return prisma.customer.findFirst({
+        where: {
+          id: customerId,
+          tenantId: scope.tenantId,
+          ...scopedBusinessFilter(scope.businessId),
+        },
+      })
     },
   })
 
@@ -83,9 +124,16 @@ export function defaultReadOnlyTools() {
     name: 'search_conversations',
     readOnly: true,
     description: 'Search the customer\'s conversations within the tenant (read-only).',
-    async handler({ tenantId, customerId }) {
+    async handler({ customerId }) {
       if (!customerId) return []
-      return prisma.conversation.findMany({ where: { tenantId, customerId } })
+      const scope = requireToolAuthorization(authorization, customerId)
+      return prisma.conversation.findMany({
+        where: {
+          tenantId: scope.tenantId,
+          customerId,
+          ...scopedBusinessFilter(scope.businessId),
+        },
+      })
     },
   })
 
