@@ -19,6 +19,24 @@ describe('production database runtime configuration', () => {
     expect(resolvePostgresUrl({ DATABASE_URL: 'file:./dev.db' })).toBeNull()
   })
 
+  it('adds pgbouncer=true to an existing Supabase transaction-pooler URL', () => {
+    const configured = 'postgresql://postgres.ref:placeholder@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres'
+
+    const resolved = new URL(resolvePostgresUrl({ DATABASE_URL: configured }))
+
+    expect(resolved.port).toBe('6543')
+    expect(resolved.searchParams.get('pgbouncer')).toBe('true')
+  })
+
+  it('preserves existing pooler query parameters without duplicating pgbouncer', () => {
+    const configured = 'postgresql://postgres.ref:placeholder@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require&pgbouncer=true'
+
+    const resolved = resolvePostgresUrl({ DATABASE_URL: configured })
+
+    expect(new URL(resolved).searchParams.get('sslmode')).toBe('require')
+    expect(resolved.match(/pgbouncer=true/g)).toHaveLength(1)
+  })
+
   it('fails closed when production has no Postgres environment value', () => {
     expect(() => requireProductionDatabaseUrl({ NODE_ENV: 'production' })).toThrow(
       'PRODUCTION_DATABASE_URL_REQUIRED',
