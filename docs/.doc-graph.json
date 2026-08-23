@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1140,
+    "total_nodes": 1141,
     "total_edges": 3852,
     "dangling_edges": 0,
     "node_types": {
@@ -16,7 +16,7 @@
       "route": 125,
       "model": 61,
       "requirement": 207,
-      "test": 269,
+      "test": 270,
       "code_file": 298
     },
     "coverage": {
@@ -60,9 +60,7 @@
   },
   "drift": {
     "changed": [],
-    "added": [
-      "doc:ROADMAP-zuri-ai-24w-program"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -11984,6 +11982,13 @@
       "type": "test",
       "path": "tests/unit/doc-graph-canonical-text.test.js",
       "hash": "20a34b65",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/doc-graph-delivery-attribution.test.js",
+      "type": "test",
+      "path": "tests/unit/doc-graph-delivery-attribution.test.js",
+      "hash": "4e4aff3f",
       "status": "current"
     },
     {
