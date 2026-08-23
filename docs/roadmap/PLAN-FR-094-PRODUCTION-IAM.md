@@ -1,7 +1,7 @@
 ---
-version: "0.2.2b"
+version: "0.2.3b"
 created_at: "2026-08-22T00:00:00+07:00,ATHER"
-last_update: "2026-08-23T00:00:00+07:00,ATHER"
+last_update: "2026-08-23T07:05:31+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -49,13 +49,23 @@ cutover; it does not activate a provider or introduce an IAM microservice.
   transaction pooler (`6543` with `pgbouncer=true`), and the existing
   production artifact was redeployed successfully. The direct login canary
   reports `current_user = zuri_web_login` with IAM table access.
+- The IAM code was merged by PR #100 into `main` at
+  `0f636e61c040769a331120e9f1a4041151288680` after `changes`, `verify`, and
+  `e2e` checks passed. A clean worktree at that merge commit was deployed to
+  Vercel Production as `dpl_6PApLxAm5LFGt9ocWwz2TVn2HhNW` and is READY at
+  `zuri-cgvz7ivwa-pornpons-projects.vercel.app`; the production aliases are
+  `zuri-ai-woad.vercel.app` and `zuri-ai-pornpons-projects.vercel.app`.
+- The post-deploy negative/auth-boundary canary passed on the canonical
+  production alias: `/` returned HTTP 200, `/api/viewer` returned HTTP 401
+  `AUTH_REQUIRED`, fake credentials at `/api/auth/login` returned HTTP 401
+  `INVALID_CREDENTIALS` with the route matched, and `/api/auth/logout`
+  returned HTTP 200. No real production credential or user fixture was used.
 - Preview `DATABASE_URL`, Preview `DIRECT_URL`, and all `ZURI_PLUGIN_*` variables
   were left unchanged. `DIRECT_URL` Production also remains unchanged for
   migration/admin use.
-- The authenticated application canary remains open. The redeployed artifact
-  is the existing `main` production artifact rather than the unmerged
-  `codex/issue-99-iam` worktree, and no production user credential was used for
-  a login/logout/revocation/cross-tenant test. Do not claim the full Issue #99
+- The successful authenticated session canary remains open: no production user
+  credential was used for login success, persisted-session revalidation,
+  revocation, or cross-tenant isolation. Do not claim the full Issue #99
   application cutover production-ready yet.
 
 ## Exit gates for this slice
@@ -80,8 +90,8 @@ cutover; it does not activate a provider or introduce an IAM microservice.
 
 LINE Login/LIFF verified onboarding, OIDC, MFA, recovery, device management,
 provider credentials, full API/MCP route inventory, and live LINE canary remain
-open until separately evidenced. The role cutover still requires an external
-deployment-secret change; no secret is stored in this repository.
+open until separately evidenced. The external deployment-secret change for W8
+is complete; no secret is stored in this repository.
 
 ## Rollback
 
@@ -101,3 +111,4 @@ backup; there is no destructive automatic rollback.
 | 0.2.0 | 2026-08-23 | beta | Boss approved the production runtime-role cutover extension after remote preflight found `postgres` runtime use | working-tree | ATHER |
 | 0.2.1b | 2026-08-23 | beta | Recorded free-plan logical backup and live W7 migration evidence; W8 credential/canary gate remains open | working-tree | ATHER |
 | 0.2.2b | 2026-08-23 | beta | Recorded Vercel Production runtime-secret rotation, redeploy and direct transaction-pooler canary; authenticated app canary remains open | working-tree | ATHER |
+| 0.2.3b | 2026-08-23 | beta | Recorded PR #100 merge, clean Production deployment and negative application auth canary; authenticated session and tenant evidence remain open | working-tree | ATHER |

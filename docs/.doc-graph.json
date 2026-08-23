@@ -59,7 +59,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "doc:PLAN-FR-094-PRODUCTION-IAM"
+    ],
     "added": [],
     "removed": []
   },
@@ -6925,8 +6927,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-FR-094-PRODUCTION-IAM.md",
       "title": "Implementation plan — Issue #99 production IAM",
-      "hash": "9dbcafdf",
-      "status": "current"
+      "hash": "586e4019",
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-FR-097-VERIFIED-CHANNEL-ONBOARDING",
