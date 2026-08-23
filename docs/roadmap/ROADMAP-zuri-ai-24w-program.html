@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zuri AI — Roadmap 24 สัปดาห์ | Mission Control</title>
+<meta name="description" content="GoVibe Mission Control roadmap board for the Zuri AI 24-week delivery programme, styled with Zuri Heritage v2 design tokens." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+/* ------------------------------------------------------------------
+   Design tokens — lifted verbatim from zuri-ai src/app/globals.css
+   (Zuri Heritage v2, ADR-010). Primitive -> Semantic -> Component.
+   Components below consume semantic/component tokens only.
+   ------------------------------------------------------------------ */
+:root {
+  --primitive-amber-500:#E8820C; --primitive-amber-400:#F09420; --primitive-amber-700:#B86A08;
+  --primitive-amber-100:#FDE8D0; --primitive-amber-50:#FFF8F0;
+  --primitive-white:#FFFFFF; --primitive-neutral-50:#F7F8FA; --primitive-neutral-100:#EFF1F3;
+  --primitive-neutral-200:#E5E7EB; --primitive-neutral-500:#6B7280; --primitive-neutral-900:#1F2937;
+  --primitive-blue-100:#D6ECFA; --primitive-blue-700:#3D7A9E;
+  --primitive-mustard-500:#C6A052; --primitive-mustard-100:#F5ECD7;
+  --primitive-success:#238553; --primitive-success-bg:#EAF7EF;
+  --primitive-danger:#C84B4B;  --primitive-danger-bg:#FDECEC;
+  --primitive-warning:#B7791F; --primitive-warning-bg:#FFF6DE;
+
+  --bg-canvas:var(--primitive-neutral-50);
+  --bg-surface:var(--primitive-white);
+  --bg-subtle:var(--primitive-amber-50);
+  --text-primary:var(--primitive-neutral-900);
+  --text-secondary:var(--primitive-neutral-500);
+  --text-tertiary:#7B8490;
+  --text-inverse:var(--primitive-white);
+  --border-subtle:#ECEEF1;
+  --border-default:var(--primitive-neutral-200);
+  --border-strong:#CBD5E1;
+  --border-focus:var(--primitive-amber-500);
+  --action-primary:var(--primitive-amber-500);
+  --action-primary-hover:var(--primitive-amber-400);
+  --action-primary-active:var(--primitive-amber-700);
+  --status-success:var(--primitive-success); --status-success-bg:var(--primitive-success-bg);
+  --status-warning:var(--primitive-warning); --status-warning-bg:var(--primitive-warning-bg);
+  --status-danger:var(--primitive-danger);   --status-danger-bg:var(--primitive-danger-bg);
+  --status-info:var(--primitive-blue-700);   --status-info-bg:var(--primitive-blue-100);
+
+  --card-bg:var(--bg-surface); --card-border:var(--border-subtle);
+  --card-subtle-bg:var(--bg-subtle);
+  --button-primary-bg:var(--action-primary); --button-primary-hover:var(--action-primary-hover);
+  --button-secondary-bg:var(--bg-surface); --button-secondary-border:var(--border-default);
+  --focus-ring:var(--border-focus);
+
+  --radius-xs:4px; --radius-sm:6px; --radius-md:8px; --radius-lg:12px; --radius-xl:16px; --radius-full:999px;
+  --shadow-raised:0 1px 2px rgba(15,23,42,.04), 0 4px 12px rgba(15,23,42,.06);
+  --motion-fast:120ms; --motion-default:180ms; --motion-ease:cubic-bezier(.2,.8,.2,1);
+
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px; --sp-10:40px;
+
+  --font-sans:'IBM Plex Sans Thai','Manrope','Segoe UI',Tahoma,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg-canvas);color:var(--text-primary);
+  font-family:var(--font-sans);font-size:14px;line-height:22px;-webkit-font-smoothing:antialiased;}
+:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px;}
+h1,h2,h3,h4,p{margin:0;}
+button{font:inherit;color:inherit;}
+
+.t-h1{font-size:28px;line-height:36px;font-weight:650;letter-spacing:-.01em;}
+.t-h3{font-size:20px;line-height:28px;font-weight:600;}
+.t-title{font-size:16px;line-height:24px;font-weight:600;}
+.t-small{font-size:13px;line-height:20px;font-weight:400;}
+.t-label{font-size:13px;line-height:20px;font-weight:500;}
+.t-caption{font-size:12px;line-height:18px;font-weight:400;color:var(--text-secondary);}
+.mono{font-family:var(--font-mono);}
+.muted{color:var(--text-secondary);}
+
+.shell{max-width:1360px;margin:0 auto;padding:var(--sp-6) var(--sp-5) var(--sp-10);}
+@media (max-width:640px){.shell{padding:var(--sp-4) var(--sp-3) var(--sp-8);}}
+
+.topbar{background:var(--primitive-neutral-900);color:var(--text-inverse);
+  border-bottom:1px solid rgba(255,255,255,.08);}
+.topbar-inner{max-width:1360px;margin:0 auto;padding:var(--sp-3) var(--sp-5);
+  display:flex;align-items:center;gap:var(--sp-4);flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:var(--sp-2);font-weight:700;font-size:16px;letter-spacing:-.01em;}
+.brand-mark{width:26px;height:26px;border-radius:var(--radius-md);background:var(--action-primary);
+  color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;}
+.crumb{display:flex;align-items:center;gap:var(--sp-2);color:rgba(255,255,255,.62);font-size:13px;flex-wrap:wrap;}
+.crumb b{color:rgba(255,255,255,.92);font-weight:600;}
+.crumb .sep{color:rgba(255,255,255,.32);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;}
+.chip-dark{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);
+  color:rgba(255,255,255,.86);border-radius:var(--radius-sm);padding:3px 8px;
+  font-size:12px;line-height:18px;font-weight:600;}
+
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-lg);}
+.card-pad{padding:var(--sp-5);}
+.card-warm{background:var(--card-subtle-bg);border-color:var(--primitive-amber-100);}
+
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:var(--radius-sm);
+  padding:3px 8px;font-size:12px;line-height:18px;font-weight:600;white-space:nowrap;}
+.pill-done{background:var(--status-success-bg);color:var(--status-success);}
+.pill-active{background:var(--status-warning-bg);color:var(--status-warning);}
+.pill-planned{background:var(--primitive-neutral-100);color:var(--text-secondary);}
+.pill-ready{background:var(--status-info-bg);color:var(--status-info);}
+.pill-blocked{background:var(--status-danger-bg);color:var(--status-danger);}
+.pill-brand{background:var(--primitive-amber-100);color:var(--action-primary-active);}
+.dot{width:6px;height:6px;border-radius:var(--radius-full);background:currentColor;flex:none;}
+
+.tag{display:inline-flex;align-items:center;border:1px solid var(--border-default);
+  background:var(--bg-surface);border-radius:var(--radius-sm);padding:1px 6px;
+  font-size:11px;line-height:18px;font-weight:600;font-family:var(--font-mono);
+  color:var(--text-secondary);white-space:nowrap;}
+.tag-fr{border-color:#BFE3CE;background:var(--status-success-bg);color:var(--status-success);}
+.tag-nfr{border-color:#C3D9E6;background:var(--status-info-bg);color:var(--status-info);}
+.tag-c1{border-color:#BFE3CE;background:var(--status-success-bg);color:var(--status-success);}
+.tag-c2{border-color:#EBD6A6;background:var(--status-warning-bg);color:var(--status-warning);}
+.tag-c3{border-color:#EFC3C3;background:var(--status-danger-bg);color:var(--status-danger);}
+.tag-h{border-color:var(--primitive-amber-100);background:var(--primitive-amber-50);color:var(--action-primary-active);}
+
+.bar{height:8px;border-radius:var(--radius-full);background:var(--primitive-neutral-100);overflow:hidden;}
+.bar > i{display:block;height:100%;background:var(--action-primary);border-radius:var(--radius-full);
+  transition:width var(--motion-default) var(--motion-ease);}
+.bar-sm{height:5px;width:72px;}
+
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--sp-5);flex-wrap:wrap;}
+.hero-figure{text-align:right;}
+.hero-figure .n{font-size:32px;line-height:36px;font-weight:700;color:var(--action-primary);
+  font-family:var(--font-mono);letter-spacing:-.02em;}
+.rule{border:0;border-top:1px solid var(--border-subtle);margin:var(--sp-5) 0;}
+.stats{display:flex;gap:var(--sp-8);flex-wrap:wrap;}
+.stat .n{font-size:20px;line-height:28px;font-weight:600;font-family:var(--font-mono);}
+.stat .l{font-size:12px;line-height:18px;color:var(--text-secondary);font-weight:500;}
+.n-ok{color:var(--status-success);} .n-warn{color:var(--status-warning);}
+.n-info{color:var(--status-info);}  .n-mut{color:var(--text-secondary);}
+
+.btn{height:36px;display:inline-flex;align-items:center;gap:6px;padding:0 var(--sp-3);
+  border-radius:var(--radius-md);border:1px solid var(--button-secondary-border);
+  background:var(--button-secondary-bg);font-size:13px;font-weight:600;cursor:pointer;
+  transition:background var(--motion-fast) var(--motion-ease),border-color var(--motion-fast) var(--motion-ease);}
+.btn:hover{background:var(--primitive-neutral-50);border-color:var(--border-strong);}
+.btn-primary{background:var(--button-primary-bg);border-color:var(--button-primary-bg);color:var(--text-inverse);}
+.btn-primary:hover{background:var(--button-primary-hover);border-color:var(--button-primary-hover);}
+
+/* ---- Timeline lane -------------------------------------------------
+   Phase colours use an amber ramp only. UI-DESIGN-SYSTEM §2.1 makes
+   Amber Citrus the sole brand accent and prohibits unrelated hues, so
+   the six phases are separated by value, not by hue.
+   ------------------------------------------------------------------ */
+.tl-head{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);flex-wrap:wrap;margin-bottom:var(--sp-4);}
+.seg{display:inline-flex;border:1px solid var(--border-default);border-radius:var(--radius-md);overflow:hidden;flex:none;}
+.seg button{height:36px;padding:0 var(--sp-4);background:var(--bg-surface);border:0;
+  border-right:1px solid var(--border-default);font-size:13px;font-weight:600;cursor:pointer;
+  color:var(--text-secondary);transition:background var(--motion-fast) var(--motion-ease);}
+.seg button:last-child{border-right:0;}
+.seg button:hover{background:var(--primitive-neutral-50);}
+.seg button[aria-pressed="true"]{background:var(--action-primary);color:var(--text-inverse);}
+
+.prov{display:flex;gap:var(--sp-6);flex-wrap:wrap;padding:var(--sp-3) var(--sp-4);
+  background:var(--bg-subtle);border:1px solid var(--primitive-amber-100);
+  border-radius:var(--radius-md);margin-bottom:var(--sp-5);}
+.prov .k{font-size:11px;line-height:18px;text-transform:uppercase;letter-spacing:.04em;
+  font-family:var(--font-mono);font-weight:700;color:var(--action-primary-active);}
+.prov .v{font-size:13px;line-height:20px;font-weight:600;font-family:var(--font-mono);}
+.prov .s{font-size:11px;line-height:16px;color:var(--text-secondary);}
+
+.lane-h{display:flex;align-items:baseline;gap:var(--sp-2);flex-wrap:wrap;margin:0 0 var(--sp-3);}
+
+.hist{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:5px;}
+@media (max-width:1100px){.hist{grid-template-columns:repeat(7,minmax(0,1fr));}}
+@media (max-width:640px){.hist{grid-template-columns:repeat(3,minmax(0,1fr));}}
+.day{border:1px solid var(--border-subtle);border-radius:var(--radius-md);
+  padding:var(--sp-2) 6px;background:var(--bg-surface);min-width:0;}
+.day.weekend{background:var(--primitive-neutral-50);}
+.day .d{font-size:11px;line-height:16px;font-family:var(--font-mono);font-weight:700;color:var(--action-primary);}
+.day .dt{font-size:12px;line-height:18px;font-weight:600;overflow-wrap:anywhere;}
+.day .wd{font-size:11px;line-height:16px;color:var(--text-tertiary);}
+.spark{height:38px;display:flex;align-items:flex-end;gap:3px;margin:8px 0 6px;}
+.spark i{flex:1;border-radius:2px 2px 0 0;display:block;min-height:2px;background:var(--action-primary);}
+.spark i.del{background:var(--primitive-neutral-200);}
+.spark i.big{background:var(--status-danger);}
+.day .m{font-size:11px;line-height:16px;font-family:var(--font-mono);color:var(--text-secondary);
+  display:flex;justify-content:space-between;gap:4px;}
+.day .m b{color:var(--text-primary);font-weight:600;}
+
+.gapnote{margin:var(--sp-4) 0;padding:var(--sp-2) var(--sp-3);border-left:3px solid var(--border-strong);
+  background:var(--primitive-neutral-50);border-radius:var(--radius-sm);
+  font-size:12px;line-height:18px;color:var(--text-secondary);}
+
+.weeks{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px;}
+@media (max-width:1000px){.weeks{grid-template-columns:repeat(6,minmax(0,1fr));}}
+@media (max-width:560px){.weeks{grid-template-columns:repeat(4,minmax(0,1fr));}}
+.wk{border:1px solid var(--border-subtle);border-radius:var(--radius-sm);
+  padding:6px 3px 5px;text-align:center;background:var(--bg-surface);min-width:0;}
+.wk .n{font-size:12px;line-height:18px;font-weight:700;font-family:var(--font-mono);}
+.wk .dt{font-size:10px;line-height:14px;color:var(--text-tertiary);font-family:var(--font-mono);}
+.wk .ph{height:4px;border-radius:2px;margin-top:5px;}
+
+.dayplan{display:grid;grid-template-columns:repeat(28,minmax(0,1fr));gap:2px;}
+@media (max-width:1000px){.dayplan{grid-template-columns:repeat(14,minmax(0,1fr));}}
+.dcell{aspect-ratio:1;border-radius:2px;min-height:9px;}
+.dcell.mon{outline:1px solid var(--border-strong);outline-offset:-1px;}
+.dayplan-rows{display:flex;flex-direction:column;gap:var(--sp-3);}
+.dayplan-row{display:grid;grid-template-columns:78px minmax(0,1fr);gap:var(--sp-2);align-items:center;}
+.dayplan-row .lbl{font-size:11px;line-height:16px;font-family:var(--font-mono);
+  font-weight:600;color:var(--text-secondary);}
+
+.legend{display:flex;gap:var(--sp-4);flex-wrap:wrap;margin-top:var(--sp-4);
+  font-size:12px;line-height:18px;color:var(--text-secondary);}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.swatch{width:11px;height:11px;border-radius:2px;flex:none;}
+.hidden{display:none;}
+
+.board{display:grid;grid-template-columns:320px minmax(0,1fr);gap:var(--sp-5);align-items:start;margin-top:var(--sp-5);}
+@media (max-width:1080px){.board{grid-template-columns:minmax(0,1fr);}}
+.side{display:flex;flex-direction:column;gap:var(--sp-4);position:sticky;top:var(--sp-4);min-width:0;}
+@media (max-width:1080px){.side{position:static;}}
+.side-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-2);
+  padding-bottom:var(--sp-2);border-bottom:1px solid var(--border-subtle);margin-bottom:var(--sp-3);}
+.side-h .t-caption{overflow-wrap:anywhere;}
+
+.rows{display:flex;flex-direction:column;}
+.row{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) 0;
+  border-bottom:1px solid var(--border-subtle);}
+.row:last-child{border-bottom:0;padding-bottom:0;}
+.row .grow{min-width:0;flex:1;}
+.row .name{font-size:13px;line-height:20px;font-weight:500;}
+.row .sub{font-size:12px;line-height:18px;color:var(--text-tertiary);overflow-wrap:anywhere;}
+
+.phases{display:flex;flex-direction:column;gap:var(--sp-4);}
+.phase{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-lg);overflow:hidden;}
+.phase-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);
+  padding:var(--sp-4) var(--sp-5);background:transparent;border:0;cursor:pointer;text-align:left;
+  transition:background var(--motion-fast) var(--motion-ease);}
+.phase-head:hover{background:var(--primitive-neutral-50);}
+.phase-head .lhs{display:flex;align-items:center;gap:var(--sp-3);min-width:0;}
+.phase-head .rhs{display:flex;align-items:center;gap:var(--sp-3);flex:none;}
+.chev{width:12px;height:12px;flex:none;color:var(--text-tertiary);
+  transition:transform var(--motion-default) var(--motion-ease);}
+.phase[open-state="open"] .chev{transform:rotate(90deg);}
+.phase-body{border-top:1px solid var(--border-subtle);padding:var(--sp-5);display:none;}
+.phase[open-state="open"] .phase-body{display:block;}
+.phase-goal{font-size:13px;line-height:20px;color:var(--text-secondary);margin-bottom:var(--sp-4);}
+.exit{border-left:3px solid var(--action-primary);background:var(--bg-subtle);
+  border-radius:var(--radius-md);padding:var(--sp-3) var(--sp-4);margin-bottom:var(--sp-4);
+  font-size:13px;line-height:20px;}
+
+.sprint{border:1px solid var(--border-subtle);border-radius:var(--radius-md);
+  background:var(--primitive-neutral-50);padding:var(--sp-4);margin-bottom:var(--sp-4);}
+.sprint:last-child{margin-bottom:0;}
+.sprint-head{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);
+  flex-wrap:wrap;margin-bottom:var(--sp-3);}
+.sprint-head .lhs{display:flex;align-items:center;gap:var(--sp-2);min-width:0;flex-wrap:wrap;}
+.sprint-goal{font-size:12px;line-height:18px;color:var(--text-secondary);margin-bottom:var(--sp-3);}
+.tasks{display:flex;flex-direction:column;gap:var(--sp-2);}
+
+.task{background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);
+  transition:border-color var(--motion-fast) var(--motion-ease);}
+.task:hover{border-color:var(--border-strong);}
+.task-head{width:100%;display:flex;align-items:flex-start;gap:var(--sp-3);padding:var(--sp-3);
+  background:transparent;border:0;cursor:pointer;text-align:left;}
+.task-state{width:8px;height:8px;border-radius:var(--radius-full);margin-top:7px;flex:none;background:var(--border-strong);}
+.st-done{background:var(--status-success);}
+.st-inprogress{background:var(--status-warning);}
+.st-ready{background:var(--status-info);}
+.st-blocked{background:var(--status-danger);}
+.task-main{min-width:0;flex:1;}
+.task-title{font-size:14px;line-height:20px;font-weight:600;}
+.task-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.task-right{display:flex;align-items:center;gap:var(--sp-3);flex:none;padding-top:2px;}
+@media (max-width:720px){.task-right{display:none;}}
+.owner{font-size:12px;line-height:18px;color:var(--text-secondary);}
+.owner b{color:var(--text-primary);font-weight:600;}
+
+.verif{display:inline-flex;gap:3px;}
+.v{width:20px;height:18px;border-radius:var(--radius-xs);border:1px solid var(--border-default);
+  background:var(--bg-surface);color:var(--text-tertiary);font-size:10px;font-weight:700;
+  font-family:var(--font-mono);display:grid;place-items:center;}
+.v.on{border-color:#BFE3CE;background:var(--status-success-bg);color:var(--status-success);}
+
+.task-info{display:none;border-top:1px solid var(--border-subtle);padding:var(--sp-4);}
+.task[open-state="open"] .task-info{display:block;}
+.info-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-4);}
+@media (max-width:720px){.info-grid{grid-template-columns:1fr;}}
+.kv .k{font-size:11px;line-height:18px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--text-tertiary);font-family:var(--font-mono);}
+.kv .v-text{font-size:12px;line-height:18px;font-family:var(--font-mono);word-break:break-all;}
+.link{color:var(--status-info);text-decoration:none;}
+.link:hover{text-decoration:underline;}
+.na{color:var(--text-tertiary);font-style:italic;}
+.info-sec{margin-top:var(--sp-4);padding-top:var(--sp-4);border-top:1px solid var(--border-subtle);}
+.k{font-size:11px;line-height:18px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--text-tertiary);font-family:var(--font-mono);}
+.dod{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-4);margin-top:var(--sp-2);}
+@media (max-width:900px){.dod{grid-template-columns:1fr;}}
+.dod h5{margin:0 0 6px;font-size:11px;line-height:18px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.04em;font-family:var(--font-mono);color:var(--action-primary-active);}
+.crit{display:flex;gap:var(--sp-2);font-size:12px;line-height:18px;color:var(--text-secondary);}
+.box{width:13px;height:13px;border-radius:var(--radius-xs);border:1px solid var(--border-strong);
+  flex:none;margin-top:2px;background:var(--bg-surface);}
+.box.on{background:var(--status-success);border-color:var(--status-success);}
+.changelog{font-size:12px;line-height:18px;color:var(--text-secondary);
+  background:var(--primitive-neutral-50);border:1px solid var(--border-subtle);
+  border-radius:var(--radius-md);padding:var(--sp-3);margin-top:var(--sp-2);}
+.dep{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;
+  font-size:12px;line-height:18px;color:var(--text-secondary);margin-top:var(--sp-2);}
+.dep code{font-family:var(--font-mono);color:var(--status-info);font-weight:600;}
+
+.band{width:100%;border-collapse:collapse;font-size:13px;}
+.band th,.band td{text-align:left;padding:var(--sp-2) var(--sp-3);
+  border-bottom:1px solid var(--border-subtle);vertical-align:top;line-height:20px;}
+.band th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-tertiary);
+  font-family:var(--font-mono);font-weight:700;}
+.band tr:last-child td{border-bottom:0;}
+.band .w{white-space:nowrap;font-family:var(--font-mono);font-weight:600;}
+
+.footnote{margin-top:var(--sp-6);font-size:12px;line-height:18px;color:var(--text-tertiary);}
+.footnote code{font-family:var(--font-mono);}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:0ms !important;animation-duration:0ms !important;}
+}
+@media print{
+  .topbar,.btn,.seg{display:none;}
+  .phase-body,.task-info{display:block !important;}
+  .side{position:static;}
+  body{background:#fff;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="brand-mark">Z</span> Zuri AI</div>
+    <nav class="crumb" aria-label="breadcrumb">
+      <span>Organization</span><span class="sep">/</span>
+      <span>Zuri AI</span><span class="sep">/</span>
+      <span>Development</span><span class="sep">/</span>
+      <b>Roadmap</b>
+    </nav>
+    <div class="topbar-right">
+      <span class="chip-dark">GoVibe Mission Control · A2</span>
+      <span class="chip-dark">Zuri Heritage v2</span>
+    </div>
+  </div>
+</header>
+
+<main class="shell">
+
+  <!-- ===== Header card ===== -->
+  <section class="card card-pad" aria-labelledby="hero-title">
+    <div class="hero-top">
+      <div>
+        <h1 class="t-h1" id="hero-title">Roadmap 24 สัปดาห์ — Zuri AI Full System</h1>
+        <p class="t-small muted" style="margin-top:6px;max-width:66ch;">
+          แผนส่งมอบตามข้อเสนอ 24 สัปดาห์ เขียนทับสถานะจริงของ <span class="mono">D:\zuri-ai</span>
+          ที่คอมมิต <span class="mono">7d8c9d0</span> — ไม่ขายงานที่สร้างเสร็จแล้วซ้ำ
+          และไม่นับความคืบหน้าที่ยังไม่มีหลักฐานคำสั่งรัน<br />
+          repo สร้าง <b>11 ส.ค. 2026</b> · baseline <b>23 ส.ค. 2026</b> ·
+          แผนเริ่ม <b>จ. 24 ส.ค. 2026</b> จบ <b>อา. 7 ก.พ. 2027</b>
+        </p>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
+          <span class="pill pill-brand">draft</span>
+          <span class="pill pill-planned mono">ROADMAP-ZURI-AI-24W-PROGRAM</span>
+          <span class="pill pill-planned mono">v0.3.0</span>
+          <span class="pill pill-planned">updated 2026-08-23</span>
+          <span class="pill pill-planned">owner Owen</span>
+        </div>
+      </div>
+      <div class="hero-figure">
+        <span class="t-caption" style="text-transform:uppercase;letter-spacing:.06em;font-weight:600;">ความคืบหน้าโปรแกรมนี้</span>
+        <div class="n" id="global-pct">0%</div>
+        <span class="t-caption" id="global-sub">—</span>
+      </div>
+    </div>
+
+    <div class="bar" style="margin-top:16px;" role="progressbar" aria-labelledby="hero-title"
+         aria-valuemin="0" aria-valuemax="100" id="global-bar-wrap">
+      <i id="global-bar" style="width:0%"></i>
+    </div>
+
+    <hr class="rule" />
+
+    <div class="stats">
+      <div class="stat"><div class="n" id="s-tasks">30</div><div class="l">Task ในแผนนี้</div></div>
+      <div class="stat"><div class="n n-ok" id="s-done">0</div><div class="l">ปิดแล้ว (done)</div></div>
+      <div class="stat"><div class="n n-warn" id="s-prog">0</div><div class="l">กำลังทำ</div></div>
+      <div class="stat"><div class="n n-info" id="s-ready">0</div><div class="l">พร้อมเริ่ม</div></div>
+      <div class="stat"><div class="n n-mut" id="s-planned">0</div><div class="l">รอคิว</div></div>
+      <div class="stat"><div class="n">6 / 12</div><div class="l">Phase / Sprint</div></div>
+      <div class="stat"><div class="n n-info">392</div><div class="l">commit ใน 13 วัน</div></div>
+      <div class="stat"><div class="n n-info">198,574</div><div class="l">บรรทัดที่ยืนอยู่วันนี้</div></div>
+    </div>
+
+    <hr class="rule" />
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="expand-all" type="button">ขยายทุก Phase</button>
+      <button class="btn" id="collapse-all" type="button">ยุบทั้งหมด</button>
+      <button class="btn" id="only-open" type="button">แสดงเฉพาะงานที่ยังไม่ปิด</button>
+    </div>
+  </section>
+
+  <!-- ===== Timeline lane ===== -->
+  <section class="card card-pad" style="margin-top:16px;" aria-labelledby="tl-title">
+    <div class="tl-head">
+      <div>
+        <h2 class="t-h3" id="tl-title">Timeline — ประวัติจริง เทียบแผน 24 สัปดาห์</h2>
+        <p class="t-small muted" style="margin-top:4px;">
+          บนคือสิ่งที่ repo ทำจริงใน 13 วัน ล่างคือสิ่งที่ข้อเสนอกันเวลาไว้ 24 สัปดาห์ — สลับดูรายสัปดาห์หรือรายวันได้
+        </p>
+      </div>
+      <div class="seg" role="group" aria-label="ความละเอียดของแผน">
+        <button type="button" id="gran-week" aria-pressed="true">รายสัปดาห์ W1–W24</button>
+        <button type="button" id="gran-day" aria-pressed="false">รายวัน (168 วัน)</button>
+      </div>
+    </div>
+
+    <div class="prov">
+      <div>
+        <div class="k">Repo created</div>
+        <div class="v">2026-08-11 23:27 +07</div>
+        <div class="s">gh repo view · createdAt</div>
+      </div>
+      <div>
+        <div class="k">First commit</div>
+        <div class="v">2026-08-11 23:30 +07</div>
+        <div class="s">9030f25 · +3 นาทีหลังสร้าง repo</div>
+      </div>
+      <div>
+        <div class="k">Baseline</div>
+        <div class="v">2026-08-23 04:05 +07</div>
+        <div class="s">7d8c9d0 · 392 commits</div>
+      </div>
+      <div>
+        <div class="k">W1 เริ่ม</div>
+        <div class="v">จันทร์ 2026-08-24</div>
+        <div class="s">วันจันทร์แรกหลัง baseline</div>
+      </div>
+      <div>
+        <div class="k">W24 จบ</div>
+        <div class="v">อาทิตย์ 2027-02-07</div>
+        <div class="s">168 วัน</div>
+      </div>
+    </div>
+
+    <div class="lane-h">
+      <span class="t-title">ประวัติจริง</span>
+      <span class="pill pill-done">D1 – D13</span>
+      <span class="t-caption">11–23 ส.ค. 2026 · 392 commits · +292,937 / −81,720 บรรทัด (net 211,217) · FR 0 → 93</span>
+    </div>
+    <div class="hist" id="hist"></div>
+
+    <p class="gapnote" id="gapnote"></p>
+
+    <div class="lane-h">
+      <span class="t-title">แผน 24 สัปดาห์</span>
+      <span class="pill pill-planned">2026-08-24 → 2027-02-07</span>
+      <span class="t-caption" id="plan-hint"></span>
+    </div>
+    <div id="plan-week"></div>
+    <div id="plan-day" class="hidden"></div>
+
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <!-- ===== Board ===== -->
+  <div class="board">
+
+    <aside class="side">
+
+      <section class="card card-pad">
+        <div class="side-h">
+          <h2 class="t-title">ฐานที่รับมาแล้ว</h2>
+          <span class="t-caption mono">7d8c9d0</span>
+        </div>
+        <div class="rows">
+          <div class="row"><div class="grow"><div class="name">Feature ที่ประกาศแล้ว</div><div class="sub">docs/FEATURE-MAP.md (generated)</div></div><span class="mono t-title">93</span></div>
+          <div class="row"><div class="grow"><div class="name">live</div><div class="sub">ใช้งานจริง มีเทสต์</div></div><span class="mono t-title" style="color:var(--status-success)">82</span></div>
+          <div class="row"><div class="grow"><div class="name">planned</div><div class="sub">FR-066/067/082–085</div></div><span class="mono t-title" style="color:var(--text-secondary)">6</span></div>
+          <div class="row"><div class="grow"><div class="name">built, not declared</div><div class="sub">FR-087/088/089/091/093</div></div><span class="mono t-title" style="color:var(--status-warning)">5</span></div>
+          <div class="row"><div class="grow"><div class="name">ไฟล์เทสต์ (tracked)</div><div class="sub">252 unit + 11 e2e</div></div><span class="mono t-title">263</span></div>
+          <div class="row"><div class="grow"><div class="name">commits</div><div class="sub">ตั้งแต่ 11 ส.ค. 2026</div></div><span class="mono t-title">392</span></div>
+        </div>
+        <p class="t-caption" style="margin-top:12px;">
+          ตัวเลขเทสต์เป็นการนับไฟล์ ไม่ใช่ผลรันสีเขียว — การรันจริงเป็นหลักฐานปิด
+          <span class="mono">TASK-ZAI-029</span>
+        </p>
+      </section>
+
+      <section class="card card-pad">
+        <div class="side-h">
+          <h2 class="t-title">Core Agent Workforce</h2>
+          <span class="pill pill-planned">0 / 5</span>
+        </div>
+        <div class="rows" id="roles"></div>
+        <p class="t-caption" style="margin-top:12px;">
+          วันนี้มี agent turn เดียวแบบ generic (FR-025–029) ยังไม่มี role registry —
+          งานอยู่ที่ <span class="mono">SPR-ZAI-03</span>
+        </p>
+      </section>
+
+      <section class="card card-pad">
+        <div class="side-h">
+          <h2 class="t-title">Acceptance Gates</h2>
+          <span class="pill pill-blocked">0 / 8 met</span>
+        </div>
+        <div class="rows" id="gates"></div>
+      </section>
+
+      <section class="card card-pad card-warm">
+        <div class="side-h" style="border-color:var(--primitive-amber-100)">
+          <h2 class="t-title">Deliverables (10)</h2>
+        </div>
+        <div class="rows" id="deliverables"></div>
+      </section>
+
+    </aside>
+
+    <div>
+      <section class="card card-pad" style="margin-bottom:16px;">
+        <h2 class="t-title" style="margin-bottom:12px;">ข้อเสนอ 24 สัปดาห์ เทียบของที่มีอยู่จริง</h2>
+        <div style="overflow-x:auto;">
+          <table class="band">
+            <thead><tr><th>ช่วงเวลา</th><th>งานหลักตามข้อเสนอ</th><th>รับมาแล้ว</th><th>ที่ต้องซื้อจริง</th></tr></thead>
+            <tbody id="bands"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="phases" id="phases"></div>
+
+      <p class="footnote">
+        เกณฑ์แปลงสถานะเป็นเปอร์เซ็นต์บนหน้านี้: <code>done 100</code> · <code>review 90</code> ·
+        <code>in-progress 50</code> · <code>assigned 25</code> · <code>ready 10</code> ·
+        <code>planned 0</code> · <code>blocked 0</code>.
+        เปอร์เซ็นต์ Phase และ Sprint คำนวณจาก task ในแผนนี้เท่านั้น ไม่รวมฐาน 82 feature ที่รับมา
+        ตัวเลข Token เป็นค่าประมาณตอนวางแผน (<code>predicted_token_usage</code>) ยังไม่ใช่ยอดใช้จริง<br />
+        Source of truth: <code>docs/roadmap/ROADMAP-zuri-ai-24w-program.md</code> ·
+        Design tokens: <code>docs/UI-DESIGN-SYSTEM.md</code> (Zuri Heritage v2, ADR-010) ·
+        Layout: GoVibe Mission Control A2 Roadmap Board ·
+        ทุกตัวเลขวัดที่คอมมิต <code>7d8c9d0</code> (2026-08-23) — repo เคลื่อนทุกวัน ให้วัดใหม่ก่อนนำไปอ้าง
+      </p>
+    </div>
+
+  </div>
+</main>
+
+<script>
+/* ==================================================================
+   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.3.0 — the markdown
+   is the source of truth, this array is its rendering.
+   ================================================================== */
+const PROGRESS_BY_STATE = { done:100, review:90, "in-progress":50, assigned:25, ready:10, planned:0, blocked:0 };
+
+const ROLES = [
+  ["Executive / Chief of Staff","สั่งการ จัดลำดับ ตัดสินใจข้ามธุรกิจ"],
+  ["Operations","งานประจำวัน คิวงาน การติดตาม"],
+  ["Finance Analyst","ตัวเลข ต้นทุน ผลตอบแทน"],
+  ["Research","ค้นคว้า สรุปหลักฐาน"],
+  ["Marketing","แคมเปญ คอนเทนต์ ลูกค้า"]
+];
+
+const GATES = [
+  ["GATE-ZAI-01","Visual Office 2.5D แสดง Business/Agent/Mission/Approval ตาม scope"],
+  ["GATE-ZAI-02","Node View 3D แสดงและค้นความสัมพันธ์ของ Node ตามความลึกที่ตกลง"],
+  ["GATE-ZAI-03","Second Brain retrieve context ตาม Business/Role/Permission"],
+  ["GATE-ZAI-04","2 Businesses แยกข้อมูลและวิเคราะห์ข้ามกันตาม policy"],
+  ["GATE-ZAI-05","Core Agent Roles ทำ workflow ที่กำหนดครบวงจร"],
+  ["GATE-ZAI-06","Automation, retry, verification และ approval ผ่าน UAT"],
+  ["GATE-ZAI-07","Connector ทำงานตาม contract และไม่อ่านข้อมูลข้าม scope"],
+  ["GATE-ZAI-08","Deployment, documentation และ training ส่งมอบครบ"]
+];
+
+const DELIVERABLES = [
+  ["Visual Office 2.5D","none","ยังไม่เริ่ม ไม่มี scene model / renderer / route"],
+  ["GoVibe Mission Control","partial","มีแล้ว แต่ยังไม่ผูกข้อมูลธุรกิจ Zuri"],
+  ["Interactive Node View 3D","none","มีแค่ dependency map 2D อ่านอย่างเดียว"],
+  ["Second Brain / Governed Memory","partial","FR-024/025/029 read port · ADR-042/043 pin แล้วแต่ยังไม่มีโค้ด"],
+  ["5 Core Agent Roles","partial","มี agent turn เดียว ไม่มี role registry"],
+  ["2 Cross-integrated Businesses","partial","โครงรองรับครบ แต่ onboard จริง 1 ธุรกิจ"],
+  ["Full Automation ≤5 Workflows","none","ยังไม่มี end-to-end workflow"],
+  ["Standard Connectors ≤3","partial","LINE 1 ตัว · FR-091 ขาเข้า FR-093 ขาออก"],
+  ["Approval L1–L4 + audit","partial","audit live, step-up มีชั้นเดียว"],
+  ["Deployment / UAT / Training","partial","มี harness ทดสอบ ยังไม่มี UAT/handover"]
+];
+
+const BANDS = [
+  ["สัปดาห์ 1-4","Architecture, data, identity, security, runtime และ memory foundation","FR-001–016 · FR-021–030 · FR-051/052 · FR-071 pipeline monitor","Production session boundary, invite boundary, memory contract"],
+  ["สัปดาห์ 5-8","Business Core, Mission Control, Agent roles และ governance","FR-032–038 · FR-041/042 · FR-060 · FR-014 audit","5 agent roles, Approval L1–L4, verification, notification, MC binding"],
+  ["สัปดาห์ 9-12","2 Businesses, cross-business analytics, workflows และ connectors รอบแรก","FR-020/043/061/062 · FR-081 · FR-079/080/091/092/093","Business #2, business template, cross-business analytics, connector #2, workflow 1–2"],
+  ["สัปดาห์ 13-16","Visual Office 2.5D และ agent activity experience","ไม่มี","ทั้งช่วง"],
+  ["สัปดาห์ 17-20","Second Brain, Node View 3D และ full automation workflows","FR-024/025/029 read port · ADR-042/043 เป็นการตัดสินใจ ไม่ใช่โค้ด","ทั้งช่วง"],
+  ["สัปดาห์ 21-24","Integration hardening, load/security test, UAT, deployment, training และ handover","FR-053 golden evaluation · FR-054 isolation report","ทั้งช่วง ยกเว้น harness สองตัวนั้น"]
+];
+
+/* Measured on the zuri-ai repository at 7d8c9d0 with
+   `git log --no-merges --numstat`, excluding .next* build artifacts and
+   package-lock.json. See roadmap section 5.2 and 5.3. */
+const HISTORY = [
+  /* day, date,        wd,     commits, ins,   del,    cumulative, frDeclared, frLive, testFiles */
+  [1,  "2026-08-11", "อ.",  3,  18260, 15,    18245,  null, null, 9],
+  [2,  "2026-08-12", "พ.",  36, 62215, 2833,  77627,  30,   30,   31],
+  [3,  "2026-08-13", "พฤ.", 12, 18170, 4845,  90952,  44,   44,   64],
+  [4,  "2026-08-14", "ศ.",  30, 40759, 6205,  125506, 55,   55,   106],
+  [5,  "2026-08-15", "ส.",  12, 11134, 8985,  127655, 57,   57,   113],
+  [6,  "2026-08-16", "อา.", 39, 16842, 46234, 98263,  59,   59,   124],
+  [7,  "2026-08-17", "จ.",  56, 22120, 1493,  118890, 71,   65,   143],
+  [8,  "2026-08-18", "อ.",  57, 48849, 3984,  163755, 81,   75,   194],
+  [9,  "2026-08-19", "พ.",  21, 20374, 1628,  182501, 89,   78,   224],
+  [10, "2026-08-20", "พฤ.", 86, 18472, 2192,  198781, 93,   81,   246],
+  [11, "2026-08-21", "ศ.",  31, 13069, 1869,  209981, 93,   82,   262],
+  [12, "2026-08-22", "ส.",  7,  2392,  1385,  210988, 93,   82,   263],
+  [13, "2026-08-23", "อา.", 2,  281,   52,    211217, 93,   82,   263]
+];
+
+/* task: [id, code, title, type, C, H, state, owner, deps, codeLink, docLink, testLink, tokens, acceptance, success, exit, changelog] */
+const PHASES = [
+  {
+    id:"PHASE-ZAI-01", n:"Phase 1", weeks:"สัปดาห์ 1-4",
+    title:"Foundation Consolidation — ยกฐานที่มีอยู่ให้เป็น production-grade",
+    goal:"ฐานสถาปัตยกรรม ข้อมูล ตัวตน ความปลอดภัย runtime และ memory ส่วนใหญ่สร้างเสร็จแล้วในรีโปนี้ Phase นี้ซื้อเฉพาะส่วนที่ยังขาด",
+    exit:"ปิด production session boundary, ไม่มี feature ที่สร้างแล้วแต่ยังไม่ประกาศ, และเขียน memory contract เสร็จ",
+    state:"in-progress",
+    sprints:[
+      { id:"SPR-ZAI-01", weeks:"สัปดาห์ 1-2", goal:"ปิด identity, session และ authorization ให้ถึงมาตรฐาน production",
+        exit:"request ที่ไม่มี trusted session เข้าไม่ถึง mutating route ใด ๆ พิสูจน์ด้วยเทสต์",
+        tasks:[
+          ["TASK-ZAI-001","TSK-ZAI001","Close the production request-session and credential boundary","NFR","C-3","H3","in-progress","ATHER","-","src/modules/identity/resolve-viewer.js","docs/roadmap/ROADMAP.md","tests/e2e/fr046-entry-contract.spec.js",48000,
+            "Given a request carrying no trusted session, when it reaches any mutating project-manager route, then the route refuses before the service runs",
+            "Given the FR-090 credential tables, when a password reset is issued, then the token is single use and expires",
+            "Given npm run test:e2e, when fr046-entry-contract.spec.js runs, then the unauthenticated negative case passes",
+            "ยกมาจาก TASK-V2-IDENTITY ใน ROADMAP.md ซึ่งบันทึกว่า FR-021/FR-022 implement แล้ว แต่ production web request-session boundary ยังเปิดอยู่"],
+          ["TASK-ZAI-002","TSK-ZAI002","Declare the five built-but-undeclared features into the registry","NFR","C-1","H1","ready","Claude","-","scripts/doc-graph.mjs","docs/FEATURE-MAP.md","unavailable",16000,
+            "Given FR-087, FR-088, FR-089, FR-091 and FR-093, when doc-graph regenerates, then none is reported as built but not declared",
+            "Given a reader opens FEATURE-MAP.md, when they look for project priority, PIC, Team, the CRM inbox and the LINE reply receipt, then each has a design note and a status",
+            "Given npm run docs:check, when it runs after regeneration, then it exits zero with no drift",
+            "เปิดจาก baseline 2026-08-20 ที่มี 4 feature ไม่ประกาศ · re-baseline 2026-08-23 ที่ 7d8c9d0 มี FR-093 เพิ่มเข้ามา ขอบเขตจึงเป็น 5"],
+          ["TASK-ZAI-003","TSK-ZAI003","Profile-first onboarding and Waiting Room, FR-066","FR","C-2","H2","planned","Codex","TASK-ZAI-001","src/modules/identity/resolve-viewer.js","docs/FEATURE-MAP.md","unavailable",32000,
+            "Given a new person with a local session, when they enter the app, then they complete a Profile before being offered scope creation",
+            "Given a Profile-only member, when no Organization exists for them, then they remain in Waiting Room without an error state",
+            "Given npm test, when the FR-066 unit suite runs, then onboarding order is asserted, not assumed",
+            "planned feature ที่ยกจาก FEATURE-MAP.md เข้าช่อง sprint จริง"]
+        ]},
+      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract",
+        exit:"pipeline รายงานได้ทุก stage และ memory contract ผ่านการรีวิว",
+        tasks:[
+          ["TASK-ZAI-004","TSK-ZAI004","Workspace collaboration boundary and scoped invites, FR-067","FR","C-3","H3","planned","Codex","TASK-ZAI-003","src/modules/identity/classify-principal.js","docs/FEATURE-MAP.md","unavailable",40000,
+            "Given a Workspace owner issues an invite, when it is redeemed twice, then the second redemption is refused",
+            "Given a WorkspaceMembership, when the holder queries Business or Tenant scope, then nothing outside Workspace collaboration is returned",
+            "Given npm test, when the invite suite runs, then expiry, single use and scope containment each have a failing-first test",
+            "planned feature จาก FEATURE-MAP.md จัดคิวหลัง onboarding เพื่อให้ผู้ถูกเชิญมี Profile รองรับ"],
+          ["TASK-ZAI-005","TSK-ZAI005","Supabase data pipeline monitor and replay, FR-071","FR","C-3","H3","done","ATHER","-","scripts/migrate-to-postgres.mjs","docs/FEATURE-MAP.md","unavailable",46000,
+            "Given a pipeline run, when any stage fails, then the run exposes definition, run, stage, step, attempt and record identities for that failure",
+            "Given a failed batch, when replay is requested, then only the failed records are reprocessed and the audit records the replay",
+            "Given npm run docs:check, when FEATURE-MAP.md is regenerated, then FR-071 is reported live rather than planned",
+            "เปิด 2026-08-20 เป็น planned · ปิดตอน re-baseline 2026-08-23 เพราะ FR-071 ขึ้นเป็น live ใน FEATURE-MAP.md ที่ 7d8c9d0 (เปลี่ยนสถานะช่วง D11) — ติ๊กบน registry ที่ generate มา ไม่ได้รันเทสต์ซ้ำแยกต่างหาก"],
+          ["TASK-ZAI-006","TSK-ZAI006","Write the governed memory read and write contract","NFR","C-3","H3","planned","Claude","-","src/modules/agent/context.js","docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md","unavailable",30000,
+            "Given the contract document, when a reader asks what a role may write to memory, then the answer is stated per scope rather than implied",
+            "Given the existing FR-025 read path, when the contract is applied, then no current read behaviour changes without an explicit note",
+            "Given npm run govern, when the new contract document is added, then preflight strict passes with no new warning",
+            "เปิดเพราะ Second Brain มี read port แต่ไม่มี contract เรื่อง write/retention/partition · re-baseline ให้อยู่ใต้ ADR-043 ที่ pin ตอน D12"]
+        ]}
+    ]
+  },
+  {
+    id:"PHASE-ZAI-02", n:"Phase 2", weeks:"สัปดาห์ 5-8",
+    title:"Agent Workforce และ Governance Ladder",
+    goal:"สร้าง role registry 5 บทบาท และชั้นอนุมัติ L1–L4 ที่ครอบมันไว้ พร้อม audit, verification, notification",
+    exit:"5 roles ทำงานภายใต้ชั้นอนุมัติ L1–L4 พร้อม audit, verification และ notification",
+    state:"planned",
+    sprints:[
+      { id:"SPR-ZAI-03", weeks:"สัปดาห์ 5-6", goal:"สร้าง Agent Role registry และ 5 core roles",
+        exit:"แต่ละ role resolve tools, policy และ memory partition ที่ต่างกันได้",
+        tasks:[
+          ["TASK-ZAI-007","TSK-ZAI007","Agent Role registry with five core roles","FR","C-3","H3","planned","Claude","TASK-ZAI-006","src/modules/agent/index.js","docs/ARCHITECTURE.md","unavailable",62000,
+            "Given the five roles Executive, Operations, Finance Analyst, Research and Marketing, when each resolves its context, then each receives a distinct tool set and policy",
+            "Given a role without a registered tool, when it attempts that tool, then registration refuses it at bind time, not at call time",
+            "Given npm test, when the role registry suite runs, then a cross-role tool leak fails the suite",
+            "เปิดจากช่องว่าง deliverable วันนี้มี agent turn เดียวผ่าน FR-025–029 ยังไม่มีมิติของ role"],
+          ["TASK-ZAI-008","TSK-ZAI008","Role-scoped memory partition and retrieval policy","FR","C-3","H3","planned","Claude","TASK-ZAI-007","src/modules/agent/runtime.js","docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md","unavailable",44000,
+            "Given two roles in the same Business, when each retrieves memory, then neither sees the other private partition",
+            "Given a shared Business partition, when either role reads it, then the same governed content is returned to both",
+            "Given npm test, when the partition suite runs, then a cross-role read returns empty and is audited",
+            "ครึ่ง memory ของ role registry ขึ้นกับ contract จาก TASK-ZAI-006"],
+          ["TASK-ZAI-009","TSK-ZAI009","Agent Factory, the standard business agent template","FR","C-2","H2","planned","Codex","TASK-ZAI-007","src/modules/agent/turn.js","docs/ARCHITECTURE.md","unavailable",36000,
+            "Given a new Business, when the template is applied, then the five roles exist with default policy and no manual wiring",
+            "Given a dynamic sub-agent request, when policy does not permit it, then creation is refused rather than silently downgraded",
+            "Given npm test, when the factory suite runs, then applying the template twice is idempotent",
+            "มาจาก scope AI Control ของข้อเสนอ: Agent Factory / Standard Business Template"]
+        ]},
+      { id:"SPR-ZAI-04", weeks:"สัปดาห์ 7-8", goal:"Approval Gateway L1–L4 พร้อม verification, notification และผูก Mission Control",
+        exit:"action ระดับ L4 ทำงานไม่ได้ถ้ายังไม่มีการอนุมัติครบสี่ครั้งที่บันทึกไว้",
+        tasks:[
+          ["TASK-ZAI-010","TSK-ZAI010","Approval Gateway L1 to L4 over the FR-026 action gate","FR","C-3","H3","planned","ATHER","TASK-ZAI-007","src/modules/agent/action-gate.js","docs/FEATURE-MAP.md","unavailable",58000,
+            "Given an action classified L4, when fewer than four distinct approvals are recorded, then execution is refused",
+            "Given an approval, when the same principal approves twice, then the second approval does not count toward the ladder",
+            "Given npm test, when the approval suite runs, then each of L1, L2, L3 and L4 has a passing positive and a passing negative case",
+            "FR-026 วันนี้มี step-up ชั้นเดียวสำหรับ action ที่ sensitivity สูง ไม่ใช่บันได 4 ขั้น"],
+          ["TASK-ZAI-011","TSK-ZAI011","Verification and notification fabric on approval outcomes","FR","C-2","H2","planned","Codex","TASK-ZAI-010","src/app/api/agent/line-webhook/route.js","docs/FEATURE-MAP.md","unavailable",38000,
+            "Given an approval decision, when it is recorded, then the requester and the next approver are notified exactly once",
+            "Given a notification transport failure, when the send is retried, then no duplicate notification is delivered",
+            "Given npm test, when the notification suite runs, then at-most-once delivery is asserted under a forced retry",
+            "ครึ่งหลังของ deliverable ที่ 9 — audit มีแล้วจาก FR-014 · FR-093 (outbound receipt) เป็นแบบอย่างของฝั่ง delivery"],
+          ["TASK-ZAI-012","TSK-ZAI012","Bind GoVibe Mission Control to the Zuri mission feed","FR","C-2","H2","planned","ATHER","TASK-ZAI-010","src/app/api/viewer/route.js","docs/GOVIBE-INTEGRATION.md","unavailable",26000,
+            "Given Mission Control is pointed at this repository, when the roadmap board loads, then it renders this plan phases, sprints and tasks with no fabricated node",
+            "Given no feed is reachable, when the board loads, then it shows an empty state naming the missing feed rather than stale values",
+            "Given the GoVibe sidecar snapshot endpoint, when it is queried, then it returns this plan real node count and source path",
+            "Mission Control มีอยู่แล้วแต่ยังไม่ผูกกับข้อมูลธุรกิจของ Zuri"]
+        ]}
+    ]
+  },
+  {
+    id:"PHASE-ZAI-03", n:"Phase 3", weeks:"สัปดาห์ 9-12",
+    title:"ธุรกิจที่สอง, Cross-business Analytics, Workflow และ Connector รอบแรก",
+    goal:"ทำให้ระบบพิสูจน์ตัวเองที่สเกลสองธุรกิจ พร้อม connector ตัวที่สองและ workflow สองตัวแรก",
+    exit:"GATE-ZAI-04 และ GATE-ZAI-07 ผ่านสำหรับ connector 1–2 และ workflow 1–2",
+    state:"planned",
+    sprints:[
+      { id:"SPR-ZAI-05", weeks:"สัปดาห์ 9-10", goal:"Standard business template และ onboard ธุรกิจที่สอง",
+        exit:"ธุรกิจที่สอง live และแยกข้อมูลจาก SmartGift ได้จริงภายใต้เทสต์",
+        tasks:[
+          ["TASK-ZAI-013","TSK-ZAI013","Standard Business Template and provisioning path","FR","C-2","H2","planned","Codex","TASK-ZAI-009","prisma/seed.js","docs/DOMAIN-MODEL.md","unavailable",34000,
+            "Given the template, when a Business is provisioned from it, then domains, roles, permissions and default workspaces exist without manual steps",
+            "Given an existing Business, when the template version changes, then existing data is not overwritten",
+            "Given npm test, when the provisioning suite runs, then a second provision of the same Business is a no-op",
+            "ทำให้การเปิดธุรกิจที่สองเป็นงานทำซ้ำได้ ไม่ใช่การย้ายข้อมูลเฉพาะกิจ"],
+          ["TASK-ZAI-014","TSK-ZAI014","Onboard Business number two end to end under isolation","FR","C-3","H3","planned","ATHER","TASK-ZAI-013","src/lib/home-scope.js","docs/DOMAIN-MAP.md","unavailable",52000,
+            "Given a viewer scoped to Business two, when any read runs, then no SmartGift row is returned",
+            "Given both Businesses are live, when an owner switches scope, then the shell, agents and memory all follow the switch",
+            "Given npm run test:e2e, when the two-business isolation spec runs, then a cross-business read fails closed",
+            "โครงหลายธุรกิจ live แล้ว แต่วันนี้ onboard จริงแค่ธุรกิจเดียว"],
+          ["TASK-ZAI-015","TSK-ZAI015","Per-business visibility regression at two-business scale","NFR","C-2","H2","planned","Claude","TASK-ZAI-014","src/modules/identity/resolve-viewer.js","docs/FEATURE-MAP.md","tests/e2e/fr046-entry-contract.spec.js",24000,
+            "Given a Membership covering only Business one, when the viewer resolves domains, then Business two grants nothing",
+            "Given the Users and Permissions list, when an administrator opens it, then it shows only Memberships they may administer",
+            "Given npm test, when the FR-061 and FR-062 suites run at two-business scale, then both pass without widening a grant",
+            "FR-061/062 เขียนและเทสต์ตอนที่มีธุรกิจเดียว สองธุรกิจคือการใช้งานจริงครั้งแรกของ per-business grant"]
+        ]},
+      { id:"SPR-ZAI-06", weeks:"สัปดาห์ 11-12", goal:"Cross-business analytics, connector #2, workflow 1–2",
+        exit:"analytics เคารพ per-business visibility และ workflow สองตัวรันครบวงจร",
+        tasks:[
+          ["TASK-ZAI-016","TSK-ZAI016","Cross-business governed analytics read model","FR","C-3","H3","planned","Claude","TASK-ZAI-014","src/modules/knowledge/genesisblockdb-sink.js","docs/DOMAIN-MODEL.md","unavailable",48000,
+            "Given a viewer authorized for both Businesses, when a cross-business figure is requested, then it is computed and its source is named",
+            "Given a viewer authorized for one Business, when the same query runs, then only that Business contributes and the response says so",
+            "Given npm test, when the analytics suite runs, then a single-business viewer never receives a two-business aggregate",
+            "read model ต้องเป็น non-owning projection ที่ประกาศชัด ตามกฎเดียวกับที่ FR-060 ใช้อยู่"],
+          ["TASK-ZAI-017","TSK-ZAI017","Connector number two under the FR-081 ingestion boundary","FR","C-2","H2","planned","Codex","TASK-ZAI-005","src/platform/integrations/providers/line/line-oa-evidence.js","docs/domains/integration/features/FR-080-integration-secret-management-ui.md","unavailable",42000,
+            "Given the second connector, when it ingests, then every record carries tenant, Business, connection, provider, lane, entity type and schema version",
+            "Given a credential, when it is stored, then only an opaque reference is persisted and no secret transits a URL or log",
+            "Given npm test, when the connector suite runs, then an out-of-scope read is refused and the refusal is audited",
+            "LINE คือ connector ที่หนึ่ง · ingestion boundary มีแล้ว และ FR-092 เพิ่ม translation core ที่ provider-neutral ตัวที่สองจึงเป็นงานพิสูจน์ conformance"],
+          ["TASK-ZAI-018","TSK-ZAI018","Automation workflows one and two end to end","FR","C-3","H3","planned","ATHER","TASK-ZAI-010; TASK-ZAI-017","src/modules/agent/turn.js","docs/EXECUTION-MODES.md","unavailable",56000,
+            "Given workflow one, when it runs end to end, then every step, retry and approval is recorded and the outcome is verifiable",
+            "Given a mid-workflow failure, when the workflow retries, then no step executes twice against an external system",
+            "Given npm test, when both workflow suites run, then a forced failure at each step boundary recovers without duplicate effect",
+            "write gate ของ FR-026 คือฐานที่ workflow เหล่านี้ยืนอยู่"]
+        ]}
+    ]
+  },
+  {
+    id:"PHASE-ZAI-04", n:"Phase 4", weeks:"สัปดาห์ 13-16",
+    title:"Visual Office 2.5D และ Agent Activity Experience",
+    goal:"สร้าง deliverable greenfield ที่ใหญ่ที่สุด โดยยังอยู่ใต้กฎ live-data-only ที่รีโปนี้ใช้อยู่แล้ว",
+    exit:"GATE-ZAI-01 ผ่าน",
+    state:"planned",
+    sprints:[
+      { id:"SPR-ZAI-07", weeks:"สัปดาห์ 13-14", goal:"Scene model และ shell ของ Visual Office 2.5D",
+        exit:"scene render Business/Agent/Mission จากข้อมูลจริง ไม่มีค่า mock",
+        tasks:[
+          ["TASK-ZAI-019","TSK-ZAI019","Visual Office 2.5D scene model and shell","FR","C-3","H3","planned","Codex","TASK-ZAI-012","src/components/layouts/Topbar.jsx","docs/UI-DESIGN-SYSTEM.md","unavailable",74000,
+            "Given the Visual Office route, when it loads for a selected Business, then it renders a scene whose objects come from live read models",
+            "Given a slow or absent feed, when the scene loads, then it shows an honest empty state rather than placeholder furniture",
+            "Given npm run build, when the route is included, then the production build succeeds and the route is reachable in npm run test:e2e",
+            "งานแรกของ deliverable greenfield ที่ใหญ่ที่สุด scene model มาก่อนการเลือก renderer"],
+          ["TASK-ZAI-020","TSK-ZAI020","Bind Business, Agent, Mission and Approval objects to live reads","FR","C-3","H3","planned","Codex","TASK-ZAI-019","src/app/api/viewer/route.js","docs/UI-DESIGN-SYSTEM.md","unavailable",50000,
+            "Given each of the four object types, when it is rendered in the scene, then its value traces to an existing read model, never to a constant",
+            "Given an object whose feed is missing, when the scene renders, then that object is shown as unavailable and names the feed",
+            "Given npm run test:e2e, when the scene spec runs, then every rendered figure is asserted against the API that produced it",
+            "รักษาให้ surface 2.5D อยู่ในกฎ live-data-only เดียวกับที่ FR-060 ใช้"],
+          ["TASK-ZAI-021","TSK-ZAI021","Accessibility and reduced-motion contract for the 2.5D surface","NFR","C-2","H2","planned","Claude","TASK-ZAI-019","src/app/globals.css","docs/UI-DESIGN-SYSTEM.md","unavailable",22000,
+            "Given a reduced-motion preference, when the scene animates, then state changes are instant and no motion is played",
+            "Given keyboard-only navigation, when a user traverses the scene, then every interactive object is reachable and has a visible focus ring",
+            "Given npm test, when the design-system suite runs, then the 2.5D surface consumes semantic tokens only and no primitive palette value directly",
+            "UI-DESIGN-SYSTEM §3 ผูก motion, focus และชั้น token ไว้แล้ว surface ใหม่คือที่ที่ทำพังง่ายที่สุด"]
+        ]},
+      { id:"SPR-ZAI-08", weeks:"สัปดาห์ 15-16", goal:"Agent activity experience และคิวอนุมัติในฉาก",
+        exit:"เห็นกิจกรรม agent สดและคิวอนุมัติภายใน Visual Office",
+        tasks:[
+          ["TASK-ZAI-022","TSK-ZAI022","Live agent activity presence and mission tracking in-scene","FR","C-3","H3","planned","Codex","TASK-ZAI-020","src/modules/agent/index.js","docs/UI-DESIGN-SYSTEM.md","unavailable",46000,
+            "Given an agent begins a turn, when the scene is open, then that agent activity state changes within the agreed latency budget",
+            "Given an agent has no active mission, when the scene renders, then it shows idle rather than inventing work",
+            "Given npm run test:e2e, when the presence spec runs, then a real agent turn drives the on-screen state",
+            "มาจาก scope Business Layer ของข้อเสนอ: agent status และ mission tracking"],
+          ["TASK-ZAI-023","TSK-ZAI023","Surface the L1 to L4 approval queue inside Visual Office","FR","C-2","H2","planned","Codex","TASK-ZAI-011; TASK-ZAI-022","src/app/(pm)/audit/page.jsx","docs/UI-DESIGN-SYSTEM.md","unavailable",32000,
+            "Given a pending L3 approval, when an authorized approver opens the office, then it appears in their queue with the level shown",
+            "Given an approver without authority at that level, when they open the queue, then the item is absent rather than shown and disabled",
+            "Given npm run test:e2e, when the approval queue spec runs, then approving from the scene records the same audit row as approving from the API",
+            "เชื่อมบันไดอนุมัติเข้ากับ surface ภาพ เพื่อให้ deliverable 1 และ 9 สาธิตพร้อมกันตอน UAT"]
+        ]}
+    ]
+  },
+  {
+    id:"PHASE-ZAI-05", n:"Phase 5", weeks:"สัปดาห์ 17-20",
+    title:"Second Brain, Node View 3D และ Automation ที่เหลือ",
+    goal:"ทำให้ความจำมี governance จริง กราฟความสัมพันธ์ค้นได้ และปิด workflow/connector ให้ครบเพดานสัญญา",
+    exit:"GATE-ZAI-02, GATE-ZAI-03 และ GATE-ZAI-05 ผ่าน",
+    state:"planned",
+    sprints:[
+      { id:"SPR-ZAI-09", weeks:"สัปดาห์ 17-18", goal:"Second Brain retrieval, lineage และ replay",
+        exit:"retrieval ถูกปฏิเสธและถูก audit เมื่อไม่มีสิทธิ์",
+        tasks:[
+          ["TASK-ZAI-024","TSK-ZAI024","Second Brain retrieval by Business, Role and Permission","FR","C-3","H3","planned","Claude","TASK-ZAI-008","src/modules/agent/context.js","docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md","unavailable",54000,
+            "Given a principal without permission for a memory partition, when retrieval runs, then nothing is returned and the refusal is audited",
+            "Given a permitted retrieval, when the result is assembled, then every item names the Business and partition it came from",
+            "Given npm test, when the retrieval suite runs, then policy is evaluated before retrieval, not after",
+            "read port มีแล้วผ่าน FR-024/025/029 แต่ retrieval ที่ผูกสิทธิ์ยังไม่มี · re-baseline ให้อยู่ใต้ ADR-042 ที่ pin ตอน D12"],
+          ["TASK-ZAI-025","TSK-ZAI025","Memory lineage, replay and the no-silent-replay guarantee","NFR","C-3","H3","planned","Claude","TASK-ZAI-024","src/modules/agent/runtime.js","docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md","unavailable",40000,
+            "Given a recorded turn, when it is replayed, then the exact source versions used originally are used again or the replay is refused",
+            "Given newer memory content, when a replay would silently use it, then the runtime refuses and says which version diverged",
+            "Given npm test, when the lineage suite runs, then a replay against changed content fails closed",
+            "ทำให้ Second Brain ตรวจสอบได้ ไม่ใช่แค่เก็บได้ — context reproducibility กับ output reproducibility ถูกบันทึกเป็นคนละข้ออ้าง"]
+        ]},
+      { id:"SPR-ZAI-10", weeks:"สัปดาห์ 19-20", goal:"Node View 3D, direct manipulation, workflow 3–5, connector #3",
+        exit:"3D view ค้นความสัมพันธ์ได้ และมี workflow ครบห้าตัว",
+        tasks:[
+          ["TASK-ZAI-026","TSK-ZAI026","Interactive Node View 3D over the governed relation graph","FR","C-3","H3","planned","Codex","TASK-ZAI-024","src/modules/project-manager/views/dependency-map.module.css","docs/UI-DESIGN-SYSTEM.md","unavailable",68000,
+            "Given a seeded relation graph, when a node is searched, then the view returns the correct relationship path to the agreed depth",
+            "Given a graph larger than the agreed node budget, when the view loads, then it degrades by bounding depth rather than by dropping edges silently",
+            "Given npm test, when the graph traversal suite runs, then a known path is asserted rather than eyeballed",
+            "FR-040 ให้ map 2D อ่านอย่างเดียวอยู่แล้ว ส่วน 3D relationship view เป็นของใหม่"],
+          ["TASK-ZAI-027","TSK-ZAI027","Structure and edge direct manipulation with handoff contracts","FR","C-3","H3","planned","Codex","TASK-ZAI-026","src/modules/project-manager/views/wbs.module.css","docs/FEATURE-MAP.md","unavailable",64000,
+            "Given a drag to an invalid parent, when the drop is attempted, then it is refused before any write",
+            "Given a new dependency edge, when the contract dialog is cancelled, then no edge is created",
+            "Given npm test, when the FR-082 to FR-085 suites run, then a WorkItem with an unsatisfied inbound contract is held and says which predecessor holds it",
+            "รวม planned feature FR-082/083/084/085 เข้า sprint ที่กำลังสร้าง surface กราฟอยู่แล้ว"],
+          ["TASK-ZAI-028","TSK-ZAI028","Automation workflows three to five and connector number three","FR","C-3","H3","planned","ATHER","TASK-ZAI-018","src/modules/crm/line-ingest-service.js","docs/EXECUTION-MODES.md","unavailable",72000,
+            "Given workflows three, four and five, when each runs end to end, then each records steps, retries, approvals and a verifiable outcome",
+            "Given connector three, when it reads, then it reads only inside its declared contract scope",
+            "Given npm test, when the workflow and connector suites run, then five workflows and three connectors are covered and no out-of-scope read passes",
+            "ปิด deliverable 7 และ 8 ให้ถึงเพดานตามสัญญาคือ 5 workflow และ 3 connector"]
+        ]}
+    ]
+  },
+  {
+    id:"PHASE-ZAI-06", n:"Phase 6", weeks:"สัปดาห์ 21-24",
+    title:"Hardening, UAT, Deployment และ Handover",
+    goal:"เปลี่ยนตัวเลขเทสต์แบบนับไฟล์ให้เป็นผลรันจริง แล้วส่งมอบพร้อมเอกสารและการอบรม",
+    exit:"GATE-ZAI-06 และ GATE-ZAI-08 ผ่าน",
+    state:"planned",
+    sprints:[
+      { id:"SPR-ZAI-11", weeks:"สัปดาห์ 21-22", goal:"Integration hardening พร้อม load และ security test",
+        exit:"มีรายงาน load และ security ที่บันทึกไว้ และไม่มี finding ระดับ critical ค้าง",
+        tasks:[
+          ["TASK-ZAI-029","TSK-ZAI029","Integration hardening plus load and security test campaign","NFR","C-3","H3","planned","ATHER","TASK-ZAI-028","scripts/verify-line-runtime-isolation.mjs","docs/roadmap/ROADMAP.md","tests/e2e/smoke.spec.js",44000,
+            "Given the agreed load profile, when it is applied, then latency and error budgets hold and the run is recorded",
+            "Given the security test pass, when it completes, then no critical finding is open and every accepted finding names its owner",
+            "Given npm run verify, when it runs on the release candidate, then test, build, govern and e2e all pass in one run",
+            "ประตูที่แปลงตัวเลขนับไฟล์เทสต์ในหัวข้อ 3 ให้เป็นผลรันที่พิสูจน์ได้"]
+        ]},
+      { id:"SPR-ZAI-12", weeks:"สัปดาห์ 23-24", goal:"UAT, deployment, checklist, training และ handover",
+        exit:"เจ้าของงานรับมอบ handover pack",
+        tasks:[
+          ["TASK-ZAI-030","TSK-ZAI030","UAT, deployment, data and security checklist, training and handover","NFR","C-3","H4","planned","Owen","TASK-ZAI-029","scripts/plan-line-canary.mjs","docs/roadmap/ROADMAP-zuri-ai-24w-program.md","unavailable",38000,
+            "Given the eight acceptance gates, when UAT concludes, then each is recorded as met with the evidence it names",
+            "Given the training sessions, when they conclude, then the operating team performs each of the five workflows unaided",
+            "Given the handover pack, when the owner reviews it, then acceptance is recorded against this roadmap and its status moves to done",
+            "งานสุดท้าย ใช้ H4 เพราะการส่งมอบครอบทั้งแพลตฟอร์ม และการตัดสินใจ deploy เป็นของเจ้าของงาน ไม่ใช่ผู้ลงมือ"]
+        ]}
+    ]
+  }
+];
+
+/* ---------------------- helpers ---------------------- */
+const el = (t, c, h) => { const n = document.createElement(t); if (c) n.className = c; if (h !== undefined) n.innerHTML = h; return n; };
+const esc = s => String(s).replace(/[&<>"]/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[m]));
+const pillClass = s => s === "done" ? "pill-done" : s === "in-progress" || s === "review" ? "pill-active" : s === "ready" ? "pill-ready" : s === "blocked" ? "pill-blocked" : "pill-planned";
+const stateClass = s => s === "done" ? "st-done" : s === "in-progress" ? "st-inprogress" : s === "ready" ? "st-ready" : s === "blocked" ? "st-blocked" : "";
+const cTag = c => c === "C-1" ? "tag-c1" : c === "C-2" ? "tag-c2" : "tag-c3";
+const pct = tasks => tasks.length ? Math.round(tasks.reduce((a, t) => a + (PROGRESS_BY_STATE[t[6]] ?? 0), 0) / tasks.length) : 0;
+const allTasks = p => p.sprints.flatMap(s => s.tasks);
+
+const PHASE_RAMP = ["#FDE8D0", "#F7C889", "#F09420", "#E8820C", "#C97209", "#B86A08"];
+const W1_START = new Date(Date.UTC(2026, 7, 24));           /* Mon 2026-08-24 */
+const TOTAL_WEEKS = 24;
+const addDays = (d, n) => new Date(d.getTime() + n * 86400000);
+const iso = d => d.toISOString().slice(0, 10);
+const md = d => iso(d).slice(5);
+const phaseOfWeek = w => Math.floor((w - 1) / 4);
+const sprintOfWeek = w => Math.ceil(w / 2);
+const pad2 = n => String(n).padStart(2, "0");
+
+const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
+
+/* ---------------------- sidebar ---------------------- */
+(function renderSidebar() {
+  const roles = document.getElementById("roles");
+  ROLES.forEach(([name, sub]) => roles.appendChild(el("div", "row",
+    `<div class="grow"><div class="name">${esc(name)}</div><div class="sub">${esc(sub)}</div></div>
+     <span class="pill pill-planned">planned</span>`)));
+
+  const gates = document.getElementById("gates");
+  GATES.forEach(([id, def]) => gates.appendChild(el("div", "row",
+    `<div class="grow"><div class="name mono">${esc(id)}</div><div class="sub">${esc(def)}</div></div>
+     <span class="pill pill-blocked"><span class="dot"></span>unmet</span>`)));
+
+  const dl = document.getElementById("deliverables");
+  DELIVERABLES.forEach(([name, state, note], i) => dl.appendChild(el("div", "row",
+    `<div class="grow"><div class="name">${i + 1}. ${esc(name)}</div><div class="sub">${esc(note)}</div></div>
+     <span class="pill ${state === "partial" ? "pill-active" : "pill-planned"}">${state === "partial" ? "partial" : "not started"}</span>`)));
+
+  const bands = document.getElementById("bands");
+  BANDS.forEach(([w, head, inh, buy]) => bands.appendChild(el("tr", null,
+    `<td class="w">${esc(w)}</td><td>${esc(head)}</td>
+     <td class="muted">${esc(inh)}</td><td><b>${esc(buy)}</b></td>`)));
+})();
+
+/* ---------------------- timeline: history ---------------------- */
+(function renderHistory() {
+  const host = document.getElementById("hist");
+  const scale = Math.max(...HISTORY.map(r => Math.max(r[4], r[5])));
+
+  HISTORY.forEach(([n, date, wd, commits, ins, del, cum, frD, frL, tf]) => {
+    const weekend = wd === "ส." || wd === "อา.";
+    const hIns = Math.max(2, Math.round((ins / scale) * 38));
+    const hDel = Math.max(2, Math.round((del / scale) * 38));
+    const cell = el("div", "day" + (weekend ? " weekend" : ""));
+    cell.title =
+      `D${n} ${date} (${wd}) — ${commits} commits, +${ins.toLocaleString()} / -${del.toLocaleString()} บรรทัด, ` +
+      `สะสม ${cum.toLocaleString()} · FR ` + (frD === null ? "n/a (ยังไม่มี registry)" : `${frD} ประกาศ / ${frL} live`) +
+      ` · ไฟล์เทสต์ ${tf}`;
+    cell.innerHTML =
+      `<div class="d">D${n}</div>
+       <div class="dt">${date.slice(5)}</div>
+       <div class="wd">${wd}</div>
+       <div class="spark" aria-hidden="true">
+         <i style="height:${hIns}px"></i>
+         <i class="${del > ins ? "big" : "del"}" style="height:${hDel}px"></i>
+       </div>
+       <div class="m"><span>commit</span><b>${commits}</b></div>
+       <div class="m"><span>+บรรทัด</span><b>${ins >= 1000 ? Math.round(ins / 1000) + "k" : ins}</b></div>
+       <div class="m"><span>FR</span><b>${frD === null ? "n/a" : frD + "/" + frL}</b></div>
+       <div class="m"><span>test</span><b>${tf}</b></div>`;
+    host.appendChild(cell);
+  });
+
+  document.getElementById("gapnote").textContent =
+    "D6 (16 ส.ค.) เส้นสะสมลดลงเพราะเลิก track V1 documentation corpus (-40,436 บรรทัด, ADR-005 rev 2) ไม่ใช่โค้ดผลิตภัณฑ์หาย · " +
+    "D1 ไม่มีค่า FR เพราะ FEATURE-MAP.md ยังไม่ถูก generate (spec pack วันนั้นมี FR id อยู่ 20 ตัวแต่ยังไม่เป็น registry) · " +
+    "ยอดสะสมปิดที่ 211,217 ตรงกับ net ในหัวข้อ 5.2 ของเอกสาร ซึ่งเป็นตัวตรวจว่าอนุกรมครบ";
+})();
+
+/* ---------------------- timeline: plan, week ---------------------- */
+(function renderWeeks() {
+  const grid = el("div", "weeks");
+  for (let w = 1; w <= TOTAL_WEEKS; w++) {
+    const s = addDays(W1_START, (w - 1) * 7), e = addDays(s, 6), pi = phaseOfWeek(w);
+    const cell = el("div", "wk");
+    cell.title = `W${w} · ${iso(s)} → ${iso(e)} · PHASE-ZAI-${pad2(pi + 1)} · SPR-ZAI-${pad2(sprintOfWeek(w))}`;
+    cell.innerHTML = `<div class="n">W${w}</div><div class="dt">${md(s)}</div>
+                      <div class="ph" style="background:${PHASE_RAMP[pi]}"></div>`;
+    grid.appendChild(cell);
+  }
+  document.getElementById("plan-week").appendChild(grid);
+})();
+
+/* ---------------------- timeline: plan, day ---------------------- */
+(function renderDays() {
+  const rows = el("div", "dayplan-rows");
+  for (let block = 0; block < 4; block++) {
+    const from = addDays(W1_START, block * 42), to = addDays(from, 41);
+    const row = el("div", "dayplan-row", `<div class="lbl">W${block * 6 + 1}–W${block * 6 + 6}<br />${md(from)} → ${md(to)}</div>`);
+    const grid = el("div", "dayplan");
+    for (let i = 0; i < 42; i++) {
+      const d = addDays(from, i), w = block * 6 + Math.floor(i / 7) + 1, pi = phaseOfWeek(w);
+      const c = el("div", "dcell" + (i % 7 === 0 ? " mon" : ""));
+      c.style.background = PHASE_RAMP[pi];
+      c.title = `${iso(d)} · W${w} วันที่ ${i % 7 + 1} · PHASE-ZAI-${pad2(pi + 1)} · SPR-ZAI-${pad2(sprintOfWeek(w))}`;
+      grid.appendChild(c);
+    }
+    row.appendChild(grid);
+    rows.appendChild(row);
+  }
+  document.getElementById("plan-day").appendChild(rows);
+})();
+
+/* ---------------------- phases ---------------------- */
+(function renderPhases() {
+  const root = document.getElementById("phases");
+  PHASES.forEach((ph, phIdx) => {
+    const tasks = allTasks(ph), p = pct(tasks);
+    const s = addDays(W1_START, phIdx * 28), e = addDays(s, 27);
+    const node = el("section", "phase");
+    node.id = ph.id;
+    node.setAttribute("open-state", phIdx === 0 ? "open" : "closed");
+
+    const head = el("button", "phase-head");
+    head.type = "button";
+    head.setAttribute("aria-expanded", phIdx === 0 ? "true" : "false");
+    head.innerHTML =
+      `<span class="lhs">${CHEV}
+         <span class="pill ${pillClass(ph.state)}">${esc(ph.n)}</span>
+         <span>
+           <span class="t-title" style="display:block">${esc(ph.title)}</span>
+           <span class="t-caption mono">${esc(ph.id)} · ${esc(ph.weeks)} · ${tasks.length} task · ${iso(s)} → ${iso(e)}</span>
+         </span>
+       </span>
+       <span class="rhs">
+         <span class="tag">${esc(ph.weeks)} · ${md(s)}–${md(e)}</span>
+         <span class="bar bar-sm"><i style="width:${p}%"></i></span>
+         <span class="mono t-label" style="width:36px;text-align:right">${p}%</span>
+       </span>`;
+
+    const body = el("div", "phase-body",
+      `<p class="phase-goal">${esc(ph.goal)}</p>
+       <div class="exit"><b>Exit criteria — </b>${esc(ph.exit)}</div>`);
+
+    ph.sprints.forEach((sp, spIdx) => {
+      const sPct = pct(sp.tasks);
+      const ss = addDays(W1_START, (phIdx * 2 + spIdx) * 14), se = addDays(ss, 13);
+      const sprint = el("div", "sprint",
+        `<div class="sprint-head">
+           <span class="lhs"><span class="tag">${esc(sp.id)}</span><span class="t-label">${esc(sp.goal)}</span></span>
+           <span class="lhs">
+             <span class="tag">${esc(sp.weeks)} · ${md(ss)}–${md(se)}</span>
+             <span class="pill ${sPct > 0 ? "pill-active" : "pill-planned"}">${sPct}%</span>
+           </span>
+         </div>
+         <p class="sprint-goal"><b>Exit —</b> ${esc(sp.exit)}</p>`);
+      const list = el("div", "tasks");
+      sp.tasks.forEach(t => list.appendChild(renderTask(t, ph, sp)));
+      sprint.appendChild(list);
+      body.appendChild(sprint);
+    });
+
+    head.addEventListener("click", () => {
+      const open = node.getAttribute("open-state") === "open";
+      node.setAttribute("open-state", open ? "closed" : "open");
+      head.setAttribute("aria-expanded", String(!open));
+    });
+
+    node.appendChild(head);
+    node.appendChild(body);
+    root.appendChild(node);
+  });
+})();
+
+function renderTask(t, ph, sp) {
+  const [id, code, title, type, C, H, state, owner, deps, codeLink, docLink, testLink, tokens, ac, sc, ec, changelog] = t;
+  const done = state === "done";
+  const hasTest = testLink && testLink !== "unavailable";
+
+  const node = el("div", "task");
+  node.id = id;
+  node.setAttribute("open-state", "closed");
+
+  const head = el("button", "task-head");
+  head.type = "button";
+  head.setAttribute("aria-expanded", "false");
+  head.innerHTML =
+    `<span class="task-state ${stateClass(state)}"></span>
+     <span class="task-main">
+       <span class="task-title">${esc(title)}</span>
+       <span class="task-meta">
+         <span class="tag mono">${esc(code)}</span>
+         <span class="tag ${type === "FR" ? "tag-fr" : "tag-nfr"}">${esc(type)}</span>
+         <span class="tag ${cTag(C)}">${esc(C)}</span>
+         <span class="tag tag-h">${esc(H)}</span>
+         <span class="pill ${pillClass(state)}">${esc(state)}</span>
+         <span class="verif" title="Doc / Code / Test verification">
+           <span class="v ${done ? "on" : ""}">D</span>
+           <span class="v ${done ? "on" : ""}">C</span>
+           <span class="v ${done && hasTest ? "on" : ""}">T</span>
+         </span>
+       </span>
+     </span>
+     <span class="task-right">
+       <span class="owner">PIC <b>${esc(owner)}</b></span>
+       <span class="mono t-caption">${Number(tokens).toLocaleString()} tok</span>
+       ${CHEV}
+     </span>`;
+
+  const linkCell = (label, v) => `
+    <div class="kv"><div class="k">${label}</div>
+      <div class="v-text">${v === "unavailable" ? '<span class="na">unavailable</span>'
+        : `<a class="link" href="../../${esc(v)}">${esc(v)}</a>`}</div></div>`;
+
+  const info = el("div", "task-info",
+    `<div class="info-grid">
+       ${linkCell("Code link", codeLink)}${linkCell("Doc link", docLink)}${linkCell("Test link", testLink)}
+     </div>
+     <div class="info-sec"><div class="info-grid">
+       <div class="kv"><div class="k">Task container</div><div class="v-text">TC-${esc(id)}</div></div>
+       <div class="kv"><div class="k">Parent</div><div class="v-text">${esc(ph.id)} / ${esc(sp.id)}</div></div>
+       <div class="kv"><div class="k">Status</div><div class="v-text">${esc(state)}</div></div>
+     </div></div>
+     <div class="info-sec">
+       <div class="k">Definition of Done</div>
+       <div class="dod">
+         <div><h5>Acceptance</h5><div class="crit"><span class="box ${done ? "on" : ""}"></span><span>${esc(ac)}</span></div></div>
+         <div><h5>Success</h5><div class="crit"><span class="box ${done ? "on" : ""}"></span><span>${esc(sc)}</span></div></div>
+         <div><h5>Exit</h5><div class="crit"><span class="box ${done ? "on" : ""}"></span><span>${esc(ec)}</span></div></div>
+       </div>
+     </div>
+     <div class="info-sec">
+       <div class="k">Changelog</div>
+       <p class="changelog">${esc(changelog)}</p>
+       <div class="dep"><span class="k">Dependencies</span>
+         ${deps === "-" ? '<span class="na">ไม่มี</span>' : deps.split(";").map(d => `<code>${esc(d.trim())}</code>`).join(" ")}
+       </div>
+     </div>`);
+
+  head.addEventListener("click", () => {
+    const open = node.getAttribute("open-state") === "open";
+    node.setAttribute("open-state", open ? "closed" : "open");
+    head.setAttribute("aria-expanded", String(!open));
+  });
+
+  node.appendChild(head);
+  node.appendChild(info);
+  return node;
+}
+
+/* ---------------------- legend ---------------------- */
+(function renderLegend() {
+  const host = document.getElementById("legend");
+  PHASES.forEach((ph, i) => {
+    const s = addDays(W1_START, i * 28), e = addDays(s, 27);
+    host.appendChild(Object.assign(document.createElement("span"), {
+      innerHTML: `<i class="swatch" style="background:${PHASE_RAMP[i]}"></i>${ph.n} · ${md(s)}–${md(e)}`
+    }));
+  });
+})();
+
+/* ---------------------- header stats ---------------------- */
+(function renderStats() {
+  const tasks = PHASES.flatMap(allTasks);
+  const count = s => tasks.filter(t => t[6] === s).length;
+  const overall = pct(tasks);
+  document.getElementById("global-pct").textContent = overall + "%";
+  document.getElementById("global-bar").style.width = overall + "%";
+  document.getElementById("global-bar-wrap").setAttribute("aria-valuenow", String(overall));
+  document.getElementById("global-sub").textContent = `${count("done")} / ${tasks.length} task ปิดแล้ว`;
+  document.getElementById("s-tasks").textContent = tasks.length;
+  document.getElementById("s-done").textContent = count("done");
+  document.getElementById("s-prog").textContent = count("in-progress");
+  document.getElementById("s-ready").textContent = count("ready");
+  document.getElementById("s-planned").textContent = count("planned") + count("blocked");
+})();
+
+/* ---------------------- controls ---------------------- */
+(function bindGranularity() {
+  const bw = document.getElementById("gran-week"), bd = document.getElementById("gran-day");
+  const pw = document.getElementById("plan-week"), pd = document.getElementById("plan-day");
+  const hint = document.getElementById("plan-hint");
+  const set = week => {
+    bw.setAttribute("aria-pressed", String(week));
+    bd.setAttribute("aria-pressed", String(!week));
+    pw.classList.toggle("hidden", !week);
+    pd.classList.toggle("hidden", week);
+    hint.textContent = week
+      ? "24 ช่อง = 24 สัปดาห์ · ชี้ที่ช่องเพื่อดูวันที่เริ่ม-จบ, phase และ sprint"
+      : "168 ช่อง = 168 วัน · เส้นขอบซ้ายของแต่ละสัปดาห์คือวันจันทร์ · ชี้ที่ช่องเพื่อดูวันที่";
+  };
+  bw.addEventListener("click", () => set(true));
+  bd.addEventListener("click", () => set(false));
+  set(true);
+})();
+
+document.getElementById("expand-all").addEventListener("click", () => {
+  document.querySelectorAll(".phase").forEach(p => {
+    p.setAttribute("open-state", "open");
+    p.querySelector(".phase-head").setAttribute("aria-expanded", "true");
+  });
+});
+document.getElementById("collapse-all").addEventListener("click", () => {
+  document.querySelectorAll(".phase").forEach(p => {
+    p.setAttribute("open-state", "closed");
+    p.querySelector(".phase-head").setAttribute("aria-expanded", "false");
+  });
+});
+
+let filtered = false;
+document.getElementById("only-open").addEventListener("click", e => {
+  filtered = !filtered;
+  e.currentTarget.textContent = filtered ? "แสดงทุกงาน" : "แสดงเฉพาะงานที่ยังไม่ปิด";
+  const doneIds = new Set(PHASES.flatMap(allTasks).filter(t => t[6] === "done").map(t => t[0]));
+  document.querySelectorAll(".task").forEach(n => {
+    n.style.display = filtered && doneIds.has(n.id) ? "none" : "";
+  });
+});
+</script>
+</body>
+</html>

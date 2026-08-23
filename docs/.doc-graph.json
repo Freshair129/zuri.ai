@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1139,
+    "total_nodes": 1140,
     "total_edges": 3852,
     "dangling_edges": 0,
     "node_types": {
@@ -11,7 +11,7 @@
       "document": 87,
       "adr": 44,
       "domain": 7,
-      "roadmap": 27,
+      "roadmap": 28,
       "feature": 10,
       "route": 125,
       "model": 61,
@@ -59,10 +59,10 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:PLAN-FR-094-PRODUCTION-IAM"
+    "changed": [],
+    "added": [
+      "doc:ROADMAP-zuri-ai-24w-program"
     ],
-    "added": [],
     "removed": []
   },
   "nodes": [
@@ -6928,7 +6928,7 @@
       "path": "docs/roadmap/PLAN-FR-094-PRODUCTION-IAM.md",
       "title": "Implementation plan — Issue #99 production IAM",
       "hash": "586e4019",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PLAN-FR-097-VERIFIED-CHANNEL-ONBOARDING",
@@ -7016,6 +7016,14 @@
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
       "hash": "a6764432",
+      "status": "current"
+    },
+    {
+      "id": "doc:ROADMAP-zuri-ai-24w-program",
+      "type": "roadmap",
+      "path": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+      "title": "ROADMAP: Zuri AI — 24-Week Full System Delivery Program",
+      "hash": "ae6dce12",
       "status": "current"
     },
     {
