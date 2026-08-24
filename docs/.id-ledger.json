@@ -207,6 +207,7 @@
     "FR-099",
     "FR-100",
     "FR-101",
+    "FR-102",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -296,6 +297,7 @@
     "SEC-016",
     "SEC-017",
     "SEC-018",
+    "SEC-019",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -322,6 +324,7 @@
     "RSK-013",
     "RSK-014",
     "RSK-015",
+    "RSK-016",
     "MI-RQ-001",
     "MI-RQ-002",
     "MI-RQ-003",
@@ -439,6 +442,7 @@
     "ADR-043",
     "ADR-045",
     "ADR-046",
+    "ADR-047",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -2030,6 +2034,19 @@
         }
       ]
     },
+    "FR-102": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "85fb3ec6c5327ccb4ceeb2190e2066324cf963ca5aa5302a92da8047127c8e6d",
+      "history": [
+        {
+          "anchor": "sot data plane service account authentication",
+          "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3201,6 +3218,19 @@
         }
       ]
     },
+    "SEC-019": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ab7a5f8bcbf526009e8c43f7ac53d9d6fca84fa2bf3195f2cbb124e2ff9d29fd",
+      "history": [
+        {
+          "anchor": "the sot data plane key fails closed on scope and secrecy",
+          "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
     "FEAT-001": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
@@ -3537,6 +3567,19 @@
         {
           "anchor": "iam identity session or membership revocation is stale on",
           "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "RSK-016": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "statement_digest": "78f28ae1e05a3a58f6f9ef0e9669a7a18abf2c934c9c9e830916300097f26e99",
+      "history": [
+        {
+          "anchor": "fr 102 sotdataplanekey supabase migration rls enable zuri",
+          "since": "2026-08-24",
           "reason": "declared"
         }
       ]
@@ -5065,6 +5108,19 @@
       "history": [
         {
           "anchor": "sot pipeline",
+          "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-047": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md",
+      "status": "current",
+      "statement_digest": "ebaffb6aa5dd583bd5d05659693750fba7307a7d776fb1f5e837492543b39f4a",
+      "history": [
+        {
+          "anchor": "sot data plane",
           "since": "2026-08-24",
           "reason": "declared"
         }

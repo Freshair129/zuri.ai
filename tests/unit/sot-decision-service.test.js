@@ -73,6 +73,23 @@ describe('FR-100 sot decisions — submit', () => {
     await expect(submitSotDecisions({ ...submitInput([{ decisionType: 'ENTITY', subjectRef: 'x', payload: {} }]), extra: true }, { viewer: operator() }))
       .rejects.toThrow()
   })
+
+  // @req FR-102 — the data plane authenticates with a Tenant-bound service
+  // account, not an installation operator grant.
+  it('accepts a data-plane key bound to the submitted tenantId', async () => {
+    const dataPlaneViewer = { isSotDataPlane: true, tenantId, serviceAccountId: 'sdpk-1' }
+    const out = await submitSotDecisions(submitInput([
+      { decisionType: 'PRICE_ROW', subjectRef: `DP-${t}-1`, payload: { a: 1 } },
+    ]), { viewer: dataPlaneViewer })
+    expect(out.results[0].outcome).toBe('CREATED')
+  })
+
+  it('refuses a data-plane key bound to a different tenantId', async () => {
+    const foreignViewer = { isSotDataPlane: true, tenantId: randomUUID(), serviceAccountId: 'sdpk-2' }
+    await expect(submitSotDecisions(submitInput([
+      { decisionType: 'PRICE_ROW', subjectRef: `DP-${t}-2`, payload: { a: 1 } },
+    ]), { viewer: foreignViewer })).rejects.toThrow(/installation operator/)
+  })
 })
 
 describe('FR-100 sot decisions — decide', () => {
@@ -150,5 +167,16 @@ describe('FR-100 sot decisions — list, counts and export', () => {
     expect(new Set(all).size).toBe(all.length)
     const exported = new Set([...first.decisions, ...rest.decisions].map((d) => d.subjectRef))
     for (const subjectRef of refs) expect(exported.has(subjectRef)).toBe(true)
+  })
+
+  // @req FR-102 — the same Tenant-bound data-plane key that may submit may
+  // also pull its own tenant's decided rows; a foreign tenant's key may not.
+  it('a data-plane key exports only its own tenant', async () => {
+    const dataPlaneViewer = { isSotDataPlane: true, tenantId, serviceAccountId: 'sdpk-3' }
+    const out = await exportSotDecisions({ tenantId, limit: 1 }, { viewer: dataPlaneViewer })
+    expect(out.decisions.length).toBeLessThanOrEqual(1)
+
+    const foreignViewer = { isSotDataPlane: true, tenantId: randomUUID(), serviceAccountId: 'sdpk-4' }
+    await expect(exportSotDecisions({ tenantId }, { viewer: foreignViewer })).rejects.toThrow(/installation operator/)
   })
 })

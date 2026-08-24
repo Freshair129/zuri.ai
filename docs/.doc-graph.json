@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1174,
-    "total_edges": 3930,
+    "total_nodes": 1184,
+    "total_edges": 3962,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 90,
-      "adr": 45,
+      "document": 91,
+      "adr": 46,
       "domain": 7,
       "roadmap": 28,
       "feature": 11,
       "route": 132,
-      "model": 62,
-      "requirement": 210,
-      "test": 276,
-      "code_file": 309
+      "model": 63,
+      "requirement": 212,
+      "test": 280,
+      "code_file": 310
     },
     "coverage": {
-      "requirements": 210,
+      "requirements": 212,
       "fr_with_code": "100% (86/86)",
       "fr_with_tests": "100% (86/86)",
-      "rules_anchored_in_code": "91% (80/88)",
+      "rules_anchored_in_code": "91% (81/89)",
       "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 309,
+      "annotated_code_files": 310,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -41,7 +41,8 @@
         "FR-097",
         "FR-099",
         "FR-100",
-        "FR-101"
+        "FR-101",
+        "FR-102"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -63,7 +64,7 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0"
+      "code:src/modules/project-manager/application/backup-service.js"
     ],
     "added": [],
     "removed": []
@@ -2049,25 +2050,7 @@
       "id": "code:src/app/api/platform/sot/decisions/export/route.js",
       "type": "code_file",
       "path": "src/app/api/platform/sot/decisions/export/route.js",
-      "hash": "f3f5d23a",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-100"
-        ],
-        "@spec": [
-          "FR-100"
-        ],
-        "@tested": [
-          "tests/unit/sot-decision-service.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/app/api/platform/sot/decisions/route.js",
-      "type": "code_file",
-      "path": "src/app/api/platform/sot/decisions/route.js",
-      "hash": "d75f61da",
+      "hash": "6a2cc2b3",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2075,10 +2058,32 @@
         ],
         "@spec": [
           "FR-100",
+          "FR-102"
+        ],
+        "@tested": [
+          "tests/unit/sot-decision-service.test.js",
+          "tests/integration/sot-decisions-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/sot/decisions/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/sot/decisions/route.js",
+      "hash": "f4aaf528",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-100"
+        ],
+        "@spec": [
+          "FR-100",
+          "FR-102",
           "SEC-002"
         ],
         "@tested": [
-          "tests/unit/sot-decision-service.test.js"
+          "tests/unit/sot-decision-service.test.js",
+          "tests/integration/sot-decisions-route.test.js"
         ]
       }
     },
@@ -4330,10 +4335,28 @@
       }
     },
     {
+      "id": "code:src/modules/identity/sot-data-plane-auth.js",
+      "type": "code_file",
+      "path": "src/modules/identity/sot-data-plane-auth.js",
+      "hash": "0c3b9089",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-102"
+        ],
+        "@spec": [
+          "SEC-019"
+        ],
+        "@tested": [
+          "tests/unit/sot-data-plane-auth.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/viewer-authority.js",
       "type": "code_file",
       "path": "src/modules/identity/viewer-authority.js",
-      "hash": "e83680ce",
+      "hash": "56a68d07",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4415,14 +4438,16 @@
       "id": "code:src/modules/integration/application/sot-decision-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/sot-decision-service.js",
-      "hash": "a7130761",
+      "hash": "747ae596",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-100"
+          "FR-100",
+          "FR-102"
         ],
         "@spec": [
           "FR-100",
+          "FR-102",
           "BR-002",
           "SEC-002"
         ],
@@ -4874,8 +4899,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "4788c21e",
-      "status": "current",
+      "hash": "a3cfe507",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-013",
@@ -4887,7 +4912,8 @@
           "FR-090",
           "FR-095",
           "FR-089",
-          "FR-100"
+          "FR-100",
+          "FR-102"
         ],
         "@spec": [
           "BR-008",
@@ -6315,9 +6341,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.18.0b",
+      "version": "1.20.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "33a973c5",
+      "hash": "e6ae7fe9",
       "status": "current"
     },
     {
@@ -6361,9 +6387,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.10.0",
+      "version": "1.11.0",
       "doc_status": "Draft",
-      "hash": "0104f44a",
+      "hash": "fe625cbc",
       "status": "current"
     },
     {
@@ -6397,9 +6423,9 @@
       "type": "appendix",
       "path": "docs/appendices/E-risk-matrix.md",
       "title": "Appendix E — Risk Matrix",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "doc_status": "Draft",
-      "hash": "f1f50bb9",
+      "hash": "3a8beb94",
       "status": "current"
     },
     {
@@ -6954,6 +6980,16 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-102-sot-data-plane-service-account",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-102-sot-data-plane-service-account.md",
+      "title": "FR-102 — SoT data-plane service-account authentication",
+      "version": "0.1.0b",
+      "doc_status": "Implemented locally; production Supabase migration is a gate",
+      "hash": "c3ec6c84",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -7204,10 +7240,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.84.0b",
+      "version": "1.85.0b",
       "doc_status": "Draft",
-      "hash": "1104e1f5",
-      "status": "changed"
+      "hash": "48aeae80",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -7443,7 +7479,8 @@
         "PersonCredential",
         "PasswordResetToken",
         "Session",
-        "ChannelIdentity"
+        "ChannelIdentity",
+        "SotDataPlaneKey"
       ],
       "owns_routes": [
         "src/app/(entry)/**",
@@ -7454,7 +7491,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "49531934",
+      "hash": "b1ba1848",
       "status": "current"
     },
     {
@@ -7915,6 +7952,11 @@
     },
     {
       "id": "model:Session",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:SotDataPlaneKey",
       "type": "model",
       "status": "current"
     },
@@ -9174,6 +9216,16 @@
       "row_text": "SoT pipeline graph dashboard: `/platform/sot-pipeline/graph` renders the FR-099 plan as read-only nodes and edges (hand-rolled SVG, topological layers, no client graph library) using the same `{nodes, edges}` data shape as FR-040's dependency map, with FR-099's derived status as node state and per-phase pending-decision badges linking into the FR-100 inbox. One API payload feeds both surfaces. 🔜 "
     },
     {
+      "id": "req:FR-102",
+      "type": "requirement",
+      "family": "FR",
+      "label": "SoT data-plane service-account authentication: a `SotDataPlaneKey` bound to exactly one Tenant lets the SoT pipeline's external data plane authenticate to the FR-100 submit/export endpoints (`Authorization: Bearer sdpk_...`) without a browser session and without installation-operator authority. Revocation takes effect on the next request; the raw secret is never persisted, only its SHA-256 hash.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "SoT data-plane service-account authentication: a `SotDataPlaneKey` bound to exactly one Tenant lets the SoT pipeline's external data plane authenticate to the FR-100 submit/export endpoints (`Authorization: Bearer sdpk_...`) without a browser session and without installation-operator authority. Revocation takes effect on the next request; the raw secret is never persisted, only its SHA-256 hash. 🔜 implemented locally; Supabase RLS/grant migration gate open "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -10062,6 +10114,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "IAM fails closed on identity, session and scope ambiguity: external subjects, cookies, payloads, prompts, model output and tool arguments cannot establish or widen authority; live Session/Membership/RoleBinding state is checked before protected work, and audit payloads exclude tokens, secrets and customer content. FR-094..098 / ADR-045 security gate "
+    },
+    {
+      "id": "req:SEC-019",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "The SoT data-plane key fails closed on scope and secrecy: a key authenticates only the tenantId it is bound to, never widens to installation-operator authority however it is presented, and the raw secret is never persisted, logged or returned after mint time — only its SHA-256 hash and a short non-reconstructing prefix are stored. Revocation takes effect on the very next request.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "The SoT data-plane key fails closed on scope and secrecy: a key authenticates only the tenantId it is bound to, never widens to installation-operator authority however it is presented, and the raw secret is never persisted, logged or returned after mint time — only its SHA-256 hash and a short non-reconstructing prefix are stored. Revocation takes effect on the very next request. FR-102 / ADR-047 security gate "
     },
     {
       "id": "route:api:/api/agent/heartbeat",
@@ -11484,6 +11546,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
+      "type": "adr",
+      "path": "docs/decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md",
+      "title": "ADR-047 — SoT data plane: a Tenant-bound service-account key, not an operator grant",
+      "hash": "a0914ff0",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -12034,6 +12104,13 @@
       "type": "test",
       "path": "tests/integration/smartgift-webhook-e2e.test.js",
       "hash": "5ff8b690",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/sot-decisions-route.test.js",
+      "type": "test",
+      "path": "tests/integration/sot-decisions-route.test.js",
+      "hash": "863f1b4b",
       "status": "current"
     },
     {
@@ -12870,6 +12947,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/mint-sot-data-plane-key-cli.test.js",
+      "type": "test",
+      "path": "tests/unit/mint-sot-data-plane-key-cli.test.js",
+      "hash": "05a3a6a2",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/mode-default-subtype.test.js",
       "type": "test",
       "path": "tests/unit/mode-default-subtype.test.js",
@@ -13304,10 +13388,24 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/sot-data-plane-auth.test.js",
+      "type": "test",
+      "path": "tests/unit/sot-data-plane-auth.test.js",
+      "hash": "b2d92541",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/sot-data-plane-key-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/sot-data-plane-key-migration.test.js",
+      "hash": "730da23f",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/sot-decision-service.test.js",
       "type": "test",
       "path": "tests/unit/sot-decision-service.test.js",
-      "hash": "fe317973",
+      "hash": "6a57c52d",
       "status": "current"
     },
     {
@@ -13384,7 +13482,7 @@
       "id": "test:tests/unit/viewer-authority.test.js",
       "type": "test",
       "path": "tests/unit/viewer-authority.test.js",
-      "hash": "20af6a7a",
+      "hash": "073a1841",
       "status": "current"
     },
     {
@@ -16197,6 +16295,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/platform/sot/decisions/export/route.js",
+      "to": "req:FR-102",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/platform/sot/decisions/route.js",
       "to": "req:FR-100",
       "type": "implements",
@@ -16206,6 +16311,13 @@
     {
       "from": "code:src/app/api/platform/sot/decisions/route.js",
       "to": "req:FR-100",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/sot/decisions/route.js",
+      "to": "req:FR-102",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19571,6 +19683,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/sot-data-plane-auth.js",
+      "to": "req:FR-102",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/sot-data-plane-auth.js",
+      "to": "req:SEC-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/viewer-authority.js",
       "to": "req:FR-036",
       "type": "implements",
@@ -19706,6 +19832,20 @@
     {
       "from": "code:src/modules/integration/application/sot-decision-service.js",
       "to": "req:FR-100",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-decision-service.js",
+      "to": "req:FR-102",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-decision-service.js",
+      "to": "req:FR-102",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -20252,6 +20392,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-100",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-102",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -22980,6 +23127,13 @@
       "source": "charter"
     },
     {
+      "from": "model:SotDataPlaneKey",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:SotDecision",
       "to": "domain:integration",
       "type": "owned_by",
@@ -23904,6 +24058,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-102",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -24535,6 +24696,13 @@
     },
     {
       "from": "req:SEC-018",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-019",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -26711,6 +26879,41 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
+      "to": "req:FR-100",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
+      "to": "req:FR-102",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
+      "to": "spec:ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
+      "to": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
+      "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -28707,6 +28910,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-102",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -30087,6 +30297,13 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-100",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-102",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -32351,6 +32568,41 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/sot-decisions-route.test.js",
+      "to": "code:src/app/api/platform/sot/decisions/export/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/sot-decisions-route.test.js",
+      "to": "code:src/app/api/platform/sot/decisions/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/sot-decisions-route.test.js",
+      "to": "req:FR-100",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/sot-decisions-route.test.js",
+      "to": "req:FR-102",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/sot-decisions-route.test.js",
+      "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/work-listing-scope.test.js",
@@ -34840,6 +35092,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-100",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-102",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -37570,6 +37829,13 @@
     {
       "from": "test:tests/unit/market-intelligence-schema-migration.test.js",
       "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/mint-sot-data-plane-key-cli.test.js",
+      "to": "req:FR-102",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -40417,6 +40683,48 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/sot-data-plane-auth.test.js",
+      "to": "code:src/modules/identity/sot-data-plane-auth.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-data-plane-auth.test.js",
+      "to": "req:FR-100",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-data-plane-auth.test.js",
+      "to": "req:FR-102",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-data-plane-auth.test.js",
+      "to": "req:SEC-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-data-plane-key-migration.test.js",
+      "to": "req:FR-102",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-data-plane-key-migration.test.js",
+      "to": "req:SEC-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/sot-decision-service.test.js",
       "to": "code:src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
       "type": "tests",
@@ -40454,6 +40762,13 @@
     {
       "from": "test:tests/unit/sot-decision-service.test.js",
       "to": "req:FR-100",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-decision-service.test.js",
+      "to": "req:FR-102",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -40765,6 +41080,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-authority.test.js",
+      "to": "req:FR-102",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/viewer-authority.test.js",
