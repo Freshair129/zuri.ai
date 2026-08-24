@@ -198,6 +198,9 @@
     "FR-091",
     "FR-092",
     "FR-093",
+    "FR-095",
+    "FR-096",
+    "FR-097",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -293,6 +296,7 @@
     "FEAT-007",
     "FEAT-008",
     "FEAT-009",
+    "FEAT-010",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -1896,6 +1900,45 @@
       ],
       "statement_digest": "b9ab6cdc4b906607c585a161de2af671fb62c2aa46c3cf45d77d2f58c0eaa236"
     },
+    "FR-095": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a106b7e79c7d59e9ddf51322070b06e254278528eab0cf112eb59b5eaee2e770",
+      "history": [
+        {
+          "anchor": "sot pipeline plan board",
+          "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-096": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "67f9eb74db566b12ea4acf3a59016306ce90bdf6b3c3ad69e61d28c677531ebc",
+      "history": [
+        {
+          "anchor": "sot approval inbox and decision export",
+          "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-097": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "72e9e075e6b21a1840e09ab2ccdccd727983ba56e50cf96f5c76b5ca8dd45c22",
+      "history": [
+        {
+          "anchor": "sot pipeline graph dashboard",
+          "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3144,6 +3187,19 @@
         }
       ],
       "statement_digest": "7fdba9d74bf634c9654bbfe3a8ef5f1f99787e1643e903bf67eda849b2c0075d"
+    },
+    "FEAT-010": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "0b14a49ccd033e3ac734eccc6f75101eb518778e0cc224342de113364fb9539d",
+      "history": [
+        {
+          "anchor": "sot pipeline console",
+          "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
     },
     "RSK-001": {
       "family": "RSK",

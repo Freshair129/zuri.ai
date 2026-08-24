@@ -3,7 +3,9 @@ domain: integration
 module: src/modules/integration
 owns_routes:
   - src/app/(pm)/platform/integrations/**
+  - src/app/(pm)/platform/sot-pipeline/**
   - src/app/api/platform/integrations/**
+  - src/app/api/platform/sot/**
 owns_models:
   - IntegrationProvider
   - IntegrationConnection
@@ -13,6 +15,7 @@ owns_models:
   - SyncCursor
   - ExternalEntityRef
   - DeadLetterRecord
+  - SotDecision
 owns_code:
   - src/platform/integrations/**
 ---

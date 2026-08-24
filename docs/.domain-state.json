@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-22T00:58:44.890Z",
+  "generatedAt": "2026-08-24T02:51:16.634Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 23,
+    "gapCount": 29,
     "gaps": [
       {
         "domain": "agent",
@@ -152,6 +152,54 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-067 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "integration",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "integration",
+        "id": "DB-001",
+        "severity": "high",
+        "check": "database",
+        "summary": "Charter-owned model is not present in Prisma schema",
+        "evidence": [
+          "SotDecision"
+        ]
+      },
+      {
+        "domain": "integration",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-095",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-095 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-096",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-096 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-097",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-097 is planned",
         "evidence": []
       },
       {
@@ -862,7 +910,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 44
+          "testCount": 46
         },
         {
           "id": "FR-059",
@@ -1081,7 +1129,7 @@
       }
     },
     "integration": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-028",
@@ -1131,6 +1179,27 @@
           "status": "verified",
           "codeCount": 7,
           "testCount": 12
+        },
+        {
+          "id": "FR-095",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-096",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-097",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -1171,12 +1240,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -1184,13 +1259,22 @@
           "gaps": []
         },
         "database": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "prisma/schema.prisma"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "DB-001",
+              "severity": "high",
+              "summary": "Charter-owned model is not present in Prisma schema",
+              "evidence": [
+                "SotDecision"
+              ]
+            }
+          ],
           "details": {
-            "models": 8,
+            "models": 9,
             "present": 8
           }
         },
@@ -1208,11 +1292,17 @@
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -1223,6 +1313,9 @@
         "docs/domains/integration/features/FR-079-phase1-line-runtime-connection-cutover.md",
         "docs/domains/integration/features/FR-080-integration-secret-management-ui.md",
         "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
+        "docs/domains/integration/features/FR-095-sot-pipeline-plan-board.md",
+        "docs/domains/integration/features/FR-096-sot-approval-inbox.md",
+        "docs/domains/integration/features/FR-097-sot-pipeline-graph-dashboard.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1231,13 +1324,56 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "DB-001",
+          "severity": "high",
+          "check": "database",
+          "summary": "Charter-owned model is not present in Prisma schema",
+          "evidence": [
+            "SotDecision"
+          ]
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-095",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-095 is planned",
+          "evidence": []
+        },
+        {
+          "id": "REQ-FR-096",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-096 is planned",
+          "evidence": []
+        },
+        {
+          "id": "REQ-FR-097",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-097 is planned",
+          "evidence": []
+        }
+      ],
       "details": {
         "routes": 3,
         "apiRoutes": 2,
         "pageRoutes": 1,
-        "ownedModels": 8,
-        "featureNotes": 3
+        "ownedModels": 9,
+        "featureNotes": 6
       }
     },
     "knowledge": {
@@ -1543,8 +1679,8 @@
           "id": "FR-005",
           "declared": "done",
           "status": "verified",
-          "codeCount": 12,
-          "testCount": 11
+          "codeCount": 13,
+          "testCount": 12
         },
         {
           "id": "FR-006",
@@ -1753,8 +1889,8 @@
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
-          "codeCount": 57,
-          "testCount": 44
+          "codeCount": 58,
+          "testCount": 46
         },
         {
           "id": "FR-056",
@@ -1823,8 +1959,8 @@
           "id": "FR-068",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 5
+          "codeCount": 5,
+          "testCount": 8
         },
         {
           "id": "FR-069",

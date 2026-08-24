@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1114,
-    "total_edges": 3672,
-    "dangling_edges": 0,
+    "total_nodes": 1122,
+    "total_edges": 3692,
+    "dangling_edges": 1,
     "node_types": {
       "appendix": 4,
-      "document": 86,
+      "document": 89,
       "adr": 43,
       "domain": 7,
       "roadmap": 25,
-      "feature": 9,
+      "feature": 10,
       "route": 125,
       "model": 59,
-      "requirement": 198,
+      "requirement": 201,
       "test": 263,
-      "code_file": 295
+      "code_file": 296
     },
     "coverage": {
-      "requirements": 198,
+      "requirements": 201,
       "fr_with_code": "100% (82/82)",
       "fr_with_tests": "100% (82/82)",
       "rules_anchored_in_code": "91% (77/85)",
       "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 295,
+      "annotated_code_files": 296,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -37,7 +37,10 @@
         "FR-088",
         "FR-089",
         "FR-091",
-        "FR-093"
+        "FR-093",
+        "FR-095",
+        "FR-096",
+        "FR-097"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -58,9 +61,13 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "doc:PRD-SDD-v1.0"
+    ],
     "added": [
-      "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE"
+      "req:FR-095",
+      "req:FR-096",
+      "req:FR-097"
     ],
     "removed": []
   },
@@ -2545,7 +2552,7 @@
       "id": "code:src/app/api/work/route.js",
       "type": "code_file",
       "path": "src/app/api/work/route.js",
-      "hash": "75c23da2",
+      "hash": "0fe9029a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5053,6 +5060,29 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/application/work-read-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/work-read-service.js",
+      "hash": "6627e2a9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-005",
+          "FR-046",
+          "FR-068"
+        ],
+        "@spec": [
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/project-manager-mcp.test.js",
+          "tests/unit/authorization-seam-list-routes.test.js",
+          "tests/integration/work-listing-scope.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/application/work-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/work-service.js",
@@ -5489,7 +5519,7 @@
       "id": "code:src/modules/project-manager/mcp/transport.js",
       "type": "code_file",
       "path": "src/modules/project-manager/mcp/transport.js",
-      "hash": "fdcee433",
+      "hash": "cc1b314c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5990,9 +6020,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.16.0b",
+      "version": "1.18.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "3a3ffa94",
+      "hash": "e2afde0f",
       "status": "current"
     },
     {
@@ -6120,7 +6150,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.5.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "77336ab8",
+      "hash": "53161ad0",
       "status": "current"
     },
     {
@@ -6483,7 +6513,7 @@
       "type": "document",
       "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
       "title": "FR-069 — Plan Blueprint and Human/Agent intake with stable references",
-      "hash": "d24d972f",
+      "hash": "c64a7c59",
       "status": "current"
     },
     {
@@ -6592,6 +6622,30 @@
       "path": "docs/domains/crm/features/FR-093-reply-delivery-receipt.md",
       "title": "FR-093 — LINE reply delivery receipt",
       "hash": "9de8d35b",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-095-sot-pipeline-plan-board",
+      "type": "document",
+      "path": "docs/domains/integration/features/FR-095-sot-pipeline-plan-board.md",
+      "title": "FR-095 — SoT pipeline plan board",
+      "hash": "54e751f8",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-096-sot-approval-inbox",
+      "type": "document",
+      "path": "docs/domains/integration/features/FR-096-sot-approval-inbox.md",
+      "title": "FR-096 — SoT approval inbox and decision export",
+      "hash": "bbe2219c",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-097-sot-pipeline-graph-dashboard",
+      "type": "document",
+      "path": "docs/domains/integration/features/FR-097-sot-pipeline-graph-dashboard.md",
+      "title": "FR-097 — SoT pipeline graph dashboard",
+      "hash": "0869bfa2",
       "status": "current"
     },
     {
@@ -6829,10 +6883,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.80.0b",
+      "version": "1.82.0b",
       "doc_status": "Draft",
-      "hash": "1b41966e",
-      "status": "current"
+      "hash": "2c55a30e",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -7085,11 +7139,14 @@
         "RawExternalRecord",
         "SyncCursor",
         "ExternalEntityRef",
-        "DeadLetterRecord"
+        "DeadLetterRecord",
+        "SotDecision"
       ],
       "owns_routes": [
         "src/app/(pm)/platform/integrations/**",
-        "src/app/api/platform/integrations/**"
+        "src/app/(pm)/platform/sot-pipeline/**",
+        "src/app/api/platform/integrations/**",
+        "src/app/api/platform/sot/**"
       ],
       "owns_code": [
         "src/platform/integrations/**"
@@ -7097,7 +7154,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "700dcbf0",
+      "hash": "fefb0ee3",
       "status": "current"
     },
     {
@@ -7249,6 +7306,13 @@
       "type": "feature",
       "label": "CRM Conversation Inbox — the first reader surface over the LINE ingress, and the delivery receipt that makes it show both sides of a conversation rather than only what the customer said",
       "declared": "building",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-010",
+      "type": "feature",
+      "label": "SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline",
+      "declared": "proposed",
       "status": "current"
     },
     {
@@ -8665,6 +8729,36 @@
       "declared": "planned",
       "status": "planned",
       "row_text": "LINE reply delivery receipt: the outbound half of a conversation becomes a row. Nothing has ever written a `Message` with `direction: 'OUTBOUND'` — the reply is assembled here, handed to the edge runtime, sent to the customer and then forgotten — so FR-091's inbox shows one side of every conversation and its `OUTBOUND` count is structurally zero. `POST /api/agent/line-delivery` accepts a batch of receipts from the transport owner, each naming the **inbound `Message.id` it answers** and the text that was **actually sent**. (a) The receipt comes from the edge runtime *after* a successful send and not from this side at hand-over, because the two differ: when the stack cannot answer, the transport sends its own fallback text, and recording what this side produced would record a message the customer never received (BR-011 — the reply owner is the one who knows). (b) Scope is resolved by the same seam as the webhook (FR-052), and the named inbound message must resolve inside that scope — a binding for one tenant can never attach a reply to another tenant's conversation (SEC-001). (c) Idempotent on `reply:<inboundMessageId>` as the message's external id, so a redelivered receipt resolves to the existing row: one inbound message has one reply, which is exactly what the LINE Reply API allows per token. (d) The row records the text the customer received; whether it came from the stack or from the transport's fallback is recorded on the audit event, not in the body, because the body is what was said and the provenance is a different fact. The webhook response gains `conversationId` and `inboundMessageId` so the transport has something to name — on the **failure** result as well as the success one, because a failed turn is precisely when the transport substitutes its own text and a customer certainly received something. That failure result also gains the `eventId` it never carried: the transport matches results to events by that field, so a failed result was previously unfindable and its fallback was sent only because an unmatched result and a failed one both read as \"not ok\". All additive; the four fields the transport already reads are untouched. 🔜 "
+    },
+    {
+      "id": "req:FR-095",
+      "type": "requirement",
+      "family": "FR",
+      "label": "SoT pipeline plan board: the business-wide Source-of-Truth pipeline's phase plan (P0–P10) lives as strict-validated data (`contracts/sot-pipeline-plan.v1.json`) and is rendered at `/platform/sot-pipeline` with status **derived** from FR-071 run evidence plus FR-096 pending-decision counts — `planned/running/blocked/done` is computed by a pure function, never typed in, so the board cannot disagree with the tracking data it reads. Reader surface only; the plan file changes by PR.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "SoT pipeline plan board: the business-wide Source-of-Truth pipeline's phase plan (P0–P10) lives as strict-validated data (`contracts/sot-pipeline-plan.v1.json`) and is rendered at `/platform/sot-pipeline` with status **derived** from FR-071 run evidence plus FR-096 pending-decision counts — `planned/running/blocked/done` is computed by a pure function, never typed in, so the board cannot disagree with the tracking data it reads. Reader surface only; the plan file changes by PR. 🔜 "
+    },
+    {
+      "id": "req:FR-096",
+      "type": "requirement",
+      "family": "FR",
+      "label": "SoT approval inbox and decision export: one tenant/business-scoped `SotDecision` queue (PRICE_ROW, ENTITY, FILE_CLASSIFICATION, PHASE_GATE) that the external data plane **submits** into (idempotent batch, `.strict()` envelope, payload-hash versioning), a human **decides** in the browser (audited, immutable rows, new version to change a decision), and the data plane **pulls** from (`export?since=` cursor) to apply approved facts to its own DuckDB/graph stores — zuri-ai never writes into the retrieval substrate, keeping Tier 1 inside the ADR-043 boundary during the Boss-approved `:8888` interim. Closes the open loop where approvals in `price_approval.csv` reached nothing (17,702 staged price rows, 0 approved in store).",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "SoT approval inbox and decision export: one tenant/business-scoped `SotDecision` queue (PRICE_ROW, ENTITY, FILE_CLASSIFICATION, PHASE_GATE) that the external data plane **submits** into (idempotent batch, `.strict()` envelope, payload-hash versioning), a human **decides** in the browser (audited, immutable rows, new version to change a decision), and the data plane **pulls** from (`export?since=` cursor) to apply approved facts to its own DuckDB/graph stores — zuri-ai never writes into the retrieval substrate, keeping Tier 1 inside the ADR-043 boundary during the Boss-approved `:8888` interim. Closes the open loop where approvals in `price_approval.csv` reached nothing (17,702 staged price rows, 0 approved in store). 🔜 "
+    },
+    {
+      "id": "req:FR-097",
+      "type": "requirement",
+      "family": "FR",
+      "label": "SoT pipeline graph dashboard: `/platform/sot-pipeline/graph` renders the FR-095 plan as read-only nodes and edges (hand-rolled SVG, topological layers, no client graph library) using the same `{nodes, edges}` data shape as FR-040's dependency map, with FR-095's derived status as node state and per-phase pending-decision badges linking into the FR-096 inbox. One API payload feeds both surfaces.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "SoT pipeline graph dashboard: `/platform/sot-pipeline/graph` renders the FR-095 plan as read-only nodes and edges (hand-rolled SVG, topological layers, no client graph library) using the same `{nodes, edges}` data shape as FR-040's dependency map, with FR-095's derived status as node state and per-phase pending-decision badges linking into the FR-096 inbox. One API payload feeds both surfaces. 🔜 "
     },
     {
       "id": "req:NFR-001",
@@ -11417,7 +11511,7 @@
       "id": "test:tests/integration/work-listing-scope.test.js",
       "type": "test",
       "path": "tests/integration/work-listing-scope.test.js",
-      "hash": "08376414",
+      "hash": "206e2f3f",
       "status": "current"
     },
     {
@@ -12292,7 +12386,7 @@
       "id": "test:tests/unit/pipeline-mcp-transport.test.js",
       "type": "test",
       "path": "tests/unit/pipeline-mcp-transport.test.js",
-      "hash": "cbe38abf",
+      "hash": "8cbad74c",
       "status": "current"
     },
     {
@@ -12495,7 +12589,7 @@
       "id": "test:tests/unit/project-manager-mcp.test.js",
       "type": "test",
       "path": "tests/unit/project-manager-mcp.test.js",
-      "hash": "9267d794",
+      "hash": "0f1779e4",
       "status": "current"
     },
     {
@@ -19788,6 +19882,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/application/work-read-service.js",
+      "to": "req:FR-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-read-service.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-read-service.js",
+      "to": "req:FR-068",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-read-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/work-read-service.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/work-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -21272,6 +21401,27 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-010",
+      "to": "req:FR-095",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-010",
+      "to": "req:FR-096",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-010",
+      "to": "req:FR-097",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:AuditEvent",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -22435,6 +22585,27 @@
     },
     {
       "from": "req:FR-093",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-095",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-096",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-097",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -30443,6 +30614,13 @@
     },
     {
       "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "code:src/modules/project-manager/application/work-read-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
       "to": "code:src/modules/project-manager/application/work-service.js",
       "type": "tests",
       "status": "current",
@@ -30482,6 +30660,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/work-listing-scope.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/work-listing-scope.test.js",
@@ -30835,6 +31027,13 @@
     },
     {
       "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "code:src/modules/project-manager/application/work-read-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
       "to": "req:FR-001",
       "type": "verifies",
       "status": "current",
@@ -30888,6 +31087,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-list-routes.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/authorization-seam-list-routes.test.js",
@@ -36988,10 +37194,38 @@
     },
     {
       "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "code:src/modules/project-manager/application/work-read-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
       "to": "code:src/modules/project-manager/mcp/transport.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "req:FR-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-manager-mcp.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/project-manager-mcp.test.js",
@@ -38422,5 +38656,14 @@
       "source": "test-reference"
     }
   ],
-  "dangling_edges": []
+  "dangling_edges": [
+    {
+      "from": "model:SotDecision",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter",
+      "reason": "unknown node model:SotDecision"
+    }
+  ]
 }
