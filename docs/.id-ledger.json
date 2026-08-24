@@ -426,6 +426,7 @@
     "ADR-041",
     "ADR-042",
     "ADR-043",
+    "ADR-045",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -4864,14 +4865,16 @@
       "family": "ADR",
       "source": "docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md",
       "status": "current",
-      "statement_digest": "0e4b3be1909cb0f697114957f50d780bfaf1685ad482509c7f53d97e7368d3ba",
+      "statement_digest": "294ce357559f87a0f9387bcbe27f312dfef0cea9a3612de892e48bf94386d6a0",
       "history": [
         {
           "anchor": "decoupled standalone knowledge and graphrag service",
           "since": "2026-08-22",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-08-24",
+      "statement_digest_reason": "Commit 2cf839d revised ADR-042 to the 6-lane Genesis Retrieval Fabric wording without refreshing the pinned statement digest; this review records that same-subject edit"
     },
     "ADR-043": {
       "family": "ADR",
@@ -4882,6 +4885,19 @@
         {
           "anchor": "four tier cognitive architecture",
           "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-045": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md",
+      "status": "current",
+      "statement_digest": "3de120b1744bed960e943e7be68e71eb5e9d18813e8e5d366f4acae5297b6e7e",
+      "history": [
+        {
+          "anchor": "sot pipeline",
+          "since": "2026-08-24",
           "reason": "declared"
         }
       ]

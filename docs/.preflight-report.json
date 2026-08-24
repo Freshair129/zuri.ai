@@ -2,15 +2,15 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 172,
-    "routes": 84,
-    "test_files": 263
+    "docs": 173,
+    "routes": 88,
+    "test_files": 269
   },
   "summary": {
     "critical": 0,
-    "warning": 2,
-    "info": 22,
-    "overall": "WARN"
+    "warning": 0,
+    "info": 21,
+    "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -180,16 +180,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "W16",
-      "severity": "warning",
-      "check": "doc-code-symlink",
-      "title": "Annotations pointing at unknown nodes",
-      "details": "1 dangling edge(s)",
-      "files": [],
-      "action": "Fix the @req/@tested target"
-    },
-    {
-      "id": "I17",
+      "id": "I16",
       "severity": "info",
       "check": "requirement-coverage",
       "title": "Gaps in FR numbering",
@@ -198,18 +189,7 @@
       "action": "Intentional gaps are fine — confirm nothing was lost"
     },
     {
-      "id": "W18",
-      "severity": "warning",
-      "check": "domain-spine",
-      "title": "Charter claims a model that is not in the schema: SotDecision",
-      "details": "domains/integration",
-      "files": [
-        "docs/domains/integration/CHARTER.md"
-      ],
-      "action": "Stale charter — sync owns_models with prisma/schema.prisma"
-    },
-    {
-      "id": "I19",
+      "id": "I17",
       "severity": "info",
       "check": "domain-spine",
       "title": "Models not yet claimed by any charter: 6",
@@ -218,7 +198,7 @@
       "action": "Coverage debt — claim them as charters mature"
     },
     {
-      "id": "I20",
+      "id": "I18",
       "severity": "info",
       "check": "staleness",
       "title": "Possibly stale test count",
@@ -226,10 +206,10 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 263 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 269 files"
     },
     {
-      "id": "I21",
+      "id": "I19",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 hand-copied enum list(s) remain (accepted debt)",
@@ -240,7 +220,7 @@
       "action": "Derive from enums.js; the baseline may only shrink"
     },
     {
-      "id": "I22",
+      "id": "I20",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -251,24 +231,11 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I23",
+      "id": "I21",
       "severity": "info",
       "check": "id-stability",
-      "title": "ADR-042 statement digest changed without an anchor move",
-      "details": "canonical SHA-256 0e4b3be1909cb0f697114957f50d780bfaf1685ad482509c7f53d97e7368d3ba → 294ce357559f87a0f9387bcbe27f312dfef0cea9a3612de892e48bf94386d6a0 · citation files: docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md",
-      "files": [
-        "docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md",
-        "docs/.id-ledger.json",
-        "docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md"
-      ],
-      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review ADR-042 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
-    },
-    {
-      "id": "I24",
-      "severity": "info",
-      "check": "id-stability",
-      "title": "348 id(s) pinned across 10 families",
-      "details": "ADR 43 · BR 19 · FEAT 10 · FR 96 · MI-RQ 72 · NFR 18 · RSK 14 · SDD 51 · SEC 17 · ZV2-CR 8 · roster 348",
+      "title": "349 id(s) pinned across 10 families",
+      "details": "ADR 44 · BR 19 · FEAT 10 · FR 96 · MI-RQ 72 · NFR 18 · RSK 14 · SDD 51 · SEC 17 · ZV2-CR 8 · roster 349",
       "files": [
         "docs/.id-ledger.json"
       ],

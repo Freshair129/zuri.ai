@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-24T02:51:16.634Z",
+  "generatedAt": "2026-08-24T03:35:05.352Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -163,16 +163,6 @@
       },
       {
         "domain": "integration",
-        "id": "DB-001",
-        "severity": "high",
-        "check": "database",
-        "summary": "Charter-owned model is not present in Prisma schema",
-        "evidence": [
-          "SotDecision"
-        ]
-      },
-      {
-        "domain": "integration",
         "id": "TEST-001",
         "severity": "medium",
         "check": "tests",
@@ -183,24 +173,52 @@
         "id": "REQ-FR-095",
         "severity": "medium",
         "check": "requirements",
-        "summary": "FR-095 is planned",
-        "evidence": []
+        "summary": "FR-095 is partial",
+        "evidence": [
+          "src/app/(pm)/platform/sot-pipeline/page.jsx",
+          "src/app/api/platform/sot/plan/route.js",
+          "src/modules/integration/application/sot-pipeline-graph.js",
+          "src/modules/integration/application/sot-plan-service.js",
+          "src/modules/integration/application/sot-plan.js",
+          "tests/unit/sot-pipeline-graph.test.js",
+          "tests/unit/sot-plan-board-ui.test.js",
+          "tests/unit/sot-plan-service.test.js",
+          "tests/unit/sot-plan-status.test.js"
+        ]
       },
       {
         "domain": "integration",
         "id": "REQ-FR-096",
         "severity": "medium",
         "check": "requirements",
-        "summary": "FR-096 is planned",
-        "evidence": []
+        "summary": "FR-096 is partial",
+        "evidence": [
+          "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+          "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+          "src/app/api/platform/sot/decisions/export/route.js",
+          "src/app/api/platform/sot/decisions/route.js",
+          "src/modules/integration/application/sot-decision-service.js",
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/sot-decision-service.test.js",
+          "tests/unit/sot-inbox-ui.test.js"
+        ]
       },
       {
         "domain": "integration",
         "id": "REQ-FR-097",
         "severity": "medium",
         "check": "requirements",
-        "summary": "FR-097 is planned",
-        "evidence": []
+        "summary": "FR-097 is partial",
+        "evidence": [
+          "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+          "src/app/api/platform/sot/plan/route.js",
+          "src/modules/integration/application/sot-pipeline-graph.js",
+          "src/modules/integration/application/sot-plan-service.js",
+          "tests/unit/sot-pipeline-graph.test.js",
+          "tests/unit/sot-plan-service.test.js"
+        ]
       },
       {
         "domain": "knowledge",
@@ -358,6 +376,21 @@
           "tests/unit/domain-navigation.test.js",
           "tests/unit/fr045-api-ui-contract.test.js",
           "tests/unit/fr091-inbox-ui-contract.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-096",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-096 is partial",
+        "evidence": [
+          "src/modules/project-manager/application/backup-service.js",
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/sot-decision-service.test.js",
+          "tests/unit/sot-inbox-ui.test.js"
         ]
       }
     ]
@@ -532,7 +565,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 84,
+            "openApiPaths": 88,
             "missingFromOpenApi": 0
           }
         },
@@ -999,7 +1032,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 84,
+            "openApiPaths": 88,
             "missingFromOpenApi": 0
           }
         },
@@ -1183,23 +1216,54 @@
         {
           "id": "FR-095",
           "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 4,
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/page.jsx",
+            "src/app/api/platform/sot/plan/route.js",
+            "src/modules/integration/application/sot-pipeline-graph.js",
+            "src/modules/integration/application/sot-plan-service.js",
+            "src/modules/integration/application/sot-plan.js",
+            "tests/unit/sot-pipeline-graph.test.js",
+            "tests/unit/sot-plan-board-ui.test.js",
+            "tests/unit/sot-plan-service.test.js",
+            "tests/unit/sot-plan-status.test.js"
+          ]
         },
         {
           "id": "FR-096",
           "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 5,
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+            "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+            "src/app/api/platform/sot/decisions/export/route.js",
+            "src/app/api/platform/sot/decisions/route.js",
+            "src/modules/integration/application/sot-decision-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/sot-inbox-ui.test.js"
+          ]
         },
         {
           "id": "FR-097",
           "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "codeCount": 4,
+          "testCount": 2,
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+            "src/app/api/platform/sot/plan/route.js",
+            "src/modules/integration/application/sot-pipeline-graph.js",
+            "src/modules/integration/application/sot-plan-service.js",
+            "tests/unit/sot-pipeline-graph.test.js",
+            "tests/unit/sot-plan-service.test.js"
+          ]
         }
       ],
       "checks": {
@@ -1210,8 +1274,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
+            "routes": 4,
+            "inventoried": 4,
             "missing": 0
           }
         },
@@ -1223,9 +1287,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 2,
-            "inventoried": 2,
-            "openApiPaths": 84,
+            "routes": 6,
+            "inventoried": 6,
+            "openApiPaths": 88,
             "missingFromOpenApi": 0
           }
         },
@@ -1259,23 +1323,14 @@
           "gaps": []
         },
         "database": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "prisma/schema.prisma"
           ],
-          "gaps": [
-            {
-              "id": "DB-001",
-              "severity": "high",
-              "summary": "Charter-owned model is not present in Prisma schema",
-              "evidence": [
-                "SotDecision"
-              ]
-            }
-          ],
+          "gaps": [],
           "details": {
             "models": 9,
-            "present": 8
+            "present": 9
           }
         },
         "authorization": {
@@ -1285,9 +1340,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 2,
-            "guardedMutations": 2,
-            "reads": 2,
+            "mutations": 4,
+            "guardedMutations": 4,
+            "reads": 5,
             "unguardedReads": 0
           }
         },
@@ -1332,15 +1387,6 @@
           "summary": "At least one requirement in this domain is not fully code-and-test verified"
         },
         {
-          "id": "DB-001",
-          "severity": "high",
-          "check": "database",
-          "summary": "Charter-owned model is not present in Prisma schema",
-          "evidence": [
-            "SotDecision"
-          ]
-        },
-        {
           "id": "TEST-001",
           "severity": "medium",
           "check": "tests",
@@ -1350,28 +1396,56 @@
           "id": "REQ-FR-095",
           "severity": "medium",
           "check": "requirements",
-          "summary": "FR-095 is planned",
-          "evidence": []
+          "summary": "FR-095 is partial",
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/page.jsx",
+            "src/app/api/platform/sot/plan/route.js",
+            "src/modules/integration/application/sot-pipeline-graph.js",
+            "src/modules/integration/application/sot-plan-service.js",
+            "src/modules/integration/application/sot-plan.js",
+            "tests/unit/sot-pipeline-graph.test.js",
+            "tests/unit/sot-plan-board-ui.test.js",
+            "tests/unit/sot-plan-service.test.js",
+            "tests/unit/sot-plan-status.test.js"
+          ]
         },
         {
           "id": "REQ-FR-096",
           "severity": "medium",
           "check": "requirements",
-          "summary": "FR-096 is planned",
-          "evidence": []
+          "summary": "FR-096 is partial",
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+            "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+            "src/app/api/platform/sot/decisions/export/route.js",
+            "src/app/api/platform/sot/decisions/route.js",
+            "src/modules/integration/application/sot-decision-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/sot-inbox-ui.test.js"
+          ]
         },
         {
           "id": "REQ-FR-097",
           "severity": "medium",
           "check": "requirements",
-          "summary": "FR-097 is planned",
-          "evidence": []
+          "summary": "FR-097 is partial",
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+            "src/app/api/platform/sot/plan/route.js",
+            "src/modules/integration/application/sot-pipeline-graph.js",
+            "src/modules/integration/application/sot-plan-service.js",
+            "tests/unit/sot-pipeline-graph.test.js",
+            "tests/unit/sot-plan-service.test.js"
+          ]
         }
       ],
       "details": {
-        "routes": 3,
-        "apiRoutes": 2,
-        "pageRoutes": 1,
+        "routes": 10,
+        "apiRoutes": 6,
+        "pageRoutes": 4,
         "ownedModels": 9,
         "featureNotes": 6
       }
@@ -1848,7 +1922,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-041",
@@ -2152,6 +2226,21 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 5
+        },
+        {
+          "id": "FR-096",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 5,
+          "evidence": [
+            "src/modules/project-manager/application/backup-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/sot-inbox-ui.test.js"
+          ]
         }
       ],
       "checks": {
@@ -2177,7 +2266,7 @@
           "details": {
             "routes": 78,
             "inventoried": 78,
-            "openApiPaths": 84,
+            "openApiPaths": 88,
             "missingFromOpenApi": 0
           }
         },
@@ -2411,6 +2500,20 @@
             "tests/unit/domain-navigation.test.js",
             "tests/unit/fr045-api-ui-contract.test.js",
             "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-096",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-096 is partial",
+          "evidence": [
+            "src/modules/project-manager/application/backup-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/sot-inbox-ui.test.js"
           ]
         }
       ],

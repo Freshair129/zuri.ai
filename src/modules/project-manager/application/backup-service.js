@@ -77,6 +77,10 @@ const SNAPSHOT_MODELS = [
   'projectFile', 'fileAsset', 'fileLink',
   'externalRef', 'externalIdentity', 'identityLinkToken',
   'pipelineRun', 'pipelineStep', 'pipelineEventReceipt', 'pipelineRecordEvent', 'pipelineReconciliation', 'pipelineGateDecision',
+  // @req FR-096 — a SoT decision hangs off Tenant (and optionally Business),
+  // so it restores after them and deletes before them, alongside the pipeline
+  // evidence it gates.
+  'sotDecision',
   'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message', 'auditEvent',
 ]
 

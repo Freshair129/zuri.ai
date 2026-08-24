@@ -59,6 +59,7 @@ model Tenant {
   externalEntityRefs        ExternalEntityRef[]
   deadLetterRecords         DeadLetterRecord[]
   pipelineRuns              PipelineRun[]
+  sotDecisions              SotDecision[]
 
   @@index([portfolioId])
 }
@@ -128,6 +129,7 @@ model Business {
   deadLetterRecords         DeadLetterRecord[]
   repositories              Repository[]
   pipelineRuns              PipelineRun[]
+  sotDecisions              SotDecision[]
 
   @@index([tenantId])
 }
@@ -1487,4 +1489,38 @@ model MarketObservation {
   @@index([tenantId, connectionId, provider])
   @@index([rawRecordId])
   @@index([canonicalProductRef])
+}
+
+// @req FR-096 — the SoT pipeline's generic human-decision queue: the data plane
+// submits pending facts, a human decides in the browser, the data plane pulls
+// decided rows by cursor and applies them to its own stores (ADR-043 interim).
+// @spec FR-096, BR-002, SEC-002
+// @tested tests/unit/sot-decision-service.test.js
+model SotDecision {
+  id                String    @id @default(uuid())
+  tenantId          String
+  businessId        String?
+  decisionType      String
+  subjectRef        String
+  phaseId           String?
+  payloadJson       String    @default("{}")
+  payloadSha256     String
+  decisionVersion   Int       @default(1)
+  status            String    @default("PENDING")
+  submittedBy       String?
+  decidedByPersonId String?
+  reason            String?
+  auditEventId      String?
+  decidedAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, decisionType, subjectRef, decisionVersion])
+  @@index([tenantId, status, decisionType])
+  @@index([businessId, status])
+  @@index([phaseId, status])
+  @@index([updatedAt])
 }

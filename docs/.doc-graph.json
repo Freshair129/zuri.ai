@@ -3,21 +3,21 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1122,
-    "total_edges": 3692,
-    "dangling_edges": 1,
+    "total_nodes": 1148,
+    "total_edges": 3764,
+    "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
       "document": 89,
-      "adr": 43,
+      "adr": 44,
       "domain": 7,
       "roadmap": 25,
       "feature": 10,
-      "route": 125,
-      "model": 59,
+      "route": 132,
+      "model": 60,
       "requirement": 201,
-      "test": 263,
-      "code_file": 296
+      "test": 269,
+      "code_file": 307
     },
     "coverage": {
       "requirements": 201,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (82/82)",
       "rules_anchored_in_code": "91% (77/85)",
       "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 296,
+      "annotated_code_files": 307,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -62,13 +62,10 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0"
+      "test:tests/integration/openapi-docs.test.js",
+      "code:src/modules/project-manager/api-docs/openapi.js"
     ],
-    "added": [
-      "req:FR-095",
-      "req:FR-096",
-      "req:FR-097"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -390,6 +387,60 @@
         "@tested": [
           "tests/unit/fr080-ui-contract.test.js",
           "tests/unit/line-registry-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+      "hash": "609c2314",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-097"
+        ],
+        "@spec": [
+          "FR-097"
+        ],
+        "@tested": [
+          "tests/unit/sot-pipeline-graph.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+      "hash": "a6d8ef23",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-096"
+        ],
+        "@spec": [
+          "FR-096"
+        ],
+        "@tested": [
+          "tests/unit/sot-inbox-ui.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/platform/sot-pipeline/page.jsx",
+      "hash": "842a31b2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-095"
+        ],
+        "@spec": [
+          "FR-095"
+        ],
+        "@tested": [
+          "tests/unit/sot-plan-board-ui.test.js"
         ]
       }
     },
@@ -1972,6 +2023,81 @@
       }
     },
     {
+      "id": "code:src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+      "hash": "dfe0fc6b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-096"
+        ],
+        "@spec": [
+          "FR-096"
+        ],
+        "@tested": [
+          "tests/unit/sot-decision-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/sot/decisions/export/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/sot/decisions/export/route.js",
+      "hash": "a0bf8740",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-096"
+        ],
+        "@spec": [
+          "FR-096"
+        ],
+        "@tested": [
+          "tests/unit/sot-decision-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/sot/decisions/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/sot/decisions/route.js",
+      "hash": "cc85829d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-096"
+        ],
+        "@spec": [
+          "FR-096",
+          "SEC-002"
+        ],
+        "@tested": [
+          "tests/unit/sot-decision-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/sot/plan/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/sot/plan/route.js",
+      "hash": "0d832bd1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-095",
+          "FR-097"
+        ],
+        "@spec": [
+          "FR-095",
+          "FR-097"
+        ],
+        "@tested": [
+          "tests/unit/sot-plan-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/platform/users/route.js",
       "type": "code_file",
       "path": "src/app/api/platform/users/route.js",
@@ -2910,7 +3036,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "f1b54620",
+      "hash": "a61d960e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4197,6 +4323,84 @@
       }
     },
     {
+      "id": "code:src/modules/integration/application/sot-decision-service.js",
+      "type": "code_file",
+      "path": "src/modules/integration/application/sot-decision-service.js",
+      "hash": "e34927e5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-096"
+        ],
+        "@spec": [
+          "FR-096",
+          "BR-002",
+          "SEC-002"
+        ],
+        "@tested": [
+          "tests/unit/sot-decision-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/integration/application/sot-pipeline-graph.js",
+      "type": "code_file",
+      "path": "src/modules/integration/application/sot-pipeline-graph.js",
+      "hash": "94ee9506",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-097",
+          "FR-095"
+        ],
+        "@spec": [
+          "FR-097"
+        ],
+        "@tested": [
+          "tests/unit/sot-pipeline-graph.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/integration/application/sot-plan-service.js",
+      "type": "code_file",
+      "path": "src/modules/integration/application/sot-plan-service.js",
+      "hash": "f6cee358",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-095",
+          "FR-097"
+        ],
+        "@spec": [
+          "FR-095",
+          "FR-097"
+        ],
+        "@tested": [
+          "tests/unit/sot-plan-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/integration/application/sot-plan.js",
+      "type": "code_file",
+      "path": "src/modules/integration/application/sot-plan.js",
+      "hash": "ba457d5c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-095"
+        ],
+        "@spec": [
+          "FR-095",
+          "SEC-002"
+        ],
+        "@tested": [
+          "tests/unit/sot-plan-status.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/business-contract.js",
       "type": "code_file",
       "path": "src/modules/knowledge/business-contract.js",
@@ -4523,8 +4727,8 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "53638dcd",
-      "status": "current",
+      "hash": "8ed69163",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019"
@@ -4581,7 +4785,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "3f256a35",
+      "hash": "a81fdf4f",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4592,7 +4796,8 @@
           "FR-081",
           "FR-092",
           "FR-090",
-          "FR-089"
+          "FR-089",
+          "FR-096"
         ],
         "@spec": [
           "BR-008",
@@ -6022,7 +6227,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.18.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "e2afde0f",
+      "hash": "610f0184",
       "status": "current"
     },
     {
@@ -6068,7 +6273,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.9.0",
       "doc_status": "Draft",
-      "hash": "b8b79dbd",
+      "hash": "b07c3349",
       "status": "current"
     },
     {
@@ -6675,7 +6880,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.2.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "d5416f32",
+      "hash": "dbc272c3",
       "status": "current"
     },
     {
@@ -6886,7 +7091,7 @@
       "version": "1.82.0b",
       "doc_status": "Draft",
       "hash": "2c55a30e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -7567,6 +7772,11 @@
     },
     {
       "id": "model:RoleBinding",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:SotDecision",
       "type": "model",
       "status": "current"
     },
@@ -10045,6 +10255,38 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/platform/sot/decisions",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/sot/decisions",
+      "path": "src/app/api/platform/sot/decisions/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/sot/decisions/[decisionId]/decide",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/sot/decisions/[decisionId]/decide",
+      "path": "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/sot/decisions/export",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/sot/decisions/export",
+      "path": "src/app/api/platform/sot/decisions/export/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/sot/plan",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/sot/plan",
+      "path": "src/app/api/platform/sot/plan/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/platform/users",
       "type": "route",
       "kind": "api",
@@ -10426,6 +10668,30 @@
       "kind": "page",
       "route": "/platform/integrations",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/platform/sot-pipeline",
+      "type": "route",
+      "kind": "page",
+      "route": "/platform/sot-pipeline",
+      "path": "src/app/(pm)/platform/sot-pipeline/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/platform/sot-pipeline/graph",
+      "type": "route",
+      "kind": "page",
+      "route": "/platform/sot-pipeline/graph",
+      "path": "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/platform/sot-pipeline/inbox",
+      "type": "route",
+      "kind": "page",
+      "route": "/platform/sot-pipeline/inbox",
+      "path": "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
       "status": "current"
     },
     {
@@ -10969,6 +11235,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "adr",
+      "path": "docs/decisions/ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md",
+      "title": "ADR-045 — SoT pipeline: interim serving on :8888, and decisions leave by pull",
+      "hash": "e9938291",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -11413,8 +11687,8 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "d4387d92",
-      "status": "current"
+      "hash": "4412d004",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/plan-import-scope.test.js",
@@ -12740,6 +13014,48 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/sot-decision-service.test.js",
+      "type": "test",
+      "path": "tests/unit/sot-decision-service.test.js",
+      "hash": "ed3bca5f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/sot-inbox-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/sot-inbox-ui.test.js",
+      "hash": "ab9bcf0f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/sot-pipeline-graph.test.js",
+      "type": "test",
+      "path": "tests/unit/sot-pipeline-graph.test.js",
+      "hash": "1f22f84e",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/sot-plan-board-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/sot-plan-board-ui.test.js",
+      "hash": "79c35b97",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/sot-plan-service.test.js",
+      "type": "test",
+      "path": "tests/unit/sot-plan-service.test.js",
+      "hash": "4a8dabec",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/sot-plan-status.test.js",
+      "type": "test",
+      "path": "tests/unit/sot-plan-status.test.js",
+      "hash": "ae9979b4",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/strategies.test.js",
       "type": "test",
       "path": "tests/unit/strategies.test.js",
@@ -13185,6 +13501,48 @@
     {
       "from": "code:src/app/(pm)/platform/integrations/page.jsx",
       "to": "req:SEC-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+      "to": "req:FR-097",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+      "to": "req:FR-096",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
+      "to": "req:FR-095",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -15488,6 +15846,83 @@
     {
       "from": "code:src/app/api/platform/integrations/route.js",
       "to": "req:SEC-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+      "to": "req:FR-096",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/sot/decisions/export/route.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/sot/decisions/export/route.js",
+      "to": "req:FR-096",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/sot/decisions/route.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/sot/decisions/route.js",
+      "to": "req:FR-096",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/sot/decisions/route.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/sot/plan/route.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/sot/plan/route.js",
+      "to": "req:FR-095",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/sot/plan/route.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/sot/plan/route.js",
+      "to": "req:FR-097",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -18608,6 +19043,104 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/integration/application/sot-decision-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-decision-service.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-decision-service.js",
+      "to": "req:FR-096",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-decision-service.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-pipeline-graph.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-pipeline-graph.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-pipeline-graph.js",
+      "to": "req:FR-097",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-plan-service.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-plan-service.js",
+      "to": "req:FR-095",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-plan-service.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-plan-service.js",
+      "to": "req:FR-097",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-plan.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-plan.js",
+      "to": "req:FR-095",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/application/sot-plan.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/business-contract.js",
       "to": "req:FR-047",
       "type": "implements",
@@ -19058,6 +19591,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-096",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -21737,6 +22277,13 @@
       "source": "charter"
     },
     {
+      "from": "model:SotDecision",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:SyncCursor",
       "to": "domain:integration",
       "type": "owned_by",
@@ -23599,6 +24146,34 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/platform/sot/decisions/[decisionId]/decide",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/sot/decisions/export",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/sot/decisions",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/sot/plan",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/platform/users",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -23922,6 +24497,27 @@
     },
     {
       "from": "route:page:/platform/integrations",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/platform/sot-pipeline/graph",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/platform/sot-pipeline/inbox",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/platform/sot-pipeline",
       "to": "domain:integration",
       "type": "owned_by",
       "status": "current",
@@ -25267,6 +25863,48 @@
     {
       "from": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
       "to": "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "to": "req:FR-095",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "to": "req:FR-096",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "to": "req:FR-097",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "to": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "to": "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
       "type": "relates",
       "status": "current",
       "source": "control-block"
@@ -27128,6 +27766,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -28466,6 +29111,13 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-096",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -32897,6 +33549,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-096",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -38306,6 +38965,167 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/sot-decision-service.test.js",
+      "to": "code:src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-decision-service.test.js",
+      "to": "code:src/app/api/platform/sot/decisions/export/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-decision-service.test.js",
+      "to": "code:src/app/api/platform/sot/decisions/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-decision-service.test.js",
+      "to": "code:src/modules/integration/application/sot-decision-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-decision-service.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sot-decision-service.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-decision-service.test.js",
+      "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-inbox-ui.test.js",
+      "to": "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-inbox-ui.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-pipeline-graph.test.js",
+      "to": "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-pipeline-graph.test.js",
+      "to": "code:src/modules/integration/application/sot-pipeline-graph.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-pipeline-graph.test.js",
+      "to": "req:FR-040",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-pipeline-graph.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/sot-pipeline-graph.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-plan-board-ui.test.js",
+      "to": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-plan-board-ui.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-plan-service.test.js",
+      "to": "code:src/app/api/platform/sot/plan/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-plan-service.test.js",
+      "to": "code:src/modules/integration/application/sot-plan-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-plan-service.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-plan-service.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-plan-status.test.js",
+      "to": "code:src/modules/integration/application/sot-plan.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/sot-plan-status.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-plan-status.test.js",
+      "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/strategies.test.js",
       "to": "code:src/modules/project-manager/progress/strategies.js",
       "type": "tests",
@@ -38656,14 +39476,5 @@
       "source": "test-reference"
     }
   ],
-  "dangling_edges": [
-    {
-      "from": "model:SotDecision",
-      "to": "domain:integration",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter",
-      "reason": "unknown node model:SotDecision"
-    }
-  ]
+  "dangling_edges": []
 }
