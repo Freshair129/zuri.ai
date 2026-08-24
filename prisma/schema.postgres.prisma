@@ -61,6 +61,7 @@ model Tenant {
   deadLetterRecords         DeadLetterRecord[]
   pipelineRuns              PipelineRun[]
   sotDecisions              SotDecision[]
+  sotDataPlaneKeys          SotDataPlaneKey[]
 
   @@index([portfolioId])
 }
@@ -1582,4 +1583,31 @@ model SotDecision {
   @@index([businessId, status])
   @@index([phaseId, status])
   @@index([updatedAt])
+}
+
+// @req FR-102 — a bearer credential scoped to exactly one Tenant lets the SoT
+// pipeline's external data plane authenticate to the FR-100 decision
+// submit/export endpoints without a browser session and without a Person
+// identity. The raw secret exists only at mint time; only its SHA-256 hash is
+// ever persisted, and a revoked key is refused immediately (no session grace
+// period, unlike Session — a leaked non-interactive credential has no user to
+// notice and log out).
+// @spec ADR-047, SEC-019
+// @tested tests/unit/sot-data-plane-auth.test.js
+model SotDataPlaneKey {
+  id           String    @id @default(uuid())
+  label        String
+  tenantId     String
+  keyHash      String    @unique
+  keyPrefix    String
+  status       String    @default("ACTIVE")
+  createdAt    DateTime  @default(now())
+  revokedAt    DateTime?
+  revokeReason String?
+  lastUsedAt   DateTime?
+  version      Int       @default(1)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status])
 }

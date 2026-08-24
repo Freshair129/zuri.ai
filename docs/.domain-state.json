@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-24T10:22:40.950Z",
+  "generatedAt": "2026-08-24T11:35:09.686Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 32,
+    "gapCount": 35,
     "gaps": [
       {
         "domain": "agent",
@@ -227,6 +227,25 @@
         ]
       },
       {
+        "domain": "identity",
+        "id": "REQ-FR-102",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-102 is partial",
+        "evidence": [
+          "src/modules/identity/sot-data-plane-auth.js",
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/integration/sot-decisions-route.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/mint-sot-data-plane-key-cli.test.js",
+          "tests/unit/sot-data-plane-auth.test.js",
+          "tests/unit/sot-data-plane-key-migration.test.js",
+          "tests/unit/sot-decision-service.test.js",
+          "tests/unit/viewer-authority.test.js"
+        ]
+      },
+      {
         "domain": "integration",
         "id": "CONTRACT-001",
         "severity": "medium",
@@ -272,7 +291,9 @@
           "src/modules/integration/application/sot-decision-service.js",
           "tests/integration/backup.test.js",
           "tests/integration/fr075-restore-authorization.test.js",
+          "tests/integration/sot-decisions-route.test.js",
           "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/sot-data-plane-auth.test.js",
           "tests/unit/sot-decision-service.test.js",
           "tests/unit/sot-inbox-ui.test.js"
         ]
@@ -290,6 +311,25 @@
           "src/modules/integration/application/sot-plan-service.js",
           "tests/unit/sot-pipeline-graph.test.js",
           "tests/unit/sot-plan-service.test.js"
+        ]
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-102",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-102 is partial",
+        "evidence": [
+          "src/modules/integration/application/sot-decision-service.js",
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/integration/sot-decisions-route.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/mint-sot-data-plane-key-cli.test.js",
+          "tests/unit/sot-data-plane-auth.test.js",
+          "tests/unit/sot-data-plane-key-migration.test.js",
+          "tests/unit/sot-decision-service.test.js",
+          "tests/unit/viewer-authority.test.js"
         ]
       },
       {
@@ -460,9 +500,30 @@
           "src/modules/project-manager/application/backup-service.js",
           "tests/integration/backup.test.js",
           "tests/integration/fr075-restore-authorization.test.js",
+          "tests/integration/sot-decisions-route.test.js",
           "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/sot-data-plane-auth.test.js",
           "tests/unit/sot-decision-service.test.js",
           "tests/unit/sot-inbox-ui.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-102",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-102 is partial",
+        "evidence": [
+          "src/modules/project-manager/application/backup-service.js",
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/integration/sot-decisions-route.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/mint-sot-data-plane-key-cli.test.js",
+          "tests/unit/sot-data-plane-auth.test.js",
+          "tests/unit/sot-data-plane-key-migration.test.js",
+          "tests/unit/sot-decision-service.test.js",
+          "tests/unit/viewer-authority.test.js"
         ]
       }
     ]
@@ -1239,6 +1300,25 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 8
+        },
+        {
+          "id": "FR-102",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 9,
+          "evidence": [
+            "src/modules/identity/sot-data-plane-auth.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/mint-sot-data-plane-key-cli.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-data-plane-key-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/viewer-authority.test.js"
+          ]
         }
       ],
       "checks": {
@@ -1304,8 +1384,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 8,
-            "present": 8
+            "models": 9,
+            "present": 9
           }
         },
         "authorization": {
@@ -1350,6 +1430,7 @@
         "docs/domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md",
         "docs/domains/identity/features/FR-076-product-owner-business-assignment.md",
         "docs/domains/identity/features/FR-094-production-iam-boundary.md",
+        "docs/domains/identity/features/FR-102-sot-data-plane-service-account.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1407,14 +1488,32 @@
             "tests/unit/line-binding-resolver.test.js",
             "tests/unit/line-channel-binding.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-102",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-102 is partial",
+          "evidence": [
+            "src/modules/identity/sot-data-plane-auth.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/mint-sot-data-plane-key-cli.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-data-plane-key-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/viewer-authority.test.js"
+          ]
         }
       ],
       "details": {
         "routes": 3,
         "apiRoutes": 1,
         "pageRoutes": 2,
-        "ownedModels": 8,
-        "featureNotes": 10
+        "ownedModels": 9,
+        "featureNotes": 11
       }
     },
     "integration": {
@@ -1492,7 +1591,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 5,
+          "testCount": 7,
           "evidence": [
             "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
             "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
@@ -1501,7 +1600,9 @@
             "src/modules/integration/application/sot-decision-service.js",
             "tests/integration/backup.test.js",
             "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
             "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/sot-inbox-ui.test.js"
           ]
@@ -1519,6 +1620,25 @@
             "src/modules/integration/application/sot-plan-service.js",
             "tests/unit/sot-pipeline-graph.test.js",
             "tests/unit/sot-plan-service.test.js"
+          ]
+        },
+        {
+          "id": "FR-102",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 9,
+          "evidence": [
+            "src/modules/integration/application/sot-decision-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/mint-sot-data-plane-key-cli.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-data-plane-key-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/viewer-authority.test.js"
           ]
         }
       ],
@@ -1678,7 +1798,9 @@
             "src/modules/integration/application/sot-decision-service.js",
             "tests/integration/backup.test.js",
             "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
             "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/sot-inbox-ui.test.js"
           ]
@@ -1695,6 +1817,24 @@
             "src/modules/integration/application/sot-plan-service.js",
             "tests/unit/sot-pipeline-graph.test.js",
             "tests/unit/sot-plan-service.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-102",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-102 is partial",
+          "evidence": [
+            "src/modules/integration/application/sot-decision-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/mint-sot-data-plane-key-cli.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-data-plane-key-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/viewer-authority.test.js"
           ]
         }
       ],
@@ -2495,14 +2635,35 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 5,
+          "testCount": 7,
           "evidence": [
             "src/modules/project-manager/application/backup-service.js",
             "tests/integration/backup.test.js",
             "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
             "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/sot-inbox-ui.test.js"
+          ]
+        },
+        {
+          "id": "FR-102",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 9,
+          "evidence": [
+            "src/modules/project-manager/application/backup-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/mint-sot-data-plane-key-cli.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-data-plane-key-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/viewer-authority.test.js"
           ]
         }
       ],
@@ -2774,9 +2935,29 @@
             "src/modules/project-manager/application/backup-service.js",
             "tests/integration/backup.test.js",
             "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
             "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/sot-inbox-ui.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-102",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-102 is partial",
+          "evidence": [
+            "src/modules/project-manager/application/backup-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/mint-sot-data-plane-key-cli.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-data-plane-key-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/viewer-authority.test.js"
           ]
         }
       ],

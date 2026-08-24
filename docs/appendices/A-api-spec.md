@@ -2,12 +2,16 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.18.0b |
+| **Version** | 1.20.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-08-23 |
+| **Last Updated** | 2026-08-24 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
-seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass
+seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Two
+endpoints additionally accept a non-interactive `Authorization: Bearer sdpk_...` FR-102
+data-plane key, checked before the session seam and scoped to exactly one tenantId —
+`POST /api/platform/sot/decisions` and `GET /api/platform/sot/decisions/export`; no other
+route accepts this header.
 Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
@@ -156,9 +160,9 @@ not publish Customers, replay LINE traffic or accept free-text PII notes.
 | POST | `/api/platform/customer-import-reviews/[caseId]/decisions` | append one decision per held item with optimistic `expectedVersion`; actions are `CREATE_SEPARATE`, `LINK_EXISTING`, `REJECT` or `DEFER`; requires `customer.import.review.decide` |
 | GET | `/api/platform/sot/plan` | SoT pipeline plan with per-phase status derived from FR-071 run evidence + FR-100 pending counts, plus the FR-101 graph projection; viewer must see the Business (FR-099) |
 | GET | `/api/platform/sot/decisions` | list SoT decisions (default filterable to PENDING) scoped to the viewer's visible Business (FR-100) |
-| POST | `/api/platform/sot/decisions` | data-plane batch submit of pending decisions; installation-operator only, idempotent by canonical payload hash, changed payloads open a new decisionVersion (FR-100) |
+| POST | `/api/platform/sot/decisions` | data-plane batch submit of pending decisions; installation-operator or an FR-102 data-plane key bound to the submitted tenantId, idempotent by canonical payload hash, changed payloads open a new decisionVersion (FR-100, FR-102) |
 | POST | `/api/platform/sot/decisions/[decisionId]/decide` | approve or reject one PENDING decision; owner/operator authority, audited, immutable once decided (FR-100) |
-| GET | `/api/platform/sot/decisions/export` | pull decided rows in stable (updatedAt,id) cursor order for the data plane to apply to its own stores; installation-operator only (FR-100, ADR-046) |
+| GET | `/api/platform/sot/decisions/export` | pull decided rows in stable (updatedAt,id) cursor order for the data plane to apply to its own stores; installation-operator or an FR-102 data-plane key bound to the queried tenantId (FR-100, FR-102, ADR-046) |
 
 The decision endpoint is append-only and actor-bound. `CUSTOMER_DATA_REVIEWER`
 is a separate Business-scoped role; Product Owner, platform authority and
@@ -337,6 +341,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.20.0b | 2026-08-24 | candidate | FR-102: `POST /api/platform/sot/decisions` and `GET /api/platform/sot/decisions/export` now also accept a Tenant-bound FR-102 data-plane bearer key ahead of the session seam; route handler count remains 88 | working-tree | Claude Fable 5 |
 | 1.18.0b | 2026-08-23 | candidate | Added the scoped PM MCP work read/status loop after PlanEnvelope commit; route handler count remains 84 | working-tree | ATHER |
 | 1.19.0b | 2026-08-24 | candidate | FEAT-011 SoT Pipeline Console: four /api/platform/sot handlers (plan, decisions list+submit, decide, export); route handler count 84 → 88 | working-tree | Claude Fable 5 |
 | 1.17.0b | 2026-08-22 | candidate | Replaced credential-free session login with `/api/auth/login` and `/api/auth/logout`, signed sessions, and updated the handler count to 84 | working-tree | ATHER |

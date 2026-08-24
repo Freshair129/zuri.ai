@@ -3,13 +3,13 @@ import { z } from 'zod'
 
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
-import { isInstallationOperator, ownsBusiness, ownsTenant, seesBusiness } from '@/modules/identity/viewer-authority'
+import { isInstallationOperator, isSotDataPlaneFor, ownsBusiness, ownsTenant, seesBusiness } from '@/modules/identity/viewer-authority'
 
 // @req FR-100 — one generic decision queue: the data plane submits pending
 // facts (idempotent, payload-hash versioned), a human decides in the browser
 // (audited, immutable rows), and the data plane pulls decided rows by cursor.
 // zuri-ai never writes into DuckDB or the graph (ADR-043 interim boundary).
-// @spec FR-100, BR-002, SEC-002
+// @spec FR-100, FR-102, BR-002, SEC-002
 // @tested tests/unit/sot-decision-service.test.js
 
 export const SOT_DECISION_TYPES = Object.freeze(['PRICE_ROW', 'ENTITY', 'FILE_CLASSIFICATION', 'PHASE_GATE'])
@@ -23,6 +23,19 @@ function serviceError(status, message) {
 
 function requireOperator(viewer) {
   if (!isInstallationOperator(viewer)) throw serviceError(403, 'SoT decision submission requires an installation operator')
+}
+
+/**
+ * @req FR-102 — the two data-plane verbs (submit, export) accept either a
+ * human installation operator (unchanged) or a service-account viewer whose
+ * key is bound to exactly this tenantId. Deciding stays operator/owner-only
+ * (`requireDecider`) and listing stays visibility-scoped (`requireVisible`) —
+ * a data-plane key is not a substitute for either.
+ */
+function requireDataPlane(viewer, tenantId) {
+  if (isInstallationOperator(viewer)) return
+  if (isSotDataPlaneFor(viewer, tenantId)) return
+  throw serviceError(403, 'SoT decision submission requires an installation operator or an authorized data-plane key for this tenant')
 }
 
 function requireDecider(viewer, row) {
@@ -85,8 +98,8 @@ function decisionSummary(row) {
 }
 
 export async function submitSotDecisions(input, { viewer, db = prisma } = {}) {
-  requireOperator(viewer)
   const parsed = zSotDecisionSubmit.parse(input)
+  requireDataPlane(viewer, parsed.tenantId)
   const results = []
   for (const item of parsed.items) {
     const payloadSha256 = hashSotPayload(item.payload)
@@ -205,8 +218,8 @@ function decodeCursor(cursor) {
 
 /** The data plane's pull: decided rows in stable (updatedAt, id) order. */
 export async function exportSotDecisions(query, { viewer, db = prisma } = {}) {
-  requireOperator(viewer)
   const parsed = zExportQuery.parse(query)
+  requireDataPlane(viewer, parsed.tenantId)
   const after = parsed.since ? decodeCursor(parsed.since) : null
   const rows = await db.sotDecision.findMany({
     where: {

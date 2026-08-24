@@ -14,6 +14,7 @@ owns_models:
   - PasswordResetToken
   - Session
   - ChannelIdentity
+  - SotDataPlaneKey
 ---
 
 # Domain charter — identity
@@ -43,6 +44,7 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
   model and tool scope values cannot widen this context.
 - `Session` is live request authority; a signed cookie without an active,
   unexpired Session row is not authenticated in the persisted runtime.
+- `resolveSotDataPlaneViewer` (FR-102) is a second, narrower request identity: a `SotDataPlaneKey` bearer token scoped to one Tenant, used only by the two FR-100 SoT decision submit/export routes for the external data plane. It never produces an `isOperator` or Person-shaped viewer and is checked ahead of, not instead of, the session seam.
 - The viewer's authority questions have one answer each, and none of them is
   the global `role` label: **may I write here** → `ownedBusinessIds` (FR-059),
   **which domains may I see here** → `domainsForBusiness(viewer, businessId)`

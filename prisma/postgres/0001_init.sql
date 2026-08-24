@@ -1114,6 +1114,46 @@ CREATE TABLE "MarketObservation" (
     CONSTRAINT "MarketObservation_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "SotDecision" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT,
+    "decisionType" TEXT NOT NULL,
+    "subjectRef" TEXT NOT NULL,
+    "phaseId" TEXT,
+    "payloadJson" TEXT NOT NULL DEFAULT '{}',
+    "payloadSha256" TEXT NOT NULL,
+    "decisionVersion" INTEGER NOT NULL DEFAULT 1,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "submittedBy" TEXT,
+    "decidedByPersonId" TEXT,
+    "reason" TEXT,
+    "auditEventId" TEXT,
+    "decidedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "SotDecision_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SotDataPlaneKey" (
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "keyHash" TEXT NOT NULL,
+    "keyPrefix" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "revokedAt" TIMESTAMP(3),
+    "revokeReason" TEXT,
+    "lastUsedAt" TIMESTAMP(3),
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "SotDataPlaneKey_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Portfolio_code_key" ON "Portfolio"("code");
 
@@ -1669,6 +1709,27 @@ CREATE INDEX "MarketObservation_rawRecordId_idx" ON "MarketObservation"("rawReco
 -- CreateIndex
 CREATE INDEX "MarketObservation_canonicalProductRef_idx" ON "MarketObservation"("canonicalProductRef");
 
+-- CreateIndex
+CREATE INDEX "SotDecision_tenantId_status_decisionType_idx" ON "SotDecision"("tenantId", "status", "decisionType");
+
+-- CreateIndex
+CREATE INDEX "SotDecision_businessId_status_idx" ON "SotDecision"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "SotDecision_phaseId_status_idx" ON "SotDecision"("phaseId", "status");
+
+-- CreateIndex
+CREATE INDEX "SotDecision_updatedAt_idx" ON "SotDecision"("updatedAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SotDecision_tenantId_decisionType_subjectRef_decisionVersio_key" ON "SotDecision"("tenantId", "decisionType", "subjectRef", "decisionVersion");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SotDataPlaneKey_keyHash_key" ON "SotDataPlaneKey"("keyHash");
+
+-- CreateIndex
+CREATE INDEX "SotDataPlaneKey_tenantId_status_idx" ON "SotDataPlaneKey"("tenantId", "status");
+
 -- AddForeignKey
 ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -2004,4 +2065,13 @@ ALTER TABLE "DeadLetterRecord" ADD CONSTRAINT "DeadLetterRecord_ingestionRunId_f
 
 -- AddForeignKey
 ALTER TABLE "DeadLetterRecord" ADD CONSTRAINT "DeadLetterRecord_rawRecordId_fkey" FOREIGN KEY ("rawRecordId") REFERENCES "RawExternalRecord"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SotDecision" ADD CONSTRAINT "SotDecision_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SotDecision" ADD CONSTRAINT "SotDecision_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SotDataPlaneKey" ADD CONSTRAINT "SotDataPlaneKey_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 

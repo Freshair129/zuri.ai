@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { resolveViewer } from '@/modules/identity/resolve-viewer'
-import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
+import { isSotDataPlaneFor, ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
 
 // @req FR-059, FR-038, FR-036 — one predicate for "may this viewer act here".
 // @spec SEC-001, SEC-008
@@ -92,5 +92,31 @@ describe('a platform DEV writes nothing', () => {
     expect(some).toBeTruthy()
     expect(seesBusiness(viewer, some)).toBe(true)
     expect(ownsBusiness(viewer, some)).toBe(false)
+  })
+})
+
+// @req FR-102 — the SoT data-plane service-account viewer is a distinct
+// identity shape from resolveViewer's Person-based one (no ownedBusinessIds,
+// no role): a service account is not a person acting on their own behalf, and
+// giving it that shape would let it accidentally satisfy ownsBusiness/
+// isInstallationOperator through fields it never intentionally set.
+describe('isSotDataPlaneFor answers "is this the SoT data plane, for this Tenant"', () => {
+  const dataPlaneViewer = (tenantId) => ({ isSotDataPlane: true, tenantId, serviceAccountId: 'sdpk-1' })
+
+  it('is satisfied only when the key\'s bound tenant matches the request\'s tenant', () => {
+    expect(isSotDataPlaneFor(dataPlaneViewer('t-1'), 't-1')).toBe(true)
+    expect(isSotDataPlaneFor(dataPlaneViewer('t-1'), 't-2')).toBe(false)
+  })
+
+  it('is never satisfied by an ordinary Person viewer, however privileged', () => {
+    expect(isSotDataPlaneFor({ isOperator: true, role: 'DEV' }, 't-1')).toBe(false)
+    expect(isSotDataPlaneFor({ role: 'OWNER', ownedBusinessIds: ['t-1'] }, 't-1')).toBe(false)
+  })
+
+  it('fails closed', () => {
+    for (const viewer of [undefined, null, {}, { isSotDataPlane: false, tenantId: 't-1' }]) {
+      expect(isSotDataPlaneFor(viewer, 't-1')).toBe(false)
+    }
+    expect(isSotDataPlaneFor(dataPlaneViewer('t-1'), undefined)).toBe(false)
   })
 })

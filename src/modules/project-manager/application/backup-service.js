@@ -83,6 +83,10 @@ const SNAPSHOT_MODELS = [
   // so it restores after them and deletes before them, alongside the pipeline
   // evidence it gates.
   'sotDecision',
+  // @req FR-102 — a data-plane key hangs off Tenant only; like session/
+  // personCredential above, only its hash restores, never the raw secret,
+  // which the model never persists in the first place.
+  'sotDataPlaneKey',
   'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message', 'auditEvent',
 ]
 
