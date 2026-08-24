@@ -237,8 +237,8 @@ ratchet checks declared zero FRs between them, and `scripts/assert-tests-ran.mjs
 — added for exactly this class of failure — carries no `@req` at all. An FR is a
 precise system behavior of the *product*; this is an enforcement of a governance
 contract. Burning `FR-094` on a build script, in a change whose entire subject is
-that keys are precious, would be the wrong lesson. The next free ids remain
-`FR-094`, `NFR-019`, `BR-020`, `SEC-018`, `SDD-052`, `FEAT-010`.
+that keys are precious, would be the wrong lesson. The next free ids at the time were
+`FR-094`, `NFR-019`, `BR-020`, `SEC-018`, `SDD-052`, `FEAT-010` — since spent on real product work.
 
 **D11 — The writer is never part of `govern`.** `npm run docs:ids` is run by a
 human. A writer inside the gate is a gate that silences itself: the run that

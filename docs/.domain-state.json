@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-23T00:49:48.726Z",
+  "generatedAt": "2026-08-24T10:22:40.950Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 26,
+    "gapCount": 32,
     "gaps": [
       {
         "domain": "agent",
@@ -227,6 +227,72 @@
         ]
       },
       {
+        "domain": "integration",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "integration",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-099",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-099 is partial",
+        "evidence": [
+          "src/app/(pm)/platform/sot-pipeline/page.jsx",
+          "src/app/api/platform/sot/plan/route.js",
+          "src/modules/integration/application/sot-pipeline-graph.js",
+          "src/modules/integration/application/sot-plan-service.js",
+          "src/modules/integration/application/sot-plan.js",
+          "tests/unit/sot-pipeline-graph.test.js",
+          "tests/unit/sot-plan-board-ui.test.js",
+          "tests/unit/sot-plan-service.test.js",
+          "tests/unit/sot-plan-status.test.js"
+        ]
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-100",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-100 is partial",
+        "evidence": [
+          "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+          "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+          "src/app/api/platform/sot/decisions/export/route.js",
+          "src/app/api/platform/sot/decisions/route.js",
+          "src/modules/integration/application/sot-decision-service.js",
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/sot-decision-service.test.js",
+          "tests/unit/sot-inbox-ui.test.js"
+        ]
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-101",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-101 is partial",
+        "evidence": [
+          "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+          "src/app/api/platform/sot/plan/route.js",
+          "src/modules/integration/application/sot-pipeline-graph.js",
+          "src/modules/integration/application/sot-plan-service.js",
+          "tests/unit/sot-pipeline-graph.test.js",
+          "tests/unit/sot-plan-service.test.js"
+        ]
+      },
+      {
         "domain": "knowledge",
         "id": "CONTRACT-001",
         "severity": "medium",
@@ -382,6 +448,21 @@
           "tests/unit/domain-navigation.test.js",
           "tests/unit/fr045-api-ui-contract.test.js",
           "tests/unit/fr091-inbox-ui-contract.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-100",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-100 is partial",
+        "evidence": [
+          "src/modules/project-manager/application/backup-service.js",
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/sot-decision-service.test.js",
+          "tests/unit/sot-inbox-ui.test.js"
         ]
       }
     ]
@@ -596,7 +677,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 84,
+            "openApiPaths": 88,
             "missingFromOpenApi": 0
           }
         },
@@ -1183,7 +1264,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 84,
+            "openApiPaths": 88,
             "missingFromOpenApi": 0
           }
         },
@@ -1337,7 +1418,7 @@
       }
     },
     "integration": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-028",
@@ -1387,6 +1468,58 @@
           "status": "verified",
           "codeCount": 7,
           "testCount": 12
+        },
+        {
+          "id": "FR-099",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 4,
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/page.jsx",
+            "src/app/api/platform/sot/plan/route.js",
+            "src/modules/integration/application/sot-pipeline-graph.js",
+            "src/modules/integration/application/sot-plan-service.js",
+            "src/modules/integration/application/sot-plan.js",
+            "tests/unit/sot-pipeline-graph.test.js",
+            "tests/unit/sot-plan-board-ui.test.js",
+            "tests/unit/sot-plan-service.test.js",
+            "tests/unit/sot-plan-status.test.js"
+          ]
+        },
+        {
+          "id": "FR-100",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 5,
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+            "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+            "src/app/api/platform/sot/decisions/export/route.js",
+            "src/app/api/platform/sot/decisions/route.js",
+            "src/modules/integration/application/sot-decision-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/sot-inbox-ui.test.js"
+          ]
+        },
+        {
+          "id": "FR-101",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 4,
+          "testCount": 2,
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+            "src/app/api/platform/sot/plan/route.js",
+            "src/modules/integration/application/sot-pipeline-graph.js",
+            "src/modules/integration/application/sot-plan-service.js",
+            "tests/unit/sot-pipeline-graph.test.js",
+            "tests/unit/sot-plan-service.test.js"
+          ]
         }
       ],
       "checks": {
@@ -1397,8 +1530,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
+            "routes": 4,
+            "inventoried": 4,
             "missing": 0
           }
         },
@@ -1410,9 +1543,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 2,
-            "inventoried": 2,
-            "openApiPaths": 84,
+            "routes": 6,
+            "inventoried": 6,
+            "openApiPaths": 88,
             "missingFromOpenApi": 0
           }
         },
@@ -1427,12 +1560,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -1446,8 +1585,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 8,
-            "present": 8
+            "models": 9,
+            "present": 9
           }
         },
         "authorization": {
@@ -1457,18 +1596,24 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 2,
-            "guardedMutations": 2,
-            "reads": 2,
+            "mutations": 4,
+            "guardedMutations": 4,
+            "reads": 5,
             "unguardedReads": 0
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -1479,6 +1624,9 @@
         "docs/domains/integration/features/FR-079-phase1-line-runtime-connection-cutover.md",
         "docs/domains/integration/features/FR-080-integration-secret-management-ui.md",
         "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
+        "docs/domains/integration/features/FR-099-sot-pipeline-plan-board.md",
+        "docs/domains/integration/features/FR-100-sot-approval-inbox.md",
+        "docs/domains/integration/features/FR-101-sot-pipeline-graph-dashboard.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1487,13 +1635,75 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-099",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-099 is partial",
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/page.jsx",
+            "src/app/api/platform/sot/plan/route.js",
+            "src/modules/integration/application/sot-pipeline-graph.js",
+            "src/modules/integration/application/sot-plan-service.js",
+            "src/modules/integration/application/sot-plan.js",
+            "tests/unit/sot-pipeline-graph.test.js",
+            "tests/unit/sot-plan-board-ui.test.js",
+            "tests/unit/sot-plan-service.test.js",
+            "tests/unit/sot-plan-status.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-100",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-100 is partial",
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+            "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+            "src/app/api/platform/sot/decisions/export/route.js",
+            "src/app/api/platform/sot/decisions/route.js",
+            "src/modules/integration/application/sot-decision-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/sot-inbox-ui.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-101",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-101 is partial",
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+            "src/app/api/platform/sot/plan/route.js",
+            "src/modules/integration/application/sot-pipeline-graph.js",
+            "src/modules/integration/application/sot-plan-service.js",
+            "tests/unit/sot-pipeline-graph.test.js",
+            "tests/unit/sot-plan-service.test.js"
+          ]
+        }
+      ],
       "details": {
-        "routes": 3,
-        "apiRoutes": 2,
-        "pageRoutes": 1,
-        "ownedModels": 8,
-        "featureNotes": 3
+        "routes": 10,
+        "apiRoutes": 6,
+        "pageRoutes": 4,
+        "ownedModels": 9,
+        "featureNotes": 6
       }
     },
     "knowledge": {
@@ -1968,7 +2178,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-041",
@@ -2279,6 +2489,21 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 10
+        },
+        {
+          "id": "FR-100",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 5,
+          "evidence": [
+            "src/modules/project-manager/application/backup-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/sot-inbox-ui.test.js"
+          ]
         }
       ],
       "checks": {
@@ -2304,7 +2529,7 @@
           "details": {
             "routes": 78,
             "inventoried": 78,
-            "openApiPaths": 84,
+            "openApiPaths": 88,
             "missingFromOpenApi": 0
           }
         },
@@ -2538,6 +2763,20 @@
             "tests/unit/domain-navigation.test.js",
             "tests/unit/fr045-api-ui-contract.test.js",
             "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-100",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-100 is partial",
+          "evidence": [
+            "src/modules/project-manager/application/backup-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/sot-inbox-ui.test.js"
           ]
         }
       ],

@@ -312,7 +312,7 @@
 - **Surface:** `/projects/[projectId]/all-work` (page) · `/projects/[projectId]/dependencies` (page) · `/projects/[projectId]/milestones` (page) · `/projects/[projectId]/structure` (page) · `/projects/[projectId]/timeline` (page) · `/api/projects/[id]/dependencies` (api)
 - **Code:** `src/app/(pm)/projects/[projectId]/all-work/page.jsx` · `src/app/(pm)/projects/[projectId]/dependencies/page.jsx` · `src/app/(pm)/projects/[projectId]/layout.jsx` · `src/app/(pm)/projects/[projectId]/milestones/page.jsx` · `src/app/(pm)/projects/[projectId]/structure/page.jsx` · `src/app/(pm)/projects/[projectId]/timeline/page.jsx` · `src/app/api/projects/[id]/dependencies/route.js` · `src/modules/project-manager/application/dependency-service.js` · `src/modules/project-manager/application/project-dependency-map.js` · `src/modules/project-manager/components/ProjectTabs.jsx` · `src/modules/project-manager/components/WorkViewTabs.jsx` · `src/modules/project-manager/views/DependencyMap.jsx` · `src/modules/project-manager/views/WbsCanvas.jsx`
 - **Follows:** BR-001, BR-009, NFR-008, SDD-019, SDD-036, SDD-039, SEC-001, SEC-008
-- **Tests:** `tests/e2e/fr040-project-work.spec.js` · `tests/integration/fr072-dependency-authorization.test.js` · `tests/integration/project-core.test.js` · `tests/unit/authorization-seam-routes.test.js` · `tests/unit/dependency-map-view.test.js` · `tests/unit/project-dependency-map.test.js` · `tests/unit/project-dependency-route.test.js` · `tests/unit/project-dependency-service.test.js` · `tests/unit/project-execution-backpath.test.js` · `tests/unit/project-roadmap-ui.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/route-reachability.test.js` · `tests/unit/wbs-structure.test.js`
+- **Tests:** `tests/e2e/fr040-project-work.spec.js` · `tests/integration/fr072-dependency-authorization.test.js` · `tests/integration/project-core.test.js` · `tests/unit/authorization-seam-routes.test.js` · `tests/unit/dependency-map-view.test.js` · `tests/unit/project-dependency-map.test.js` · `tests/unit/project-dependency-route.test.js` · `tests/unit/project-dependency-service.test.js` · `tests/unit/project-execution-backpath.test.js` · `tests/unit/project-roadmap-ui.test.js` · `tests/unit/project-work-route.test.js` · `tests/unit/route-reachability.test.js` · `tests/unit/sot-pipeline-graph.test.js` · `tests/unit/wbs-structure.test.js`
 
 ### FR-041 — Business Overview renders the selected Business's Projects plus a Business Strategy read model: Roadmap and two or three ordered goal horizons. The service enforces horizon cardinality and viewer/business isolation; roadmap editing and Project links are a follow-up mutation slice.
 
@@ -780,3 +780,30 @@
 - **Code:** `src/modules/agent/action-gate.js` · `src/modules/agent/auth-context.js` · `src/modules/agent/context.js` · `src/modules/agent/tools.js` · `src/modules/identity/authorization-context.js`
 - **Follows:** BR-009, BR-015, BR-020, SDD-009, SDD-030, SDD-052, SEC-013, SEC-018
 - **Tests:** `tests/integration/agent-action-gate.test.js` · `tests/integration/agent-context.test.js` · `tests/integration/agent-multi-principal.test.js` · `tests/integration/agent-tools.test.js` · `tests/integration/iam-authorization.test.js` · `tests/unit/authorization-context.test.js` · `tests/unit/canonical-iam-migration.test.js` · `tests/unit/canonical-iam-runtime-role-cutover.test.js`
+
+### FR-099 — SoT pipeline plan board: the business-wide Source-of-Truth pipeline's phase plan (P0–P10) lives as strict-validated data (`contracts/sot-pipeline-plan.v1.json`) and is rendered at `/platform/sot-pipeline` with status **derived** from FR-071 run evidence plus FR-100 pending-decision counts — `planned/running/blocked/done` is computed by a pure function, never typed in, so the board cannot disagree with the tracking data it reads. Reader surface only; the plan file changes by PR.
+
+- **Feature:** FEAT-011 — SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline
+- **Status:** planned
+- **Surface:** `/platform/sot-pipeline` (page) · `/api/platform/sot/plan` (api)
+- **Code:** `src/app/(pm)/platform/sot-pipeline/page.jsx` · `src/app/api/platform/sot/plan/route.js` · `src/modules/integration/application/sot-pipeline-graph.js` · `src/modules/integration/application/sot-plan-service.js` · `src/modules/integration/application/sot-plan.js`
+- **Follows:** FR-099, FR-101, SEC-002
+- **Tests:** `tests/unit/sot-pipeline-graph.test.js` · `tests/unit/sot-plan-board-ui.test.js` · `tests/unit/sot-plan-service.test.js` · `tests/unit/sot-plan-status.test.js`
+
+### FR-100 — SoT approval inbox and decision export: one tenant/business-scoped `SotDecision` queue (PRICE_ROW, ENTITY, FILE_CLASSIFICATION, PHASE_GATE) that the external data plane **submits** into (idempotent batch, `.strict()` envelope, payload-hash versioning), a human **decides** in the browser (audited, immutable rows, new version to change a decision), and the data plane **pulls** from (`export?since=` cursor) to apply approved facts to its own DuckDB/graph stores — zuri-ai never writes into the retrieval substrate, keeping Tier 1 inside the ADR-043 boundary during the Boss-approved `:8888` interim. Closes the open loop where approvals in `price_approval.csv` reached nothing (17,702 staged price rows, 0 approved in store).
+
+- **Feature:** FEAT-011 — SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline
+- **Status:** planned
+- **Surface:** `/platform/sot-pipeline/inbox` (page) · `/api/platform/sot/decisions/[decisionId]/decide` (api) · `/api/platform/sot/decisions/export` (api) · `/api/platform/sot/decisions` (api)
+- **Code:** `src/app/(pm)/platform/sot-pipeline/inbox/page.jsx` · `src/app/api/platform/sot/decisions/[decisionId]/decide/route.js` · `src/app/api/platform/sot/decisions/export/route.js` · `src/app/api/platform/sot/decisions/route.js` · `src/modules/integration/application/sot-decision-service.js` · `src/modules/project-manager/application/backup-service.js`
+- **Follows:** BR-002, BR-008, FR-100, SDD-023, SEC-002, SEC-008
+- **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/sot-decision-service.test.js` · `tests/unit/sot-inbox-ui.test.js`
+
+### FR-101 — SoT pipeline graph dashboard: `/platform/sot-pipeline/graph` renders the FR-099 plan as read-only nodes and edges (hand-rolled SVG, topological layers, no client graph library) using the same `{nodes, edges}` data shape as FR-040's dependency map, with FR-099's derived status as node state and per-phase pending-decision badges linking into the FR-100 inbox. One API payload feeds both surfaces.
+
+- **Feature:** FEAT-011 — SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline
+- **Status:** planned
+- **Surface:** `/platform/sot-pipeline/graph` (page) · `/api/platform/sot/plan` (api)
+- **Code:** `src/app/(pm)/platform/sot-pipeline/graph/page.jsx` · `src/app/api/platform/sot/plan/route.js` · `src/modules/integration/application/sot-pipeline-graph.js` · `src/modules/integration/application/sot-plan-service.js`
+- **Follows:** FR-099, FR-101
+- **Tests:** `tests/unit/sot-pipeline-graph.test.js` · `tests/unit/sot-plan-service.test.js`

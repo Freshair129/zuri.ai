@@ -7,11 +7,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.82.0b |
+| **Version** | 1.84.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-22 |
+| **Last Updated** | 2026-08-24 |
 | **Approved By** | Boss (documentation gate, 2026-08-17) |
 
 ## Version History
@@ -70,6 +70,8 @@
 | 1.79.0b | 2026-08-20 | ATHER | FR-093/SDD-051 close the gap FR-091 exposed on the day it shipped: no code anywhere had ever written an OUTBOUND message, so the inbox rendered one side of every conversation. The transport owner now posts a delivery receipt naming the inbound message it answered and the text actually sent — which is not always the text this side produced, since the transport substitutes its own fallback when the stack cannot answer. Idempotent per inbound message, scope-checked against the same binding seam as the webhook. Declared as FR-093/SDD-051 rather than FR-092/SDD-050: both were taken by the market-translation slice that merged first, and an id is a key (AGENTS.md §18), so the later declaration renumbers |
 | 1.81.0b | 2026-08-22 | ATHER | FR-046 auth boundary repair: replace credential-free login and seeded-owner fallback with PersonCredential verification, signed expiring HttpOnly sessions, logout, and isolated E2E credentials |
 | 1.82.0b | 2026-08-22 | ATHER | Issue #99 / ADR-045: declare the canonical IAM boundary (FR-094..098, NFR-019, BR-020, SEC-018, SDD-052, FEAT-010) and begin the approved P0 session, Membership lifecycle and shared policy-enforcement slice |
+| 1.83.0b | 2026-08-24 | Claude Fable 5 | Boss-approved SoT Pipeline Console (FEAT-011): FR-099 plan board whose phase status is derived from FR-071 run evidence, FR-100 generic approval inbox with pull-based decision export (Tier-1 never writes into the data plane, ADR-043 interim), FR-101 node/edge status graph reusing the FR-040 data shape. FR-094 is skipped, not free: the unmerged codex/platform-control-roadmap branch claims it, and an id is a key (AGENTS.md §18) |
+| 1.84.0b | 2026-08-24 | Claude Fable 5 | Renumbering: this branch's FR-095/FR-096/FR-097, ADR-045 and FEAT-010 (declared in 1.83.0b above) collided with main's own FR-094..098/ADR-045/FEAT-010 canonical IAM slice (1.82.0b above, merged first). Main is the published trunk, so the later declaration renumbers itself (AGENTS.md §18, the FR-093/SDD-051 precedent): FR-095→FR-099 (SoT pipeline plan board), FR-096→FR-100 (SoT approval inbox and decision export), FR-097→FR-101 (SoT pipeline graph dashboard), ADR-045→ADR-046 (SoT pipeline interim serving and pulled decisions), FEAT-010→FEAT-011 (SoT Pipeline Console). No statement changed, only the numbers |
 | 1.43.0b | 2026-08-15 | ATHER | PR #12 semantic conflict repair: MSP authorization is FR-057/NFR-014/BR-015/SDD-030/SEC-013/ADR-022 while Phase 1 production IDs retain their meanings |
 | 1.44.0b | 2026-08-15 | ATHER | Approved FR-057 API-010 canonical GoVibe/MSP vault resolution; legacy API-009 scopeKey access is explicit compatibility mode only |
 | 1.45.0b | 2026-08-16 | Claude (W0-IDS) | Declared FR-058 (File Manager switchable views) + FR-059 (Business Strategy mutation) + SDD-031/032; FEAT-001 gains FR-058; ids reserved for the parallel development-domain build, not yet implemented |
@@ -259,6 +261,9 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-096 | Shared policy enforcement: Web/API requests, agent turns, actions and tools resolve trusted principal, scope, membership and permission before protected work; payload, prompt, model output and tool arguments cannot widen server-owned authority. | 🟠 Issue #99 Phase 0 P0 |
 | FR-097 | Verified channel onboarding: a valid LINE signature proves transport origin only; a new channel subject remains pending until server-owned linking/onboarding and active Membership authorize private data or staff capability. | 🔜 provider gate |
 | FR-098 | Agent/tool/MSP authorization: every retrieval, action and tool call consumes the immutable shared authorization context, uses only server-resolved resource/vault identifiers, audits denial without secrets or customer content, and fails closed before side effects. | 🟠 Issue #99 Phase 0 P0 |
+| FR-099 | SoT pipeline plan board: the business-wide Source-of-Truth pipeline's phase plan (P0–P10) lives as strict-validated data (`contracts/sot-pipeline-plan.v1.json`) and is rendered at `/platform/sot-pipeline` with status **derived** from FR-071 run evidence plus FR-100 pending-decision counts — `planned/running/blocked/done` is computed by a pure function, never typed in, so the board cannot disagree with the tracking data it reads. Reader surface only; the plan file changes by PR. | 🔜 |
+| FR-100 | SoT approval inbox and decision export: one tenant/business-scoped `SotDecision` queue (PRICE_ROW, ENTITY, FILE_CLASSIFICATION, PHASE_GATE) that the external data plane **submits** into (idempotent batch, `.strict()` envelope, payload-hash versioning), a human **decides** in the browser (audited, immutable rows, new version to change a decision), and the data plane **pulls** from (`export?since=` cursor) to apply approved facts to its own DuckDB/graph stores — zuri-ai never writes into the retrieval substrate, keeping Tier 1 inside the ADR-043 boundary during the Boss-approved `:8888` interim. Closes the open loop where approvals in `price_approval.csv` reached nothing (17,702 staged price rows, 0 approved in store). | 🔜 |
+| FR-101 | SoT pipeline graph dashboard: `/platform/sot-pipeline/graph` renders the FR-099 plan as read-only nodes and edges (hand-rolled SVG, topological layers, no client graph library) using the same `{nodes, edges}` data shape as FR-040's dependency map, with FR-099's derived status as node state and per-phase pending-decision badges linking into the FR-100 inbox. One API payload feeds both surfaces. | 🔜 |
 
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
 > superseded for the operational shell. Home may show Organization/Portfolio ancestry

@@ -204,6 +204,9 @@
     "FR-096",
     "FR-097",
     "FR-098",
+    "FR-099",
+    "FR-100",
+    "FR-101",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -303,6 +306,7 @@
     "FEAT-008",
     "FEAT-009",
     "FEAT-010",
+    "FEAT-011",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -434,6 +438,7 @@
     "ADR-042",
     "ADR-043",
     "ADR-045",
+    "ADR-046",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -1986,6 +1991,45 @@
         }
       ]
     },
+    "FR-099": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1f1a5db382103653b646bdb3e96f4e4514d5dfe9b2af08bdf3220530fbaf6299",
+      "history": [
+        {
+          "anchor": "sot pipeline plan board",
+          "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-100": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "67f9eb74db566b12ea4acf3a59016306ce90bdf6b3c3ad69e61d28c677531ebc",
+      "history": [
+        {
+          "anchor": "sot approval inbox and decision export",
+          "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-101": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0a996d26a8d6c306471617c4fd6559399cc6c49e5718622ef7265658e478f923",
+      "history": [
+        {
+          "anchor": "sot pipeline graph dashboard",
+          "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3283,6 +3327,19 @@
         {
           "anchor": "production identity access management",
           "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-011": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "0b14a49ccd033e3ac734eccc6f75101eb518778e0cc224342de113364fb9539d",
+      "history": [
+        {
+          "anchor": "sot pipeline console",
+          "since": "2026-08-24",
           "reason": "declared"
         }
       ]
@@ -4996,6 +5053,19 @@
         {
           "anchor": "canonical identity and access management boundary",
           "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-046": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md",
+      "status": "current",
+      "statement_digest": "3de120b1744bed960e943e7be68e71eb5e9d18813e8e5d366f4acae5297b6e7e",
+      "history": [
+        {
+          "anchor": "sot pipeline",
+          "since": "2026-08-24",
           "reason": "declared"
         }
       ]

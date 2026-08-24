@@ -1,0 +1,15 @@
+import { handle, queryParams } from '@/app/api/_helpers'
+import { resolveRequestViewer } from '@/modules/identity/request-viewer'
+import { getSotPlanStatus } from '@/modules/integration/application/sot-plan-service'
+
+// @req FR-099 — one viewer-scoped payload for the board and the FR-101 graph.
+// @spec FR-099, FR-101
+// @tested tests/unit/sot-plan-service.test.js
+
+export const dynamic = 'force-dynamic'
+
+export async function GET(request) {
+  return handle(async () => getSotPlanStatus(queryParams(request), {
+    viewer: await resolveRequestViewer(request),
+  }))
+}

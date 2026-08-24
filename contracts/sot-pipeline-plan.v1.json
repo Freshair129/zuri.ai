@@ -1,0 +1,130 @@
+{
+  "planId": "SOT-PIPELINE-PLAN",
+  "version": "1.0.0",
+  "titleTh": "Zuri SoT Pipeline — แผนทีละ step",
+  "phases": [
+    {
+      "phaseId": "P0",
+      "title": "Inventory & completeness",
+      "titleTh": "ตรวจความครบของแหล่งข้อมูล",
+      "summaryTh": "เทียบไฟล์ใน Google Drive กับที่ดึงมาแล้ว รายไฟล์ (ชื่อ+ขนาด+checksum) — ปิดปัญหา \"ดึงไม่ครบ\" ให้ได้ก่อนทุกอย่าง",
+      "kind": "AUTOMATED",
+      "dependsOn": [],
+      "pipelineDefinitionIds": ["DPL-SOT-P0-INVENTORY-V1"]
+    },
+    {
+      "phaseId": "P1",
+      "title": "Zuri Master Data template v1",
+      "titleTh": "แม่แบบข้อมูลหลักของ Zuri",
+      "summaryTh": "นิยาม entity หลักทั้ง 4 ธุรกิจ (Business, Customer, Product, PriceList, Order, Vendor, Person, Task, Meeting) + กติกา ID มาตรฐาน",
+      "kind": "HUMAN_GATE",
+      "dependsOn": ["P0"],
+      "pipelineDefinitionIds": []
+    },
+    {
+      "phaseId": "P2",
+      "title": "Extractors to staging",
+      "titleTh": "สกัดข้อมูลเข้าคิวตรวจ",
+      "summaryTh": "xlsx parsers + ollama OCR/VL สกัดทุก source เข้า staging ทุกแถวอ้างไฟล์และหน้าที่มา",
+      "kind": "AUTOMATED",
+      "dependsOn": ["P1"],
+      "pipelineDefinitionIds": ["DPL-SOT-P2-EXTRACT-V1"]
+    },
+    {
+      "phaseId": "P3",
+      "title": "Approval workflow",
+      "titleTh": "อนุมัติผ่าน zuri-ai",
+      "summaryTh": "ทุก decision (ราคา / entity / ไฟล์) เข้าคิว FR-100 — คนกดอนุมัติจากที่นี่ แล้ว pipeline ดึงผลไปใช้เอง",
+      "kind": "HUMAN_GATE",
+      "dependsOn": ["P2"],
+      "pipelineDefinitionIds": []
+    },
+    {
+      "phaseId": "P4",
+      "title": "Consolidate canonical SoT",
+      "titleTh": "รวมข้อมูล 4 ธุรกิจลง sot.duckdb",
+      "summaryTh": "ข้อมูลที่อนุมัติแล้วลง canonical store เดียว (append-only + provenance)",
+      "kind": "AUTOMATED",
+      "dependsOn": ["P3"],
+      "pipelineDefinitionIds": ["DPL-SOT-P4-CONSOLIDATE-V1"]
+    },
+    {
+      "phaseId": "P5",
+      "title": "Build knowledge graph",
+      "titleTh": "สร้าง Zuri Knowledge Graph",
+      "summaryTh": "duckdb → nodes/edges/embeddings → GenesisBlock store แบบ versioned run + CURRENT + eval gate",
+      "kind": "AUTOMATED",
+      "dependsOn": ["P4"],
+      "pipelineDefinitionIds": ["DPL-SOT-P5-GRAPH-BUILD-V1"]
+    },
+    {
+      "phaseId": "P6",
+      "title": "Serving + Tailscale",
+      "titleTh": "เปิด service :8888 บน tailnet",
+      "summaryTh": "ขยาย zuri-rag-service (interim ตาม ADR-043) + tailscale serve ให้ทีมเข้าถึงได้ตลอด",
+      "kind": "AUTOMATED",
+      "dependsOn": ["P5"],
+      "pipelineDefinitionIds": ["DPL-SOT-P6-SERVING-V1"]
+    },
+    {
+      "phaseId": "P7",
+      "title": "Wire consumers",
+      "titleTh": "เชื่อมทีม / LINE / FUNG",
+      "summaryTh": "zuri-ai เสียบ adapter ADR-042, LINE agent เพิ่ม tools, FUNG เฟสแรกแบบ file-drop",
+      "kind": "AUTOMATED",
+      "dependsOn": ["P6"],
+      "pipelineDefinitionIds": ["DPL-SOT-P7-CONSUMERS-V1"]
+    },
+    {
+      "phaseId": "P8",
+      "title": "Task history + FUNG write",
+      "titleTh": "ประวัติงาน + FUNG เขียนตรง",
+      "summaryTh": "Task เป็น event ลง SoT ค้นย้อนหลังได้ + FUNG ยิงเข้า /ingest ผ่าน job engine ของมันเอง",
+      "kind": "AUTOMATED",
+      "dependsOn": ["P7"],
+      "pipelineDefinitionIds": ["DPL-SOT-P8-TASKS-V1"]
+    },
+    {
+      "phaseId": "P9",
+      "title": "Visual pipeline dashboard",
+      "titleTh": "แดชบอร์ดกราฟ node/edge",
+      "summaryTh": "หน้ากราฟสถานะสดของทั้งเส้นใน zuri-ai (FR-101)",
+      "kind": "AUTOMATED",
+      "dependsOn": ["P6"],
+      "pipelineDefinitionIds": []
+    },
+    {
+      "phaseId": "P10",
+      "title": "Automation",
+      "titleTh": "เดินเครื่องอัตโนมัติ",
+      "summaryTh": "watcher + scheduler + delta ingest + eval monitor — คนเหลือแค่หน้าที่อนุมัติ",
+      "kind": "AUTOMATED",
+      "dependsOn": ["P7", "P8", "P9"],
+      "pipelineDefinitionIds": ["DPL-SOT-P10-AUTOMATION-V1"]
+    }
+  ],
+  "context": {
+    "nodes": [
+      { "id": "src-drive", "type": "source", "title": "Google Drive (4 ธุรกิจ)" },
+      { "id": "src-flowaccount", "type": "source", "title": "FlowAccount export" },
+      { "id": "src-pricelists", "type": "source", "title": "ใบราคา PDF" },
+      { "id": "src-fung", "type": "source", "title": "FUNG สรุปประชุม" },
+      { "id": "store-duckdb", "type": "store", "title": "sot.duckdb" },
+      { "id": "store-zkg", "type": "store", "title": "Zuri Knowledge Graph" },
+      { "id": "consumer-team", "type": "consumer", "title": "ทีม (tailnet)" },
+      { "id": "consumer-line", "type": "consumer", "title": "LINE agent" },
+      { "id": "consumer-fung", "type": "consumer", "title": "FUNG" }
+    ],
+    "edges": [
+      { "id": "e-drive-p0", "source": "src-drive", "target": "P0" },
+      { "id": "e-flow-p2", "source": "src-flowaccount", "target": "P2" },
+      { "id": "e-price-p2", "source": "src-pricelists", "target": "P2" },
+      { "id": "e-fung-p8", "source": "src-fung", "target": "P8" },
+      { "id": "e-p4-duckdb", "source": "P4", "target": "store-duckdb" },
+      { "id": "e-p5-zkg", "source": "P5", "target": "store-zkg" },
+      { "id": "e-p6-team", "source": "P6", "target": "consumer-team" },
+      { "id": "e-p7-line", "source": "P7", "target": "consumer-line" },
+      { "id": "e-p7-fung", "source": "P7", "target": "consumer-fung" }
+    ]
+  }
+}
