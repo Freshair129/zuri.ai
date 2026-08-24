@@ -105,6 +105,7 @@
     "BR-017",
     "BR-018",
     "BR-019",
+    "BR-020",
     "FR-001",
     "FR-002",
     "FR-003",
@@ -198,9 +199,11 @@
     "FR-091",
     "FR-092",
     "FR-093",
+    "FR-094",
     "FR-095",
     "FR-096",
     "FR-097",
+    "FR-098",
     "FR-099",
     "FR-100",
     "FR-101",
@@ -222,6 +225,7 @@
     "NFR-016",
     "NFR-017",
     "NFR-018",
+    "NFR-019",
     "SDD-001",
     "SDD-002",
     "SDD-003",
@@ -273,6 +277,7 @@
     "SDD-049",
     "SDD-050",
     "SDD-051",
+    "SDD-052",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -290,6 +295,7 @@
     "SEC-015",
     "SEC-016",
     "SEC-017",
+    "SEC-018",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -315,6 +321,7 @@
     "RSK-012",
     "RSK-013",
     "RSK-014",
+    "RSK-015",
     "MI-RQ-001",
     "MI-RQ-002",
     "MI-RQ-003",
@@ -690,6 +697,19 @@
         }
       ],
       "statement_digest": "5f5443e36fbf1b37360b0500d94d8ccd2e4788c0a6b2aff29f2fb1f6ca30835f"
+    },
+    "BR-020": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f451553fa9fd8394a2104c9546a9f755a28dfa63afe26df826d4822be41aba52",
+      "history": [
+        {
+          "anchor": "person is the canonical internal principal provider channel",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
     },
     "FR-001": {
       "family": "FR",
@@ -1906,77 +1926,76 @@
       ],
       "statement_digest": "b9ab6cdc4b906607c585a161de2af671fb62c2aa46c3cf45d77d2f58c0eaa236"
     },
+    "FR-094": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d3ebfd15bb3d16979ff1ab946da897ba40df1b9f8c59a010ffbbdccb2e56614f",
+      "history": [
+        {
+          "anchor": "canonical iam principal",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
     "FR-095": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "burnt",
-      "statement_digest": "a106b7e79c7d59e9ddf51322070b06e254278528eab0cf112eb59b5eaee2e770",
+      "status": "current",
+      "statement_digest": "90eef194f72d9bfd6974d18d094f0cefcdfb839b8a6273c655c2e45120b6b494",
       "history": [
         {
-          "anchor": "sot pipeline plan board",
-          "since": "2026-08-24",
+          "anchor": "persisted session lifecycle",
+          "since": "2026-08-22",
           "reason": "declared"
-        },
-        {
-          "anchor": "sot pipeline plan board",
-          "since": "2026-08-24",
-          "reason": "Abandoned before merge; this branch renumbered itself to FR-099. FR-095 collided with main's canonical IAM 'persisted session lifecycle' feature merged in the meantime; same SoT plan-board subject renumbered to the next free id",
-          "declared_in": "docs/PRD-SDD-v1.0.md#1.83.0b"
         }
-      ],
-      "retired_to": "FR-099",
-      "retired_at": "2026-08-24",
-      "reason": "FR-095 collided with main's canonical IAM 'persisted session lifecycle' feature merged in the meantime; same SoT plan-board subject renumbered to the next free id"
+      ]
     },
     "FR-096": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "burnt",
-      "statement_digest": "67f9eb74db566b12ea4acf3a59016306ce90bdf6b3c3ad69e61d28c677531ebc",
+      "status": "current",
+      "statement_digest": "f89ac9fa959fa187dcb845ce3458c30e919d3415f58ab3e3ee582e51c722e513",
       "history": [
         {
-          "anchor": "sot approval inbox and decision export",
-          "since": "2026-08-24",
+          "anchor": "shared policy enforcement",
+          "since": "2026-08-22",
           "reason": "declared"
-        },
-        {
-          "anchor": "sot approval inbox and decision export",
-          "since": "2026-08-24",
-          "reason": "Abandoned before merge; this branch renumbered itself to FR-100. FR-096 collided with main's canonical IAM 'shared policy enforcement' feature merged in the meantime; same SoT approval-inbox subject renumbered to the next free id",
-          "declared_in": "docs/PRD-SDD-v1.0.md#1.83.0b"
         }
-      ],
-      "retired_to": "FR-100",
-      "retired_at": "2026-08-24",
-      "reason": "FR-096 collided with main's canonical IAM 'shared policy enforcement' feature merged in the meantime; same SoT approval-inbox subject renumbered to the next free id"
+      ]
     },
     "FR-097": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "burnt",
-      "statement_digest": "72e9e075e6b21a1840e09ab2ccdccd727983ba56e50cf96f5c76b5ca8dd45c22",
+      "status": "current",
+      "statement_digest": "5b625981c4e2bb30c2370c932800b2444de3f38a9ae63d633a2679eddc9950db",
       "history": [
         {
-          "anchor": "sot pipeline graph dashboard",
-          "since": "2026-08-24",
+          "anchor": "verified channel onboarding",
+          "since": "2026-08-22",
           "reason": "declared"
-        },
-        {
-          "anchor": "sot pipeline graph dashboard",
-          "since": "2026-08-24",
-          "reason": "Abandoned before merge; this branch renumbered itself to FR-101. FR-097 collided with main's canonical IAM 'verified channel onboarding' feature merged in the meantime; same SoT graph-dashboard subject renumbered to the next free id",
-          "declared_in": "docs/PRD-SDD-v1.0.md#1.83.0b"
         }
-      ],
-      "retired_to": "FR-101",
-      "retired_at": "2026-08-24",
-      "reason": "FR-097 collided with main's canonical IAM 'verified channel onboarding' feature merged in the meantime; same SoT graph-dashboard subject renumbered to the next free id"
+      ]
+    },
+    "FR-098": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "2bc4d781aaccb27eee6c9c9f79d7cff0490adaeca6c6d2f70ebb2e5735ebbb22",
+      "history": [
+        {
+          "anchor": "agent tool msp authorization",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
     },
     "FR-099": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "a106b7e79c7d59e9ddf51322070b06e254278528eab0cf112eb59b5eaee2e770",
+      "statement_digest": "1f1a5db382103653b646bdb3e96f4e4514d5dfe9b2af08bdf3220530fbaf6299",
       "history": [
         {
           "anchor": "sot pipeline plan board",
@@ -2244,6 +2263,19 @@
         }
       ],
       "statement_digest": "b99106e6709935ddf8bb893bac13b1d1c3a29885dd3854df6261c3d95a04d565"
+    },
+    "NFR-019": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c3ff12ccf9b850261c2dd2b87cf623f3f3c4e345d046c6376a6fa6868ed3ce74",
+      "history": [
+        {
+          "anchor": "iam decisions are recomputed from trusted server state per",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
     },
     "SDD-001": {
       "family": "SDD",
@@ -2916,6 +2948,19 @@
       ],
       "statement_digest": "d108e955f6c8d313bf5e9855345eb72831f9fc561a113cd8f5b87ec892ddbbdb"
     },
+    "SDD-052": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ded16762a18ffd6f06e8ec34abca1da1544b61068ce55fdc1d94c77062c5e575",
+      "history": [
+        {
+          "anchor": "iam is an identity domain modular monolith boundary",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3143,6 +3188,19 @@
       ],
       "statement_digest": "5f991af3b6a991c88a919e98bae888844052bd9d4a48d7abfa09f2eb451e1409"
     },
+    "SEC-018": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "98f6d04fc3ffee800ba3c751a0fea742347f15355dc96883b991942063f9ff7c",
+      "history": [
+        {
+          "anchor": "iam fails closed on identity session and scope ambiguity",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
     "FEAT-001": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
@@ -3263,23 +3321,15 @@
     "FEAT-010": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
-      "status": "burnt",
-      "statement_digest": "0b14a49ccd033e3ac734eccc6f75101eb518778e0cc224342de113364fb9539d",
+      "status": "current",
+      "statement_digest": "9bb935b3383a623beff503419ac13d0ccb08c2a02b034356e33321808ccf5efe",
       "history": [
         {
-          "anchor": "sot pipeline console",
-          "since": "2026-08-24",
+          "anchor": "production identity access management",
+          "since": "2026-08-22",
           "reason": "declared"
-        },
-        {
-          "anchor": "sot pipeline console",
-          "since": "2026-08-24",
-          "reason": "Abandoned before merge; this branch renumbered itself to FEAT-011. FEAT-010 collided with main's canonical identity and access management feature bundle merged in the meantime; same SoT Pipeline Console bundle renumbered to the next free id"
         }
-      ],
-      "retired_to": "FEAT-011",
-      "retired_at": "2026-08-24",
-      "reason": "FEAT-010 collided with main's canonical identity and access management feature bundle merged in the meantime; same SoT Pipeline Console bundle renumbered to the next free id"
+      ]
     },
     "FEAT-011": {
       "family": "FEAT",
@@ -3477,6 +3527,19 @@
         }
       ],
       "statement_digest": "90a2874c45be189bcb948ff0fc0401d362422eaab0f48be5dd45b7affa854040"
+    },
+    "RSK-015": {
+      "family": "RSK",
+      "source": "docs/appendices/E-risk-matrix.md",
+      "status": "current",
+      "statement_digest": "4904547561ecb2193c24b326205e32e5f3a7944d3e1ad39b283289bc898d2057",
+      "history": [
+        {
+          "anchor": "iam identity session or membership revocation is stale on",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
     },
     "MI-RQ-001": {
       "family": "MI-RQ",
@@ -4965,8 +5028,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-08-24",
-      "statement_digest_reason": "Commit 2cf839d revised ADR-042 to the 6-lane Genesis Retrieval Fabric wording without refreshing the pinned statement digest; this review records that same-subject edit"
+      "statement_digest_reviewed_at": "2026-08-22",
+      "statement_digest_reason": "ADR-042 expanded the same retrieval-service decision to record the six-lane Genesis Retrieval Fabric topology and its query-ir.v1 boundary."
     },
     "ADR-043": {
       "family": "ADR",
@@ -4983,24 +5046,16 @@
     },
     "ADR-045": {
       "family": "ADR",
-      "source": "docs/decisions/ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md",
-      "status": "burnt",
-      "statement_digest": "3de120b1744bed960e943e7be68e71eb5e9d18813e8e5d366f4acae5297b6e7e",
+      "source": "docs/decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md",
+      "status": "current",
+      "statement_digest": "44fade239c6f7de65cffd5e7f1088a87feac0fb3cd6a7b215324b5d4fb20ceb8",
       "history": [
         {
-          "anchor": "sot pipeline",
-          "since": "2026-08-24",
+          "anchor": "canonical identity and access management boundary",
+          "since": "2026-08-22",
           "reason": "declared"
-        },
-        {
-          "anchor": "sot pipeline",
-          "since": "2026-08-24",
-          "reason": "Abandoned before merge; this branch renumbered itself to ADR-046. ADR-045 collided with main's canonical identity and access management decision merged in the meantime; same SoT interim-serving decision renumbered to the next free id"
         }
-      ],
-      "retired_to": "ADR-046",
-      "retired_at": "2026-08-24",
-      "reason": "ADR-045 collided with main's canonical identity and access management decision merged in the meantime; same SoT interim-serving decision renumbered to the next free id"
+      ]
     },
     "ADR-046": {
       "family": "ADR",

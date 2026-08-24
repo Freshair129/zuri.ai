@@ -152,8 +152,8 @@ export async function resolveViewer({
   }
 
   const memberships = await db.membership.findMany({
-    where: { personId: principal.id },
-    select: { tenantId: true, businessId: true, role: true, domainKeysJson: true },
+    where: { personId: principal.id, status: 'ACTIVE' },
+    select: { tenantId: true, businessId: true, role: true, status: true, domainKeysJson: true, version: true },
   })
   const tenantWideIds = unique(memberships.filter((membership) => !membership.businessId).map((membership) => membership.tenantId))
   const tenantBusinesses = tenantWideIds.length

@@ -22,6 +22,7 @@ describe('LineChannelBindingResolver (FR-052)', () => {
       destination: 'U-smartgift-destination',
     })).resolves.toEqual({
       bindingId: env.ZURI_LINE_BINDING_ID,
+      channelAccountId: env.ZURI_LINE_BINDING_ID,
       tenantId: env.ZURI_LINE_BINDING_TENANT_ID,
       businessId: env.ZURI_LINE_BINDING_BUSINESS_ID,
     })

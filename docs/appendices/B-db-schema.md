@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.9.0 |
+| **Version** | 1.10.0 |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-20 |
+| **Last Updated** | 2026-08-22 |
 
 Source of truth: `prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md)
 Conventions: UUID PK · unique human `code` · `createdAt/updatedAt` · `version` บน aggregate
@@ -25,7 +25,9 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | LegalEntity / LegalEntityIdentifier | portfolioId; (country,type,value) unique | external identifier ไม่ใช่ PK (BR-002) |
 | Business | tenantId, legalEntityId? | ธุรกิจปฏิบัติการ |
 | Branch | tenantId, businessId | tenantId ต้องตรงกับ business (tested) |
-| Person / Membership | tenant, business?, branch?, role, domainKeysJson | local identity; MEMBER domain allow-list, OWNER/DEV role grant (FR-038) |
+| Person / Membership | tenant, business?, branch?, role, status, domainKeysJson, version | local canonical identity; only ACTIVE Membership contributes authority; MEMBER domain allow-list, OWNER/DEV role grant (FR-038, FR-094) |
+| Session | personId, tokenHash, status, assurance, expiresAt, revokedAt?, lastSeenAt, version | persisted server-side session authority; cookie/signature is transport only (FR-095) |
+| ChannelIdentity | personId, tenantId, channel, channelAccountId, providerSubject, status, verifiedAt?, linkedAt?, revokedAt?, version | namespaced channel binding; PENDING/ACTIVE/REVOKED lifecycle, additive compatibility contract beside ExternalIdentity (FR-094, FR-097) |
 | RoleBinding | personId, tenantId, businessId, roleKey, scopeType, status, assignedBy, revokedAt | generic Business-scoped RBAC binding; `PRODUCT_OWNER` is the current Product role (FR-076) |
 | Workspace | scopeType (PORTFOLIO/TENANT/BUSINESS) + denormalized ancestor ids | ต้องมี scope ชัดเจน |
 | Project | businessId?, workspaceId, type, status, priority?, picPersonId?, startAt/targetAt | direct Business owner; schema Workspace is Development Space; null owner only for explicit shared work; soft delete. `priority` (FR-087) and `picPersonId` (FR-088) are both nullable at rest — every row predates them, and unset is a state the Dashboard renders honestly rather than defaulting |
@@ -93,6 +95,19 @@ platform and ownership labels do not imply customer-data review authority.
 unique(tenantId, provider, providerSubject) — FR-021: channel/auth identity (LINE user)
 → Person principal, tenant-scoped; personId is a real FK (V2 unified identity into Person,
 ADR-003 §D10, so no polymorphic principal). Distinct from ExternalRef (data mapping).
+
+`ChannelIdentity { personId→Person, tenantId→Tenant, channel, channelAccountId,
+providerSubject, status, verifiedAt?, linkedAt?, revokedAt?, version }` is the
+forward channel binding contract for FR-094/FR-097. The tuple
+`(channel, channelAccountId, providerSubject)` is unique; the channel account is
+the provider namespace, so a subject collision across LINE/OIDC/another channel
+cannot merge principals. Existing `ExternalIdentity` rows remain the compatibility
+source until a separately evidenced migration.
+
+`Session { personId→Person, tokenHash@unique, status, assurance, expiresAt,
+lastSeenAt, revokedAt?, revokeReason?, version }` is the live request authority
+for FR-095. The raw token is never persisted. `ACTIVE` plus unexpired is required;
+logout/revocation changes status and records the reason without storing secrets.
 
 ## CRM slice (FR-023, ADR-007 P2)
 

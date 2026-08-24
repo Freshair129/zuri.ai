@@ -116,6 +116,27 @@ function requirementNodes(prdPath) {
 const ANNOTATION = /@(req|spec|tested|designs)\s+([^\n]*)/g
 const ID_LIST = /(?:FR|NFR|BR|SEC|SDD)-\d{3}/g
 
+// Roadmap status vocabulary. A status cell may carry a qualifier — "done (beta)",
+// "in-progress (local slice; gates pending)" — so match the leading token and
+// allow a trailing parenthetical. That is tight enough that a prose title cell
+// never reads as a status.
+const STATUS_CELL = /^([a-z][a-z-]*)(?:\s*\(.*\))?$/
+const NOT_STARTED = new Set(['planned', 'ready', 'blocked', 'cancelled', 'retired'])
+const STARTED = new Set(['done', 'review', 'assigned', 'in-progress'])
+
+// Whether a roadmap row represents work that has begun. An unrecognised or
+// missing status counts as started, so this only ever withholds a claim it can
+// positively show has not begun.
+function hasStarted(cells) {
+  for (const c of cells) {
+    const token = STATUS_CELL.exec(c.toLowerCase())?.[1]
+    if (!token) continue
+    if (NOT_STARTED.has(token)) return false
+    if (STARTED.has(token)) return true
+  }
+  return true
+}
+
 // Typed lineage in a document control block: **Supersedes:** / **Superseded by:** /
 // **Relates to:** followed by the targets (markdown links, ADR-### tokens, requirement ids).
 const LINEAGE_LINE = /^\*\*(Supersedes(?:\s*\([^)]*\))?|Superseded by|Relates to):\*\*\s*(.+)$/gim
@@ -482,17 +503,39 @@ function featureMap(nodes, edges) {
     featureDocs.set(id, { path: rel(f), source: /^source:\s*(\S+)/m.exec(fm)?.[1] || 'v2-native', domain })
   }
 
-  // Roadmap rows that name a requirement id own that feature's delivery.
-  const tasks = new Map()
+  // Roadmap rows that name a requirement id *claim* that feature's delivery.
+  //
+  // Several rows can name the same requirement, and a row names one by merely
+  // mentioning it — a title or a Source Section reference is enough. Resolving
+  // that by "first file wins" made the winner a function of filename order, so
+  // adding a roadmap that sorts earlier silently took a delivered feature away
+  // from the task that actually delivered it. Rows therefore only claim here;
+  // the claim is resolved per requirement below, where whether the feature has
+  // code is known.
+  const claims = new Map()
   for (const f of walk(path.join(ROOT, 'docs', 'roadmap'), ['.md'])) {
     for (const line of read(f).split(/\r?\n/)) {
       if (!line.startsWith('|')) continue
-      const taskId = line.split('|')[1]?.trim()
+      const cells = line.split('|').map((c) => c.trim())
+      const taskId = cells[1]
       if (!/^TASK-/.test(taskId)) continue
+      const claim = { taskId, started: hasStarted(cells) }
       for (const req of line.match(ID_LIST) || []) {
-        if (!tasks.has(req)) tasks.set(req, taskId)
+        if (!claims.has(req)) claims.set(req, [])
+        const seen = claims.get(req)
+        if (!seen.some((c) => c.taskId === taskId)) seen.push(claim)
       }
     }
+  }
+
+  // A requirement that already has code was delivered by something, and a task
+  // that has not started cannot be that something. Letting one own the column
+  // would make the table assert a falsehood, so it is not eligible. Claims keep
+  // file order, so among eligible claims the first still wins as before.
+  const deliveryTask = (req, hasCode) => {
+    const cs = claims.get(req) || []
+    const eligible = hasCode ? cs.filter((c) => c.started) : cs
+    return eligible[0]?.taskId || '—'
   }
 
   const rows = nodes
@@ -506,7 +549,7 @@ function featureMap(nodes, edges) {
       const modules = [...new Set(code.map(moduleOf))].join(', ') || '—'
       const status = code.length === 0 ? '🔜 planned' : r.declared === 'planned' ? '🟠 built, not declared' : '✅ live'
       const head = code.length > 2 ? `\`${code[0]}\` +${code.length - 1}` : code.map((c) => `\`${c}\``).join(', ') || '—'
-      return `| ${fid} | ${r.label} | ${doc?.domain || '—'} | ${modules} | ${doc?.source || 'v2-native'} | ${status} | ${head} | ${tests} | ${doc ? `[doc](${doc.path.replace('docs/', '')})` : '—'} | ${tasks.get(fid) || '—'} |`
+      return `| ${fid} | ${r.label} | ${doc?.domain || '—'} | ${modules} | ${doc?.source || 'v2-native'} | ${status} | ${head} | ${tests} | ${doc ? `[doc](${doc.path.replace('docs/', '')})` : '—'} | ${deliveryTask(fid, code.length > 0)} |`
     })
 
   return `# Feature Map

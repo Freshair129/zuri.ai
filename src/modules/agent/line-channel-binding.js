@@ -2,7 +2,9 @@ import crypto from 'node:crypto'
 import { z } from 'zod'
 
 // @req FR-052 — resolve public LINE scope only from an active server-owned binding.
+// @req FR-097 — the configured binding id is the server-owned channel-account namespace.
 // @spec ADR-018, BR-012, SEC-010
+// @spec ADR-044, ADR-045 D1/D5-D6, BR-020, SEC-018
 // @tested tests/unit/line-channel-binding.test.js, tests/integration/agent-webhook-route.test.js
 
 const zBinding = z.object({
@@ -46,6 +48,7 @@ export function createConfiguredLineBindingResolver(env = process.env) {
 
       return Object.freeze({
         bindingId: binding.bindingId,
+        channelAccountId: binding.bindingId,
         tenantId: binding.tenantId,
         businessId: binding.businessId,
       })

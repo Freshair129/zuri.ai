@@ -23,7 +23,7 @@ export async function classifyPrincipal(input) {
   const { tenantId, personId } = zClassifyPrincipalInput.parse(input)
 
   const [memberships, customer] = await Promise.all([
-    prisma.membership.findMany({ where: { tenantId, personId }, select: { role: true } }),
+    prisma.membership.findMany({ where: { tenantId, personId, status: 'ACTIVE' }, select: { role: true, status: true } }),
     prisma.customer.findFirst({
       where: { tenantId, personId, deletedAt: null },
       select: { id: true },

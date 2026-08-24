@@ -38,6 +38,7 @@ model Tenant {
   workspaces                Workspace[]
   memberships               Membership[]
   externalIdentities        ExternalIdentity[]
+  channelIdentities         ChannelIdentity[]
   identityLinkTokens        IdentityLinkToken[]
   customers                 Customer[]
   roleBindings              RoleBinding[]
@@ -159,6 +160,8 @@ model Person {
   // @req FR-088 — Projects this Person is accountable for (PIC).
   picProjects                   Project[]                      @relation("ProjectPic")
   externalIdentities            ExternalIdentity[]
+  channelIdentities             ChannelIdentity[]
+  sessions                      Session[]
   identityLinkTokens            IdentityLinkToken[]
   customers                     Customer[]
   roleBindings                  RoleBinding[]
@@ -210,8 +213,11 @@ model Membership {
   branchId       String?
   employeeRef    String?
   role           String   @default("OWNER")
+  status         String   @default("ACTIVE")
   domainKeysJson String   @default("[]")
   createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  version        Int      @default(1)
 
   person   Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
   tenant   Tenant    @relation(fields: [tenantId], references: [id])
@@ -219,7 +225,60 @@ model Membership {
   branch   Branch?   @relation(fields: [branchId], references: [id])
 
   @@index([personId])
+  @@index([personId, status])
   @@index([tenantId])
+  @@index([tenantId, status])
+}
+
+// @req FR-095 — the signed cookie is transport only; the live session row is
+// the revocable server-side request authority.
+// @req FR-096 — authorization recomputes from trusted server state.
+// @spec ADR-045 D2-D4, SDD-052, SEC-018
+model Session {
+  id           String    @id @default(uuid())
+  personId     String
+  tokenHash    String    @unique
+  status       String    @default("ACTIVE")
+  assurance    String    @default("PASSWORD")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastSeenAt   DateTime  @default(now())
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  revokeReason String?
+  version      Int       @default(1)
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, status])
+  @@index([expiresAt, status])
+}
+
+// @req FR-094 — external channel subjects are namespaced attributes, never
+// canonical principals or primary keys.
+// @req FR-097 — channel binding has an explicit pending/verified lifecycle.
+// @spec ADR-045 D1, D5, SDD-052, BR-020
+model ChannelIdentity {
+  id               String    @id @default(uuid())
+  personId         String
+  tenantId         String
+  channel          String
+  channelAccountId String
+  providerSubject  String
+  status           String    @default("PENDING")
+  verifiedAt       DateTime?
+  linkedAt         DateTime?
+  revokedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  version          Int       @default(1)
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, channel, channelAccountId, providerSubject])
+  @@index([personId, status])
+  @@index([tenantId, status])
 }
 
 model RoleBinding {

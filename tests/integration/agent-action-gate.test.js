@@ -12,7 +12,7 @@ import {
   issueStepUp,
 } from '@/modules/agent'
 
-// @req FR-026 — the Gate F write/action gate: RBAC + ownership + sensitivity authorization,
+// @req FR-026, FR-096, FR-098 — the Gate F write/action gate: RBAC + ownership + sensitivity authorization,
 // single-use step-up for HIGH actions, audited transactional execute; read stays Gate E.
 
 let tenant, business
@@ -122,7 +122,7 @@ describe('agent write/action gate (FR-026)', () => {
     const { token } = await issueStepUp({ tenantId: tenant.id, personId: staff.id })
     await expect(executeAgentAction({
       tenantId: tenant.id, lineUserId: 'Ugf-staff4',
-      actionName: 'refund_order', target: { orderId: 'X' }, stepUpToken: token,
+      actionName: 'refund_order', target: { orderId: 'X', businessId: business.id }, stepUpToken: token,
     })).rejects.toThrow(/NOT_IMPLEMENTED/)
   })
 })

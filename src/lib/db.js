@@ -19,12 +19,18 @@ function isPostgresUrl(value) {
 
 function normalizeSupabaseUrl(url) {
   if (!url || typeof url !== 'string') return url
-  // Convert Supabase session pooler (port 5432) to transaction pooler (port 6543) with pgbouncer=true
-  if (url.includes('.pooler.supabase.com:5432')) {
-    const withPort = url.replace('.pooler.supabase.com:5432', '.pooler.supabase.com:6543')
-    return withPort.includes('pgbouncer=true') ? withPort : (withPort.includes('?') ? `${withPort}&pgbouncer=true` : `${withPort}?pgbouncer=true`)
+  // Convert Supabase session pooler (port 5432) to transaction pooler (port 6543)
+  // and ensure an already-transaction-pooler URL also disables session-only behavior.
+  if (!/\.pooler\.supabase\.com:(?:5432|6543)/i.test(url)) return url
+
+  const normalized = url.replace(/\.pooler\.supabase\.com:5432/i, '.pooler.supabase.com:6543')
+  try {
+    const parsed = new URL(normalized)
+    if (parsed.searchParams.get('pgbouncer') !== 'true') parsed.searchParams.set('pgbouncer', 'true')
+    return parsed.toString()
+  } catch {
+    return normalized
   }
-  return url
 }
 
 export function resolvePostgresUrl(env = process.env) {

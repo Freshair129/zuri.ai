@@ -2,13 +2,13 @@ import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { zErasePrincipalInput } from '@/lib/validation/entities'
 
-// @req FR-022 — PDPA erasure for a principal (the erase-revoke leg of the P3 gate).
+// @req FR-022, FR-095 — PDPA erasure for a principal (the erase-revoke leg of the P3 gate).
 // @spec docs/replacement/IMPACT-SCAN-IDENTITY.md §hazard-5 — ExternalIdentity is a
 //   third handle copy of the person; erasing a customer that only nulls the legacy
 //   columns leaves them re-contactable through the mapping table. So erase MUST
 //   revoke the ExternalIdentity, and a revoked binding refuses to resolve (FR-021),
 //   which is what makes an erased person un-reachable rather than merely hidden.
-// @spec SEC-003 — append-only audit; erase is recorded, never a silent purge.
+// @spec ADR-045 D2, SEC-003 — append-only audit; erase is recorded, never a silent purge.
 // @tested tests/integration/identity-erase.test.js
 
 const REDACTED = '[erased]'
@@ -19,7 +19,7 @@ const REDACTED = '[erased]'
  * soft-delete + redact the tenant's CRM record. Tenant-scoped by design — the
  * global Person is redacted only when it has no ties left anywhere.
  *
- * @returns {{ revokedIdentities, erasedCustomers, invalidatedTokens, personRedacted }}
+ * @returns {{ revokedIdentities, revokedChannelIdentities, erasedCustomers, invalidatedTokens, revokedSessions, personRedacted }}
  */
 export async function erasePrincipal(input) {
   const { tenantId, personId, reason } = zErasePrincipalInput.parse(input)
@@ -33,6 +33,23 @@ export async function erasePrincipal(input) {
     const tokens = await tx.identityLinkToken.updateMany({
       where: { tenantId, personId, consumedAt: null },
       data: { consumedAt: now },
+    })
+    const sessions = await tx.session.updateMany({
+      where: { personId, status: 'ACTIVE' },
+      data: {
+        status: 'REVOKED',
+        revokedAt: now,
+        revokeReason: 'PERSON_ERASED',
+        version: { increment: 1 },
+      },
+    })
+    const channelIdentities = await tx.channelIdentity.updateMany({
+      where: { tenantId, personId, status: { not: 'REVOKED' } },
+      data: {
+        status: 'REVOKED',
+        revokedAt: now,
+        version: { increment: 1 },
+      },
     })
     const customers = await tx.customer.findMany({ where: { tenantId, personId, deletedAt: null }, select: { id: true } })
     for (const c of customers) {
@@ -63,7 +80,9 @@ export async function erasePrincipal(input) {
         tenantId,
         reason: reason || null,
         revokedIdentities: revoked.count,
+        revokedChannelIdentities: channelIdentities.count,
         invalidatedTokens: tokens.count,
+        revokedSessions: sessions.count,
         erasedCustomers: customers.length,
         personRedacted,
       },
@@ -71,7 +90,9 @@ export async function erasePrincipal(input) {
 
     return {
       revokedIdentities: revoked.count,
+      revokedChannelIdentities: channelIdentities.count,
       invalidatedTokens: tokens.count,
+      revokedSessions: sessions.count,
       erasedCustomers: customers.length,
       personRedacted,
     }
