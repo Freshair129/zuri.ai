@@ -5,11 +5,11 @@ import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { isInstallationOperator, ownsBusiness, ownsTenant, seesBusiness } from '@/modules/identity/viewer-authority'
 
-// @req FR-096 — one generic decision queue: the data plane submits pending
+// @req FR-100 — one generic decision queue: the data plane submits pending
 // facts (idempotent, payload-hash versioned), a human decides in the browser
 // (audited, immutable rows), and the data plane pulls decided rows by cursor.
 // zuri-ai never writes into DuckDB or the graph (ADR-043 interim boundary).
-// @spec FR-096, BR-002, SEC-002
+// @spec FR-100, BR-002, SEC-002
 // @tested tests/unit/sot-decision-service.test.js
 
 export const SOT_DECISION_TYPES = Object.freeze(['PRICE_ROW', 'ENTITY', 'FILE_CLASSIFICATION', 'PHASE_GATE'])

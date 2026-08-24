@@ -9,7 +9,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 21,
+    "info": 22,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -184,7 +184,7 @@
       "severity": "info",
       "check": "requirement-coverage",
       "title": "Gaps in FR numbering",
-      "details": "FR-094",
+      "details": "FR-094, FR-095, FR-096, FR-097, FR-098",
       "files": [],
       "action": "Intentional gaps are fine — confirm nothing was lost"
     },
@@ -234,8 +234,39 @@
       "id": "I21",
       "severity": "info",
       "check": "id-stability",
-      "title": "349 id(s) pinned across 10 families",
-      "details": "ADR 44 · BR 19 · FEAT 10 · FR 96 · MI-RQ 72 · NFR 18 · RSK 14 · SDD 51 · SEC 17 · ZV2-CR 8 · roster 349",
+      "title": "FR-099 statement digest changed without an anchor move",
+      "details": "canonical SHA-256 a106b7e79c7d59e9ddf51322070b06e254278528eab0cf112eb59b5eaee2e770 → 1f1a5db382103653b646bdb3e96f4e4514d5dfe9b2af08bdf3220530fbaf6299 · citation files: src/app/api/platform/sot/plan/route.js, src/modules/integration/application/sot-pipeline-graph.js, src/modules/integration/application/sot-plan-service.js, src/modules/integration/application/sot-plan.js, src/app/(pm)/platform/sot-pipeline/page.jsx, tests/unit/sot-plan-board-ui.test.js, tests/unit/sot-plan-service.test.js, tests/unit/sot-plan-status.test.js, docs/appendices/A-api-spec.md, docs/appendices/D-traceability.md, docs/decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md, docs/DOMAIN-MAP.md",
+      "files": [
+        "docs/PRD-SDD-v1.0.md",
+        "docs/.id-ledger.json",
+        "src/app/api/platform/sot/plan/route.js",
+        "src/modules/integration/application/sot-pipeline-graph.js",
+        "src/modules/integration/application/sot-plan-service.js",
+        "src/modules/integration/application/sot-plan.js",
+        "src/app/(pm)/platform/sot-pipeline/page.jsx",
+        "tests/unit/sot-plan-board-ui.test.js",
+        "tests/unit/sot-plan-service.test.js",
+        "tests/unit/sot-plan-status.test.js",
+        "docs/appendices/A-api-spec.md",
+        "docs/appendices/D-traceability.md",
+        "docs/decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md",
+        "docs/DOMAIN-MAP.md",
+        "docs/domains/integration/features/FR-099-sot-pipeline-plan-board.md",
+        "docs/domains/integration/features/FR-100-sot-approval-inbox.md",
+        "docs/domains/integration/features/FR-101-sot-pipeline-graph-dashboard.md",
+        "docs/FEATURE-MAP.md",
+        "docs/FEATURES.md",
+        "docs/INTERFACE-INVENTORY.md",
+        "docs/TRACE.md"
+      ],
+      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review FR-099 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
+    },
+    {
+      "id": "I22",
+      "severity": "info",
+      "check": "id-stability",
+      "title": "354 id(s) pinned across 10 families",
+      "details": "ADR 45 · BR 19 · FEAT 11 · FR 99 · MI-RQ 72 · NFR 18 · RSK 14 · SDD 51 · SEC 17 · ZV2-CR 8 · roster 354",
       "files": [
         "docs/.id-ledger.json"
       ],

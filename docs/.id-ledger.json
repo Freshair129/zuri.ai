@@ -201,6 +201,9 @@
     "FR-095",
     "FR-096",
     "FR-097",
+    "FR-099",
+    "FR-100",
+    "FR-101",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -297,6 +300,7 @@
     "FEAT-008",
     "FEAT-009",
     "FEAT-010",
+    "FEAT-011",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -427,6 +431,7 @@
     "ADR-042",
     "ADR-043",
     "ADR-045",
+    "ADR-046",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -1904,6 +1909,72 @@
     "FR-095": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
+      "status": "burnt",
+      "statement_digest": "a106b7e79c7d59e9ddf51322070b06e254278528eab0cf112eb59b5eaee2e770",
+      "history": [
+        {
+          "anchor": "sot pipeline plan board",
+          "since": "2026-08-24",
+          "reason": "declared"
+        },
+        {
+          "anchor": "sot pipeline plan board",
+          "since": "2026-08-24",
+          "reason": "Abandoned before merge; this branch renumbered itself to FR-099. FR-095 collided with main's canonical IAM 'persisted session lifecycle' feature merged in the meantime; same SoT plan-board subject renumbered to the next free id",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.83.0b"
+        }
+      ],
+      "retired_to": "FR-099",
+      "retired_at": "2026-08-24",
+      "reason": "FR-095 collided with main's canonical IAM 'persisted session lifecycle' feature merged in the meantime; same SoT plan-board subject renumbered to the next free id"
+    },
+    "FR-096": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "burnt",
+      "statement_digest": "67f9eb74db566b12ea4acf3a59016306ce90bdf6b3c3ad69e61d28c677531ebc",
+      "history": [
+        {
+          "anchor": "sot approval inbox and decision export",
+          "since": "2026-08-24",
+          "reason": "declared"
+        },
+        {
+          "anchor": "sot approval inbox and decision export",
+          "since": "2026-08-24",
+          "reason": "Abandoned before merge; this branch renumbered itself to FR-100. FR-096 collided with main's canonical IAM 'shared policy enforcement' feature merged in the meantime; same SoT approval-inbox subject renumbered to the next free id",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.83.0b"
+        }
+      ],
+      "retired_to": "FR-100",
+      "retired_at": "2026-08-24",
+      "reason": "FR-096 collided with main's canonical IAM 'shared policy enforcement' feature merged in the meantime; same SoT approval-inbox subject renumbered to the next free id"
+    },
+    "FR-097": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "burnt",
+      "statement_digest": "72e9e075e6b21a1840e09ab2ccdccd727983ba56e50cf96f5c76b5ca8dd45c22",
+      "history": [
+        {
+          "anchor": "sot pipeline graph dashboard",
+          "since": "2026-08-24",
+          "reason": "declared"
+        },
+        {
+          "anchor": "sot pipeline graph dashboard",
+          "since": "2026-08-24",
+          "reason": "Abandoned before merge; this branch renumbered itself to FR-101. FR-097 collided with main's canonical IAM 'verified channel onboarding' feature merged in the meantime; same SoT graph-dashboard subject renumbered to the next free id",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.83.0b"
+        }
+      ],
+      "retired_to": "FR-101",
+      "retired_at": "2026-08-24",
+      "reason": "FR-097 collided with main's canonical IAM 'verified channel onboarding' feature merged in the meantime; same SoT graph-dashboard subject renumbered to the next free id"
+    },
+    "FR-099": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
       "statement_digest": "a106b7e79c7d59e9ddf51322070b06e254278528eab0cf112eb59b5eaee2e770",
       "history": [
@@ -1914,7 +1985,7 @@
         }
       ]
     },
-    "FR-096": {
+    "FR-100": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
@@ -1927,11 +1998,11 @@
         }
       ]
     },
-    "FR-097": {
+    "FR-101": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "72e9e075e6b21a1840e09ab2ccdccd727983ba56e50cf96f5c76b5ca8dd45c22",
+      "statement_digest": "0a996d26a8d6c306471617c4fd6559399cc6c49e5718622ef7265658e478f923",
       "history": [
         {
           "anchor": "sot pipeline graph dashboard",
@@ -3190,6 +3261,27 @@
       "statement_digest": "7fdba9d74bf634c9654bbfe3a8ef5f1f99787e1643e903bf67eda849b2c0075d"
     },
     "FEAT-010": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "burnt",
+      "statement_digest": "0b14a49ccd033e3ac734eccc6f75101eb518778e0cc224342de113364fb9539d",
+      "history": [
+        {
+          "anchor": "sot pipeline console",
+          "since": "2026-08-24",
+          "reason": "declared"
+        },
+        {
+          "anchor": "sot pipeline console",
+          "since": "2026-08-24",
+          "reason": "Abandoned before merge; this branch renumbered itself to FEAT-011. FEAT-010 collided with main's canonical identity and access management feature bundle merged in the meantime; same SoT Pipeline Console bundle renumbered to the next free id"
+        }
+      ],
+      "retired_to": "FEAT-011",
+      "retired_at": "2026-08-24",
+      "reason": "FEAT-010 collided with main's canonical identity and access management feature bundle merged in the meantime; same SoT Pipeline Console bundle renumbered to the next free id"
+    },
+    "FEAT-011": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
@@ -4892,6 +4984,27 @@
     "ADR-045": {
       "family": "ADR",
       "source": "docs/decisions/ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md",
+      "status": "burnt",
+      "statement_digest": "3de120b1744bed960e943e7be68e71eb5e9d18813e8e5d366f4acae5297b6e7e",
+      "history": [
+        {
+          "anchor": "sot pipeline",
+          "since": "2026-08-24",
+          "reason": "declared"
+        },
+        {
+          "anchor": "sot pipeline",
+          "since": "2026-08-24",
+          "reason": "Abandoned before merge; this branch renumbered itself to ADR-046. ADR-045 collided with main's canonical identity and access management decision merged in the meantime; same SoT interim-serving decision renumbered to the next free id"
+        }
+      ],
+      "retired_to": "ADR-046",
+      "retired_at": "2026-08-24",
+      "reason": "ADR-045 collided with main's canonical identity and access management decision merged in the meantime; same SoT interim-serving decision renumbered to the next free id"
+    },
+    "ADR-046": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md",
       "status": "current",
       "statement_digest": "3de120b1744bed960e943e7be68e71eb5e9d18813e8e5d366f4acae5297b6e7e",
       "history": [

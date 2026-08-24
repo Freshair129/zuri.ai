@@ -1,9 +1,9 @@
 import { topologicalPhaseOrder } from './sot-plan'
 
-// @req FR-097 — the pipeline graph is a pure projection of the FR-095 plan and
+// @req FR-101 — the pipeline graph is a pure projection of the FR-099 plan and
 // its derived status into the same { version, nodes, edges } shape FR-040's
 // dependency map consumes, layered by topological depth.
-// @spec FR-097
+// @spec FR-101
 // @tested tests/unit/sot-pipeline-graph.test.js
 
 /** Depth = longest dependency chain before this phase (context sources sit at -1). */

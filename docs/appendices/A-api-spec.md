@@ -154,11 +154,11 @@ not publish Customers, replay LINE traffic or accept free-text PII notes.
 | GET | `/api/platform/customer-import-reviews` | list the approved SmartGift review cases and redacted items; requires `customer.import.review.read` |
 | GET | `/api/platform/customer-import-reviews/targets` | bounded, masked lookup of same-Business Customer targets for `LINK_EXISTING`; requires `customer.import.review.read` |
 | POST | `/api/platform/customer-import-reviews/[caseId]/decisions` | append one decision per held item with optimistic `expectedVersion`; actions are `CREATE_SEPARATE`, `LINK_EXISTING`, `REJECT` or `DEFER`; requires `customer.import.review.decide` |
-| GET | `/api/platform/sot/plan` | SoT pipeline plan with per-phase status derived from FR-071 run evidence + FR-096 pending counts, plus the FR-097 graph projection; viewer must see the Business (FR-095) |
-| GET | `/api/platform/sot/decisions` | list SoT decisions (default filterable to PENDING) scoped to the viewer's visible Business (FR-096) |
-| POST | `/api/platform/sot/decisions` | data-plane batch submit of pending decisions; installation-operator only, idempotent by canonical payload hash, changed payloads open a new decisionVersion (FR-096) |
-| POST | `/api/platform/sot/decisions/[decisionId]/decide` | approve or reject one PENDING decision; owner/operator authority, audited, immutable once decided (FR-096) |
-| GET | `/api/platform/sot/decisions/export` | pull decided rows in stable (updatedAt,id) cursor order for the data plane to apply to its own stores; installation-operator only (FR-096, ADR-045) |
+| GET | `/api/platform/sot/plan` | SoT pipeline plan with per-phase status derived from FR-071 run evidence + FR-100 pending counts, plus the FR-101 graph projection; viewer must see the Business (FR-099) |
+| GET | `/api/platform/sot/decisions` | list SoT decisions (default filterable to PENDING) scoped to the viewer's visible Business (FR-100) |
+| POST | `/api/platform/sot/decisions` | data-plane batch submit of pending decisions; installation-operator only, idempotent by canonical payload hash, changed payloads open a new decisionVersion (FR-100) |
+| POST | `/api/platform/sot/decisions/[decisionId]/decide` | approve or reject one PENDING decision; owner/operator authority, audited, immutable once decided (FR-100) |
+| GET | `/api/platform/sot/decisions/export` | pull decided rows in stable (updatedAt,id) cursor order for the data plane to apply to its own stores; installation-operator only (FR-100, ADR-046) |
 
 The decision endpoint is append-only and actor-bound. `CUSTOMER_DATA_REVIEWER`
 is a separate Business-scoped role; Product Owner, platform authority and
@@ -338,7 +338,7 @@ canary evidence; those remain owner-gated release criteria.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.18.0b | 2026-08-23 | candidate | Added the scoped PM MCP work read/status loop after PlanEnvelope commit; route handler count remains 84 | working-tree | ATHER |
-| 1.19.0b | 2026-08-24 | candidate | FEAT-010 SoT Pipeline Console: four /api/platform/sot handlers (plan, decisions list+submit, decide, export); route handler count 84 → 88 | working-tree | Claude Fable 5 |
+| 1.19.0b | 2026-08-24 | candidate | FEAT-011 SoT Pipeline Console: four /api/platform/sot handlers (plan, decisions list+submit, decide, export); route handler count 84 → 88 | working-tree | Claude Fable 5 |
 | 1.17.0b | 2026-08-22 | candidate | Replaced credential-free session login with `/api/auth/login` and `/api/auth/logout`, signed sessions, and updated the handler count to 84 | working-tree | ATHER |
 | 1.16.0b | 2026-08-21 | candidate | Removed the retired `/api/session/demo` route from the current API inventory; handler count is 82 | working-tree | ATHER |
 | 1.15.0b | 2026-08-21 | candidate | Added the Codex-mediated FR-071 `data_pipeline.*` MCP bridge contract; route handler count remains 80 | working-tree | ATHER |

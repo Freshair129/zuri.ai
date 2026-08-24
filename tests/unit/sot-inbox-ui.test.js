@@ -1,14 +1,14 @@
 import fs from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
-// @req FR-096 — the inbox offers exactly two actions (approve /
+// @req FR-100 — the inbox offers exactly two actions (approve /
 // reject-with-reason) against the decide endpoint, displays the payload
 // verbatim and never edits it, and never talks to the data plane directly.
 // @tested tests/unit/sot-inbox-ui.test.js
 
 const page = fs.readFileSync('src/app/(pm)/platform/sot-pipeline/inbox/page.jsx', 'utf8')
 
-describe('FR-096 sot inbox UI contract', () => {
+describe('FR-100 sot inbox UI contract', () => {
   it('lists PENDING decisions from the decisions endpoint, scoped by tenant and business', () => {
     expect(page).toContain('/api/platform/sot/decisions')
     expect(page).toContain("status: 'PENDING'")

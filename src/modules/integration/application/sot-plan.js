@@ -2,10 +2,10 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { z } from 'zod'
 
-// @req FR-095 — the SoT pipeline plan is strict-validated data and its phase
-// status is a pure derivation over FR-071 run evidence plus FR-096 pending
+// @req FR-099 — the SoT pipeline plan is strict-validated data and its phase
+// status is a pure derivation over FR-071 run evidence plus FR-100 pending
 // decision counts; nothing here is typed in by a human.
-// @spec FR-095, SEC-002
+// @spec FR-099, SEC-002
 // @tested tests/unit/sot-plan-status.test.js
 
 export const SOT_PHASE_KINDS = Object.freeze(['AUTOMATED', 'HUMAN_GATE'])
@@ -103,7 +103,7 @@ const RUNNING_STATUSES = new Set(['QUEUED', 'RUNNING'])
  * Derive one phase's status from evidence.
  * `newestRunByDefinition`: Map<dataPipelineDefinitionId, { status }> — the
  * newest run per definition, as FR-071 reports it.
- * `pendingDecisionsByPhase`: Map<phaseId, count> — FR-096 PENDING counts.
+ * `pendingDecisionsByPhase`: Map<phaseId, count> — FR-100 PENDING counts.
  */
 export function deriveSotPhaseStatus(phase, newestRunByDefinition, pendingDecisionsByPhase) {
   const pending = pendingDecisionsByPhase.get(phase.phaseId) || 0

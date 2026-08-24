@@ -1,9 +1,9 @@
 'use client'
 
-// @req FR-097 — the pipeline as read-only nodes and edges: hand-rolled SVG,
+// @req FR-101 — the pipeline as read-only nodes and edges: hand-rolled SVG,
 // topological layers left-to-right, status carried by fill, pending-decision
-// badges linking into the FR-096 inbox. No client-side graph library.
-// @spec FR-097
+// badges linking into the FR-100 inbox. No client-side graph library.
+// @spec FR-101
 // @tested tests/unit/sot-pipeline-graph.test.js
 import { useMemo } from 'react'
 import Link from 'next/link'

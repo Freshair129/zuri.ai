@@ -6,8 +6,8 @@ import { makeOperatorViewer, makeViewer } from '../factories/viewer'
 import { getSotPlanStatus } from '@/modules/integration/application/sot-plan-service'
 import { submitSotDecisions } from '@/modules/integration/application/sot-decision-service'
 
-// @req FR-095 — the plan endpoint composes run evidence and pending decisions
-// into derived phase status plus the FR-097 graph, scoped to the viewer.
+// @req FR-099 — the plan endpoint composes run evidence and pending decisions
+// into derived phase status plus the FR-101 graph, scoped to the viewer.
 // @tested tests/unit/sot-plan-service.test.js
 
 const t = Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
@@ -44,7 +44,7 @@ beforeAll(async () => {
   businessId = business.id
 })
 
-describe('FR-095 sot plan service', () => {
+describe('FR-099 sot plan service', () => {
   it('refuses a viewer who cannot see the business', async () => {
     const stranger = makeViewer({ role: 'MEMBER', visibleBusinessIds: [], ownedBusinessIds: [] })
     await expect(getSotPlanStatus({ businessId }, { viewer: stranger })).rejects.toThrow(/scope/)

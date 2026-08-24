@@ -12,7 +12,7 @@ import {
   submitSotDecisions,
 } from '@/modules/integration/application/sot-decision-service'
 
-// @req FR-096 — submit is idempotent by payload hash, deciding is audited and
+// @req FR-100 — submit is idempotent by payload hash, deciding is audited and
 // immutable, export is a stable-cursor pull of decided rows only.
 // @tested tests/unit/sot-decision-service.test.js
 
@@ -42,7 +42,7 @@ function submitInput(items) {
   return { tenantId, submittedBy: 'sot-data-plane', items }
 }
 
-describe('FR-096 sot decisions — submit', () => {
+describe('FR-100 sot decisions — submit', () => {
   it('rejects a non-operator submitter', async () => {
     const viewer = makeViewer({ role: 'OWNER', visibleBusinessIds: [businessId], ownedBusinessIds: [businessId] })
     await expect(submitSotDecisions(submitInput([
@@ -75,7 +75,7 @@ describe('FR-096 sot decisions — submit', () => {
   })
 })
 
-describe('FR-096 sot decisions — decide', () => {
+describe('FR-100 sot decisions — decide', () => {
   async function pendingDecision(subjectRef) {
     const out = await submitSotDecisions(submitInput([
       { businessId, decisionType: 'ENTITY', subjectRef, phaseId: 'P3', payload: { name: subjectRef } },
@@ -110,7 +110,7 @@ describe('FR-096 sot decisions — decide', () => {
   })
 })
 
-describe('FR-096 sot decisions — list, counts and export', () => {
+describe('FR-100 sot decisions — list, counts and export', () => {
   it('pending counts group by phase', async () => {
     const subjectRef = `CNT-${t}-1`
     await submitSotDecisions(submitInput([

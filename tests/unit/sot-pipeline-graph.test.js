@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { parseSotPipelinePlan, deriveSotPlanStatus } from '@/modules/integration/application/sot-plan'
 import { buildSotPipelineGraph } from '@/modules/integration/application/sot-pipeline-graph'
 
-// @req FR-097 — the graph is a pure projection of the plan + derived status
+// @req FR-101 — the graph is a pure projection of the plan + derived status
 // into the FR-040 data shape, layered by topological depth.
 // @tested tests/unit/sot-pipeline-graph.test.js
 
@@ -26,7 +26,7 @@ const PLAN = parseSotPipelinePlan({
   },
 })
 
-describe('FR-097 sot pipeline graph', () => {
+describe('FR-101 sot pipeline graph', () => {
   const withStatus = deriveSotPlanStatus(PLAN, new Map([['DPL-A', { status: 'SUCCEEDED' }]]), new Map([['P1', 2]]))
   const graph = buildSotPipelineGraph(PLAN, withStatus)
 

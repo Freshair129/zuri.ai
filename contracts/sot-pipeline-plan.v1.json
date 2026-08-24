@@ -34,7 +34,7 @@
       "phaseId": "P3",
       "title": "Approval workflow",
       "titleTh": "อนุมัติผ่าน zuri-ai",
-      "summaryTh": "ทุก decision (ราคา / entity / ไฟล์) เข้าคิว FR-096 — คนกดอนุมัติจากที่นี่ แล้ว pipeline ดึงผลไปใช้เอง",
+      "summaryTh": "ทุก decision (ราคา / entity / ไฟล์) เข้าคิว FR-100 — คนกดอนุมัติจากที่นี่ แล้ว pipeline ดึงผลไปใช้เอง",
       "kind": "HUMAN_GATE",
       "dependsOn": ["P2"],
       "pipelineDefinitionIds": []
@@ -88,7 +88,7 @@
       "phaseId": "P9",
       "title": "Visual pipeline dashboard",
       "titleTh": "แดชบอร์ดกราฟ node/edge",
-      "summaryTh": "หน้ากราฟสถานะสดของทั้งเส้นใน zuri-ai (FR-097)",
+      "summaryTh": "หน้ากราฟสถานะสดของทั้งเส้นใน zuri-ai (FR-101)",
       "kind": "AUTOMATED",
       "dependsOn": ["P6"],
       "pipelineDefinitionIds": []

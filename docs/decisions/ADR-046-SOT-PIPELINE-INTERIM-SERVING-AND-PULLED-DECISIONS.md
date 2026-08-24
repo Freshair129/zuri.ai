@@ -1,9 +1,9 @@
-# ADR-045 — SoT pipeline: interim serving on :8888, and decisions leave by pull
+# ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull
 
 **Status:** Approved
 **Date:** 2026-08-24
 **Decided by:** Boss ("โอเค ทำแบบ interim เริ่มเลย", 2026-08-24)
-**Relates to:** [ADR-041](ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md), [ADR-042](ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md), [ADR-043](ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md), FR-095, FR-096, FR-097
+**Relates to:** [ADR-041](ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md), [ADR-042](ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md), [ADR-043](ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md), FR-099, FR-100, FR-101
 
 > ADR-044 is deliberately skipped here: it is claimed by in-flight work on the
 > Unified Thread ID / omni-channel console in another working tree, and an id is
@@ -33,19 +33,19 @@ ADR-043 D2.1 forbids.
    bind to `:8888` and will migrate behind GKS without contract change when
    ADR-043's Tier 3 is ready. This is a declared transition, not drift.
 2. **Decisions leave zuri-ai by pull only.** The data plane submits pending
-   facts into FR-096's queue and later pulls decided rows from
+   facts into FR-100's queue and later pulls decided rows from
    `GET /api/platform/sot/decisions/export` (stable cursor), applying them to
    its own DuckDB/graph stores. zuri-ai holds the decision record and its
    audit; it never opens a connection to DuckDB, GenesisBlockDB or the
    `:8888` store. Tier 1 therefore stays a non-writer toward Tier 4 during the
    interim and after it.
-3. **Phase status is derived.** The FR-095 board and FR-097 graph compute
-   status from FR-071 run evidence plus FR-096 pending counts; no surface in
+3. **Phase status is derived.** The FR-099 board and FR-101 graph compute
+   status from FR-071 run evidence plus FR-100 pending counts; no surface in
    this repository stores a hand-typed pipeline status.
 
 ## Consequences
 
-- The GKS migration keeps one seam: swap the `:8888` binding, keep the FR-096
+- The GKS migration keeps one seam: swap the `:8888` binding, keep the FR-100
   pull contract as-is (GKS becomes another consumer of the same export).
 - The data plane owns its cursor and its idempotent apply; a replayed export
   page must be harmless there.

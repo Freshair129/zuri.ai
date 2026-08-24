@@ -1,9 +1,9 @@
 'use client'
 
-// @req FR-096 — the approval inbox: pending decisions in one queue, exactly two
+// @req FR-100 — the approval inbox: pending decisions in one queue, exactly two
 // actions (approve / reject-with-reason), each recorded as an individual
 // audited decision. The payload is displayed verbatim and never edited here.
-// @spec FR-096
+// @spec FR-100
 // @tested tests/unit/sot-inbox-ui.test.js
 import { Suspense, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'

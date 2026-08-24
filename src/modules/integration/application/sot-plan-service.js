@@ -6,9 +6,9 @@ import { countPendingSotDecisionsByPhase } from './sot-decision-service'
 import { deriveSotPlanStatus, loadSotPipelinePlan } from './sot-plan'
 import { buildSotPipelineGraph } from './sot-pipeline-graph'
 
-// @req FR-095 — one viewer-scoped payload feeds both the board and the FR-097
+// @req FR-099 — one viewer-scoped payload feeds both the board and the FR-101
 // graph: plan phases with derived status, plus the projected node/edge graph.
-// @spec FR-095, FR-097
+// @spec FR-099, FR-101
 // @tested tests/unit/sot-plan-service.test.js
 
 function serviceError(status, message) {

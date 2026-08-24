@@ -1,9 +1,9 @@
 'use client'
 
-// @req FR-095 — the SoT plan board: phase status is read from the derivation
+// @req FR-099 — the SoT plan board: phase status is read from the derivation
 // endpoint and never edited here; the only actions are navigation into run
-// evidence and the FR-096 inbox.
-// @spec FR-095
+// evidence and the FR-100 inbox.
+// @spec FR-099
 // @tested tests/unit/sot-plan-board-ui.test.js
 import Link from 'next/link'
 

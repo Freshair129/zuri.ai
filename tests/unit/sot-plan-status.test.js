@@ -8,7 +8,7 @@ import {
   topologicalPhaseOrder,
 } from '@/modules/integration/application/sot-plan'
 
-// @req FR-095 — phase status is a pure derivation over run evidence and
+// @req FR-099 — phase status is a pure derivation over run evidence and
 // pending-decision counts; the committed plan file itself must parse.
 // @tested tests/unit/sot-plan-status.test.js
 
@@ -27,7 +27,7 @@ const plan = (phases) => ({
   context: { nodes: [], edges: [] },
 })
 
-describe('FR-095 sot plan — file and shape', () => {
+describe('FR-099 sot plan — file and shape', () => {
   it('the committed contracts/sot-pipeline-plan.v1.json parses and orders P0 first', () => {
     const loaded = loadSotPipelinePlan()
     expect(loaded.phases.length).toBeGreaterThanOrEqual(11)
@@ -47,7 +47,7 @@ describe('FR-095 sot plan — file and shape', () => {
   })
 })
 
-describe('FR-095 sot plan — status derivation', () => {
+describe('FR-099 sot plan — status derivation', () => {
   const noPending = new Map()
 
   it('planned when no linked runs exist', () => {

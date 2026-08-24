@@ -38,9 +38,9 @@
         "FR-089",
         "FR-091",
         "FR-093",
-        "FR-095",
-        "FR-096",
-        "FR-097"
+        "FR-099",
+        "FR-100",
+        "FR-101"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -62,8 +62,7 @@
   },
   "drift": {
     "changed": [
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/modules/project-manager/api-docs/openapi.js"
+      "doc:PRD-SDD-v1.0"
     ],
     "added": [],
     "removed": []
@@ -394,14 +393,14 @@
       "id": "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
-      "hash": "609c2314",
+      "hash": "b3b13b36",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-097"
+          "FR-101"
         ],
         "@spec": [
-          "FR-097"
+          "FR-101"
         ],
         "@tested": [
           "tests/unit/sot-pipeline-graph.test.js"
@@ -412,14 +411,14 @@
       "id": "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
-      "hash": "a6d8ef23",
+      "hash": "c62dfd7b",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-096"
+          "FR-100"
         ],
         "@spec": [
-          "FR-096"
+          "FR-100"
         ],
         "@tested": [
           "tests/unit/sot-inbox-ui.test.js"
@@ -430,14 +429,14 @@
       "id": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/sot-pipeline/page.jsx",
-      "hash": "842a31b2",
+      "hash": "4e554393",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-095"
+          "FR-099"
         ],
         "@spec": [
-          "FR-095"
+          "FR-099"
         ],
         "@tested": [
           "tests/unit/sot-plan-board-ui.test.js"
@@ -2026,14 +2025,14 @@
       "id": "code:src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
       "type": "code_file",
       "path": "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
-      "hash": "dfe0fc6b",
+      "hash": "68689713",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-096"
+          "FR-100"
         ],
         "@spec": [
-          "FR-096"
+          "FR-100"
         ],
         "@tested": [
           "tests/unit/sot-decision-service.test.js"
@@ -2044,14 +2043,14 @@
       "id": "code:src/app/api/platform/sot/decisions/export/route.js",
       "type": "code_file",
       "path": "src/app/api/platform/sot/decisions/export/route.js",
-      "hash": "a0bf8740",
+      "hash": "f3f5d23a",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-096"
+          "FR-100"
         ],
         "@spec": [
-          "FR-096"
+          "FR-100"
         ],
         "@tested": [
           "tests/unit/sot-decision-service.test.js"
@@ -2062,14 +2061,14 @@
       "id": "code:src/app/api/platform/sot/decisions/route.js",
       "type": "code_file",
       "path": "src/app/api/platform/sot/decisions/route.js",
-      "hash": "cc85829d",
+      "hash": "d75f61da",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-096"
+          "FR-100"
         ],
         "@spec": [
-          "FR-096",
+          "FR-100",
           "SEC-002"
         ],
         "@tested": [
@@ -2081,16 +2080,16 @@
       "id": "code:src/app/api/platform/sot/plan/route.js",
       "type": "code_file",
       "path": "src/app/api/platform/sot/plan/route.js",
-      "hash": "0d832bd1",
+      "hash": "ca794904",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-095",
-          "FR-097"
+          "FR-099",
+          "FR-101"
         ],
         "@spec": [
-          "FR-095",
-          "FR-097"
+          "FR-099",
+          "FR-101"
         ],
         "@tested": [
           "tests/unit/sot-plan-service.test.js"
@@ -4326,14 +4325,14 @@
       "id": "code:src/modules/integration/application/sot-decision-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/sot-decision-service.js",
-      "hash": "e34927e5",
+      "hash": "a7130761",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-096"
+          "FR-100"
         ],
         "@spec": [
-          "FR-096",
+          "FR-100",
           "BR-002",
           "SEC-002"
         ],
@@ -4346,15 +4345,15 @@
       "id": "code:src/modules/integration/application/sot-pipeline-graph.js",
       "type": "code_file",
       "path": "src/modules/integration/application/sot-pipeline-graph.js",
-      "hash": "94ee9506",
+      "hash": "eb72fee5",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-097",
-          "FR-095"
+          "FR-101",
+          "FR-099"
         ],
         "@spec": [
-          "FR-097"
+          "FR-101"
         ],
         "@tested": [
           "tests/unit/sot-pipeline-graph.test.js"
@@ -4365,16 +4364,16 @@
       "id": "code:src/modules/integration/application/sot-plan-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/sot-plan-service.js",
-      "hash": "f6cee358",
+      "hash": "e1e81ced",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-095",
-          "FR-097"
+          "FR-099",
+          "FR-101"
         ],
         "@spec": [
-          "FR-095",
-          "FR-097"
+          "FR-099",
+          "FR-101"
         ],
         "@tested": [
           "tests/unit/sot-plan-service.test.js"
@@ -4385,14 +4384,14 @@
       "id": "code:src/modules/integration/application/sot-plan.js",
       "type": "code_file",
       "path": "src/modules/integration/application/sot-plan.js",
-      "hash": "ba457d5c",
+      "hash": "e54e9f9d",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-095"
+          "FR-099"
         ],
         "@spec": [
-          "FR-095",
+          "FR-099",
           "SEC-002"
         ],
         "@tested": [
@@ -4728,7 +4727,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "8ed69163",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -4785,7 +4784,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "a81fdf4f",
+      "hash": "0ca3bece",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4797,7 +4796,7 @@
           "FR-092",
           "FR-090",
           "FR-089",
-          "FR-096"
+          "FR-100"
         ],
         "@spec": [
           "BR-008",
@@ -6227,7 +6226,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.18.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "610f0184",
+      "hash": "33a973c5",
       "status": "current"
     },
     {
@@ -6273,7 +6272,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.9.0",
       "doc_status": "Draft",
-      "hash": "b07c3349",
+      "hash": "aabe7efb",
       "status": "current"
     },
     {
@@ -6355,7 +6354,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.5.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "53161ad0",
+      "hash": "39c3a598",
       "status": "current"
     },
     {
@@ -6830,27 +6829,27 @@
       "status": "current"
     },
     {
-      "id": "doc:FR-095-sot-pipeline-plan-board",
+      "id": "doc:FR-099-sot-pipeline-plan-board",
       "type": "document",
-      "path": "docs/domains/integration/features/FR-095-sot-pipeline-plan-board.md",
-      "title": "FR-095 — SoT pipeline plan board",
-      "hash": "54e751f8",
+      "path": "docs/domains/integration/features/FR-099-sot-pipeline-plan-board.md",
+      "title": "FR-099 — SoT pipeline plan board",
+      "hash": "a84d00d3",
       "status": "current"
     },
     {
-      "id": "doc:FR-096-sot-approval-inbox",
+      "id": "doc:FR-100-sot-approval-inbox",
       "type": "document",
-      "path": "docs/domains/integration/features/FR-096-sot-approval-inbox.md",
-      "title": "FR-096 — SoT approval inbox and decision export",
-      "hash": "bbe2219c",
+      "path": "docs/domains/integration/features/FR-100-sot-approval-inbox.md",
+      "title": "FR-100 — SoT approval inbox and decision export",
+      "hash": "5a27c664",
       "status": "current"
     },
     {
-      "id": "doc:FR-097-sot-pipeline-graph-dashboard",
+      "id": "doc:FR-101-sot-pipeline-graph-dashboard",
       "type": "document",
-      "path": "docs/domains/integration/features/FR-097-sot-pipeline-graph-dashboard.md",
-      "title": "FR-097 — SoT pipeline graph dashboard",
-      "hash": "0869bfa2",
+      "path": "docs/domains/integration/features/FR-101-sot-pipeline-graph-dashboard.md",
+      "title": "FR-101 — SoT pipeline graph dashboard",
+      "hash": "fee0c24c",
       "status": "current"
     },
     {
@@ -6880,7 +6879,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.2.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "dbc272c3",
+      "hash": "ff345397",
       "status": "current"
     },
     {
@@ -7088,10 +7087,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.82.0b",
+      "version": "1.83.0b",
       "doc_status": "Draft",
-      "hash": "2c55a30e",
-      "status": "current"
+      "hash": "cb387ce2",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -7514,7 +7513,7 @@
       "status": "current"
     },
     {
-      "id": "feat:FEAT-010",
+      "id": "feat:FEAT-011",
       "type": "feature",
       "label": "SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline",
       "declared": "proposed",
@@ -8941,17 +8940,17 @@
       "row_text": "LINE reply delivery receipt: the outbound half of a conversation becomes a row. Nothing has ever written a `Message` with `direction: 'OUTBOUND'` — the reply is assembled here, handed to the edge runtime, sent to the customer and then forgotten — so FR-091's inbox shows one side of every conversation and its `OUTBOUND` count is structurally zero. `POST /api/agent/line-delivery` accepts a batch of receipts from the transport owner, each naming the **inbound `Message.id` it answers** and the text that was **actually sent**. (a) The receipt comes from the edge runtime *after* a successful send and not from this side at hand-over, because the two differ: when the stack cannot answer, the transport sends its own fallback text, and recording what this side produced would record a message the customer never received (BR-011 — the reply owner is the one who knows). (b) Scope is resolved by the same seam as the webhook (FR-052), and the named inbound message must resolve inside that scope — a binding for one tenant can never attach a reply to another tenant's conversation (SEC-001). (c) Idempotent on `reply:<inboundMessageId>` as the message's external id, so a redelivered receipt resolves to the existing row: one inbound message has one reply, which is exactly what the LINE Reply API allows per token. (d) The row records the text the customer received; whether it came from the stack or from the transport's fallback is recorded on the audit event, not in the body, because the body is what was said and the provenance is a different fact. The webhook response gains `conversationId` and `inboundMessageId` so the transport has something to name — on the **failure** result as well as the success one, because a failed turn is precisely when the transport substitutes its own text and a customer certainly received something. That failure result also gains the `eventId` it never carried: the transport matches results to events by that field, so a failed result was previously unfindable and its fallback was sent only because an unmatched result and a failed one both read as \"not ok\". All additive; the four fields the transport already reads are untouched. 🔜 "
     },
     {
-      "id": "req:FR-095",
+      "id": "req:FR-099",
       "type": "requirement",
       "family": "FR",
-      "label": "SoT pipeline plan board: the business-wide Source-of-Truth pipeline's phase plan (P0–P10) lives as strict-validated data (`contracts/sot-pipeline-plan.v1.json`) and is rendered at `/platform/sot-pipeline` with status **derived** from FR-071 run evidence plus FR-096 pending-decision counts — `planned/running/blocked/done` is computed by a pure function, never typed in, so the board cannot disagree with the tracking data it reads. Reader surface only; the plan file changes by PR.",
+      "label": "SoT pipeline plan board: the business-wide Source-of-Truth pipeline's phase plan (P0–P10) lives as strict-validated data (`contracts/sot-pipeline-plan.v1.json`) and is rendered at `/platform/sot-pipeline` with status **derived** from FR-071 run evidence plus FR-100 pending-decision counts — `planned/running/blocked/done` is computed by a pure function, never typed in, so the board cannot disagree with the tracking data it reads. Reader surface only; the plan file changes by PR.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
       "status": "planned",
-      "row_text": "SoT pipeline plan board: the business-wide Source-of-Truth pipeline's phase plan (P0–P10) lives as strict-validated data (`contracts/sot-pipeline-plan.v1.json`) and is rendered at `/platform/sot-pipeline` with status **derived** from FR-071 run evidence plus FR-096 pending-decision counts — `planned/running/blocked/done` is computed by a pure function, never typed in, so the board cannot disagree with the tracking data it reads. Reader surface only; the plan file changes by PR. 🔜 "
+      "row_text": "SoT pipeline plan board: the business-wide Source-of-Truth pipeline's phase plan (P0–P10) lives as strict-validated data (`contracts/sot-pipeline-plan.v1.json`) and is rendered at `/platform/sot-pipeline` with status **derived** from FR-071 run evidence plus FR-100 pending-decision counts — `planned/running/blocked/done` is computed by a pure function, never typed in, so the board cannot disagree with the tracking data it reads. Reader surface only; the plan file changes by PR. 🔜 "
     },
     {
-      "id": "req:FR-096",
+      "id": "req:FR-100",
       "type": "requirement",
       "family": "FR",
       "label": "SoT approval inbox and decision export: one tenant/business-scoped `SotDecision` queue (PRICE_ROW, ENTITY, FILE_CLASSIFICATION, PHASE_GATE) that the external data plane **submits** into (idempotent batch, `.strict()` envelope, payload-hash versioning), a human **decides** in the browser (audited, immutable rows, new version to change a decision), and the data plane **pulls** from (`export?since=` cursor) to apply approved facts to its own DuckDB/graph stores — zuri-ai never writes into the retrieval substrate, keeping Tier 1 inside the ADR-043 boundary during the Boss-approved `:8888` interim. Closes the open loop where approvals in `price_approval.csv` reached nothing (17,702 staged price rows, 0 approved in store).",
@@ -8961,14 +8960,14 @@
       "row_text": "SoT approval inbox and decision export: one tenant/business-scoped `SotDecision` queue (PRICE_ROW, ENTITY, FILE_CLASSIFICATION, PHASE_GATE) that the external data plane **submits** into (idempotent batch, `.strict()` envelope, payload-hash versioning), a human **decides** in the browser (audited, immutable rows, new version to change a decision), and the data plane **pulls** from (`export?since=` cursor) to apply approved facts to its own DuckDB/graph stores — zuri-ai never writes into the retrieval substrate, keeping Tier 1 inside the ADR-043 boundary during the Boss-approved `:8888` interim. Closes the open loop where approvals in `price_approval.csv` reached nothing (17,702 staged price rows, 0 approved in store). 🔜 "
     },
     {
-      "id": "req:FR-097",
+      "id": "req:FR-101",
       "type": "requirement",
       "family": "FR",
-      "label": "SoT pipeline graph dashboard: `/platform/sot-pipeline/graph` renders the FR-095 plan as read-only nodes and edges (hand-rolled SVG, topological layers, no client graph library) using the same `{nodes, edges}` data shape as FR-040's dependency map, with FR-095's derived status as node state and per-phase pending-decision badges linking into the FR-096 inbox. One API payload feeds both surfaces.",
+      "label": "SoT pipeline graph dashboard: `/platform/sot-pipeline/graph` renders the FR-099 plan as read-only nodes and edges (hand-rolled SVG, topological layers, no client graph library) using the same `{nodes, edges}` data shape as FR-040's dependency map, with FR-099's derived status as node state and per-phase pending-decision badges linking into the FR-100 inbox. One API payload feeds both surfaces.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
       "status": "planned",
-      "row_text": "SoT pipeline graph dashboard: `/platform/sot-pipeline/graph` renders the FR-095 plan as read-only nodes and edges (hand-rolled SVG, topological layers, no client graph library) using the same `{nodes, edges}` data shape as FR-040's dependency map, with FR-095's derived status as node state and per-phase pending-decision badges linking into the FR-096 inbox. One API payload feeds both surfaces. 🔜 "
+      "row_text": "SoT pipeline graph dashboard: `/platform/sot-pipeline/graph` renders the FR-099 plan as read-only nodes and edges (hand-rolled SVG, topological layers, no client graph library) using the same `{nodes, edges}` data shape as FR-040's dependency map, with FR-099's derived status as node state and per-phase pending-decision badges linking into the FR-100 inbox. One API payload feeds both surfaces. 🔜 "
     },
     {
       "id": "req:NFR-001",
@@ -11199,7 +11198,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md",
       "title": "ADR-039 — Requirement ids are pinned by subject anchor",
-      "hash": "932a3d5f",
+      "hash": "ac57ea2f",
       "status": "current"
     },
     {
@@ -11235,11 +11234,11 @@
       "status": "current"
     },
     {
-      "id": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "id": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
       "type": "adr",
-      "path": "docs/decisions/ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md",
-      "title": "ADR-045 — SoT pipeline: interim serving on :8888, and decisions leave by pull",
-      "hash": "e9938291",
+      "path": "docs/decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md",
+      "title": "ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull",
+      "hash": "1e37b8f0",
       "status": "current"
     },
     {
@@ -11688,7 +11687,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "4412d004",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/plan-import-scope.test.js",
@@ -13017,42 +13016,42 @@
       "id": "test:tests/unit/sot-decision-service.test.js",
       "type": "test",
       "path": "tests/unit/sot-decision-service.test.js",
-      "hash": "ed3bca5f",
+      "hash": "fe317973",
       "status": "current"
     },
     {
       "id": "test:tests/unit/sot-inbox-ui.test.js",
       "type": "test",
       "path": "tests/unit/sot-inbox-ui.test.js",
-      "hash": "ab9bcf0f",
+      "hash": "b6e3f853",
       "status": "current"
     },
     {
       "id": "test:tests/unit/sot-pipeline-graph.test.js",
       "type": "test",
       "path": "tests/unit/sot-pipeline-graph.test.js",
-      "hash": "1f22f84e",
+      "hash": "a8642058",
       "status": "current"
     },
     {
       "id": "test:tests/unit/sot-plan-board-ui.test.js",
       "type": "test",
       "path": "tests/unit/sot-plan-board-ui.test.js",
-      "hash": "79c35b97",
+      "hash": "dcbfacf2",
       "status": "current"
     },
     {
       "id": "test:tests/unit/sot-plan-service.test.js",
       "type": "test",
       "path": "tests/unit/sot-plan-service.test.js",
-      "hash": "4a8dabec",
+      "hash": "5e8b1985",
       "status": "current"
     },
     {
       "id": "test:tests/unit/sot-plan-status.test.js",
       "type": "test",
       "path": "tests/unit/sot-plan-status.test.js",
-      "hash": "ae9979b4",
+      "hash": "0ee574cd",
       "status": "current"
     },
     {
@@ -13507,42 +13506,42 @@
     },
     {
       "from": "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
-      "to": "req:FR-097",
+      "to": "req:FR-101",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
-      "to": "req:FR-097",
+      "to": "req:FR-101",
       "type": "follows",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "follows",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -15852,42 +15851,42 @@
     },
     {
       "from": "code:src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "follows",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/api/platform/sot/decisions/export/route.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/api/platform/sot/decisions/export/route.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "follows",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/api/platform/sot/decisions/route.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/api/platform/sot/decisions/route.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -15901,28 +15900,28 @@
     },
     {
       "from": "code:src/app/api/platform/sot/plan/route.js",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/api/platform/sot/plan/route.js",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "follows",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/api/platform/sot/plan/route.js",
-      "to": "req:FR-097",
+      "to": "req:FR-101",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/app/api/platform/sot/plan/route.js",
-      "to": "req:FR-097",
+      "to": "req:FR-101",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19051,14 +19050,14 @@
     },
     {
       "from": "code:src/modules/integration/application/sot-decision-service.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/integration/application/sot-decision-service.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19072,63 +19071,63 @@
     },
     {
       "from": "code:src/modules/integration/application/sot-pipeline-graph.js",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/integration/application/sot-pipeline-graph.js",
-      "to": "req:FR-097",
+      "to": "req:FR-101",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/integration/application/sot-pipeline-graph.js",
-      "to": "req:FR-097",
+      "to": "req:FR-101",
       "type": "follows",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/integration/application/sot-plan-service.js",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/integration/application/sot-plan-service.js",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "follows",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/integration/application/sot-plan-service.js",
-      "to": "req:FR-097",
+      "to": "req:FR-101",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/integration/application/sot-plan-service.js",
-      "to": "req:FR-097",
+      "to": "req:FR-101",
       "type": "follows",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/integration/application/sot-plan.js",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/integration/application/sot-plan.js",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19597,7 +19596,7 @@
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -21941,22 +21940,22 @@
       "source": "feature-registry"
     },
     {
-      "from": "feat:FEAT-010",
-      "to": "req:FR-095",
+      "from": "feat:FEAT-011",
+      "to": "req:FR-099",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
     },
     {
-      "from": "feat:FEAT-010",
-      "to": "req:FR-096",
+      "from": "feat:FEAT-011",
+      "to": "req:FR-100",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
     },
     {
-      "from": "feat:FEAT-010",
-      "to": "req:FR-097",
+      "from": "feat:FEAT-011",
+      "to": "req:FR-101",
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
@@ -23138,21 +23137,21 @@
       "source": "prd-registry"
     },
     {
-      "from": "req:FR-095",
+      "from": "req:FR-099",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
       "source": "prd-registry"
     },
     {
-      "from": "req:FR-096",
+      "from": "req:FR-100",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
       "source": "prd-registry"
     },
     {
-      "from": "req:FR-097",
+      "from": "req:FR-101",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -25868,42 +25867,42 @@
       "source": "control-block"
     },
     {
-      "from": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
-      "to": "req:FR-095",
+      "from": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "to": "req:FR-099",
       "type": "relates",
       "status": "current",
       "source": "control-block"
     },
     {
-      "from": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
-      "to": "req:FR-096",
+      "from": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "to": "req:FR-100",
       "type": "relates",
       "status": "current",
       "source": "control-block"
     },
     {
-      "from": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
-      "to": "req:FR-097",
+      "from": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "to": "req:FR-101",
       "type": "relates",
       "status": "current",
       "source": "control-block"
     },
     {
-      "from": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "from": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
       "to": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
       "type": "relates",
       "status": "current",
       "source": "control-block"
     },
     {
-      "from": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "from": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
       "to": "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE",
       "type": "relates",
       "status": "current",
       "source": "control-block"
     },
     {
-      "from": "spec:ADR-045-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "from": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
       "to": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
       "type": "relates",
       "status": "current",
@@ -27766,7 +27765,7 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -29117,7 +29116,7 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -33555,7 +33554,7 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -39001,7 +39000,7 @@
     },
     {
       "from": "test:tests/unit/sot-decision-service.test.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -39022,7 +39021,7 @@
     },
     {
       "from": "test:tests/unit/sot-inbox-ui.test.js",
-      "to": "req:FR-096",
+      "to": "req:FR-100",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -39050,14 +39049,14 @@
     },
     {
       "from": "test:tests/unit/sot-pipeline-graph.test.js",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/unit/sot-pipeline-graph.test.js",
-      "to": "req:FR-097",
+      "to": "req:FR-101",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -39071,7 +39070,7 @@
     },
     {
       "from": "test:tests/unit/sot-plan-board-ui.test.js",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -39092,14 +39091,14 @@
     },
     {
       "from": "test:tests/unit/sot-plan-service.test.js",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
     },
     {
       "from": "test:tests/unit/sot-plan-service.test.js",
-      "to": "req:FR-097",
+      "to": "req:FR-101",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -39113,7 +39112,7 @@
     },
     {
       "from": "test:tests/unit/sot-plan-status.test.js",
-      "to": "req:FR-095",
+      "to": "req:FR-099",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
