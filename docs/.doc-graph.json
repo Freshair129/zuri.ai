@@ -3,13 +3,13 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1227,
-    "total_edges": 4125,
+    "total_nodes": 1229,
+    "total_edges": 4137,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 94,
-      "adr": 48,
+      "document": 95,
+      "adr": 49,
       "domain": 8,
       "roadmap": 28,
       "feature": 11,
@@ -53,10 +53,11 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0"
+      "domain:project-manager"
     ],
     "added": [
-      "req:FR-106"
+      "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "doc:EXECUTION-PLAN-BUNDLE"
     ],
     "removed": []
   },
@@ -6676,6 +6677,14 @@
       "status": "current"
     },
     {
+      "id": "doc:EXECUTION-PLAN-BUNDLE",
+      "type": "document",
+      "path": "docs/domains/project-manager/EXECUTION-PLAN-BUNDLE.md",
+      "title": "ExecutionPlanBundle — self-contained multi-project planning package",
+      "hash": "1b3b7980",
+      "status": "current"
+    },
+    {
       "id": "doc:EXTRACT-MSP.codex",
       "type": "document",
       "path": "docs/prompts/EXTRACT-MSP.codex.md",
@@ -7496,7 +7505,7 @@
       "version": "1.90.0b",
       "doc_status": "Draft",
       "hash": "0b6573f7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -7883,8 +7892,8 @@
         "business",
         "people"
       ],
-      "hash": "8ab564dc",
-      "status": "current"
+      "hash": "8cd51610",
+      "status": "changed"
     },
     {
       "id": "feat:FEAT-001",
@@ -11952,6 +11961,14 @@
       "path": "docs/decisions/ADR-048-PLATFORM-CONTROL-SHELL.md",
       "title": "ADR-048 — Platform Control is outside the Business Shell",
       "hash": "9ef29f4f",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "type": "adr",
+      "path": "docs/decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md",
+      "title": "ADR-049 — ExecutionPlanBundle is the package above PlanEnvelope",
+      "hash": "444fcc6a",
       "status": "current"
     },
     {
@@ -27884,6 +27901,90 @@
     {
       "from": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
       "to": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:BR-007",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:BR-009",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:FR-069",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:FR-070",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:SDD-009",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:SDD-037",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:SEC-001",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:SEC-002",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
       "type": "relates",
       "status": "current",
       "source": "control-block"

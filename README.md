@@ -18,6 +18,22 @@ not a version of, and shares nothing with, the legacy zuri project.
 - [docs/decisions/](docs/decisions/) — ADRs; ADR-024 is the current direction
 - [docs/roadmap/](docs/roadmap/) — live delivery state
 
+## Planning import contracts
+
+Project Manager keeps one canonical per-Project intake contract:
+[`PlanEnvelope`](contracts/plan-envelope.schema.json). Human form, Excel,
+Agent/API/MCP and pasted JSON all converge on the same validation → dry-run →
+confirm → commit path.
+
+For a self-contained programme artifact containing Business Roadmap/Horizons,
+Goals and multiple Projects, use
+[`ExecutionPlanBundle`](contracts/execution-plan-bundle.schema.json). The bundle
+is an orchestration package above PlanEnvelope, not a replacement writer and not
+an alias for `WorkContainer`; see
+[ADR-049](docs/decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md)
+and the
+[ExecutionPlanBundle design contract](docs/domains/project-manager/EXECUTION-PLAN-BUNDLE.md).
+
 ## Toolchain
 
 ```bash
