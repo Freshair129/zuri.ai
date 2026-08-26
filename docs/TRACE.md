@@ -738,3 +738,10 @@
 - **Code:** `src/app/api/agent/line-delivery/route.js` · `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/turn.js` · `src/modules/crm/reply-record-service.js`
 - **Follows:** BR-011, BR-012, FR-052, NFR-017, SDD-026, SDD-048, SDD-051, SEC-001, SEC-010
 - **Tests:** `tests/integration/agent-turn.test.js` · `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-reply-record.test.js` · `tests/integration/line-webhook-transport-contract.test.js` · `tests/unit/reply-record-service.test.js`
+
+### FR-094 — FlowAccount read-only pull pipeline: an OWNER-authorized Business can onboard one FlowAccount Client Credentials connection through a provider-specific Platform wizard that accepts Client ID/Client Secret write-only, provisions them into the approved secret manager, verifies `GET /company/info`, and returns redacted metadata only. A server-owned `FLOWACCOUNT` adapter exchanges/reuses Bearer tokens, calls only the approved GET resource catalog, paginates at `pageSize<=200`, respects provider account rate limits, and sends every record through the existing FR-081 `zIngestionEnvelope`/`RawExternalRecord` path with trusted Tenant/Business/connection scope, external identity, payload hash, IngestionRun, SyncCursor and DeadLetterRecord evidence. Cursor advancement requires a complete resource run; document incrementals use a lookback window and master resources use full hash reconciliation because FlowAccount exposes no generic updated-since cursor. The UI exposes computed DATA_SOURCE health and run summaries, never raw secret/token/payload. Public OpenAPI evidence is not GL/TB/P&L or Accounting truth; provider writes, OpenID, webhook, scheduler and downstream domain publication are separate future requirements.
+
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —

@@ -3,28 +3,28 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1057,
-    "total_edges": 3478,
+    "total_nodes": 1064,
+    "total_edges": 3483,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 86,
-      "adr": 38,
+      "document": 87,
+      "adr": 39,
       "domain": 7,
       "roadmap": 25,
       "feature": 9,
       "route": 117,
       "model": 53,
-      "requirement": 198,
+      "requirement": 203,
       "test": 245,
       "code_file": 275
     },
     "coverage": {
-      "requirements": 198,
+      "requirements": 203,
       "fr_with_code": "100% (81/81)",
       "fr_with_tests": "100% (81/81)",
-      "rules_anchored_in_code": "89% (76/85)",
-      "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
+      "rules_anchored_in_code": "86% (76/88)",
+      "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 275,
       "fr_planned": [
         "FR-066",
@@ -38,20 +38,24 @@
         "FR-088",
         "FR-089",
         "FR-091",
-        "FR-093"
+        "FR-093",
+        "FR-094"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
       "rules_without_anchor": [
         "BR-016",
         "BR-017",
+        "BR-020",
         "SDD-038",
         "SDD-040",
         "SDD-041",
         "SDD-042",
         "SDD-046",
+        "SDD-052",
         "SEC-005",
-        "SEC-014"
+        "SEC-014",
+        "SEC-018"
       ],
       "rules_superseded": [
         "SDD-001",
@@ -60,7 +64,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "spec:ADR-039-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING"
+    ],
     "added": [],
     "removed": []
   },
@@ -6205,6 +6211,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-094-flowaccount-read-only-pull-pipeline",
+      "type": "document",
+      "path": "docs/domains/integration/features/FR-094-flowaccount-read-only-pull-pipeline.md",
+      "title": "FR-094 — FlowAccount read-only pull pipeline",
+      "hash": "3c79cb7b",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -6439,9 +6453,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.78.0b",
+      "version": "1.80.0b",
       "doc_status": "Draft",
-      "hash": "ea7253f8",
+      "hash": "ad3d086a",
       "status": "current"
     },
     {
@@ -6707,7 +6721,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "700dcbf0",
+      "hash": "c493c0d3",
       "status": "current"
     },
     {
@@ -7315,6 +7329,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Integration raw evidence is immutable authority for external acquisition provenance. Market may derive observations from it but never rewrites, re-owns or treats translated payload fields as authority for Tenant/Business/connection/source scope. FR-081, FR-092, ADR-038 "
+    },
+    {
+      "id": "req:BR-020",
+      "type": "requirement",
+      "family": "BR",
+      "label": "FlowAccount OpenAPI payloads are external evidence, not Zuri accounting truth. Missing public read classes — including GL, Trial Balance and Profit & Loss — remain explicit, and no revenue/profit/completeness claim or downstream domain mutation may be derived until the owning domain approves a versioned translation/reconciliation contract.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "FlowAccount OpenAPI payloads are external evidence, not Zuri accounting truth. Missing public read classes — including GL, Trial Balance and Profit & Loss — remain explicit, and no revenue/profit/completeness claim or downstream domain mutation may be derived until the owning domain approves a versioned translation/reconciliation contract. FR-094, FR-081, ADR-039 "
     },
     {
       "id": "req:FR-001",
@@ -8247,6 +8271,16 @@
       "row_text": "LINE reply delivery receipt: the outbound half of a conversation becomes a row. Nothing has ever written a `Message` with `direction: 'OUTBOUND'` — the reply is assembled here, handed to the edge runtime, sent to the customer and then forgotten — so FR-091's inbox shows one side of every conversation and its `OUTBOUND` count is structurally zero. `POST /api/agent/line-delivery` accepts a batch of receipts from the transport owner, each naming the **inbound `Message.id` it answers** and the text that was **actually sent**. (a) The receipt comes from the edge runtime *after* a successful send and not from this side at hand-over, because the two differ: when the stack cannot answer, the transport sends its own fallback text, and recording what this side produced would record a message the customer never received (BR-011 — the reply owner is the one who knows). (b) Scope is resolved by the same seam as the webhook (FR-052), and the named inbound message must resolve inside that scope — a binding for one tenant can never attach a reply to another tenant's conversation (SEC-001). (c) Idempotent on `reply:<inboundMessageId>` as the message's external id, so a redelivered receipt resolves to the existing row: one inbound message has one reply, which is exactly what the LINE Reply API allows per token. (d) The row records the text the customer received; whether it came from the stack or from the transport's fallback is recorded on the audit event, not in the body, because the body is what was said and the provenance is a different fact. The webhook response gains `conversationId` and `inboundMessageId` so the transport has something to name — on the **failure** result as well as the success one, because a failed turn is precisely when the transport substitutes its own text and a customer certainly received something. That failure result also gains the `eventId` it never carried: the transport matches results to events by that field, so a failed result was previously unfindable and its fallback was sent only because an unmatched result and a failed one both read as \"not ok\". All additive; the four fields the transport already reads are untouched. 🔜 "
     },
     {
+      "id": "req:FR-094",
+      "type": "requirement",
+      "family": "FR",
+      "label": "FlowAccount read-only pull pipeline: an OWNER-authorized Business can onboard one FlowAccount Client Credentials connection through a provider-specific Platform wizard that accepts Client ID/Client Secret write-only, provisions them into the approved secret manager, verifies `GET /company/info`, and returns redacted metadata only. A server-owned `FLOWACCOUNT` adapter exchanges/reuses Bearer tokens, calls only the approved GET resource catalog, paginates at `pageSize<=200`, respects provider account rate limits, and sends every record through the existing FR-081 `zIngestionEnvelope`/`RawExternalRecord` path with trusted Tenant/Business/connection scope, external identity, payload hash, IngestionRun, SyncCursor and DeadLetterRecord evidence. Cursor advancement requires a complete resource run; document incrementals use a lookback window and master resources use full hash reconciliation because FlowAccount exposes no generic updated-since cursor. The UI exposes computed DATA_SOURCE health and run summaries, never raw secret/token/payload. Public OpenAPI evidence is not GL/TB/P&L or Accounting truth; provider writes, OpenID, webhook, scheduler and downstream domain publication are separate future requirements.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "FlowAccount read-only pull pipeline: an OWNER-authorized Business can onboard one FlowAccount Client Credentials connection through a provider-specific Platform wizard that accepts Client ID/Client Secret write-only, provisions them into the approved secret manager, verifies `GET /company/info`, and returns redacted metadata only. A server-owned `FLOWACCOUNT` adapter exchanges/reuses Bearer tokens, calls only the approved GET resource catalog, paginates at `pageSize<=200`, respects provider account rate limits, and sends every record through the existing FR-081 `zIngestionEnvelope`/`RawExternalRecord` path with trusted Tenant/Business/connection scope, external identity, payload hash, IngestionRun, SyncCursor and DeadLetterRecord evidence. Cursor advancement requires a complete resource run; document incrementals use a lookback window and master resources use full hash reconciliation because FlowAccount exposes no generic updated-since cursor. The UI exposes computed DATA_SOURCE health and run summaries, never raw secret/token/payload. Public OpenAPI evidence is not GL/TB/P&L or Accounting truth; provider writes, OpenID, webhook, scheduler and downstream domain publication are separate future requirements. 🔜 documentation candidate; implementation not authorized "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -8425,6 +8459,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable. FR-092 tests + unique lineage persistence gate "
+    },
+    {
+      "id": "req:NFR-019",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "FlowAccount acquisition is resumable, idempotent, rate-aware and secret-safe: the same external payload cannot create a duplicate logical raw record, a partial resource run cannot advance its cursor, token reuse/backoff stays below the provider account budget, and no Client Secret/access token/full Vault reference enters Prisma, browser responses, logs or audit events.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "FlowAccount acquisition is resumable, idempotent, rate-aware and secret-safe: the same external payload cannot create a duplicate logical raw record, a partial resource run cannot advance its cursor, token reuse/backoff stays below the provider account budget, and no Client Secret/access token/full Vault reference enters Prisma, browser responses, logs or audit events. FR-094 unit/integration/E2E, isolation, redaction, rate-limit and Sandbox contract gates "
     },
     {
       "id": "req:SDD-001",
@@ -8937,6 +8981,16 @@
       "row_text": "Recording a reply is a **separate, narrow writer** in the crm module (`reply-record-service`), not a `direction: 'OUTBOUND'` call into `ingestLineMessage`. The ingest seam creates a Person, a Customer and a Conversation when they are absent, and that is exactly wrong here: a receipt naming a conversation that does not exist is an error to report, never a reason to invent one. So the writer resolves the inbound `Message` first, derives the conversation from it, and refuses anything it cannot place — the conversation is never taken from the request, which is what makes cross-tenant attachment impossible rather than merely checked. It appends one row and one `AuditEvent` in a single transaction, exactly as the ingest seam does, and carries the same correlation id (SDD-048) so `webhook → turn → message → reply` remains one chain in the audit table. The route is a batch like the webhook: a per-receipt failure is captured with the stage that failed and never drops the rest, because a transport that has already sent three replies must be able to report all three. FR-093; FEAT-009, BR-011, BR-001, SEC-001, SDD-048, SDD-050, FR-023, FR-052, FR-091 "
     },
     {
+      "id": "req:SDD-052",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "FlowAccount is a provider adapter over the Integration-owned substrate, not a parallel accounting importer. A provider-specific wizard invokes a write-only SecretManagerProvisionPort, persists only an opaque credential reference, verifies a fixed Sandbox/Production company endpoint and creates a Business-scoped `DATA_SOURCE` connection. Manual sync opens one IngestionRun per allow-listed resource, reuses an expiry-skewed Bearer token, paginates under the provider limit, applies an account-wide limiter/backoff, normalizes records into the FR-081 envelope, and advances the per-resource SyncCursor only after complete success; failures retain raw/dead-letter evidence. Health is computed from credential/company-test/run/cursor facts. Translation into Accounting, Sales, CRM or Inventory remains outside the adapter and requires the owner domain's approved contract.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "FlowAccount is a provider adapter over the Integration-owned substrate, not a parallel accounting importer. A provider-specific wizard invokes a write-only SecretManagerProvisionPort, persists only an opaque credential reference, verifies a fixed Sandbox/Production company endpoint and creates a Business-scoped `DATA_SOURCE` connection. Manual sync opens one IngestionRun per allow-listed resource, reuses an expiry-skewed Bearer token, paginates under the provider limit, applies an account-wide limiter/backoff, normalizes records into the FR-081 envelope, and advances the per-resource SyncCursor only after complete success; failures retain raw/dead-letter evidence. Health is computed from credential/company-test/run/cursor facts. Translation into Accounting, Sales, CRM or Inventory remains outside the adapter and requires the owner domain's approved contract. FR-094; ADR-039, FR-080, FR-081, NFR-019, BR-019, BR-020, SEC-016, SEC-018, SDD-048 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -9105,6 +9159,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope. FR-092 / ADR-038 security gate "
+    },
+    {
+      "id": "req:SEC-018",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "FlowAccount provisioning and pulls fail closed: Client Secret/access token/full secret reference/raw financial payload never enters Prisma, browser responses, URLs, logs, audits or model prompts; server endpoints and GET resource paths are fixed allow-lists with redirects disabled; trusted viewer Business authority is resolved before secret access or outbound calls; writes to FlowAccount are unreachable.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "FlowAccount provisioning and pulls fail closed: Client Secret/access token/full secret reference/raw financial payload never enters Prisma, browser responses, URLs, logs, audits or model prompts; server endpoints and GET resource paths are fixed allow-lists with redirects disabled; trusted viewer Business authority is resolved before secret access or outbound calls; writes to FlowAccount are unreachable. FR-094 / ADR-039 security gate "
     },
     {
       "id": "route:api:/api/agent/line-delivery",
@@ -10349,6 +10413,14 @@
       "title": "ADR-038 — Market Intelligence is a first-class Zuri domain inside the Modular Monolith",
       "hash": "e759691c",
       "status": "current"
+    },
+    {
+      "id": "spec:ADR-039-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "type": "adr",
+      "path": "docs/decisions/ADR-039-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md",
+      "title": "ADR-039 — FlowAccount read-only pull pipeline and credential provisioning",
+      "hash": "ebd3208f",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -20650,6 +20722,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:BR-020",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:FR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -21315,6 +21394,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-094",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -21435,6 +21521,13 @@
     },
     {
       "from": "req:NFR-018",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-019",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -21798,6 +21891,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-052",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -21925,6 +22025,13 @@
     },
     {
       "from": "req:SEC-017",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-018",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",

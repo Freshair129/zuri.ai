@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-20T02:26:19.022Z",
+  "generatedAt": "2026-08-20T03:52:23.108Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 21,
+    "gapCount": 24,
     "gaps": [
       {
         "domain": "agent",
@@ -140,6 +140,28 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-067 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "integration",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "integration",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-094",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-094 is planned",
         "evidence": []
       },
       {
@@ -1026,7 +1048,7 @@
       }
     },
     "integration": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-028",
@@ -1069,6 +1091,13 @@
           "status": "verified",
           "codeCount": 7,
           "testCount": 12
+        },
+        {
+          "id": "FR-094",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -1108,12 +1137,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -1145,11 +1180,17 @@
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -1160,6 +1201,7 @@
         "docs/domains/integration/features/FR-079-phase1-line-runtime-connection-cutover.md",
         "docs/domains/integration/features/FR-080-integration-secret-management-ui.md",
         "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
+        "docs/domains/integration/features/FR-094-flowaccount-read-only-pull-pipeline.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1167,13 +1209,33 @@
         "src/modules/project-manager/mcp/transport.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-094",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-094 is planned",
+          "evidence": []
+        }
+      ],
       "details": {
         "routes": 2,
         "apiRoutes": 1,
         "pageRoutes": 1,
         "ownedModels": 8,
-        "featureNotes": 3
+        "featureNotes": 4
       }
     },
     "knowledge": {
