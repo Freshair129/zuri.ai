@@ -1,10 +1,16 @@
 // @req FR-019 — resolve external ref lookup or human code to internal id
+// @req FR-106 — the Enterprise API accepts a Tenant-bound `Authorization:
+// Bearer apik_...` key, checked ahead of the session seam; a key viewer
+// resolves only records inside the key's own Tenant, and everything outside it
+// answers exactly as a record that does not exist.
 // @spec BR-002, SDD-003 — support both customer core-id mapping (system/value) and human-code lookup (type/code)
+// @spec SEC-001, SEC-006
 import { handle, httpError, queryParams } from '../_helpers'
 import prisma from '@/lib/db'
 import { lookupExternalRef, listExternalRefs } from '@/modules/project-manager/import/external-ref'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
-import { isInstallationOperator, seesBusiness } from '@/modules/identity/viewer-authority'
+import { resolveApiAccessViewer } from '@/modules/identity/api-access-auth'
+import { isApiAccessFor, isInstallationOperator, seesBusiness } from '@/modules/identity/viewer-authority'
 import { assertProjectReadable } from '@/modules/project-manager/application/project-inventory-read-model'
 
 export const dynamic = 'force-dynamic'
@@ -71,7 +77,39 @@ async function assertWorkspaceVisible(workspaceId, viewer, notFoundMessage) {
   if (!where || !(await prisma.business.count({ where }))) throw httpError(404, notFoundMessage)
 }
 
+/**
+ * @req FR-106 — an Enterprise API key viewer resolves the record's Tenant from
+ * the database (never from the request) and sees it only when that Tenant is
+ * the key's own. Every other outcome — other Tenant, no resolvable Tenant,
+ * dangling scope — throws the identical not-found the session path throws, so
+ * a key can never be used to enumerate what exists outside its Tenant
+ * (SEC-001, SEC-006, BR-002).
+ */
+async function assertKeyViewerVisible(type, record, viewer, notFoundMessage) {
+  let tenantId = null
+  if (PROJECT_ENTITY_TYPES.has(type)) {
+    const project = await projectForRecord(type, record)
+    if (!project || project.deletedAt) throw httpError(404, notFoundMessage)
+    tenantId = project.business?.tenantId || project.workspace?.tenantId || null
+  } else if (type === 'WORKSPACE') {
+    const workspace = await prisma.workspace.findUnique({
+      where: { id: record.id },
+      select: { tenantId: true, business: { select: { tenantId: true } } },
+    })
+    tenantId = workspace?.business?.tenantId || workspace?.tenantId || null
+  } else if (type === 'REPOSITORY') {
+    const business = record.businessId
+      ? await prisma.business.findUnique({ where: { id: record.businessId }, select: { tenantId: true } })
+      : null
+    tenantId = business?.tenantId || null
+  }
+  if (!isApiAccessFor(viewer, tenantId)) throw httpError(404, notFoundMessage)
+}
+
 async function assertResolvedVisible(type, record, viewer, notFoundMessage) {
+  if (viewer?.isApiAccess === true) {
+    return assertKeyViewerVisible(type, record, viewer, notFoundMessage)
+  }
   if (PROJECT_ENTITY_TYPES.has(type)) {
     const project = await projectForRecord(type, record)
     if (!project || project.deletedAt) throw httpError(404, notFoundMessage)
@@ -91,7 +129,7 @@ async function assertResolvedVisible(type, record, viewer, notFoundMessage) {
 export async function GET(request) {
   const { type, code, system, value } = queryParams(request)
   return handle(async () => {
-    const viewer = await resolveRequestViewer(request)
+    const viewer = (await resolveApiAccessViewer(request)) ?? await resolveRequestViewer(request)
     if (system || value) {
       if (!system || !value) throw httpError(400, 'Both system and value are required to resolve an external id')
       const hit = await lookupExternalRef(system, value)

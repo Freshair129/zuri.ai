@@ -3,37 +3,36 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1227,
-    "total_edges": 4125,
+    "total_nodes": 1239,
+    "total_edges": 4191,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 94,
+      "document": 95,
       "adr": 48,
       "domain": 8,
       "roadmap": 28,
       "feature": 11,
-      "route": 136,
-      "model": 63,
+      "route": 138,
+      "model": 64,
       "requirement": 220,
-      "test": 293,
-      "code_file": 322
+      "test": 298,
+      "code_file": 325
     },
     "coverage": {
       "requirements": 220,
-      "fr_with_code": "100% (99/99)",
-      "fr_with_tests": "100% (99/99)",
+      "fr_with_code": "100% (100/100)",
+      "fr_with_tests": "100% (100/100)",
       "rules_anchored_in_code": "94% (87/93)",
       "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 322,
+      "annotated_code_files": 325,
       "fr_planned": [
         "FR-066",
         "FR-067",
         "FR-082",
         "FR-083",
         "FR-084",
-        "FR-085",
-        "FR-106"
+        "FR-085"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -52,12 +51,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:PRD-SDD-v1.0"
-    ],
-    "added": [
-      "req:FR-106"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -1474,17 +1469,15 @@
       "id": "code:src/app/api/docs/route.js",
       "type": "code_file",
       "path": "src/app/api/docs/route.js",
-      "hash": "8b122a5b",
+      "hash": "d22e3662",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-019"
+          "FR-019",
+          "FR-106"
         ],
         "@spec": [
           "SEC-006"
-        ],
-        "@tested": [
-          "tests/integration/openapi-docs.test.js"
         ]
       }
     },
@@ -1757,16 +1750,19 @@
       "id": "code:src/app/api/import/commit/route.js",
       "type": "code_file",
       "path": "src/app/api/import/commit/route.js",
-      "hash": "eb80dacc",
+      "hash": "0528ef71",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
-          "FR-065"
+          "FR-065",
+          "FR-106",
+          "FR-019"
         ],
         "@spec": [
           "SDD-037",
           "SEC-001",
+          "SEC-006",
           "SEC-008"
         ]
       }
@@ -1775,16 +1771,19 @@
       "id": "code:src/app/api/import/dry-run/route.js",
       "type": "code_file",
       "path": "src/app/api/import/dry-run/route.js",
-      "hash": "a8ef21d9",
+      "hash": "d5f6eaf2",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
-          "FR-065"
+          "FR-065",
+          "FR-106",
+          "FR-019"
         ],
         "@spec": [
           "SDD-037",
           "SEC-001",
+          "SEC-006",
           "SEC-008"
         ]
       }
@@ -2014,6 +2013,46 @@
         "@tested": [
           "tests/integration/openapi-docs.test.js",
           "tests/unit/pipeline-tracking-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/api-access-keys/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/api-access-keys/[id]/route.js",
+      "hash": "c85da1d0",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-106"
+        ],
+        "@spec": [
+          "SEC-006",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/api-access-key-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/api-access-keys/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/api-access-keys/route.js",
+      "hash": "21210b31",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-106"
+        ],
+        "@spec": [
+          "SEC-006",
+          "SEC-001",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/api-access-key-routes.test.js"
         ]
       }
     },
@@ -2635,15 +2674,18 @@
       "id": "code:src/app/api/resolve/route.js",
       "type": "code_file",
       "path": "src/app/api/resolve/route.js",
-      "hash": "9dd7322c",
+      "hash": "7609b920",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-019"
+          "FR-019",
+          "FR-106"
         ],
         "@spec": [
           "BR-002",
-          "SDD-003"
+          "SDD-003",
+          "SEC-001",
+          "SEC-006"
         ]
       }
     },
@@ -4165,6 +4207,27 @@
       }
     },
     {
+      "id": "code:src/modules/identity/api-access-auth.js",
+      "type": "code_file",
+      "path": "src/modules/identity/api-access-auth.js",
+      "hash": "a401ac46",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-106"
+        ],
+        "@spec": [
+          "SEC-006",
+          "SEC-001",
+          "BR-002"
+        ],
+        "@tested": [
+          "tests/unit/api-access-auth.test.js",
+          "tests/integration/enterprise-api-auth.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/auth-service.js",
       "type": "code_file",
       "path": "src/modules/identity/auth-service.js",
@@ -4531,7 +4594,7 @@
       "id": "code:src/modules/identity/viewer-authority.js",
       "type": "code_file",
       "path": "src/modules/identity/viewer-authority.js",
-      "hash": "56a68d07",
+      "hash": "0d425973",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5050,7 +5113,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "1f3447ff",
+      "hash": "9a9737f9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5108,7 +5171,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "a3cfe507",
+      "hash": "53841926",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5122,7 +5185,8 @@
           "FR-095",
           "FR-089",
           "FR-100",
-          "FR-102"
+          "FR-102",
+          "FR-106"
         ],
         "@spec": [
           "BR-008",
@@ -5917,16 +5981,18 @@
       "id": "code:src/modules/project-manager/import/import-authorization.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/import-authorization.js",
-      "hash": "87762a36",
+      "hash": "ddbe7fb6",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-065"
+          "FR-065",
+          "FR-106"
         ],
         "@spec": [
           "SDD-037",
           "SEC-001",
           "SEC-002",
+          "SEC-006",
           "SEC-008",
           "BR-001"
         ],
@@ -5939,7 +6005,7 @@
       "id": "code:src/modules/project-manager/import/plan-import-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
-      "hash": "b34b6426",
+      "hash": "60efd1e4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5949,6 +6015,7 @@
           "FR-070",
           "FR-043",
           "FR-065",
+          "FR-106",
           "SDD-037"
         ],
         "@spec": [
@@ -5961,7 +6028,8 @@
           "BR-001",
           "SEC-001",
           "SDD-037",
-          "SEC-008"
+          "SEC-008",
+          "SEC-006"
         ],
         "@tested": [
           "tests/integration/plan-import.test.js",
@@ -6570,9 +6638,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.22.0b",
+      "version": "1.23.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "54a12dc6",
+      "hash": "537a3c51",
       "status": "current"
     },
     {
@@ -6618,7 +6686,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.11.0",
       "doc_status": "Draft",
-      "hash": "fe625cbc",
+      "hash": "2bf1ae59",
       "status": "current"
     },
     {
@@ -6720,7 +6788,7 @@
       "title": "Enterprise API Surface — Backend-first Integration (Salesforce-style)",
       "version": "1.1.0",
       "doc_status": "Implemented (FR-019)",
-      "hash": "e1ff089e",
+      "hash": "f54d902f",
       "status": "current"
     },
     {
@@ -7243,6 +7311,16 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-106-enterprise-api-access-key",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-106-enterprise-api-access-key.md",
+      "title": "Enterprise API tenant token authentication (`ApiAccessKey`)",
+      "version": "1.0.0",
+      "doc_status": "Implemented (FR-106)",
+      "hash": "cc7efba2",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -7495,8 +7573,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.90.0b",
       "doc_status": "Draft",
-      "hash": "0b6573f7",
-      "status": "changed"
+      "hash": "a7e01136",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -7733,7 +7811,8 @@
         "PasswordResetToken",
         "Session",
         "ChannelIdentity",
-        "SotDataPlaneKey"
+        "SotDataPlaneKey",
+        "ApiAccessKey"
       ],
       "owns_routes": [
         "src/app/(entry)/**",
@@ -7744,7 +7823,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "b1ba1848",
+      "hash": "490140e1",
       "status": "current"
     },
     {
@@ -7961,6 +8040,11 @@
       "type": "feature",
       "label": "SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline",
       "declared": "building",
+      "status": "current"
+    },
+    {
+      "id": "model:ApiAccessKey",
+      "type": "model",
       "status": "current"
     },
     {
@@ -9534,9 +9618,9 @@
       "family": "FR",
       "label": "Enterprise API tenant token authentication: the FR-019 Enterprise API refuses every request that does not present a valid per-Tenant service-account key, generalizing the FR-102 pattern (ADR-047 D3 deliberately scoped its `SotDataPlaneKey` to the two SoT routes and named this generalization as the follow-up) rather than inventing a second mechanism: an `ApiAccessKey` bound to exactly one Tenant, presented as `Authorization: Bearer`, stored only as a SHA-256 digest, minted by an installation operator or an owner in that Tenant with the raw secret shown exactly once, revocable with effect on the next request, and never readable back. Scope on every request is the key's own Tenant — a key can never widen the ExternalRef/upsert surface beyond the Tenant it names (SEC-001, BR-002), and an invalid, revoked or missing key answers identically so the endpoint is not an enumeration oracle. This closes SEC-006, which has held the Enterprise API in a declared-but-unenforced state since ADR-047 recorded that \"no API-key mechanism exists anywhere in zuri-ai\".",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Enterprise API tenant token authentication: the FR-019 Enterprise API refuses every request that does not present a valid per-Tenant service-account key, generalizing the FR-102 pattern (ADR-047 D3 deliberately scoped its `SotDataPlaneKey` to the two SoT routes and named this generalization as the follow-up) rather than inventing a second mechanism: an `ApiAccessKey` bound to exactly one Tenant, presented as `Authorization: Bearer`, stored only as a SHA-256 digest, minted by an installation operator or an owner in that Tenant with the raw secret shown exactly once, revocable with effect on the next request, and never readable back. Scope on every request is the key's own Tenant — a key can never widen the ExternalRef/upsert surface beyond the Tenant it names (SEC-001, BR-002), and an invalid, revoked or missing key answers identically so the endpoint is not an enumeration oracle. This closes SEC-006, which has held the Enterprise API in a declared-but-unenforced state since ADR-047 recorded that \"no API-key mechanism exists anywhere in zuri-ai\". 🔜 declared 2026-08-26 — implementation authorized, parallel lane "
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Enterprise API tenant token authentication: the FR-019 Enterprise API refuses every request that does not present a valid per-Tenant service-account key, generalizing the FR-102 pattern (ADR-047 D3 deliberately scoped its `SotDataPlaneKey` to the two SoT routes and named this generalization as the follow-up) rather than inventing a second mechanism: an `ApiAccessKey` bound to exactly one Tenant, presented as `Authorization: Bearer`, stored only as a SHA-256 digest, minted by an installation operator or an owner in that Tenant with the raw secret shown exactly once, revocable with effect on the next request, and never readable back. Scope on every request is the key's own Tenant — a key can never widen the ExternalRef/upsert surface beyond the Tenant it names (SEC-001, BR-002), and an invalid, revoked or missing key answers identically so the endpoint is not an enumeration oracle. This closes SEC-006, which has held the Enterprise API in a declared-but-unenforced state since ADR-047 recorded that \"no API-key mechanism exists anywhere in zuri-ai\". 🟠 implemented; Supabase apply of `20260826150000` pending (RSK-016, same gate as FR-100/102/103) "
     },
     {
       "id": "req:NFR-001",
@@ -10336,7 +10420,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Enterprise API ต้องมี token auth ต่อ tenant ก่อนเปิดใช้จริง 🟠 implementing FR declared — FR-106 (2026-08-26) "
+      "row_text": "Enterprise API ต้องมี token auth ต่อ tenant ก่อนเปิดใช้จริง 🟠 implemented — FR-106 enforces it on every FR-019 route; Supabase apply pending (RSK-016) "
     },
     {
       "id": "req:SEC-007",
@@ -10876,6 +10960,22 @@
       "kind": "api",
       "route": "/api/pipelines/runs/[executionRunId]/replay",
       "path": "src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/api-access-keys",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/api-access-keys",
+      "path": "src/app/api/platform/api-access-keys/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/api-access-keys/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/api-access-keys/[id]",
+      "path": "src/app/api/platform/api-access-keys/[id]/route.js",
       "status": "current"
     },
     {
@@ -12130,6 +12230,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/enterprise-api-auth.test.js",
+      "type": "test",
+      "path": "tests/integration/enterprise-api-auth.test.js",
+      "hash": "0ee56d0a",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/external-ref-import.test.js",
       "type": "test",
       "path": "tests/integration/external-ref-import.test.js",
@@ -12420,7 +12527,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "e1746e73",
+      "hash": "673060f5",
       "status": "current"
     },
     {
@@ -12554,6 +12661,27 @@
       "type": "test",
       "path": "tests/unit/activation-readiness-integration.test.js",
       "hash": "d901fad4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/api-access-auth.test.js",
+      "type": "test",
+      "path": "tests/unit/api-access-auth.test.js",
+      "hash": "448b3546",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/api-access-key-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/api-access-key-migration.test.js",
+      "hash": "4037efaf",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/api-access-key-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/api-access-key-routes.test.js",
+      "hash": "b1cd6e5f",
       "status": "current"
     },
     {
@@ -13394,6 +13522,13 @@
       "type": "test",
       "path": "tests/unit/market-intelligence/translate-raw-record.test.js",
       "hash": "3c96ef1c",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/mint-api-access-key-cli.test.js",
+      "type": "test",
+      "path": "tests/unit/mint-api-access-key-cli.test.js",
+      "hash": "8d4a3775",
       "status": "current"
     },
     {
@@ -15983,6 +16118,13 @@
     },
     {
       "from": "code:src/app/api/docs/route.js",
+      "to": "req:FR-106",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/docs/route.js",
       "to": "req:SEC-006",
       "type": "follows",
       "status": "current",
@@ -16438,7 +16580,21 @@
     },
     {
       "from": "code:src/app/api/import/commit/route.js",
+      "to": "req:FR-019",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/commit/route.js",
       "to": "req:FR-065",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/commit/route.js",
+      "to": "req:FR-106",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -16453,6 +16609,13 @@
     {
       "from": "code:src/app/api/import/commit/route.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/commit/route.js",
+      "to": "req:SEC-006",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -16473,7 +16636,21 @@
     },
     {
       "from": "code:src/app/api/import/dry-run/route.js",
+      "to": "req:FR-019",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/dry-run/route.js",
       "to": "req:FR-065",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/dry-run/route.js",
+      "to": "req:FR-106",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -16488,6 +16665,13 @@
     {
       "from": "code:src/app/api/import/dry-run/route.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/dry-run/route.js",
+      "to": "req:SEC-006",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -16823,6 +17007,62 @@
     },
     {
       "from": "code:src/app/api/pipelines/runs/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/api-access-keys/[id]/route.js",
+      "to": "req:FR-106",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/api-access-keys/[id]/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/api-access-keys/[id]/route.js",
+      "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/api-access-keys/[id]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/api-access-keys/route.js",
+      "to": "req:FR-106",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/api-access-keys/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/api-access-keys/route.js",
+      "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/api-access-keys/route.js",
       "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
@@ -17740,7 +17980,28 @@
     },
     {
       "from": "code:src/app/api/resolve/route.js",
+      "to": "req:FR-106",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/resolve/route.js",
       "to": "req:SDD-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/resolve/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/resolve/route.js",
+      "to": "req:SEC-006",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19937,6 +20198,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/api-access-auth.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/api-access-auth.js",
+      "to": "req:FR-106",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/api-access-auth.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/api-access-auth.js",
+      "to": "req:SEC-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/auth-service.js",
       "to": "req:FR-046",
       "type": "implements",
@@ -21185,6 +21474,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-102",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-106",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -22514,6 +22810,13 @@
     },
     {
       "from": "code:src/modules/project-manager/import/import-authorization.js",
+      "to": "req:FR-106",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/import-authorization.js",
       "to": "req:SDD-037",
       "type": "follows",
       "status": "current",
@@ -22529,6 +22832,13 @@
     {
       "from": "code:src/modules/project-manager/import/import-authorization.js",
       "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/import-authorization.js",
+      "to": "req:SEC-006",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -22605,6 +22915,13 @@
     },
     {
       "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:FR-106",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
       "to": "req:SDD-006",
       "type": "follows",
       "status": "current",
@@ -22648,6 +22965,13 @@
     {
       "from": "code:src/modules/project-manager/import/plan-import-service.js",
       "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:SEC-006",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -23610,6 +23934,13 @@
       "type": "bundles",
       "status": "current",
       "source": "feature-registry"
+    },
+    {
+      "from": "model:ApiAccessKey",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
     },
     {
       "from": "model:AuditEvent",
@@ -25923,6 +26254,20 @@
     },
     {
       "from": "route:api:/api/pipelines/runs",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/api-access-keys/[id]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/api-access-keys",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -29920,6 +30265,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -30129,6 +30481,55 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/enterprise-api-auth.test.js",
+      "to": "code:src/modules/identity/api-access-auth.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/enterprise-api-auth.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/enterprise-api-auth.test.js",
+      "to": "req:FR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/enterprise-api-auth.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/enterprise-api-auth.test.js",
+      "to": "req:SDD-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/enterprise-api-auth.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/enterprise-api-auth.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/external-ref-import.test.js",
       "to": "code:src/modules/project-manager/import/external-ref.js",
       "type": "tests",
@@ -30200,6 +30601,13 @@
     },
     {
       "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -30236,6 +30644,13 @@
     {
       "from": "test:tests/integration/external-ref-import.test.js",
       "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:SEC-006",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -31383,6 +31798,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -31775,6 +32197,13 @@
     },
     {
       "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -31814,6 +32243,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/import-target-authorization.test.js",
@@ -32573,13 +33009,6 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
-      "to": "code:src/app/api/docs/route.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "code:src/app/api/pipelines/runs/[executionRunId]/events/route.js",
       "type": "tests",
       "status": "current",
@@ -32629,6 +33058,13 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -32637,13 +33073,6 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:SEC-003",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/openapi-docs.test.js",
-      "to": "req:SEC-006",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -32825,6 +33254,13 @@
     },
     {
       "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -32868,6 +33304,13 @@
     {
       "from": "test:tests/integration/plan-import.test.js",
       "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:SEC-006",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -33084,6 +33527,13 @@
     },
     {
       "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
       "to": "req:SDD-004",
       "type": "verifies",
       "status": "current",
@@ -33141,6 +33591,13 @@
     {
       "from": "test:tests/integration/project-business-binding.test.js",
       "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:SEC-006",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -34107,6 +34564,118 @@
     {
       "from": "test:tests/unit/activation-readiness-integration.test.js",
       "to": "req:SEC-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-access-auth.test.js",
+      "to": "code:src/modules/identity/api-access-auth.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/api-access-auth.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-access-auth.test.js",
+      "to": "req:FR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-access-auth.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-access-auth.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-access-auth.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-access-auth.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-access-key-migration.test.js",
+      "to": "req:FR-100",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-access-key-migration.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-access-key-migration.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-access-key-routes.test.js",
+      "to": "code:src/app/api/platform/api-access-keys/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/api-access-key-routes.test.js",
+      "to": "code:src/app/api/platform/api-access-keys/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/api-access-key-routes.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-access-key-routes.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/api-access-key-routes.test.js",
+      "to": "req:SEC-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/api-access-key-routes.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -36417,6 +36986,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-102",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-106",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -38817,6 +39393,13 @@
     },
     {
       "from": "test:tests/unit/import-authorization.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/import-authorization.test.js",
       "to": "req:SDD-037",
       "type": "verifies",
       "status": "current",
@@ -38832,6 +39415,13 @@
     {
       "from": "test:tests/unit/import-authorization.test.js",
       "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/import-authorization.test.js",
+      "to": "req:SEC-006",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -39189,6 +39779,13 @@
     {
       "from": "test:tests/unit/market-intelligence-schema-migration.test.js",
       "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/mint-api-access-key-cli.test.js",
+      "to": "req:FR-106",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

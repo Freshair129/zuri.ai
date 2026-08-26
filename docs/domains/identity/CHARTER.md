@@ -15,6 +15,7 @@ owns_models:
   - Session
   - ChannelIdentity
   - SotDataPlaneKey
+  - ApiAccessKey
 ---
 
 # Domain charter — identity
@@ -45,6 +46,14 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
 - `Session` is live request authority; a signed cookie without an active,
   unexpired Session row is not authenticated in the persisted runtime.
 - `resolveSotDataPlaneViewer` (FR-102) is a second, narrower request identity: a `SotDataPlaneKey` bearer token scoped to one Tenant, used only by the two FR-100 SoT decision submit/export routes for the external data plane. It never produces an `isOperator` or Person-shaped viewer and is checked ahead of, not instead of, the session seam.
+- `resolveApiAccessViewer` (FR-106) generalizes the same pattern for the FR-019
+  Enterprise API: an `ApiAccessKey` bearer token scoped to one Tenant, accepted
+  only by the Enterprise API routes (dry-run/commit/resolve/docs), with
+  `isApiAccessFor` as its authority predicate. Minted by the installation
+  operator or a Tenant owner (`mintApiAccessKey`), revoked with effect on the
+  next request (`revokeApiAccessKey`), stored digest-only, audited without
+  token material, never readable back. It, too, never produces an `isOperator`
+  or Person-shaped viewer.
 - The viewer's authority questions have one answer each, and none of them is
   the global `role` label: **may I write here** → `ownedBusinessIds` (FR-059),
   **which domains may I see here** → `domainsForBusiness(viewer, businessId)`

@@ -62,6 +62,7 @@ model Tenant {
   pipelineRuns              PipelineRun[]
   sotDecisions              SotDecision[]
   sotDataPlaneKeys          SotDataPlaneKey[]
+  apiAccessKeys             ApiAccessKey[]
 
   @@index([portfolioId])
 }
@@ -1611,6 +1612,34 @@ model SotDecision {
 // @spec ADR-047, SEC-019
 // @tested tests/unit/sot-data-plane-auth.test.js
 model SotDataPlaneKey {
+  id           String    @id @default(uuid())
+  label        String
+  tenantId     String
+  keyHash      String    @unique
+  keyPrefix    String
+  status       String    @default("ACTIVE")
+  createdAt    DateTime  @default(now())
+  revokedAt    DateTime?
+  revokeReason String?
+  lastUsedAt   DateTime?
+  version      Int       @default(1)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status])
+}
+
+// @req FR-106 — a bearer credential scoped to exactly one Tenant lets an
+// enterprise integrator authenticate to the FR-019 Enterprise API
+// (dry-run/commit/resolve) without a browser session, generalizing the FR-102
+// SotDataPlaneKey pattern per ADR-047 D3's named follow-up rather than
+// inventing a second mechanism. The raw secret exists only at mint time; only
+// its SHA-256 hash is ever persisted, it is never readable back, and a revoked
+// key is refused on the next request (no grace period — a leaked
+// non-interactive credential has no user to notice and log out).
+// @spec SEC-006, SEC-001, BR-002, ADR-047
+// @tested tests/unit/api-access-auth.test.js
+model ApiAccessKey {
   id           String    @id @default(uuid())
   label        String
   tenantId     String

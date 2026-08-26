@@ -623,6 +623,10 @@ CREATE TABLE "Customer" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
     "version" INTEGER NOT NULL DEFAULT 1,
+    "consentStatus" TEXT NOT NULL DEFAULT 'PENDING',
+    "consentRecordedAt" TIMESTAMP(3),
+    "consentRecordedByPersonId" TEXT,
+    "consentNote" TEXT,
 
     CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
 );
@@ -1154,6 +1158,23 @@ CREATE TABLE "SotDataPlaneKey" (
     CONSTRAINT "SotDataPlaneKey_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "ApiAccessKey" (
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "keyHash" TEXT NOT NULL,
+    "keyPrefix" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "revokedAt" TIMESTAMP(3),
+    "revokeReason" TEXT,
+    "lastUsedAt" TIMESTAMP(3),
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "ApiAccessKey_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Portfolio_code_key" ON "Portfolio"("code");
 
@@ -1491,6 +1512,9 @@ CREATE UNIQUE INDEX "Customer_code_key" ON "Customer"("code");
 CREATE INDEX "Customer_businessId_idx" ON "Customer"("businessId");
 
 -- CreateIndex
+CREATE INDEX "Customer_consentStatus_idx" ON "Customer"("consentStatus");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Customer_tenantId_personId_key" ON "Customer"("tenantId", "personId");
 
 -- CreateIndex
@@ -1730,6 +1754,12 @@ CREATE UNIQUE INDEX "SotDataPlaneKey_keyHash_key" ON "SotDataPlaneKey"("keyHash"
 -- CreateIndex
 CREATE INDEX "SotDataPlaneKey_tenantId_status_idx" ON "SotDataPlaneKey"("tenantId", "status");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "ApiAccessKey_keyHash_key" ON "ApiAccessKey"("keyHash");
+
+-- CreateIndex
+CREATE INDEX "ApiAccessKey_tenantId_status_idx" ON "ApiAccessKey"("tenantId", "status");
+
 -- AddForeignKey
 ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -1926,6 +1956,9 @@ ALTER TABLE "Customer" ADD CONSTRAINT "Customer_businessId_fkey" FOREIGN KEY ("b
 ALTER TABLE "Customer" ADD CONSTRAINT "Customer_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Customer" ADD CONSTRAINT "Customer_consentRecordedByPersonId_fkey" FOREIGN KEY ("consentRecordedByPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "CustomerImportBatch" ADD CONSTRAINT "CustomerImportBatch_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -2074,4 +2107,7 @@ ALTER TABLE "SotDecision" ADD CONSTRAINT "SotDecision_businessId_fkey" FOREIGN K
 
 -- AddForeignKey
 ALTER TABLE "SotDataPlaneKey" ADD CONSTRAINT "SotDataPlaneKey_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ApiAccessKey" ADD CONSTRAINT "ApiAccessKey_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
