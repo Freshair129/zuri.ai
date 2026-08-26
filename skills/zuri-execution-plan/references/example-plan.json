@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "1.2",
+  "generatedBy": "agent-skill:zuri-execution-plan",
+  "generatedAt": "2026-08-20T09:00:00+07:00",
+  "scope": {
+    "workspaceCode": "WS-EXAMPLE"
+  },
+  "trace": {
+    "correlationId": "3f1d9a1c-9d4f-4f3a-9a5b-0f0c2a7e1b11",
+    "idempotencyKey": "example-plan-2026-08-20-001"
+  },
+  "domainBinding": {
+    "primaryDomainId": "DOM-DEVELOPMENT",
+    "supportingDomainIds": [],
+    "technicalOwnerDomainId": "TD-PROJECT-MANAGER"
+  },
+  "identityRefs": {},
+  "project": {
+    "code": "PRJ-EXAMPLE-CHECKOUT",
+    "name": "Checkout rebuild",
+    "description": "Rebuild checkout, then launch it. Two workstreams because progress is proven two different ways.",
+    "status": "ACTIVE",
+    "targetAt": "2026-11-30",
+    "externalRefs": [{ "system": "JIRA", "id": "CHK", "labelAs": false }]
+  },
+  "workstreams": [
+    {
+      "code": "WS-CHK-BUILD",
+      "name": "Checkout build",
+      "executionMode": "SOFTWARE_SPRINT",
+      "executionModeId": "EXM-SOFTWARE-SPRINT",
+      "executionContractId": "EXC-SOFTWARE-SPRINT-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 2,
+      "containers": [
+        { "code": "SPR-CHK-01", "subtype": "SPRINT", "title": "Sprint 1 — payment adapter", "status": "ACTIVE" },
+        { "code": "SPR-CHK-02", "subtype": "SPRINT", "title": "Sprint 2 — cart to order", "status": "PLANNED" }
+      ],
+      "items": [
+        {
+          "code": "CHK-101",
+          "containerCode": "SPR-CHK-01",
+          "subtype": "TASK",
+          "title": "Payment adapter contract test",
+          "status": "IN_PROGRESS",
+          "weight": 3,
+          "metrics": { "plannedWeight": 3, "completedWeight": 1 },
+          "externalRefs": [{ "system": "JIRA", "id": "CHK-101", "labelAs": true }]
+        },
+        {
+          "code": "CHK-102",
+          "containerCode": "SPR-CHK-02",
+          "subtype": "TASK",
+          "title": "Cart to order conversion",
+          "status": "PLANNED",
+          "weight": 5
+        },
+        {
+          "code": "CHK-103",
+          "containerCode": "SPR-CHK-01",
+          "subtype": "BUG",
+          "title": "Double charge on retried payment",
+          "status": "READY",
+          "weight": 2,
+          "metrics": { "defects": 1 }
+        }
+      ],
+      "milestones": [
+        { "code": "MS-CHK-CODE-FREEZE", "title": "Code freeze", "status": "PLANNED", "weight": 1 }
+      ]
+    },
+    {
+      "code": "WS-CHK-LAUNCH",
+      "name": "Checkout launch",
+      "executionMode": "PRODUCT_LAUNCH",
+      "executionModeId": "EXM-PRODUCT-LAUNCH",
+      "executionContractId": "EXC-PRODUCT-LAUNCH-V1",
+      "contractVersion": "1.0.0",
+      "progressStrategy": "MILESTONE_READINESS",
+      "progressWeight": 1,
+      "containers": [
+        { "code": "PH-CHK-PILOT", "subtype": "LAUNCH_PHASE", "title": "Pilot with 5% of traffic", "status": "PLANNED" }
+      ],
+      "items": [
+        {
+          "code": "DLV-CHK-RUNBOOK",
+          "containerCode": "PH-CHK-PILOT",
+          "subtype": "DELIVERABLE",
+          "title": "Rollback runbook signed off",
+          "status": "PLANNED",
+          "weight": 1,
+          "metrics": { "readiness": 0.4, "blockedGates": 1 }
+        }
+      ],
+      "milestones": [
+        { "code": "MS-CHK-PILOT-LIVE", "title": "Pilot live", "status": "PLANNED", "weight": 2 }
+      ],
+      "gates": [
+        {
+          "code": "GATE-CHK-SECURITY",
+          "title": "Security review passed",
+          "status": "OPEN",
+          "required": true,
+          "evidence": { "reviewTicket": "SEC-4412" }
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    { "sourceRef": "MS-CHK-CODE-FREEZE", "targetRef": "MS-CHK-PILOT-LIVE", "type": "FINISH_BEFORE" },
+    { "sourceRef": "GATE-CHK-SECURITY", "targetRef": "MS-CHK-PILOT-LIVE", "type": "BLOCKS" }
+  ]
+}

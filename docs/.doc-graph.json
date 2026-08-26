@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1198,
-    "total_edges": 4036,
+    "total_nodes": 1196,
+    "total_edges": 4027,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 133,
       "model": 63,
       "requirement": 214,
-      "test": 287,
+      "test": 285,
       "code_file": 312
     },
     "coverage": {
@@ -64,277 +64,11 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "doc:E-risk-matrix",
-      "doc:DB-MIGRATION-NOTES",
-      "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
-      "spec:ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING",
-      "spec:ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL",
-      "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
-      "spec:ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY",
-      "doc:ethics-governance",
-      "domain:crm",
-      "doc:FR-091-conversation-inbox",
-      "domain:identity",
-      "doc:FR-031-viewer-gate",
-      "doc:FR-038-profile-and-permissions",
-      "doc:FR-044-entry-landing-login-business-routing",
-      "doc:FR-046-production-viewer-entry-contract",
-      "doc:FR-061-per-business-domain-visibility",
-      "domain:integration",
-      "doc:FR-071-supabase-data-pipeline-monitor-and-replay",
-      "doc:FR-064-schedule-timeline",
-      "doc:FR-069-plan-blueprint-and-intake",
-      "doc:FEATURES",
-      "doc:INTERFACE-INVENTORY",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROUTES-SITEMAP",
-      "doc:SITEMAP-DOMAIN-NAV",
-      "test:tests/e2e/fr040-project-work.spec.js",
-      "test:tests/e2e/fr041-business-first.spec.js",
-      "test:tests/e2e/fr044-entry-routing.spec.js",
-      "test:tests/e2e/fr045-files.spec.js",
-      "test:tests/e2e/fr046-entry-contract.spec.js",
-      "test:tests/e2e/fr058-file-views.spec.js",
-      "test:tests/e2e/fr059-strategy-edit.spec.js",
-      "test:tests/e2e/fr060-business-home.spec.js",
-      "test:tests/e2e/fr077-project-inventory.spec.js",
-      "test:tests/e2e/fr091-conversation-inbox.spec.js",
-      "test:tests/e2e/smoke.spec.js",
-      "test:tests/integration/agent-action-gate.test.js",
-      "test:tests/integration/fr046-entry-contract.test.js",
-      "test:tests/integration/fr059-business-strategy-mutation.test.js",
-      "test:tests/integration/line-webhook-transport-contract.test.js",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/integration/work-listing-scope.test.js",
-      "test:tests/unit/application-schema-migration.test.js",
-      "test:tests/unit/authorization-seam-list-routes.test.js",
-      "test:tests/unit/entry-surfaces.test.js",
-      "test:tests/unit/fr046-api-ui-contract.test.js",
-      "test:tests/unit/fr046-session-port.test.js",
-      "test:tests/unit/fr061-per-business-domain-visibility.test.js",
-      "test:tests/unit/fr091-inbox-ui-contract.test.js",
-      "test:tests/unit/global-view-drilldown.test.js",
-      "test:tests/unit/line-binding-resolver.test.js",
-      "test:tests/unit/line-channel-binding.test.js",
-      "test:tests/unit/market-intelligence-schema-migration.test.js",
-      "test:tests/unit/project-dependency-service.test.js",
-      "test:tests/unit/project-list-contract.test.js",
-      "test:tests/unit/project-manager-mcp.test.js",
-      "test:tests/unit/run-bat-database-bootstrap.test.js",
-      "test:tests/unit/viewer-authority.test.js",
-      "test:tests/unit/viewer-gate.test.js",
-      "code:src/app/(entry)/businesses/page.jsx",
-      "code:src/app/(pm)/customer/conversations/page.jsx",
-      "code:src/app/(pm)/dependencies/page.jsx",
-      "code:src/app/(pm)/milestones/page.jsx",
-      "code:src/app/(pm)/platform/integrations/page.jsx",
-      "code:src/app/(pm)/profile/page.jsx",
-      "code:src/app/(pm)/settings/page.jsx",
-      "code:src/app/(pm)/timeline/page.jsx",
-      "code:src/app/api/agent/line-webhook/route.js",
-      "code:src/app/api/dependencies/route.js",
-      "code:src/app/api/mcp/route.js",
-      "code:src/app/api/milestones/route.js",
-      "code:src/app/api/work/route.js",
-      "code:src/app/api/workstreams/route.js",
-      "code:src/app/login/page.jsx",
-      "code:src/components/layouts/Topbar.jsx",
-      "code:src/components/ui/index.jsx",
-      "code:src/config/domains.js",
-      "code:src/lib/db.js",
-      "code:src/lib/validation/entities.js",
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/agent/action-gate.js",
-      "code:src/modules/agent/auth-context.js",
-      "code:src/modules/agent/context.js",
-      "code:src/modules/agent/line-binding-resolver.js",
-      "code:src/modules/agent/line-channel-binding.js",
-      "code:src/modules/agent/tools.js",
-      "code:src/modules/agent/turn.js",
-      "code:src/modules/crm/conversation-read-model.js",
-      "code:src/modules/crm/line-ingest-service.js",
-      "code:src/modules/identity/classify-principal.js",
-      "code:src/modules/identity/entry-read-model.js",
-      "code:src/modules/identity/erase-principal.js",
-      "code:src/modules/identity/link-line-identity.js",
-      "code:src/modules/identity/profile-permission-service.js",
-      "code:src/modules/identity/request-viewer.js",
-      "code:src/modules/identity/resolve-line-identity.js",
-      "code:src/modules/identity/resolve-viewer.js",
-      "code:src/modules/identity/session-port.js",
-      "code:src/modules/identity/viewer-authority.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js",
-      "code:src/modules/project-manager/application/dependency-service.js",
-      "code:src/modules/project-manager/application/milestone-gate-service.js",
-      "code:src/modules/project-manager/application/project-service.js",
-      "code:src/modules/project-manager/application/work-service.js",
-      "code:src/modules/project-manager/mcp/transport.js",
-      "code:src/modules/project-manager/views/execution/mode-bodies.jsx",
-      "code:src/modules/project-manager/views/universal/AllWorkView.jsx",
-      "code:src/modules/project-manager/views/universal/MilestonesView.jsx",
-      "code:src/modules/project-manager/views/universal/TimelineView.jsx",
-      "code:prisma/seed.js"
-    ],
-    "added": [
-      "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
-      "spec:ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE",
-      "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
-      "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE",
-      "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
-      "spec:ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE",
-      "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
-      "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
-      "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
-      "doc:FR-093-reply-delivery-receipt",
-      "doc:FR-103-pdpa-consent-attestation",
-      "doc:FR-094-production-iam-boundary",
-      "doc:FR-102-sot-data-plane-service-account",
-      "doc:FR-099-sot-pipeline-plan-board",
-      "doc:FR-100-sot-approval-inbox",
-      "doc:FR-101-sot-pipeline-graph-dashboard",
-      "doc:PLAN-FR-094-PRODUCTION-IAM",
-      "doc:PLAN-FR-097-VERIFIED-CHANNEL-ONBOARDING",
-      "doc:ROADMAP-zuri-ai-24w-program",
-      "feat:FEAT-010",
-      "feat:FEAT-011",
-      "route:page:/platform/sot-pipeline/graph",
-      "route:page:/platform/sot-pipeline/inbox",
-      "route:page:/platform/sot-pipeline",
-      "route:api:/api/agent/heartbeat",
-      "route:api:/api/agent/line-delivery",
-      "route:api:/api/auth/login",
-      "route:api:/api/auth/logout",
-      "route:api:/api/crm/customers/[customerId]/consent",
-      "route:api:/api/ingest/documents",
-      "route:api:/api/pipelines/runs",
-      "route:api:/api/pipelines/runs/[executionRunId]/events",
-      "route:api:/api/pipelines/runs/[executionRunId]/replay",
-      "route:api:/api/pipelines/runs/[executionRunId]",
-      "route:api:/api/platform/integrations/line-registry",
-      "route:api:/api/platform/sot/decisions/export",
-      "route:api:/api/platform/sot/decisions",
-      "route:api:/api/platform/sot/decisions/[decisionId]/decide",
-      "route:api:/api/platform/sot/plan",
-      "model:Session",
-      "model:ChannelIdentity",
-      "model:PipelineRun",
-      "model:PipelineStep",
-      "model:PipelineEventReceipt",
-      "model:PipelineRecordEvent",
-      "model:PipelineReconciliation",
-      "model:PipelineGateDecision",
-      "model:SotDecision",
-      "model:SotDataPlaneKey",
-      "req:FR-093",
-      "req:FR-094",
-      "req:FR-095",
-      "req:FR-096",
-      "req:FR-097",
-      "req:FR-098",
-      "req:FR-099",
-      "req:FR-100",
-      "req:FR-101",
-      "req:FR-102",
-      "req:FR-103",
-      "req:NFR-019",
-      "req:BR-020",
-      "req:SDD-051",
-      "req:SDD-052",
-      "req:SDD-053",
-      "req:SEC-018",
-      "req:SEC-019",
-      "test:tests/integration/channel-identity.test.js",
-      "test:tests/integration/crm-customer-consent.test.js",
-      "test:tests/integration/iam-authorization.test.js",
-      "test:tests/integration/line-reply-record.test.js",
-      "test:tests/integration/smartgift-webhook-e2e.test.js",
-      "test:tests/integration/sot-decisions-route.test.js",
-      "test:tests/unit/auth-service.test.js",
-      "test:tests/unit/authorization-context.test.js",
-      "test:tests/unit/canonical-iam-migration.test.js",
-      "test:tests/unit/canonical-iam-runtime-role-cutover.test.js",
-      "test:tests/unit/crm-customer-consent-route.test.js",
-      "test:tests/unit/customer-consent-migration.test.js",
-      "test:tests/unit/customer-consent-service.test.js",
-      "test:tests/unit/db-runtime-config.test.js",
-      "test:tests/unit/doc-graph-delivery-attribution.test.js",
-      "test:tests/unit/document-intake-ui.test.js",
-      "test:tests/unit/fr046-auth-route.test.js",
-      "test:tests/unit/gbdb-rag-service.test.js",
-      "test:tests/unit/global-view-scope-contract.test.js",
-      "test:tests/unit/iam-session.test.js",
-      "test:tests/unit/id-anchor-stability.test.js",
-      "test:tests/unit/line-registry-service.test.js",
-      "test:tests/unit/mint-sot-data-plane-key-cli.test.js",
-      "test:tests/unit/pipeline-mcp-transport.test.js",
-      "test:tests/unit/pipeline-monitor-ui.test.js",
-      "test:tests/unit/pipeline-tracking-route.test.js",
-      "test:tests/unit/platform/cloud-sot-agent.test.js",
-      "test:tests/unit/platform/document-intake-contract.test.js",
-      "test:tests/unit/platform/pipeline-tracking-contract.test.js",
-      "test:tests/unit/platform/pipeline-tracking-migration.test.js",
-      "test:tests/unit/platform/pipeline-tracking-service.test.js",
-      "test:tests/unit/reply-record-service.test.js",
-      "test:tests/unit/smartgift-document-intake-migration.test.js",
-      "test:tests/unit/smartgift-rag-pipeline.test.js",
-      "test:tests/unit/sot-data-plane-auth.test.js",
-      "test:tests/unit/sot-data-plane-key-migration.test.js",
-      "test:tests/unit/sot-decision-migration.test.js",
       "test:tests/unit/sot-decision-service.test.js",
-      "test:tests/unit/sot-inbox-ui.test.js",
-      "test:tests/unit/sot-pipeline-graph.test.js",
-      "test:tests/unit/sot-plan-board-ui.test.js",
-      "test:tests/unit/sot-plan-service.test.js",
-      "test:tests/unit/sot-plan-status.test.js",
-      "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
-      "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
-      "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
-      "code:src/app/api/agent/heartbeat/route.js",
-      "code:src/app/api/agent/line-delivery/route.js",
-      "code:src/app/api/auth/login/route.js",
-      "code:src/app/api/auth/logout/route.js",
-      "code:src/app/api/crm/customers/[customerId]/consent/route.js",
-      "code:src/app/api/ingest/documents/route.js",
-      "code:src/app/api/pipelines/runs/route.js",
-      "code:src/app/api/pipelines/runs/[executionRunId]/events/route.js",
-      "code:src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
-      "code:src/app/api/pipelines/runs/[executionRunId]/route.js",
-      "code:src/app/api/platform/integrations/line-registry/route.js",
-      "code:src/app/api/platform/sot/decisions/export/route.js",
-      "code:src/app/api/platform/sot/decisions/route.js",
-      "code:src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
-      "code:src/app/api/platform/sot/plan/route.js",
-      "code:src/modules/crm/customer-consent-service.js",
-      "code:src/modules/crm/reply-record-service.js",
-      "code:src/modules/identity/auth-service.js",
-      "code:src/modules/identity/authorization-context.js",
-      "code:src/modules/identity/channel-identity.js",
-      "code:src/modules/identity/sot-data-plane-auth.js",
-      "code:src/modules/integration/application/line-registry-service.js",
-      "code:src/modules/integration/application/sot-decision-service.js",
-      "code:src/modules/integration/application/sot-pipeline-graph.js",
-      "code:src/modules/integration/application/sot-plan-service.js",
-      "code:src/modules/integration/application/sot-plan.js",
-      "code:src/modules/knowledge/gbdb-rag-service.js",
-      "code:src/modules/knowledge/smartgift-knowledge-catalog.js",
-      "code:src/modules/knowledge/smartgift-rag-pipeline.js",
-      "code:src/modules/project-manager/application/work-read-service.js",
-      "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
-      "code:src/modules/project-manager/components/StandaloneTaskModal.jsx",
-      "code:src/modules/project-manager/components/UploadPlanModal.jsx",
-      "code:src/platform/integrations/core/cloud-sot-agent.js",
-      "code:src/platform/integrations/core/document-intake-contract.js",
-      "code:src/platform/integrations/core/pipeline-tracking-contract.js",
-      "code:src/platform/integrations/core/pipeline-tracking-service.js"
+      "code:src/modules/integration/application/sot-decision-service.js"
     ],
-    "removed": [
-      "code:src/app/api/session/demo/route.js",
-      "route:api:/api/session/demo",
-      "test:tests/unit/fr046-session-demo-route.test.js"
-    ]
+    "added": [],
+    "removed": []
   },
   "nodes": [
     {
@@ -342,7 +76,7 @@
       "type": "code_file",
       "path": "prisma/seed.js",
       "hash": "33bc15ef",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-016",
@@ -368,7 +102,7 @@
       "type": "code_file",
       "path": "src/app/(entry)/businesses/page.jsx",
       "hash": "52f9de63",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -428,7 +162,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/customer/conversations/page.jsx",
       "hash": "ad52879d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-091",
@@ -476,7 +210,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/dependencies/page.jsx",
       "hash": "fc2095a3",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-007"
@@ -556,7 +290,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/milestones/page.jsx",
       "hash": "b1fba90b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-006"
@@ -647,7 +381,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
       "hash": "45973a5c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -746,7 +480,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/profile/page.jsx",
       "hash": "b6865592",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-038"
@@ -1106,7 +840,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/settings/page.jsx",
       "hash": "ca193264",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-020"
@@ -1122,7 +856,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/timeline/page.jsx",
       "hash": "72cb467d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-064"
@@ -1228,7 +962,7 @@
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
       "hash": "abea824d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-050",
@@ -1673,7 +1407,7 @@
       "type": "code_file",
       "path": "src/app/api/dependencies/route.js",
       "hash": "49bb031b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-007",
@@ -2072,7 +1806,7 @@
       "type": "code_file",
       "path": "src/app/api/mcp/route.js",
       "hash": "5a20f461",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-069",
@@ -2114,7 +1848,7 @@
       "type": "code_file",
       "path": "src/app/api/milestones/route.js",
       "hash": "0ceb880f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-006",
@@ -2982,7 +2716,7 @@
       "type": "code_file",
       "path": "src/app/api/work/route.js",
       "hash": "0fe9029a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-005",
@@ -3046,7 +2780,7 @@
       "type": "code_file",
       "path": "src/app/api/workstreams/route.js",
       "hash": "f21df537",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-004",
@@ -3086,7 +2820,7 @@
       "type": "code_file",
       "path": "src/app/login/page.jsx",
       "hash": "76a59d43",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
@@ -3295,7 +3029,7 @@
       "type": "code_file",
       "path": "src/components/layouts/Topbar.jsx",
       "hash": "da73645f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-033",
@@ -3320,7 +3054,7 @@
       "type": "code_file",
       "path": "src/components/ui/index.jsx",
       "hash": "b338f26c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "NFR-008",
@@ -3340,7 +3074,7 @@
       "type": "code_file",
       "path": "src/config/domains.js",
       "hash": "a61d960e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -3485,7 +3219,7 @@
       "type": "code_file",
       "path": "src/lib/db.js",
       "hash": "077b1514",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-030",
@@ -3595,7 +3329,7 @@
       "type": "code_file",
       "path": "src/lib/validation/entities.js",
       "hash": "2a98b0fa",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-087",
@@ -3609,7 +3343,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "7f08f6e8",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -3633,7 +3367,7 @@
       "type": "code_file",
       "path": "src/modules/agent/action-gate.js",
       "hash": "9ae10168",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-026",
@@ -3675,7 +3409,7 @@
       "type": "code_file",
       "path": "src/modules/agent/auth-context.js",
       "hash": "ff5d4669",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-057",
@@ -3721,7 +3455,7 @@
       "type": "code_file",
       "path": "src/modules/agent/context.js",
       "hash": "c5e826ca",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-025",
@@ -3849,7 +3583,7 @@
       "type": "code_file",
       "path": "src/modules/agent/line-binding-resolver.js",
       "hash": "37ed43dc",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-052",
@@ -3870,7 +3604,7 @@
       "type": "code_file",
       "path": "src/modules/agent/line-channel-binding.js",
       "hash": "4a450631",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-052",
@@ -4079,7 +3813,7 @@
       "type": "code_file",
       "path": "src/modules/agent/tools.js",
       "hash": "22c314b0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-025",
@@ -4096,7 +3830,7 @@
       "type": "code_file",
       "path": "src/modules/agent/turn.js",
       "hash": "672efb98",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-027",
@@ -4191,7 +3925,7 @@
       "type": "code_file",
       "path": "src/modules/crm/conversation-read-model.js",
       "hash": "0e8ee09c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-091",
@@ -4270,7 +4004,7 @@
       "type": "code_file",
       "path": "src/modules/crm/line-ingest-service.js",
       "hash": "8682592d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-023",
@@ -4381,7 +4115,7 @@
       "type": "code_file",
       "path": "src/modules/identity/classify-principal.js",
       "hash": "27d3d8f6",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-022"
@@ -4400,7 +4134,7 @@
       "type": "code_file",
       "path": "src/modules/identity/entry-read-model.js",
       "hash": "6defe728",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046"
@@ -4420,7 +4154,7 @@
       "type": "code_file",
       "path": "src/modules/identity/erase-principal.js",
       "hash": "d520c5a4",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-022",
@@ -4454,7 +4188,7 @@
       "type": "code_file",
       "path": "src/modules/identity/link-line-identity.js",
       "hash": "5259bcbb",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-022",
@@ -4505,7 +4239,7 @@
       "type": "code_file",
       "path": "src/modules/identity/profile-permission-service.js",
       "hash": "06df1a04",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-038",
@@ -4563,7 +4297,7 @@
       "type": "code_file",
       "path": "src/modules/identity/request-viewer.js",
       "hash": "53eb1c9e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046"
@@ -4582,7 +4316,7 @@
       "type": "code_file",
       "path": "src/modules/identity/resolve-line-identity.js",
       "hash": "107fdd51",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-021",
@@ -4604,7 +4338,7 @@
       "type": "code_file",
       "path": "src/modules/identity/resolve-viewer.js",
       "hash": "e592c263",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-031",
@@ -4633,7 +4367,7 @@
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
       "hash": "cc3cff76",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -4675,7 +4409,7 @@
       "type": "code_file",
       "path": "src/modules/identity/viewer-authority.js",
       "hash": "56a68d07",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-059",
@@ -4757,7 +4491,7 @@
       "type": "code_file",
       "path": "src/modules/integration/application/sot-decision-service.js",
       "hash": "a642c27e",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-100",
@@ -5160,7 +4894,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "908e1081",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -5218,7 +4952,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "a3cfe507",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -5271,7 +5005,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/dependency-service.js",
       "hash": "7eb5e6b1",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-007",
@@ -5378,7 +5112,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/milestone-gate-service.js",
       "hash": "9075e05a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-006",
@@ -5543,7 +5277,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/project-service.js",
       "hash": "7834cbac",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-003",
@@ -5726,7 +5460,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/work-service.js",
       "hash": "f3912e31",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-005",
@@ -6159,7 +5893,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/mcp/transport.js",
       "hash": "cc1b314c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-069",
@@ -6253,7 +5987,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/views/execution/mode-bodies.jsx",
       "hash": "d7d8e6f5",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-009",
@@ -6290,7 +6024,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/views/universal/AllWorkView.jsx",
       "hash": "b236c528",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-005"
@@ -6308,7 +6042,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/views/universal/MilestonesView.jsx",
       "hash": "7558ae40",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-006"
@@ -6326,7 +6060,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/views/universal/TimelineView.jsx",
       "hash": "4925908d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-064"
@@ -6662,7 +6396,7 @@
       "version": "1.21.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "92c3ef2b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -6708,7 +6442,7 @@
       "version": "1.11.0",
       "doc_status": "Draft",
       "hash": "fe625cbc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -6726,7 +6460,7 @@
       "version": "1.0.6",
       "doc_status": "Approved",
       "hash": "80dc1e06",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:DOMAIN-MODEL",
@@ -6744,7 +6478,7 @@
       "version": "1.2.0",
       "doc_status": "Draft",
       "hash": "3a8beb94",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ethics-governance",
@@ -6754,7 +6488,7 @@
       "version": "1.1.0",
       "doc_status": "Draft — question #4 closed at MVP scope (FR-103); #1, #2, #3, #6 still block `TASK-V2-LINE-INTENT`",
       "hash": "92b8d9a6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:EXECUTION-MODES",
@@ -6790,7 +6524,7 @@
       "version": "1.6.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "658071c7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -6830,7 +6564,7 @@
       "version": "1.0.0",
       "doc_status": "Implemented",
       "hash": "154736d8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-032-home-entry",
@@ -6900,7 +6634,7 @@
       "version": "1.0.0",
       "doc_status": "Implemented",
       "hash": "48df2fc8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-039-business-scope-ceiling",
@@ -6955,7 +6689,7 @@
       "title": "FR-044 — Minimal entry and Business Routing before BusinessShell",
       "doc_status": "Implemented — owner-approved; exit gates verified",
       "hash": "3637c57f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-045-managed-local-file-workspace",
@@ -6973,7 +6707,7 @@
       "version": "0.3.0b",
       "doc_status": "Implemented — beta",
       "hash": "7c0d8ec8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-047-line-business-knowledge-pilot",
@@ -7077,7 +6811,7 @@
       "version": "1.0.0",
       "doc_status": "Implemented",
       "hash": "194011fb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-062-permissions-read-scope",
@@ -7107,7 +6841,7 @@
       "version": "1.1.0",
       "doc_status": "Declared — describes behaviour already shipped; awaiting its code anchor",
       "hash": "02a65be8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-065-import-target-authorization",
@@ -7153,7 +6887,7 @@
       "path": "docs/domains/project-manager/features/FR-069-plan-blueprint-and-intake.md",
       "title": "FR-069 — Plan Blueprint and Human/Agent intake with stable references",
       "hash": "c64a7c59",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-070-stable-execution-domain-and-tag-identities",
@@ -7169,7 +6903,7 @@
       "path": "docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md",
       "title": "FR-071 — Supabase data pipeline monitor and replay",
       "hash": "a457e793",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-076-product-owner-business-assignment",
@@ -7245,7 +6979,7 @@
       "path": "docs/domains/crm/features/FR-091-conversation-inbox.md",
       "title": "FR-091 — CRM Conversation Inbox",
       "hash": "2598d013",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-092-market-translation-core",
@@ -7343,7 +7077,7 @@
       "version": "1.2.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "ff345397",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:LINE-PHASE1-CANARY",
@@ -7569,7 +7303,7 @@
       "version": "1.86.0b",
       "doc_status": "Draft",
       "hash": "95ec3130",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -7631,7 +7365,7 @@
       "version": "1.0.0",
       "doc_status": "draft",
       "hash": "3b058e48",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:SITEMAP-DOMAIN-NAV",
@@ -7641,7 +7375,7 @@
       "version": "0.5.0",
       "doc_status": "Accepted",
       "hash": "3f98b1ac",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:SRS",
@@ -7790,7 +7524,7 @@
         "crm"
       ],
       "hash": "e366b780",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:identity",
@@ -7818,7 +7552,7 @@
         "identity"
       ],
       "hash": "b1ba1848",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:integration",
@@ -7849,7 +7583,7 @@
         "integration"
       ],
       "hash": "fefb0ee3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:knowledge",
@@ -11597,7 +11331,7 @@
       "path": "docs/decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md",
       "title": "ADR-008 — Business-centric shell, dual scope lens (ERP ⇄ PM), and entry flow",
       "hash": "8f275fb8",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY",
@@ -11654,7 +11388,7 @@
       "title": "ADR-015 — Minimal entry, demo login, and Business Routing before BusinessShell",
       "doc_status": "Accepted — implementation complete",
       "hash": "5afb0064",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE",
@@ -11671,7 +11405,7 @@
       "title": "ADR-017 — Production viewer session and viewer-scoped entry read model",
       "version": "0.3.0b",
       "hash": "e6221247",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION",
@@ -11753,7 +11487,7 @@
       "path": "docs/decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md",
       "title": "ADR-027 — Profile-first and Workspace-first onboarding",
       "hash": "423f145a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
@@ -11777,7 +11511,7 @@
       "path": "docs/decisions/ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY.md",
       "title": "ADR-030 — Supabase data pipeline observability and replay",
       "hash": "7ec5f3f7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-031-PHASE1-LINE-RUNTIME-CONNECTION-CUTOVER",
@@ -11920,77 +11654,77 @@
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
       "hash": "1160e6dc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr041-business-first.spec.js",
       "type": "test",
       "path": "tests/e2e/fr041-business-first.spec.js",
       "hash": "f2dcf9e0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr044-entry-routing.spec.js",
       "type": "test",
       "path": "tests/e2e/fr044-entry-routing.spec.js",
       "hash": "e2427fd3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr045-files.spec.js",
       "type": "test",
       "path": "tests/e2e/fr045-files.spec.js",
       "hash": "68563e4b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr046-entry-contract.spec.js",
       "type": "test",
       "path": "tests/e2e/fr046-entry-contract.spec.js",
       "hash": "c35bdfc4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr058-file-views.spec.js",
       "type": "test",
       "path": "tests/e2e/fr058-file-views.spec.js",
       "hash": "321aac57",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr059-strategy-edit.spec.js",
       "type": "test",
       "path": "tests/e2e/fr059-strategy-edit.spec.js",
       "hash": "40006bc3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr060-business-home.spec.js",
       "type": "test",
       "path": "tests/e2e/fr060-business-home.spec.js",
       "hash": "e87f6db7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr077-project-inventory.spec.js",
       "type": "test",
       "path": "tests/e2e/fr077-project-inventory.spec.js",
       "hash": "37fb96e3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
       "hash": "8b21e536",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
       "type": "test",
       "path": "tests/e2e/smoke.spec.js",
       "hash": "aabc5e40",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/adaptive-shell.test.js",
@@ -12004,7 +11738,7 @@
       "type": "test",
       "path": "tests/integration/agent-action-gate.test.js",
       "hash": "66f36487",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/agent-context.test.js",
@@ -12109,14 +11843,14 @@
       "type": "test",
       "path": "tests/integration/fr046-entry-contract.test.js",
       "hash": "de8ddc54",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr059-business-strategy-mutation.test.js",
       "type": "test",
       "path": "tests/integration/fr059-business-strategy-mutation.test.js",
       "hash": "115ed6be",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr072-dependency-authorization.test.js",
@@ -12347,7 +12081,7 @@
       "type": "test",
       "path": "tests/integration/line-webhook-transport-contract.test.js",
       "hash": "6b98ee91",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/line-webhook-unbound-production.test.js",
@@ -12382,7 +12116,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "c868bd20",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/plan-import-scope.test.js",
@@ -12487,7 +12221,7 @@
       "type": "test",
       "path": "tests/integration/work-listing-scope.test.js",
       "hash": "206e2f3f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/xlsx-intake.test.js",
@@ -12522,7 +12256,7 @@
       "type": "test",
       "path": "tests/unit/application-schema-migration.test.js",
       "hash": "128e8847",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/assert-tests-ran.test.js",
@@ -12550,7 +12284,7 @@
       "type": "test",
       "path": "tests/unit/authorization-seam-list-routes.test.js",
       "hash": "6db10248",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/authorization-seam-routes.test.js",
@@ -12641,13 +12375,6 @@
       "type": "test",
       "path": "tests/unit/connection-health.test.js",
       "hash": "5d75d534",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/contract-plan-artifacts.test.js",
-      "type": "test",
-      "path": "tests/unit/contract-plan-artifacts.test.js",
-      "hash": "1ac634b1",
       "status": "current"
     },
     {
@@ -12872,7 +12599,7 @@
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
       "hash": "18d2a5c3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/format-progress-percent.test.js",
@@ -12963,7 +12690,7 @@
       "type": "test",
       "path": "tests/unit/fr046-api-ui-contract.test.js",
       "hash": "465d5fcb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr046-auth-route.test.js",
@@ -12984,7 +12711,7 @@
       "type": "test",
       "path": "tests/unit/fr046-session-port.test.js",
       "hash": "d9fb9372",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr048-provider-catalog.test.js",
@@ -13054,7 +12781,7 @@
       "type": "test",
       "path": "tests/unit/fr061-per-business-domain-visibility.test.js",
       "hash": "26d89e79",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr062-permissions-read-scope.test.js",
@@ -13145,7 +12872,7 @@
       "type": "test",
       "path": "tests/unit/fr091-inbox-ui-contract.test.js",
       "hash": "2982c144",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/gate-cap-rounding.test.js",
@@ -13166,7 +12893,7 @@
       "type": "test",
       "path": "tests/unit/global-view-drilldown.test.js",
       "hash": "926bf99e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/global-view-scope-contract.test.js",
@@ -13264,7 +12991,7 @@
       "type": "test",
       "path": "tests/unit/line-binding-resolver.test.js",
       "hash": "07c18f76",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/line-canary-preflight.test.js",
@@ -13278,7 +13005,7 @@
       "type": "test",
       "path": "tests/unit/line-channel-binding.test.js",
       "hash": "605ccffc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/line-registry-service.test.js",
@@ -13299,7 +13026,7 @@
       "type": "test",
       "path": "tests/unit/market-intelligence-schema-migration.test.js",
       "hash": "9e93cad7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
@@ -13593,7 +13320,7 @@
       "type": "test",
       "path": "tests/unit/project-dependency-service.test.js",
       "hash": "81852fa0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/project-execution-backpath.test.js",
@@ -13628,14 +13355,14 @@
       "type": "test",
       "path": "tests/unit/project-list-contract.test.js",
       "hash": "4bfa1550",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/project-manager-mcp.test.js",
       "type": "test",
       "path": "tests/unit/project-manager-mcp.test.js",
       "hash": "0f1779e4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/project-roadmap-read-model.test.js",
@@ -13726,7 +13453,7 @@
       "type": "test",
       "path": "tests/unit/run-bat-database-bootstrap.test.js",
       "hash": "e588ad93",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/runtime-isolation-probe.test.js",
@@ -13754,13 +13481,6 @@
       "type": "test",
       "path": "tests/unit/scope-view-context.test.js",
       "hash": "0a6f4793",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/self-plan-generator.test.js",
-      "type": "test",
-      "path": "tests/unit/self-plan-generator.test.js",
-      "hash": "64fa8fdc",
       "status": "current"
     },
     {
@@ -13817,7 +13537,7 @@
       "type": "test",
       "path": "tests/unit/sot-decision-service.test.js",
       "hash": "256d3005",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/sot-inbox-ui.test.js",
@@ -13894,7 +13614,7 @@
       "type": "test",
       "path": "tests/unit/viewer-authority.test.js",
       "hash": "073a1841",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/viewer-factory-contract.test.js",
@@ -13908,7 +13628,7 @@
       "type": "test",
       "path": "tests/unit/viewer-gate.test.js",
       "hash": "8c5c09b3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/wbs-structure.test.js",
@@ -34703,34 +34423,6 @@
       "source": "test-reference"
     },
     {
-      "from": "test:tests/unit/contract-plan-artifacts.test.js",
-      "to": "req:BR-004",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/contract-plan-artifacts.test.js",
-      "to": "req:BR-009",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/contract-plan-artifacts.test.js",
-      "to": "req:FR-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/contract-plan-artifacts.test.js",
-      "to": "req:FR-069",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
       "from": "test:tests/unit/controlled-line-activation-migration.test.js",
       "to": "req:FR-055",
       "type": "verifies",
@@ -41449,41 +41141,6 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/self-plan-generator.test.js",
-      "to": "req:BR-004",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/self-plan-generator.test.js",
-      "to": "req:BR-009",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/self-plan-generator.test.js",
-      "to": "req:FR-001",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/self-plan-generator.test.js",
-      "to": "req:FR-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/self-plan-generator.test.js",
-      "to": "req:FR-069",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/shell-mode.test.js",
