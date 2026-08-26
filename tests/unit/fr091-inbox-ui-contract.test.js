@@ -5,7 +5,10 @@ import { DOMAINS, domainForPath } from '@/config/domains'
 
 // @req FR-091 — the CRM domain stops being a reserved slot, its two pages read through
 // the one authorized endpoint, and neither of them can reply.
-// @spec SDD-050, BR-001, BR-011, SEC-001
+// @req FR-103 — the inbox page's one write is the SEC-005 consent attestation, never
+// a reply; covered here rather than in a new file since it is the same "what can
+// this page's fetches do" contract FR-091's tests already hold.
+// @spec SDD-050, SDD-053, BR-001, BR-011, SEC-001, SEC-005
 
 const inboxPage = () => readFileSync('src/app/(pm)/customer/conversations/page.jsx', 'utf8')
 const dashboardPage = () => readFileSync('src/app/(pm)/customer/page.jsx', 'utf8')
@@ -45,9 +48,19 @@ describe('FR-091 inbox page contract', () => {
     const source = inboxPage()
     // Not a style preference: a console reply would race a ~30s token owned by the
     // edge runtime, making two reply owners of a channel that must have one.
-    expect(source).not.toMatch(/method:\s*['"]POST['"]/)
     expect(source).not.toMatch(/<textarea|<form/)
     expect(source).toMatch(/BR-011/)
+  })
+
+  it('the one POST this page makes is FR-103 consent attestation, never a reply', () => {
+    const source = inboxPage()
+    // Exactly one POST in the whole file, and it names the consent endpoint — proves
+    // by elimination that no fetch to /api/crm/conversations (the reply-shaped
+    // endpoint) is ever a POST, without a regex fragile enough to trip on the parens
+    // inside `encodeURIComponent(...)`.
+    expect(source.match(/method:\s*['"]POST['"]/g)).toHaveLength(1)
+    expect(source).toContain('/api/crm/customers/${encodeURIComponent(customer.id)}/consent')
+    expect(source).toMatch(/SEC-005/)
   })
 
   it('names the owner of a conversation no Business owns instead of printing a blank', () => {

@@ -64,6 +64,13 @@ const STATUS_PILL = {
   DEGRADED: 'pill-review',
   ERROR: 'pill-blocked',
   DISABLED: 'pill-done',
+  // FR-103 / SEC-005 — Customer.consentStatus. GRANDFATHERED reads as neutral,
+  // not urgent: it is a one-time migration backfill for rows PDPA never asked to
+  // gate retroactively, not a decision anyone is waiting on.
+  PENDING: 'pill-review',
+  GRANTED: 'pill-active',
+  DECLINED: 'pill-blocked',
+  GRANDFATHERED: 'pill-planned',
   MISCONFIGURED: 'pill-blocked',
 }
 

@@ -48,7 +48,15 @@ turn flows through before any agent work happens.
   Read-only by construction: the module exports no writer, so the reader cannot
   become a second write path into the models the ingest seam owns. It answers
   within the Tenant of a Business the viewer can see (BR-001) and never replies
-  — the reply belongs to the edge runtime (BR-011).
+  — the reply belongs to the edge runtime (BR-011). It also reads (never sets)
+  the FR-103 consent fields below, so the console can show current status
+  without a second request.
+- `recordCustomerConsent` — SEC-005's PDPA consent attestation (FR-103). A third
+  narrow writer alongside the ingest seam and `recordLineReply`: it only ever
+  touches Customer's `consent*` fields, requires per-Business OWNER authority
+  (never a Member grant), and resolves the Customer through the caller's owned
+  Business's tenant — the same BR-001 scope `getConversationInbox` reads
+  through — so a Customer id alone can never widen the write past it.
 - The FR-078 duplicate review queue stores only deterministic IDs, hashes,
   counts and boolean evidence flags. A Business-scoped Customer Data Reviewer
   may append a decision, but the queue never publishes a Customer or replays
