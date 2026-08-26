@@ -1,10 +1,12 @@
-// @req FR-046, FR-095, FR-096 — request identity comes from a server-owned,
-// persisted session adapter.
+// @req FR-046, FR-095, FR-096, FR-107 — request identity comes from a
+// server-owned, persisted session adapter; the installation-operator capability
+// is resolved per request from the PlatformGrant store.
 // @spec ADR-017, ADR-045 D2-D4, SDD-024, SDD-052, SEC-008, SEC-018
-// @tested tests/unit/fr046-session-port.test.js, tests/unit/iam-session.test.js
+// @tested tests/unit/fr046-session-port.test.js, tests/unit/iam-session.test.js, tests/unit/operator-bootstrap.test.js
 
 import prisma from '@/lib/db'
 import { AUTH_SESSION_COOKIE, hashSessionToken, verifySessionToken } from './auth-service'
+import { hasOperatorGrant } from './operator-bootstrap'
 
 function cookieValue(request, name) {
   if (request?.cookies?.get) {
@@ -75,7 +77,12 @@ export function createSessionPort({ readTrustedSession = async () => null, env =
         return {
           state: 'AUTHENTICATED',
           principalId: session.principalId,
-          platformGrant: false,
+          // @req FR-107 — resolved from the PlatformGrant store on every
+          // request, never snapshotted into the session: revoking the grant
+          // denies the very next request (NFR-019 discipline). Where the store
+          // does not exist (test doubles, pre-migration databases) this reads
+          // false — the pre-FR-107 behavior, never a widened one.
+          platformGrant: await hasOperatorGrant(session.principalId, db),
           sessionId: session.sessionId ?? `legacy-${session.issuedAt}-${session.expiresAt}`,
         }
       }

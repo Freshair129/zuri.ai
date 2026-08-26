@@ -31,3 +31,6 @@ JULES_REPORT.md
 _worktrees/
 
 .vercel
+
+.vercel
+.env*

@@ -212,6 +212,7 @@
     "FR-104",
     "FR-105",
     "FR-106",
+    "FR-107",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -2107,6 +2108,19 @@
       "history": [
         {
           "anchor": "enterprise api tenant token authentication",
+          "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-107": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "60b81e081121bdea25dc85585fe78abbc19ecc369a7069824c5c677800ea8502",
+      "history": [
+        {
+          "anchor": "installation operator grant store and bootstrap",
           "since": "2026-08-26",
           "reason": "declared"
         }

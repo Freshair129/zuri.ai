@@ -180,9 +180,35 @@ model Person {
   customerImportReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionActor")
   // @req FR-103 — the staff member who attested a Customer's PDPA consent (SEC-005).
   customerConsentAttestations   Customer[]                     @relation("CustomerConsentRecordedBy")
+  // @req FR-107 — server-held installation-operator grants (FR-075's isOperator store).
+  platformGrants                PlatformGrant[]                @relation("PlatformGrantPerson")
+  platformGrantsIssued          PlatformGrant[]                @relation("PlatformGrantIssuer")
   // @req FR-067 — Workspace collaboration grants and the invites this person issued.
   workspaceMemberships          WorkspaceMembership[]
   workspaceInvitesIssued        WorkspaceInvite[]              @relation("WorkspaceInviteInviter")
+}
+
+// @req FR-107 — the server-held store behind FR-075's `isOperator` capability.
+// A row here is the ONLY thing that makes a web session an installation
+// operator: the session port resolves it per request (revocation takes effect
+// on the next request, NFR-019 discipline), and nothing else — not role, not
+// ownership, not `isPlatform` — is ever read as operator authority.
+// @spec FR-075, SEC-008
+model PlatformGrant {
+  id                String    @id @default(uuid())
+  personId          String
+  capability        String    @default("OPERATOR")
+  status            String    @default("ACTIVE")
+  grantedByPersonId String?
+  createdAt         DateTime  @default(now())
+  revokedAt         DateTime?
+  revokeReason      String?
+
+  person   Person  @relation("PlatformGrantPerson", fields: [personId], references: [id], onDelete: Cascade)
+  grantedBy Person? @relation("PlatformGrantIssuer", fields: [grantedByPersonId], references: [id], onDelete: SetNull)
+
+  @@unique([personId, capability])
+  @@index([capability, status])
 }
 
 // @req FR-067 — Workspace collaboration membership, keyed by `portfolioId`:

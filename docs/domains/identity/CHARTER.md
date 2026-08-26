@@ -21,6 +21,7 @@ owns_models:
   - WorkspaceMembership
   - WorkspaceInvite
   - ApiAccessKey
+  - PlatformGrant
 ---
 
 # Domain charter — identity

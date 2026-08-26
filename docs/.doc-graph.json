@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1270,
-    "total_edges": 4325,
+    "total_nodes": 1276,
+    "total_edges": 4356,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -14,18 +14,18 @@
       "roadmap": 28,
       "feature": 11,
       "route": 148,
-      "model": 66,
-      "requirement": 220,
-      "test": 302,
-      "code_file": 338
+      "model": 67,
+      "requirement": 221,
+      "test": 305,
+      "code_file": 339
     },
     "coverage": {
-      "requirements": 220,
-      "fr_with_code": "100% (102/102)",
-      "fr_with_tests": "100% (102/102)",
+      "requirements": 221,
+      "fr_with_code": "100% (103/103)",
+      "fr_with_tests": "100% (103/103)",
       "rules_anchored_in_code": "96% (89/93)",
       "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 338,
+      "annotated_code_files": 339,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -48,35 +48,19 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
       "doc:B-db-schema",
       "domain:identity",
-      "doc:FR-019-enterprise-api",
       "doc:PRD-SDD-v1.0",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/app/api/docs/route.js",
-      "code:src/app/api/import/commit/route.js",
-      "code:src/app/api/import/dry-run/route.js",
-      "code:src/app/api/resolve/route.js",
-      "code:src/modules/identity/viewer-authority.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js",
-      "code:src/modules/project-manager/import/import-authorization.js",
-      "code:src/modules/project-manager/import/plan-import-service.js"
+      "code:src/modules/identity/session-port.js",
+      "code:src/modules/project-manager/application/backup-service.js"
     ],
     "added": [
-      "doc:FR-106-enterprise-api-access-key",
-      "route:api:/api/platform/api-access-keys",
-      "route:api:/api/platform/api-access-keys/[id]",
-      "model:ApiAccessKey",
-      "test:tests/integration/enterprise-api-auth.test.js",
-      "test:tests/unit/api-access-auth.test.js",
-      "test:tests/unit/api-access-key-migration.test.js",
-      "test:tests/unit/api-access-key-routes.test.js",
-      "test:tests/unit/mint-api-access-key-cli.test.js",
-      "code:src/app/api/platform/api-access-keys/route.js",
-      "code:src/app/api/platform/api-access-keys/[id]/route.js",
-      "code:src/modules/identity/api-access-auth.js"
+      "model:PlatformGrant",
+      "req:FR-107",
+      "test:tests/unit/bootstrap-operator-cli.test.js",
+      "test:tests/unit/operator-bootstrap.test.js",
+      "test:tests/unit/platform-grant-migration.test.js",
+      "code:src/modules/identity/operator-bootstrap.js"
     ],
     "removed": []
   },
@@ -1556,7 +1540,7 @@
       "type": "code_file",
       "path": "src/app/api/docs/route.js",
       "hash": "d22e3662",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -1837,7 +1821,7 @@
       "type": "code_file",
       "path": "src/app/api/import/commit/route.js",
       "hash": "0528ef71",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
@@ -1858,7 +1842,7 @@
       "type": "code_file",
       "path": "src/app/api/import/dry-run/route.js",
       "hash": "d5f6eaf2",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
@@ -2821,7 +2805,7 @@
       "type": "code_file",
       "path": "src/app/api/resolve/route.js",
       "hash": "7609b920",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -4656,6 +4640,27 @@
       }
     },
     {
+      "id": "code:src/modules/identity/operator-bootstrap.js",
+      "type": "code_file",
+      "path": "src/modules/identity/operator-bootstrap.js",
+      "hash": "c0ae7107",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-107",
+          "FR-075"
+        ],
+        "@spec": [
+          "FR-075",
+          "SEC-008",
+          "SEC-014"
+        ],
+        "@tested": [
+          "tests/unit/operator-bootstrap.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/product-owner-authority.js",
       "type": "code_file",
       "path": "src/modules/identity/product-owner-authority.js",
@@ -4819,13 +4824,14 @@
       "id": "code:src/modules/identity/session-port.js",
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
-      "hash": "cc3cff76",
-      "status": "current",
+      "hash": "b30318b2",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-046",
           "FR-095",
-          "FR-096"
+          "FR-096",
+          "FR-107"
         ],
         "@spec": [
           "SDD-024",
@@ -4835,7 +4841,8 @@
         ],
         "@tested": [
           "tests/unit/fr046-session-port.test.js",
-          "tests/unit/iam-session.test.js"
+          "tests/unit/iam-session.test.js",
+          "tests/unit/operator-bootstrap.test.js"
         ]
       }
     },
@@ -4862,7 +4869,7 @@
       "type": "code_file",
       "path": "src/modules/identity/viewer-authority.js",
       "hash": "0d425973",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-059",
@@ -5402,7 +5409,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "2c8df1e9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -5459,7 +5466,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "e291fd7e",
+      "hash": "208e99f6",
       "status": "changed",
       "annotations": {
         "@req": [
@@ -5471,6 +5478,7 @@
           "FR-092",
           "FR-090",
           "FR-095",
+          "FR-107",
           "FR-067",
           "FR-089",
           "FR-100",
@@ -6271,7 +6279,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/import/import-authorization.js",
       "hash": "ddbe7fb6",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-065",
@@ -6295,7 +6303,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
       "hash": "60efd1e4",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
@@ -6930,7 +6938,7 @@
       "version": "1.24.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "0c6f9474",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -6975,7 +6983,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.11.0",
       "doc_status": "Draft",
-      "hash": "5260478c",
+      "hash": "3dd639b5",
       "status": "changed"
     },
     {
@@ -7086,7 +7094,7 @@
       "version": "1.1.0",
       "doc_status": "Implemented (FR-019)",
       "hash": "f54d902f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-020-adaptive-shell",
@@ -7868,9 +7876,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.92.0b",
+      "version": "1.93.0b",
       "doc_status": "Draft",
-      "hash": "4eaf743f",
+      "hash": "9b6bc922",
       "status": "changed"
     },
     {
@@ -8111,7 +8119,8 @@
         "SotDataPlaneKey",
         "WorkspaceMembership",
         "WorkspaceInvite",
-        "ApiAccessKey"
+        "ApiAccessKey",
+        "PlatformGrant"
       ],
       "owns_routes": [
         "src/app/(entry)/**",
@@ -8125,7 +8134,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "87871bb7",
+      "hash": "2aa71436",
       "status": "changed"
     },
     {
@@ -8561,6 +8570,11 @@
     },
     {
       "id": "model:PlanImportReceipt",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PlatformGrant",
       "type": "model",
       "status": "current"
     },
@@ -9933,6 +9947,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Enterprise API tenant token authentication: the FR-019 Enterprise API refuses every request that does not present a valid per-Tenant service-account key, generalizing the FR-102 pattern (ADR-047 D3 deliberately scoped its `SotDataPlaneKey` to the two SoT routes and named this generalization as the follow-up) rather than inventing a second mechanism: an `ApiAccessKey` bound to exactly one Tenant, presented as `Authorization: Bearer`, stored only as a SHA-256 digest, minted by an installation operator or an owner in that Tenant with the raw secret shown exactly once, revocable with effect on the next request, and never readable back. Scope on every request is the key's own Tenant — a key can never widen the ExternalRef/upsert surface beyond the Tenant it names (SEC-001, BR-002), and an invalid, revoked or missing key answers identically so the endpoint is not an enumeration oracle. This closes SEC-006, which has held the Enterprise API in a declared-but-unenforced state since ADR-047 recorded that \"no API-key mechanism exists anywhere in zuri-ai\". 🟠 implemented; Supabase apply of `20260826150000` pending (RSK-016, same gate as FR-100/102/103) "
+    },
+    {
+      "id": "req:FR-107",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Installation-operator grant store and bootstrap: FR-075's `isOperator` capability becomes holdable in production. A `PlatformGrant` row (Person-bound, capability `OPERATOR`, revocable, audited) is the server-held store, and the session port resolves `platformGrant` from it on every request — replacing the hardcoded `false` that made the capability unholdable by any web session — so revoking a grant denies the very next request and no session snapshot outlives it (NFR-019 discipline). `scripts/bootstrap-operator.mjs` creates the installation's FIRST operator (Person + scrypt credential with a random initial password shown exactly once + ACTIVE grant, one transaction, audited with no password material) and refuses while any ACTIVE OPERATOR grant stands — bootstrap serves the empty operator set only; every later grant is issued by a standing operator. Where the store is absent (test doubles, pre-migration databases) resolution reads `false`, the pre-FR-107 behavior, never a widened one.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Installation-operator grant store and bootstrap: FR-075's `isOperator` capability becomes holdable in production. A `PlatformGrant` row (Person-bound, capability `OPERATOR`, revocable, audited) is the server-held store, and the session port resolves `platformGrant` from it on every request — replacing the hardcoded `false` that made the capability unholdable by any web session — so revoking a grant denies the very next request and no session snapshot outlives it (NFR-019 discipline). `scripts/bootstrap-operator.mjs` creates the installation's FIRST operator (Person + scrypt credential with a random initial password shown exactly once + ACTIVE grant, one transaction, audited with no password material) and refuses while any ACTIVE OPERATOR grant stands — bootstrap serves the empty operator set only; every later grant is issued by a standing operator. Where the store is absent (test doubles, pre-migration databases) resolution reads `false`, the pre-FR-107 behavior, never a widened one. 🟠 implemented; Supabase apply of `20260827090000` pending (RSK-016 gate, same as FR-100/102/103) "
     },
     {
       "id": "req:NFR-001",
@@ -12928,7 +12952,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "7bb4559e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -13145,6 +13169,13 @@
       "type": "test",
       "path": "tests/unit/authorization-seam-routes.test.js",
       "hash": "74ab67be",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/bootstrap-operator-cli.test.js",
+      "type": "test",
+      "path": "tests/unit/bootstrap-operator-cli.test.js",
+      "hash": "8ab1521b",
       "status": "current"
     },
     {
@@ -13988,6 +14019,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/operator-bootstrap.test.js",
+      "type": "test",
+      "path": "tests/unit/operator-bootstrap.test.js",
+      "hash": "4e187ccd",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/overview-split.test.js",
       "type": "test",
       "path": "tests/unit/overview-split.test.js",
@@ -14097,6 +14135,13 @@
       "type": "test",
       "path": "tests/unit/platform-control-route-contract.test.js",
       "hash": "edf5c387",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform-grant-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/platform-grant-migration.test.js",
+      "hash": "9773c820",
       "status": "current"
     },
     {
@@ -21200,6 +21245,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/operator-bootstrap.js",
+      "to": "req:FR-075",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/operator-bootstrap.js",
+      "to": "req:FR-075",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/operator-bootstrap.js",
+      "to": "req:FR-107",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/operator-bootstrap.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/operator-bootstrap.js",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/product-owner-authority.js",
       "to": "req:FR-076",
       "type": "implements",
@@ -21461,6 +21541,13 @@
     {
       "from": "code:src/modules/identity/session-port.js",
       "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/session-port.js",
+      "to": "req:FR-107",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -22280,6 +22367,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-106",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-107",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -25001,6 +25095,13 @@
       "source": "charter"
     },
     {
+      "from": "model:PlatformGrant",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Portfolio",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -26045,6 +26146,13 @@
     },
     {
       "from": "req:FR-106",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-107",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -31260,6 +31368,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -32794,6 +32909,13 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-107",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -36334,6 +36456,20 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/bootstrap-operator-cli.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/bootstrap-operator-cli.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/breadcrumb-switcher.test.js",
       "to": "code:src/components/layouts/Breadcrumb.jsx",
       "type": "tests",
@@ -38148,6 +38284,13 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -38905,6 +39048,13 @@
     {
       "from": "test:tests/unit/fr046-session-port.test.js",
       "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-session-port.test.js",
+      "to": "req:FR-107",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -40493,6 +40643,13 @@
     },
     {
       "from": "test:tests/unit/iam-session.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
       "to": "req:NFR-019",
       "type": "verifies",
       "status": "current",
@@ -41148,6 +41305,90 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "code:src/modules/identity/operator-bootstrap.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "code:src/modules/identity/session-port.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/overview-split.test.js",
@@ -41967,6 +42208,27 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-grant-migration.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-grant-migration.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-grant-migration.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/platform/cloud-sot-agent.test.js",
