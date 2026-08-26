@@ -3,14 +3,22 @@ domain: market-intelligence
 feature: FR-092
 module: market-intelligence
 source: v2-native
-version: 0.1.0
-status: proposed
+version: 0.1.1b
+status: beta
 issue: 76
 ---
 
 # FR-092 — Market translation core
 
-> **Governance note:** `FR-092` is reserved in issue #76 after current `main` consumed FR-090 and the repository session record reserved FR-091 for the pending production-auth requirement. It must be registered in `docs/PRD-SDD-v1.0.md` before this branch is mergeable. This note records rationale; it does not replace the global requirement registry.
+> **Governance note:** `FR-092` was reserved in issue #76 after current `main` consumed FR-090 and FR-091. It is registered in `docs/PRD-SDD-v1.0.md` and the implementation merged through PR #88 (`1136863cb21563777cd680d4070eb7e8780487be`). This note records rationale; it does not replace the global requirement registry.
+
+## Delivery status
+
+The translation core is shipped in PR #88 under the governed identity set
+`FR-092 / NFR-018 / BR-019 / SDD-049 / SEC-017`. The merged slice includes the
+provider-neutral translator, `MarketObservation` persistence, deterministic
+lineage/replay protection, trusted Integration scope, and governed Knowledge/GKS
+resolution. No production database or live Supabase migration was applied.
 
 ## Why this slice exists
 

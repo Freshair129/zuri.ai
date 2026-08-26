@@ -60,11 +60,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/unit/line-channel-binding.test.js",
-      "code:src/modules/agent/line-binding-resolver.js",
-      "code:src/modules/agent/line-channel-binding.js"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -3241,7 +3237,7 @@
       "type": "code_file",
       "path": "src/modules/agent/line-binding-resolver.js",
       "hash": "6f856d0f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-052"
@@ -3259,7 +3255,7 @@
       "type": "code_file",
       "path": "src/modules/agent/line-channel-binding.js",
       "hash": "2f195a8e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-052"
@@ -6195,7 +6191,7 @@
       "type": "document",
       "path": "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
       "title": "FR-092 — Market translation core",
-      "hash": "6f8b46c8",
+      "hash": "1a569dfe",
       "status": "current"
     },
     {
@@ -6441,9 +6437,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.80.0b",
+      "version": "1.80.1b",
       "doc_status": "Draft",
-      "hash": "7852cfe5",
+      "hash": "efcdf3bf",
       "status": "current"
     },
     {
@@ -6741,7 +6737,7 @@
       "modules": [
         "market-intelligence"
       ],
-      "hash": "9e066efd",
+      "hash": "66632b2c",
       "status": "current"
     },
     {
@@ -8236,7 +8232,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. 🟠 #76 implementation in progress "
+      "row_text": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. 🟢 shipped in PR #88 (merge `1136863cb21563777cd680d4070eb7e8780487be`); local and CI verification green; no production migration applied "
     },
     {
       "id": "req:FR-093",
@@ -8424,9 +8420,9 @@
       "family": "NFR",
       "label": "Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
+      "declared": "done",
       "status": "current",
-      "row_text": "Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable. FR-092 tests + unique lineage persistence gate "
+      "row_text": "Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable. ✅ PR #88 tests + unique-lineage persistence proof; no production migration applied "
     },
     {
       "id": "req:SDD-001",
@@ -11590,7 +11586,7 @@
       "type": "test",
       "path": "tests/unit/line-channel-binding.test.js",
       "hash": "2a19c386",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
