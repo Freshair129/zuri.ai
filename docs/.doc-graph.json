@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1226,
-    "total_edges": 4124,
+    "total_nodes": 1227,
+    "total_edges": 4125,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,12 +15,12 @@
       "feature": 11,
       "route": 136,
       "model": 63,
-      "requirement": 219,
+      "requirement": 220,
       "test": 293,
       "code_file": 322
     },
     "coverage": {
-      "requirements": 219,
+      "requirements": 220,
       "fr_with_code": "100% (99/99)",
       "fr_with_tests": "100% (99/99)",
       "rules_anchored_in_code": "94% (87/93)",
@@ -32,7 +32,8 @@
         "FR-082",
         "FR-083",
         "FR-084",
-        "FR-085"
+        "FR-085",
+        "FR-106"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -52,11 +53,11 @@
   },
   "drift": {
     "changed": [
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP"
+      "doc:PRD-SDD-v1.0"
     ],
-    "added": [],
+    "added": [
+      "req:FR-106"
+    ],
     "removed": []
   },
   "nodes": [
@@ -6700,7 +6701,7 @@
       "version": "1.6.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "6529ddd0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -7492,9 +7493,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.89.0b",
+      "version": "1.90.0b",
       "doc_status": "Draft",
-      "hash": "97a92b1e",
+      "hash": "0b6573f7",
       "status": "changed"
     },
     {
@@ -7531,7 +7532,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "e80fdf87",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -9528,6 +9529,16 @@
       "row_text": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The board is a static plan snapshot re-projected from ROADMAP-ZURI-AI-24W-PROGRAM's own frontmatter and tables (currently v0.3.0, baseline 7d8c9d0), carrying the document's `draft` status. It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion. Declared as FR-105 rather than the branch's original FR-094, which main's canonical IAM slice claimed first (AGENTS.md §18 — the later declaration renumbers). ✅ implemented locally; operator-only static route, deployment evidence pending "
     },
     {
+      "id": "req:FR-106",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Enterprise API tenant token authentication: the FR-019 Enterprise API refuses every request that does not present a valid per-Tenant service-account key, generalizing the FR-102 pattern (ADR-047 D3 deliberately scoped its `SotDataPlaneKey` to the two SoT routes and named this generalization as the follow-up) rather than inventing a second mechanism: an `ApiAccessKey` bound to exactly one Tenant, presented as `Authorization: Bearer`, stored only as a SHA-256 digest, minted by an installation operator or an owner in that Tenant with the raw secret shown exactly once, revocable with effect on the next request, and never readable back. Scope on every request is the key's own Tenant — a key can never widen the ExternalRef/upsert surface beyond the Tenant it names (SEC-001, BR-002), and an invalid, revoked or missing key answers identically so the endpoint is not an enumeration oracle. This closes SEC-006, which has held the Enterprise API in a declared-but-unenforced state since ADR-047 recorded that \"no API-key mechanism exists anywhere in zuri-ai\".",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Enterprise API tenant token authentication: the FR-019 Enterprise API refuses every request that does not present a valid per-Tenant service-account key, generalizing the FR-102 pattern (ADR-047 D3 deliberately scoped its `SotDataPlaneKey` to the two SoT routes and named this generalization as the follow-up) rather than inventing a second mechanism: an `ApiAccessKey` bound to exactly one Tenant, presented as `Authorization: Bearer`, stored only as a SHA-256 digest, minted by an installation operator or an owner in that Tenant with the raw secret shown exactly once, revocable with effect on the next request, and never readable back. Scope on every request is the key's own Tenant — a key can never widen the ExternalRef/upsert surface beyond the Tenant it names (SEC-001, BR-002), and an invalid, revoked or missing key answers identically so the endpoint is not an enumeration oracle. This closes SEC-006, which has held the Enterprise API in a declared-but-unenforced state since ADR-047 recorded that \"no API-key mechanism exists anywhere in zuri-ai\". 🔜 declared 2026-08-26 — implementation authorized, parallel lane "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -10323,9 +10334,9 @@
       "family": "SEC",
       "label": "Enterprise API ต้องมี token auth ต่อ tenant ก่อนเปิดใช้จริง",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Enterprise API ต้องมี token auth ต่อ tenant ก่อนเปิดใช้จริง 🔜 "
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Enterprise API ต้องมี token auth ต่อ tenant ก่อนเปิดใช้จริง 🟠 implementing FR declared — FR-106 (2026-08-26) "
     },
     {
       "id": "req:SEC-007",
@@ -24883,6 +24894,13 @@
     },
     {
       "from": "req:FR-105",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-106",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
