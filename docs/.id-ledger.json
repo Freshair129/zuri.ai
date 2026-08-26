@@ -440,6 +440,7 @@
     "ADR-041",
     "ADR-042",
     "ADR-043",
+    "ADR-044",
     "ADR-045",
     "ADR-046",
     "ADR-047",
@@ -710,7 +711,7 @@
       "history": [
         {
           "anchor": "person is the canonical internal principal provider channel",
-          "since": "2026-08-22",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -1938,7 +1939,7 @@
       "history": [
         {
           "anchor": "canonical iam principal",
-          "since": "2026-08-22",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -1951,7 +1952,7 @@
       "history": [
         {
           "anchor": "persisted session lifecycle",
-          "since": "2026-08-22",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -1964,7 +1965,7 @@
       "history": [
         {
           "anchor": "shared policy enforcement",
-          "since": "2026-08-22",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -1977,7 +1978,7 @@
       "history": [
         {
           "anchor": "verified channel onboarding",
-          "since": "2026-08-22",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -1990,7 +1991,7 @@
       "history": [
         {
           "anchor": "agent tool msp authorization",
-          "since": "2026-08-22",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -2003,7 +2004,7 @@
       "history": [
         {
           "anchor": "sot pipeline plan board",
-          "since": "2026-08-24",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -2016,7 +2017,7 @@
       "history": [
         {
           "anchor": "sot approval inbox and decision export",
-          "since": "2026-08-24",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -2029,7 +2030,7 @@
       "history": [
         {
           "anchor": "sot pipeline graph dashboard",
-          "since": "2026-08-24",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -2042,7 +2043,7 @@
       "history": [
         {
           "anchor": "sot data plane service account authentication",
-          "since": "2026-08-24",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -2289,7 +2290,7 @@
       "history": [
         {
           "anchor": "iam decisions are recomputed from trusted server state per",
-          "since": "2026-08-22",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -2973,7 +2974,7 @@
       "history": [
         {
           "anchor": "iam is an identity domain modular monolith boundary",
-          "since": "2026-08-22",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -3213,7 +3214,7 @@
       "history": [
         {
           "anchor": "iam fails closed on identity session and scope ambiguity",
-          "since": "2026-08-22",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -3226,7 +3227,7 @@
       "history": [
         {
           "anchor": "the sot data plane key fails closed on scope and secrecy",
-          "since": "2026-08-24",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -3356,7 +3357,7 @@
       "history": [
         {
           "anchor": "production identity access management",
-          "since": "2026-08-22",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -3369,7 +3370,7 @@
       "history": [
         {
           "anchor": "sot pipeline console",
-          "since": "2026-08-24",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -3566,7 +3567,7 @@
       "history": [
         {
           "anchor": "iam identity session or membership revocation is stale on",
-          "since": "2026-08-22",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -3579,7 +3580,7 @@
       "history": [
         {
           "anchor": "fr 102 sotdataplanekey supabase migration rls enable zuri",
-          "since": "2026-08-24",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -5063,16 +5064,14 @@
       "family": "ADR",
       "source": "docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md",
       "status": "current",
-      "statement_digest": "294ce357559f87a0f9387bcbe27f312dfef0cea9a3612de892e48bf94386d6a0",
+      "statement_digest": "0e4b3be1909cb0f697114957f50d780bfaf1685ad482509c7f53d97e7368d3ba",
       "history": [
         {
           "anchor": "decoupled standalone knowledge and graphrag service",
           "since": "2026-08-22",
           "reason": "declared"
         }
-      ],
-      "statement_digest_reviewed_at": "2026-08-22",
-      "statement_digest_reason": "ADR-042 expanded the same retrieval-service decision to record the six-lane Genesis Retrieval Fabric topology and its query-ir.v1 boundary."
+      ]
     },
     "ADR-043": {
       "family": "ADR",
@@ -5087,6 +5086,19 @@
         }
       ]
     },
+    "ADR-044": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md",
+      "status": "current",
+      "statement_digest": "b3f6479a5c62edb515bd988b2c7b478e48bba53d9d5485c8b52ff9da11115ff6",
+      "history": [
+        {
+          "anchor": "unified thread id omni channel identity live command",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
     "ADR-045": {
       "family": "ADR",
       "source": "docs/decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md",
@@ -5095,7 +5107,7 @@
       "history": [
         {
           "anchor": "canonical identity and access management boundary",
-          "since": "2026-08-22",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -5108,7 +5120,7 @@
       "history": [
         {
           "anchor": "sot pipeline",
-          "since": "2026-08-24",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -5121,7 +5133,7 @@
       "history": [
         {
           "anchor": "sot data plane",
-          "since": "2026-08-24",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]

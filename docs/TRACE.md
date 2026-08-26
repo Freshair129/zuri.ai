@@ -797,7 +797,7 @@
 - **Surface:** `/platform/sot-pipeline/inbox` (page) · `/api/platform/sot/decisions/[decisionId]/decide` (api) · `/api/platform/sot/decisions/export` (api) · `/api/platform/sot/decisions` (api)
 - **Code:** `src/app/(pm)/platform/sot-pipeline/inbox/page.jsx` · `src/app/api/platform/sot/decisions/[decisionId]/decide/route.js` · `src/app/api/platform/sot/decisions/export/route.js` · `src/app/api/platform/sot/decisions/route.js` · `src/modules/integration/application/sot-decision-service.js` · `src/modules/project-manager/application/backup-service.js`
 - **Follows:** BR-002, BR-008, FR-100, FR-102, SDD-023, SEC-002, SEC-008
-- **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/sot-decisions-route.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/sot-data-plane-auth.test.js` · `tests/unit/sot-decision-service.test.js` · `tests/unit/sot-inbox-ui.test.js`
+- **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/sot-decisions-route.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/sot-data-plane-auth.test.js` · `tests/unit/sot-decision-migration.test.js` · `tests/unit/sot-decision-service.test.js` · `tests/unit/sot-inbox-ui.test.js`
 
 ### FR-101 — SoT pipeline graph dashboard: `/platform/sot-pipeline/graph` renders the FR-099 plan as read-only nodes and edges (hand-rolled SVG, topological layers, no client graph library) using the same `{nodes, edges}` data shape as FR-040's dependency map, with FR-099's derived status as node state and per-phase pending-decision badges linking into the FR-100 inbox. One API payload feeds both surfaces.
 

@@ -488,10 +488,10 @@ modes it forbids:
 
 ### 22. Knowledge & Retrieval Architecture: Four-Tier Cognitive Stack
 
-Set by [ADR-041](docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md), [ADR-042](docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md), and [ADR-043](docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md).
+Set by [ADR-041](docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md), [ADR-042](docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md), [ADR-043](docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md), and [ADR-044](docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md).
 
-1. **Tier 1 (Zuri-AI & Edge Device)**: Business Execution Client (LINE/Console/Workflows).
-2. **Tier 2 (MSP — `D:\msp`)**: Agent Session Control & Memory Policy (Episodic scratchpads, token budget, vault gates, H0-H4 access ceilings).
+1. **Tier 1 (Zuri-AI & Edge Device)**: Business Execution Client, Live Monitor & Command Console (LINE, FB, Webhook, Prompt-to-Zuri Voice Dispatcher).
+2. **Tier 2 (MSP — `D:\msp`)**: Agent Session Control, Unified Thread ID Authority & Memory Policy (Episodic scratchpads, token budget, vault gates, H0-H4 access ceilings).
 3. **Tier 3 (GKS — `D:\gks`)**: Canonical Knowledge Authority & RAG Orchestrator (Entity identity, ontology, deduplication, scoped search, R0-R6 radius).
 4. **Tier 4 (GenesisBlockDB)**: 6-lane hybrid retrieval substrate only (Vector, Lexical, Graph, SQLite, Bitemporal, Provenance via `query-ir.v1`).
 
