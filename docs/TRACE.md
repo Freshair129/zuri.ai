@@ -683,7 +683,7 @@
 ### FR-087 — Project priority: `Project` carries a first-class priority whose values live in `src/lib/validation/enums.js` as the single source of truth every dropdown, OpenAPI document and validator derives from, never hand-copied. Additive and nullable at rest because rows predate the column. It exists because "Top 5 Priority" cannot be derived from anything currently stored — ordering by `targetAt` is a deadline list, and presenting one as the other is worse than not shipping the panel (ADR-036 D3).
 
 - **Feature:** FEAT-008 — Projects Dashboard — a KPI band and enriched Project list for the Development domain, with the priority, accountable-owner and Team entities it needs to be honest
-- **Status:** planned
+- **Status:** done
 - **Surface:** `/projects` (page)
 - **Code:** `prisma/seed.js` · `src/app/(pm)/projects/page.jsx` · `src/lib/validation/entities.js` · `src/lib/validation/enums.js` · `src/modules/project-manager/application/project-service.js` · `src/modules/project-manager/components/ProjectModal.jsx`
 - **Follows:** BR-001, BR-004, BR-009, NFR-007, NFR-008, SDD-002, SDD-004, SDD-021, SDD-032, SDD-033, SDD-036, SDD-047, SEC-001, SEC-008
@@ -692,7 +692,7 @@
 ### FR-088 — Project accountable owner (PIC): `Project` carries one nullable accountable `Person`. This is deliberately neither FR-036 project Team membership — which says who *may work* here, being Business-scoped `Membership` rows — nor `WorkItem.assigneeRef`, which says who does one piece. One accountable name is a third fact, so it is stored rather than inferred from the busiest assignee, an inference that would change whenever work moved (ADR-036 D4).
 
 - **Feature:** FEAT-008 — Projects Dashboard — a KPI band and enriched Project list for the Development domain, with the priority, accountable-owner and Team entities it needs to be honest
-- **Status:** planned
+- **Status:** done
 - **Surface:** `/projects` (page)
 - **Code:** `prisma/seed.js` · `src/app/(pm)/projects/page.jsx` · `src/lib/validation/entities.js` · `src/modules/project-manager/application/project-service.js` · `src/modules/project-manager/components/ProjectModal.jsx`
 - **Follows:** BR-001, BR-004, NFR-007, NFR-008, SDD-004, SDD-021, SDD-033, SDD-036, SDD-047, SEC-001, SEC-008
@@ -701,7 +701,7 @@
 ### FR-089 — Team as an organisational grouping: three additive Business-scoped models — `Team`, `TeamMembership` (Person ↔ Team) and `ProjectTeam` (many-to-many, because a Project is worked by several Teams and a Team works several Projects). A Team records who works together and **grants nothing**: the identity resolver does not read it, no route guard consults it, and adding a Person to a Team changes no role, no domain grant and no visible or owned Business (BR-018, ADR-037 D1). `TeamMembership` is deliberately separate from `Membership` — the same distinct-authority-layer discipline BR-016 applies to `WorkspaceMembership` — because `Membership` is the authority record `resolveViewer` reads, and merging grouping into it is how an unauthenticated POST minted business-owner authority on 2026-08-17. Work stays assigned to a Person (`WorkItem.assigneeRef`), never to a Team (ADR-037 D4). FR-036's existing "project Team" tab is untouched and its reconciliation with this entity is deferred deliberately (ADR-037 D5).
 
 - **Feature:** FEAT-008 — Projects Dashboard — a KPI band and enriched Project list for the Development domain, with the priority, accountable-owner and Team entities it needs to be honest
-- **Status:** planned
+- **Status:** done
 - **Surface:** `/projects` (page) · `/api/projects/[id]/teams` (api) · `/api/teams/[id]/members` (api) · `/api/teams/[id]` (api) · `/api/teams` (api)
 - **Code:** `prisma/seed.js` · `src/app/(pm)/projects/page.jsx` · `src/app/api/projects/[id]/teams/route.js` · `src/app/api/teams/[id]/members/route.js` · `src/app/api/teams/[id]/route.js` · `src/app/api/teams/route.js` · `src/modules/project-manager/application/backup-service.js` · `src/modules/project-manager/application/team-service.js`
 - **Follows:** BR-002, BR-008, BR-018, FR-072, NFR-007, NFR-008, SDD-023, SDD-047, SEC-001, SEC-008
@@ -717,7 +717,7 @@
 ### FR-091 — CRM Conversation Inbox — the reader surface for the LINE ingress. `Customer`, `Conversation` and `Message` have been written by the FR-023 ingest seam since the first LINE turn, and FR-081 declared in as many words that **no reader surface was in scope** — so every message this product has ever received is invisible to the operator whose business received it. This requirement adds that surface and nothing else. `GET /api/crm/conversations` returns one authorized, read-only list (customer, channel, message count, last-message preview and time, owning-Business label); `GET /api/crm/conversations/{id}` returns one thread with its messages oldest-first and the customer behind it. Scope follows **BR-001, not the shell**: the CRM is tenant-shared, so the list is the Tenant of the selected Business, restricted to conversations whose `businessId` is null (tenant-shared — which is what an unbound LINE binding writes, and therefore the common case) or a Business this viewer can already see. A viewer is never handed a conversation belonging to a Business they could not open. The `customer` domain slot leaves `soon` and gains `/customer` (Dashboard) and `/customer/conversations` (Inbox). It **writes nothing**: no reply box, no status transition, no read-receipt. Replying is BR-011 territory and belongs to the edge runtime that owns the reply — a console that could also reply would make two reply owners, which is the one thing BR-011 exists to prevent. `Conversation.status` is displayed as stored and no enum is declared for it, because nothing in this slice writes it.
 
 - **Feature:** FEAT-009 — CRM Conversation Inbox — the first reader surface over the LINE ingress, and the delivery receipt that makes it show both sides of a conversation rather than only what the customer said
-- **Status:** planned
+- **Status:** done
 - **Surface:** `/customer/conversations` (page) · `/customer` (page) · `/api/crm/conversations/[id]` (api) · `/api/crm/conversations` (api)
 - **Code:** `src/app/(pm)/customer/conversations/page.jsx` · `src/app/(pm)/customer/page.jsx` · `src/app/api/crm/conversations/[id]/route.js` · `src/app/api/crm/conversations/route.js` · `src/config/domains.js` · `src/modules/crm/conversation-read-model.js`
 - **Follows:** BR-001, BR-011, SDD-007, SDD-018, SDD-050, SDD-053, SEC-001, SEC-005, SEC-009
@@ -733,7 +733,7 @@
 ### FR-093 — LINE reply delivery receipt: the outbound half of a conversation becomes a row. Nothing has ever written a `Message` with `direction: 'OUTBOUND'` — the reply is assembled here, handed to the edge runtime, sent to the customer and then forgotten — so FR-091's inbox shows one side of every conversation and its `OUTBOUND` count is structurally zero. `POST /api/agent/line-delivery` accepts a batch of receipts from the transport owner, each naming the **inbound `Message.id` it answers** and the text that was **actually sent**. (a) The receipt comes from the edge runtime *after* a successful send and not from this side at hand-over, because the two differ: when the stack cannot answer, the transport sends its own fallback text, and recording what this side produced would record a message the customer never received (BR-011 — the reply owner is the one who knows). (b) Scope is resolved by the same seam as the webhook (FR-052), and the named inbound message must resolve inside that scope — a binding for one tenant can never attach a reply to another tenant's conversation (SEC-001). (c) Idempotent on `reply:<inboundMessageId>` as the message's external id, so a redelivered receipt resolves to the existing row: one inbound message has one reply, which is exactly what the LINE Reply API allows per token. (d) The row records the text the customer received; whether it came from the stack or from the transport's fallback is recorded on the audit event, not in the body, because the body is what was said and the provenance is a different fact. The webhook response gains `conversationId` and `inboundMessageId` so the transport has something to name — on the **failure** result as well as the success one, because a failed turn is precisely when the transport substitutes its own text and a customer certainly received something. That failure result also gains the `eventId` it never carried: the transport matches results to events by that field, so a failed result was previously unfindable and its fallback was sent only because an unmatched result and a failed one both read as "not ok". All additive; the four fields the transport already reads are untouched.
 
 - **Feature:** FEAT-009 — CRM Conversation Inbox — the first reader surface over the LINE ingress, and the delivery receipt that makes it show both sides of a conversation rather than only what the customer said
-- **Status:** planned
+- **Status:** done
 - **Surface:** `/api/agent/line-delivery` (api) · `/api/agent/line-webhook` (api)
 - **Code:** `src/app/api/agent/line-delivery/route.js` · `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/turn.js` · `src/modules/crm/reply-record-service.js`
 - **Follows:** BR-011, BR-012, BR-020, FR-052, NFR-017, SDD-026, SDD-048, SDD-051, SEC-001, SEC-010, SEC-018
@@ -767,7 +767,7 @@
 ### FR-097 — Verified channel onboarding: a valid LINE signature proves transport origin only; a new channel subject remains pending until server-owned linking/onboarding and active Membership authorize private data or staff capability.
 
 - **Feature:** FEAT-010 — Production Identity & Access Management — canonical Person/channel identity, persisted sessions, active Membership lifecycle, shared policy enforcement and agent/tool scope isolation
-- **Status:** planned
+- **Status:** n/a
 - **Surface:** `/api/agent/line-webhook` (api)
 - **Code:** `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/auth-context.js` · `src/modules/agent/line-binding-resolver.js` · `src/modules/agent/line-channel-binding.js` · `src/modules/agent/turn.js` · `src/modules/crm/line-ingest-service.js` · `src/modules/identity/channel-identity.js` · `src/modules/identity/link-line-identity.js` · `src/modules/identity/resolve-line-identity.js`
 - **Follows:** BR-001, BR-002, BR-011, BR-012, BR-015, BR-020, NFR-017, SDD-026, SDD-030, SDD-048, SDD-052, SEC-001, SEC-010, SEC-013, SEC-018
@@ -784,7 +784,7 @@
 ### FR-099 — SoT pipeline plan board: the business-wide Source-of-Truth pipeline's phase plan (P0–P10) lives as strict-validated data (`contracts/sot-pipeline-plan.v1.json`) and is rendered at `/platform/sot-pipeline` with status **derived** from FR-071 run evidence plus FR-100 pending-decision counts — `planned/running/blocked/done` is computed by a pure function, never typed in, so the board cannot disagree with the tracking data it reads. Reader surface only; the plan file changes by PR.
 
 - **Feature:** FEAT-011 — SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline
-- **Status:** planned
+- **Status:** done
 - **Surface:** `/platform/sot-pipeline` (page) · `/api/platform/sot/plan` (api)
 - **Code:** `src/app/(pm)/platform/sot-pipeline/page.jsx` · `src/app/api/platform/sot/plan/route.js` · `src/modules/integration/application/sot-pipeline-graph.js` · `src/modules/integration/application/sot-plan-service.js` · `src/modules/integration/application/sot-plan.js`
 - **Follows:** FR-099, FR-101, SEC-002
@@ -793,7 +793,7 @@
 ### FR-100 — SoT approval inbox and decision export: one tenant/business-scoped `SotDecision` queue (PRICE_ROW, ENTITY, FILE_CLASSIFICATION, PHASE_GATE) that the external data plane **submits** into (idempotent batch, `.strict()` envelope, payload-hash versioning), a human **decides** in the browser (audited, immutable rows, new version to change a decision), and the data plane **pulls** from (`export?since=` cursor) to apply approved facts to its own DuckDB/graph stores — zuri-ai never writes into the retrieval substrate, keeping Tier 1 inside the ADR-043 boundary during the Boss-approved `:8888` interim. Closes the open loop where approvals in `price_approval.csv` reached nothing (17,702 staged price rows, 0 approved in store).
 
 - **Feature:** FEAT-011 — SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline
-- **Status:** planned
+- **Status:** n/a
 - **Surface:** `/platform/sot-pipeline/inbox` (page) · `/api/platform/sot/decisions/[decisionId]/decide` (api) · `/api/platform/sot/decisions/export` (api) · `/api/platform/sot/decisions` (api)
 - **Code:** `src/app/(pm)/platform/sot-pipeline/inbox/page.jsx` · `src/app/api/platform/sot/decisions/[decisionId]/decide/route.js` · `src/app/api/platform/sot/decisions/export/route.js` · `src/app/api/platform/sot/decisions/route.js` · `src/modules/integration/application/sot-decision-service.js` · `src/modules/project-manager/application/backup-service.js`
 - **Follows:** BR-002, BR-008, FR-100, FR-102, SDD-023, SEC-002, SEC-008
@@ -802,7 +802,7 @@
 ### FR-101 — SoT pipeline graph dashboard: `/platform/sot-pipeline/graph` renders the FR-099 plan as read-only nodes and edges (hand-rolled SVG, topological layers, no client graph library) using the same `{nodes, edges}` data shape as FR-040's dependency map, with FR-099's derived status as node state and per-phase pending-decision badges linking into the FR-100 inbox. One API payload feeds both surfaces.
 
 - **Feature:** FEAT-011 — SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline
-- **Status:** planned
+- **Status:** done
 - **Surface:** `/platform/sot-pipeline/graph` (page) · `/api/platform/sot/plan` (api)
 - **Code:** `src/app/(pm)/platform/sot-pipeline/graph/page.jsx` · `src/app/api/platform/sot/plan/route.js` · `src/modules/integration/application/sot-pipeline-graph.js` · `src/modules/integration/application/sot-plan-service.js`
 - **Follows:** FR-099, FR-101
@@ -810,14 +810,14 @@
 
 ### FR-102 — SoT data-plane service-account authentication: a `SotDataPlaneKey` bound to exactly one Tenant lets the SoT pipeline's external data plane authenticate to the FR-100 submit/export endpoints (`Authorization: Bearer sdpk_...`) without a browser session and without installation-operator authority. Revocation takes effect on the next request; the raw secret is never persisted, only its SHA-256 hash.
 
-- **Status:** planned
+- **Status:** n/a
 - **Code:** `src/modules/identity/sot-data-plane-auth.js` · `src/modules/integration/application/sot-decision-service.js` · `src/modules/project-manager/application/backup-service.js`
 - **Follows:** BR-002, BR-008, FR-100, FR-102, SDD-023, SEC-002, SEC-008, SEC-019
 - **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/sot-decisions-route.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/mint-sot-data-plane-key-cli.test.js` · `tests/unit/sot-data-plane-auth.test.js` · `tests/unit/sot-data-plane-key-migration.test.js` · `tests/unit/sot-decision-service.test.js` · `tests/unit/viewer-authority.test.js`
 
 ### FR-103 — SEC-005 PDPA consent, MVP scope: a Business owner attests in the CRM console that a Customer's consent was captured (`GRANTED`/`DECLINED`), recorded with timestamp and attesting Person on the Customer row FR-023 already treats as the CRM-sharing unit. Every Customer created from here on defaults to `PENDING`; rows that predate this column backfill to `GRANDFATHERED` rather than being retroactively blocked. Closes ethics-governance.md's open question #4 only — it does not gate AI processing, redact model input, or answer retention/provider-terms (#1, #2, #3, #6), which stay open.
 
-- **Status:** planned
+- **Status:** n/a
 - **Surface:** `/customer/conversations` (page) · `/api/crm/customers/[customerId]/consent` (api)
 - **Code:** `src/app/(pm)/customer/conversations/page.jsx` · `src/app/api/crm/customers/[customerId]/consent/route.js` · `src/modules/crm/conversation-read-model.js` · `src/modules/crm/customer-consent-service.js`
 - **Follows:** BR-001, BR-011, SDD-007, SDD-048, SDD-050, SDD-053, SEC-001, SEC-005, SEC-009
@@ -825,7 +825,7 @@
 
 ### FR-104 — Owner-assisted password reset: a Business owner over a Business the target Person belongs to — the same authority boundary as FR-038 Membership administration — or the installation operator mints a single-use, one-hour, hash-bound reset token (`POST /api/platform/users/password-resets`), and the public `POST /api/auth/reset-password` consumes it: new `PersonCredential`, token burnt, **every active Session revoked**. The raw token appears exactly once, in the authenticated mint response, for out-of-band handover (LINE, in person); it is stored only as a SHA-256 digest and never logged or audited in any form. There is deliberately no public forgot-password route: with no mail transport, such a route either returns the token to the unauthenticated caller — an account-takeover primitive, which is what the abandoned FR-082 draft on `codex/postgres-primary-runtime` shipped and the reason it was not revived as-is — or returns nothing and resets nothing. Uses the `PasswordResetToken` table FR-090 declared (its `token` column now carries the digest).
 
-- **Status:** planned
+- **Status:** done
 - **Surface:** `/api/auth/reset-password` (api) · `/api/platform/users/password-resets` (api)
 - **Code:** `src/app/api/auth/reset-password/route.js` · `src/app/api/platform/users/password-resets/route.js` · `src/modules/identity/auth-service.js`
 - **Follows:** SDD-024, SDD-052, SDD-054, SEC-008, SEC-014, SEC-018
@@ -833,7 +833,7 @@
 
 ### FR-105 — Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The board is a static plan snapshot re-projected from ROADMAP-ZURI-AI-24W-PROGRAM's own frontmatter and tables (currently v0.3.0, baseline 7d8c9d0), carrying the document's `draft` status. It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion. Declared as FR-105 rather than the branch's original FR-094, which main's canonical IAM slice claimed first (AGENTS.md §18 — the later declaration renumbers).
 
-- **Status:** planned
+- **Status:** done
 - **Surface:** `/control/roadmap` (page)
 - **Code:** `src/app/(control)/control/roadmap/page.jsx` · `src/app/(control)/layout.jsx` · `src/components/layouts/PlatformControlGuard.jsx` · `src/components/layouts/PlatformControlShell.jsx` · `src/lib/platform-control-guard.js` · `src/modules/platform-control/components/ProgramRoadmapBoard.jsx` · `src/modules/platform-control/program-roadmap-data.js`
 - **Follows:** NFR-008, SDD-055, SEC-020
