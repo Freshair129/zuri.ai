@@ -28,6 +28,16 @@ export const CHECK_NAMES = [
   'tests',
 ]
 
+export const PROGRESS_METHODOLOGY = {
+  version: '1.0',
+  declarationWeight: 20,
+  codeWeight: 40,
+  testWeight: 40,
+  featureRollup: 'Mean of the progress percentages of the feature requirements',
+  domainRollup: 'Mean of unique requirement progress percentages in primary-domain features',
+  readinessRule: 'Ready requires every underlying requirement to be verified and an explicit FEAT bundle to be live',
+}
+
 const MUTATING_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE']
 const SOURCE_FILES = [
   'docs/PRD-SDD-v1.0.md',
@@ -94,6 +104,16 @@ function requirementStatus(requirement, code, tests) {
   if (!code.length) return 'not_implemented'
   if (!tests.length) return 'partial'
   return 'verified'
+}
+
+function roundPercent(value) {
+  return Math.round(value * 10) / 10
+}
+
+function requirementProgress(requirement) {
+  return (requirement.declared === 'planned' ? 0 : PROGRESS_METHODOLOGY.declarationWeight)
+    + (requirement.code.length ? PROGRESS_METHODOLOGY.codeWeight : 0)
+    + (requirement.tests.length ? PROGRESS_METHODOLOGY.testWeight : 0)
 }
 
 function aggregateStatus(statuses, hasEvidence) {
@@ -166,6 +186,144 @@ function requirementEvidence(domain, nodes, edges, featureRequirements) {
         tests,
       }
     })
+}
+
+function globalRequirementEvidence(nodes, edges) {
+  const nodeById = new Map(nodes.map((node) => [node.id, node]))
+  return nodes
+    .filter((node) => node.type === 'requirement' && node.family === 'FR')
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((requirement) => {
+      const code = unique(
+        edges
+          .filter((edge) => edge.to === requirement.id && edge.type === 'implements')
+          .map((edge) => nodeById.get(edge.from)?.path),
+      )
+      const tests = unique(
+        edges
+          .filter((edge) => edge.to === requirement.id && edge.type === 'verifies')
+          .map((edge) => nodeById.get(edge.from)?.path),
+      )
+      const observation = {
+        id: requirement.id.slice(4),
+        title: requirement.label,
+        declared: requirement.declared,
+        code,
+        tests,
+      }
+      return {
+        ...observation,
+        status: requirementStatus(requirement, code, tests),
+        progressPercent: requirementProgress(observation),
+      }
+    })
+}
+
+export function parseFeaturePresentation(root) {
+  const source = readText(root, 'docs/FEATURES.md')
+  const match = /<!-- readiness-metadata:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- readiness-metadata:end -->/.exec(source)
+  if (!match) throw new Error('docs/FEATURES.md is missing the readiness presentation metadata block')
+  let rows
+  try {
+    rows = JSON.parse(match[1])
+  } catch (error) {
+    throw new Error(`docs/FEATURES.md readiness metadata is invalid JSON: ${error.message}`)
+  }
+  if (!Array.isArray(rows)) throw new Error('docs/FEATURES.md readiness metadata must be a JSON array')
+  return rows
+}
+
+function buildFeatureProjection({ nodes, edges, domains, presentation }) {
+  if (!presentation.length) return []
+
+  const requirements = globalRequirementEvidence(nodes, edges)
+  const requirementById = new Map(requirements.map((requirement) => [requirement.id, requirement]))
+  const bundleNodes = nodes.filter((node) => node.type === 'feature').sort((a, b) => a.id.localeCompare(b.id))
+  const bundledRequirementIds = new Set()
+  const candidates = bundleNodes.map((feature) => {
+    const requirementIds = unique(
+      edges
+        .filter((edge) => edge.from === feature.id && edge.type === 'bundles')
+        .map((edge) => edge.to.replace(/^req:/, '')),
+    )
+    for (const id of requirementIds) bundledRequirementIds.add(id)
+    return {
+      id: feature.id.replace(/^feat:/, ''),
+      title: feature.label,
+      kind: 'bundle',
+      registryStatus: feature.declared,
+      requirementIds,
+    }
+  })
+
+  for (const requirement of requirements) {
+    if (bundledRequirementIds.has(requirement.id)) continue
+    candidates.push({
+      id: requirement.id,
+      title: requirement.title,
+      kind: 'requirement',
+      registryStatus: requirement.declared === 'planned' ? 'planned' : 'live',
+      requirementIds: [requirement.id],
+    })
+  }
+  candidates.sort((a, b) => a.id.localeCompare(b.id))
+
+  const presentationById = new Map()
+  for (const row of presentation) {
+    if (!row || typeof row !== 'object') throw new Error('Every readiness metadata entry must be an object')
+    if (!/^(FEAT|FR)-\d{3}$/.test(row.id || '')) throw new Error(`Invalid readiness metadata id: ${row.id || '(missing)'}`)
+    if (presentationById.has(row.id)) throw new Error(`Duplicate readiness metadata for ${row.id}`)
+    if (!domains[row.primaryDomain]) throw new Error(`${row.id} names unknown primary domain ${row.primaryDomain || '(missing)'}`)
+    if (typeof row.useCase !== 'string' || !row.useCase.trim()) throw new Error(`${row.id} has no example use case`)
+    presentationById.set(row.id, { primaryDomain: row.primaryDomain, useCase: row.useCase.trim() })
+  }
+
+  const expectedIds = new Set(candidates.map((candidate) => candidate.id))
+  const missing = [...expectedIds].filter((id) => !presentationById.has(id))
+  const extra = [...presentationById.keys()].filter((id) => !expectedIds.has(id))
+  if (missing.length) throw new Error(`Readiness metadata is missing projected features: ${missing.join(', ')}`)
+  if (extra.length) throw new Error(`Readiness metadata names non-projected features: ${extra.join(', ')}`)
+
+  return candidates.map((candidate) => {
+    const metadata = presentationById.get(candidate.id)
+    const featureRequirements = candidate.requirementIds.map((id) => requirementById.get(id)).filter(Boolean)
+    if (featureRequirements.length !== candidate.requirementIds.length) {
+      const unknown = candidate.requirementIds.filter((id) => !requirementById.has(id))
+      throw new Error(`${candidate.id} bundles unknown requirements: ${unknown.join(', ')}`)
+    }
+    const progressPercent = roundPercent(
+      featureRequirements.reduce((sum, requirement) => sum + requirement.progressPercent, 0) / featureRequirements.length,
+    )
+    const blockers = featureRequirements
+      .filter((requirement) => requirement.status !== 'verified')
+      .map((requirement) => `${requirement.id} is ${requirement.status}`)
+    if (candidate.kind === 'bundle' && candidate.registryStatus !== 'live') {
+      blockers.unshift(`${candidate.id} registry status is ${candidate.registryStatus}`)
+    }
+    const ready = blockers.length === 0
+    const contributorDomains = Object.entries(domains)
+      .filter(([, domain]) => domain.requirements.some((requirement) => candidate.requirementIds.includes(requirement.id)))
+      .map(([name]) => name)
+      .sort()
+    return {
+      ...candidate,
+      primaryDomain: metadata.primaryDomain,
+      contributorDomains,
+      useCase: metadata.useCase,
+      progressPercent,
+      ready,
+      readiness: ready ? 'ready' : 'not_ready',
+      blockers,
+      requirements: featureRequirements.map((requirement) => ({
+        id: requirement.id,
+        status: requirement.status,
+        progressPercent: requirement.progressPercent,
+        codeCount: requirement.code.length,
+        testCount: requirement.tests.length,
+      })),
+      evidence: unique(featureRequirements.flatMap((requirement) => [...requirement.code, ...requirement.tests])),
+    }
+  })
 }
 
 function interfaceCheck(root, routes) {
@@ -389,7 +547,7 @@ export function collectDomainObservations({ root, nodes, edges, featureRequireme
   return observations
 }
 
-export function buildDomainState({ nodes, edges, featureRequirements = new Map(), observations = {}, generatedAt }) {
+export function buildDomainState({ nodes, edges, featureRequirements = new Map(), observations = {}, featurePresentation = [], generatedAt }) {
   const domains = {}
   const allGaps = []
   const allStatuses = []
@@ -446,24 +604,53 @@ export function buildDomainState({ nodes, edges, featureRequirements = new Map()
     allStatuses.push(status)
   }
 
+  const features = buildFeatureProjection({ nodes, edges, domains, presentation: featurePresentation })
+  for (const [name, domain] of Object.entries(domains)) {
+    const domainFeatures = features.filter((feature) => feature.primaryDomain === name)
+    const requirementsById = new Map(
+      domainFeatures.flatMap((feature) => feature.requirements).map((requirement) => [requirement.id, requirement]),
+    )
+    const domainRequirements = [...requirementsById.values()]
+    domain.featureIds = domainFeatures.map((feature) => feature.id)
+    domain.featureCount = domainFeatures.length
+    domain.readyFeatureCount = domainFeatures.filter((feature) => feature.ready).length
+    domain.progressPercent = domainRequirements.length
+      ? roundPercent(domainRequirements.reduce((sum, requirement) => sum + requirement.progressPercent, 0) / domainRequirements.length)
+      : null
+  }
+
+  const globalRequirements = globalRequirementEvidence(nodes, edges)
+  const verifiedRequirementCount = globalRequirements.filter((requirement) => requirement.status === 'verified').length
+  const progressPercent = globalRequirements.length
+    ? roundPercent(globalRequirements.reduce((sum, requirement) => sum + requirement.progressPercent, 0) / globalRequirements.length)
+    : 0
+
   return {
-    schemaVersion: '1.0',
+    schemaVersion: '1.1',
     generatedBy: 'scripts/domain-state.mjs',
     generatedAt: generatedAt || new Date().toISOString(),
     generatedFrom: SOURCE_FILES,
     statusVocabulary: STATUS_VALUES,
+    progressMethodology: PROGRESS_METHODOLOGY,
     overall: {
       status: aggregateStatus(allStatuses, allStatuses.length > 0),
       domainCount: Object.keys(domains).length,
+      featureCount: features.length,
+      readyFeatureCount: features.filter((feature) => feature.ready).length,
+      requirementCount: globalRequirements.length,
+      verifiedRequirementCount,
+      progressPercent,
       gapCount: allGaps.length,
       gaps: allGaps,
     },
     domains,
+    features,
   }
 }
 
 export function generateDomainState({ root, nodes, edges, generatedAt }) {
   const featureRequirements = discoverFeatureRequirements(root)
   const observations = collectDomainObservations({ root, nodes, edges, featureRequirements })
-  return buildDomainState({ nodes, edges, featureRequirements, observations, generatedAt })
+  const featurePresentation = parseFeaturePresentation(root)
+  return buildDomainState({ nodes, edges, featureRequirements, observations, featurePresentation, generatedAt })
 }

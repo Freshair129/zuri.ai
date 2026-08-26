@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.2.0b |
+| **Version** | 1.3.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-08-20 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=41; operational_domain_keys=7; operational_subdomain_entries=23; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=43; operational_domain_keys=7; operational_subdomain_entries=24; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -114,14 +114,16 @@ page can issue a write.
 
 ### 3.4 People and Platform domains
 
-The operational registry has seven domain keys. Platform currently exposes seven
-page routes because its Dashboard and Settings navigation entries share
-`/settings`; one route is one interface row here.
+The operational registry has seven domain keys. Platform currently exposes nine
+page routes across eight navigation entries because its Dashboard and Settings
+entries share `/settings`; one route is one interface row here.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/people` | People Dashboard | BusinessShell → HR / People | People domain landing and directory entry | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/people/page.jsx`, FR-042 |
 | `/people/directory` | People Directory | BusinessShell → HR / People / Directory | Business-scoped people search and view | empty, loading, error, forbidden | implemented; `src/app/(pm)/people/directory/page.jsx`, FR-042 |
+| `/platform/product-readiness` | Product Readiness Dashboard | BusinessShell → Platform / Product Readiness | six evidence-backed KPIs, methodology disclosure, domain readiness cards and complete feature list with progress, readiness and use cases | ready, filtered-empty, loading, error, forbidden; committed snapshot only | implemented beta; `src/app/(pm)/platform/product-readiness/page.jsx`, FR-094 |
+| `/platform/product-readiness/[domain]` | Domain Readiness Detail | BusinessShell → Platform / Product Readiness | one technical domain's features, requirement evidence, blockers, progress and example use cases | ready, filtered-empty, not-found, forbidden; unknown domain fails closed | implemented beta; `src/app/(pm)/platform/product-readiness/[domain]/page.jsx`, FR-094 |
 | `/platform/users` | Users and Permissions | BusinessShell → Platform / Users | OWNER-scoped membership role and domain grants | owner-only, empty, loading, error, forbidden | implemented; `src/app/(pm)/platform/users/page.jsx`, FR-038/062 |
 | `/platform/integrations` | Platform Integrations | BusinessShell → Platform / Integrations | owner-only provider/connection metadata and redacted Vault readiness | owner-only, empty, loading, error, manager unavailable; no raw secret state | implemented beta; `src/app/(pm)/platform/integrations/page.jsx`, FR-080 |
 | `/platform/customer-import-reviews` | Customer Duplicate Review | BusinessShell → Platform / Customer Review | review held duplicate groups, inspect redacted evidence and append a per-item decision | reviewer-only, empty, loading, error, forbidden, stale-version conflict; no Customer publish | implemented beta; `src/app/(pm)/platform/customer-import-reviews/page.jsx`, FR-078 |
@@ -173,10 +175,10 @@ explicitly so “domain count” cannot silently mix the two concepts:
 | Source `DOMAINS` entries | 8 | `business-home` plus seven operational domains |
 | Operational domain keys | 7 | `commerce`, `customer`, `growth`, `operations`, `people`, `projects`, `platform` |
 | Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
-| Source sub-domain entries | 23 | includes Business Home Dashboard |
-| Operational sub-domain entries | 22 | excludes Business Home Dashboard |
+| Source sub-domain entries | 25 | includes Business Home Dashboard |
+| Operational sub-domain entries | 24 | excludes Business Home Dashboard |
 | Development sub-domain entries | 8 | includes Files and excludes Business Home |
-| Platform navigation entries | 7 | Dashboard and Settings intentionally share `/settings` |
+| Platform navigation entries | 8 | Dashboard and Settings intentionally share `/settings` |
 
 The marker at the top of this document is the published operational count. The
 preflight check derives it from `src/config/domains.js` and fails if it drifts.
@@ -219,8 +221,8 @@ The current route evidence is:
 
 | Evidence | Current value | Check |
 |---|---:|---|
-| `src/app/**/page.jsx` | 38 page routes | preflight compares every derived URL to this registry |
-| `src/config/domains.js` | 7 operational domains, 22 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
+| `src/app/**/page.jsx` | 43 page routes | preflight compares every derived URL to this registry |
+| `src/config/domains.js` | 7 operational domains, 24 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
 | UI status | per-row, not a global completion claim | local implementation does not imply production provider/cutover readiness |
 
 ## 7. Out of scope
@@ -237,6 +239,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0b | 2026-08-20 | candidate | Registered FR-094 summary and per-domain readiness routes; reconciled the runtime to 43 page routes / 24 operational subdomain entries | working-tree | ATHER |
 | 1.2.0b | 2026-08-20 | candidate | Registered the FR-091 CRM Dashboard and Inbox, the first reader surface over the LINE ingress, and reconciled the counts to 41 page routes / 23 subdomain entries | working-tree | ATHER |
 | 1.1.0b | 2026-08-18 | candidate | Added the FR-078 Customer Duplicate Review interface and reconciled the page/domain counts to the live registry | working-tree | ATHER |
 | 1.0.0b | 2026-08-18 | candidate | Executed CR-007: bounded the document to a canonical UI registry, reconciled 37 routes and explicit Business Home/domain counts, and added machine-checkable evidence | working-tree | ATHER |

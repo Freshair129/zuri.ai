@@ -11,11 +11,13 @@
     "generatedAt",
     "generatedFrom",
     "statusVocabulary",
+    "progressMethodology",
     "overall",
-    "domains"
+    "domains",
+    "features"
   ],
   "properties": {
-    "schemaVersion": { "const": "1.0" },
+    "schemaVersion": { "const": "1.1" },
     "generatedBy": { "type": "string", "const": "scripts/domain-state.mjs" },
     "generatedAt": { "type": "string", "format": "date-time" },
     "generatedFrom": {
@@ -30,14 +32,34 @@
       "minItems": 1,
       "uniqueItems": true
     },
+    "progressMethodology": { "$ref": "#/$defs/progressMethodology" },
     "overall": { "$ref": "#/$defs/overall" },
     "domains": {
       "type": "object",
       "minProperties": 1,
       "additionalProperties": { "$ref": "#/$defs/domain" }
+    },
+    "features": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/feature" },
+      "uniqueItems": true
     }
   },
   "$defs": {
+    "progressMethodology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "declarationWeight", "codeWeight", "testWeight", "featureRollup", "domainRollup", "readinessRule"],
+      "properties": {
+        "version": { "type": "string", "minLength": 1 },
+        "declarationWeight": { "type": "number", "minimum": 0, "maximum": 100 },
+        "codeWeight": { "type": "number", "minimum": 0, "maximum": 100 },
+        "testWeight": { "type": "number", "minimum": 0, "maximum": 100 },
+        "featureRollup": { "type": "string", "minLength": 1 },
+        "domainRollup": { "type": "string", "minLength": 1 },
+        "readinessRule": { "type": "string", "minLength": 1 }
+      }
+    },
     "status": {
       "type": "string",
       "enum": [
@@ -101,10 +123,63 @@
         }
       }
     },
+    "featureRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "progressPercent", "codeCount", "testCount"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^FR-[0-9]{3}$" },
+        "status": { "$ref": "#/$defs/status" },
+        "progressPercent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "codeCount": { "type": "integer", "minimum": 0 },
+        "testCount": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "feature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "kind", "registryStatus", "requirementIds", "primaryDomain", "contributorDomains", "useCase", "progressPercent", "ready", "readiness", "blockers", "requirements", "evidence"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^(FEAT|FR)-[0-9]{3}$" },
+        "title": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "enum": ["bundle", "requirement"] },
+        "registryStatus": { "type": "string", "minLength": 1 },
+        "requirementIds": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^FR-[0-9]{3}$" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "primaryDomain": { "type": "string", "minLength": 1 },
+        "contributorDomains": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "useCase": { "type": "string", "minLength": 1 },
+        "progressPercent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "ready": { "type": "boolean" },
+        "readiness": { "type": "string", "enum": ["ready", "not_ready"] },
+        "blockers": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "requirements": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/featureRequirement" },
+          "minItems": 1
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
     "domain": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "requirements", "checks", "evidence", "gaps"],
+      "required": ["status", "requirements", "checks", "evidence", "gaps", "featureIds", "featureCount", "readyFeatureCount", "progressPercent"],
       "properties": {
         "status": { "$ref": "#/$defs/status" },
         "requirements": {
@@ -135,6 +210,18 @@
           "type": "array",
           "items": { "$ref": "#/$defs/gap" }
         },
+        "featureIds": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^(FEAT|FR)-[0-9]{3}$" },
+          "uniqueItems": true
+        },
+        "featureCount": { "type": "integer", "minimum": 0 },
+        "readyFeatureCount": { "type": "integer", "minimum": 0 },
+        "progressPercent": {
+          "type": ["number", "null"],
+          "minimum": 0,
+          "maximum": 100
+        },
         "details": { "type": "object", "additionalProperties": true }
       }
     },
@@ -158,10 +245,15 @@
     "overall": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "domainCount", "gapCount", "gaps"],
+      "required": ["status", "domainCount", "featureCount", "readyFeatureCount", "requirementCount", "verifiedRequirementCount", "progressPercent", "gapCount", "gaps"],
       "properties": {
         "status": { "$ref": "#/$defs/status" },
         "domainCount": { "type": "integer", "minimum": 1 },
+        "featureCount": { "type": "integer", "minimum": 0 },
+        "readyFeatureCount": { "type": "integer", "minimum": 0 },
+        "requirementCount": { "type": "integer", "minimum": 0 },
+        "verifiedRequirementCount": { "type": "integer", "minimum": 0 },
+        "progressPercent": { "type": "number", "minimum": 0, "maximum": 100 },
         "gapCount": { "type": "integer", "minimum": 0 },
         "gaps": {
           "type": "array",

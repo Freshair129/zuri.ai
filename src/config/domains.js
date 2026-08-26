@@ -4,12 +4,13 @@ import {
   Network, Flag, GitBranch, Rocket, ScrollText, DatabaseBackup, Settings,
   ShoppingCart, Users, Megaphone, UtensilsCrossed, ServerCog, Target,
   FolderOpen, PlugZap, ClipboardCheck, MessagesSquare,
+  ChartNoAxesCombined,
 } from 'lucide-react'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
 // @req FR-045 - Files is a Business-scoped Development subdomain.
 // @spec ADR-013, SITEMAP-V2-DOMAIN-NAV
-// @tested tests/unit/domain-navigation.test.js, tests/unit/fr045-api-ui-contract.test.js, tests/e2e/fr041-business-first.spec.js
+// @tested tests/unit/domain-navigation.test.js, tests/unit/fr045-api-ui-contract.test.js, tests/unit/product-readiness-ui.test.js, tests/e2e/fr041-business-first.spec.js
 
 // @req FR-039 — Business-bound ERP domains use display labels without changing route keys.
 // @spec SDD-018, ADR-011
@@ -124,6 +125,9 @@ export const DOMAINS = [
     key: 'platform', label: 'Platform', icon: ServerCog,
     sub: [
       { label: 'Dashboard', path: '/settings', icon: LayoutDashboard },
+      // @req FR-094 — read-only delivery/readiness projection. Dashboard stays
+      // first and the domain heading stays static; this is one Platform leaf.
+      { label: 'Product Readiness', path: '/platform/product-readiness', icon: ChartNoAxesCombined },
       { label: 'Users', path: '/platform/users', icon: Users },
       { label: 'Integrations', path: '/platform/integrations', icon: PlugZap },
       { label: 'Customer Review', path: '/platform/customer-import-reviews', icon: ClipboardCheck },

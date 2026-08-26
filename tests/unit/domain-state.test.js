@@ -2,10 +2,16 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import Ajv2020 from 'ajv/dist/2020.js'
 import addFormats from 'ajv-formats'
-import { buildDomainState, STATUS_VALUES } from '../../scripts/domain-state.mjs'
+import {
+  buildDomainState,
+  parseFeaturePresentation,
+  PROGRESS_METHODOLOGY,
+  STATUS_VALUES,
+} from '../../scripts/domain-state.mjs'
 
 // @req docs governance — implementation readiness is one machine-readable,
 // evidence-linked projection across all domain lanes.
+// @req FR-094 — every projected feature has progress, readiness, domain and use-case metadata.
 // @tested tests/unit/domain-state.test.js
 
 const nodes = [
@@ -137,5 +143,69 @@ describe('domain state projection', () => {
     expect(state.domains['project-manager'].requirements).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'FR-033', status: 'verified', codeCount: 1, testCount: 1 }),
     ]))
+  })
+
+  it('projects complete features with visible methodology and separate readiness', () => {
+    const featureNodes = [
+      ...nodes,
+      { id: 'feat:FEAT-999', type: 'feature', label: 'Project bundle', declared: 'live' },
+    ]
+    const featureEdges = [
+      ...edges,
+      { from: 'feat:FEAT-999', to: 'req:FR-003', type: 'bundles' },
+    ]
+    const featurePresentation = [
+      { id: 'FEAT-999', primaryDomain: 'project-manager', useCase: 'A PM creates and reviews a project.' },
+      { id: 'FR-069', primaryDomain: 'project-manager', useCase: 'A Human previews an execution plan.' },
+    ]
+    const state = buildDomainState({
+      nodes: featureNodes,
+      edges: featureEdges,
+      featurePresentation,
+      generatedAt: '2026-08-20T00:00:00.000Z',
+    })
+
+    expect(state.schemaVersion).toBe('1.1')
+    expect(state.progressMethodology).toEqual(PROGRESS_METHODOLOGY)
+    expect(state.overall).toEqual(expect.objectContaining({
+      featureCount: 2,
+      readyFeatureCount: 1,
+      requirementCount: 2,
+      verifiedRequirementCount: 1,
+      progressPercent: 50,
+    }))
+    expect(state.features).toEqual([
+      expect.objectContaining({ id: 'FEAT-999', progressPercent: 100, ready: true, primaryDomain: 'project-manager' }),
+      expect.objectContaining({ id: 'FR-069', progressPercent: 0, ready: false, blockers: ['FR-069 is planned'] }),
+    ])
+    expect(state.domains['project-manager']).toEqual(expect.objectContaining({
+      featureIds: ['FEAT-999', 'FR-069'],
+      featureCount: 2,
+      readyFeatureCount: 1,
+      progressPercent: 50,
+    }))
+  })
+
+  it('fails closed when projected feature presentation metadata is incomplete', () => {
+    expect(() => buildDomainState({
+      nodes: [
+        ...nodes,
+        { id: 'feat:FEAT-999', type: 'feature', label: 'Project bundle', declared: 'live' },
+      ],
+      edges: [
+        ...edges,
+        { from: 'feat:FEAT-999', to: 'req:FR-003', type: 'bundles' },
+      ],
+      featurePresentation: [
+        { id: 'FEAT-999', primaryDomain: 'project-manager', useCase: 'A PM creates a project.' },
+      ],
+    })).toThrow('Readiness metadata is missing projected features: FR-069')
+  })
+
+  it('keeps one explicit use case for every committed projected feature', () => {
+    const presentation = parseFeaturePresentation(process.cwd())
+    expect(presentation).toHaveLength(80)
+    expect(new Set(presentation.map((row) => row.id)).size).toBe(80)
+    expect(presentation.every((row) => row.useCase.trim().length > 0)).toBe(true)
   })
 })

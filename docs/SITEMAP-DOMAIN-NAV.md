@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 0.5.0 |
+| **Version** | 0.6.0b |
 | **Status** | Accepted |
 | **Author** | Claude |
-| **Date** | 2026-08-14 |
-| **Relates to** | ADR-011 (context-bar and Business scope ceiling — authoritative), ADR-008, ADR-003, ADR-006, FR-020, FR-039, PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
+| **Date** | 2026-08-20 |
+| **Relates to** | ADR-011 (context-bar and Business scope ceiling — authoritative), ADR-008, ADR-003, ADR-006, FR-020, FR-039, FR-094, PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
 
 Adopts V1's information architecture — **top-level = domain, sidebar = the domain's
 sub-features, with an explicit root contract per domain** — and binds it to V2's new
@@ -230,14 +230,15 @@ and performance are future HR slices.
 
 ### Platform — ระบบ/ตั้งค่า  *(V1: platform + gaps)*
 1. **Dashboard** — สุขภาพระบบ · integrations status
-2. Integrations — Phase 1 LINE connection metadata and redacted Supabase Vault status *(FR-080, implemented locally; `/platform/integrations`; raw secrets never shown)*
-3. ธุรกิจ·องค์กร / Business & Tenant config *(rebuild — V1 PATCH is 403 for all roles)*
-4. ผู้ใช้·สิทธิ์ / Users & Roles — Membership *(rebuild — V1 auth is per-tenant Employee)*
-5. Identity / LINE linking *(new — the P3 gate: account linking, staff/customer split)*
-6. Audit log *(lift/new — append-only)*
-7. Backup — snapshot export/import *(new — already shipped)*
-8. API keys *(lift)*
-9. Settings *(lift)*
+2. Product Readiness — summary → technical domain → feature/evidence drilldown *(FR-094, implemented locally; `/platform/product-readiness`)*
+3. Integrations — Phase 1 LINE connection metadata and redacted Supabase Vault status *(FR-080, implemented locally; `/platform/integrations`; raw secrets never shown)*
+4. ธุรกิจ·องค์กร / Business & Tenant config *(rebuild — V1 PATCH is 403 for all roles)*
+5. ผู้ใช้·สิทธิ์ / Users & Roles — Membership *(rebuild — V1 auth is per-tenant Employee)*
+6. Identity / LINE linking *(new — the P3 gate: account linking, staff/customer split)*
+7. Audit log *(lift/new — append-only)*
+8. Backup — snapshot export/import *(new — already shipped)*
+9. API keys *(lift)*
+10. Settings *(lift)*
 
 ## 4. Business-binding rules (which domains appear)
 
@@ -263,6 +264,8 @@ and performance are future HR slices.
 /{domain}                 → 302 /{domain}/dashboard        (first sub is always the dashboard)
 /{domain}/{subdomain}     → e.g. /projects (Project resource list), /commerce/inventory
 /platform/integrations    → owner-scoped Phase 1 Integration metadata and redacted Vault status (FR-080; local implementation)
+/platform/product-readiness          → evidence-backed all-domain readiness summary (FR-094)
+/platform/product-readiness/{domain} → one technical domain's feature/readiness/evidence detail (FR-094)
 /projects/{id}/...        → existing Project routes stay verbatim (Development work views)
 ```
 

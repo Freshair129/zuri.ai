@@ -1,7 +1,7 @@
 {
-  "schemaVersion": "1.0",
+  "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-20T02:26:19.022Z",
+  "generatedAt": "2026-08-20T04:19:17.761Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -25,9 +25,23 @@
     "not_applicable",
     "unknown"
   ],
+  "progressMethodology": {
+    "version": "1.0",
+    "declarationWeight": 20,
+    "codeWeight": 40,
+    "testWeight": 40,
+    "featureRollup": "Mean of the progress percentages of the feature requirements",
+    "domainRollup": "Mean of unique requirement progress percentages in primary-domain features",
+    "readinessRule": "Ready requires every underlying requirement to be verified and an explicit FEAT bundle to be live"
+  },
   "overall": {
     "status": "partial",
     "domainCount": 7,
+    "featureCount": 80,
+    "readyFeatureCount": 71,
+    "requirementCount": 94,
+    "verifiedRequirementCount": 82,
+    "progressPercent": 91.5,
     "gapCount": 21,
     "gaps": [
       {
@@ -93,7 +107,8 @@
           "tests/unit/conversation-read-model.test.js",
           "tests/unit/domain-navigation.test.js",
           "tests/unit/fr045-api-ui-contract.test.js",
-          "tests/unit/fr091-inbox-ui-contract.test.js"
+          "tests/unit/fr091-inbox-ui-contract.test.js",
+          "tests/unit/product-readiness-ui.test.js"
         ]
       },
       {
@@ -276,7 +291,8 @@
           "tests/unit/conversation-read-model.test.js",
           "tests/unit/domain-navigation.test.js",
           "tests/unit/fr045-api-ui-contract.test.js",
-          "tests/unit/fr091-inbox-ui-contract.test.js"
+          "tests/unit/fr091-inbox-ui-contract.test.js",
+          "tests/unit/product-readiness-ui.test.js"
         ]
       }
     ]
@@ -563,7 +579,25 @@
         "pageRoutes": 0,
         "ownedModels": 0,
         "featureNotes": 6
-      }
+      },
+      "featureIds": [
+        "FR-025",
+        "FR-026",
+        "FR-027",
+        "FR-028",
+        "FR-029",
+        "FR-049",
+        "FR-050",
+        "FR-051",
+        "FR-052",
+        "FR-053",
+        "FR-054",
+        "FR-055",
+        "FR-057"
+      ],
+      "featureCount": 13,
+      "readyFeatureCount": 13,
+      "progressPercent": 100
     },
     "crm": {
       "status": "partial",
@@ -587,7 +621,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 10,
+          "testCount": 11,
           "evidence": [
             "src/modules/crm/conversation-read-model.js",
             "tests/e2e/fr041-business-first.spec.js",
@@ -599,7 +633,8 @@
             "tests/unit/conversation-read-model.test.js",
             "tests/unit/domain-navigation.test.js",
             "tests/unit/fr045-api-ui-contract.test.js",
-            "tests/unit/fr091-inbox-ui-contract.test.js"
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/product-readiness-ui.test.js"
           ]
         },
         {
@@ -732,7 +767,8 @@
             "tests/unit/conversation-read-model.test.js",
             "tests/unit/domain-navigation.test.js",
             "tests/unit/fr045-api-ui-contract.test.js",
-            "tests/unit/fr091-inbox-ui-contract.test.js"
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/product-readiness-ui.test.js"
           ]
         },
         {
@@ -757,7 +793,15 @@
         "pageRoutes": 0,
         "ownedModels": 8,
         "featureNotes": 3
-      }
+      },
+      "featureIds": [
+        "FEAT-006",
+        "FEAT-009",
+        "FR-023"
+      ],
+      "featureCount": 3,
+      "readyFeatureCount": 1,
+      "progressPercent": 90
     },
     "identity": {
       "status": "partial",
@@ -1023,7 +1067,25 @@
         "pageRoutes": 2,
         "ownedModels": 6,
         "featureNotes": 9
-      }
+      },
+      "featureIds": [
+        "FR-021",
+        "FR-022",
+        "FR-031",
+        "FR-038",
+        "FR-044",
+        "FR-046",
+        "FR-061",
+        "FR-062",
+        "FR-066",
+        "FR-067",
+        "FR-075",
+        "FR-076",
+        "FR-090"
+      ],
+      "featureCount": 13,
+      "readyFeatureCount": 11,
+      "progressPercent": 84.6
     },
     "integration": {
       "status": "verified",
@@ -1174,7 +1236,15 @@
         "pageRoutes": 1,
         "ownedModels": 8,
         "featureNotes": 3
-      }
+      },
+      "featureIds": [
+        "FEAT-004",
+        "FR-030",
+        "FR-081"
+      ],
+      "featureCount": 3,
+      "readyFeatureCount": 2,
+      "progressPercent": 100
     },
     "knowledge": {
       "status": "partial",
@@ -1322,7 +1392,15 @@
         "pageRoutes": 0,
         "ownedModels": 0,
         "featureNotes": 2
-      }
+      },
+      "featureIds": [
+        "FR-024",
+        "FR-047",
+        "FR-071"
+      ],
+      "featureCount": 3,
+      "readyFeatureCount": 2,
+      "progressPercent": 66.7
     },
     "market-intelligence": {
       "status": "verified",
@@ -1409,7 +1487,13 @@
         "pageRoutes": 0,
         "ownedModels": 1,
         "featureNotes": 1
-      }
+      },
+      "featureIds": [
+        "FR-092"
+      ],
+      "featureCount": 1,
+      "readyFeatureCount": 1,
+      "progressPercent": 100
     },
     "project-manager": {
       "status": "partial",
@@ -1608,7 +1692,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-040",
@@ -1629,7 +1713,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-043",
@@ -1650,7 +1734,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 26,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-046",
@@ -1685,7 +1769,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-061",
@@ -1804,7 +1888,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-087",
@@ -1887,7 +1971,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 10,
+          "testCount": 11,
           "evidence": [
             "src/app/(pm)/customer/conversations/page.jsx",
             "src/app/(pm)/customer/page.jsx",
@@ -1903,7 +1987,8 @@
             "tests/unit/conversation-read-model.test.js",
             "tests/unit/domain-navigation.test.js",
             "tests/unit/fr045-api-ui-contract.test.js",
-            "tests/unit/fr091-inbox-ui-contract.test.js"
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/product-readiness-ui.test.js"
           ]
         },
         {
@@ -1912,6 +1997,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 5
+        },
+        {
+          "id": "FR-094",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -1922,8 +2014,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 37,
-            "inventoried": 37,
+            "routes": 39,
+            "inventoried": 39,
             "missing": 0
           }
         },
@@ -2043,6 +2135,7 @@
         "docs/domains/project-manager/features/FR-077-project-inventory-mvp.md",
         "docs/domains/project-manager/features/FR-082-pipeline-canvas.md",
         "docs/domains/project-manager/features/FR-086-projects-dashboard.md",
+        "docs/domains/project-manager/features/FR-094-domain-feature-readiness-dashboard.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -2156,17 +2249,3714 @@
             "tests/unit/conversation-read-model.test.js",
             "tests/unit/domain-navigation.test.js",
             "tests/unit/fr045-api-ui-contract.test.js",
-            "tests/unit/fr091-inbox-ui-contract.test.js"
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/product-readiness-ui.test.js"
           ]
         }
       ],
       "details": {
-        "routes": 109,
+        "routes": 111,
         "apiRoutes": 72,
-        "pageRoutes": 37,
+        "pageRoutes": 39,
         "ownedModels": 30,
-        "featureNotes": 28
-      }
+        "featureNotes": 29
+      },
+      "featureIds": [
+        "FEAT-001",
+        "FEAT-002",
+        "FEAT-003",
+        "FEAT-005",
+        "FEAT-007",
+        "FEAT-008",
+        "FR-001",
+        "FR-002",
+        "FR-003",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-007",
+        "FR-008",
+        "FR-009",
+        "FR-010",
+        "FR-011",
+        "FR-012",
+        "FR-013",
+        "FR-014",
+        "FR-015",
+        "FR-016",
+        "FR-017",
+        "FR-018",
+        "FR-019",
+        "FR-020",
+        "FR-032",
+        "FR-033",
+        "FR-034",
+        "FR-035",
+        "FR-036",
+        "FR-039",
+        "FR-040",
+        "FR-042",
+        "FR-043",
+        "FR-056",
+        "FR-059",
+        "FR-063",
+        "FR-064",
+        "FR-065",
+        "FR-072",
+        "FR-073",
+        "FR-074",
+        "FR-094"
+      ],
+      "featureCount": 44,
+      "readyFeatureCount": 41,
+      "progressPercent": 91.6
     }
-  }
+  },
+  "features": [
+    {
+      "id": "FEAT-001",
+      "title": "File Manager — Business/Project files with managed local workspace",
+      "kind": "bundle",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-037",
+        "FR-045",
+        "FR-058"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้จัดการโครงการเปิดไฟล์ระดับ Business และ Project เพื่อตรวจตำแหน่ง ลิงก์ และสถานะ reconcile จากหน้าเดียว",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-037",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 6
+        },
+        {
+          "id": "FR-045",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 27,
+          "testCount": 23
+        },
+        {
+          "id": "FR-058",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 5
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/backup/page.jsx",
+        "src/app/(pm)/files/page.jsx",
+        "src/app/(pm)/projects/[projectId]/files/page.jsx",
+        "src/app/api/backup/export/route.js",
+        "src/app/api/backup/import/route.js",
+        "src/app/api/business/files/route.js",
+        "src/app/api/files/[id]/content/route.js",
+        "src/app/api/files/[id]/relink/route.js",
+        "src/app/api/files/[id]/reveal/route.js",
+        "src/app/api/files/[id]/route.js",
+        "src/app/api/files/cache/rebuild/route.js",
+        "src/app/api/files/migrate/route.js",
+        "src/app/api/files/mounts/route.js",
+        "src/app/api/files/reconcile/route.js",
+        "src/app/api/files/route.js",
+        "src/app/api/projects/[id]/files/[fileId]/route.js",
+        "src/app/api/projects/[id]/files/route.js",
+        "src/config/domains.js",
+        "src/config/modules.js",
+        "src/modules/project-manager/application/backup-service.js",
+        "src/modules/project-manager/application/file-asset-service.js",
+        "src/modules/project-manager/application/file-manager-read-model.js",
+        "src/modules/project-manager/application/file-reconcile-cache-service.js",
+        "src/modules/project-manager/application/local-file-reveal-service.js",
+        "src/modules/project-manager/application/project-file-service.js",
+        "src/modules/project-manager/components/FileManagerViews.jsx",
+        "src/modules/project-manager/components/ManagedFilesPanel.jsx",
+        "src/modules/project-manager/components/useApi.js",
+        "src/modules/project-manager/local-files/filesystem-port.js",
+        "src/modules/project-manager/local-files/path-security.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/fr045-files.spec.js",
+        "tests/e2e/fr058-file-views.spec.js",
+        "tests/integration/backup.test.js",
+        "tests/integration/fr045-managed-files.test.js",
+        "tests/integration/fr072-project-file-authorization.test.js",
+        "tests/integration/fr075-restore-authorization.test.js",
+        "tests/unit/authorization-seam-list-routes.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/domain-navigation.test.js",
+        "tests/unit/fr045-api-ui-contract.test.js",
+        "tests/unit/fr045-backup-contract.test.js",
+        "tests/unit/fr045-file-asset-service.test.js",
+        "tests/unit/fr045-file-manager-read-model.test.js",
+        "tests/unit/fr045-filesystem-port.test.js",
+        "tests/unit/fr045-path-security.test.js",
+        "tests/unit/fr045-reconcile-cache.test.js",
+        "tests/unit/fr045-reveal.test.js",
+        "tests/unit/fr045-schema-contract.test.js",
+        "tests/unit/fr045-w0-contract.test.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
+        "tests/unit/fr058-file-manager-views-model.test.js",
+        "tests/unit/fr058-file-manager-views-ui.test.js",
+        "tests/unit/product-readiness-ui.test.js",
+        "tests/unit/project-file-service.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-002",
+      "title": "Business Home — shell-level cross-domain aggregation (Dashboard now; Goals & KPIs, Risks & Alerts, Reports later)",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-041",
+        "FR-060"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้บริหารเลือก Business แล้วดู project health, domain health และรายการที่ต้องจัดการในหน้า Home เดียว",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-002 registry status is building"
+      ],
+      "requirements": [
+        {
+          "id": "FR-041",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 18
+        },
+        {
+          "id": "FR-060",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 22
+        }
+      ],
+      "evidence": [
+        "prisma/seed.js",
+        "src/app/(pm)/overview/page.jsx",
+        "src/app/api/business/strategy/route.js",
+        "src/config/domains.js",
+        "src/config/modules.js",
+        "src/lib/business-shell-guard.js",
+        "src/lib/shell-mode.js",
+        "src/modules/business/application/business-home-read-model.js",
+        "src/modules/business/application/business-strategy-service.js",
+        "src/modules/project-manager/application/project-service.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/fr044-entry-routing.spec.js",
+        "tests/e2e/fr045-files.spec.js",
+        "tests/e2e/fr058-file-views.spec.js",
+        "tests/e2e/fr059-strategy-edit.spec.js",
+        "tests/e2e/fr060-business-home.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/adaptive-shell.test.js",
+        "tests/integration/fr059-business-strategy-mutation.test.js",
+        "tests/integration/fr072-project-service-authorization.test.js",
+        "tests/integration/project-business-binding.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/unit/business-shell-guard.test.js",
+        "tests/unit/business-strategy-route.test.js",
+        "tests/unit/business-strategy-service.test.js",
+        "tests/unit/domain-navigation.test.js",
+        "tests/unit/fr045-api-ui-contract.test.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
+        "tests/unit/fr059-strategy-edit-ui.test.js",
+        "tests/unit/fr059-strategy-validation.test.js",
+        "tests/unit/fr060-business-home-read-model.test.js",
+        "tests/unit/fr060-business-home-visibility.test.js",
+        "tests/unit/fr061-per-business-domain-visibility.test.js",
+        "tests/unit/overview-split.test.js",
+        "tests/unit/product-readiness-ui.test.js",
+        "tests/unit/project-list-contract.test.js",
+        "tests/unit/projects-dashboard-ui.test.js",
+        "tests/unit/shell-mode.test.js",
+        "tests/unit/sidebar-visible-subdomains.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-003",
+      "title": "Execution Planning — Human-visible Roadmap, Blueprint intake and stable identity bindings",
+      "kind": "bundle",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-068",
+        "FR-069",
+        "FR-070"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "เจ้าของงานระบุ objective แล้วตรวจ Blueprint และ Roadmap เดียวกันที่ Human และ Agent ใช้ส่งแผน",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-068",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 5
+        },
+        {
+          "id": "FR-069",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 10
+        },
+        {
+          "id": "FR-070",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 9
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+        "src/app/api/mcp/route.js",
+        "src/app/api/projects/[id]/roadmap/route.js",
+        "src/modules/project-manager/application/project-roadmap-read-model.js",
+        "src/modules/project-manager/components/HumanPlanBuilderModal.jsx",
+        "src/modules/project-manager/components/WorkViewTabs.jsx",
+        "src/modules/project-manager/import/human-plan-builder.js",
+        "src/modules/project-manager/import/plan-import-service.js",
+        "src/modules/project-manager/import/plan-schema.js",
+        "src/modules/project-manager/mcp/transport.js",
+        "tests/e2e/fr040-project-work.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/external-ref-import.test.js",
+        "tests/integration/import-target-authorization.test.js",
+        "tests/integration/plan-import.test.js",
+        "tests/integration/project-business-binding.test.js",
+        "tests/integration/project-roadmap.test.js",
+        "tests/unit/domain-state.test.js",
+        "tests/unit/human-plan-builder.test.js",
+        "tests/unit/plan-schema.test.js",
+        "tests/unit/plan-status-vocabulary.test.js",
+        "tests/unit/project-manager-mcp.test.js",
+        "tests/unit/project-roadmap-read-model.test.js",
+        "tests/unit/project-roadmap-ui.test.js",
+        "tests/unit/project-work-route.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-004",
+      "title": "Phase 1 LINE Runtime Connections — Business-scoped provider selection, production secret resolution, local evaluation providers and secret-safe Platform management",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-048",
+        "FR-079",
+        "FR-080"
+      ],
+      "primaryDomain": "integration",
+      "contributorDomains": [
+        "agent",
+        "integration"
+      ],
+      "useCase": "Owner เลือก LINE model provider และ Vault reference ของ Business โดยไม่เปิดเผย secret ใน browser",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-004 registry status is building"
+      ],
+      "requirements": [
+        {
+          "id": "FR-048",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 7
+        },
+        {
+          "id": "FR-079",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 9
+        },
+        {
+          "id": "FR-080",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 8
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/platform/integrations/page.jsx",
+        "src/app/api/platform/integrations/route.js",
+        "src/modules/agent/grounded-business-answer.js",
+        "src/modules/agent/index.js",
+        "src/modules/agent/model-provider.js",
+        "src/modules/agent/openrouter-oauth.js",
+        "src/modules/agent/phase1-runtime.js",
+        "src/modules/integration/application/integration-management-service.js",
+        "src/platform/integrations/core/connection-health.js",
+        "src/platform/integrations/core/credential-vault.js",
+        "src/platform/integrations/core/integration-registry.js",
+        "src/platform/integrations/core/secret-manager.js",
+        "src/platform/integrations/llm/provider-catalog.js",
+        "tests/integration/agent-action-gate.test.js",
+        "tests/integration/agent-context.test.js",
+        "tests/integration/line-oa-connection-health.test.js",
+        "tests/unit/activation-readiness-integration.test.js",
+        "tests/unit/connection-health.test.js",
+        "tests/unit/fr048-provider-catalog.test.js",
+        "tests/unit/fr079-credential-vault.test.js",
+        "tests/unit/fr079-runtime-cutover.test.js",
+        "tests/unit/fr079-schema-contract.test.js",
+        "tests/unit/fr079-supabase-migration.test.js",
+        "tests/unit/fr080-integration-management.test.js",
+        "tests/unit/fr080-runtime-wiring.test.js",
+        "tests/unit/fr080-supabase-vault.test.js",
+        "tests/unit/fr080-ui-contract.test.js",
+        "tests/unit/grounded-business-answer.test.js",
+        "tests/unit/model-provider-port.test.js",
+        "tests/unit/phase1-business-agent-runtime.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-005",
+      "title": "Project Inventory — authorized, read-only Project-wide operational snapshot",
+      "kind": "bundle",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-077"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "PM เปิด Project Inventory ก่อน review เพื่อเห็น work, gates, files, repositories, team และ progress พร้อมกัน",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-077",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 5
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/projects/[projectId]/inventory/page.jsx",
+        "src/app/api/projects/[id]/inventory/route.js",
+        "src/modules/project-manager/application/project-inventory-read-model.js",
+        "tests/e2e/fr077-project-inventory.spec.js",
+        "tests/integration/project-inventory.test.js",
+        "tests/unit/e2e-reconnecting-request.test.js",
+        "tests/unit/project-inventory-read-model.test.js",
+        "tests/unit/project-inventory-ui.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-006",
+      "title": "Customer Data Backfill — scoped, provenance-preserving Customer Profile contract with entity resolution, PDPA gates and explicit duplicate review",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-078"
+      ],
+      "primaryDomain": "crm",
+      "contributorDomains": [
+        "crm",
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "Data steward นำเข้าประวัติลูกค้าโดยเก็บ provenance และพักกลุ่ม duplicate ให้ผู้มีสิทธิ์ตัดสินใจ",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-006 registry status is building"
+      ],
+      "requirements": [
+        {
+          "id": "FR-078",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 9,
+          "testCount": 20
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/platform/customer-import-reviews/page.jsx",
+        "src/app/api/platform/customer-import-reviews/[caseId]/decisions/route.js",
+        "src/app/api/platform/customer-import-reviews/route.js",
+        "src/app/api/platform/customer-import-reviews/targets/route.js",
+        "src/lib/db.js",
+        "src/modules/crm/customer-import-review-service.js",
+        "src/modules/crm/customer-import-review-store.js",
+        "src/modules/identity/rbac.js",
+        "src/modules/project-manager/application/backup-service.js",
+        "tests/integration/backup.test.js",
+        "tests/integration/fr075-restore-authorization.test.js",
+        "tests/unit/application-identity-bootstrap-migration.test.js",
+        "tests/unit/application-schema-migration.test.js",
+        "tests/unit/customer-data-contract.test.js",
+        "tests/unit/customer-import-review-api.test.js",
+        "tests/unit/customer-import-review-contract.test.js",
+        "tests/unit/customer-import-review-queue-script.test.js",
+        "tests/unit/customer-import-review-service.test.js",
+        "tests/unit/customer-import-review-store-contract.test.js",
+        "tests/unit/customer-import-review-ui.test.js",
+        "tests/unit/customer-profile-backfill-migration.test.js",
+        "tests/unit/customer-profile-contract-receipt.test.js",
+        "tests/unit/customer-profile-target-verification.test.js",
+        "tests/unit/customer-review-runtime-login-migration.test.js",
+        "tests/unit/customer-review-runtime-login.test.js",
+        "tests/unit/fr045-backup-contract.test.js",
+        "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/platform-approver-profile-migration.test.js",
+        "tests/unit/postgres-runtime-client.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-007",
+      "title": "Pipeline Builder — direct-manipulation structure and edge creation on one canvas, with a mandatory Handoff Contract on every edge and contract-gated release on the Board",
+      "kind": "bundle",
+      "registryStatus": "proposed",
+      "requirementIds": [
+        "FR-082",
+        "FR-083",
+        "FR-084",
+        "FR-085"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "PM ลากโครงสร้างงาน เชื่อม dependency พร้อม Handoff Contract และให้ Board ถือรายการจน Gate ผ่าน",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-007 registry status is proposed",
+        "FR-082 is planned",
+        "FR-083 is planned",
+        "FR-084 is planned",
+        "FR-085 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-082",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-083",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-084",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-085",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FEAT-008",
+      "title": "Projects Dashboard — a KPI band and enriched Project list for the Development domain, with the priority, accountable-owner and Team entities it needs to be honest",
+      "kind": "bundle",
+      "registryStatus": "proposed",
+      "requirementIds": [
+        "FR-086",
+        "FR-087",
+        "FR-088",
+        "FR-089"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "Head of Development ดู KPI, Top-5 priority, PIC และ Teams แล้วเปิด Project ที่ต้องเร่งต่อ",
+      "progressPercent": 85,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-008 registry status is proposed",
+        "FR-087 is partial",
+        "FR-088 is partial",
+        "FR-089 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-086",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 8,
+          "testCount": 14
+        },
+        {
+          "id": "FR-087",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 6,
+          "testCount": 11
+        },
+        {
+          "id": "FR-088",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 5,
+          "testCount": 9
+        },
+        {
+          "id": "FR-089",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 8,
+          "testCount": 9
+        }
+      ],
+      "evidence": [
+        "prisma/seed.js",
+        "src/app/(pm)/projects/page.jsx",
+        "src/app/api/projects/[id]/teams/route.js",
+        "src/app/api/projects/overview/route.js",
+        "src/app/api/teams/[id]/members/route.js",
+        "src/app/api/teams/[id]/route.js",
+        "src/app/api/teams/route.js",
+        "src/components/layouts/Topbar.jsx",
+        "src/config/domains.js",
+        "src/config/modules.js",
+        "src/lib/validation/entities.js",
+        "src/lib/validation/enums.js",
+        "src/modules/project-manager/application/backup-service.js",
+        "src/modules/project-manager/application/project-service.js",
+        "src/modules/project-manager/application/projects-dashboard-read-model.js",
+        "src/modules/project-manager/application/team-service.js",
+        "src/modules/project-manager/components/ProjectModal.jsx",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/backup.test.js",
+        "tests/integration/fr072-project-service-authorization.test.js",
+        "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/fr089-team-scope.test.js",
+        "tests/integration/project-business-binding.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/integration/projects-dashboard.test.js",
+        "tests/integration/xlsx-intake.test.js",
+        "tests/unit/domain-navigation.test.js",
+        "tests/unit/fr045-api-ui-contract.test.js",
+        "tests/unit/fr045-backup-contract.test.js",
+        "tests/unit/fr089-br018-team-grants-nothing.test.js",
+        "tests/unit/plan-schema.test.js",
+        "tests/unit/product-readiness-ui.test.js",
+        "tests/unit/project-list-contract.test.js",
+        "tests/unit/projects-dashboard-read-model.test.js",
+        "tests/unit/projects-dashboard-schema-migration.test.js",
+        "tests/unit/projects-dashboard-ui.test.js",
+        "tests/unit/scope-view-context.test.js",
+        "tests/unit/sidebar-visible-subdomains.test.js",
+        "tests/unit/topbar-no-dropdown.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-009",
+      "title": "CRM Conversation Inbox — the first reader surface over the LINE ingress, and the delivery receipt that makes it show both sides of a conversation rather than only what the customer said",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-091",
+        "FR-093"
+      ],
+      "primaryDomain": "crm",
+      "contributorDomains": [
+        "agent",
+        "crm",
+        "project-manager"
+      ],
+      "useCase": "Operator เปิด CRM Inbox แล้วเห็นทั้งข้อความขาเข้าและข้อความขาออกที่ส่งถึงลูกค้าจริง",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-009 registry status is building",
+        "FR-091 is partial",
+        "FR-093 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-091",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 6,
+          "testCount": 11
+        },
+        {
+          "id": "FR-093",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 4,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/customer/conversations/page.jsx",
+        "src/app/(pm)/customer/page.jsx",
+        "src/app/api/agent/line-delivery/route.js",
+        "src/app/api/agent/line-webhook/route.js",
+        "src/app/api/crm/conversations/[id]/route.js",
+        "src/app/api/crm/conversations/route.js",
+        "src/config/domains.js",
+        "src/modules/agent/turn.js",
+        "src/modules/crm/conversation-read-model.js",
+        "src/modules/crm/reply-record-service.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/fr060-business-home.spec.js",
+        "tests/e2e/fr091-conversation-inbox.spec.js",
+        "tests/integration/agent-turn.test.js",
+        "tests/integration/agent-webhook-route.test.js",
+        "tests/integration/crm-conversation-inbox.test.js",
+        "tests/integration/line-oa-evidence-convergence.test.js",
+        "tests/integration/line-reply-record.test.js",
+        "tests/integration/line-webhook-transport-contract.test.js",
+        "tests/unit/command-palette-index.test.js",
+        "tests/unit/conversation-read-model.test.js",
+        "tests/unit/domain-navigation.test.js",
+        "tests/unit/fr045-api-ui-contract.test.js",
+        "tests/unit/fr091-inbox-ui-contract.test.js",
+        "tests/unit/product-readiness-ui.test.js",
+        "tests/unit/reply-record-service.test.js"
+      ]
+    },
+    {
+      "id": "FR-001",
+      "title": "จัดการ scope hierarchy: Portfolio / Tenant / Business / Branch / LegalEntity / Workspace (CRUD + human codes)",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-001"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ดูแลสร้าง Portfolio, Tenant, Business, Branch และ Space ด้วย UUID และ human code ที่ตรวจย้อนกลับได้",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-001",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 13
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/projects/page.jsx",
+        "src/app/(pm)/workspaces/[workspaceId]/page.jsx",
+        "src/app/(pm)/workspaces/page.jsx",
+        "src/app/api/scope/route.js",
+        "src/app/api/workspaces/[id]/route.js",
+        "src/modules/project-manager/application/project-service.js",
+        "src/modules/project-manager/application/scope-service.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/fr072-project-service-authorization.test.js",
+        "tests/integration/fr072-workspace-mutation-authorization.test.js",
+        "tests/integration/fr074-scope-creation-authorization.test.js",
+        "tests/integration/project-business-binding.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/integration/scope-and-isolation.test.js",
+        "tests/unit/authorization-seam-list-routes.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/project-list-contract.test.js",
+        "tests/unit/projects-dashboard-ui.test.js",
+        "tests/unit/route-reachability.test.js"
+      ]
+    },
+    {
+      "id": "FR-002",
+      "title": "Scope selectors (Portfolio·Business·Workspace·Project) + จำ selection ล่าสุด",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-002"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้สลับ Portfolio, Business, Space และ Project แล้วกลับมาเจอ context ล่าสุด",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-002",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "src/context/ScopeContext.jsx",
+        "tests/e2e/fr046-entry-contract.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
+        "tests/unit/scope-view-context.test.js"
+      ]
+    },
+    {
+      "id": "FR-003",
+      "title": "Project CRUD + archive (soft delete) + mixed execution modes",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-003"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "PM สร้าง แก้ไข เปิด และ archive Project โดยไม่ลบประวัติ",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-003",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 11
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/projects/page.jsx",
+        "src/app/api/projects/[id]/route.js",
+        "src/app/api/projects/route.js",
+        "src/modules/project-manager/application/project-list-read-model.js",
+        "src/modules/project-manager/application/project-service.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/fr072-project-service-authorization.test.js",
+        "tests/integration/project-business-binding.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/integration/project-list-contract.test.js",
+        "tests/unit/authorization-seam-list-routes.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/domain-state.test.js",
+        "tests/unit/project-list-contract.test.js",
+        "tests/unit/projects-dashboard-ui.test.js"
+      ]
+    },
+    {
+      "id": "FR-004",
+      "title": "Workstream CRUD: executionMode + progressStrategy + progressWeight",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-004"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "PM สร้าง Workstream พร้อม execution mode, progress strategy และน้ำหนักที่เหมาะกับงาน",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-004",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 8
+        }
+      ],
+      "evidence": [
+        "src/app/api/workstreams/[id]/route.js",
+        "src/app/api/workstreams/route.js",
+        "src/modules/project-manager/application/project-service.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/fr072-project-service-authorization.test.js",
+        "tests/integration/project-business-binding.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/unit/authorization-seam-list-routes.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/project-list-contract.test.js"
+      ]
+    },
+    {
+      "id": "FR-005",
+      "title": "Neutral work model: WorkContainer (ลำดับชั้น) + WorkItem (weight/value/probability/metrics), browsed and status-edited at Development → All Work, both **global and project-scoped** (same view, different filter)",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-005"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ทีมเปิด All Work เพื่อค้นหาและเปลี่ยนสถานะ WorkItem ข้าม Project หรือภายใน Project เดียว",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-005",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 12,
+          "testCount": 11
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/projects/[projectId]/all-work/page.jsx",
+        "src/app/(pm)/work/page.jsx",
+        "src/app/api/containers/[id]/route.js",
+        "src/app/api/containers/route.js",
+        "src/app/api/work/[id]/route.js",
+        "src/app/api/work/route.js",
+        "src/components/ui/index.jsx",
+        "src/modules/project-manager/application/active-filters.js",
+        "src/modules/project-manager/application/work-service.js",
+        "src/modules/project-manager/components/WorkViewTabs.jsx",
+        "src/modules/project-manager/views/KanbanBoard.jsx",
+        "src/modules/project-manager/views/universal/AllWorkView.jsx",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/fr072-work-service-authorization.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/integration/work-listing-scope.test.js",
+        "tests/unit/authorization-seam-list-routes.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/design-system.test.js",
+        "tests/unit/global-view-drilldown.test.js",
+        "tests/unit/project-roadmap-ui.test.js",
+        "tests/unit/project-work-route.test.js",
+        "tests/unit/route-reachability.test.js"
+      ]
+    },
+    {
+      "id": "FR-006",
+      "title": "Milestones + Gates (weighted, required flag, evidence JSON), browsed and status-edited at Development → Milestones & Gates, both **global and project-scoped**",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-006"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "PM สร้าง Milestone และ Gate พร้อมหลักฐาน แล้วติดตามว่าจุดควบคุมใดผ่านหรือค้าง",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-006",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 10,
+          "testCount": 11
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/milestones/page.jsx",
+        "src/app/(pm)/projects/[projectId]/layout.jsx",
+        "src/app/(pm)/projects/[projectId]/milestones/page.jsx",
+        "src/app/api/gates/[id]/route.js",
+        "src/app/api/gates/route.js",
+        "src/app/api/milestones/[id]/route.js",
+        "src/app/api/milestones/route.js",
+        "src/modules/project-manager/application/milestone-gate-service.js",
+        "src/modules/project-manager/components/WorkViewTabs.jsx",
+        "src/modules/project-manager/views/universal/MilestonesView.jsx",
+        "tests/e2e/fr040-project-work.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/fr072-milestone-gate-authorization.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/unit/authorization-seam-list-routes.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/global-view-drilldown.test.js",
+        "tests/unit/project-execution-backpath.test.js",
+        "tests/unit/project-roadmap-ui.test.js",
+        "tests/unit/project-work-route.test.js",
+        "tests/unit/route-reachability.test.js"
+      ]
+    },
+    {
+      "id": "FR-007",
+      "title": "Dependencies 5 ชนิด, กัน self/cycle, ประเมิน blocked/ready — created, listed and deleted at the cross-project register Development → Dependencies. (The project-local Dependency **Map** is a separate read view, FR-040.)",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-007"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "PM เชื่อม dependency ระหว่างงานและเห็น cycle หรือ blocker ก่อนบันทึก",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-007",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 8
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/dependencies/page.jsx",
+        "src/app/api/dependencies/[id]/route.js",
+        "src/app/api/dependencies/route.js",
+        "src/modules/project-manager/application/active-filters.js",
+        "src/modules/project-manager/application/dependency-service.js",
+        "src/modules/project-manager/application/work-service.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/fr072-dependency-authorization.test.js",
+        "tests/integration/fr072-work-service-authorization.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/integration/work-listing-scope.test.js",
+        "tests/unit/authorization-seam-list-routes.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/project-dependency-service.test.js"
+      ]
+    },
+    {
+      "id": "FR-008",
+      "title": "Repository records (local metadata) + ผูกโปรเจกต์แบบ many-to-many",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-008"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ทีมบันทึก repository metadata และผูก repository เดียวกับหลาย Project อย่างมีขอบเขต",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-008",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 8,
+          "testCount": 5
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/projects/[projectId]/layout.jsx",
+        "src/app/(pm)/projects/[projectId]/repositories/page.jsx",
+        "src/app/(pm)/repositories/page.jsx",
+        "src/app/api/repositories/[id]/route.js",
+        "src/app/api/repositories/link/[id]/route.js",
+        "src/app/api/repositories/link/route.js",
+        "src/app/api/repositories/route.js",
+        "src/modules/project-manager/application/repository-service.js",
+        "tests/integration/fr072-repository-link-authorization.test.js",
+        "tests/integration/fr073-repository-scope.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/unit/project-execution-backpath.test.js",
+        "tests/unit/project-work-route.test.js"
+      ]
+    },
+    {
+      "id": "FR-009",
+      "title": "Execution views 7 โหมดบนโมเดลกลาง (global + project-scoped)",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-009"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ทีมเปิดมุมมอง Sprint, Migration, Sales หรือโหมดอื่นจาก work model กลางเดียวกัน",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-009",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 5
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/execution/[mode]/page.jsx",
+        "src/app/(pm)/execution/page.jsx",
+        "src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx",
+        "src/app/(pm)/projects/[projectId]/layout.jsx",
+        "src/modules/project-manager/views/execution/ExecutionModeView.jsx",
+        "src/modules/project-manager/views/execution/mode-bodies.jsx",
+        "tests/e2e/smoke.spec.js",
+        "tests/unit/card-calculator-agreement.test.js",
+        "tests/unit/fr063-board-columns.test.js",
+        "tests/unit/project-execution-backpath.test.js",
+        "tests/unit/project-work-route.test.js"
+      ]
+    },
+    {
+      "id": "FR-010",
+      "title": "Progress ต่อ workstream ตาม strategy + evidence + warnings + \"Explain\" UI",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-010"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "PM เปิด Explain เพื่อดูว่าค่า progress ของ Workstream มาจาก strategy และ evidence ใด",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-010",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "src/app/api/progress/workstream/[id]/route.js",
+        "src/modules/project-manager/progress/strategies.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/format-progress-percent.test.js",
+        "tests/unit/gate-cap-rounding.test.js",
+        "tests/unit/strategies.test.js"
+      ]
+    },
+    {
+      "id": "FR-011",
+      "title": "Project roll-up ถ่วงน้ำหนัก Σ(ws%×w)/Σw",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-011"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้บริหารดู Project progress ที่ roll up จาก Workstream ตามน้ำหนักแทนการนับ task ตรงๆ",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-011",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 2
+        }
+      ],
+      "evidence": [
+        "src/app/api/progress/project/[id]/route.js",
+        "src/modules/project-manager/progress/rollup.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/rollup.test.js"
+      ]
+    },
+    {
+      "id": "FR-012",
+      "title": "PlanEnvelope import: validate → seven-mode semantic contract check → dry run → transactional commit → audit",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-012"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ทีม preview Agent JSON plan ตรวจ conflict แล้ว commit ทั้งแผนใน transaction เดียว",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-012",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 8,
+          "testCount": 12
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/projects/[projectId]/import/page.jsx",
+        "src/app/(pm)/projects/[projectId]/layout.jsx",
+        "src/app/api/import/commit/route.js",
+        "src/app/api/import/dry-run/route.js",
+        "src/lib/validation/enums.js",
+        "src/modules/project-manager/components/ProjectTabs.jsx",
+        "src/modules/project-manager/import/plan-import-service.js",
+        "src/modules/project-manager/import/plan-schema.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/external-ref-import.test.js",
+        "tests/integration/import-target-authorization.test.js",
+        "tests/integration/plan-import-scope.test.js",
+        "tests/integration/plan-import.test.js",
+        "tests/integration/project-business-binding.test.js",
+        "tests/integration/xlsx-intake.test.js",
+        "tests/unit/plan-schema.test.js",
+        "tests/unit/plan-status-vocabulary.test.js",
+        "tests/unit/project-execution-backpath.test.js",
+        "tests/unit/project-work-route.test.js",
+        "tests/unit/route-reachability.test.js"
+      ]
+    },
+    {
+      "id": "FR-013",
+      "title": "Snapshot backup: export + import แบบ preview-then-confirm",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-013"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "Operator export snapshot และ preview ผลกระทบก่อนยืนยัน restore",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-013",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/backup/page.jsx",
+        "src/app/api/backup/export/route.js",
+        "src/app/api/backup/import/route.js",
+        "src/modules/project-manager/application/backup-service.js",
+        "tests/integration/backup.test.js",
+        "tests/integration/fr075-restore-authorization.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/fr045-backup-contract.test.js"
+      ]
+    },
+    {
+      "id": "FR-014",
+      "title": "Audit log (immutable) + UI browser",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-014"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "Auditor ค้นเหตุการณ์เพื่อดูว่าใครเปลี่ยนอะไร เมื่อใด และใน scope ไหน",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-014",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/audit/page.jsx",
+        "src/app/api/audit/route.js",
+        "src/components/ui/index.jsx",
+        "src/modules/project-manager/application/audit.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/plan-import.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/integration/work-listing-scope.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/design-system.test.js"
+      ]
+    },
+    {
+      "id": "FR-015",
+      "title": "Command palette (Ctrl+K), filters, search",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-015"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้กด Ctrl+K เพื่อค้นหา route หรือคำสั่งโดยไม่ไล่เมนู",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-015",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 2
+        }
+      ],
+      "evidence": [
+        "src/components/layouts/CommandPalette.jsx",
+        "tests/e2e/smoke.spec.js",
+        "tests/unit/command-palette-index.test.js"
+      ]
+    },
+    {
+      "id": "FR-016",
+      "title": "Seed/demo dataset idempotent ครบ 7 โหมด",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-016"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [],
+      "useCase": "ทีมเดโม reset และ seed ข้อมูลครบเจ็ด execution modes ซ้ำได้โดยไม่สร้างข้อมูลซ้อน",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-016",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 2
+        }
+      ],
+      "evidence": [
+        "prisma/seed.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/smoke.spec.js"
+      ]
+    },
+    {
+      "id": "FR-017",
+      "title": "UI wizard intake (\"เริ่มจากเป้าหมาย\") → สร้าง envelope เข้า pipeline เดิม; direct modal creation is edit-only",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-017"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้เริ่ม Project จาก objective แล้วให้ wizard สร้างแผนเข้าสู่ pipeline กลาง",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-017",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 5
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/projects/new/page.jsx",
+        "src/app/api/projects/[id]/tree/route.js",
+        "src/modules/project-manager/components/HumanPlanBuilderModal.jsx",
+        "src/modules/project-manager/import/human-plan-builder.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/project-core.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/human-plan-builder.test.js",
+        "tests/unit/mode-default-subtype.test.js"
+      ]
+    },
+    {
+      "id": "FR-018",
+      "title": "Excel template intake: generator จาก Zod schema + xlsx→envelope converter + error รายแถว",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-018"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ทีมกรอก Excel template แล้วเห็น error ระดับแถวก่อนนำเข้าแผน",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-018",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "src/app/api/import/template/route.js",
+        "src/app/api/import/xlsx/route.js",
+        "src/modules/project-manager/components/ProjectTabs.jsx",
+        "src/modules/project-manager/import/xlsx-convert.js",
+        "src/modules/project-manager/import/xlsx-template.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/xlsx-intake.test.js",
+        "tests/unit/plan-status-vocabulary.test.js",
+        "tests/unit/project-work-route.test.js",
+        "tests/unit/public-read-route-auth.test.js",
+        "tests/unit/route-reachability.test.js"
+      ]
+    },
+    {
+      "id": "FR-019",
+      "title": "Enterprise API: ExternalRef mapping + upsert-by-external-id + OpenAPI docs",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-019"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ระบบภายนอก upsert Project ด้วย external id ผ่าน Enterprise API โดยไม่ใช้ external id เป็น primary key",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-019",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 10
+        }
+      ],
+      "evidence": [
+        "src/app/api/docs/route.js",
+        "src/app/api/resolve/route.js",
+        "src/modules/project-manager/api-docs/openapi.js",
+        "src/modules/project-manager/import/external-ref.js",
+        "src/modules/project-manager/import/plan-import-service.js",
+        "src/modules/project-manager/import/plan-schema.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/external-ref-import.test.js",
+        "tests/integration/import-target-authorization.test.js",
+        "tests/integration/openapi-docs.test.js",
+        "tests/integration/plan-import-scope.test.js",
+        "tests/integration/plan-import.test.js",
+        "tests/integration/project-business-binding.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/plan-schema.test.js",
+        "tests/unit/plan-status-vocabulary.test.js"
+      ]
+    },
+    {
+      "id": "FR-020",
+      "title": "Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing)",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-020"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "เจ้าของธุรกิจเดียวเข้าใช้งานโดยไม่เห็น switcher ที่ไม่จำเป็น ขณะที่เจ้าของหลายธุรกิจเลือก context ได้",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-020",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 8,
+          "testCount": 13
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/settings/page.jsx",
+        "src/app/api/progress/portfolio/route.js",
+        "src/app/api/scope/route.js",
+        "src/context/ScopeContext.jsx",
+        "src/lib/shell-mode.js",
+        "src/modules/project-manager/application/progress-service.js",
+        "src/modules/project-manager/application/scope-service.js",
+        "src/modules/project-manager/progress/rollup.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/fr046-entry-contract.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/adaptive-shell.test.js",
+        "tests/integration/fr072-workspace-mutation-authorization.test.js",
+        "tests/integration/fr074-scope-creation-authorization.test.js",
+        "tests/integration/scope-and-isolation.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/business-shell-guard.test.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
+        "tests/unit/rollup.test.js",
+        "tests/unit/scope-view-context.test.js",
+        "tests/unit/shell-mode.test.js"
+      ]
+    },
+    {
+      "id": "FR-021",
+      "title": "Identity resolution: `ExternalIdentity` (LINE→Person, tenant-scoped) + `resolveLineIdentity` — idempotent, tenant-required, audited, revoke-aware (ADR-007 P3 foundation primitive)",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-021"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity"
+      ],
+      "useCase": "LINE user คนเดิมถูก resolve เป็น Person เดิมภายใน Tenant เดิมโดยไม่สร้าง identity ซ้ำ",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-021",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "src/modules/identity/resolve-line-identity.js",
+        "tests/integration/identity-gate.test.js",
+        "tests/integration/identity-resolve.test.js",
+        "tests/integration/line-ingest.test.js"
+      ]
+    },
+    {
+      "id": "FR-022",
+      "title": "LINE as an identity provider end-to-end: account linking (single-use token → bind to existing Person, idempotent, merge-aware), PDPA erase-revoke, staff/customer split, and `resolveLinePrincipal` (the single P3 seam) — the full P3 gate on top of FR-021",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-022"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity"
+      ],
+      "useCase": "สมาชิกใช้ token ครั้งเดียวเพื่อ link LINE กับบัญชี และขอ revoke หรือ erase ตาม PDPA",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-022",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "src/modules/identity/classify-principal.js",
+        "src/modules/identity/erase-principal.js",
+        "src/modules/identity/gate.js",
+        "src/modules/identity/link-line-identity.js",
+        "tests/integration/identity-classify.test.js",
+        "tests/integration/identity-erase.test.js",
+        "tests/integration/identity-gate.test.js",
+        "tests/integration/identity-link.test.js"
+      ]
+    },
+    {
+      "id": "FR-023",
+      "title": "Zuri Backend Slice CRM core (ADR-007 P2): Customer (per-tenant, linked to Person) + Conversation + Message + LINE gateway `ingestLineMessage` (resolves through FR-021, idempotent)",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-023"
+      ],
+      "primaryDomain": "crm",
+      "contributorDomains": [
+        "crm"
+      ],
+      "useCase": "ข้อความ LINE แรกสร้าง Customer, Conversation และ Message แบบ tenant-scoped ใน transaction เดียว",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-023",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "src/modules/crm/line-ingest-service.js",
+        "tests/integration/line-ingest-tenant-isolation.test.js",
+        "tests/integration/line-ingest.test.js",
+        "tests/unit/doc-views.test.js",
+        "tests/unit/scope-external-ids-migration.test.js"
+      ]
+    },
+    {
+      "id": "FR-024",
+      "title": "Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-024"
+      ],
+      "primaryDomain": "knowledge",
+      "contributorDomains": [
+        "knowledge"
+      ],
+      "useCase": "Agent ขอ neighbourhood ของลูกค้าและธุรกิจจากกราฟ โดยราคาสดและข้อมูลปฏิบัติการยังอ่านจากเจ้าของข้อมูล",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-024",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "src/modules/knowledge/genesisblockdb-sink.js",
+        "src/modules/knowledge/graph-query.js",
+        "src/modules/knowledge/index.js",
+        "src/modules/knowledge/live-facts.js",
+        "src/modules/knowledge/project-graph.js",
+        "src/modules/knowledge/query.js",
+        "src/modules/knowledge/sink.js",
+        "tests/integration/agent-runtime.test.js",
+        "tests/integration/knowledge-genesis-sink.test.js",
+        "tests/integration/knowledge-project.test.js",
+        "tests/integration/knowledge-query.test.js",
+        "tests/unit/activation-readiness-integration.test.js",
+        "tests/unit/runtime-isolation-probe.test.js"
+      ]
+    },
+    {
+      "id": "FR-025",
+      "title": "Agent read-only context contract (ADR-007 P6, Gate E): `assembleAgentContext` binds a resolved principal (via the P3 gate) to Identity + MSP memory (**principal-keyed, not channel-keyed**) + GKS knowledge (FR-024) + Zuri **read-only** tools; a write-classified tool is refused at registration (Gate E→F boundary)",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-025"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent"
+      ],
+      "useCase": "Agent ประกอบ read context จาก Identity, MSP, Knowledge และ read-only tools ก่อนตอบคำถาม",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-025",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 7
+        }
+      ],
+      "evidence": [
+        "src/modules/agent/context.js",
+        "src/modules/agent/index.js",
+        "src/modules/agent/memory-port.js",
+        "src/modules/agent/msp-memory-port.js",
+        "src/modules/agent/tools.js",
+        "tests/integration/agent-action-gate.test.js",
+        "tests/integration/agent-context.test.js",
+        "tests/integration/agent-msp-port.test.js",
+        "tests/integration/agent-multi-principal.test.js",
+        "tests/integration/agent-tools.test.js",
+        "tests/integration/msp-vault-memory-port.test.js",
+        "tests/unit/activation-readiness-integration.test.js"
+      ]
+    },
+    {
+      "id": "FR-026",
+      "title": "Agent write/action gate (ADR-007 P7, Gate F): write tools in a **separate** registry (effect WRITE + executor); `authorizeAgentAction` decides by RBAC (Membership role) + resource ownership + sensitivity; **HIGH-sensitivity actions require a single-use step-up token**; `executeAgentAction` resolves the principal → authorizes → enforces step-up → runs the write in one transaction with an append-only audit. Read stays Gate E",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-026"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent"
+      ],
+      "useCase": "Agent ขอทำ action ที่มีความเสี่ยงสูงและระบบบังคับ step-up token ก่อน execute และ audit",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-026",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "src/modules/agent/action-gate.js",
+        "src/modules/agent/index.js",
+        "src/modules/agent/step-up.js",
+        "src/modules/agent/write-tools.js",
+        "tests/integration/agent-action-gate.test.js",
+        "tests/integration/agent-context.test.js",
+        "tests/unit/activation-readiness-integration.test.js"
+      ]
+    },
+    {
+      "id": "FR-027",
+      "title": "End-to-end agent turn (ADR-007 P7): `handleAgentTurn` composes the full path — LINE ingest (FR-023) → read context (FR-025) → optional Gate F action (FR-026) → response — over injectable memory/knowledge/tool ports; unauthorized/step-up-needed actions degrade to a graceful response, never a crash",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-027"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent"
+      ],
+      "useCase": "ข้อความหนึ่งรอบไหลจาก ingest ผ่าน context/action gate ไปสู่คำตอบ โดย refusal ไม่ทำให้ runtime ล้ม",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-027",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "src/modules/agent/index.js",
+        "src/modules/agent/turn.js",
+        "tests/integration/agent-action-gate.test.js",
+        "tests/integration/agent-context.test.js",
+        "tests/integration/agent-turn.test.js",
+        "tests/unit/activation-readiness-integration.test.js"
+      ]
+    },
+    {
+      "id": "FR-028",
+      "title": "LINE webhook API route (ADR-007 P7 wiring): `POST /api/agent/line-webhook` normalizes LINE message events → `handleAgentTurn` (Gate E read/answer), tenant-scoped (refuses an unresolved tenant — no minting under a DEFAULT tenant); the zuri-cli LINE bot forwards webhook events here (two runtimes, HTTP seam, real E2E)",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-028"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent",
+        "integration"
+      ],
+      "useCase": "zuri-cli ส่ง normalized LINE event เข้า webhook ที่ปฏิเสธ scope ซึ่งไม่ได้ resolve จาก server",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-028",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 8
+        }
+      ],
+      "evidence": [
+        "src/app/api/agent/line-webhook/route.js",
+        "src/platform/integrations/providers/line/line-oa-evidence.js",
+        "tests/integration/agent-webhook-route.test.js",
+        "tests/integration/line-oa-cross-repo-round-trip.test.js",
+        "tests/integration/line-oa-evidence-convergence.test.js",
+        "tests/integration/line-oa-failure-paths.test.js",
+        "tests/integration/line-oa-golden-path.test.js",
+        "tests/integration/line-webhook-transport-contract.test.js",
+        "tests/integration/line-webhook-unbound-production.test.js",
+        "tests/unit/doc-views.test.js"
+      ]
+    },
+    {
+      "id": "FR-029",
+      "title": "Agent runtime ports (ADR-007 P6): `createAgentPorts` binds the agent to the REAL backends — MSP memory (`createMspMemoryPort`) + GenesisBlockDB knowledge (`createGraphKnowledgeReader`, the graph read side of P5) — as the injectable ports `assembleAgentContext`/`handleAgentTurn` consume; unconfigured backends degrade gracefully to in-memory/Prisma. MSP and GKS stay independent",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-029"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent"
+      ],
+      "useCase": "ทีมสลับ MSP memory และ GKS adapters ผ่าน ports โดยไม่ผูก agent กับ storage ตัวเดียว",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-029",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "src/modules/agent/index.js",
+        "src/modules/agent/runtime.js",
+        "tests/integration/agent-action-gate.test.js",
+        "tests/integration/agent-context.test.js",
+        "tests/integration/agent-runtime.test.js",
+        "tests/unit/activation-readiness-integration.test.js"
+      ]
+    },
+    {
+      "id": "FR-030",
+      "title": "Persistence: Postgres/Supabase readiness (ADR-007 P4): generated `schema.postgres.prisma` + init DDL (provider swap only, models identical); `assertDbBoundary` enforces **Zuri DB ≠ MSP DB**; UUID-preserving cutover via the provider-agnostic backup snapshot (`db:pg:export`/`import`). DuckDB stays a cache/analytics tier, not the transactional store",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-030"
+      ],
+      "primaryDomain": "integration",
+      "contributorDomains": [],
+      "useCase": "Operator export/import snapshot ไป Postgres พร้อม guard ไม่ให้ Zuri DB ชี้ฐานเดียวกับ MSP",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-030",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 2
+        }
+      ],
+      "evidence": [
+        "src/lib/db-boundary.js",
+        "src/lib/db.js",
+        "tests/unit/db-boundary.test.js",
+        "tests/unit/postgres-runtime-client.test.js"
+      ]
+    },
+    {
+      "id": "FR-031",
+      "title": "Viewer gate: `resolveViewer()` resolves the current principal into one role (`OWNER`, `MEMBER`, or platform `DEV`), `visibleBusinessIds`, and `visibleDomains` before the ADR-008 Home journey. DEV is an explicit platform grant, never a widened Membership; development fallback is OWNER-of-all only when no real principal exists.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-031"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "ทุก request resolve viewer เป็น OWNER, MEMBER หรือ DEV พร้อม Business และ domain ที่มองเห็นได้",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-031",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "src/app/api/viewer/route.js",
+        "src/modules/identity/resolve-viewer.js",
+        "tests/unit/fr061-per-business-domain-visibility.test.js",
+        "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/viewer-gate.test.js"
+      ]
+    },
+    {
+      "id": "FR-032",
+      "title": "Home (`/`) is the ADR-008 entry journey: it shows only groups and businesses permitted by `resolveViewer()`, lets the user enter the Group (“all businesses”) or one Business scope, and then navigates to Overview. A single visible group skips the group choice. Creating a business remains the existing Settings flow.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-032"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้เปิด Home แล้วเลือกเฉพาะ Group หรือ Business ที่ viewer มีสิทธิ์เห็น",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-032",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 2
+        }
+      ],
+      "evidence": [
+        "src/app/api/viewer/route.js",
+        "src/lib/home-scope.js",
+        "tests/unit/home-scope.test.js",
+        "tests/unit/viewer-gate.test.js"
+      ]
+    },
+    {
+      "id": "FR-033",
+      "title": "Topbar contains Zuri identity, the viewed-domain chip, ERP/PM lens toggle, command palette, New Project, and profile cluster—but no scope dropdown or selector. Scope choice begins at Home and moves to breadcrumb switching in the following slice.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-033"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้เห็น domain, lens, command palette และ profile บน Topbar โดยไม่มี scope dropdown ซ้ำ",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-033",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "src/components/layouts/Topbar.jsx",
+        "tests/unit/domain-state.test.js",
+        "tests/unit/scope-view-context.test.js",
+        "tests/unit/topbar-no-dropdown.test.js"
+      ]
+    },
+    {
+      "id": "FR-034",
+      "title": "Breadcrumb is the scope switcher: its Group/Business crumb returns to Home (`/`), Workspace crumb opens `/workspaces`, and Project crumb opens `/projects`. It labels Group versus Business correctly and uses the active ERP/PM lens; a single workspace omits its crumb.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-034"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้คลิก breadcrumb เพื่อย้อนกลับไปเปลี่ยน Business หรือเปิดรายการ Space และ Project",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-034",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "src/components/layouts/Breadcrumb.jsx",
+        "tests/unit/breadcrumb-switcher.test.js",
+        "tests/unit/route-reachability.test.js",
+        "tests/unit/scope-view-context.test.js"
+      ]
+    },
+    {
+      "id": "FR-035",
+      "title": "Overview is the selected Business's operational home: scoped execution KPIs, project health, strategy, and shortcuts to enabled V2 domains. A missing Business selection is an actionable Home state, never a Group card roll-up.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-035"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "เจ้าของ Business เปิด Overview เพื่อดู execution KPIs, strategy และ shortcut ของ domain ที่เปิดใช้",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-035",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/overview/page.jsx",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/fr059-strategy-edit.spec.js",
+        "tests/unit/fr059-strategy-edit-ui.test.js",
+        "tests/unit/fr060-business-home-read-model.test.js",
+        "tests/unit/fr060-business-home-visibility.test.js",
+        "tests/unit/overview-split.test.js"
+      ]
+    },
+    {
+      "id": "FR-036",
+      "title": "Project Team (`/projects/{id}/team`) lists Memberships in the project’s business scope, adds/removes business-scoped members, changes Owner/Member role, and shows each member’s active WorkItem assignee load. Group-workspace memberships remain read-only because they are tenant-wide.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-036"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "PM เพิ่มสมาชิก Business เข้า Project Team และดู active work load ของแต่ละคน",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-036",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/projects/[projectId]/team/page.jsx",
+        "src/app/api/projects/[id]/team/route.js",
+        "src/modules/identity/viewer-authority.js",
+        "src/modules/project-manager/application/project-team-service.js",
+        "tests/unit/fr036-team-authorization.test.js",
+        "tests/unit/fr089-br018-team-grants-nothing.test.js",
+        "tests/unit/project-team-service.test.js",
+        "tests/unit/viewer-authority.test.js"
+      ]
+    },
+    {
+      "id": "FR-038",
+      "title": "My Profile (`/profile`) shows the resolved local account, language preference, LINE-link state, and local session. Users & Permissions (`/platform/users`) is OWNER-only and edits Membership role plus per-domain visibility; MEMBER receives no domain visibility unless explicitly granted, while OWNER/DEV retain role-bound all-domain access.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-038"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "สมาชิกดู Profile และ Owner จัด role/domain visibility โดยไม่เปิดเผยข้อมูลที่ UI ไม่ใช้",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-038",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 8,
+          "testCount": 10
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/platform/users/page.jsx",
+        "src/app/(pm)/profile/page.jsx",
+        "src/app/api/platform/users/route.js",
+        "src/app/api/profile/route.js",
+        "src/components/layouts/DomainBar.jsx",
+        "src/modules/identity/profile-permission-service.js",
+        "src/modules/identity/resolve-viewer.js",
+        "src/modules/identity/viewer-authority.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/unit/domain-navigation.test.js",
+        "tests/unit/fr036-team-authorization.test.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
+        "tests/unit/fr061-per-business-domain-visibility.test.js",
+        "tests/unit/fr062-permissions-read-scope.test.js",
+        "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/profile-permission-service.test.js",
+        "tests/unit/viewer-authority.test.js",
+        "tests/unit/viewer-gate.test.js"
+      ]
+    },
+    {
+      "id": "FR-039",
+      "title": "The Base Context Bar maps `Portfolio > Tenant > Business` to `Workspace > Organization > Business` and stops global shell scope at Business. Schema Workspace and Project are Development resources, not shell or sidebar parents; Organization is a UI label for Tenant, whose UUID and isolation semantics remain unchanged.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-039"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "BusinessShell แสดง Workspace, Organization และ Business โดยไม่ยก Space หรือ Project เป็น global scope",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-039",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 11
+        }
+      ],
+      "evidence": [
+        "src/components/layouts/Breadcrumb.jsx",
+        "src/components/layouts/Sidebar.jsx",
+        "src/components/layouts/Topbar.jsx",
+        "src/config/domains.js",
+        "src/config/modules.js",
+        "src/config/scope-views.js",
+        "src/context/ScopeContext.jsx",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/fr046-entry-contract.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/unit/breadcrumb-switcher.test.js",
+        "tests/unit/domain-navigation.test.js",
+        "tests/unit/fr045-api-ui-contract.test.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
+        "tests/unit/product-readiness-ui.test.js",
+        "tests/unit/scope-view-context.test.js",
+        "tests/unit/sidebar-visible-subdomains.test.js",
+        "tests/unit/topbar-no-dropdown.test.js"
+      ]
+    },
+    {
+      "id": "FR-040",
+      "title": "Project Work views: every Project provides a Structure Plan (WBS) and a project-local Dependency Map. Structure Plan renders the existing Project → Workstream → WorkContainer → WorkItem hierarchy. Dependency Map renders only dependency edges whose two endpoints both belong to the opened Project. The cross-project register remains Development → Dependencies. No new persistence model is introduced.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-040"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ทีมเปิด Structure Plan และ Dependency Map ที่จำกัดเฉพาะ Project ปัจจุบัน",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-040",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 13,
+          "testCount": 13
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/projects/[projectId]/all-work/page.jsx",
+        "src/app/(pm)/projects/[projectId]/dependencies/page.jsx",
+        "src/app/(pm)/projects/[projectId]/layout.jsx",
+        "src/app/(pm)/projects/[projectId]/milestones/page.jsx",
+        "src/app/(pm)/projects/[projectId]/structure/page.jsx",
+        "src/app/(pm)/projects/[projectId]/timeline/page.jsx",
+        "src/app/api/projects/[id]/dependencies/route.js",
+        "src/modules/project-manager/application/dependency-service.js",
+        "src/modules/project-manager/application/project-dependency-map.js",
+        "src/modules/project-manager/components/ProjectTabs.jsx",
+        "src/modules/project-manager/components/WorkViewTabs.jsx",
+        "src/modules/project-manager/views/DependencyMap.jsx",
+        "src/modules/project-manager/views/WbsCanvas.jsx",
+        "tests/e2e/fr040-project-work.spec.js",
+        "tests/integration/fr072-dependency-authorization.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/dependency-map-view.test.js",
+        "tests/unit/project-dependency-map.test.js",
+        "tests/unit/project-dependency-route.test.js",
+        "tests/unit/project-dependency-service.test.js",
+        "tests/unit/project-execution-backpath.test.js",
+        "tests/unit/project-roadmap-ui.test.js",
+        "tests/unit/project-work-route.test.js",
+        "tests/unit/route-reachability.test.js",
+        "tests/unit/wbs-structure.test.js"
+      ]
+    },
+    {
+      "id": "FR-042",
+      "title": "HR / People is a peer ERP domain (route key `people`) with a Business-scoped People Directory over Person/Membership. It is not nested under Development; Project Team remains Project-local. Attendance, leave, payroll, and performance are out of scope for this slice.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-042"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "HR เปิด People Directory เพื่อค้นหาคนที่มี Membership ใน Business ปัจจุบัน",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-042",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 13
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/overview/page.jsx",
+        "src/app/(pm)/people/directory/page.jsx",
+        "src/app/(pm)/people/page.jsx",
+        "src/app/api/people/route.js",
+        "src/config/domains.js",
+        "src/modules/people/application/people-service.js",
+        "src/modules/people/components/PeopleDirectory.jsx",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/fr059-strategy-edit.spec.js",
+        "tests/unit/domain-navigation.test.js",
+        "tests/unit/fr045-api-ui-contract.test.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
+        "tests/unit/fr059-strategy-edit-ui.test.js",
+        "tests/unit/fr060-business-home-read-model.test.js",
+        "tests/unit/fr060-business-home-visibility.test.js",
+        "tests/unit/overview-split.test.js",
+        "tests/unit/people-directory.test.js",
+        "tests/unit/people-route.test.js",
+        "tests/unit/people-service.test.js",
+        "tests/unit/product-readiness-ui.test.js"
+      ]
+    },
+    {
+      "id": "FR-043",
+      "title": "Project stores a direct nullable `businessId` owner plus `workspaceId` as Development Space context. Business-scoped projects must match their Space owner; explicit portfolio/tenant shared projects remain null-owner and are never attributed to a Business Overview.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-043"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ระบบผูก Project กับ Business owner โดยตรงและแสดง Space เป็น grouping context เท่านั้น",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-043",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 9,
+          "testCount": 18
+        }
+      ],
+      "evidence": [
+        "prisma/seed.js",
+        "src/app/(pm)/projects/[projectId]/page.jsx",
+        "src/components/layouts/Breadcrumb.jsx",
+        "src/components/layouts/Topbar.jsx",
+        "src/context/ScopeContext.jsx",
+        "src/modules/business/application/business-strategy-service.js",
+        "src/modules/project-manager/application/project-list-read-model.js",
+        "src/modules/project-manager/application/project-service.js",
+        "src/modules/project-manager/import/plan-import-service.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/fr046-entry-contract.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/external-ref-import.test.js",
+        "tests/integration/fr059-business-strategy-mutation.test.js",
+        "tests/integration/fr072-project-service-authorization.test.js",
+        "tests/integration/import-target-authorization.test.js",
+        "tests/integration/plan-import.test.js",
+        "tests/integration/project-business-binding.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/integration/project-list-contract.test.js",
+        "tests/unit/breadcrumb-switcher.test.js",
+        "tests/unit/business-strategy-service.test.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
+        "tests/unit/project-business-context.test.js",
+        "tests/unit/project-list-contract.test.js",
+        "tests/unit/scope-view-context.test.js",
+        "tests/unit/topbar-no-dropdown.test.js"
+      ]
+    },
+    {
+      "id": "FR-044",
+      "title": "Entry routing is split into a minimal Landing (`/`), a demo Login stub (`/login`), a Business Routing page (`/businesses`) that shows only viewer-visible Businesses, and the final BusinessShell (`/overview`) mounted only after a Business is selected. No real auth or new design tokens are included in this slice.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-044"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้เดินจาก Landing ไป Login, Business Routing และ BusinessShell โดยไม่เห็นข้อมูลก่อนผ่าน gate",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-044",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 12,
+          "testCount": 14
+        }
+      ],
+      "evidence": [
+        "src/app/(entry)/businesses/page.jsx",
+        "src/app/(pm)/layout.jsx",
+        "src/app/layout.jsx",
+        "src/app/login/page.jsx",
+        "src/app/page.jsx",
+        "src/components/layouts/Breadcrumb.jsx",
+        "src/components/layouts/BusinessRoutingShell.jsx",
+        "src/components/layouts/BusinessShellGuard.jsx",
+        "src/components/layouts/EntryShell.jsx",
+        "src/components/layouts/Topbar.jsx",
+        "src/lib/business-routing.js",
+        "src/lib/business-shell-guard.js",
+        "tests/e2e/fr044-entry-routing.spec.js",
+        "tests/e2e/fr046-entry-contract.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/unit/breadcrumb-switcher.test.js",
+        "tests/unit/business-routing-page.test.js",
+        "tests/unit/business-routing.test.js",
+        "tests/unit/business-shell-guard.test.js",
+        "tests/unit/entry-routing-boundary.test.js",
+        "tests/unit/entry-surfaces.test.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
+        "tests/unit/fr056-landing.test.js",
+        "tests/unit/route-reachability.test.js",
+        "tests/unit/scope-view-context.test.js",
+        "tests/unit/topbar-no-dropdown.test.js"
+      ]
+    },
+    {
+      "id": "FR-046",
+      "title": "Production viewer entry contract: Business Routing consumes one atomic, server-filtered `/api/entry` response derived from a trusted request session and `resolveViewer()`. Hidden Businesses and unrelated ancestry are never returned; missing sessions fail closed; client-supplied identity/role/platform claims are never authorization input.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-046"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "production request ใช้ trusted session เพื่อคืน Business Routing payload ที่กรองบน server แล้ว",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-046",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 62,
+          "testCount": 43
+        }
+      ],
+      "evidence": [
+        "src/app/(entry)/businesses/page.jsx",
+        "src/app/api/audit/route.js",
+        "src/app/api/backup/export/route.js",
+        "src/app/api/backup/import/route.js",
+        "src/app/api/business/files/route.js",
+        "src/app/api/business/goals/[id]/projects/[projectId]/route.js",
+        "src/app/api/business/goals/[id]/projects/route.js",
+        "src/app/api/business/goals/[id]/route.js",
+        "src/app/api/business/goals/route.js",
+        "src/app/api/business/roadmaps/[id]/route.js",
+        "src/app/api/business/roadmaps/route.js",
+        "src/app/api/business/strategy/route.js",
+        "src/app/api/containers/[id]/route.js",
+        "src/app/api/containers/route.js",
+        "src/app/api/dependencies/[id]/route.js",
+        "src/app/api/dependencies/route.js",
+        "src/app/api/entry/route.js",
+        "src/app/api/files/[id]/content/route.js",
+        "src/app/api/files/[id]/relink/route.js",
+        "src/app/api/files/[id]/reveal/route.js",
+        "src/app/api/files/[id]/route.js",
+        "src/app/api/files/cache/rebuild/route.js",
+        "src/app/api/files/migrate/route.js",
+        "src/app/api/files/mounts/route.js",
+        "src/app/api/files/reconcile/route.js",
+        "src/app/api/files/route.js",
+        "src/app/api/gates/[id]/route.js",
+        "src/app/api/gates/route.js",
+        "src/app/api/milestones/[id]/route.js",
+        "src/app/api/milestones/route.js",
+        "src/app/api/people/route.js",
+        "src/app/api/platform/users/route.js",
+        "src/app/api/profile/route.js",
+        "src/app/api/progress/project/[id]/route.js",
+        "src/app/api/progress/workstream/[id]/route.js",
+        "src/app/api/projects/[id]/dependencies/route.js",
+        "src/app/api/projects/[id]/files/[fileId]/route.js",
+        "src/app/api/projects/[id]/files/route.js",
+        "src/app/api/projects/[id]/route.js",
+        "src/app/api/projects/[id]/team/route.js",
+        "src/app/api/projects/[id]/teams/route.js",
+        "src/app/api/projects/[id]/tree/route.js",
+        "src/app/api/projects/route.js",
+        "src/app/api/repositories/[id]/route.js",
+        "src/app/api/repositories/link/[id]/route.js",
+        "src/app/api/repositories/link/route.js",
+        "src/app/api/repositories/route.js",
+        "src/app/api/scope/route.js",
+        "src/app/api/session/demo/route.js",
+        "src/app/api/teams/[id]/members/route.js",
+        "src/app/api/teams/[id]/route.js",
+        "src/app/api/teams/route.js",
+        "src/app/api/work/[id]/route.js",
+        "src/app/api/work/route.js",
+        "src/app/api/workspaces/[id]/route.js",
+        "src/app/api/workstreams/[id]/route.js",
+        "src/app/api/workstreams/route.js",
+        "src/app/login/page.jsx",
+        "src/context/ScopeContext.jsx",
+        "src/modules/identity/entry-read-model.js",
+        "src/modules/identity/request-viewer.js",
+        "src/modules/identity/session-port.js",
+        "tests/e2e/fr046-entry-contract.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/backup.test.js",
+        "tests/integration/fr046-entry-contract.test.js",
+        "tests/integration/fr059-business-strategy-mutation.test.js",
+        "tests/integration/fr072-dependency-authorization.test.js",
+        "tests/integration/fr072-milestone-gate-authorization.test.js",
+        "tests/integration/fr072-project-file-authorization.test.js",
+        "tests/integration/fr072-project-service-authorization.test.js",
+        "tests/integration/fr072-repository-link-authorization.test.js",
+        "tests/integration/fr072-work-service-authorization.test.js",
+        "tests/integration/fr072-workspace-mutation-authorization.test.js",
+        "tests/integration/fr073-repository-scope.test.js",
+        "tests/integration/fr074-scope-creation-authorization.test.js",
+        "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/fr089-team-scope.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/unit/authorization-seam-list-routes.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/business-routing-page.test.js",
+        "tests/unit/business-routing.test.js",
+        "tests/unit/business-strategy-route.test.js",
+        "tests/unit/entry-surfaces.test.js",
+        "tests/unit/fr036-team-authorization.test.js",
+        "tests/unit/fr045-api-ui-contract.test.js",
+        "tests/unit/fr045-backup-contract.test.js",
+        "tests/unit/fr045-file-asset-service.test.js",
+        "tests/unit/fr045-reconcile-cache.test.js",
+        "tests/unit/fr045-reveal.test.js",
+        "tests/unit/fr046-api-ui-contract.test.js",
+        "tests/unit/fr046-entry-read-model.test.js",
+        "tests/unit/fr046-session-demo-route.test.js",
+        "tests/unit/fr046-session-port.test.js",
+        "tests/unit/fr061-per-business-domain-visibility.test.js",
+        "tests/unit/fr089-br018-team-grants-nothing.test.js",
+        "tests/unit/people-route.test.js",
+        "tests/unit/playwright-database-bootstrap.test.js",
+        "tests/unit/profile-permission-service.test.js",
+        "tests/unit/project-dependency-route.test.js",
+        "tests/unit/project-file-service.test.js",
+        "tests/unit/project-team-service.test.js",
+        "tests/unit/run-bat-database-bootstrap.test.js",
+        "tests/unit/scope-view-context.test.js"
+      ]
+    },
+    {
+      "id": "FR-047",
+      "title": "Curated business-knowledge read contract: the SmartGift pilot exposes only an allow-listed, versioned public product projection through `BusinessKnowledgeReadPort`; DuckDB and Supabase are adapters. PII, cost, margin, invoice, unrestricted SQL and local paths are excluded.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-047"
+      ],
+      "primaryDomain": "knowledge",
+      "contributorDomains": [
+        "agent",
+        "knowledge"
+      ],
+      "useCase": "Agent ตอบจาก curated product projection โดยไม่ส่ง PII, cost, margin หรือ local path ไปยัง model",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-047",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "src/modules/agent/phase1-runtime.js",
+        "src/modules/knowledge/business-contract.js",
+        "src/modules/knowledge/supabase-business-knowledge.js",
+        "tests/unit/business-knowledge-contract.test.js",
+        "tests/unit/phase1-business-agent-runtime.test.js",
+        "tests/unit/supabase-business-knowledge.test.js"
+      ]
+    },
+    {
+      "id": "FR-049",
+      "title": "Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-049"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent"
+      ],
+      "useCase": "ลูกค้าถามราคาและ Agent ตอบเฉพาะตัวเลขที่มี bounded evidence มิฉะนั้นใช้ fallback ภาษาไทย",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-049",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "src/modules/agent/grounded-business-answer.js",
+        "src/modules/agent/index.js",
+        "tests/integration/agent-action-gate.test.js",
+        "tests/integration/agent-context.test.js",
+        "tests/unit/activation-readiness-integration.test.js",
+        "tests/unit/grounded-business-answer.test.js"
+      ]
+    },
+    {
+      "id": "FR-050",
+      "title": "Single-reply LINE delivery: one signature-verified normalized event produces at most one model request and one LINE reply, with durable-or-explicitly-bounded dedupe, kill switch, bounded timeout and truthful `ACCEPTED_BY_LINE` receipt semantics.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-050"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent"
+      ],
+      "useCase": "LINE event หนึ่งรายการเรียก model และส่ง reply ได้ไม่เกินหนึ่งครั้งแม้มี retry",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-050",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "src/app/api/agent/line-webhook/route.js",
+        "tests/integration/agent-webhook-route.test.js",
+        "tests/integration/line-oa-cross-repo-round-trip.test.js",
+        "tests/integration/line-oa-evidence-convergence.test.js",
+        "tests/integration/line-oa-failure-paths.test.js",
+        "tests/integration/line-oa-golden-path.test.js",
+        "tests/integration/line-webhook-transport-contract.test.js"
+      ]
+    },
+    {
+      "id": "FR-051",
+      "title": "Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-051"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent",
+        "knowledge"
+      ],
+      "useCase": "runtime อ่าน SmartGift knowledge เฉพาะ Tenant/Business ที่ผูกไว้ผ่าน forced RLS และเก็บ import lineage",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-051",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 5
+        }
+      ],
+      "evidence": [
+        "src/modules/agent/line-channel-binding.js",
+        "src/modules/knowledge/postgres-business-knowledge.js",
+        "tests/integration/agent-webhook-route.test.js",
+        "tests/unit/line-channel-binding.test.js",
+        "tests/unit/phase1-runtime-login-probe.test.js",
+        "tests/unit/postgres-business-knowledge.test.js",
+        "tests/unit/supabase-production-isolation.test.js"
+      ]
+    },
+    {
+      "id": "FR-052",
+      "title": "Server-owned LINE scope binding: the webhook rejects client-selected Tenant/Business IDs and resolves scope only from an active, destination-bound, hash-verified LINE binding. Runtime connects through an unprivileged login and executes each read with `SET LOCAL ROLE zuri_line_smartgift_ro`.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-052"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent",
+        "integration",
+        "knowledge"
+      ],
+      "useCase": "LINE webhook resolve Tenant/Business จาก active binding และปฏิเสธ id ที่ client ส่งมาเอง",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-052",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 12
+        }
+      ],
+      "evidence": [
+        "src/app/api/agent/line-webhook/route.js",
+        "src/modules/agent/line-binding-resolver.js",
+        "src/modules/agent/phase1-runtime.js",
+        "src/modules/knowledge/runtime-postgres-config.js",
+        "src/platform/integrations/providers/line/line-oa-evidence.js",
+        "src/platform/integrations/providers/line/line-oa-webhook.js",
+        "tests/integration/agent-webhook-route.test.js",
+        "tests/integration/line-oa-cross-repo-round-trip.test.js",
+        "tests/integration/line-oa-evidence-convergence.test.js",
+        "tests/integration/line-oa-golden-path.test.js",
+        "tests/integration/line-reply-record.test.js",
+        "tests/integration/line-webhook-unbound-production.test.js",
+        "tests/unit/line-binding-resolver.test.js",
+        "tests/unit/line-webhook-scope-fail-closed.test.js",
+        "tests/unit/phase1-business-agent-runtime.test.js",
+        "tests/unit/phase1-runtime-login-probe.test.js",
+        "tests/unit/platform/line-oa-webhook.test.js",
+        "tests/unit/runtime-postgres-config.test.js"
+      ]
+    },
+    {
+      "id": "FR-053",
+      "title": "Phase 1 golden question evaluation: validate a versioned corpus of at least 20 approved business questions against registered queries, bounded evidence, policy outcomes and allowed numeric claims. The evaluator supports injected fake ports and an environment-only real-provider mode, emits redacted evidence, and requires 20/20 with zero unsupported numbers.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-053"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent"
+      ],
+      "useCase": "ทีมรัน golden questions 20 ข้อและตรวจ unsupported numbers ก่อนเปิด provider จริง",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-053",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 5
+        }
+      ],
+      "evidence": [
+        "src/modules/agent/activation-readiness-contract.js",
+        "src/modules/agent/golden-evaluation.js",
+        "src/modules/agent/index.js",
+        "tests/integration/agent-action-gate.test.js",
+        "tests/integration/agent-context.test.js",
+        "tests/unit/activation-readiness-contract.test.js",
+        "tests/unit/activation-readiness-integration.test.js",
+        "tests/unit/golden-evaluation.test.js"
+      ]
+    },
+    {
+      "id": "FR-054",
+      "title": "Controlled LINE canary readiness: produce a secret-safe runtime-role isolation report and dry-run canary plan that validates exact project/Tenant/Business/binding/provider/evaluation prerequisites. Readiness code never activates a binding or calls LINE; receipt states distinguish accepted from display/read unknown.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-054"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent",
+        "knowledge"
+      ],
+      "useCase": "Operator รัน isolation probe และสร้าง dry-run canary plan โดยยังไม่ activate หรือส่ง LINE",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-054",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 10
+        }
+      ],
+      "evidence": [
+        "src/modules/agent/activation-readiness-contract.js",
+        "src/modules/agent/canary-preflight.js",
+        "src/modules/agent/index.js",
+        "src/modules/knowledge/index.js",
+        "src/modules/knowledge/runtime-isolation-probe.js",
+        "src/modules/knowledge/runtime-postgres-config.js",
+        "tests/integration/agent-action-gate.test.js",
+        "tests/integration/agent-context.test.js",
+        "tests/integration/knowledge-project.test.js",
+        "tests/integration/knowledge-query.test.js",
+        "tests/integration/runtime-isolation-probe.postgres.test.js",
+        "tests/unit/activation-readiness-contract.test.js",
+        "tests/unit/activation-readiness-integration.test.js",
+        "tests/unit/line-canary-preflight.test.js",
+        "tests/unit/runtime-isolation-probe.test.js",
+        "tests/unit/runtime-postgres-config.test.js"
+      ]
+    },
+    {
+      "id": "FR-055",
+      "title": "Controlled LINE activation and receipt: a dry-run-default operator command may install HMAC hashes and activate exactly one expiring binding only through a versioned compare-and-swap transaction and dedicated least-privilege role. Routing-first rollback and append-only redacted receipt events preserve truthful `ACCEPTED_BY_LINE` versus display/read unknown semantics.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-055"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent"
+      ],
+      "useCase": "Operator activate binding แบบ expiring CAS และบันทึก receipt ที่แยก accepted ออกจาก displayed/read",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-055",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 9
+        }
+      ],
+      "evidence": [
+        "src/modules/agent/line-activation-contract.js",
+        "src/modules/agent/line-binding-activation.js",
+        "src/modules/agent/line-operator.js",
+        "src/modules/agent/zuri-cli-canary-receipt.js",
+        "tests/integration/controlled-line-activation.postgres.test.js",
+        "tests/integration/line-binding-activation.postgres.test.js",
+        "tests/unit/activation-readiness-integration.test.js",
+        "tests/unit/controlled-line-activation-migration.test.js",
+        "tests/unit/fr055-postgres-target-guard.test.js",
+        "tests/unit/line-activation-contract.test.js",
+        "tests/unit/line-binding-activation-cli.test.js",
+        "tests/unit/line-binding-activation.test.js",
+        "tests/unit/zuri-cli-canary-receipt.test.js"
+      ]
+    },
+    {
+      "id": "FR-056",
+      "title": "Zuri-branded entry landing: `/` presents a full-viewport, responsive Zuri Heritage composition with one route-bearing action to `/login`, code-native/local visuals, reduced-motion support, and no third-party fashion or commerce semantics. FR-044/046 routing and identity boundaries remain unchanged.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-056"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้ใหม่เห็น Zuri Heritage landing ที่ responsive และเข้าสู่ login ผ่าน action เดียว",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-056",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "src/app/page.jsx",
+        "src/components/landing/ZuriLanding.jsx",
+        "src/components/layouts/EntryShell.jsx",
+        "tests/unit/entry-surfaces.test.js",
+        "tests/unit/fr056-landing.test.js",
+        "tests/unit/route-reachability.test.js"
+      ]
+    },
+    {
+      "id": "FR-057",
+      "title": "Authorized agent context: every LINE turn resolves ExternalIdentity, Person, Membership, thread/session assurance and server-owned agent/workspace/project scope, then calls GoVibe/MSP API-010 `msp_vault_resolve` before API-009 retrieval; the model, prompt, client payload and stale session cannot widen the canonical authorized vault set.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-057"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent"
+      ],
+      "useCase": "ทุก LINE turn resolve authorized MSP vaults จาก principal และ scope ก่อน retrieval",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-057",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "src/modules/agent/auth-context.js",
+        "src/modules/agent/context.js",
+        "src/modules/agent/memory-port.js",
+        "src/modules/agent/msp-memory-port.js",
+        "src/modules/agent/msp-vault-resolver.js",
+        "src/modules/agent/scoped-memory.js",
+        "tests/integration/agent-context.test.js",
+        "tests/integration/agent-msp-port.test.js",
+        "tests/integration/agent-multi-principal.test.js",
+        "tests/integration/agent-runtime.test.js",
+        "tests/integration/msp-vault-memory-port.test.js",
+        "tests/unit/msp-vault-resolver.test.js"
+      ]
+    },
+    {
+      "id": "FR-059",
+      "title": "Business Strategy mutation: create/update of `BusinessRoadmap` and its 2–3 ordered horizons, `BusinessGoal` (status/priority/progress/dates), and `ProjectGoal` link/unlink, through audited services in `project-manager/application`, authorized **per Business** — the caller must hold OWNER authority over the target Business (`viewer.ownedBusinessIds`), never merely the global OWNER label. The FR-041 read model remains the only read contract; horizon cardinality and Business isolation are enforced by the service.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-059"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "Business Owner แก้ Roadmap, Goals และ Project links พร้อม audit ภายใน Business ที่ตนเป็นเจ้าของ",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-059",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 10,
+          "testCount": 11
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/overview/page.jsx",
+        "src/app/api/business/goals/[id]/projects/[projectId]/route.js",
+        "src/app/api/business/goals/[id]/projects/route.js",
+        "src/app/api/business/goals/[id]/route.js",
+        "src/app/api/business/goals/route.js",
+        "src/app/api/business/roadmaps/[id]/route.js",
+        "src/app/api/business/roadmaps/route.js",
+        "src/modules/identity/viewer-authority.js",
+        "src/modules/project-manager/application/business-strategy-mutation-service.js",
+        "src/modules/project-manager/components/StrategyEditModals.jsx",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/fr059-strategy-edit.spec.js",
+        "tests/integration/fr059-business-strategy-mutation.test.js",
+        "tests/unit/fr045-api-ui-contract.test.js",
+        "tests/unit/fr059-strategy-edit-ui.test.js",
+        "tests/unit/fr059-strategy-validation.test.js",
+        "tests/unit/fr060-business-home-read-model.test.js",
+        "tests/unit/fr060-business-home-visibility.test.js",
+        "tests/unit/overview-split.test.js",
+        "tests/unit/repositories-page-ui-contract.test.js",
+        "tests/unit/viewer-authority.test.js"
+      ]
+    },
+    {
+      "id": "FR-061",
+      "title": "Per-Business domain visibility: `resolveViewer()` resolves which domains a principal may see **per Business**, not once per principal. Each Membership's grant applies only to the Businesses that Membership covers — an OWNER Membership confers all domains on the Businesses it owns, and never widens what the same principal sees in a Business where they hold only a MEMBER Membership. The viewer gains `domainsByBusinessId` (per-Business allow-list; absent or `[]` denies), and `domainsForBusiness(viewer, businessId)` is the only way a Business-scoped consumer may ask the question. The existing flat `visibleDomains` is retained and additively redefined as the union across visible Businesses — \"may this principal see this domain *anywhere*\" — and is never an authorization input for a Business-scoped decision. The route guard and the domain bar both read the per-Business answer.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-061"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "สมาชิกเห็น CRM ใน Business A แต่ไม่เห็นใน Business B ตาม grant ของแต่ละ Membership",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-061",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 10
+        }
+      ],
+      "evidence": [
+        "src/components/layouts/CommandPalette.jsx",
+        "src/components/layouts/DomainBar.jsx",
+        "src/lib/business-shell-guard.js",
+        "src/modules/identity/resolve-viewer.js",
+        "src/modules/identity/viewer-domains.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/unit/business-shell-guard.test.js",
+        "tests/unit/command-palette-index.test.js",
+        "tests/unit/domain-navigation.test.js",
+        "tests/unit/fr060-business-home-visibility.test.js",
+        "tests/unit/fr061-per-business-domain-visibility.test.js",
+        "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/profile-permission-service.test.js",
+        "tests/unit/viewer-gate.test.js"
+      ]
+    },
+    {
+      "id": "FR-062",
+      "title": "Users & Permissions read scope: `GET /api/platform/users` returns only Memberships the caller may actually administer — those whose Business is in `viewer.ownedBusinessIds` — so the list can no longer disagree with the authority `updateUserPermissions` enforces. Tenant-wide Memberships (`businessId: null`) are returned **only for tenants where the caller owns a Business**, never unconditionally, and each row carries a server-decided `manageable` flag; the client renders a non-manageable row read-only rather than inferring editability itself. The response carries no field the surface does not display — `Person.email` is dropped.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-062"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "Owner เปิด Users & Permissions แล้วแก้ได้เฉพาะ Membership ของ Business ที่ตนดูแล",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-062",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/platform/users/page.jsx",
+        "src/modules/identity/profile-permission-service.js",
+        "tests/integration/fr089-team-scope.test.js",
+        "tests/unit/fr036-team-authorization.test.js",
+        "tests/unit/fr062-permissions-read-scope.test.js",
+        "tests/unit/profile-permission-service.test.js"
+      ]
+    },
+    {
+      "id": "FR-063",
+      "title": "Project Board: the project-local Work tab renders that Project's WorkItems as a status board — **one column per value of `WORK_STATUSES`**, derived from `src/lib/validation/enums.js` rather than a hand-written list, so no status can exist that the board silently drops. Opening a card opens the existing Workpackage editor; the board itself persists nothing — no column, order or card position is stored, and every status change goes through the FR-005 services.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-063"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ทีมเปิด Board ที่มีครบทุก work status และแก้ WorkItem ผ่าน editor เดิม",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-063",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 2
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/projects/[projectId]/board/page.jsx",
+        "src/modules/project-manager/views/KanbanBoard.jsx",
+        "tests/unit/fr063-board-columns.test.js",
+        "tests/unit/plan-status-vocabulary.test.js"
+      ]
+    },
+    {
+      "id": "FR-064",
+      "title": "Schedule: Project and Milestone dates render as a derived month-grid timeline, available **global and project-scoped** (the same view under a different filter, mirroring FR-009). Bars come from `Project.startAt`/`targetAt`, markers from `Milestone.targetAt`. It is read-only and non-owning: nothing is persisted, no date is editable from this view, and a Project or Milestone with no dates simply does not render a bar.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-064"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "PM ดู Project และ Milestone บน timeline แบบ global หรือ project-scoped โดยไม่เขียนวันที่จากหน้านี้",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-064",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 7
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/projects/[projectId]/timeline/page.jsx",
+        "src/app/(pm)/timeline/page.jsx",
+        "src/modules/project-manager/application/project-service.js",
+        "src/modules/project-manager/views/universal/TimelineView.jsx",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/fr072-project-service-authorization.test.js",
+        "tests/integration/project-business-binding.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/unit/project-list-contract.test.js",
+        "tests/unit/project-work-route.test.js"
+      ]
+    },
+    {
+      "id": "FR-065",
+      "title": "Import target authorization: the FR-012 pipeline authorizes the Workspace it is about to write to, instead of accepting whichever `workspaceId` the request body names. All three intake routes (`/api/import/dry-run`, `/api/import/commit`, `/api/import/xlsx`) resolve a viewer, and the target Workspace is resolved **before** validation so an unauthorized target is refused without the caller learning anything about the plan. (a) A **Business-scoped** Workspace requires `ownsBusiness(viewer, workspace.businessId)` — the same predicate the other write paths use, not a second reading of it; a caller who may see the Business but does not own it is refused. (b) A Workspace **above Business** (`scopeType` PORTFOLIO or TENANT) is refused with an explicit reason stating that no authority above Business is declared — this requirement deliberately does **not** invent one. Enabling such an import requires a prior FR that makes portfolio/tenant authority *holdable*: a viewer-contract change in the manner of FR-061, since today no principal can hold it. The dry run is authorized identically to the commit — a read-only preview of another scope's contents is the leak the commit guard would otherwise still allow.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-065"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ระบบตรวจสิทธิ์ Workspace ก่อน dry-run หรือ commit แผนที่ผู้ใช้นำเข้า",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-065",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 9
+        }
+      ],
+      "evidence": [
+        "src/app/api/import/commit/route.js",
+        "src/app/api/import/dry-run/route.js",
+        "src/app/api/import/xlsx/route.js",
+        "src/modules/project-manager/import/import-authorization.js",
+        "src/modules/project-manager/import/plan-import-service.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/external-ref-import.test.js",
+        "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/import-target-authorization.test.js",
+        "tests/integration/plan-import-scope.test.js",
+        "tests/integration/plan-import.test.js",
+        "tests/integration/project-business-binding.test.js",
+        "tests/integration/xlsx-intake.test.js",
+        "tests/unit/import-authorization.test.js"
+      ]
+    },
+    {
+      "id": "FR-066",
+      "title": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-066"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity"
+      ],
+      "useCase": "สมาชิกใหม่สร้าง Profile และอยู่ Waiting Room ได้โดยยังไม่ต้องสร้าง Business หรือ Project",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-066 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-066",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FR-067",
+      "title": "Workspace collaboration boundary: an authorized Workspace/Tenant owner can issue a scoped, expiring, single-use invite that creates a separate WorkspaceMembership. Workspace membership grants only Workspace collaboration visibility; Tenant, Business, Space and Project access require separate server-authorized assignment, with audit and fail-closed replay/revocation behavior.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-067"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity"
+      ],
+      "useCase": "Workspace owner ส่ง invite แบบหมดอายุและใช้ครั้งเดียวโดยไม่ให้สิทธิ์ Business อัตโนมัติ",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-067 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-067",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FR-071",
+      "title": "Supabase data pipeline monitor and replay: the governed SmartGift DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-071"
+      ],
+      "primaryDomain": "knowledge",
+      "contributorDomains": [
+        "knowledge"
+      ],
+      "useCase": "Operator ดู pipeline stage ที่ล้มแล้ว replay เฉพาะ record นั้นโดยรักษา lineage และ idempotency",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-071 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-071",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FR-072",
+      "title": "Project-Manager mutation authorization: every mutating route repaid from `docs/.route-viewer-baseline.json` resolves a request viewer and the service behind it refuses the write unless `ownsBusiness(viewer, <governing Business>)`, where the governing Business is derived from the target's Space (`workspace.businessId`; for Project-scoped targets via the Project's Space per FR-043; for a Dependency, the governing Business of **both** endpoints; for a Project moved between Spaces, the authority of **both** the current governing Business and the destination Space). (a) A Business-governed target that is not owned answers exactly as a nonexistent one, so a refusal is never an enumeration oracle over another tenant's ids. (b) A target governed above Business (a Project in a PORTFOLIO/TENANT Space, a non-BUSINESS-scoped Workspace) is refused for **every** principal with a reason naming the missing authority — this requirement deliberately does **not** invent authority above Business; enabling such writes requires a prior FR that makes that authority holdable (FR-066/FR-067 direction), per the FR-065 precedent. Routes whose authorization question no declared rule answers (`/api/scope`, `/api/backup/import`) are out of scope and remain recorded debt in `docs/.route-viewer-baseline.json`, each with the missing decision named. (`/api/repositories` and `/api/repositories/[id]` were answered by FR-073 and repaid.)",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-072"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "mutating route ปฏิเสธการแก้ Project หรือ dependency เมื่อ viewer ไม่ได้เป็นเจ้าของ Business ที่เกี่ยวข้อง",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-072",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 27,
+          "testCount": 26
+        }
+      ],
+      "evidence": [
+        "src/app/api/containers/[id]/route.js",
+        "src/app/api/containers/route.js",
+        "src/app/api/dependencies/[id]/route.js",
+        "src/app/api/dependencies/route.js",
+        "src/app/api/gates/[id]/route.js",
+        "src/app/api/gates/route.js",
+        "src/app/api/milestones/[id]/route.js",
+        "src/app/api/milestones/route.js",
+        "src/app/api/projects/[id]/files/[fileId]/route.js",
+        "src/app/api/projects/[id]/files/route.js",
+        "src/app/api/projects/[id]/route.js",
+        "src/app/api/projects/route.js",
+        "src/app/api/repositories/link/[id]/route.js",
+        "src/app/api/repositories/link/route.js",
+        "src/app/api/work/[id]/route.js",
+        "src/app/api/work/route.js",
+        "src/app/api/workspaces/[id]/route.js",
+        "src/app/api/workstreams/[id]/route.js",
+        "src/app/api/workstreams/route.js",
+        "src/modules/project-manager/application/dependency-service.js",
+        "src/modules/project-manager/application/milestone-gate-service.js",
+        "src/modules/project-manager/application/project-authorization.js",
+        "src/modules/project-manager/application/project-file-service.js",
+        "src/modules/project-manager/application/project-service.js",
+        "src/modules/project-manager/application/repository-service.js",
+        "src/modules/project-manager/application/scope-service.js",
+        "src/modules/project-manager/application/work-service.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/adaptive-shell.test.js",
+        "tests/integration/fr059-business-strategy-mutation.test.js",
+        "tests/integration/fr072-dependency-authorization.test.js",
+        "tests/integration/fr072-milestone-gate-authorization.test.js",
+        "tests/integration/fr072-project-file-authorization.test.js",
+        "tests/integration/fr072-project-service-authorization.test.js",
+        "tests/integration/fr072-refusal-disclosure.test.js",
+        "tests/integration/fr072-repository-link-authorization.test.js",
+        "tests/integration/fr072-work-service-authorization.test.js",
+        "tests/integration/fr072-workspace-mutation-authorization.test.js",
+        "tests/integration/fr073-repository-scope.test.js",
+        "tests/integration/fr074-scope-creation-authorization.test.js",
+        "tests/integration/fr089-team-scope.test.js",
+        "tests/integration/project-authorization.test.js",
+        "tests/integration/project-business-binding.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/integration/scope-and-isolation.test.js",
+        "tests/integration/work-listing-scope.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/fr089-br018-team-grants-nothing.test.js",
+        "tests/unit/global-view-drilldown.test.js",
+        "tests/unit/project-dependency-service.test.js",
+        "tests/unit/project-file-service.test.js",
+        "tests/unit/project-list-contract.test.js"
+      ]
+    },
+    {
+      "id": "FR-073",
+      "title": "Repository ownership: a `Repository` is owned by exactly one Business (`Repository.businessId`), which is the decision FR-072 recorded as missing for `/api/repositories` and `/api/repositories/[id]`. Business rather than Tenant or Portfolio is forced, not chosen: the viewer contract carries only Business-keyed grants, so no principal can hold authority above Business (SDD-037) and a higher-scoped Repository would be ungovernable. (a) Creating a Repository requires `ownsBusiness(viewer, businessId)`, and the Business is required at the input boundary so every new Repository is governed. (b) Updating one requires the same authority over its owning Business; an unowned Repository answers exactly as a nonexistent one. (c) Linking a Repository to a Project requires authority over **both** the Project's governing Business and the Repository's Business — the same fail-closed composition FR-072 applies to a Dependency edge. (d) `Repository.businessId` is nullable only for rows predating this requirement; such a Repository is governed by nobody, is refused for every principal with the missing owner named, and is invisible to every reader until backfilled (`scripts/backfill-repository-business.mjs`, which infers an owner only where a Repository's Project links agree and reports the rest rather than guessing). (e) Listing Repositories is scoped by `seesBusiness`, closing a cross-tenant read that previously returned every Repository in the installation with its project links attached.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-073"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "Owner สร้าง repository ใต้ Business และ link กับ Project เมื่อมีสิทธิ์ทั้งสองฝั่ง",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-073",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 9
+        }
+      ],
+      "evidence": [
+        "prisma/seed.js",
+        "src/app/(pm)/repositories/page.jsx",
+        "src/app/api/repositories/[id]/route.js",
+        "src/app/api/repositories/route.js",
+        "src/lib/validation/entities.js",
+        "src/modules/project-manager/application/project-authorization.js",
+        "src/modules/project-manager/application/repository-service.js",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/smoke.spec.js",
+        "tests/integration/fr072-refusal-disclosure.test.js",
+        "tests/integration/fr072-repository-link-authorization.test.js",
+        "tests/integration/fr073-repository-scope.test.js",
+        "tests/integration/project-authorization.test.js",
+        "tests/integration/project-core.test.js",
+        "tests/integration/project-inventory.test.js",
+        "tests/unit/repositories-page-ui-contract.test.js"
+      ]
+    },
+    {
+      "id": "FR-074",
+      "title": "Scope-creation authorization: every creator behind `POST /api/scope` resolves a viewer and is authorized at the scope it actually writes, in three tiers. (a) **Business scope** — `branch` and a BUSINESS-scoped `workspace` require `ownsBusiness(viewer, businessId)`. (b) **Tenant scope** — creating a `business` inside an existing Tenant, or a TENANT-scoped `workspace`, requires `ownsTenant(viewer, tenantId)`, surfaced on the viewer contract as `ownedTenantIds` from the tenant-wide OWNER Membership that already existed in the data and was previously only expanded into `ownedBusinessIds`. This names a held row; it grants nobody anything new, and is deliberately not satisfied by owning every Business in a Tenant. (c) **Self-service provisioning** — `businessInGroup` creates a new Tenant + Business + Workspace for any authenticated principal, because nothing exists to own beforehand, and **binds the creator as OWNER in the same transaction**. Without that binding the caller would provision scope they cannot subsequently write to, which is the defect this clause fixes as well as authorizes. `portfolio`, `tenant`, `legalEntity` and a PORTFOLIO-scoped `workspace` are installation primitives above any Tenant and require FR-075 operator authority. Self-service is never unauthenticated: the viewer is resolved, the write is attributed, and an audit event is recorded.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-074"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "ระบบอนุญาตสร้าง Branch, Business หรือ Workspace ตาม authority tier ที่ตรงกับ scope จริง",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-074",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 9
+        }
+      ],
+      "evidence": [
+        "src/app/api/scope/route.js",
+        "src/modules/identity/resolve-viewer.js",
+        "src/modules/identity/viewer-authority.js",
+        "src/modules/project-manager/application/scope-service.js",
+        "tests/integration/adaptive-shell.test.js",
+        "tests/integration/fr072-workspace-mutation-authorization.test.js",
+        "tests/integration/fr074-scope-creation-authorization.test.js",
+        "tests/integration/scope-and-isolation.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/fr061-per-business-domain-visibility.test.js",
+        "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/viewer-authority.test.js",
+        "tests/unit/viewer-gate.test.js"
+      ]
+    },
+    {
+      "id": "FR-075",
+      "title": "Installation-operator authority: an installation-wide operation is authorized by a named capability, `isOperator`, carried on the viewer contract and true for a platform grant (FR-031, on a trusted session per SEC-008) or the local single-installation session, and false for every ordinary authenticated principal however much of the installation they own. It governs `POST /api/backup/import` — both the preview and the restore, since a preview of every table across every tenant is the same disclosure the restore guard would otherwise still permit — and the scope primitives above any Tenant (FR-074). This is a distinct *scope* of authority rather than a larger amount of Business ownership: a restore replaces Portfolios, Tenants, identities and audit rows, so no composition of `ownsBusiness` can express it, which is why the route was unrepayable until the capability was named. `isPlatform` remains visibility-only and is never read as authority (RCA 2026-08-16).",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-075"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "installation operator preview และ restore snapshot โดย ordinary Business Owner ทำไม่ได้",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-075",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 11
+        }
+      ],
+      "evidence": [
+        "src/app/api/backup/export/route.js",
+        "src/app/api/backup/import/route.js",
+        "src/modules/identity/resolve-viewer.js",
+        "src/modules/identity/viewer-authority.js",
+        "src/modules/project-manager/application/backup-service.js",
+        "src/modules/project-manager/application/scope-service.js",
+        "tests/integration/backup.test.js",
+        "tests/integration/fr072-workspace-mutation-authorization.test.js",
+        "tests/integration/fr074-scope-creation-authorization.test.js",
+        "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/scope-and-isolation.test.js",
+        "tests/unit/authorization-seam-routes.test.js",
+        "tests/unit/fr045-backup-contract.test.js",
+        "tests/unit/fr061-per-business-domain-visibility.test.js",
+        "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/viewer-authority.test.js",
+        "tests/unit/viewer-gate.test.js"
+      ]
+    },
+    {
+      "id": "FR-076",
+      "title": "Product Owner Business role binding: a Person may hold one active generic `RoleBinding` with `roleKey=PRODUCT_OWNER` per assigned Business inside a customer Tenant; the registry expands it only to Product permissions for that Business, never Business/Tenant/Workspace ownership, Resource/Operations, Marketing, Platform, Integration, secret, LINE or import authority. Bindings are trusted, Business-scoped, revocable, audited and fail closed.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-076"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity"
+      ],
+      "useCase": "ผู้ดูแลมอบ Product Owner role เฉพาะ Business โดยไม่ขยายสิทธิ์ Platform หรือ secret",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-076",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 7
+        }
+      ],
+      "evidence": [
+        "src/lib/db.js",
+        "src/modules/identity/product-owner-authority.js",
+        "src/modules/identity/product-owner-service.js",
+        "src/modules/identity/rbac-service.js",
+        "src/modules/identity/rbac.js",
+        "src/modules/identity/resolve-viewer.js",
+        "tests/unit/application-identity-bootstrap-migration.test.js",
+        "tests/unit/application-schema-migration.test.js",
+        "tests/unit/customer-import-review-service.test.js",
+        "tests/unit/fr061-per-business-domain-visibility.test.js",
+        "tests/unit/fr076-product-owner-business-assignment.test.js",
+        "tests/unit/postgres-runtime-client.test.js",
+        "tests/unit/viewer-gate.test.js"
+      ]
+    },
+    {
+      "id": "FR-081",
+      "title": "Raw external ingestion boundary: every acquisition channel (webhook, pull, file, manual) converges on one normalized ingestion envelope carrying tenant, Business, connection, provider, lane, entity type, external id, source type and schema version, and a channel is added as an adapter rather than a second raw-write path. (a) Ingestion identity is `sha256(tenantId, connectionId, entityType, externalId, payloadHash)` over a canonically serialized payload, so a re-delivered event resolves to `UNCHANGED` instead of a duplicate row; the external id contributes to that identity and is never itself a key (BR-002). (b) Raw records are read and written only through a repository bound to one tenant/connection scope, which refuses a row outside it rather than filtering afterwards (SEC-001), and a referenced Business or IngestionRun must itself resolve inside that scope. (c) Raw ingestion persists the source payload verbatim and never writes domain truth: translation into business entities is a separate later path, so a failed translation cannot corrupt the evidence it was derived from. (d) A run records its own counts and terminal state, and a failure is preserved as a DeadLetterRecord naming the failing stage and owner rather than being retried silently. This requirement declares the ingestion substrate only; no scheduler, no translation ACL and no reader surface is in scope.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-081"
+      ],
+      "primaryDomain": "integration",
+      "contributorDomains": [
+        "agent",
+        "integration",
+        "project-manager"
+      ],
+      "useCase": "LINE event ถูกเก็บเป็น raw evidence แบบ idempotent ก่อน translation โดยตัด reply token ออก",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-081",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 9,
+          "testCount": 12
+        }
+      ],
+      "evidence": [
+        "src/app/api/agent/line-webhook/route.js",
+        "src/modules/project-manager/application/backup-service.js",
+        "src/platform/integrations/core/contracts.js",
+        "src/platform/integrations/core/idempotency.js",
+        "src/platform/integrations/core/integration-registry.js",
+        "src/platform/integrations/core/raw-ingest-service.js",
+        "src/platform/integrations/core/raw-record-repository.js",
+        "src/platform/integrations/providers/line/line-oa-evidence.js",
+        "src/platform/integrations/providers/line/line-oa-webhook.js",
+        "tests/integration/agent-webhook-route.test.js",
+        "tests/integration/backup.test.js",
+        "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/line-oa-connection-health.test.js",
+        "tests/integration/line-oa-evidence-convergence.test.js",
+        "tests/integration/platform/integration-persistence.test.js",
+        "tests/unit/fr045-backup-contract.test.js",
+        "tests/unit/fr079-runtime-cutover.test.js",
+        "tests/unit/platform/integration-contracts.test.js",
+        "tests/unit/platform/line-oa-webhook.test.js",
+        "tests/unit/platform/raw-ingest-service.test.js",
+        "tests/unit/platform/raw-record-repository-read.test.js"
+      ]
+    },
+    {
+      "id": "FR-090",
+      "title": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. When the owning branch lands it must renumber: it currently claims FR-082/FR-083, which `main` already spent on the pipeline canvas, and its \"Development Overview Dashboard\" overlaps FR-086 — both are product decisions, not merge mechanics.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-090"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "Operator เปรียบเทียบ schema โดยไม่ให้เครื่องมือเสนอ DROP ตาราง credential ที่มีอยู่จริง",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-090",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "src/modules/project-manager/application/backup-service.js",
+        "tests/integration/backup.test.js",
+        "tests/integration/fr075-restore-authorization.test.js",
+        "tests/unit/fr045-backup-contract.test.js"
+      ]
+    },
+    {
+      "id": "FR-092",
+      "title": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-092"
+      ],
+      "primaryDomain": "market-intelligence",
+      "contributorDomains": [
+        "market-intelligence",
+        "project-manager"
+      ],
+      "useCase": "ระบบแปล raw marketplace record เป็น MarketObservation พร้อม source lineage และ unresolved identity ที่ซื่อสัตย์",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-092",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 5
+        }
+      ],
+      "evidence": [
+        "src/modules/market-intelligence/application/market-observation-service.js",
+        "src/modules/project-manager/application/backup-service.js",
+        "tests/integration/backup.test.js",
+        "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/market-intelligence-persistence.test.js",
+        "tests/unit/fr045-backup-contract.test.js",
+        "tests/unit/market-intelligence-schema-migration.test.js"
+      ]
+    },
+    {
+      "id": "FR-094",
+      "title": "Domain and Feature Readiness Dashboard: an authorized BusinessShell user can open one read-only Platform surface that projects the generated documentation graph into six contextual KPIs, one card per implementation domain, and a complete feature list with domain drilldown. Every projected feature has exactly one primary domain, a concrete use-case example, an evidence-derived progress percentage, a separate ready/not-ready verdict, requirement/code/test evidence and explicit blockers. Progress is calculated from documented declaration (20%), code evidence (40%) and test evidence (40%); readiness never follows the percentage alone. The surface reads the committed generated snapshot, performs no database or network writes, labels its generation time and methodology, and treats missing metadata as a governance failure rather than inventing a value.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-094"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้บริหารเปิด Product Readiness เพื่อดูเปอร์เซ็นต์ทุกโดเมน แล้ว drill down ถึง feature, use case, tests และ blocker",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-094",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 7
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/platform/product-readiness/[domain]/page.jsx",
+        "src/app/(pm)/platform/product-readiness/page.jsx",
+        "src/config/domains.js",
+        "src/modules/project-manager/application/product-readiness-read-model.js",
+        "src/modules/project-manager/components/ProductReadinessDashboard.jsx",
+        "tests/e2e/fr041-business-first.spec.js",
+        "tests/e2e/product-readiness.spec.js",
+        "tests/unit/domain-navigation.test.js",
+        "tests/unit/domain-state.test.js",
+        "tests/unit/fr045-api-ui-contract.test.js",
+        "tests/unit/product-readiness-read-model.test.js",
+        "tests/unit/product-readiness-ui.test.js"
+      ]
+    }
+  ]
 }
