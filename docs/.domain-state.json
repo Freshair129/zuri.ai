@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-20T03:02:23.206Z",
+  "generatedAt": "2026-08-26T08:39:19.767Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,8 +28,78 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 17,
+    "gapCount": 37,
     "gaps": [
+      {
+        "domain": "agent",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "agent",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-051",
+        "severity": "high",
+        "check": "requirements",
+        "summary": "FR-051 is not_implemented",
+        "evidence": [
+          "tests/unit/phase1-runtime-login-probe.test.js",
+          "tests/unit/postgres-business-knowledge.test.js",
+          "tests/unit/supabase-production-isolation.test.js"
+        ]
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-093",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-093 is partial",
+        "evidence": [
+          "src/app/api/agent/line-delivery/route.js",
+          "src/app/api/agent/line-webhook/route.js",
+          "src/modules/agent/turn.js",
+          "tests/integration/agent-turn.test.js",
+          "tests/integration/agent-webhook-route.test.js",
+          "tests/integration/line-oa-evidence-convergence.test.js",
+          "tests/integration/line-reply-record.test.js",
+          "tests/integration/line-webhook-transport-contract.test.js",
+          "tests/unit/reply-record-service.test.js"
+        ]
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-097",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-097 is partial",
+        "evidence": [
+          "src/app/api/agent/line-webhook/route.js",
+          "src/modules/agent/auth-context.js",
+          "src/modules/agent/line-binding-resolver.js",
+          "src/modules/agent/line-channel-binding.js",
+          "src/modules/agent/turn.js",
+          "tests/integration/agent-multi-principal.test.js",
+          "tests/integration/agent-turn.test.js",
+          "tests/integration/agent-webhook-route.test.js",
+          "tests/integration/channel-identity.test.js",
+          "tests/integration/identity-link.test.js",
+          "tests/integration/identity-resolve.test.js",
+          "tests/integration/line-ingest.test.js",
+          "tests/integration/line-oa-evidence-convergence.test.js",
+          "tests/unit/canonical-iam-migration.test.js",
+          "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+          "tests/unit/line-binding-resolver.test.js",
+          "tests/unit/line-channel-binding.test.js"
+        ]
+      },
       {
         "domain": "crm",
         "id": "CONTRACT-001",
@@ -56,11 +126,71 @@
           "tests/e2e/fr060-business-home.spec.js",
           "tests/e2e/fr091-conversation-inbox.spec.js",
           "tests/integration/crm-conversation-inbox.test.js",
+          "tests/integration/crm-customer-consent.test.js",
+          "tests/integration/line-reply-record.test.js",
           "tests/unit/command-palette-index.test.js",
           "tests/unit/conversation-read-model.test.js",
           "tests/unit/domain-navigation.test.js",
           "tests/unit/fr045-api-ui-contract.test.js",
           "tests/unit/fr091-inbox-ui-contract.test.js"
+        ]
+      },
+      {
+        "domain": "crm",
+        "id": "REQ-FR-093",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-093 is partial",
+        "evidence": [
+          "src/modules/crm/reply-record-service.js",
+          "tests/integration/agent-turn.test.js",
+          "tests/integration/agent-webhook-route.test.js",
+          "tests/integration/line-oa-evidence-convergence.test.js",
+          "tests/integration/line-reply-record.test.js",
+          "tests/integration/line-webhook-transport-contract.test.js",
+          "tests/unit/reply-record-service.test.js"
+        ]
+      },
+      {
+        "domain": "crm",
+        "id": "REQ-FR-097",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-097 is partial",
+        "evidence": [
+          "src/modules/crm/line-ingest-service.js",
+          "tests/integration/agent-multi-principal.test.js",
+          "tests/integration/agent-turn.test.js",
+          "tests/integration/agent-webhook-route.test.js",
+          "tests/integration/channel-identity.test.js",
+          "tests/integration/identity-link.test.js",
+          "tests/integration/identity-resolve.test.js",
+          "tests/integration/line-ingest.test.js",
+          "tests/integration/line-oa-evidence-convergence.test.js",
+          "tests/unit/canonical-iam-migration.test.js",
+          "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+          "tests/unit/line-binding-resolver.test.js",
+          "tests/unit/line-channel-binding.test.js"
+        ]
+      },
+      {
+        "domain": "crm",
+        "id": "REQ-FR-103",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-103 is partial",
+        "evidence": [
+          "src/modules/crm/conversation-read-model.js",
+          "src/modules/crm/customer-consent-service.js",
+          "tests/e2e/fr091-conversation-inbox.spec.js",
+          "tests/integration/crm-conversation-inbox.test.js",
+          "tests/integration/crm-customer-consent.test.js",
+          "tests/unit/conversation-read-model.test.js",
+          "tests/unit/crm-customer-consent-route.test.js",
+          "tests/unit/customer-consent-migration.test.js",
+          "tests/unit/customer-consent-service.test.js",
+          "tests/unit/fr091-inbox-ui-contract.test.js",
+          "tests/unit/sot-decision-service.test.js"
         ]
       },
       {
@@ -94,6 +224,137 @@
         "evidence": []
       },
       {
+        "domain": "identity",
+        "id": "REQ-FR-097",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-097 is partial",
+        "evidence": [
+          "src/modules/identity/channel-identity.js",
+          "src/modules/identity/link-line-identity.js",
+          "src/modules/identity/resolve-line-identity.js",
+          "tests/integration/agent-multi-principal.test.js",
+          "tests/integration/agent-turn.test.js",
+          "tests/integration/agent-webhook-route.test.js",
+          "tests/integration/channel-identity.test.js",
+          "tests/integration/identity-link.test.js",
+          "tests/integration/identity-resolve.test.js",
+          "tests/integration/line-ingest.test.js",
+          "tests/integration/line-oa-evidence-convergence.test.js",
+          "tests/unit/canonical-iam-migration.test.js",
+          "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+          "tests/unit/line-binding-resolver.test.js",
+          "tests/unit/line-channel-binding.test.js"
+        ]
+      },
+      {
+        "domain": "identity",
+        "id": "REQ-FR-102",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-102 is partial",
+        "evidence": [
+          "src/modules/identity/sot-data-plane-auth.js",
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/integration/sot-decisions-route.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/mint-sot-data-plane-key-cli.test.js",
+          "tests/unit/sot-data-plane-auth.test.js",
+          "tests/unit/sot-data-plane-key-migration.test.js",
+          "tests/unit/sot-decision-service.test.js",
+          "tests/unit/viewer-authority.test.js"
+        ]
+      },
+      {
+        "domain": "integration",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "integration",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-099",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-099 is partial",
+        "evidence": [
+          "src/app/(pm)/platform/sot-pipeline/page.jsx",
+          "src/app/api/platform/sot/plan/route.js",
+          "src/modules/integration/application/sot-pipeline-graph.js",
+          "src/modules/integration/application/sot-plan-service.js",
+          "src/modules/integration/application/sot-plan.js",
+          "tests/unit/sot-pipeline-graph.test.js",
+          "tests/unit/sot-plan-board-ui.test.js",
+          "tests/unit/sot-plan-service.test.js",
+          "tests/unit/sot-plan-status.test.js"
+        ]
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-100",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-100 is partial",
+        "evidence": [
+          "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+          "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+          "src/app/api/platform/sot/decisions/export/route.js",
+          "src/app/api/platform/sot/decisions/route.js",
+          "src/modules/integration/application/sot-decision-service.js",
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/integration/sot-decisions-route.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/sot-data-plane-auth.test.js",
+          "tests/unit/sot-decision-migration.test.js",
+          "tests/unit/sot-decision-service.test.js",
+          "tests/unit/sot-inbox-ui.test.js"
+        ]
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-101",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-101 is partial",
+        "evidence": [
+          "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+          "src/app/api/platform/sot/plan/route.js",
+          "src/modules/integration/application/sot-pipeline-graph.js",
+          "src/modules/integration/application/sot-plan-service.js",
+          "tests/unit/sot-pipeline-graph.test.js",
+          "tests/unit/sot-plan-service.test.js"
+        ]
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-102",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-102 is partial",
+        "evidence": [
+          "src/modules/integration/application/sot-decision-service.js",
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/integration/sot-decisions-route.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/mint-sot-data-plane-key-cli.test.js",
+          "tests/unit/sot-data-plane-auth.test.js",
+          "tests/unit/sot-data-plane-key-migration.test.js",
+          "tests/unit/sot-decision-service.test.js",
+          "tests/unit/viewer-authority.test.js"
+        ]
+      },
+      {
         "domain": "knowledge",
         "id": "CONTRACT-001",
         "severity": "medium",
@@ -110,10 +371,24 @@
       {
         "domain": "knowledge",
         "id": "REQ-FR-071",
-        "severity": "medium",
+        "severity": "high",
         "check": "requirements",
-        "summary": "FR-071 is planned",
-        "evidence": []
+        "summary": "FR-071 is not_implemented",
+        "evidence": [
+          "tests/e2e/smoke.spec.js",
+          "tests/integration/openapi-docs.test.js",
+          "tests/unit/document-intake-ui.test.js",
+          "tests/unit/pipeline-mcp-transport.test.js",
+          "tests/unit/pipeline-monitor-ui.test.js",
+          "tests/unit/pipeline-tracking-route.test.js",
+          "tests/unit/platform/cloud-sot-agent.test.js",
+          "tests/unit/platform/document-intake-contract.test.js",
+          "tests/unit/platform/pipeline-tracking-contract.test.js",
+          "tests/unit/platform/pipeline-tracking-migration.test.js",
+          "tests/unit/platform/pipeline-tracking-service.test.js",
+          "tests/unit/project-manager-mcp.test.js",
+          "tests/unit/smartgift-document-intake-migration.test.js"
+        ]
       },
       {
         "domain": "project-manager",
@@ -121,6 +396,13 @@
         "severity": "medium",
         "check": "runtimeContract",
         "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "project-manager",
+        "id": "AUTH-001",
+        "severity": "high",
+        "check": "authorization",
+        "summary": "At least one mutating route lacks a recognizable request viewer seam"
       },
       {
         "domain": "project-manager",
@@ -222,11 +504,70 @@
           "tests/e2e/fr060-business-home.spec.js",
           "tests/e2e/fr091-conversation-inbox.spec.js",
           "tests/integration/crm-conversation-inbox.test.js",
+          "tests/integration/crm-customer-consent.test.js",
+          "tests/integration/line-reply-record.test.js",
           "tests/unit/command-palette-index.test.js",
           "tests/unit/conversation-read-model.test.js",
           "tests/unit/domain-navigation.test.js",
           "tests/unit/fr045-api-ui-contract.test.js",
           "tests/unit/fr091-inbox-ui-contract.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-100",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-100 is partial",
+        "evidence": [
+          "src/modules/project-manager/application/backup-service.js",
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/integration/sot-decisions-route.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/sot-data-plane-auth.test.js",
+          "tests/unit/sot-decision-migration.test.js",
+          "tests/unit/sot-decision-service.test.js",
+          "tests/unit/sot-inbox-ui.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-102",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-102 is partial",
+        "evidence": [
+          "src/modules/project-manager/application/backup-service.js",
+          "tests/integration/backup.test.js",
+          "tests/integration/fr075-restore-authorization.test.js",
+          "tests/integration/sot-decisions-route.test.js",
+          "tests/unit/fr045-backup-contract.test.js",
+          "tests/unit/mint-sot-data-plane-key-cli.test.js",
+          "tests/unit/sot-data-plane-auth.test.js",
+          "tests/unit/sot-data-plane-key-migration.test.js",
+          "tests/unit/sot-decision-service.test.js",
+          "tests/unit/viewer-authority.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-103",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-103 is partial",
+        "evidence": [
+          "src/app/(pm)/customer/conversations/page.jsx",
+          "src/app/api/crm/customers/[customerId]/consent/route.js",
+          "tests/e2e/fr091-conversation-inbox.spec.js",
+          "tests/integration/crm-conversation-inbox.test.js",
+          "tests/integration/crm-customer-consent.test.js",
+          "tests/unit/conversation-read-model.test.js",
+          "tests/unit/crm-customer-consent-route.test.js",
+          "tests/unit/customer-consent-migration.test.js",
+          "tests/unit/customer-consent-service.test.js",
+          "tests/unit/fr091-inbox-ui-contract.test.js",
+          "tests/unit/sot-decision-service.test.js"
         ]
       }
     ]
@@ -261,7 +602,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-029",
@@ -282,7 +623,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 6
         },
         {
           "id": "FR-049",
@@ -296,21 +637,26 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-051",
           "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 5
+          "status": "not_implemented",
+          "codeCount": 0,
+          "testCount": 3,
+          "evidence": [
+            "tests/unit/phase1-runtime-login-probe.test.js",
+            "tests/unit/postgres-business-knowledge.test.js",
+            "tests/unit/supabase-production-isolation.test.js"
+          ]
         },
         {
           "id": "FR-052",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 11
+          "codeCount": 4,
+          "testCount": 14
         },
         {
           "id": "FR-053",
@@ -351,8 +697,8 @@
           "id": "FR-080",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 8
+          "codeCount": 2,
+          "testCount": 9
         },
         {
           "id": "FR-081",
@@ -360,6 +706,64 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 12
+        },
+        {
+          "id": "FR-093",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 6,
+          "evidence": [
+            "src/app/api/agent/line-delivery/route.js",
+            "src/app/api/agent/line-webhook/route.js",
+            "src/modules/agent/turn.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/integration/line-reply-record.test.js",
+            "tests/integration/line-webhook-transport-contract.test.js",
+            "tests/unit/reply-record-service.test.js"
+          ]
+        },
+        {
+          "id": "FR-096",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 10
+        },
+        {
+          "id": "FR-097",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 12,
+          "evidence": [
+            "src/app/api/agent/line-webhook/route.js",
+            "src/modules/agent/auth-context.js",
+            "src/modules/agent/line-binding-resolver.js",
+            "src/modules/agent/line-channel-binding.js",
+            "src/modules/agent/turn.js",
+            "tests/integration/agent-multi-principal.test.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/channel-identity.test.js",
+            "tests/integration/identity-link.test.js",
+            "tests/integration/identity-resolve.test.js",
+            "tests/integration/line-ingest.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/unit/canonical-iam-migration.test.js",
+            "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+            "tests/unit/line-binding-resolver.test.js",
+            "tests/unit/line-channel-binding.test.js"
+          ]
+        },
+        {
+          "id": "FR-098",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 8
         }
       ],
       "checks": {
@@ -376,9 +780,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
-            "openApiPaths": 75,
+            "routes": 3,
+            "inventoried": 3,
+            "openApiPaths": 89,
             "missingFromOpenApi": 0
           }
         },
@@ -387,17 +791,24 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -410,24 +821,30 @@
           "gaps": []
         },
         "authorization": {
-          "status": "unknown",
+          "status": "verified",
           "evidence": [
             "docs/appendices/A-api-spec.md"
           ],
           "gaps": [],
           "details": {
-            "mutations": 0,
-            "guardedMutations": 0,
-            "reads": 0,
+            "mutations": 2,
+            "guardedMutations": 2,
+            "reads": 1,
             "unguardedReads": 0
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -444,12 +861,79 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-051",
+          "severity": "high",
+          "check": "requirements",
+          "summary": "FR-051 is not_implemented",
+          "evidence": [
+            "tests/unit/phase1-runtime-login-probe.test.js",
+            "tests/unit/postgres-business-knowledge.test.js",
+            "tests/unit/supabase-production-isolation.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-093",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-093 is partial",
+          "evidence": [
+            "src/app/api/agent/line-delivery/route.js",
+            "src/app/api/agent/line-webhook/route.js",
+            "src/modules/agent/turn.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/integration/line-reply-record.test.js",
+            "tests/integration/line-webhook-transport-contract.test.js",
+            "tests/unit/reply-record-service.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-097",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-097 is partial",
+          "evidence": [
+            "src/app/api/agent/line-webhook/route.js",
+            "src/modules/agent/auth-context.js",
+            "src/modules/agent/line-binding-resolver.js",
+            "src/modules/agent/line-channel-binding.js",
+            "src/modules/agent/turn.js",
+            "tests/integration/agent-multi-principal.test.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/channel-identity.test.js",
+            "tests/integration/identity-link.test.js",
+            "tests/integration/identity-resolve.test.js",
+            "tests/integration/line-ingest.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/unit/canonical-iam-migration.test.js",
+            "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+            "tests/unit/line-binding-resolver.test.js",
+            "tests/unit/line-channel-binding.test.js"
+          ]
+        }
+      ],
       "details": {
-        "routes": 1,
-        "apiRoutes": 1,
+        "routes": 3,
+        "apiRoutes": 3,
         "pageRoutes": 0,
         "ownedModels": 0,
         "featureNotes": 6
@@ -463,32 +947,92 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-078",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-091",
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 9,
+          "testCount": 11,
           "evidence": [
             "src/modules/crm/conversation-read-model.js",
             "tests/e2e/fr041-business-first.spec.js",
             "tests/e2e/fr060-business-home.spec.js",
             "tests/e2e/fr091-conversation-inbox.spec.js",
             "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
+            "tests/integration/line-reply-record.test.js",
             "tests/unit/command-palette-index.test.js",
             "tests/unit/conversation-read-model.test.js",
             "tests/unit/domain-navigation.test.js",
             "tests/unit/fr045-api-ui-contract.test.js",
             "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
+        },
+        {
+          "id": "FR-093",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 6,
+          "evidence": [
+            "src/modules/crm/reply-record-service.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/integration/line-reply-record.test.js",
+            "tests/integration/line-webhook-transport-contract.test.js",
+            "tests/unit/reply-record-service.test.js"
+          ]
+        },
+        {
+          "id": "FR-097",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 12,
+          "evidence": [
+            "src/modules/crm/line-ingest-service.js",
+            "tests/integration/agent-multi-principal.test.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/channel-identity.test.js",
+            "tests/integration/identity-link.test.js",
+            "tests/integration/identity-resolve.test.js",
+            "tests/integration/line-ingest.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/unit/canonical-iam-migration.test.js",
+            "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+            "tests/unit/line-binding-resolver.test.js",
+            "tests/unit/line-channel-binding.test.js"
+          ]
+        },
+        {
+          "id": "FR-103",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 9,
+          "evidence": [
+            "src/modules/crm/conversation-read-model.js",
+            "src/modules/crm/customer-consent-service.js",
+            "tests/e2e/fr091-conversation-inbox.spec.js",
+            "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
+            "tests/unit/conversation-read-model.test.js",
+            "tests/unit/crm-customer-consent-route.test.js",
+            "tests/unit/customer-consent-migration.test.js",
+            "tests/unit/customer-consent-service.test.js",
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/sot-decision-service.test.js"
           ]
         }
       ],
@@ -508,6 +1052,7 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
@@ -569,10 +1114,13 @@
         "docs/domains/crm/CHARTER.md",
         "docs/domains/crm/features/FR-078-customer-data-backfill-contract.md",
         "docs/domains/crm/features/FR-091-conversation-inbox.md",
+        "docs/domains/crm/features/FR-093-reply-delivery-receipt.md",
+        "docs/domains/crm/features/FR-103-pdpa-consent-attestation.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [
@@ -599,11 +1147,68 @@
             "tests/e2e/fr060-business-home.spec.js",
             "tests/e2e/fr091-conversation-inbox.spec.js",
             "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
+            "tests/integration/line-reply-record.test.js",
             "tests/unit/command-palette-index.test.js",
             "tests/unit/conversation-read-model.test.js",
             "tests/unit/domain-navigation.test.js",
             "tests/unit/fr045-api-ui-contract.test.js",
             "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-093",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-093 is partial",
+          "evidence": [
+            "src/modules/crm/reply-record-service.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/integration/line-reply-record.test.js",
+            "tests/integration/line-webhook-transport-contract.test.js",
+            "tests/unit/reply-record-service.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-097",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-097 is partial",
+          "evidence": [
+            "src/modules/crm/line-ingest-service.js",
+            "tests/integration/agent-multi-principal.test.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/channel-identity.test.js",
+            "tests/integration/identity-link.test.js",
+            "tests/integration/identity-resolve.test.js",
+            "tests/integration/line-ingest.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/unit/canonical-iam-migration.test.js",
+            "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+            "tests/unit/line-binding-resolver.test.js",
+            "tests/unit/line-channel-binding.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-103",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-103 is partial",
+          "evidence": [
+            "src/modules/crm/conversation-read-model.js",
+            "src/modules/crm/customer-consent-service.js",
+            "tests/e2e/fr091-conversation-inbox.spec.js",
+            "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
+            "tests/unit/conversation-read-model.test.js",
+            "tests/unit/crm-customer-consent-route.test.js",
+            "tests/unit/customer-consent-migration.test.js",
+            "tests/unit/customer-consent-service.test.js",
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/sot-decision-service.test.js"
           ]
         }
       ],
@@ -612,7 +1217,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 8,
-        "featureNotes": 2
+        "featureNotes": 4
       }
     },
     "identity": {
@@ -664,15 +1269,15 @@
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 43
+          "codeCount": 7,
+          "testCount": 47
         },
         {
           "id": "FR-059",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-061",
@@ -721,14 +1326,85 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-078",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 21
+        },
+        {
+          "id": "FR-094",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 4
+        },
+        {
+          "id": "FR-095",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 10
+        },
+        {
+          "id": "FR-096",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 10
+        },
+        {
+          "id": "FR-097",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 12,
+          "evidence": [
+            "src/modules/identity/channel-identity.js",
+            "src/modules/identity/link-line-identity.js",
+            "src/modules/identity/resolve-line-identity.js",
+            "tests/integration/agent-multi-principal.test.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/channel-identity.test.js",
+            "tests/integration/identity-link.test.js",
+            "tests/integration/identity-resolve.test.js",
+            "tests/integration/line-ingest.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/unit/canonical-iam-migration.test.js",
+            "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+            "tests/unit/line-binding-resolver.test.js",
+            "tests/unit/line-channel-binding.test.js"
+          ]
+        },
+        {
+          "id": "FR-098",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 8
+        },
+        {
+          "id": "FR-102",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 9,
+          "evidence": [
+            "src/modules/identity/sot-data-plane-auth.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/mint-sot-data-plane-key-cli.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-data-plane-key-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/viewer-authority.test.js"
+          ]
         }
       ],
       "checks": {
@@ -754,7 +1430,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 75,
+            "openApiPaths": 89,
             "missingFromOpenApi": 0
           }
         },
@@ -763,6 +1439,7 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
@@ -793,8 +1470,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 6,
-            "present": 6
+            "models": 9,
+            "present": 9
           }
         },
         "authorization": {
@@ -838,11 +1515,14 @@
         "docs/domains/identity/features/FR-066-profile-first-workspace-onboarding.md",
         "docs/domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md",
         "docs/domains/identity/features/FR-076-product-owner-business-assignment.md",
+        "docs/domains/identity/features/FR-094-production-iam-boundary.md",
+        "docs/domains/identity/features/FR-102-sot-data-plane-service-account.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [
@@ -871,39 +1551,87 @@
           "check": "requirements",
           "summary": "FR-067 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-097",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-097 is partial",
+          "evidence": [
+            "src/modules/identity/channel-identity.js",
+            "src/modules/identity/link-line-identity.js",
+            "src/modules/identity/resolve-line-identity.js",
+            "tests/integration/agent-multi-principal.test.js",
+            "tests/integration/agent-turn.test.js",
+            "tests/integration/agent-webhook-route.test.js",
+            "tests/integration/channel-identity.test.js",
+            "tests/integration/identity-link.test.js",
+            "tests/integration/identity-resolve.test.js",
+            "tests/integration/line-ingest.test.js",
+            "tests/integration/line-oa-evidence-convergence.test.js",
+            "tests/unit/canonical-iam-migration.test.js",
+            "tests/unit/canonical-iam-runtime-role-cutover.test.js",
+            "tests/unit/line-binding-resolver.test.js",
+            "tests/unit/line-channel-binding.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-102",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-102 is partial",
+          "evidence": [
+            "src/modules/identity/sot-data-plane-auth.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/mint-sot-data-plane-key-cli.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-data-plane-key-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/viewer-authority.test.js"
+          ]
         }
       ],
       "details": {
         "routes": 3,
         "apiRoutes": 1,
         "pageRoutes": 2,
-        "ownedModels": 6,
-        "featureNotes": 9
+        "ownedModels": 9,
+        "featureNotes": 11
       }
     },
     "integration": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-028",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-048",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 7
+          "codeCount": 1,
+          "testCount": 6
         },
         {
           "id": "FR-052",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 14
+        },
+        {
+          "id": "FR-071",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 13
         },
         {
           "id": "FR-079",
@@ -916,8 +1644,8 @@
           "id": "FR-080",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 8
+          "codeCount": 7,
+          "testCount": 9
         },
         {
           "id": "FR-081",
@@ -925,6 +1653,80 @@
           "status": "verified",
           "codeCount": 7,
           "testCount": 12
+        },
+        {
+          "id": "FR-099",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 4,
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/page.jsx",
+            "src/app/api/platform/sot/plan/route.js",
+            "src/modules/integration/application/sot-pipeline-graph.js",
+            "src/modules/integration/application/sot-plan-service.js",
+            "src/modules/integration/application/sot-plan.js",
+            "tests/unit/sot-pipeline-graph.test.js",
+            "tests/unit/sot-plan-board-ui.test.js",
+            "tests/unit/sot-plan-service.test.js",
+            "tests/unit/sot-plan-status.test.js"
+          ]
+        },
+        {
+          "id": "FR-100",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 8,
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+            "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+            "src/app/api/platform/sot/decisions/export/route.js",
+            "src/app/api/platform/sot/decisions/route.js",
+            "src/modules/integration/application/sot-decision-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-decision-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/sot-inbox-ui.test.js"
+          ]
+        },
+        {
+          "id": "FR-101",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 4,
+          "testCount": 2,
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+            "src/app/api/platform/sot/plan/route.js",
+            "src/modules/integration/application/sot-pipeline-graph.js",
+            "src/modules/integration/application/sot-plan-service.js",
+            "tests/unit/sot-pipeline-graph.test.js",
+            "tests/unit/sot-plan-service.test.js"
+          ]
+        },
+        {
+          "id": "FR-102",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 9,
+          "evidence": [
+            "src/modules/integration/application/sot-decision-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/mint-sot-data-plane-key-cli.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-data-plane-key-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/viewer-authority.test.js"
+          ]
         }
       ],
       "checks": {
@@ -935,8 +1737,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
+            "routes": 4,
+            "inventoried": 4,
             "missing": 0
           }
         },
@@ -948,9 +1750,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
-            "openApiPaths": 75,
+            "routes": 6,
+            "inventoried": 6,
+            "openApiPaths": 89,
             "missingFromOpenApi": 0
           }
         },
@@ -959,17 +1761,24 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -983,8 +1792,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 8,
-            "present": 8
+            "models": 9,
+            "present": 9
           }
         },
         "authorization": {
@@ -994,18 +1803,24 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 1,
-            "guardedMutations": 1,
-            "reads": 1,
+            "mutations": 4,
+            "guardedMutations": 4,
+            "reads": 5,
             "unguardedReads": 0
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -1016,20 +1831,107 @@
         "docs/domains/integration/features/FR-079-phase1-line-runtime-connection-cutover.md",
         "docs/domains/integration/features/FR-080-integration-secret-management-ui.md",
         "docs/domains/integration/features/FR-081-raw-external-ingestion.md",
+        "docs/domains/integration/features/FR-099-sot-pipeline-plan-board.md",
+        "docs/domains/integration/features/FR-100-sot-approval-inbox.md",
+        "docs/domains/integration/features/FR-101-sot-pipeline-graph-dashboard.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-099",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-099 is partial",
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/page.jsx",
+            "src/app/api/platform/sot/plan/route.js",
+            "src/modules/integration/application/sot-pipeline-graph.js",
+            "src/modules/integration/application/sot-plan-service.js",
+            "src/modules/integration/application/sot-plan.js",
+            "tests/unit/sot-pipeline-graph.test.js",
+            "tests/unit/sot-plan-board-ui.test.js",
+            "tests/unit/sot-plan-service.test.js",
+            "tests/unit/sot-plan-status.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-100",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-100 is partial",
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
+            "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
+            "src/app/api/platform/sot/decisions/export/route.js",
+            "src/app/api/platform/sot/decisions/route.js",
+            "src/modules/integration/application/sot-decision-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-decision-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/sot-inbox-ui.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-101",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-101 is partial",
+          "evidence": [
+            "src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
+            "src/app/api/platform/sot/plan/route.js",
+            "src/modules/integration/application/sot-pipeline-graph.js",
+            "src/modules/integration/application/sot-plan-service.js",
+            "tests/unit/sot-pipeline-graph.test.js",
+            "tests/unit/sot-plan-service.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-102",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-102 is partial",
+          "evidence": [
+            "src/modules/integration/application/sot-decision-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/mint-sot-data-plane-key-cli.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-data-plane-key-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/viewer-authority.test.js"
+          ]
+        }
+      ],
       "details": {
-        "routes": 2,
-        "apiRoutes": 1,
-        "pageRoutes": 1,
-        "ownedModels": 8,
-        "featureNotes": 3
+        "routes": 10,
+        "apiRoutes": 6,
+        "pageRoutes": 4,
+        "ownedModels": 9,
+        "featureNotes": 6
       }
     },
     "knowledge": {
@@ -1039,8 +1941,8 @@
           "id": "FR-024",
           "declared": "done",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 6
+          "codeCount": 10,
+          "testCount": 8
         },
         {
           "id": "FR-047",
@@ -1054,14 +1956,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 3
         },
         {
           "id": "FR-052",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 14
         },
         {
           "id": "FR-054",
@@ -1072,10 +1974,25 @@
         },
         {
           "id": "FR-071",
-          "declared": "planned",
-          "status": "planned",
+          "declared": "n/a",
+          "status": "not_implemented",
           "codeCount": 0,
-          "testCount": 0
+          "testCount": 13,
+          "evidence": [
+            "tests/e2e/smoke.spec.js",
+            "tests/integration/openapi-docs.test.js",
+            "tests/unit/document-intake-ui.test.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
+            "tests/unit/pipeline-monitor-ui.test.js",
+            "tests/unit/pipeline-tracking-route.test.js",
+            "tests/unit/platform/cloud-sot-agent.test.js",
+            "tests/unit/platform/document-intake-contract.test.js",
+            "tests/unit/platform/pipeline-tracking-contract.test.js",
+            "tests/unit/platform/pipeline-tracking-migration.test.js",
+            "tests/unit/platform/pipeline-tracking-service.test.js",
+            "tests/unit/project-manager-mcp.test.js",
+            "tests/unit/smartgift-document-intake-migration.test.js"
+          ]
         }
       ],
       "checks": {
@@ -1094,6 +2011,7 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
@@ -1149,6 +2067,7 @@
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [
@@ -1166,10 +2085,24 @@
         },
         {
           "id": "REQ-FR-071",
-          "severity": "medium",
+          "severity": "high",
           "check": "requirements",
-          "summary": "FR-071 is planned",
-          "evidence": []
+          "summary": "FR-071 is not_implemented",
+          "evidence": [
+            "tests/e2e/smoke.spec.js",
+            "tests/integration/openapi-docs.test.js",
+            "tests/unit/document-intake-ui.test.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
+            "tests/unit/pipeline-monitor-ui.test.js",
+            "tests/unit/pipeline-tracking-route.test.js",
+            "tests/unit/platform/cloud-sot-agent.test.js",
+            "tests/unit/platform/document-intake-contract.test.js",
+            "tests/unit/platform/pipeline-tracking-contract.test.js",
+            "tests/unit/platform/pipeline-tracking-migration.test.js",
+            "tests/unit/platform/pipeline-tracking-service.test.js",
+            "tests/unit/project-manager-mcp.test.js",
+            "tests/unit/smartgift-document-intake-migration.test.js"
+          ]
         }
       ],
       "details": {
@@ -1207,6 +2140,7 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
@@ -1256,6 +2190,7 @@
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [],
@@ -1302,22 +2237,22 @@
           "id": "FR-005",
           "declared": "done",
           "status": "verified",
-          "codeCount": 11,
-          "testCount": 11
+          "codeCount": 13,
+          "testCount": 12
         },
         {
           "id": "FR-006",
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-007",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-008",
@@ -1330,8 +2265,8 @@
           "id": "FR-009",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 5
+          "codeCount": 6,
+          "testCount": 7
         },
         {
           "id": "FR-010",
@@ -1351,7 +2286,7 @@
           "id": "FR-012",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
+          "codeCount": 8,
           "testCount": 14
         },
         {
@@ -1379,14 +2314,14 @@
           "id": "FR-017",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
+          "codeCount": 6,
           "testCount": 5
         },
         {
           "id": "FR-018",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
+          "codeCount": 6,
           "testCount": 6
         },
         {
@@ -1471,7 +2406,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-041",
@@ -1512,8 +2447,8 @@
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
-          "codeCount": 56,
-          "testCount": 43
+          "codeCount": 58,
+          "testCount": 47
         },
         {
           "id": "FR-056",
@@ -1533,8 +2468,8 @@
           "id": "FR-059",
           "declared": "done",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 11
+          "codeCount": 10,
+          "testCount": 13
         },
         {
           "id": "FR-060",
@@ -1569,7 +2504,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-065",
@@ -1582,15 +2517,15 @@
           "id": "FR-068",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 5
+          "codeCount": 5,
+          "testCount": 8
         },
         {
           "id": "FR-069",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-070",
@@ -1598,6 +2533,13 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 9
+        },
+        {
+          "id": "FR-071",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 8,
+          "testCount": 13
         },
         {
           "id": "FR-072",
@@ -1639,7 +2581,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-081",
@@ -1743,7 +2685,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 9,
+          "testCount": 11,
           "evidence": [
             "src/app/(pm)/customer/conversations/page.jsx",
             "src/app/(pm)/customer/page.jsx",
@@ -1754,6 +2696,8 @@
             "tests/e2e/fr060-business-home.spec.js",
             "tests/e2e/fr091-conversation-inbox.spec.js",
             "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
+            "tests/integration/line-reply-record.test.js",
             "tests/unit/command-palette-index.test.js",
             "tests/unit/conversation-read-model.test.js",
             "tests/unit/domain-navigation.test.js",
@@ -1767,6 +2711,70 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 5
+        },
+        {
+          "id": "FR-095",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 10
+        },
+        {
+          "id": "FR-100",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 8,
+          "evidence": [
+            "src/modules/project-manager/application/backup-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-decision-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/sot-inbox-ui.test.js"
+          ]
+        },
+        {
+          "id": "FR-102",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 9,
+          "evidence": [
+            "src/modules/project-manager/application/backup-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/mint-sot-data-plane-key-cli.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-data-plane-key-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/viewer-authority.test.js"
+          ]
+        },
+        {
+          "id": "FR-103",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 9,
+          "evidence": [
+            "src/app/(pm)/customer/conversations/page.jsx",
+            "src/app/api/crm/customers/[customerId]/consent/route.js",
+            "tests/e2e/fr091-conversation-inbox.spec.js",
+            "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
+            "tests/unit/conversation-read-model.test.js",
+            "tests/unit/crm-customer-consent-route.test.js",
+            "tests/unit/customer-consent-migration.test.js",
+            "tests/unit/customer-consent-service.test.js",
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/sot-decision-service.test.js"
+          ]
         }
       ],
       "checks": {
@@ -1790,9 +2798,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 72,
-            "inventoried": 72,
-            "openApiPaths": 75,
+            "routes": 79,
+            "inventoried": 79,
+            "openApiPaths": 89,
             "missingFromOpenApi": 0
           }
         },
@@ -1801,6 +2809,7 @@
           "evidence": [
             "src/app/api/mcp/route.js",
             "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
             "tests/unit/project-manager-mcp.test.js"
           ],
           "gaps": []
@@ -1838,15 +2847,21 @@
           }
         },
         "authorization": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/appendices/A-api-spec.md"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "AUTH-001",
+              "severity": "high",
+              "summary": "At least one mutating route lacks a recognizable request viewer seam"
+            }
+          ],
           "details": {
-            "mutations": 58,
-            "guardedMutations": 58,
-            "reads": 39,
+            "mutations": 64,
+            "guardedMutations": 62,
+            "reads": 42,
             "unguardedReads": 0
           }
         },
@@ -1903,6 +2918,7 @@
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
       "gaps": [
@@ -1911,6 +2927,12 @@
           "severity": "medium",
           "check": "runtimeContract",
           "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "AUTH-001",
+          "severity": "high",
+          "check": "authorization",
+          "summary": "At least one mutating route lacks a recognizable request viewer seam"
         },
         {
           "id": "TEST-001",
@@ -2006,17 +3028,73 @@
             "tests/e2e/fr060-business-home.spec.js",
             "tests/e2e/fr091-conversation-inbox.spec.js",
             "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
+            "tests/integration/line-reply-record.test.js",
             "tests/unit/command-palette-index.test.js",
             "tests/unit/conversation-read-model.test.js",
             "tests/unit/domain-navigation.test.js",
             "tests/unit/fr045-api-ui-contract.test.js",
             "tests/unit/fr091-inbox-ui-contract.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-100",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-100 is partial",
+          "evidence": [
+            "src/modules/project-manager/application/backup-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-decision-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/sot-inbox-ui.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-102",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-102 is partial",
+          "evidence": [
+            "src/modules/project-manager/application/backup-service.js",
+            "tests/integration/backup.test.js",
+            "tests/integration/fr075-restore-authorization.test.js",
+            "tests/integration/sot-decisions-route.test.js",
+            "tests/unit/fr045-backup-contract.test.js",
+            "tests/unit/mint-sot-data-plane-key-cli.test.js",
+            "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-data-plane-key-migration.test.js",
+            "tests/unit/sot-decision-service.test.js",
+            "tests/unit/viewer-authority.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-103",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-103 is partial",
+          "evidence": [
+            "src/app/(pm)/customer/conversations/page.jsx",
+            "src/app/api/crm/customers/[customerId]/consent/route.js",
+            "tests/e2e/fr091-conversation-inbox.spec.js",
+            "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
+            "tests/unit/conversation-read-model.test.js",
+            "tests/unit/crm-customer-consent-route.test.js",
+            "tests/unit/customer-consent-migration.test.js",
+            "tests/unit/customer-consent-service.test.js",
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/sot-decision-service.test.js"
+          ]
         }
       ],
       "details": {
-        "routes": 109,
-        "apiRoutes": 72,
+        "routes": 116,
+        "apiRoutes": 79,
         "pageRoutes": 37,
         "ownedModels": 30,
         "featureNotes": 28

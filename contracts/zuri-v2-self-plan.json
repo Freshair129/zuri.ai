@@ -1198,11 +1198,13 @@
               "tests/integration/import-target-authorization.test.js",
               "tests/integration/plan-import.test.js",
               "tests/integration/project-business-binding.test.js",
+              "tests/unit/contract-plan-artifacts.test.js",
               "tests/unit/domain-state.test.js",
               "tests/unit/human-plan-builder.test.js",
               "tests/unit/plan-schema.test.js",
               "tests/unit/plan-status-vocabulary.test.js",
-              "tests/unit/project-manager-mcp.test.js"
+              "tests/unit/project-manager-mcp.test.js",
+              "tests/unit/self-plan-generator.test.js"
             ],
             "source": "doc-graph"
           }
@@ -1450,7 +1452,8 @@
               "tests/unit/authorization-seam-routes.test.js",
               "tests/unit/project-list-contract.test.js",
               "tests/unit/projects-dashboard-ui.test.js",
-              "tests/unit/route-reachability.test.js"
+              "tests/unit/route-reachability.test.js",
+              "tests/unit/self-plan-generator.test.js"
             ],
             "source": "doc-graph"
           }
@@ -1777,11 +1780,13 @@
               "tests/integration/plan-import.test.js",
               "tests/integration/project-business-binding.test.js",
               "tests/integration/xlsx-intake.test.js",
+              "tests/unit/contract-plan-artifacts.test.js",
               "tests/unit/plan-schema.test.js",
               "tests/unit/plan-status-vocabulary.test.js",
               "tests/unit/project-execution-backpath.test.js",
               "tests/unit/project-work-route.test.js",
-              "tests/unit/route-reachability.test.js"
+              "tests/unit/route-reachability.test.js",
+              "tests/unit/self-plan-generator.test.js"
             ],
             "source": "doc-graph"
           }
