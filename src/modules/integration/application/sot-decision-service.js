@@ -183,14 +183,21 @@ export async function decideSotDecision(decisionId, input, { viewer, db = prisma
     entityId: row.id,
     action: `SOT_DECISION_${parsed.decision}`,
     payload: { decisionType: row.decisionType, subjectRef: row.subjectRef, decisionVersion: row.decisionVersion, reason: parsed.reason ?? null },
-    actorId: viewer?.personId ?? null,
+    // @spec resolveViewer (src/modules/identity/resolve-viewer.js) returns
+    //   `{ principal: { id, ... }, ... }`, never a top-level personId — that field
+    //   belongs to a different shape entirely (auth-service.js's `actor: { personId }`).
+    //   Reading `viewer.personId` here was always undefined through the real route,
+    //   so this attestation trail was silently blank in production; found while
+    //   building FR-103's customer-consent-service.js, which needed the same field
+    //   and got it right the first time.
+    actorId: viewer?.principal?.id ?? null,
   })
   const updated = await db.sotDecision.update({
     where: { id: row.id },
     data: {
       status: parsed.decision,
       reason: parsed.reason ?? null,
-      decidedByPersonId: viewer?.personId ?? null,
+      decidedByPersonId: viewer?.principal?.id ?? null,
       decidedAt: new Date(),
       auditEventId: audit.id,
     },
