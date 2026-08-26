@@ -65,29 +65,9 @@
   },
   "drift": {
     "changed": [
-      "doc:INTERFACE-INVENTORY",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROUTES-SITEMAP",
-      "test:tests/unit/domain-state.test.js"
+      "doc:ROADMAP"
     ],
-    "added": [
-      "spec:ADR-048-PLATFORM-CONTROL-SHELL",
-      "domain:platform-control",
-      "doc:FR-105-platform-programme-roadmap",
-      "route:page:/control/roadmap",
-      "req:FR-105",
-      "req:SDD-055",
-      "req:SEC-020",
-      "test:tests/unit/platform-control-guard.test.js",
-      "test:tests/unit/platform-control-route-contract.test.js",
-      "code:src/app/(control)/control/roadmap/page.jsx",
-      "code:src/app/(control)/layout.jsx",
-      "code:src/components/layouts/PlatformControlGuard.jsx",
-      "code:src/components/layouts/PlatformControlShell.jsx",
-      "code:src/lib/platform-control-guard.js",
-      "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
-      "code:src/modules/platform-control/program-roadmap-data.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -7278,7 +7258,7 @@
       "version": "1.2.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "e7efda4b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:LINE-PHASE1-CANARY",
@@ -7504,7 +7484,7 @@
       "version": "1.88.0b",
       "doc_status": "Draft",
       "hash": "5c4ee242",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -7538,9 +7518,9 @@
       "id": "doc:ROADMAP",
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
-      "title": "ROADMAP: Zuri v2 Lab — Project Manager",
-      "hash": "b2c54d79",
-      "status": "current"
+      "title": "ROADMAP: zuri-ai — Live Delivery State",
+      "hash": "a6168c9d",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -7566,7 +7546,7 @@
       "version": "1.0.0",
       "doc_status": "draft",
       "hash": "8860fdc7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:SITEMAP-DOMAIN-NAV",
@@ -12019,7 +11999,7 @@
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
-      "hash": "4bf9ded0",
+      "hash": "26a45879",
       "status": "current"
     },
     {
@@ -12888,7 +12868,7 @@
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
       "hash": "cd09510a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/e2e-reconnecting-request.test.js",
