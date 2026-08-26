@@ -42,6 +42,17 @@ describe('FR-046 API and UI boundary', () => {
     expect(loginRoute).toContain('httpOnly: true')
   })
 
+  it('never reports a non-401 login failure as a credential failure', () => {
+    const page = read('src/app/login/page.jsx')
+    const copy = read('src/modules/identity/login-error-copy.js')
+    expect(page).toContain("from '@/modules/identity/login-error-copy'")
+    expect(page).toContain('loginErrorMessage(response.status, result)')
+    // The blanket message is the defect: it made a 503 AUTH_UNAVAILABLE read as
+    // a wrong password. The copy may only be reached through the status branch.
+    expect(page).not.toContain("setError('The username or password is incorrect.')")
+    expect(copy).toContain("if (status === 401) return LOGIN_ERROR_CREDENTIALS")
+  })
+
   it('has no API route that calls the pure viewer resolver without request identity', () => {
     const offenders = filesUnder(resolve(process.cwd(), 'src/app/api'))
       .filter((path) => path.endsWith('route.js'))

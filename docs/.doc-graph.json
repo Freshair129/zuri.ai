@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1270,
-    "total_edges": 4325,
+    "total_nodes": 1271,
+    "total_edges": 4332,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -17,7 +17,7 @@
       "model": 66,
       "requirement": 220,
       "test": 302,
-      "code_file": 338
+      "code_file": 339
     },
     "coverage": {
       "requirements": 220,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (102/102)",
       "rules_anchored_in_code": "96% (89/93)",
       "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 338,
+      "annotated_code_files": 339,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -48,36 +48,9 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "domain:identity",
-      "doc:FR-019-enterprise-api",
-      "doc:PRD-SDD-v1.0",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/app/api/docs/route.js",
-      "code:src/app/api/import/commit/route.js",
-      "code:src/app/api/import/dry-run/route.js",
-      "code:src/app/api/resolve/route.js",
-      "code:src/modules/identity/viewer-authority.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js",
-      "code:src/modules/project-manager/import/import-authorization.js",
-      "code:src/modules/project-manager/import/plan-import-service.js"
+      "code:src/modules/identity/login-error-copy.js"
     ],
-    "added": [
-      "doc:FR-106-enterprise-api-access-key",
-      "route:api:/api/platform/api-access-keys",
-      "route:api:/api/platform/api-access-keys/[id]",
-      "model:ApiAccessKey",
-      "test:tests/integration/enterprise-api-auth.test.js",
-      "test:tests/unit/api-access-auth.test.js",
-      "test:tests/unit/api-access-key-migration.test.js",
-      "test:tests/unit/api-access-key-routes.test.js",
-      "test:tests/unit/mint-api-access-key-cli.test.js",
-      "code:src/app/api/platform/api-access-keys/route.js",
-      "code:src/app/api/platform/api-access-keys/[id]/route.js",
-      "code:src/modules/identity/api-access-auth.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -1556,7 +1529,7 @@
       "type": "code_file",
       "path": "src/app/api/docs/route.js",
       "hash": "d22e3662",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -1837,7 +1810,7 @@
       "type": "code_file",
       "path": "src/app/api/import/commit/route.js",
       "hash": "0528ef71",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
@@ -1858,7 +1831,7 @@
       "type": "code_file",
       "path": "src/app/api/import/dry-run/route.js",
       "hash": "d5f6eaf2",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
@@ -2821,7 +2794,7 @@
       "type": "code_file",
       "path": "src/app/api/resolve/route.js",
       "hash": "7609b920",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -3153,7 +3126,7 @@
       "id": "code:src/app/login/page.jsx",
       "type": "code_file",
       "path": "src/app/login/page.jsx",
-      "hash": "76a59d43",
+      "hash": "9d060c8a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3168,6 +3141,7 @@
         "@tested": [
           "tests/unit/entry-surfaces.test.js",
           "tests/unit/fr046-api-ui-contract.test.js",
+          "tests/unit/fr046-auth-route.test.js",
           "tests/e2e/fr046-entry-contract.spec.js"
         ]
       }
@@ -4617,6 +4591,25 @@
       }
     },
     {
+      "id": "code:src/modules/identity/login-error-copy.js",
+      "type": "code_file",
+      "path": "src/modules/identity/login-error-copy.js",
+      "hash": "76031772",
+      "status": "changed",
+      "annotations": {
+        "@req": [
+          "FR-046"
+        ],
+        "@spec": [
+          "SDD-024",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/fr046-auth-route.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/onboarding-service.js",
       "type": "code_file",
       "path": "src/modules/identity/onboarding-service.js",
@@ -4862,7 +4855,7 @@
       "type": "code_file",
       "path": "src/modules/identity/viewer-authority.js",
       "hash": "0d425973",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-059",
@@ -5402,7 +5395,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "2c8df1e9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -5460,7 +5453,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "e291fd7e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -6271,7 +6264,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/import/import-authorization.js",
       "hash": "ddbe7fb6",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-065",
@@ -6295,7 +6288,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
       "hash": "60efd1e4",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
@@ -6930,7 +6923,7 @@
       "version": "1.24.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "0c6f9474",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -6976,7 +6969,7 @@
       "version": "1.11.0",
       "doc_status": "Draft",
       "hash": "5260478c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -7086,7 +7079,7 @@
       "version": "1.1.0",
       "doc_status": "Implemented (FR-019)",
       "hash": "f54d902f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-020-adaptive-shell",
@@ -7871,7 +7864,7 @@
       "version": "1.92.0b",
       "doc_status": "Draft",
       "hash": "4eaf743f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8126,7 +8119,7 @@
         "identity"
       ],
       "hash": "87871bb7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:integration",
@@ -12928,7 +12921,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "7bb4559e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -13550,14 +13543,14 @@
       "id": "test:tests/unit/fr046-api-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr046-api-ui-contract.test.js",
-      "hash": "465d5fcb",
+      "hash": "0b58916d",
       "status": "current"
     },
     {
       "id": "test:tests/unit/fr046-auth-route.test.js",
       "type": "test",
       "path": "tests/unit/fr046-auth-route.test.js",
-      "hash": "68c472c9",
+      "hash": "3ec449bf",
       "status": "current"
     },
     {
@@ -21153,6 +21146,27 @@
     {
       "from": "code:src/modules/identity/link-line-identity.js",
       "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/login-error-copy.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/login-error-copy.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/login-error-copy.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -38792,10 +38806,31 @@
     },
     {
       "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "code:src/app/login/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
       "to": "code:src/modules/identity/auth-service.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "code:src/modules/identity/login-error-copy.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr046-auth-route.test.js",
@@ -38814,6 +38849,13 @@
     {
       "from": "test:tests/unit/fr046-auth-route.test.js",
       "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
