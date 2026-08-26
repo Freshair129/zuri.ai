@@ -68,6 +68,31 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
     await expect(thread).toContainText('เอา 10 ชุดครับ')
   })
 
+  /**
+   * The inbox states its own contract on screen: it does not update itself —
+   * "กด รีเฟรช เพื่อดูข้อความใหม่". Under full-suite CI load the page's one fetch
+   * can land while this test's just-ingested conversation is not yet readable
+   * (or fail transiently and render ErrorState, which has no rows at all), and
+   * nothing on the page ever re-asks. A real user follows the page's own
+   * instruction and presses refresh; so does this helper — bounded, and only
+   * after the row demonstrably is not there. (Flaked exactly this way on the
+   * 2026-08-26 main-push run and twice on PR #112's run; passes in isolation.)
+   */
+  async function openConversationRow(page, displayName) {
+    const row = page.getByRole('listitem').filter({ hasText: displayName }).first()
+    await expect(async () => {
+      if (!(await row.isVisible())) {
+        const refresh = page.getByRole('button', { name: 'รีเฟรช' })
+        const retry = page.getByRole('button', { name: 'Retry' })
+        if (await refresh.isVisible()) await refresh.click()
+        else if (await retry.isVisible()) await retry.click()
+      }
+      await expect(row).toBeVisible({ timeout: 3000 })
+    }).toPass({ timeout: 45000 })
+    await row.getByRole('button').click()
+    return row
+  }
+
   test('the owner attests PDPA consent, and it persists across a reload (FR-103)', async ({ page }) => {
     await chooseBusiness(page)
     const sent = await ingest(page, {
@@ -78,8 +103,7 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
     })
 
     await page.goto('/customer/conversations')
-    const row = page.getByRole('listitem').filter({ hasText: sent.displayName }).first()
-    await row.getByRole('button').click()
+    await openConversationRow(page, sent.displayName)
 
     const thread = page.locator('.card').filter({ hasText: 'BR-011' })
     // A brand new Customer starts PENDING, so the attestation buttons are visible.
@@ -94,8 +118,7 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
     // Persisted, not just local state: a fresh load of the same conversation still
     // shows GRANTED.
     await page.reload()
-    const reopened = page.getByRole('listitem').filter({ hasText: sent.displayName }).first()
-    await reopened.getByRole('button').click()
+    await openConversationRow(page, sent.displayName)
     await expect(page.locator('.card').filter({ hasText: 'BR-011' }).getByText('GRANTED', { exact: true })).toBeVisible()
   })
 
