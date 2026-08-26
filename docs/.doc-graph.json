@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1188,
-    "total_edges": 3979,
+    "total_nodes": 1210,
+    "total_edges": 4087,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 91,
+      "document": 93,
       "adr": 47,
       "domain": 7,
       "roadmap": 28,
       "feature": 11,
-      "route": 132,
+      "route": 135,
       "model": 63,
-      "requirement": 212,
-      "test": 282,
-      "code_file": 311
+      "requirement": 216,
+      "test": 291,
+      "code_file": 315
     },
     "coverage": {
-      "requirements": 212,
+      "requirements": 216,
       "fr_with_code": "100% (86/86)",
       "fr_with_tests": "100% (86/86)",
-      "rules_anchored_in_code": "91% (81/89)",
+      "rules_anchored_in_code": "93% (85/91)",
       "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 311,
+      "annotated_code_files": 315,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -42,7 +42,9 @@
         "FR-099",
         "FR-100",
         "FR-101",
-        "FR-102"
+        "FR-102",
+        "FR-103",
+        "FR-104"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -52,9 +54,7 @@
         "SDD-038",
         "SDD-040",
         "SDD-041",
-        "SDD-046",
-        "SEC-005",
-        "SEC-014"
+        "SDD-046"
       ],
       "rules_superseded": [
         "SDD-001",
@@ -167,17 +167,22 @@
       "id": "code:src/app/(pm)/customer/conversations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/customer/conversations/page.jsx",
-      "hash": "25cac596",
+      "hash": "ad52879d",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-091"
+          "FR-091",
+          "FR-103",
+          "SEC-005",
+          "FR-059"
         ],
         "@spec": [
           "SDD-050",
+          "SDD-053",
           "BR-001",
           "BR-011",
-          "SDD-007"
+          "SDD-007",
+          "SEC-005"
         ],
         "@tested": [
           "tests/unit/fr091-inbox-ui-contract.test.js",
@@ -1051,6 +1056,26 @@
       }
     },
     {
+      "id": "code:src/app/api/auth/reset-password/route.js",
+      "type": "code_file",
+      "path": "src/app/api/auth/reset-password/route.js",
+      "hash": "d5e8afc4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-104"
+        ],
+        "@spec": [
+          "SDD-054",
+          "SEC-008",
+          "SEC-014"
+        ],
+        "@tested": [
+          "tests/unit/password-reset-routes.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/backup/export/route.js",
       "type": "code_file",
       "path": "src/app/api/backup/export/route.js",
@@ -1358,6 +1383,27 @@
         ],
         "@tested": [
           "tests/integration/crm-conversation-inbox.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "type": "code_file",
+      "path": "src/app/api/crm/customers/[customerId]/consent/route.js",
+      "hash": "81aa5663",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-103",
+          "SEC-005"
+        ],
+        "@spec": [
+          "SDD-053",
+          "BR-001",
+          "SEC-005"
+        ],
+        "@tested": [
+          "tests/unit/crm-customer-consent-route.test.js"
         ]
       }
     },
@@ -2111,6 +2157,26 @@
         ],
         "@tested": [
           "tests/unit/sot-plan-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/users/password-resets/route.js",
+      "type": "code_file",
+      "path": "src/app/api/platform/users/password-resets/route.js",
+      "hash": "227e72ca",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-104"
+        ],
+        "@spec": [
+          "SDD-054",
+          "SEC-008",
+          "SEC-014"
+        ],
+        "@tested": [
+          "tests/unit/password-reset-routes.test.js"
         ]
       }
     },
@@ -3033,7 +3099,7 @@
       "id": "code:src/components/ui/index.jsx",
       "type": "code_file",
       "path": "src/components/ui/index.jsx",
-      "hash": "bae37bd9",
+      "hash": "b338f26c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3322,7 +3388,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "2a9ecec3",
+      "hash": "7f08f6e8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3904,11 +3970,13 @@
       "id": "code:src/modules/crm/conversation-read-model.js",
       "type": "code_file",
       "path": "src/modules/crm/conversation-read-model.js",
-      "hash": "1336e6e2",
+      "hash": "0e8ee09c",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-091"
+          "FR-091",
+          "FR-103",
+          "SEC-005"
         ],
         "@spec": [
           "SDD-050",
@@ -3920,6 +3988,29 @@
         "@tested": [
           "tests/unit/conversation-read-model.test.js",
           "tests/integration/crm-conversation-inbox.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/crm/customer-consent-service.js",
+      "type": "code_file",
+      "path": "src/modules/crm/customer-consent-service.js",
+      "hash": "d5e2ea60",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-103",
+          "SEC-005"
+        ],
+        "@spec": [
+          "SDD-053",
+          "BR-001",
+          "SEC-005",
+          "SDD-048"
+        ],
+        "@tested": [
+          "tests/unit/customer-consent-service.test.js",
+          "tests/integration/crm-customer-consent.test.js"
         ]
       }
     },
@@ -4003,12 +4094,13 @@
       "id": "code:src/modules/identity/auth-service.js",
       "type": "code_file",
       "path": "src/modules/identity/auth-service.js",
-      "hash": "26b0e3ef",
+      "hash": "363e61f3",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
-          "FR-095"
+          "FR-095",
+          "FR-104"
         ],
         "@spec": [
           "SDD-024",
@@ -4019,7 +4111,9 @@
         "@tested": [
           "tests/unit/auth-service.test.js",
           "tests/unit/iam-session.test.js",
-          "tests/unit/fr046-auth-route.test.js"
+          "tests/unit/fr046-auth-route.test.js",
+          "tests/unit/password-reset-service.test.js",
+          "tests/integration/password-reset-flow.test.js"
         ]
       }
     },
@@ -4445,7 +4539,7 @@
       "id": "code:src/modules/integration/application/sot-decision-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/sot-decision-service.js",
-      "hash": "747ae596",
+      "hash": "a642c27e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4848,7 +4942,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "8ed69163",
+      "hash": "1f3447ff",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6368,9 +6462,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.20.0b",
+      "version": "1.22.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "e6ae7fe9",
+      "hash": "54a12dc6",
       "status": "current"
     },
     {
@@ -6460,9 +6554,9 @@
       "type": "document",
       "path": "docs/domains/agent/ethics-governance.md",
       "title": "AI Ethics & Data Governance (PDPA)",
-      "version": "1.0.0",
-      "doc_status": "Draft — blocking for `TASK-V2-LINE-INTENT`",
-      "hash": "6c23a732",
+      "version": "1.1.0",
+      "doc_status": "Draft — question #4 closed at MVP scope (FR-103); #1, #2, #3, #6 still block `TASK-V2-LINE-INTENT`",
+      "hash": "92b8d9a6",
       "status": "current"
     },
     {
@@ -7017,6 +7111,22 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-103-pdpa-consent-attestation",
+      "type": "document",
+      "path": "docs/domains/crm/features/FR-103-pdpa-consent-attestation.md",
+      "title": "FR-103 — SEC-005 PDPA consent attestation (MVP scope)",
+      "hash": "f0713edb",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-104-owner-assisted-password-reset",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-104-owner-assisted-password-reset.md",
+      "title": "FR-104 — Owner-assisted password reset",
+      "hash": "1450dfcc",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -7267,9 +7377,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.85.0b",
+      "version": "1.87.0b",
       "doc_status": "Draft",
-      "hash": "48aeae80",
+      "hash": "35a1c6a1",
       "status": "current"
     },
     {
@@ -7490,7 +7600,7 @@
       "modules": [
         "crm"
       ],
-      "hash": "2386d97f",
+      "hash": "e366b780",
       "status": "current"
     },
     {
@@ -9126,11 +9236,11 @@
       "id": "req:FR-090",
       "type": "requirement",
       "family": "FR",
-      "label": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. When the owning branch lands it must renumber: it currently claims FR-082/FR-083, which `main` already spent on the pipeline canvas, and its \"Development Overview Dashboard\" overlaps FR-086 — both are product decisions, not merge mechanics.",
+      "label": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. **Resolution (2026-08-26):** the branch was never merged and no longer needs to be — `main` grew its own superior implementations of everything it held (`PersonCredential` login/logout via FR-046/FR-095; password reset via FR-104, reimplemented rather than revived because the draft returned the raw reset token to the unauthenticated caller). Its FR-082/FR-083 claims stay burnt on the pipeline canvas. The branch is deleted; `Workstream.laneId` remains declared-only.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. When the owning branch lands it must renumber: it currently claims FR-082/FR-083, which `main` already spent on the pipeline canvas, and its \"Development Overview Dashboard\" overlaps FR-086 — both are product decisions, not merge mechanics. 🟠 schema declared to match the live database; the owning feature is unmerged "
+      "row_text": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. **Resolution (2026-08-26):** the branch was never merged and no longer needs to be — `main` grew its own superior implementations of everything it held (`PersonCredential` login/logout via FR-046/FR-095; password reset via FR-104, reimplemented rather than revived because the draft returned the raw reset token to the unauthenticated caller). Its FR-082/FR-083 claims stay burnt on the pipeline canvas. The branch is deleted; `Workstream.laneId` remains declared-only. 🟠 schema declared to match the live database; the once-owning branch is resolved — login by FR-046/095, reset by FR-104 "
     },
     {
       "id": "req:FR-091",
@@ -9251,6 +9361,26 @@
       "declared": "planned",
       "status": "planned",
       "row_text": "SoT data-plane service-account authentication: a `SotDataPlaneKey` bound to exactly one Tenant lets the SoT pipeline's external data plane authenticate to the FR-100 submit/export endpoints (`Authorization: Bearer sdpk_...`) without a browser session and without installation-operator authority. Revocation takes effect on the next request; the raw secret is never persisted, only its SHA-256 hash. 🔜 implemented locally; Supabase RLS/grant migration gate open "
+    },
+    {
+      "id": "req:FR-103",
+      "type": "requirement",
+      "family": "FR",
+      "label": "SEC-005 PDPA consent, MVP scope: a Business owner attests in the CRM console that a Customer's consent was captured (`GRANTED`/`DECLINED`), recorded with timestamp and attesting Person on the Customer row FR-023 already treats as the CRM-sharing unit. Every Customer created from here on defaults to `PENDING`; rows that predate this column backfill to `GRANDFATHERED` rather than being retroactively blocked. Closes ethics-governance.md's open question #4 only — it does not gate AI processing, redact model input, or answer retention/provider-terms (#1, #2, #3, #6), which stay open.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "SEC-005 PDPA consent, MVP scope: a Business owner attests in the CRM console that a Customer's consent was captured (`GRANTED`/`DECLINED`), recorded with timestamp and attesting Person on the Customer row FR-023 already treats as the CRM-sharing unit. Every Customer created from here on defaults to `PENDING`; rows that predate this column backfill to `GRANDFATHERED` rather than being retroactively blocked. Closes ethics-governance.md's open question #4 only — it does not gate AI processing, redact model input, or answer retention/provider-terms (#1, #2, #3, #6), which stay open. 🔜 implemented locally; Supabase migration apply pending (no CLI in this workspace, same gate as FR-100/102) "
+    },
+    {
+      "id": "req:FR-104",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Owner-assisted password reset: a Business owner over a Business the target Person belongs to — the same authority boundary as FR-038 Membership administration — or the installation operator mints a single-use, one-hour, hash-bound reset token (`POST /api/platform/users/password-resets`), and the public `POST /api/auth/reset-password` consumes it: new `PersonCredential`, token burnt, **every active Session revoked**. The raw token appears exactly once, in the authenticated mint response, for out-of-band handover (LINE, in person); it is stored only as a SHA-256 digest and never logged or audited in any form. There is deliberately no public forgot-password route: with no mail transport, such a route either returns the token to the unauthenticated caller — an account-takeover primitive, which is what the abandoned FR-082 draft on `codex/postgres-primary-runtime` shipped and the reason it was not revived as-is — or returns nothing and resets nothing. Uses the `PasswordResetToken` table FR-090 declared (its `token` column now carries the digest).",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Owner-assisted password reset: a Business owner over a Business the target Person belongs to — the same authority boundary as FR-038 Membership administration — or the installation operator mints a single-use, one-hour, hash-bound reset token (`POST /api/platform/users/password-resets`), and the public `POST /api/auth/reset-password` consumes it: new `PersonCredential`, token burnt, **every active Session revoked**. The raw token appears exactly once, in the authenticated mint response, for out-of-band handover (LINE, in person); it is stored only as a SHA-256 digest and never logged or audited in any form. There is deliberately no public forgot-password route: with no mail transport, such a route either returns the token to the unauthenticated caller — an account-takeover primitive, which is what the abandoned FR-082 draft on `codex/postgres-primary-runtime` shipped and the reason it was not revived as-is — or returns nothing and resets nothing. Uses the `PasswordResetToken` table FR-090 declared (its `token` column now carries the digest). 🔜 implemented locally with unit + real-db full-cycle integration tests "
     },
     {
       "id": "req:NFR-001",
@@ -9963,6 +10093,26 @@
       "row_text": "IAM is an identity-domain modular-monolith boundary: a persisted Session is the live browser authority, active Membership/RoleBinding rows form the scope input, and one `resolveAuthorizationContext`/`authorizeScope` policy seam is called before Web/API, agent and tool work. Provider and MSP adapters consume the resolved context but cannot replace or widen it. FR-094..098, NFR-019, BR-020, SEC-018, ADR-045 "
     },
     {
+      "id": "req:SDD-053",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "SEC-005 consent is a fourth field group on the FR-023 Customer row, not a new `CustomerBusinessProfile` table — the FR-023 docstring already names Customer the CRM-sharing unit (BR-001), so a second table keyed by (Customer, Business) would duplicate a scope this row already carries. Recording it is a third narrow writer beside the ingest seam and `recordLineReply` (`customer-consent-service`), owner-gated (`ownsBusiness`, never a Member grant) and resolved through the caller's own Business's tenant so a Customer id alone cannot widen the write. The read side extends `getConversationInbox`/`getConversationThread`'s existing `select`, adding no writer to that module.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "SEC-005 consent is a fourth field group on the FR-023 Customer row, not a new `CustomerBusinessProfile` table — the FR-023 docstring already names Customer the CRM-sharing unit (BR-001), so a second table keyed by (Customer, Business) would duplicate a scope this row already carries. Recording it is a third narrow writer beside the ingest seam and `recordLineReply` (`customer-consent-service`), owner-gated (`ownsBusiness`, never a Member grant) and resolved through the caller's own Business's tenant so a Customer id alone cannot widen the write. The read side extends `getConversationInbox`/`getConversationThread`'s existing `select`, adding no writer to that module. FR-103; BR-001, BR-011, SEC-005, SDD-048, SDD-050, SDD-051, FR-023, FR-091 "
+    },
+    {
+      "id": "req:SDD-054",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Password reset splits into an authenticated mint leg and a public consume leg because token delivery, not token math, is the hard problem: with no mail transport, \"who hands the secret to the user\" must be a person with standing authority, so mint reuses FR-038's boundary (owner of a Business the target belongs to, or the installation operator) and returns the raw token exactly once. Storage is digest-only in the existing `PasswordResetToken.token` column (no schema change — a digest is a string), lookup is by digest so the raw value never reaches a query or log, failure is one generic `INVALID_OR_EXPIRED_TOKEN` across unknown/used/expired, and consumption revokes every active FR-095 Session in the same breath — a stolen session must not survive the reset that exists to evict it.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Password reset splits into an authenticated mint leg and a public consume leg because token delivery, not token math, is the hard problem: with no mail transport, \"who hands the secret to the user\" must be a person with standing authority, so mint reuses FR-038's boundary (owner of a Business the target belongs to, or the installation operator) and returns the raw token exactly once. Storage is digest-only in the existing `PasswordResetToken.token` column (no schema change — a digest is a string), lookup is by digest so the raw value never reaches a query or log, failure is one generic `INVALID_OR_EXPIRED_TOKEN` across unknown/used/expired, and consumption revokes every active FR-095 Session in the same breath — a stolen session must not survive the reset that exists to evict it. FR-104; FR-038, FR-046, FR-095, SEC-008, SEC-014, SDD-052 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -10006,11 +10156,11 @@
       "id": "req:SEC-005",
       "type": "requirement",
       "family": "SEC",
-      "label": "PDPA: consent ต่อธุรกิจใน `CustomerBusinessProfile` เมื่อทำ CRM sharing",
+      "label": "PDPA: consent ต่อธุรกิจ เมื่อทำ CRM sharing",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
       "status": "planned",
-      "row_text": "PDPA: consent ต่อธุรกิจใน `CustomerBusinessProfile` เมื่อทำ CRM sharing 🔜 **เลื่อนขึ้นเป็น P0 ของ PHASE-V2-REPLACE** — ไม่ใช่ \"เฟส CRM ทีหลัง\" อีกแล้ว เพราะ LINE-first แปลว่าข้อมูลลูกค้าเข้าระบบตั้งแต่วันแรก "
+      "row_text": "PDPA: consent ต่อธุรกิจ เมื่อทำ CRM sharing 🔜 **MVP scope เริ่มแล้ว (FR-103)** — attestation + audit trail บน `Customer` โดยตรง (ไม่ใช่ `CustomerBusinessProfile` แยกตาราง ดู SDD-053) ยังไม่ครอบคลุมคำถามที่เหลือใน ethics-governance.md (#1 redact, #2 provider terms, #3 retention, #6 erasure) และยังไม่ gate การส่งข้อความเข้า AI "
     },
     {
       "id": "req:SEC-006",
@@ -10201,6 +10351,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/auth/reset-password",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/reset-password",
+      "path": "src/app/api/auth/reset-password/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/backup/export",
       "type": "route",
       "kind": "api",
@@ -10310,6 +10468,14 @@
       "kind": "api",
       "route": "/api/crm/conversations/[id]",
       "path": "src/app/api/crm/conversations/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/crm/customers/[customerId]/consent",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/crm/customers/[customerId]/consent",
+      "path": "src/app/api/crm/customers/[customerId]/consent/route.js",
       "status": "current"
     },
     {
@@ -10614,6 +10780,14 @@
       "kind": "api",
       "route": "/api/platform/users",
       "path": "src/app/api/platform/users/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/users/password-resets",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/users/password-resets",
+      "path": "src/app/api/platform/users/password-resets/route.js",
       "status": "current"
     },
     {
@@ -11655,7 +11829,7 @@
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
-      "hash": "30e599e6",
+      "hash": "4bf9ded0",
       "status": "current"
     },
     {
@@ -11754,6 +11928,13 @@
       "type": "test",
       "path": "tests/integration/crm-conversation-inbox.test.js",
       "hash": "553c125b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/crm-customer-consent.test.js",
+      "type": "test",
+      "path": "tests/integration/crm-customer-consent.test.js",
+      "hash": "2e264fb0",
       "status": "current"
     },
     {
@@ -12047,7 +12228,14 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "4412d004",
+      "hash": "e1746e73",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/password-reset-flow.test.js",
+      "type": "test",
+      "path": "tests/integration/password-reset-flow.test.js",
+      "hash": "029d26b4",
       "status": "current"
     },
     {
@@ -12317,6 +12505,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/contract-plan-artifacts.test.js",
+      "type": "test",
+      "path": "tests/unit/contract-plan-artifacts.test.js",
+      "hash": "1ac634b1",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/controlled-line-activation-migration.test.js",
       "type": "test",
       "path": "tests/unit/controlled-line-activation-migration.test.js",
@@ -12328,6 +12523,27 @@
       "type": "test",
       "path": "tests/unit/conversation-read-model.test.js",
       "hash": "721a55a7",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/crm-customer-consent-route.test.js",
+      "type": "test",
+      "path": "tests/unit/crm-customer-consent-route.test.js",
+      "hash": "2fe8652d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-consent-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-consent-migration.test.js",
+      "hash": "e80d2ec5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-consent-service.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-consent-service.test.js",
+      "hash": "87aec2b8",
       "status": "current"
     },
     {
@@ -12390,7 +12606,7 @@
       "id": "test:tests/unit/customer-profile-contract-receipt.test.js",
       "type": "test",
       "path": "tests/unit/customer-profile-contract-receipt.test.js",
-      "hash": "bc2d6d1c",
+      "hash": "4de9ffeb",
       "status": "current"
     },
     {
@@ -12495,7 +12711,7 @@
       "id": "test:tests/unit/e2e-reconnecting-request.test.js",
       "type": "test",
       "path": "tests/unit/e2e-reconnecting-request.test.js",
-      "hash": "3159667a",
+      "hash": "798ce722",
       "status": "current"
     },
     {
@@ -12789,7 +13005,7 @@
       "id": "test:tests/unit/fr091-inbox-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr091-inbox-ui-contract.test.js",
-      "hash": "0c8dcc4f",
+      "hash": "2982c144",
       "status": "current"
     },
     {
@@ -13038,6 +13254,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/password-reset-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/password-reset-routes.test.js",
+      "hash": "1a7aff96",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/password-reset-service.test.js",
+      "type": "test",
+      "path": "tests/unit/password-reset-service.test.js",
+      "hash": "dda9e258",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/people-directory.test.js",
       "type": "test",
       "path": "tests/unit/people-directory.test.js",
@@ -13111,7 +13341,7 @@
       "id": "test:tests/unit/platform-approver-profile-migration.test.js",
       "type": "test",
       "path": "tests/unit/platform-approver-profile-migration.test.js",
-      "hash": "cd704916",
+      "hash": "34f79a9f",
       "status": "current"
     },
     {
@@ -13402,6 +13632,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/self-plan-generator.test.js",
+      "type": "test",
+      "path": "tests/unit/self-plan-generator.test.js",
+      "hash": "64fa8fdc",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/shell-mode.test.js",
       "type": "test",
       "path": "tests/unit/shell-mode.test.js",
@@ -13419,7 +13656,7 @@
       "id": "test:tests/unit/smartgift-document-intake-migration.test.js",
       "type": "test",
       "path": "tests/unit/smartgift-document-intake-migration.test.js",
-      "hash": "16ba35c2",
+      "hash": "6e2cb541",
       "status": "current"
     },
     {
@@ -13454,7 +13691,7 @@
       "id": "test:tests/unit/sot-decision-service.test.js",
       "type": "test",
       "path": "tests/unit/sot-decision-service.test.js",
-      "hash": "6a57c52d",
+      "hash": "256d3005",
       "status": "current"
     },
     {
@@ -13720,7 +13957,21 @@
     },
     {
       "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
       "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:FR-103",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -13735,6 +13986,27 @@
     {
       "from": "code:src/app/(pm)/customer/conversations/page.jsx",
       "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:SDD-053",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:SEC-005",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -14769,6 +15041,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/auth/reset-password/route.js",
+      "to": "req:FR-104",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/reset-password/route.js",
+      "to": "req:SDD-054",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/reset-password/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/reset-password/route.js",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/backup/export/route.js",
       "to": "req:BR-008",
       "type": "follows",
@@ -15331,6 +15631,41 @@
     {
       "from": "code:src/app/api/crm/conversations/route.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "to": "req:FR-103",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "to": "req:SDD-053",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "to": "req:SEC-005",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -16409,6 +16744,34 @@
     {
       "from": "code:src/app/api/platform/sot/plan/route.js",
       "to": "req:FR-101",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/password-resets/route.js",
+      "to": "req:FR-104",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/password-resets/route.js",
+      "to": "req:SDD-054",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/password-resets/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/password-resets/route.js",
+      "to": "req:SEC-014",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19124,6 +19487,13 @@
     },
     {
       "from": "code:src/modules/crm/conversation-read-model.js",
+      "to": "req:FR-103",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-read-model.js",
       "to": "req:SDD-050",
       "type": "follows",
       "status": "current",
@@ -19138,7 +19508,56 @@
     },
     {
       "from": "code:src/modules/crm/conversation-read-model.js",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-read-model.js",
       "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:FR-103",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:SDD-048",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:SDD-053",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:SEC-005",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19251,6 +19670,13 @@
     {
       "from": "code:src/modules/identity/auth-service.js",
       "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/auth-service.js",
+      "to": "req:FR-104",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -24149,6 +24575,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-103",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-104",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -24646,6 +25086,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-053",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-054",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -24835,6 +25289,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/auth/reset-password",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/backup/export",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -24927,6 +25388,13 @@
     },
     {
       "from": "route:api:/api/crm/conversations",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/crm/customers/[customerId]/consent",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -25187,6 +25655,13 @@
     {
       "from": "route:api:/api/platform/sot/plan",
       "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/users/password-resets",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -27755,7 +28230,21 @@
     },
     {
       "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:FR-103",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -27770,6 +28259,20 @@
     {
       "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "to": "req:SDD-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:SDD-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:SEC-005",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -29148,6 +29651,13 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
       "to": "req:SDD-007",
       "type": "verifies",
       "status": "current",
@@ -29169,10 +29679,73 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
       "to": "req:SEC-009",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "code:src/modules/crm/customer-consent-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:FR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:SDD-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/external-ref-import.test.js",
@@ -31702,6 +32275,76 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/password-reset-flow.test.js",
+      "to": "code:src/modules/identity/auth-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/password-reset-flow.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/password-reset-flow.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/password-reset-flow.test.js",
+      "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/password-reset-flow.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/password-reset-flow.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/password-reset-flow.test.js",
+      "to": "req:SDD-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/password-reset-flow.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/password-reset-flow.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/password-reset-flow.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/plan-import-scope.test.js",
       "to": "req:FR-012",
       "type": "verifies",
@@ -33159,6 +33802,13 @@
     },
     {
       "from": "test:tests/unit/auth-service.test.js",
+      "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/auth-service.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -34152,6 +34802,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/contract-plan-artifacts.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/contract-plan-artifacts.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/contract-plan-artifacts.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/contract-plan-artifacts.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/controlled-line-activation-migration.test.js",
       "to": "req:FR-055",
       "type": "verifies",
@@ -34209,6 +34887,13 @@
     },
     {
       "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
       "to": "req:SDD-050",
       "type": "verifies",
       "status": "current",
@@ -34223,10 +34908,122 @@
     },
     {
       "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
       "to": "req:SEC-009",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-customer-consent-route.test.js",
+      "to": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/crm-customer-consent-route.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-customer-consent-route.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/crm-customer-consent-route.test.js",
+      "to": "req:SDD-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/crm-customer-consent-route.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-migration.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-migration.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-migration.test.js",
+      "to": "req:SDD-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-migration.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "code:src/modules/crm/customer-consent-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "req:SDD-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/customer-data-contract.test.js",
@@ -35896,6 +36693,13 @@
     },
     {
       "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -37177,7 +37981,21 @@
     },
     {
       "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
       "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:FR-103",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -37198,7 +38016,21 @@
     },
     {
       "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:SDD-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
       "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:SEC-005",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -37514,6 +38346,13 @@
     {
       "from": "test:tests/unit/iam-session.test.js",
       "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "req:FR-104",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -38186,6 +39025,118 @@
     {
       "from": "test:tests/unit/overview-split.test.js",
       "to": "req:SDD-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/password-reset-routes.test.js",
+      "to": "code:src/app/api/auth/reset-password/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/password-reset-routes.test.js",
+      "to": "code:src/app/api/platform/users/password-resets/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/password-reset-routes.test.js",
+      "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-routes.test.js",
+      "to": "req:SDD-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-routes.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-routes.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/password-reset-service.test.js",
+      "to": "code:src/modules/identity/auth-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/password-reset-service.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/password-reset-service.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/password-reset-service.test.js",
+      "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-service.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/password-reset-service.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/password-reset-service.test.js",
+      "to": "req:SDD-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-service.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-service.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-service.test.js",
+      "to": "req:SEC-018",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -40732,6 +41683,41 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/shell-mode.test.js",
       "to": "code:src/lib/shell-mode.js",
       "type": "tests",
@@ -40937,6 +41923,13 @@
     {
       "from": "test:tests/unit/sot-decision-service.test.js",
       "to": "req:FR-102",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-decision-service.test.js",
+      "to": "req:FR-103",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

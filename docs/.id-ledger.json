@@ -208,6 +208,8 @@
     "FR-100",
     "FR-101",
     "FR-102",
+    "FR-103",
+    "FR-104",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -279,6 +281,8 @@
     "SDD-050",
     "SDD-051",
     "SDD-052",
+    "SDD-053",
+    "SDD-054",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -1890,7 +1894,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "011bf1574f92f69b2db9cd53dc71f30cd41f789b80f445c7efd836712823b21a"
+      "statement_digest": "73ecb99e5905e424b4a018a3e847cfab18a8b6fc74f47fb5788a52744bdeac73",
+      "statement_digest_reviewed_at": "2026-08-26",
+      "statement_digest_reason": "FR-090's statement gains its 2026-08-26 resolution paragraph: the once-owning branch is deleted, login answered by FR-046/095 and reset by FR-104 — same subject (the schema declaration), no anchor move"
     },
     "FR-091": {
       "family": "FR",
@@ -2044,6 +2050,32 @@
         {
           "anchor": "sot data plane service account authentication",
           "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-103": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0b8187405536c7686cc2e99e6073bf41a695e295851c0c1b7743ba3b065ffa1c",
+      "history": [
+        {
+          "anchor": "sec 005 pdpa consent mvp scope",
+          "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-104": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "76f6aec5eba5118647e6decdf88aa4586436b7b81c3961e5526fb9fcbdec8bed",
+      "history": [
+        {
+          "anchor": "owner assisted password reset",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -2979,6 +3011,32 @@
         }
       ]
     },
+    "SDD-053": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "cd0d7f9323f180fdcfbe64d5c57056f61e892fb321e8ee9cf6391caa6f8e6a46",
+      "history": [
+        {
+          "anchor": "sec 005 consent is a fourth field group on the fr 023",
+          "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-054": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6020433c0f922e3783490eb9b83da5882b6fe82deedee2c49dd106daaabc3128",
+      "history": [
+        {
+          "anchor": "password reset splits into an authenticated mint leg and a",
+          "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3044,7 +3102,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "66f7ed5a26e8b72c468e8e62056c0321fc268da8550cec1065af855161fc9f22"
+      "statement_digest": "d187355af55646bbbaadee77871224fbc5b191d90850a31262b5de57de838869",
+      "statement_digest_reviewed_at": "2026-08-26",
+      "statement_digest_reason": "SEC-005 reworded to record the FR-103 MVP scope decision (Customer, not CustomerBusinessProfile; owner attestation, not automated LINE opt-in) — same subject, no anchor move"
     },
     "SEC-006": {
       "family": "SEC",

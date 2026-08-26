@@ -23,6 +23,8 @@ describe('FR-078 platform approver profile migration', () => {
     expect(migration).toMatch(/PLATFORM_APPROVER_PROFILE_CREATED/i)
     expect(migration).toMatch(/organizationMembershipCreated', false/i)
     expect(migration).toMatch(/rawPiiStored', false/i)
-    expect(migration).toMatch(/insert into supabase_migrations\.schema_migrations/i)
+    // History bookkeeping belongs to the CLI, never to the migration itself —
+    // see the repo-wide guard in smartgift-document-intake-migration.test.js.
+    expect(migration).not.toMatch(/insert into supabase_migrations\.schema_migrations/i)
   })
 })

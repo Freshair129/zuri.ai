@@ -113,6 +113,12 @@ const customerDto = (customer) => ({
   code: customer.code,
   displayName: customer.displayName,
   lifecycleStage: customer.lifecycleStage,
+  // @req FR-103 — SEC-005 consent, read alongside the Customer this reader
+  //   already composes. This module stays read-only (no writer added): the
+  //   attestation write lives in customer-consent-service.js, a sibling module.
+  consentStatus: customer.consentStatus,
+  consentRecordedAt: customer.consentRecordedAt ? customer.consentRecordedAt.toISOString() : null,
+  consentNote: customer.consentNote,
 })
 
 /**
@@ -134,7 +140,17 @@ export async function getConversationInbox({ viewer, businessId, limit = INBOX_R
       externalThreadId: true,
       createdAt: true,
       updatedAt: true,
-      customer: { select: { id: true, code: true, displayName: true, lifecycleStage: true } },
+      customer: {
+        select: {
+          id: true,
+          code: true,
+          displayName: true,
+          lifecycleStage: true,
+          consentStatus: true,
+          consentRecordedAt: true,
+          consentNote: true,
+        },
+      },
     },
   })
 
@@ -236,7 +252,17 @@ export async function getConversationThread({ viewer, businessId, conversationId
       externalThreadId: true,
       createdAt: true,
       updatedAt: true,
-      customer: { select: { id: true, code: true, displayName: true, lifecycleStage: true } },
+      customer: {
+        select: {
+          id: true,
+          code: true,
+          displayName: true,
+          lifecycleStage: true,
+          consentStatus: true,
+          consentRecordedAt: true,
+          consentNote: true,
+        },
+      },
       messages: {
         orderBy: { createdAt: 'asc' },
         select: { id: true, direction: true, body: true, externalMessageId: true, createdAt: true },
