@@ -738,3 +738,11 @@
 - **Code:** `src/app/api/agent/line-delivery/route.js` · `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/turn.js` · `src/modules/crm/reply-record-service.js`
 - **Follows:** BR-011, BR-012, FR-052, NFR-017, SDD-026, SDD-048, SDD-051, SEC-001, SEC-010
 - **Tests:** `tests/integration/agent-turn.test.js` · `tests/integration/agent-webhook-route.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/integration/line-reply-record.test.js` · `tests/integration/line-webhook-transport-contract.test.js` · `tests/unit/reply-record-service.test.js`
+
+### FR-094 — Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses use a server-owned authorization-code flow under `/api/plugin/auth`, with trusted browser-session authorization, exact client/redirect allowlists, PKCE S256, hashed single-use codes, short-lived opaque bearer sessions, server-derived capabilities and idempotent revoke. The plugin never submits a human password, copies the browser `zuri_session`, uses `Mcp-Session-Id` as authorization, connects to the database or self-asserts Tenant/Business/Membership/role scope (ADR-045).
+
+- **Status:** n/a
+- **Surface:** `/api/plugin/auth/authorize` (api) · `/api/plugin/auth/capabilities` (api) · `/api/plugin/auth/revoke` (api) · `/api/plugin/auth/token` (api)
+- **Code:** `src/app/api/plugin/auth/authorize/route.js` · `src/app/api/plugin/auth/capabilities/route.js` · `src/app/api/plugin/auth/revoke/route.js` · `src/app/api/plugin/auth/token/route.js` · `src/modules/identity/plugin-auth-service.js` · `src/modules/project-manager/application/backup-service.js`
+- **Follows:** BR-008, SDD-023, SDD-052, SEC-008, SEC-018
+- **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/fr094-plugin-auth-route.test.js` · `tests/unit/fr094-plugin-auth-service.test.js`

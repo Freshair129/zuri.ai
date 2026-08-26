@@ -1,4 +1,6 @@
 // @req FR-013 - snapshot export/import with preview and confirmation.
+// @req FR-094 - plugin auth material is installation security state, not
+// business data; restore revokes it instead of exporting or restoring it.
 // @req FR-078 - customer import batches, review cases, decisions and provenance
 // must survive snapshot restore.
 // @req FR-045 - portable FileAsset metadata, optional content and explicit remount gaps.
@@ -90,6 +92,12 @@ const SNAPSHOT_MODELS = [
  * RCA: .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
  */
 export const SNAPSHOT_EXCLUDED_MODELS = {
+  pluginInstallation:
+    'First-party plugin installation bindings are security state, not business data. A database restore clears them so a recovered installation requires explicit plugin re-registration.',
+  pluginAuthorizationCode:
+    'One-time authorization codes are short-lived credential material. They are never exported or restored, so recovery cannot reopen a code exchange window.',
+  pluginSession:
+    'Opaque bearer sessions are credentials. They are never exported or restored, so a recovery boundary cannot carry an old plugin session forward.',
   localWorkspaceMount:
     'Device-local mount paths. Deleted explicitly before the sweep and never restored: a mount names a ' +
     'filesystem on one machine, so carrying it into another installation would point at a path that does ' +
@@ -188,6 +196,9 @@ export async function importSnapshot(snapshot, {
   }
 
   await db.$transaction(async (tx) => {
+    // @req FR-094 — excluded plugin auth records are revoked at the recovery
+    // boundary rather than left active beside the restored business snapshot.
+    await tx.pluginInstallation.deleteMany()
     await tx.localWorkspaceMount.deleteMany()
     for (const model of [...SNAPSHOT_MODELS].reverse()) await tx[model].deleteMany()
     for (const model of SNAPSHOT_MODELS) {

@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1114,
-    "total_edges": 3672,
+    "total_nodes": 1133,
+    "total_edges": 3715,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 86,
-      "adr": 43,
+      "document": 87,
+      "adr": 44,
       "domain": 7,
       "roadmap": 25,
       "feature": 9,
-      "route": 125,
-      "model": 59,
-      "requirement": 198,
-      "test": 263,
-      "code_file": 295
+      "route": 129,
+      "model": 62,
+      "requirement": 201,
+      "test": 265,
+      "code_file": 300
     },
     "coverage": {
-      "requirements": 198,
-      "fr_with_code": "100% (82/82)",
-      "fr_with_tests": "100% (82/82)",
-      "rules_anchored_in_code": "91% (77/85)",
+      "requirements": 201,
+      "fr_with_code": "100% (83/83)",
+      "fr_with_tests": "100% (83/83)",
+      "rules_anchored_in_code": "91% (79/87)",
       "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 295,
+      "annotated_code_files": 300,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -58,10 +58,14 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [
-      "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE"
+    "changed": [
+      "doc:PRD-SDD-v1.0",
+      "code:src/app/api/plugin/auth/authorize/route.js",
+      "code:src/app/api/plugin/auth/capabilities/route.js",
+      "code:src/app/api/plugin/auth/revoke/route.js",
+      "code:src/app/api/plugin/auth/token/route.js"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -1986,6 +1990,82 @@
         "@tested": [
           "tests/unit/profile-permission-service.test.js",
           "tests/unit/fr046-api-ui-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/plugin/auth/authorize/route.js",
+      "type": "code_file",
+      "path": "src/app/api/plugin/auth/authorize/route.js",
+      "hash": "50a4f1b4",
+      "status": "changed",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/fr094-plugin-auth-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/plugin/auth/capabilities/route.js",
+      "type": "code_file",
+      "path": "src/app/api/plugin/auth/capabilities/route.js",
+      "hash": "f376f89b",
+      "status": "changed",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/fr094-plugin-auth-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/plugin/auth/revoke/route.js",
+      "type": "code_file",
+      "path": "src/app/api/plugin/auth/revoke/route.js",
+      "hash": "d657aea5",
+      "status": "changed",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/fr094-plugin-auth-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/plugin/auth/token/route.js",
+      "type": "code_file",
+      "path": "src/app/api/plugin/auth/token/route.js",
+      "hash": "58b24c16",
+      "status": "changed",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/fr094-plugin-auth-route.test.js"
         ]
       }
     },
@@ -3934,6 +4014,25 @@
       }
     },
     {
+      "id": "code:src/modules/identity/plugin-auth-service.js",
+      "type": "code_file",
+      "path": "src/modules/identity/plugin-auth-service.js",
+      "hash": "edadfa9a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/fr094-plugin-auth-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/product-owner-authority.js",
       "type": "code_file",
       "path": "src/modules/identity/product-owner-authority.js",
@@ -4516,7 +4615,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "53638dcd",
+      "hash": "1948300d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4574,11 +4673,12 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "3f256a35",
+      "hash": "7039f156",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
+          "FR-094",
           "FR-078",
           "FR-045",
           "FR-075",
@@ -5990,9 +6090,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.16.0b",
+      "version": "1.17.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "3a3ffa94",
+      "hash": "6ca617f2",
       "status": "current"
     },
     {
@@ -6038,7 +6138,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.9.0",
       "doc_status": "Draft",
-      "hash": "b8b79dbd",
+      "hash": "1d935ed6",
       "status": "current"
     },
     {
@@ -6595,6 +6695,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-094-plugin-authentication-and-capability-discovery",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-094-plugin-authentication-and-capability-discovery.md",
+      "title": "FR-094 — Plugin authentication and capability discovery",
+      "hash": "2404ea67",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -6829,10 +6937,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.80.0b",
+      "version": "1.85.0b",
       "doc_status": "Draft",
-      "hash": "1b41966e",
-      "status": "current"
+      "hash": "68e6ef87",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -7458,6 +7566,21 @@
     },
     {
       "id": "model:PlanImportReceipt",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PluginAuthorizationCode",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PluginInstallation",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PluginSession",
       "type": "model",
       "status": "current"
     },
@@ -8667,6 +8790,16 @@
       "row_text": "LINE reply delivery receipt: the outbound half of a conversation becomes a row. Nothing has ever written a `Message` with `direction: 'OUTBOUND'` — the reply is assembled here, handed to the edge runtime, sent to the customer and then forgotten — so FR-091's inbox shows one side of every conversation and its `OUTBOUND` count is structurally zero. `POST /api/agent/line-delivery` accepts a batch of receipts from the transport owner, each naming the **inbound `Message.id` it answers** and the text that was **actually sent**. (a) The receipt comes from the edge runtime *after* a successful send and not from this side at hand-over, because the two differ: when the stack cannot answer, the transport sends its own fallback text, and recording what this side produced would record a message the customer never received (BR-011 — the reply owner is the one who knows). (b) Scope is resolved by the same seam as the webhook (FR-052), and the named inbound message must resolve inside that scope — a binding for one tenant can never attach a reply to another tenant's conversation (SEC-001). (c) Idempotent on `reply:<inboundMessageId>` as the message's external id, so a redelivered receipt resolves to the existing row: one inbound message has one reply, which is exactly what the LINE Reply API allows per token. (d) The row records the text the customer received; whether it came from the stack or from the transport's fallback is recorded on the audit event, not in the body, because the body is what was said and the provenance is a different fact. The webhook response gains `conversationId` and `inboundMessageId` so the transport has something to name — on the **failure** result as well as the success one, because a failed turn is precisely when the transport substitutes its own text and a customer certainly received something. That failure result also gains the `eventId` it never carried: the transport matches results to events by that field, so a failed result was previously unfindable and its fallback was sent only because an unmatched result and a failed one both read as \"not ok\". All additive; the four fields the transport already reads are untouched. 🔜 "
     },
     {
+      "id": "req:FR-094",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses use a server-owned authorization-code flow under `/api/plugin/auth`, with trusted browser-session authorization, exact client/redirect allowlists, PKCE S256, hashed single-use codes, short-lived opaque bearer sessions, server-derived capabilities and idempotent revoke. The plugin never submits a human password, copies the browser `zuri_session`, uses `Mcp-Session-Id` as authorization, connects to the database or self-asserts Tenant/Business/Membership/role scope (ADR-045).",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses use a server-owned authorization-code flow under `/api/plugin/auth`, with trusted browser-session authorization, exact client/redirect allowlists, PKCE S256, hashed single-use codes, short-lived opaque bearer sessions, server-derived capabilities and idempotent revoke. The plugin never submits a human password, copies the browser `zuri_session`, uses `Mcp-Session-Id` as authorization, connects to the database or self-asserts Tenant/Business/Membership/role scope (ADR-045). 🟠 local implementation; live client registration, device proof and production security evidence remain gated "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -9357,6 +9490,16 @@
       "row_text": "Recording a reply is a **separate, narrow writer** in the crm module (`reply-record-service`), not a `direction: 'OUTBOUND'` call into `ingestLineMessage`. The ingest seam creates a Person, a Customer and a Conversation when they are absent, and that is exactly wrong here: a receipt naming a conversation that does not exist is an error to report, never a reason to invent one. So the writer resolves the inbound `Message` first, derives the conversation from it, and refuses anything it cannot place — the conversation is never taken from the request, which is what makes cross-tenant attachment impossible rather than merely checked. It appends one row and one `AuditEvent` in a single transaction, exactly as the ingest seam does, and carries the same correlation id (SDD-048) so `webhook → turn → message → reply` remains one chain in the audit table. The route is a batch like the webhook: a per-receipt failure is captured with the stage that failed and never drops the rest, because a transport that has already sent three replies must be able to report all three. FR-093; FEAT-009, BR-011, BR-001, SEC-001, SDD-048, SDD-050, FR-023, FR-052, FR-091 "
     },
     {
+      "id": "req:SDD-052",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Plugin auth uses one canonical `/api/plugin/auth` route family: browser-session authorization creates a short-lived hashed PKCE code; token exchange atomically consumes it and creates a hashed opaque session; capability reads resolve the Person through `resolveViewer`; revoke is idempotent. Client configuration is exact and fail-closed, plugin input never authors Tenant/Business/Membership/role scope, and the plugin session is not the browser session or MCP continuation id.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Plugin auth uses one canonical `/api/plugin/auth` route family: browser-session authorization creates a short-lived hashed PKCE code; token exchange atomically consumes it and creates a hashed opaque session; capability reads resolve the Person through `resolveViewer`; revoke is idempotent. Client configuration is exact and fail-closed, plugin input never authors Tenant/Business/Membership/role scope, and the plugin session is not the browser session or MCP continuation id. FR-094; ADR-045, SEC-018, SDD-024 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -9525,6 +9668,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope. FR-092 / ADR-038 security gate "
+    },
+    {
+      "id": "req:SEC-018",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Plugin auth is a separate public-client boundary: no password or browser cookie enters the plugin, authorization codes are PKCE-bound and single-use, access tokens are opaque/short-lived/hash-stored, revocation is idempotent, client/redirect/install values are allow-listed, and all capability/scope decisions come from the trusted Zuri identity resolver.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Plugin auth is a separate public-client boundary: no password or browser cookie enters the plugin, authorization codes are PKCE-bound and single-use, access tokens are opaque/short-lived/hash-stored, revocation is idempotent, client/redirect/install values are allow-listed, and all capability/scope decisions come from the trusted Zuri identity resolver. FR-094 / ADR-045 security gate "
     },
     {
       "id": "route:api:/api/agent/heartbeat",
@@ -9956,6 +10109,38 @@
       "kind": "api",
       "route": "/api/platform/users",
       "path": "src/app/api/platform/users/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/plugin/auth/authorize",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/plugin/auth/authorize",
+      "path": "src/app/api/plugin/auth/authorize/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/plugin/auth/capabilities",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/plugin/auth/capabilities",
+      "path": "src/app/api/plugin/auth/capabilities/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/plugin/auth/revoke",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/plugin/auth/revoke",
+      "path": "src/app/api/plugin/auth/revoke/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/plugin/auth/token",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/plugin/auth/token",
+      "path": "src/app/api/plugin/auth/token/route.js",
       "status": "current"
     },
     {
@@ -10875,6 +11060,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-045-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
+      "type": "adr",
+      "path": "docs/decisions/ADR-045-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md",
+      "title": "ADR-045 — Canonical Plugin Authorization-Code and Token Boundary",
+      "hash": "142258a4",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -11319,7 +11512,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "d4387d92",
+      "hash": "04d6bd18",
       "status": "current"
     },
     {
@@ -12020,6 +12213,20 @@
       "type": "test",
       "path": "tests/unit/fr091-inbox-ui-contract.test.js",
       "hash": "0c8dcc4f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr094-plugin-auth-route.test.js",
+      "type": "test",
+      "path": "tests/unit/fr094-plugin-auth-route.test.js",
+      "hash": "6718e733",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr094-plugin-auth-service.test.js",
+      "type": "test",
+      "path": "tests/unit/fr094-plugin-auth-service.test.js",
+      "hash": "741bac2e",
       "status": "current"
     },
     {
@@ -15455,6 +15662,90 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/plugin/auth/authorize/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/plugin/auth/authorize/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/plugin/auth/authorize/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/plugin/auth/capabilities/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/plugin/auth/capabilities/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/plugin/auth/capabilities/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/plugin/auth/revoke/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/plugin/auth/revoke/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/plugin/auth/revoke/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/plugin/auth/token/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/plugin/auth/token/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/plugin/auth/token/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/profile/route.js",
       "to": "doc:FR-038-profile-and-permissions",
       "type": "references",
@@ -18157,6 +18448,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/plugin-auth-service.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/plugin-auth-service.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/plugin-auth-service.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/product-owner-authority.js",
       "to": "req:FR-076",
       "type": "implements",
@@ -18964,6 +19276,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-094",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -22441,6 +22760,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-094",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -22924,6 +23250,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-052",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -23051,6 +23384,13 @@
     },
     {
       "from": "req:SEC-017",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-018",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -23429,6 +23769,34 @@
     },
     {
       "from": "route:api:/api/platform/users",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/plugin/auth/authorize",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/plugin/auth/capabilities",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/plugin/auth/revoke",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/plugin/auth/token",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -25096,6 +25464,48 @@
     {
       "from": "spec:ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE",
       "to": "spec:ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
+      "to": "doc:FR-046-production-viewer-entry-contract",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
+      "to": "doc:FR-094-plugin-authentication-and-capability-discovery",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
+      "to": "req:FR-046",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
+      "to": "req:FR-094",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
+      "to": "spec:ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-045-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
+      "to": "spec:ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY",
       "type": "relates",
       "status": "current",
       "source": "control-block"
@@ -26957,6 +27367,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -28295,6 +28712,13 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-094",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -32697,6 +33121,13 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -34605,6 +35036,83 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr094-plugin-auth-route.test.js",
+      "to": "code:src/app/api/plugin/auth/authorize/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr094-plugin-auth-route.test.js",
+      "to": "code:src/app/api/plugin/auth/capabilities/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr094-plugin-auth-route.test.js",
+      "to": "code:src/app/api/plugin/auth/revoke/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr094-plugin-auth-route.test.js",
+      "to": "code:src/app/api/plugin/auth/token/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr094-plugin-auth-route.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr094-plugin-auth-route.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr094-plugin-auth-route.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr094-plugin-auth-service.test.js",
+      "to": "code:src/modules/identity/plugin-auth-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr094-plugin-auth-service.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr094-plugin-auth-service.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr094-plugin-auth-service.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/gate-cap-rounding.test.js",

@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 168,
-    "routes": 84,
-    "test_files": 263
+    "docs": 171,
+    "routes": 88,
+    "test_files": 265
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 20,
+    "info": 21,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -183,8 +183,8 @@
       "id": "I16",
       "severity": "info",
       "check": "domain-spine",
-      "title": "Models not yet claimed by any charter: 6",
-      "details": "PipelineRun, PipelineStep, PipelineEventReceipt, PipelineRecordEvent, PipelineReconciliation, PipelineGateDecision",
+      "title": "Models not yet claimed by any charter: 9",
+      "details": "PluginInstallation, PluginAuthorizationCode, PluginSession, PipelineRun, PipelineStep, PipelineEventReceipt, PipelineRecordEvent, PipelineReconciliation, PipelineGateDecision",
       "files": [],
       "action": "Coverage debt — claim them as charters mature"
     },
@@ -197,7 +197,7 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 263 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 265 files"
     },
     {
       "id": "I18",
@@ -225,8 +225,21 @@
       "id": "I20",
       "severity": "info",
       "check": "id-stability",
-      "title": "343 id(s) pinned across 10 families",
-      "details": "ADR 42 · BR 19 · FEAT 9 · FR 93 · MI-RQ 72 · NFR 18 · RSK 14 · SDD 51 · SEC 17 · ZV2-CR 8 · roster 343",
+      "title": "ADR-042 statement digest changed without an anchor move",
+      "details": "canonical SHA-256 0e4b3be1909cb0f697114957f50d780bfaf1685ad482509c7f53d97e7368d3ba → 294ce357559f87a0f9387bcbe27f312dfef0cea9a3612de892e48bf94386d6a0 · citation files: docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md",
+      "files": [
+        "docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md",
+        "docs/.id-ledger.json",
+        "docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md"
+      ],
+      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review ADR-042 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
+    },
+    {
+      "id": "I21",
+      "severity": "info",
+      "check": "id-stability",
+      "title": "348 id(s) pinned across 10 families",
+      "details": "ADR 44 · BR 19 · FEAT 9 · FR 94 · MI-RQ 72 · NFR 18 · RSK 14 · SDD 52 · SEC 18 · ZV2-CR 8 · roster 348",
       "files": [
         "docs/.id-ledger.json"
       ],

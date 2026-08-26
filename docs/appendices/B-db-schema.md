@@ -32,6 +32,9 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | PlanImportReceipt | idempotencyKey, payloadHash, executionRunId, executionStepId?, attemptId?, correlationId, projectId | server-owned PlanEnvelope commit receipt; stable trace/idempotency boundary; never accepts client-generated execution IDs |
 | PersonCredential | personId unique, passwordHash | FR-090 — production auth credential. Declared here because the table is live on Supabase with a real row; the service that uses it is still on `codex/postgres-primary-runtime`. Undeclared, `migrate diff` proposes DROP |
 | PasswordResetToken | personId, token unique, expiresAt, usedAt? | FR-090 — same origin as PersonCredential; currently empty |
+| PluginInstallation | installationId unique, clientId, status | FR-094 / ADR-045 — durable client-installation binding; no device secret or raw token |
+| PluginAuthorizationCode | codeHash unique, client/redirect/PKCE binding, installation/person, expiry, consumedAt/revokedAt | FR-094 / ADR-045 — one-time authorization code; raw code is never persisted |
+| PluginSession | tokenHash unique, client/installation/person, expiry, revokedAt, lastUsedAt | FR-094 / ADR-045 — short-lived opaque plugin bearer session; raw token is never persisted |
 | Workstream | projectId, executionMode, laneId?, progressStrategy, progressWeight, progressCache, viewConfigJson | หัวใจของ 7 โหมด · `laneId` (FR-090) is live on every row on Supabase |
 | WorkContainer | workstreamId, parentId (hierarchy), subtype, metadataJson | SPRINT/MIGRATION_STAGE/… |
 | WorkItem | workstreamId, containerId?, subtype, weight, numericValue, probability, metricDataJson, metadataJson | atomic ทุกโหมด |

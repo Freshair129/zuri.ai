@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-22T00:58:44.890Z",
+  "generatedAt": "2026-08-22T21:04:06.089Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -484,7 +484,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 84,
+            "openApiPaths": 88,
             "missingFromOpenApi": 0
           }
         },
@@ -926,6 +926,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 21
+        },
+        {
+          "id": "FR-094",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 5
         }
       ],
       "checks": {
@@ -951,7 +958,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 84,
+            "openApiPaths": 88,
             "missingFromOpenApi": 0
           }
         },
@@ -1036,6 +1043,7 @@
         "docs/domains/identity/features/FR-066-profile-first-workspace-onboarding.md",
         "docs/domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md",
         "docs/domains/identity/features/FR-076-product-owner-business-assignment.md",
+        "docs/domains/identity/features/FR-094-plugin-authentication-and-capability-discovery.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1077,7 +1085,7 @@
         "apiRoutes": 1,
         "pageRoutes": 2,
         "ownedModels": 6,
-        "featureNotes": 9
+        "featureNotes": 10
       }
     },
     "integration": {
@@ -1156,7 +1164,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 84,
+            "openApiPaths": 88,
             "missingFromOpenApi": 0
           }
         },
@@ -2016,6 +2024,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 5
+        },
+        {
+          "id": "FR-094",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 5
         }
       ],
       "checks": {
@@ -2039,9 +2054,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 78,
-            "inventoried": 78,
-            "openApiPaths": 84,
+            "routes": 82,
+            "inventoried": 82,
+            "openApiPaths": 88,
             "missingFromOpenApi": 0
           }
         },
@@ -2100,9 +2115,9 @@
             }
           ],
           "details": {
-            "mutations": 63,
-            "guardedMutations": 61,
-            "reads": 42,
+            "mutations": 65,
+            "guardedMutations": 63,
+            "reads": 44,
             "unguardedReads": 0
           }
         },
@@ -2279,8 +2294,8 @@
         }
       ],
       "details": {
-        "routes": 115,
-        "apiRoutes": 78,
+        "routes": 119,
+        "apiRoutes": 82,
         "pageRoutes": 37,
         "ownedModels": 30,
         "featureNotes": 28

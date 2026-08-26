@@ -831,10 +831,16 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
   // there would be a broken authentication boundary.
   const IS_AUTH_LIFECYCLE_ENDPOINT = (p) =>
     p.includes('/api/auth/login/') || p.includes('/api/auth/logout/') || p.split('/').includes('session')
+  // @req FR-094 / ADR-045 — plugin token exchange and revoke authenticate with
+  // a durable one-time code or opaque bearer hash, not the browser viewer. They
+  // are credential lifecycle endpoints, so applying the business-mutation
+  // viewer ratchet would require an incorrect second identity boundary.
+  const IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT = (p) =>
+    p.includes('/api/plugin/auth/token/') || p.includes('/api/plugin/auth/revoke/')
   const offenders = []
   for (const file of walk(path.join(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue
-    if (IS_AUTH_LIFECYCLE_ENDPOINT(rel(file))) continue
+    if (IS_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT(rel(file))) continue
     const body = read(file)
     if (!MUTATING.test(body)) continue
     if (RESOLVES.test(body)) continue

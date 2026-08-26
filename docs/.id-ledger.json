@@ -198,6 +198,7 @@
     "FR-091",
     "FR-092",
     "FR-093",
+    "FR-094",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -267,6 +268,7 @@
     "SDD-049",
     "SDD-050",
     "SDD-051",
+    "SDD-052",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -284,6 +286,7 @@
     "SEC-015",
     "SEC-016",
     "SEC-017",
+    "SEC-018",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -422,6 +425,7 @@
     "ADR-041",
     "ADR-042",
     "ADR-043",
+    "ADR-045",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -1896,6 +1900,19 @@
       ],
       "statement_digest": "b9ab6cdc4b906607c585a161de2af671fb62c2aa46c3cf45d77d2f58c0eaa236"
     },
+    "FR-094": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0ce6498977d063bfc1b418a572c5b0fba510eff834be87c2bea737955d28a105",
+      "history": [
+        {
+          "anchor": "plugin authentication and capability discovery",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -2801,6 +2818,19 @@
       ],
       "statement_digest": "d108e955f6c8d313bf5e9855345eb72831f9fc561a113cd8f5b87ec892ddbbdb"
     },
+    "SDD-052": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "7ba4cddd534d1d35b4c56ea32f83f962f2d287c29739e770b8ba7ea3b7dd3a7c",
+      "history": [
+        {
+          "anchor": "plugin auth uses one canonical api plugin auth route family",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3027,6 +3057,19 @@
         }
       ],
       "statement_digest": "5f991af3b6a991c88a919e98bae888844052bd9d4a48d7abfa09f2eb451e1409"
+    },
+    "SEC-018": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "76f295914b5a2ca33f4671b818bc7da5b3cf65295d78f2531cbadd8b40208a23",
+      "history": [
+        {
+          "anchor": "plugin auth is a separate public client boundary",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
     },
     "FEAT-001": {
       "family": "FEAT",
@@ -4825,6 +4868,19 @@
       "history": [
         {
           "anchor": "four tier cognitive architecture",
+          "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-045": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-045-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "48dd4535f4786d06ccb015014d8a59cac1198679ad9f85aa10761a076b4ca061",
+      "history": [
+        {
+          "anchor": "canonical plugin authorization code and token boundary",
           "since": "2026-08-22",
           "reason": "declared"
         }

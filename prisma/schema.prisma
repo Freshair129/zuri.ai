@@ -158,6 +158,8 @@ model Person {
   picProjects                   Project[]                      @relation("ProjectPic")
   externalIdentities            ExternalIdentity[]
   identityLinkTokens            IdentityLinkToken[]
+  pluginAuthorizationCodes      PluginAuthorizationCode[]
+  pluginSessions                PluginSession[]
   customers                     Customer[]
   roleBindings                  RoleBinding[]
   customerImportApprovals       CustomerImportBatch[]          @relation("CustomerImportBatchApprover")
@@ -198,6 +200,65 @@ model PasswordResetToken {
 
   @@index([personId])
   @@index([token])
+}
+
+// @req FR-094 — durable public-client authorization-code and plugin-session boundary.
+// @spec ADR-045, SDD-052, SEC-018
+model PluginInstallation {
+  id             String   @id @default(uuid())
+  installationId String   @unique
+  clientId       String
+  status         String   @default("ACTIVE")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  authorizationCodes PluginAuthorizationCode[]
+  sessions           PluginSession[]
+
+  @@index([clientId, status])
+}
+
+// @req FR-094 — code is single-use, PKCE-bound, exact-client and short-lived.
+// Raw authorization codes are never persisted.
+model PluginAuthorizationCode {
+  id                   String    @id @default(uuid())
+  codeHash             String    @unique
+  clientId             String
+  redirectUri          String
+  codeChallenge        String
+  codeChallengeMethod  String    @default("S256")
+  pluginInstallationId String
+  personId             String
+  expiresAt            DateTime
+  consumedAt           DateTime?
+  revokedAt            DateTime?
+  createdAt            DateTime  @default(now())
+
+  pluginInstallation PluginInstallation @relation(fields: [pluginInstallationId], references: [id], onDelete: Cascade)
+  person             Person             @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([pluginInstallationId, expiresAt])
+  @@index([personId, expiresAt])
+}
+
+// @req FR-094 — opaque bearer material is hash-only, short-lived and revocable.
+model PluginSession {
+  id                   String    @id @default(uuid())
+  tokenHash            String    @unique
+  clientId             String
+  pluginInstallationId String
+  personId             String
+  expiresAt            DateTime
+  revokedAt            DateTime?
+  lastUsedAt           DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  pluginInstallation PluginInstallation @relation(fields: [pluginInstallationId], references: [id], onDelete: Cascade)
+  person             Person             @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([pluginInstallationId, expiresAt])
+  @@index([personId, expiresAt])
 }
 
 model Membership {

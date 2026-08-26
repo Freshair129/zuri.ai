@@ -7,11 +7,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.80.0b |
+| **Version** | 1.85.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-08-20 |
+| **Last Updated** | 2026-08-23 |
 | **Approved By** | Boss (documentation gate, 2026-08-17) |
 
 ## Version History
@@ -116,6 +116,8 @@
 | 1.82.0b | 2026-08-21 | ATHER | FR-071 follow-up: Business-visible redacted staging monitor is wired into the Data Migration view, GET resolves the active document-intake connection by Business, and an idempotent SmartGift bootstrap migration provisions the no-secret staging connection |
 | 1.83.0b | 2026-08-21 | ATHER | FR-071 full-pipeline tracking slice: server-owned run/step/record/reconciliation/gate ledger, validated event/idempotency/heartbeat/read/replay-request contracts and Data Migration monitor wiring are added locally; Codex worker execution, remote Supabase apply/probe and canonical publish remain gated |
 | 1.84.0b | 2026-08-21 | ATHER | FR-071/ADR-040: Boss approves the Codex-mediated SmartGift bridge for local EVIDENCE_ONLY execution; redacted SmartGift outbox, data_pipeline MCP adapter and server-owned scope resolution are implemented, while Supabase apply/probe, canonical promotion and publish remain gated |
+
+| 1.85.0b | 2026-08-23 | ATHER | FR-094 / SDD-052 / SEC-018 + ADR-045 define and implement the canonical plugin authorization-code, PKCE token, capability and revoke boundary; live client/device evidence remains gated |
 
 ## Referenced Standards
 
@@ -254,6 +256,8 @@ Expansion) บนโมเดลข้อมูลกลางตัวเดี
 | FR-092 | Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. | 🟠 #76 implementation in progress |
 | FR-093 | LINE reply delivery receipt: the outbound half of a conversation becomes a row. Nothing has ever written a `Message` with `direction: 'OUTBOUND'` — the reply is assembled here, handed to the edge runtime, sent to the customer and then forgotten — so FR-091's inbox shows one side of every conversation and its `OUTBOUND` count is structurally zero. `POST /api/agent/line-delivery` accepts a batch of receipts from the transport owner, each naming the **inbound `Message.id` it answers** and the text that was **actually sent**. (a) The receipt comes from the edge runtime *after* a successful send and not from this side at hand-over, because the two differ: when the stack cannot answer, the transport sends its own fallback text, and recording what this side produced would record a message the customer never received (BR-011 — the reply owner is the one who knows). (b) Scope is resolved by the same seam as the webhook (FR-052), and the named inbound message must resolve inside that scope — a binding for one tenant can never attach a reply to another tenant's conversation (SEC-001). (c) Idempotent on `reply:<inboundMessageId>` as the message's external id, so a redelivered receipt resolves to the existing row: one inbound message has one reply, which is exactly what the LINE Reply API allows per token. (d) The row records the text the customer received; whether it came from the stack or from the transport's fallback is recorded on the audit event, not in the body, because the body is what was said and the provenance is a different fact. The webhook response gains `conversationId` and `inboundMessageId` so the transport has something to name — on the **failure** result as well as the success one, because a failed turn is precisely when the transport substitutes its own text and a customer certainly received something. That failure result also gains the `eventId` it never carried: the transport matches results to events by that field, so a failed result was previously unfindable and its fallback was sent only because an unmatched result and a failed one both read as "not ok". All additive; the four fields the transport already reads are untouched. | 🔜 |
 
+| FR-094 | Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses use a server-owned authorization-code flow under `/api/plugin/auth`, with trusted browser-session authorization, exact client/redirect allowlists, PKCE S256, hashed single-use codes, short-lived opaque bearer sessions, server-derived capabilities and idempotent revoke. The plugin never submits a human password, copies the browser `zuri_session`, uses `Mcp-Session-Id` as authorization, connects to the database or self-asserts Tenant/Business/Membership/role scope (ADR-045). | 🟠 local implementation; live client registration, device proof and production security evidence remain gated |
+
 > **ADR-013 clarification (2026-08-13):** FR-032's historical Group-entry wording is
 > superseded for the operational shell. Home may show Organization/Portfolio ancestry
 > while choosing a Business, but it never enters a Group Overview; `/overview` requires
@@ -389,6 +393,8 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SDD-050 | The conversation reader is one composed read model (`src/modules/crm/conversation-read-model.js`) behind two routes, and it holds no write path at all. Its query count is **constant in the number of conversations**: the last message per conversation and the per-conversation message count each come from one grouped query over the page's conversation ids, never one query per row — the same N+1 discipline SDD-047 imposes on the Projects Dashboard, and the reason a read model exists here rather than a `include: { messages: true }` on the list. Authorization runs *before* composition: the viewer's Tenant is resolved from the selected Business, and a conversation owned by a Business outside `visibleBusinessIds` is excluded by the query, not filtered out of a result that was already fetched (SEC-001). `channel` and `direction` render from `enums.js` rather than from hand-copied literals. Message bodies are customer PII and reach the browser only inside this authorized response; they are never logged, and the observability emitter's allowlist (SDD-048) already refuses them. | FR-091; FEAT-009, BR-001, BR-011, SEC-001, SEC-009, SDD-047, SDD-048, FR-023, FR-081 |
 | SDD-051 | Recording a reply is a **separate, narrow writer** in the crm module (`reply-record-service`), not a `direction: 'OUTBOUND'` call into `ingestLineMessage`. The ingest seam creates a Person, a Customer and a Conversation when they are absent, and that is exactly wrong here: a receipt naming a conversation that does not exist is an error to report, never a reason to invent one. So the writer resolves the inbound `Message` first, derives the conversation from it, and refuses anything it cannot place — the conversation is never taken from the request, which is what makes cross-tenant attachment impossible rather than merely checked. It appends one row and one `AuditEvent` in a single transaction, exactly as the ingest seam does, and carries the same correlation id (SDD-048) so `webhook → turn → message → reply` remains one chain in the audit table. The route is a batch like the webhook: a per-receipt failure is captured with the stage that failed and never drops the rest, because a transport that has already sent three replies must be able to report all three. | FR-093; FEAT-009, BR-011, BR-001, SEC-001, SDD-048, SDD-050, FR-023, FR-052, FR-091 |
 
+| SDD-052 | Plugin auth uses one canonical `/api/plugin/auth` route family: browser-session authorization creates a short-lived hashed PKCE code; token exchange atomically consumes it and creates a hashed opaque session; capability reads resolve the Person through `resolveViewer`; revoke is idempotent. Client configuration is exact and fail-closed, plugin input never authors Tenant/Business/Membership/role scope, and the plugin session is not the browser session or MCP continuation id. | FR-094; ADR-045, SEC-018, SDD-024 |
+
 ## 2.3 Security requirements
 
 | ID | Requirement | สถานะ |
@@ -412,9 +418,11 @@ Next.js App Router (src/app: UI (pm) group + API handlers)
 | SEC-016 | Platform Integration management refuses client-selected scope/authority and never exposes or persists raw secret material. The implemented create/list path requires trusted owner authority, stores only an opaque Supabase Vault reference, and audits a redacted summary; resolver failure, ambiguous connection and unauthorized scope fail closed. Future write/rotate/revoke operations require a separate audited manager port. The UI cannot activate LINE routing or send a canary. | FR-080 / ADR-032 security gate |
 | SEC-017 | Market translation fails closed on provenance scope: client/payload fields cannot select or widen Tenant, Business or IntegrationConnection scope; raw records are resolved only through an Integration repository already bound to explicit trusted scope, with explicit `null` Business distinguished from omitted generic scope. | FR-092 / ADR-038 security gate |
 
+| SEC-018 | Plugin auth is a separate public-client boundary: no password or browser cookie enters the plugin, authorization codes are PKCE-bound and single-use, access tokens are opaque/short-lived/hash-stored, revocation is idempotent, client/redirect/install values are allow-listed, and all capability/scope decisions come from the trusted Zuri identity resolver. | FR-094 / ADR-045 security gate |
+
 ## 2.4 API / DB / Testing / Deployment
 
-- API surface: Appendix A · DB schema: Appendix B (`prisma/schema.prisma` 19 models)
+- API surface: Appendix A · DB schema: Appendix B (`prisma/schema.prisma` 22 models)
 - Platform API surface: FR-080 / ADR-032 implements owner-scoped metadata
   `GET`/`POST /api/platform/integrations`; raw secret entry, promotion, rotation
   and revoke remain deferred. Supabase Vault migration/provisioning is a live
