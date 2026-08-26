@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-26T07:49:07.981Z",
+  "generatedAt": "2026-08-26T08:42:21.036Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -189,7 +189,8 @@
           "tests/unit/crm-customer-consent-route.test.js",
           "tests/unit/customer-consent-migration.test.js",
           "tests/unit/customer-consent-service.test.js",
-          "tests/unit/fr091-inbox-ui-contract.test.js"
+          "tests/unit/fr091-inbox-ui-contract.test.js",
+          "tests/unit/sot-decision-service.test.js"
         ]
       },
       {
@@ -565,7 +566,8 @@
           "tests/unit/crm-customer-consent-route.test.js",
           "tests/unit/customer-consent-migration.test.js",
           "tests/unit/customer-consent-service.test.js",
-          "tests/unit/fr091-inbox-ui-contract.test.js"
+          "tests/unit/fr091-inbox-ui-contract.test.js",
+          "tests/unit/sot-decision-service.test.js"
         ]
       }
     ]
@@ -1018,7 +1020,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 2,
-          "testCount": 8,
+          "testCount": 9,
           "evidence": [
             "src/modules/crm/conversation-read-model.js",
             "src/modules/crm/customer-consent-service.js",
@@ -1029,7 +1031,8 @@
             "tests/unit/crm-customer-consent-route.test.js",
             "tests/unit/customer-consent-migration.test.js",
             "tests/unit/customer-consent-service.test.js",
-            "tests/unit/fr091-inbox-ui-contract.test.js"
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/sot-decision-service.test.js"
           ]
         }
       ],
@@ -1204,7 +1207,8 @@
             "tests/unit/crm-customer-consent-route.test.js",
             "tests/unit/customer-consent-migration.test.js",
             "tests/unit/customer-consent-service.test.js",
-            "tests/unit/fr091-inbox-ui-contract.test.js"
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/sot-decision-service.test.js"
           ]
         }
       ],
@@ -2757,7 +2761,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 2,
-          "testCount": 8,
+          "testCount": 9,
           "evidence": [
             "src/app/(pm)/customer/conversations/page.jsx",
             "src/app/api/crm/customers/[customerId]/consent/route.js",
@@ -2768,7 +2772,8 @@
             "tests/unit/crm-customer-consent-route.test.js",
             "tests/unit/customer-consent-migration.test.js",
             "tests/unit/customer-consent-service.test.js",
-            "tests/unit/fr091-inbox-ui-contract.test.js"
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/sot-decision-service.test.js"
           ]
         }
       ],
@@ -3082,7 +3087,8 @@
             "tests/unit/crm-customer-consent-route.test.js",
             "tests/unit/customer-consent-migration.test.js",
             "tests/unit/customer-consent-service.test.js",
-            "tests/unit/fr091-inbox-ui-contract.test.js"
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/sot-decision-service.test.js"
           ]
         }
       ],
