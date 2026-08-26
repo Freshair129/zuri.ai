@@ -151,6 +151,12 @@ export async function resolveViewer({
     }
   }
 
+  // @req FR-067 — deliberately reads `Membership` ONLY. `WorkspaceMembership`
+  // (the FR-067 collaboration grant on a Portfolio) is a distinct authority
+  // layer (BR-016) and must never be an input here: holding one grants no
+  // visibleBusinessIds, no ownedBusinessIds, no ownedTenantIds and no domain —
+  // the same discipline that keeps FR-089's TeamMembership out of this resolver.
+  // @tested tests/integration/workspace-onboarding-flow.test.js
   const memberships = await db.membership.findMany({
     where: { personId: principal.id, status: 'ACTIVE' },
     select: { tenantId: true, businessId: true, role: true, status: true, domainKeysJson: true, version: true },

@@ -51,6 +51,22 @@ describe('snapshot backup round trip', () => {
     await prisma.roleBinding.create({
       data: { personId: person.id, tenantId: tenant.id, businessId: business.id, roleKey: 'PRODUCT_OWNER' },
     })
+    // @req FR-067 — the Workspace collaboration layer must survive a restore:
+    // a membership and an invite (digest only — the raw token is never in the
+    // database, so it is never in a snapshot either).
+    await prisma.workspaceMembership.create({
+      data: { portfolioId: portfolio.id, personId: person.id, role: 'OWNER', status: 'ACTIVE' },
+    })
+    await prisma.workspaceInvite.create({
+      data: {
+        portfolioId: portfolio.id,
+        invitedByPersonId: person.id,
+        role: 'MEMBER',
+        status: 'PENDING',
+        tokenHash: 'd'.repeat(64),
+        expiresAt: new Date('2027-01-01T00:00:00Z'),
+      },
+    })
     // The eight integration models had no row in this file either, and three of
     // them were asserted only with toBeInstanceOf(Array) — which passes on the
     // empty array a table shows when nothing ever wrote to it. That is the exact
@@ -250,6 +266,9 @@ describe('snapshot backup round trip', () => {
     expect(snapshot.tables.customerImportProvenance.length).toBeGreaterThan(0)
     expect(snapshot.tables.customerImportReviewCase.length).toBeGreaterThan(0)
     expect(snapshot.tables.customerImportReviewDecision.length).toBeGreaterThan(0)
+    // @req FR-067 — populated, not merely present (the RCA discipline above).
+    expect(snapshot.tables.workspaceMembership.length).toBeGreaterThan(0)
+    expect(snapshot.tables.workspaceInvite.length).toBeGreaterThan(0)
   })
 
   it('rejects invalid snapshot on preview', async () => {

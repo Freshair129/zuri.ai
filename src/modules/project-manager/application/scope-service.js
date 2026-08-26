@@ -168,6 +168,13 @@ export async function createBusiness(input, { viewer } = {}) {
  * A new business gets its own tenant (isolation boundary) under the existing
  * portfolio plus a starter workspace, so the objective wizard has somewhere to
  * put its first project. The user is never asked about tenants or portfolios.
+ *
+ * This transaction is also what satisfies FR-066's AC-066.8..11 (ADR-027 §D8):
+ * the FR-066 onboarding owner path deliberately links here instead of growing a
+ * second Business-creation write path — the Tenant is created implicitly (never
+ * skipped in the data, AC-066.10), the Default Space is BUSINESS-scoped with
+ * its businessId set in the same transaction (AC-066.8/9), and no screen asks
+ * the user to pick or name a Space (AC-066.11).
  */
 export async function createBusinessInGroup(input, { viewer } = {}) {
   const data = zBusinessInGroupInput.parse(input)

@@ -84,6 +84,7 @@ CREATE TABLE "Person" (
     "code" TEXT NOT NULL,
     "displayName" TEXT NOT NULL,
     "email" TEXT,
+    "profileCompletedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -102,6 +103,41 @@ CREATE TABLE "PlatformGrant" (
     "revokeReason" TEXT,
 
     CONSTRAINT "PlatformGrant_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "WorkspaceMembership" (
+    "id" TEXT NOT NULL,
+    "portfolioId" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'MEMBER',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "invitedByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "WorkspaceMembership_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "WorkspaceInvite" (
+    "id" TEXT NOT NULL,
+    "portfolioId" TEXT NOT NULL,
+    "invitedByPersonId" TEXT NOT NULL,
+    "targetPersonId" TEXT,
+    "invitedEmail" TEXT,
+    "role" TEXT NOT NULL DEFAULT 'MEMBER',
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "tokenHash" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "acceptedByPersonId" TEXT,
+    "acceptedAt" TIMESTAMP(3),
+    "revokedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "WorkspaceInvite_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1172,6 +1208,23 @@ CREATE TABLE "SotDataPlaneKey" (
     CONSTRAINT "SotDataPlaneKey_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "ApiAccessKey" (
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "keyHash" TEXT NOT NULL,
+    "keyPrefix" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "revokedAt" TIMESTAMP(3),
+    "revokeReason" TEXT,
+    "lastUsedAt" TIMESTAMP(3),
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "ApiAccessKey_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Portfolio_code_key" ON "Portfolio"("code");
 
@@ -1216,6 +1269,27 @@ CREATE INDEX "PlatformGrant_capability_status_idx" ON "PlatformGrant"("capabilit
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PlatformGrant_personId_capability_key" ON "PlatformGrant"("personId", "capability");
+
+-- CreateIndex
+CREATE INDEX "WorkspaceMembership_personId_status_idx" ON "WorkspaceMembership"("personId", "status");
+
+-- CreateIndex
+CREATE INDEX "WorkspaceMembership_portfolioId_status_idx" ON "WorkspaceMembership"("portfolioId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WorkspaceMembership_portfolioId_personId_key" ON "WorkspaceMembership"("portfolioId", "personId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WorkspaceInvite_tokenHash_key" ON "WorkspaceInvite"("tokenHash");
+
+-- CreateIndex
+CREATE INDEX "WorkspaceInvite_portfolioId_status_idx" ON "WorkspaceInvite"("portfolioId", "status");
+
+-- CreateIndex
+CREATE INDEX "WorkspaceInvite_targetPersonId_status_idx" ON "WorkspaceInvite"("targetPersonId", "status");
+
+-- CreateIndex
+CREATE INDEX "WorkspaceInvite_invitedEmail_status_idx" ON "WorkspaceInvite"("invitedEmail", "status");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PersonCredential_personId_key" ON "PersonCredential"("personId");
@@ -1757,6 +1831,12 @@ CREATE UNIQUE INDEX "SotDataPlaneKey_keyHash_key" ON "SotDataPlaneKey"("keyHash"
 -- CreateIndex
 CREATE INDEX "SotDataPlaneKey_tenantId_status_idx" ON "SotDataPlaneKey"("tenantId", "status");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "ApiAccessKey_keyHash_key" ON "ApiAccessKey"("keyHash");
+
+-- CreateIndex
+CREATE INDEX "ApiAccessKey_tenantId_status_idx" ON "ApiAccessKey"("tenantId", "status");
+
 -- AddForeignKey
 ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -1780,6 +1860,18 @@ ALTER TABLE "PlatformGrant" ADD CONSTRAINT "PlatformGrant_personId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "PlatformGrant" ADD CONSTRAINT "PlatformGrant_grantedByPersonId_fkey" FOREIGN KEY ("grantedByPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkspaceMembership" ADD CONSTRAINT "WorkspaceMembership_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkspaceMembership" ADD CONSTRAINT "WorkspaceMembership_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkspaceInvite" ADD CONSTRAINT "WorkspaceInvite_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkspaceInvite" ADD CONSTRAINT "WorkspaceInvite_invitedByPersonId_fkey" FOREIGN KEY ("invitedByPersonId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PersonCredential" ADD CONSTRAINT "PersonCredential_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -2110,4 +2202,7 @@ ALTER TABLE "SotDecision" ADD CONSTRAINT "SotDecision_businessId_fkey" FOREIGN K
 
 -- AddForeignKey
 ALTER TABLE "SotDataPlaneKey" ADD CONSTRAINT "SotDataPlaneKey_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ApiAccessKey" ADD CONSTRAINT "ApiAccessKey_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 

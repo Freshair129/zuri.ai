@@ -68,7 +68,15 @@ const SNAPSHOT_MODELS = [
   // a person logs in with, which is the class of loss this list exists to stop.
   // @req FR-095 — a persisted session is a child of Person and must survive a
   // portable restore; raw token material is never exported by the model.
-  'session', 'personCredential', 'passwordResetToken', 'platformGrant',
+  'session', 'personCredential', 'passwordResetToken',
+  // @req FR-107 — an operator grant hangs off Person; a snapshot that omitted
+  // it would restore an installation with no operator (or silently drop one).
+  'platformGrant',
+  // @req FR-067 — both hang off Portfolio (top of this list) and Person (just
+  // above), so they restore here and delete in the reverse. Like
+  // passwordResetToken, an invite's raw token is never exported — the model
+  // stores only the SHA-256 digest (SEC-014).
+  'workspaceMembership', 'workspaceInvite',
   // @req FR-089 — a Team hangs off a Business (restored at the top of this list)
   // and a TeamMembership off both that Team and the Person above, so they
   // restore in this order and delete in the reverse. `projectTeam` needs
@@ -87,6 +95,10 @@ const SNAPSHOT_MODELS = [
   // personCredential above, only its hash restores, never the raw secret,
   // which the model never persists in the first place.
   'sotDataPlaneKey',
+  // @req FR-106 — the Enterprise API key hangs off Tenant only; same rule as
+  // sotDataPlaneKey above: only its hash restores, never the raw secret,
+  // which the model never persists in the first place.
+  'apiAccessKey',
   'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message', 'auditEvent',
 ]
 

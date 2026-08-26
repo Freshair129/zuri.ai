@@ -25,9 +25,13 @@ model Portfolio {
   updatedAt DateTime @updatedAt
   version   Int      @default(1)
 
-  tenants       Tenant[]
-  legalEntities LegalEntity[]
-  workspaces    Workspace[]
+  tenants              Tenant[]
+  legalEntities        LegalEntity[]
+  workspaces           Workspace[]
+  // @req FR-067 — the top-level collaboration Workspace the user sees IS this
+  // Portfolio (ADR-027 §D2); membership and invites key off portfolioId.
+  workspaceMemberships WorkspaceMembership[]
+  workspaceInvites     WorkspaceInvite[]
 }
 
 model Tenant {
@@ -62,6 +66,7 @@ model Tenant {
   pipelineRuns              PipelineRun[]
   sotDecisions              SotDecision[]
   sotDataPlaneKeys          SotDataPlaneKey[]
+  apiAccessKeys             ApiAccessKey[]
 
   @@index([portfolioId])
 }
@@ -158,6 +163,10 @@ model Person {
   code        String   @unique
   displayName String
   email       String?
+  // @req FR-066 — Profile completion marker: an identity step over Person
+  // (ADR-027 D1), never an authorization grant (BR-016). Null = the person has
+  // not finished the profile-first onboarding step yet.
+  profileCompletedAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -181,6 +190,9 @@ model Person {
   // @req FR-107 — server-held installation-operator grants (FR-075's isOperator store).
   platformGrants                PlatformGrant[]                @relation("PlatformGrantPerson")
   platformGrantsIssued          PlatformGrant[]                @relation("PlatformGrantIssuer")
+  // @req FR-067 — Workspace collaboration grants and the invites this person issued.
+  workspaceMemberships          WorkspaceMembership[]
+  workspaceInvitesIssued        WorkspaceInvite[]              @relation("WorkspaceInviteInviter")
 }
 
 // @req FR-107 — the server-held store behind FR-075's `isOperator` capability.
@@ -204,6 +216,66 @@ model PlatformGrant {
 
   @@unique([personId, capability])
   @@index([capability, status])
+}
+
+// @req FR-067 — Workspace collaboration membership, keyed by `portfolioId`:
+// the user-facing top-level Workspace IS schema Portfolio (ADR-027 §D2/D5),
+// never schema `Workspace`, which is a Space one level below Business.
+// @spec BR-016 — a DISTINCT authority layer, same discipline as FR-089's
+// TeamMembership: `resolveViewer` never reads this table, so holding one grants
+// nothing on the existing viewer contract — no visibleBusinessIds, no
+// ownedBusinessIds, no domains. Tenant/Business/Space/Project access remains a
+// separate server-authorized assignment (AC-067.5).
+// @tested tests/integration/workspace-onboarding-flow.test.js
+model WorkspaceMembership {
+  id                String   @id @default(uuid())
+  portfolioId       String
+  personId          String
+  role              String   @default("MEMBER")
+  status            String   @default("ACTIVE")
+  invitedByPersonId String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  version           Int      @default(1)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id])
+  person    Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, personId])
+  @@index([personId, status])
+  @@index([portfolioId, status])
+}
+
+// @req FR-067 — scoped, expiring, single-use Workspace invite. `tokenHash` is a
+// SHA-256 digest (SEC-014, the FR-104 discipline): the raw token appears exactly
+// once in the authenticated mint response and is never persisted or logged.
+// EXPIRED is deliberately not a persisted status — expiry is a fail-closed
+// comparison against `expiresAt` at acceptance time, so a clock cannot be
+// outrun by a status column that nobody updated.
+// @spec SEC-014, BR-016, SDD-038
+// @tested tests/unit/workspace-invite-service.test.js
+model WorkspaceInvite {
+  id                 String    @id @default(uuid())
+  portfolioId        String
+  invitedByPersonId  String
+  targetPersonId     String?
+  invitedEmail       String?
+  role               String    @default("MEMBER")
+  status             String    @default("PENDING")
+  tokenHash          String    @unique
+  expiresAt          DateTime
+  acceptedByPersonId String?
+  acceptedAt         DateTime?
+  revokedAt          DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id])
+  invitedBy Person    @relation("WorkspaceInviteInviter", fields: [invitedByPersonId], references: [id])
+
+  @@index([portfolioId, status])
+  @@index([targetPersonId, status])
+  @@index([invitedEmail, status])
 }
 
 // @req FR-090 — the production authentication credential and its password-reset
@@ -1637,6 +1709,34 @@ model SotDecision {
 // @spec ADR-047, SEC-019
 // @tested tests/unit/sot-data-plane-auth.test.js
 model SotDataPlaneKey {
+  id           String    @id @default(uuid())
+  label        String
+  tenantId     String
+  keyHash      String    @unique
+  keyPrefix    String
+  status       String    @default("ACTIVE")
+  createdAt    DateTime  @default(now())
+  revokedAt    DateTime?
+  revokeReason String?
+  lastUsedAt   DateTime?
+  version      Int       @default(1)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status])
+}
+
+// @req FR-106 — a bearer credential scoped to exactly one Tenant lets an
+// enterprise integrator authenticate to the FR-019 Enterprise API
+// (dry-run/commit/resolve) without a browser session, generalizing the FR-102
+// SotDataPlaneKey pattern per ADR-047 D3's named follow-up rather than
+// inventing a second mechanism. The raw secret exists only at mint time; only
+// its SHA-256 hash is ever persisted, it is never readable back, and a revoked
+// key is refused on the next request (no grace period — a leaked
+// non-interactive credential has no user to notice and log out).
+// @spec SEC-006, SEC-001, BR-002, ADR-047
+// @tested tests/unit/api-access-auth.test.js
+model ApiAccessKey {
   id           String    @id @default(uuid())
   label        String
   tenantId     String

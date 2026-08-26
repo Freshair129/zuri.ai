@@ -65,8 +65,10 @@ describe('OpenAPI document', () => {
   it('labels generic inventory coverage without overwriting detailed intake contracts', () => {
     expect(doc['x-zuri-route-inventory']).toMatchObject({
       source: 'src/app/api/**/route.js',
-      pathCount: 91,
-      operationCount: 123,
+      // FR-066/067's seven onboarding/invite routes plus FR-106's two
+      // (the Enterprise API key mint and revoke).
+      pathCount: 100,
+      operationCount: 132,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
