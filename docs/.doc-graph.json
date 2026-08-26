@@ -64,9 +64,7 @@
   },
   "drift": {
     "changed": [],
-    "added": [
-      "doc:FR-104-owner-assisted-password-reset"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [

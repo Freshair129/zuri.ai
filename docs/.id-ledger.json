@@ -1894,7 +1894,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "011bf1574f92f69b2db9cd53dc71f30cd41f789b80f445c7efd836712823b21a"
+      "statement_digest": "73ecb99e5905e424b4a018a3e847cfab18a8b6fc74f47fb5788a52744bdeac73",
+      "statement_digest_reviewed_at": "2026-08-26",
+      "statement_digest_reason": "FR-090's statement gains its 2026-08-26 resolution paragraph: the once-owning branch is deleted, login answered by FR-046/095 and reset by FR-104 — same subject (the schema declaration), no anchor move"
     },
     "FR-091": {
       "family": "FR",

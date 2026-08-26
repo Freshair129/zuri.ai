@@ -9,7 +9,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 21,
+    "info": 20,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -223,29 +223,6 @@
     },
     {
       "id": "I20",
-      "severity": "info",
-      "check": "id-stability",
-      "title": "FR-090 statement digest changed without an anchor move",
-      "details": "canonical SHA-256 011bf1574f92f69b2db9cd53dc71f30cd41f789b80f445c7efd836712823b21a → 73ecb99e5905e424b4a018a3e847cfab18a8b6fc74f47fb5788a52744bdeac73 · citation files: src/modules/project-manager/application/backup-service.js, prisma/schema.postgres.prisma, prisma/schema.prisma, docs/appendices/B-db-schema.md, docs/appendices/D-traceability.md, docs/DOMAIN-MAP.md, docs/domains/identity/features/FR-104-owner-assisted-password-reset.md, docs/domains/market-intelligence/features/FR-092-market-translation-core.md, docs/FEATURE-MAP.md, docs/roadmap/ROADMAP-zuri-ai-24w-program.md, docs/TRACE.md",
-      "files": [
-        "docs/PRD-SDD-v1.0.md",
-        "docs/.id-ledger.json",
-        "src/modules/project-manager/application/backup-service.js",
-        "prisma/schema.postgres.prisma",
-        "prisma/schema.prisma",
-        "docs/appendices/B-db-schema.md",
-        "docs/appendices/D-traceability.md",
-        "docs/DOMAIN-MAP.md",
-        "docs/domains/identity/features/FR-104-owner-assisted-password-reset.md",
-        "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
-        "docs/FEATURE-MAP.md",
-        "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
-        "docs/TRACE.md"
-      ],
-      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review FR-090 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
-    },
-    {
-      "id": "I21",
       "severity": "info",
       "check": "id-stability",
       "title": "370 id(s) pinned across 10 families",
