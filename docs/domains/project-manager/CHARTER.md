@@ -65,9 +65,17 @@ trail. This is the back-office console's core.
   AuditEvent — route handlers stay thin (CLAUDE.md convention).
 - **Progress is recomputed from pure calculators** in `progress/` (no I/O, no
   clock); `progressCache` is advisory.
-- All intake converges on the one import pipeline (`import/`) — a new surface
-  adds a converter, never a second write path (BR-009, SDD-009). Its
-  `PlanImportReceipt` is the trace record of a committed run, owned here.
+- All intake converges on the one import lane (`import/`) — a new surface adds a
+  converter/orchestrator, never a second write path (BR-009, SDD-009). A
+  `PlanEnvelope` remains the canonical per-Project import unit and its
+  `PlanImportReceipt` remains the trace record of a committed Project import.
+  [ADR-049](../../decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md)
+  adds `ExecutionPlanBundle` only as a programme-level transport/orchestration
+  package above that boundary: it may coordinate Roadmap/Horizon/Goal services
+  and N existing PlanEnvelope imports, but it may not bypass or fork the
+  PlanEnvelope writer.
+- `ExecutionPlanBundle` is **not a persistence model** and is not a synonym for
+  `WorkContainer`. `container` keeps its existing Workstream-local meaning.
 - `Team`, `TeamMembership` and `ProjectTeam` are organisational grouping and
   grant nothing: the identity resolver never reads them and no route guard
   consults them (FR-089, BR-018, ADR-037 D1). `Membership` stays the authority
@@ -80,7 +88,12 @@ trail. This is the back-office console's core.
 - `application/scope-service` — createPortfolio / createTenant / createBusiness
   and scope resolution; crm and agent build their test and runtime scopes
   through it, never by inserting scope rows directly.
-- The import pipeline's envelope contract (`contracts/`).
+- Per-Project intake contract: `contracts/plan-envelope.schema.json`.
+- Programme-level package contract:
+  `contracts/execution-plan-bundle.schema.json`, governed by ADR-049 and
+  `EXECUTION-PLAN-BUNDLE.md`. Bundle-local symbols are resolved to authorized
+  canonical IDs before any nested PlanEnvelope is committed; the symbols
+  themselves grant no authority.
 
 ## Satellite modules in this lane
 
