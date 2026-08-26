@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1057,
+    "total_nodes": 1058,
     "total_edges": 3478,
     "dangling_edges": 0,
     "node_types": {
@@ -11,7 +11,7 @@
       "document": 86,
       "adr": 38,
       "domain": 7,
-      "roadmap": 25,
+      "roadmap": 26,
       "feature": 9,
       "route": 117,
       "model": 53,
@@ -60,7 +60,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "doc:PLAN-BUS-001-VISUAL-AI-OFFICE-RUNTIME-NEUTRAL"
+    ],
     "added": [],
     "removed": []
   },
@@ -6307,6 +6309,14 @@
       "title": "Phase 7: OmiChat Unified Inbox",
       "hash": "a320a862",
       "status": "current"
+    },
+    {
+      "id": "doc:PLAN-BUS-001-VISUAL-AI-OFFICE-RUNTIME-NEUTRAL",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-BUS-001-VISUAL-AI-OFFICE-RUNTIME-NEUTRAL.md",
+      "title": "Implementation Plan — Business 01 Visual AI Office + LINE OA Integration (Runtime-neutral)",
+      "hash": "1951ad92",
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-FR-040-PROJECT-WORK-VIEWS",
