@@ -48,9 +48,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:PRD-SDD-v1.0"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -7754,7 +7752,7 @@
       "version": "1.91.0b",
       "doc_status": "Draft",
       "hash": "61ae2883",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
