@@ -211,6 +211,7 @@
     "FR-103",
     "FR-104",
     "FR-105",
+    "FR-106",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -2093,6 +2094,19 @@
       "history": [
         {
           "anchor": "platform programme roadmap",
+          "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-106": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "923016004b1bd19fae627fd416a535575d56ce92a4518de1016bf25fd9adf3d3",
+      "history": [
+        {
+          "anchor": "enterprise api tenant token authentication",
           "since": "2026-08-26",
           "reason": "declared"
         }
