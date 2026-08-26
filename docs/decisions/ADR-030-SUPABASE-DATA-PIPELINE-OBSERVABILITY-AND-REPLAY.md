@@ -1,6 +1,6 @@
 # ADR-030 — Supabase data pipeline observability and replay
 
-**Status:** Proposed — documentation boundary written; implementation pending
+**Status:** Accepted for local tracking slice — production apply remains gated
 **Date:** 2026-08-17
 **Decided by:** Boss (requested data pipeline monitor and replay contract)
 **Relates to:** [ADR-018](ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION.md), [ADR-029](ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS.md), [FR-047](../domains/knowledge/features/FR-047-line-business-knowledge-pilot.md), [FR-051](../domains/agent/features/FR-051-production-supabase-tenant-isolation.md), [FR-071](../domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md), SDD-042
@@ -158,8 +158,10 @@ Supabase workflow.
 
 ## Implementation boundary
 
-This ADR does not yet add tables, migrations, RLS policies, API routes, workers
-or UI. Those changes require FR-071 approval, a Supabase migration created by
-the CLI, advisor/security review, deterministic fixture tests, a failed-stage
-replay test and a post-apply isolation proof before any production import is
+The accepted local slice adds the server-owned tracking ledger, validated event
+receiver, scope-filtered read model and queued replay-lineage request described
+by FR-071. It does not execute the Codex worker or a production Supabase apply.
+The Supabase migration must be created through the CLI, and advisor/security
+review, deterministic fixture tests, a failed-stage replay test and a
+post-apply isolation proof remain required before any production import is
 re-enabled.

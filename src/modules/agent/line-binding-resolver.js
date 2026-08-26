@@ -2,7 +2,9 @@ import crypto from 'node:crypto'
 import { z } from 'zod'
 
 // @req FR-052 — resolve LINE Tenant/Business scope only from an active persisted binding.
-// @spec SDD-026, SEC-010 — bearer and destination are HMACed before the database lookup.
+// @req FR-097 — the binding code is the server-owned channel-account namespace.
+// @spec ADR-018, SEC-010 — bearer and destination are HMACed before the database lookup.
+// @spec ADR-044, ADR-045 D1/D5-D6, BR-020, SEC-018
 // @tested tests/unit/line-binding-resolver.test.js
 
 const zResolverOptions = z.object({ pepper: z.string().min(32).max(512) }).strict()
@@ -53,7 +55,13 @@ export function createPostgresLineBindingResolver({ queryFn, pepper }) {
       `, values)
       const row = result.rows?.[0]
       if (!row) throw unauthorized()
-      return { id: row.id, code: row.code, tenantId: row.tenant_id, businessId: row.business_id }
+      return {
+        id: row.id,
+        code: row.code,
+        channelAccountId: row.code,
+        tenantId: row.tenant_id,
+        businessId: row.business_id,
+      }
     },
   }
 }

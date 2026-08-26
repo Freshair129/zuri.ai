@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=41; operational_domain_keys=7; operational_subdomain_entries=23; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=44; operational_domain_keys=7; operational_subdomain_entries=24; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -50,7 +50,7 @@ or `appendices/D-traceability.md`.
 The current entry journey is:
 
 ```text
-Landing → Login/demo boundary → trusted viewer resolution → Business Routing
+Landing → credential Login → signed viewer resolution → Business Routing
 → Business Home/BusinessShell → domain → sub-domain → Project resource
 ```
 
@@ -76,7 +76,7 @@ mean production identity, external providers or cutover gates are complete.
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/` | Landing | EntryShell | product entry, continue to login/demo boundary | initial, loading, local/offline-safe | implemented; `src/app/(entry)/page.jsx` |
-| `/login` | Login stub | EntryShell | explicit local demo transition; no real credential provider | ready, disabled-in-production, error | implemented beta; `src/app/(entry)/login/page.jsx`, FR-044/046 |
+| `/login` | Credential Login | EntryShell | email/account-code and password authentication, then Business Routing | ready, invalid credentials, unavailable session, error | implemented beta; `src/app/login/page.jsx`, `/api/auth/login`, FR-046 |
 | `/businesses` | Business Routing | BusinessRoutingShell | list authorized Businesses and select one | auth required, empty Business scope, loading, error | implemented beta; `src/app/(entry)/businesses/page.jsx`, `GET /api/entry` |
 | `/overview` | Business Home Dashboard | BusinessShell; shell-level cross-domain projection | Business briefing, KPI/health, strategy and attention links | Business required, ready, forbidden, loading, empty, error, offline | implemented beta; `src/app/(pm)/overview/page.jsx`, FR-060 |
 
@@ -125,6 +125,9 @@ page routes because its Dashboard and Settings navigation entries share
 | `/platform/users` | Users and Permissions | BusinessShell → Platform / Users | OWNER-scoped membership role and domain grants | owner-only, empty, loading, error, forbidden | implemented; `src/app/(pm)/platform/users/page.jsx`, FR-038/062 |
 | `/platform/integrations` | Platform Integrations | BusinessShell → Platform / Integrations | owner-only provider/connection metadata and redacted Vault readiness | owner-only, empty, loading, error, manager unavailable; no raw secret state | implemented beta; `src/app/(pm)/platform/integrations/page.jsx`, FR-080 |
 | `/platform/customer-import-reviews` | Customer Duplicate Review | BusinessShell → Platform / Customer Review | review held duplicate groups, inspect redacted evidence and append a per-item decision | reviewer-only, empty, loading, error, forbidden, stale-version conflict; no Customer publish | implemented beta; `src/app/(pm)/platform/customer-import-reviews/page.jsx`, FR-078 |
+| `/platform/sot-pipeline` | SoT Pipeline Plan Board | BusinessShell → Platform / SoT Pipeline | view the SoT pipeline's P0–P10 phases with status derived from run evidence; navigate to run evidence and the approval inbox | business-scope required, loading, error, empty runs | implemented beta; `src/app/(pm)/platform/sot-pipeline/page.jsx`, FR-099 |
+| `/platform/sot-pipeline/graph` | SoT Pipeline Graph | BusinessShell → Platform / SoT Pipeline | read-only node/edge view of the same plan payload with pending-decision badges | business-scope required, loading, error | implemented beta; `src/app/(pm)/platform/sot-pipeline/graph/page.jsx`, FR-101 |
+| `/platform/sot-pipeline/inbox` | SoT Approval Inbox | BusinessShell → Platform / SoT Pipeline | approve or reject pending data-plane decisions (reject requires a reason); payload shown verbatim | business-scope required, loading, error, empty queue, action failure | implemented beta; `src/app/(pm)/platform/sot-pipeline/inbox/page.jsx`, FR-100 |
 | `/profile` | My Profile | BusinessShell → Platform/identity | resolved local account, language and LINE-link state | auth required, loading, error, empty | implemented beta; `src/app/(pm)/profile/page.jsx`, FR-038 |
 | `/settings` | Settings | BusinessShell → Platform / Settings | local preferences and shell/runtime settings | loading, error, ready, forbidden | implemented; `src/app/(pm)/settings/page.jsx`, FR-020 |
 | `/audit` | Audit Log | BusinessShell → Platform / Audit | immutable audit event browser and filters | empty, loading, error, forbidden | implemented; `src/app/(pm)/audit/page.jsx`, FR-014 |

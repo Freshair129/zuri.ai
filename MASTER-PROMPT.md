@@ -49,7 +49,7 @@ For this standalone local build:
 
 ```text
 database = SQLite
-authentication = local demo identity only
+authentication = PersonCredential + signed HttpOnly session cookie
 network integrations = disabled
 ```
 

@@ -10,6 +10,7 @@
 
 import Link from 'next/link'
 import { Card, SectionTitle, StatusPill, EmptyState, ErrorState } from '@/components/ui'
+import { useScope } from '@/context/ScopeContext'
 import { useFetch, LoadingCard } from '../../components/useApi'
 import StatusSelect from '../../components/StatusSelect'
 import { MILESTONE_STATUSES, GATE_STATUSES } from '@/lib/validation/enums'
@@ -47,7 +48,12 @@ export function projectCodeCell(row, { projectId } = {}) {
 }
 
 export default function MilestonesView({ projectId }) {
-  const url = projectId ? `/api/milestones?projectId=${projectId}` : '/api/milestones'
+  const scope = useScope()
+  const businessId = scope.shell.activeBusinessId
+  const params = new URLSearchParams()
+  if (projectId) params.set('projectId', projectId)
+  else if (businessId) params.set('businessId', businessId)
+  const url = projectId || businessId ? `/api/milestones?${params.toString()}` : null
   const { data, loading, error, reload } = useFetch(url)
 
   if (loading) return <LoadingCard />

@@ -3,8 +3,8 @@ domain: knowledge
 feature: FR-071
 module: knowledge
 source: v2-native
-version: 0.5.0
-status: proposed
+version: 0.10.0b
+status: candidate
 ---
 
 # FR-071 — Supabase data pipeline monitor and replay
@@ -20,6 +20,12 @@ This is a data-ingestion monitor, not a generic task board. The destination is
 the private Supabase `zuri_core.business_knowledge` store. The source artifact
 and its provenance remain authoritative for what was approved; Supabase is the
 operational destination for the published knowledge projection.
+
+The first implementation slice also adds the document front door used by the
+SmartGift `ProductIngestAgent` and `CustomerIngestAgent`. It accepts the strict
+`smartgift.document-intake.v1` contract and persists a server-owned raw staging
+record. This slice deliberately stops before domain validation, human review or
+canonical Product/Customer promotion.
 
 ## Pipeline boundary
 
@@ -39,6 +45,87 @@ The existing `zuri_core.bootstrap_audit_event` remains the compatibility audit
 record for the completed import. FR-071 adds stage/record observability around
 it; it does not replace the source artifact, the existing batch ID or the
 Tenant/Business isolation boundary.
+
+### Document intake front door
+
+```text
+PDF / DOCX / picture / Excel
+  → local ProductIngestAgent or CustomerIngestAgent
+  → smartgift.document-intake.v1
+  → POST /api/ingest/documents
+  → server-resolved IntegrationConnection
+  → RawExternalRecord (Supabase application staging)
+  → domain validation / review
+  → canonical Product or Customer (later slice)
+```
+
+`RawExternalRecord` is the existing server-owned raw-ingestion table in the
+Supabase application schema. The route requires an installation operator, takes
+no Tenant/Business IDs from the document payload, and resolves those IDs from an
+`ACTIVE` `PRIMARY` connection whose provider is
+`SMARTGIFT_DOCUMENT_INTAKE` and purpose is `DATA_DOCUMENT_INGESTION`. Exact
+replays return `UNCHANGED`; the raw payload remains private and the monitor
+response returns hashes, IDs, counts and status only. `POST` remains an
+installation-operator action; `GET` may resolve by `businessId` for a viewer
+that can see that Business, and returns an explicit `configured: false` state
+when the active primary receiver has not been provisioned.
+
+## Full pipeline tracking slice
+
+The local application adds a server-owned tracking ledger around the
+document-intake substrate and the DuckDB/source-artifact → Supabase pipeline:
+
+```text
+PipelineRun
+  ├─ PipelineStep (one row per stage attempt)
+  ├─ PipelineRecordEvent (one redacted record outcome per attempt)
+  ├─ PipelineReconciliation (counts, hashes, isolation/probe evidence)
+  └─ PipelineGateDecision (approval/hold evidence for the run)
+```
+
+The event receiver validates the complete identity envelope, exact idempotency
+keys, status transitions, failure requirements and Tenant/Business scope before
+writing the ledger and an `AuditEvent`. Heartbeats update freshness only; they do
+not count as progress or success. A stale run/step is exposed as `UNKNOWN` with
+an explicit `staleAt`/last heartbeat rather than inferred completion.
+
+The monitor read model is available through:
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/api/pipelines/runs` | list scope-filtered runs and current evidence |
+| POST | `/api/pipelines/runs` | create one idempotent queued run envelope |
+| GET | `/api/pipelines/runs/{executionRunId}` | show run, stage timeline, record failures, reconciliation and gate evidence |
+| POST | `/api/pipelines/runs/{executionRunId}/events` | accept a validated stage/record/heartbeat/reconciliation or gate event |
+| POST | `/api/pipelines/runs/{executionRunId}/replay` | create an authorized queued replay with immutable lineage; it does not execute the apply worker |
+
+Replay requests create new run/step/attempt/audit identities only after the
+source run, artifact/contract identity and Business scope are revalidated. The
+local tracking slice records replay intent and lineage; execution by the Codex
+worker and production Supabase apply remain separate gates.
+
+## Approved local slice — Codex-mediated worker bridge
+
+The approved local slice connects the local SmartGift agents to the
+existing server-owned ledger without giving the agents Supabase or browser
+credentials:
+
+```text
+ProductIngestAgent / CustomerIngestAgent
+  → redacted append-only evidence outbox
+  → Codex worker
+  → authenticated `data_pipeline.*` MCP adapter
+  → existing tracking/document-staging services
+  → Data Migration monitor
+```
+
+The MCP adapter is an application-service adapter, not a second persistence
+path. It must resolve the internal Tenant/Business/connection on the server,
+keep restricted document payloads separate from redacted pipeline events and
+start in `EVIDENCE_ONLY` mode. Canonical Supabase apply, Product/Customer
+promotion, publish and rollback remain disabled until the external RLS,
+isolation and non-production replay gates pass. The approved architecture is
+specified in [ADR-039](../../../decisions/ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE.md).
 
 ## Identity contract
 
@@ -279,8 +366,9 @@ The pipeline meaning and approved knowledge payload remain owned by the
 Knowledge domain. The operator read surface is proposed as
 `Platform > Data Pipeline Monitor` because it is a system/audit capability,
 not a new Business domain and not a replacement for the Knowledge read API.
-The route is intentionally not added to the sitemap until this FR/ADR is
-approved.
+The route is implemented locally for the approved `EVIDENCE_ONLY` monitor
+slice. Production exposure and any Supabase apply capability remain gated by
+the external verification requirements below.
 
 The Data Pipeline Monitor must show:
 
@@ -352,6 +440,63 @@ pipeline mutation and must not expose another Tenant's failure metadata.
 - **AC-071.16** A replay copies the resolved supporting references into the new
   lineage after revalidation, while creating new run/step/attempt/audit IDs; it
   never derives an ID from a label, hash or source path.
+- **AC-071.17** The SmartGift document intake route validates
+  `smartgift.document-intake.v1`, enforces the Product/Customer field allowlists
+  and evidence locations, resolves Tenant/Business from the server-owned
+  connection, stores only a raw staging record, and never writes a canonical
+  Product or Customer row.
+- **AC-071.18** An exact document-contract replay is idempotent and returns the
+  existing raw-record identity; the redacted monitor response never returns
+  extracted field values, raw OCR text or a service key.
+- **AC-071.19** The redacted monitor resolves an active primary document-intake
+  connection by a visible Business without requiring the browser to know a
+  connection ID; absent provisioning is returned as `configured: false`, not
+  as fake progress or a successful empty import.
+- **AC-071.20** The SmartGift bootstrap migration creates the provider and one
+  active primary staging connection without an IntegrationCredential, enforces
+  one active primary receiver per Business, records a provisioning audit event,
+  and fails closed when the approved Business/connection identity is missing.
+- **AC-071.21** The local application persists a server-owned `PipelineRun`,
+  `PipelineStep`, `PipelineRecordEvent`, `PipelineReconciliation` and
+  `PipelineGateDecision` ledger without reusing `PlanImportReceipt` or treating
+  `IngestionRun` as the full pipeline run.
+- **AC-071.22** Pipeline events validate the complete identity envelope, exact
+  idempotency key, allowed transition and required failure fields; duplicate
+  event delivery returns the existing immutable receipt and raw PII, document
+  contents, image bytes and secrets are rejected.
+- **AC-071.23** The monitor exposes heartbeat freshness and reports stale or
+  missing evidence as explicit `UNKNOWN`; elapsed time and task percentages do
+  not manufacture progress or success.
+- **AC-071.24** A scope-filtered read model exposes the first failure, stage and
+  record evidence, reconciliation deltas, destination IDs, gate decisions and
+  replay lineage without exposing raw source payloads or another Business.
+- **AC-071.25** An authorized replay request creates a new queued run with new
+  execution/attempt/audit IDs and immutable source lineage; it does not overwrite
+  the original run and does not claim that the Supabase apply worker executed.
+- **AC-071.26** The Data Migration view reads the full-pipeline monitor when a
+  run exists and shows explicit unavailable/configuration/unknown states when
+  evidence is absent; legacy WorkItem metrics remain a separate display only.
+- **AC-071.27** The tracking migration enables forced RLS and revokes Data API
+  access for public/browser roles; browser code never receives a service-role
+  key, database URL or unrestricted SQL capability.
+- **AC-071.28** The local SmartGift agents emit only append-only, redacted
+  lifecycle evidence; they never receive a Supabase `service_role`, browser
+  credential or caller-selected Tenant/Business destination.
+- **AC-071.29** Codex can use a separate `data_pipeline.*` MCP namespace to
+  create a run, stage a restricted document contract, record evidence, read the
+  monitor and request replay through the existing application services; the
+  adapter creates no second persistence path.
+- **AC-071.30** The server resolves internal Tenant/Business/connection scope
+  from the authenticated worker context and rejects destination overrides from
+  the local outbox or document contract.
+- **AC-071.31** Pipeline events and monitor/audit outputs contain no raw PII,
+  OCR text, image bytes, secrets, database URLs or unrestricted source payload;
+  restricted document staging remains a separate server-owned boundary.
+- **AC-071.32** The bridge starts in `EVIDENCE_ONLY` mode and has a proof that
+  local extraction plus event delivery cannot perform canonical Supabase apply,
+  Product/Customer promotion, publish or rollback.
+- **AC-071.33** Worker retry, duplicate delivery, stale heartbeat, failed-stage
+  evidence and queued replay are covered by deterministic MCP/service tests.
 
 ## Non-goals
 
@@ -364,16 +509,28 @@ pipeline mutation and must not expose another Tenant's failure metadata.
 
 ## Implementation boundary
 
-This feature defines the monitor/read contract and replay safety boundary. It
-does not yet add Supabase tables, Prisma models, migrations, RLS policies, API
-routes, UI code or a worker. After approval, schema work must use the Supabase
-workflow: create a migration through the CLI, keep the monitor ledger private
-and RLS-protected, run advisors and isolation probes, then verify a test import
-and replay with a non-production fixture before any production write.
+The document-intake receiver remains implemented over the existing raw-ingestion
+substrate: `RawExternalRecord`, `IngestionRun` and `AuditEvent`. The full
+pipeline ledger adds server-owned tracking tables and a local event/read/replay
+request API; it does not replace the existing bootstrap audit or
+`PlanImportReceipt`. The bootstrap and tracking migrations add no browser
+credential or Data API grant; application tables remain server-owned and
+RLS-enabled. Local tests, migration inspection and the monitor UI are
+implementation evidence only until the migrations are applied to a
+non-production Supabase target, remote RLS/privilege checks pass, and a
+non-production event/replay/apply probe is verified. Codex worker execution,
+Supabase transactional apply, post-apply isolation proof, canonical
+Product/Customer promotion and publish/rollback remain explicit gates. Any
+Future schema change must use the Supabase workflow: create a migration through
+the CLI, run advisors and isolation probes, then verify a non-production import
+before a production write. ADR-039 is approved for local `EVIDENCE_ONLY`
+execution; it must not be promoted to canonical apply or production-enabled
+write behavior before those external gates pass.
 
 ## Related documents
 
 - [FR-047 — LINE business-knowledge pilot](FR-047-line-business-knowledge-pilot.md)
 - [FR-051 — Production Supabase tenant isolation](../../agent/features/FR-051-production-supabase-tenant-isolation.md)
 - [ADR-030 — Supabase data pipeline observability and replay](../../../decisions/ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY.md)
+- [ADR-040 — Codex-mediated SmartGift pipeline evidence bridge](../../../decisions/ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE.md)
 - [ZV2-CR-004 — Supabase production tenant bootstrap](../../../changes/ZV2-CR-004-SUPABASE-PRODUCTION-TENANT-BOOTSTRAP.md)

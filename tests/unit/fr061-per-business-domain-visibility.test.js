@@ -167,20 +167,12 @@ describe('every resolver branch fills the map — there is no shortcut to read i
     expect(viewer.ownedBusinessIds).toEqual([])
   })
 
-  it('local development fallback: all domains on every Business', async () => {
-    const viewer = await resolveViewer({
-      allowDevelopmentFallback: true,
-      db: fakeDb({ people: [{ id: 'p-local', code: 'PER-OWNER', displayName: 'Local Owner' }] }),
-    })
-
-    expect(domainsForBusiness(viewer, 'b-2')).toEqual(VIEWER_DOMAINS)
+  it('requires an authenticated principal before resolving domain visibility', async () => {
+    await expect(resolveViewer({ db: fakeDb() })).rejects.toThrow('Viewer principal is required')
   })
 
   it('gives each Business its own array, so mutating one cannot corrupt another', async () => {
-    const viewer = await resolveViewer({
-      allowDevelopmentFallback: true,
-      db: fakeDb({ people: [{ id: 'p-local', code: 'PER-OWNER', displayName: 'Local Owner' }] }),
-    })
+    const viewer = await mixedPrincipal()
 
     expect(viewer.domainsByBusinessId['b-1']).not.toBe(viewer.domainsByBusinessId['b-2'])
     expect(viewer.domainsByBusinessId['b-1']).not.toBe(viewer.visibleDomains)

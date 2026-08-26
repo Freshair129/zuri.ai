@@ -138,6 +138,26 @@ describe('snapshot backup round trip', () => {
         errorMessage: 'Preserved so the restore has a dead letter to carry.',
       },
     })
+    await prisma.marketObservation.create({
+      data: {
+        tenantId: tenant.id,
+        businessId: business.id,
+        rawRecordId: rawRecord.id,
+        connectionId: connection.id,
+        provider: 'PRV-BAK',
+        sourceEntityType: 'message',
+        externalId: 'EXT-BAK-001',
+        sourcePayloadHash: rawRecord.payloadHash,
+        lineageKey: 'backup-market-observation-lineage',
+        sourceUri: 'https://example.invalid/backup-fixture',
+        translationSchemaVersion: 'market-observation.v1',
+        observationType: 'EXTERNAL_OFFER',
+        candidateJson: JSON.stringify({ title: 'Backup fixture' }),
+        resolutionStatus: 'UNRESOLVED',
+        observedAt: new Date('2026-08-18T00:00:00Z'),
+        translatedAt: new Date('2026-08-18T00:01:00Z'),
+      },
+    })
 
     const customer = await prisma.customer.create({
       data: {
@@ -218,6 +238,7 @@ describe('snapshot backup round trip', () => {
     expect(snapshot.tables.syncCursor.length).toBeGreaterThan(0)
     expect(snapshot.tables.externalEntityRef.length).toBeGreaterThan(0)
     expect(snapshot.tables.deadLetterRecord.length).toBeGreaterThan(0)
+    expect(snapshot.tables.marketObservation.length).toBeGreaterThan(0)
     // Populated, not merely present: an empty array is what a table looks like
     // when nothing ever wrote to it, which is how the gap hid for two releases.
     expect(snapshot.tables.businessRoadmap.length).toBeGreaterThan(0)

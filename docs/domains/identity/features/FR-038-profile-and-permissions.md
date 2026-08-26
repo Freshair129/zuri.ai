@@ -15,8 +15,8 @@ source: v2-native
 | **Relates to** | HANDOFF-SHELL-V2-CODEX §5 step 8, FR-031, SEC-003 |
 
 `/profile` reads the current resolved principal, preserves a local TH/EN display
-preference, reports linked LINE identities, and identifies the local demo session.
-It is not a production authentication/session system.
+preference, reports linked LINE identities, and identifies the authenticated
+session represented by the signed HttpOnly cookie issued at login.
 
 `/platform/users` is guarded by `resolveViewer()` and returns 403 to non-OWNER
 viewers. An owner may set `OWNER`/`MEMBER` and domain checkbox grants on existing

@@ -22,13 +22,9 @@ export async function resolveRequestViewer(
   }
 
   try {
-    if (session.localDemo) {
-      return await resolve({ platformGrant: false, allowDevelopmentFallback: true })
-    }
     return await resolve({
       principalId: session.principalId,
       platformGrant: session.platformGrant === true,
-      allowDevelopmentFallback: false,
     })
   } catch (error) {
     if (Number(error?.status)) throw error

@@ -128,22 +128,29 @@ async function resolveEndpoint(type, id) {
   }
 }
 
-export async function listDependencies({ projectId } = {}) {
+export async function listDependencies({ projectId, businessId } = {}) {
   const deps = await prisma.dependency.findMany({ orderBy: { createdAt: 'asc' } })
+  const belongs = projectId
+    ? await projectEntityIds(projectId)
+    : businessId
+      ? await businessEntityIds(businessId)
+      : null
+  const scoped = belongs
+    ? deps.filter((d) => {
+      const sourceInScope = belongs.has(nodeKey(d.sourceType, d.sourceId))
+      const targetInScope = belongs.has(nodeKey(d.targetType, d.targetId))
+      return businessId ? sourceInScope && targetInScope : sourceInScope || targetInScope
+    })
+    : deps
   const resolved = []
-  for (const d of deps) {
+  for (const d of scoped) {
     const [source, target] = await Promise.all([
       resolveEndpoint(d.sourceType, d.sourceId),
       resolveEndpoint(d.targetType, d.targetId),
     ])
     resolved.push({ ...d, source, target })
   }
-  if (!projectId) return resolved
-  // Project filter: keep edges where either endpoint belongs to the project.
-  const belongs = await projectEntityIds(projectId)
-  return resolved.filter(
-    (d) => belongs.has(nodeKey(d.sourceType, d.sourceId)) || belongs.has(nodeKey(d.targetType, d.targetId))
-  )
+  return resolved
 }
 
 /**
@@ -186,6 +193,15 @@ async function projectEntityIds(projectId) {
   for (const c of containers) set.add(nodeKey('WORK_CONTAINER', c.id))
   for (const i of items) set.add(nodeKey('WORK_ITEM', i.id))
   return set
+}
+
+async function businessEntityIds(businessId) {
+  const projects = await prisma.project.findMany({
+    where: { businessId, deletedAt: null },
+    select: { id: true },
+  })
+  const sets = await Promise.all(projects.map((project) => projectEntityIds(project.id)))
+  return new Set(sets.flatMap((set) => [...set]))
 }
 
 /**

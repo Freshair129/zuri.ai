@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-// @req FR-046 — local demo startup owns a safe SQLite datasource when no environment is provided.
+// @req FR-046 — local startup owns a safe SQLite datasource when no environment is provided.
 // @spec ADR-017, SDD-024, SEC-008
 // @tested tests/unit/run-bat-database-bootstrap.test.js
 
@@ -26,5 +26,9 @@ describe('run.bat database bootstrap', () => {
     expect(script).toContain('call npm run phase1:isolation:verify')
     expect(script.indexOf('call npm run phase1:isolation:verify')).toBeLessThan(script.indexOf('call npm run dev'))
     expect(script).not.toMatch(/echo[^\r\n]*ZURI_LINE_DB_URL/i)
+    expect(script).not.toContain('ZURI_LOCAL_DEMO_AUTH')
+    expect(script).toContain('ZURI_SESSION_SECRET')
+    expect(script).toContain('ZURI_SEED_OWNER_PASSWORD')
+    expect(script).toContain('http://localhost:3100/login')
   })
 })

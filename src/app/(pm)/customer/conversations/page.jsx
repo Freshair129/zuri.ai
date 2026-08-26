@@ -9,12 +9,15 @@ import { LoadingCard, useFetch } from '@/modules/project-manager/components/useA
 
 // @req FR-091 — the CRM Conversation Inbox: the first surface able to read what the
 // LINE ingress has been writing since FR-023.
-// @spec SDD-049, BR-001, BR-011, SDD-007
+// @req FR-103 — the SEC-005 PDPA consent attestation control sits on the same
+// thread header, gated on per-Business OWNER authority (never a Member/DEV grant).
+// @spec SDD-050, SDD-053, BR-001, BR-011, SDD-007, SEC-005
 // @tested tests/unit/fr091-inbox-ui-contract.test.js, tests/e2e/fr091-conversation-inbox.spec.js
 //
 // There is no reply box on this page and its absence is the design (BR-011): the reply
 // token lives for about thirty seconds and belongs to the edge runtime that received
-// the message. A second reply owner is the failure that rule exists to prevent.
+// the message. A second reply owner is the failure that rule exists to prevent. The
+// consent control is a different concern — it never touches Message, only Customer.
 
 const DIRECTION_LABEL = { INBOUND: 'ลูกค้า', OUTBOUND: 'ร้าน' }
 
@@ -55,7 +58,67 @@ function ConversationRow({ row, active, onSelect }) {
   )
 }
 
-function Thread({ businessId, conversationId }) {
+// @req FR-103 — SEC-005: the owner attestation control next to the customer this
+//   thread already displays. Hidden entirely for a non-owner viewer — the API
+//   would refuse the write anyway, but a control that always renders a denial is
+//   worse than one that only appears where it can succeed.
+const CONSENT_LABEL = { PENDING: 'รอยืนยัน consent', GRANTED: 'ยืนยัน consent แล้ว', DECLINED: 'ลูกค้าปฏิเสธ', GRANDFATHERED: 'ลูกค้าเก่า (ก่อนมีระบบนี้)' }
+
+function ConsentControl({ businessId, customer, isOwner, onRecorded }) {
+  const [pending, setPending] = useState(null) // 'GRANTED' | 'DECLINED' | null
+  const [error, setError] = useState(null)
+
+  async function attest(status) {
+    setPending(status)
+    setError(null)
+    try {
+      const res = await fetch(`/api/crm/customers/${encodeURIComponent(customer.id)}/consent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessId, status }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body?.error || 'บันทึกไม่สำเร็จ')
+      onRecorded()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setPending(null)
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <div className="flex items-center gap-2">
+        <span className="text-[10px] text-muted">{CONSENT_LABEL[customer.consentStatus] || customer.consentStatus}</span>
+        <StatusPill status={customer.consentStatus} />
+      </div>
+      {isOwner && customer.consentStatus === 'PENDING' && (
+        <div className="flex gap-1.5">
+          <button
+            type="button"
+            className="btn h-7 px-2.5 text-[11px]"
+            disabled={Boolean(pending)}
+            onClick={() => attest('GRANTED')}
+          >
+            {pending === 'GRANTED' ? 'กำลังบันทึก…' : 'ลูกค้ายินยอมแล้ว'}
+          </button>
+          <button
+            type="button"
+            className="btn btn-danger h-7 px-2.5 text-[11px]"
+            disabled={Boolean(pending)}
+            onClick={() => attest('DECLINED')}
+          >
+            {pending === 'DECLINED' ? 'กำลังบันทึก…' : 'ลูกค้าปฏิเสธ'}
+          </button>
+        </div>
+      )}
+      {error && <span className="text-[10px] text-[var(--danger)]">{error}</span>}
+    </div>
+  )
+}
+
+function Thread({ businessId, conversationId, isOwner }) {
   const path = conversationId
     ? `/api/crm/conversations/${encodeURIComponent(conversationId)}?businessId=${encodeURIComponent(businessId)}`
     : null
@@ -81,11 +144,17 @@ function Thread({ businessId, conversationId }) {
           <p className="mt-0.5 font-mono text-[10px] text-muted">
             {conversation.customer.code} · {conversation.channel} · {conversation.businessName || 'ทั้ง tenant'}
           </p>
+          <div className="mt-1 flex items-center gap-2">
+            <StatusPill status={conversation.customer.lifecycleStage} />
+            <StatusPill status={conversation.status} />
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <StatusPill status={conversation.customer.lifecycleStage} />
-          <StatusPill status={conversation.status} />
-        </div>
+        <ConsentControl
+          businessId={businessId}
+          customer={conversation.customer}
+          isOwner={isOwner}
+          onRecorded={thread.reload}
+        />
       </div>
 
       <div className="mt-3 flex-1 space-y-3 overflow-y-auto">
@@ -122,6 +191,10 @@ export default function ConversationInboxPage() {
   const path = businessId ? `/api/crm/conversations?businessId=${encodeURIComponent(businessId)}` : null
   const inbox = useFetch(path, [businessId])
   const [selected, setSelected] = useState(null)
+  // @req FR-103 — same per-Business OWNER gate the FR-059 strategy edit affordance
+  //   uses (`/api/viewer` → ownedBusinessIds), never the global `role` label alone.
+  const viewer = useFetch('/api/viewer')
+  const isOwner = Boolean(viewer.data?.ownedBusinessIds?.includes(businessId))
 
   const rows = useMemo(() => inbox.data?.conversations ?? [], [inbox.data])
 
@@ -181,7 +254,7 @@ export default function ConversationInboxPage() {
               ))}
             </div>
             <div className="lg:max-h-[70vh]">
-              <Thread businessId={businessId} conversationId={selected} />
+              <Thread businessId={businessId} conversationId={selected} isOwner={isOwner} />
             </div>
           </div>
         </>

@@ -4,6 +4,7 @@ import {
   Network, Flag, GitBranch, Rocket, ScrollText, DatabaseBackup, Settings,
   ShoppingCart, Users, Megaphone, UtensilsCrossed, ServerCog, Target,
   FolderOpen, PlugZap, ClipboardCheck, MessagesSquare,
+  Workflow,
 } from 'lucide-react'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
@@ -127,6 +128,7 @@ export const DOMAINS = [
       { label: 'Users', path: '/platform/users', icon: Users },
       { label: 'Integrations', path: '/platform/integrations', icon: PlugZap },
       { label: 'Customer Review', path: '/platform/customer-import-reviews', icon: ClipboardCheck },
+      { label: 'SoT Pipeline', path: '/platform/sot-pipeline', icon: Workflow },
       { label: 'Audit', path: '/audit', icon: ScrollText },
       { label: 'Backup', path: '/backup', icon: DatabaseBackup },
       { label: 'Settings', path: '/settings', icon: Settings },

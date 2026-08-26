@@ -18,12 +18,12 @@ sub-features, with an explicit root contract per domain** — and binds it to V2
 > user lands on (`login → RBAC → Home → Business Overview`) are defined there; §1–§2 below show
 > the ERP-lens default.
 
-> **Accepted entry amendment:** ADR-015 / FR-044 changes the pre-shell journey to
-> `Landing (/) → Login stub (/login) → Business Routing (/businesses) → BusinessShell
-> (/overview)`. This amendment is routing-only: no auth implementation and no design-token
-> change. The route boundary and Business Routing proof are implemented. ADR-017 /
-> FR-046 now propose the separate viewer/session contract; it is not runtime behavior
-> until approved and implemented.
+> **Accepted entry amendment:** ADR-015 / FR-044 defines the pre-shell journey as
+> `Landing (/) → credential Login (/login) → Business Routing (/businesses) →
+> BusinessShell (/overview)`. The route boundary and Business Routing proof remain
+> authoritative; FR-046 / ADR-017 now provide the implemented `PersonCredential` and
+> signed-session authentication boundary. The old demo-login wording below is retained
+> only in historical decision records.
 
 > **Approved next entry amendment:** ADR-027 / FR-066/067 adds `Profile` before any
 > operating scope. A Profile-only member may remain in `/waiting-room`, accept a
@@ -127,7 +127,7 @@ shell scope. The active lens changes labels, never identity or isolation.
 | 8 | **`/projects/{id}/files`** | — (leaf) | 🏠 › Workspace › Organization › Business › PRJ-x › Files |
 
 - **Accepted FR-044 route contract:** `/` is minimal Landing,
-  `/login` is a demo Login stub, `/businesses` is Business Routing, and `/overview` is the
+  `/login` is credential Login, `/businesses` is Business Routing, and `/overview` is the
   guarded BusinessShell. Business Routing is shown even for one visible Business; no final
   shell chrome renders before selection. Historical rows above remain for traceability only.
 - **Profile-first target (ADR-027):** `/onboarding/profile` completes the Person

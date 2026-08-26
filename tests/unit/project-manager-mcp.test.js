@@ -15,7 +15,29 @@ function makeTransport() {
   const commitPlan = vi.fn(async (rawPlan, options) => ({
     committed: true, projectId: 'project-mcp-test', plan: rawPlan, principalId: options.viewer.principalId,
   }))
-  return { transport: createProjectManagerMcpTransport({ dryRunPlan, commitPlan }), dryRunPlan, commitPlan }
+  const readWork = vi.fn(async (args, options) => ({
+    items: [{ id: 'work-item-mcp-test', code: 'WI-MCP-TEST', status: 'PLANNED' }],
+    limit: 500,
+    truncated: false,
+    principalId: options.viewer.principalId,
+    scope: args.projectId || args.workstreamId,
+  }))
+  const updateWorkStatus = vi.fn(async (workItemId, status, options) => ({
+    id: workItemId,
+    status,
+    principalId: options.viewer.principalId,
+  }))
+  return {
+    transport: createProjectManagerMcpTransport({
+      dryRunPlan,
+      commitPlan,
+      work: { readWork, updateWorkStatus },
+    }),
+    dryRunPlan,
+    commitPlan,
+    readWork,
+    updateWorkStatus,
+  }
 }
 
 async function initialize(transport) {
@@ -42,11 +64,21 @@ describe('Project Manager MCP transport', () => {
     expect(notification.status).toBe(204)
   })
 
-  it('tools/list exposes only implemented PlanEnvelope capabilities', async () => {
+  it('tools/list exposes the PlanEnvelope and approved data-pipeline capabilities', async () => {
     const { transport } = makeTransport()
     const sessionId = await initialized(transport)
     const response = await transport.handle({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} }, { viewer, sessionId })
-    expect(response.body.result.tools.map((tool) => tool.name)).toEqual(['project_manager.plan_dry_run', 'project_manager.plan_commit'])
+    expect(response.body.result.tools.map((tool) => tool.name)).toEqual([
+      'project_manager.plan_dry_run',
+      'project_manager.plan_commit',
+      'project_manager.work_read',
+      'project_manager.work_status_update',
+      'data_pipeline.run_create',
+      'data_pipeline.document_stage',
+      'data_pipeline.event_record',
+      'data_pipeline.monitor_read',
+      'data_pipeline.replay_request',
+    ])
   })
 
   it('tools/call success delegates the same viewer and PlanEnvelope to the intake service', async () => {
@@ -59,6 +91,61 @@ describe('Project Manager MCP transport', () => {
     expect(response.body.result.isError).toBe(false)
     expect(response.body.result.structuredContent.valid).toBe(true)
     expect(dryRunPlan).toHaveBeenCalledWith(plan, { workspaceId: 'workspace-mcp-test', viewer })
+  })
+
+  it('reads scoped work through the authenticated viewer boundary', async () => {
+    const { transport, readWork } = makeTransport()
+    const sessionId = await initialized(transport)
+    const response = await transport.handle({
+      jsonrpc: '2.0', id: 11, method: 'tools/call',
+      params: {
+        name: 'project_manager.work_read',
+        arguments: { projectId: 'project-mcp-test', status: 'IN_PROGRESS', q: 'migration' },
+      },
+    }, { viewer, sessionId })
+    expect(response.body.result.isError).toBe(false)
+    expect(response.body.result.structuredContent.scope).toBe('project-mcp-test')
+    expect(readWork).toHaveBeenCalledWith(
+      { projectId: 'project-mcp-test', status: 'IN_PROGRESS', q: 'migration' },
+      { viewer },
+    )
+  })
+
+  it('updates only the work item status through the existing mutation boundary', async () => {
+    const { transport, updateWorkStatus } = makeTransport()
+    const sessionId = await initialized(transport)
+    const response = await transport.handle({
+      jsonrpc: '2.0', id: 12, method: 'tools/call',
+      params: {
+        name: 'project_manager.work_status_update',
+        arguments: { workItemId: 'work-item-mcp-test', status: 'IN_PROGRESS' },
+      },
+    }, { viewer, sessionId })
+    expect(response.body.result.isError).toBe(false)
+    expect(response.body.result.structuredContent).toMatchObject({
+      id: 'work-item-mcp-test',
+      status: 'IN_PROGRESS',
+      principalId: viewer.principalId,
+    })
+    expect(updateWorkStatus).toHaveBeenCalledWith('work-item-mcp-test', 'IN_PROGRESS', { viewer })
+  })
+
+  it('rejects unscoped work reads and invalid status updates before service execution', async () => {
+    const { transport, readWork, updateWorkStatus } = makeTransport()
+    const sessionId = await initialized(transport)
+    const unscoped = await transport.handle({
+      jsonrpc: '2.0', id: 13, method: 'tools/call',
+      params: { name: 'project_manager.work_read', arguments: { status: 'PLANNED' } },
+    }, { viewer, sessionId })
+    expect(unscoped.body.error.code).toBe(-32602)
+    expect(readWork).not.toHaveBeenCalled()
+
+    const invalidStatus = await transport.handle({
+      jsonrpc: '2.0', id: 14, method: 'tools/call',
+      params: { name: 'project_manager.work_status_update', arguments: { workItemId: 'work-item-mcp-test', status: 'COMPLETE' } },
+    }, { viewer, sessionId })
+    expect(invalidStatus.body.error.code).toBe(-32602)
+    expect(updateWorkStatus).not.toHaveBeenCalled()
   })
 
   it('tools/call rejects unknown tools and arbitrary executable/import payloads', async () => {

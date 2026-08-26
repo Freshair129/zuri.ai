@@ -1,12 +1,13 @@
 // @req FR-091 — the CRM Inbox is reachable, renders what the LINE ingress wrote, and
 // offers no way to reply.
-// @spec SDD-049, BR-001, BR-011
+// @req FR-103 — the owner attestation control actually records consent, end to end.
+// @spec SDD-050, SDD-053, BR-001, BR-011, SEC-005
 // @tested tests/e2e/fr091-conversation-inbox.spec.js
 const { test, expect } = require('@playwright/test')
+const { loginAsOwner } = require('./e2e-auth')
 
 async function chooseBusiness(page, name = 'Business 01') {
-  await page.goto('/login')
-  await page.getByRole('button', { name: /demo login/i }).click()
+  await loginAsOwner(page)
   await page.getByRole('button', { name: new RegExp(`Open Business ${name}`) }).click()
   await expect(page).toHaveURL(/overview/)
 }
@@ -65,6 +66,37 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
     const thread = page.locator('.card').filter({ hasText: 'BR-011' })
     await expect(thread).toContainText('สวัสดีครับ ขอราคาหน่อย')
     await expect(thread).toContainText('เอา 10 ชุดครับ')
+  })
+
+  test('the owner attests PDPA consent, and it persists across a reload (FR-103)', async ({ page }) => {
+    await chooseBusiness(page)
+    const sent = await ingest(page, {
+      thread: 'e2e-consent',
+      userId: 'Ue2e-consent',
+      displayName: 'ลูกค้ายินยอม',
+      messages: ['ขอสอบถามครับ'],
+    })
+
+    await page.goto('/customer/conversations')
+    const row = page.getByRole('listitem').filter({ hasText: sent.displayName }).first()
+    await row.getByRole('button').click()
+
+    const thread = page.locator('.card').filter({ hasText: 'BR-011' })
+    // A brand new Customer starts PENDING, so the attestation buttons are visible.
+    await expect(thread.getByText('PENDING', { exact: true })).toBeVisible()
+    await thread.getByRole('button', { name: 'ลูกค้ายินยอมแล้ว' }).click()
+
+    // The button becomes unavailable the moment status leaves PENDING — proves the
+    // write round-tripped through the API and the panel re-read it (onRecorded).
+    await expect(thread.getByText('GRANTED', { exact: true })).toBeVisible()
+    await expect(thread.getByRole('button', { name: 'ลูกค้ายินยอมแล้ว' })).toHaveCount(0)
+
+    // Persisted, not just local state: a fresh load of the same conversation still
+    // shows GRANTED.
+    await page.reload()
+    const reopened = page.getByRole('listitem').filter({ hasText: sent.displayName }).first()
+    await reopened.getByRole('button').click()
+    await expect(page.locator('.card').filter({ hasText: 'BR-011' }).getByText('GRANTED', { exact: true })).toBeVisible()
   })
 
   test('offers no way to reply — the reply owner is the runtime that received the message', async ({ page }) => {

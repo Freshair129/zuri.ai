@@ -14,17 +14,17 @@ extendZodWithOpenApi(z)
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
 export const CURRENT_API_ROUTE_INVENTORY = [
-  ['/api/agent/line-webhook', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
+  ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']], ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
-  ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']],
+  ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']], ['/api/crm/customers/{customerId}/consent', ['POST']],
   ['/api/dependencies', ['GET', 'POST']], ['/api/dependencies/{id}', ['DELETE']], ['/api/docs', ['GET']], ['/api/entry', ['GET']], ['/api/files', ['GET', 'POST']], ['/api/files/{id}', ['DELETE']],
   ['/api/files/{id}/content', ['GET']], ['/api/files/{id}/relink', ['POST']], ['/api/files/{id}/reveal', ['POST']], ['/api/files/cache/rebuild', ['POST']], ['/api/files/migrate', ['POST']], ['/api/files/mounts', ['GET', 'POST']], ['/api/files/reconcile', ['POST']],
-  ['/api/gates', ['POST']], ['/api/gates/{id}', ['PATCH']], ['/api/import/commit', ['POST']], ['/api/import/dry-run', ['POST']], ['/api/import/template', ['GET']], ['/api/import/xlsx', ['POST']], ['/api/mcp', ['POST']],
-  ['/api/milestones', ['GET', 'POST']], ['/api/milestones/{id}', ['PATCH']], ['/api/people', ['GET']], ['/api/platform/customer-import-reviews', ['GET']], ['/api/platform/customer-import-reviews/{caseId}/decisions', ['POST']], ['/api/platform/customer-import-reviews/targets', ['GET']],
-  ['/api/platform/integrations', ['GET', 'POST']], ['/api/platform/users', ['GET', 'PATCH']], ['/api/profile', ['GET']], ['/api/progress/portfolio', ['GET']], ['/api/progress/project/{id}', ['GET']], ['/api/progress/workstream/{id}', ['GET']],
+  ['/api/gates', ['POST']], ['/api/gates/{id}', ['PATCH']], ['/api/import/commit', ['POST']], ['/api/import/dry-run', ['POST']], ['/api/import/template', ['GET']], ['/api/import/xlsx', ['POST']], ['/api/ingest/documents', ['GET', 'POST']], ['/api/mcp', ['POST']],
+  ['/api/milestones', ['GET', 'POST']], ['/api/milestones/{id}', ['PATCH']], ['/api/people', ['GET']], ['/api/pipelines/runs', ['GET', 'POST']], ['/api/pipelines/runs/{executionRunId}', ['GET']], ['/api/pipelines/runs/{executionRunId}/events', ['POST']], ['/api/pipelines/runs/{executionRunId}/replay', ['POST']], ['/api/platform/customer-import-reviews', ['GET']], ['/api/platform/customer-import-reviews/{caseId}/decisions', ['POST']], ['/api/platform/customer-import-reviews/targets', ['GET']], ['/api/platform/sot/plan', ['GET']], ['/api/platform/sot/decisions', ['GET', 'POST']], ['/api/platform/sot/decisions/{decisionId}/decide', ['POST']], ['/api/platform/sot/decisions/export', ['GET']],
+  ['/api/platform/integrations', ['GET', 'POST']], ['/api/platform/integrations/line-registry', ['GET', 'POST']], ['/api/platform/users', ['GET', 'PATCH']], ['/api/profile', ['GET']], ['/api/progress/portfolio', ['GET']], ['/api/progress/project/{id}', ['GET']], ['/api/progress/workstream/{id}', ['GET']],
   ['/api/projects', ['GET', 'POST']], ['/api/projects/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/projects/{id}/dependencies', ['GET']], ['/api/projects/{id}/files', ['GET', 'POST']], ['/api/projects/{id}/files/{fileId}', ['DELETE']], ['/api/projects/{id}/inventory', ['GET']], ['/api/projects/{id}/roadmap', ['GET']], ['/api/projects/{id}/team', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/projects/{id}/teams', ['GET', 'POST', 'DELETE']], ['/api/projects/{id}/tree', ['GET']], ['/api/projects/overview', ['GET']],
-  ['/api/repositories', ['GET', 'POST']], ['/api/repositories/{id}', ['PATCH']], ['/api/repositories/link', ['POST']], ['/api/repositories/link/{id}', ['DELETE']], ['/api/resolve', ['GET']], ['/api/scope', ['GET', 'POST']], ['/api/session/demo', ['POST']], ['/api/teams', ['GET', 'POST']], ['/api/teams/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/teams/{id}/members', ['POST', 'DELETE']], ['/api/viewer', ['GET']],
+  ['/api/repositories', ['GET', 'POST']], ['/api/repositories/{id}', ['PATCH']], ['/api/repositories/link', ['POST']], ['/api/repositories/link/{id}', ['DELETE']], ['/api/resolve', ['GET']], ['/api/scope', ['GET', 'POST']], ['/api/auth/login', ['POST']], ['/api/auth/logout', ['POST']], ['/api/teams', ['GET', 'POST']], ['/api/teams/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/teams/{id}/members', ['POST', 'DELETE']], ['/api/viewer', ['GET']],
   ['/api/work', ['GET', 'POST']], ['/api/work/{id}', ['PATCH', 'DELETE']], ['/api/workspaces/{id}', ['PATCH', 'DELETE']], ['/api/workstreams', ['GET', 'POST']], ['/api/workstreams/{id}', ['PATCH', 'DELETE']],
 ]
 
@@ -47,13 +47,12 @@ function genericRequest(path, method) {
   if (path === '/api/import/xlsx') {
     return { body: { content: { 'multipart/form-data': { schema: z.object({ file: z.string().openapi({ format: 'binary' }), workspaceId: z.string().optional(), projectId: z.string().optional() }) } } } }
   }
-  if (path === '/api/session/demo' || path === '/api/files/{id}/reveal') return undefined
+  if (path === '/api/files/{id}/reveal') return undefined
   return { body: { content: { 'application/json': { schema: zRouteInventoryRequest } } } }
 }
 
 function genericResponses(path) {
   if (path === '/api/files/{id}/content') return { 200: { description: 'Authorized file content stream', content: { 'application/octet-stream': { schema: zBinaryResponse } } } }
-  if (path === '/api/session/demo') return { 303: { description: 'Redirect to the business entry surface' }, 404: json(zError, 'Local demo session is disabled') }
   return {
     200: json(zRouteInventoryResponse, 'Route-specific success response; fields are intentionally not generalized here'),
     400: json(zError, 'Route-specific validation or malformed request error'),

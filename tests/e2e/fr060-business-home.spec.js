@@ -2,10 +2,10 @@
 // @spec SDD-033 — reserved domains must never render a number.
 // @tested tests/e2e/fr060-business-home.spec.js
 const { test, expect } = require('@playwright/test')
+const { loginAsOwner } = require('./e2e-auth')
 
 async function openBusinessHome(page) {
-  await page.goto('/login')
-  await page.getByRole('button', { name: /demo login/i }).click()
+  await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/i }).click()
   await expect(page).toHaveURL(/\/overview$/)
 }

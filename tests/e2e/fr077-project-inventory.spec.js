@@ -2,13 +2,13 @@
 // @spec SDD-045, ADR-034, ADR-017
 // @tested tests/e2e/fr077-project-inventory.spec.js
 const { test, expect } = require('@playwright/test')
+const { loginAsOwner } = require('./e2e-auth')
 // A lost connection is not a result. See the header of this module for the run
 // that turned one into a red `main`, and for why only the connection is retried.
 const { api } = require('./reconnecting-request')
 
 async function chooseBusiness(page, name = 'Business 01') {
-  await page.goto('/login')
-  await page.getByRole('button', { name: /demo login/i }).click()
+  await loginAsOwner(page)
   await page.getByRole('button', { name: new RegExp(`Open Business ${name}`) }).click()
   await expect(page).toHaveURL(/overview/)
 }

@@ -4,13 +4,13 @@
 // @spec SEC-001, SEC-008
 // @tested tests/integration/fr072-dependency-authorization.test.js
 // @req FR-046 — a dependency list resolves a trusted viewer and requires a
-// Project scope before the unscoped compatibility read runs.
+// Project or visible Business scope before the compatibility read runs.
 // @tested tests/unit/authorization-seam-routes.test.js
 import { handle, httpError, queryParams } from '../_helpers'
 import prisma from '@/lib/db'
 import { listDependencies, createDependency } from '@/modules/project-manager/application/dependency-service'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
-import { isInstallationOperator } from '@/modules/identity/viewer-authority'
+import { isInstallationOperator, seesBusiness } from '@/modules/identity/viewer-authority'
 import { assertProjectReadable } from '@/modules/project-manager/application/project-inventory-read-model'
 
 export const dynamic = 'force-dynamic'
@@ -37,8 +37,13 @@ export async function GET(request) {
     const viewer = await resolveRequestViewer(request)
     const q = queryParams(request)
     if (q.projectId) await assertProjectVisible(q.projectId, viewer)
-    else if (!isInstallationOperator(viewer)) throw httpError(403, 'A Project scope is required')
-    return listDependencies({ projectId: q.projectId || undefined })
+    else if (q.businessId) {
+      if (!seesBusiness(viewer, q.businessId)) throw httpError(404, 'Business not found')
+    } else if (!isInstallationOperator(viewer)) throw httpError(403, 'A Project scope is required')
+    const filters = {}
+    if (q.projectId) filters.projectId = q.projectId
+    if (q.businessId) filters.businessId = q.businessId
+    return listDependencies(filters)
   })
 }
 

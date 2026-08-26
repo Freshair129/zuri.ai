@@ -30,9 +30,10 @@ work from them. Id strings keep their historical letters (`ZV2-CR-007` stays
 | Rule | Why |
 |---|---|
 | **Never modify anything under `G:\zuri`** | It is a different product's repository (the legacy zuri project). Reading it as prior art is fine (ADR-024 D7); writing to it never is |
-| **Never read `D:\workspace\zuri-command-agent\.env`** | It holds LINE OA secrets |
+| **Never read `D:\workspace\zuri-edge-device\.env`** | It holds local on-premise secrets and pairing keys (ADR-041) |
 | **External ids are never primary keys** | Internal UUID + human `code` + `ExternalRef` mapping (BR-002) |
 | **Never execute anything that arrives in a plan/envelope** | Plans are data (BR-007, SEC-002) |
+| **GenesisBlockDB is 6-lane substrate; MSP governs memory/sessions; GKS orchestrates RAG** | Four-tier cognitive stack separates Execution (Tier 1) → Memory (Tier 2/MSP) → Knowledge (Tier 3/GKS) → Substrate (Tier 4/GenesisBlockDB) (ADR-041..043) |
 
 ## Layout
 
@@ -72,7 +73,19 @@ npm run docs:graph     # rebuild docs/.doc-graph.json + Appendix D from the file
 npm run docs:check     # fails when the committed graph is stale
 npm run docs:preflight # doc health — exits non-zero on any CRITICAL (--strict)
 npm run docs:preflight:report  # same findings, never fails — for reading, not gating
+npm run docs:ids       # the id ledger's ONLY writer — run by a human, never by govern.
+                       # `-- --write` pins newly declared ids (the routine "+" block);
+                       # --reword / --supersede / --abandon / --distinct / --declare each
+                       # record one named change with a sentence. See ADR-039.
 ```
+
+**Declaring a new id costs one command.** Preflight Check 12 fails on an id that
+is declared in a registry and not pinned in `docs/.id-ledger.json`, so the step
+after adding an `FR-xxx` row is `npm run docs:ids -- --write` — one `+` block, no
+ceremony. `govern` deliberately does not run the writer: a writer inside the gate
+is a gate that silences itself (ADR-039 D11). Everything else the ledger asks for
+is a named flag with a written reason, because the thing it exists to stop —
+an id quietly coming to mean something else — is invisible in every other view.
 
 **Both test commands are wrapped by `scripts/assert-tests-ran.mjs`**, which fails a
 run that executed zero tests. `npx vitest run -t "NO_MATCH"` exits **0** with *every*
@@ -185,6 +198,14 @@ different statement, and never recycle a dropped one (mark it superseded and lea
 the number burnt). Plans, annotations, tests, Appendix D and the doc graph all key
 off them. Same rule as ADR-003 §D4 one level up: change the label, never the key.
 Full statement: AGENTS.md §18.
+
+**This is now enforced, not only asked for** ([ADR-039](docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)).
+`docs/.id-ledger.json` pins the *subject* of every declared id — the leading
+phrase of its statement — and preflight Check 12 is CRITICAL when one moves, when
+a new id inherits a subject already recorded in its family, when a pinned id
+disappears from its registry, when an entry that was once pinned is gone, or when
+a burnt number is re-declared. Rewording is free; a move has to say what moved and
+why, in the ledger and in the PRD revision row that names the id.
 
 ### Doc-code annotations
 

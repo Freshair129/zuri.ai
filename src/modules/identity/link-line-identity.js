@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto'
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { zIssueLinkTokenInput, zRedeemLinkTokenInput } from '@/lib/validation/entities'
+import { activateChannelIdentity } from './channel-identity'
 
 // @req FR-022 — account linking: bind a LINE subject to an EXISTING Person instead
 //   of minting a fresh one (the resolveLineIdentity first-contact default).
@@ -11,6 +12,9 @@ import { zIssueLinkTokenInput, zRedeemLinkTokenInput } from '@/lib/validation/en
 //   never left as a second principal for the same human.
 // @spec BR-002 — providerSubject is an attribute, never a PK; the binding lives on
 //   ExternalIdentity keyed by (tenantId, provider, providerSubject).
+// @req FR-097 — the existing server-owned link-token proof is the only transition
+//   from a discovered channel subject to an ACTIVE ChannelIdentity.
+// @spec ADR-044, ADR-045 D1/D5-D6, BR-020, SEC-018
 // @tested tests/integration/identity-link.test.js
 
 const PROVIDER = 'LINE'
@@ -58,7 +62,7 @@ export async function issueLinkToken(input) {
  * @returns {{ personId, externalIdentityId, linked, reactivated, merged, fromPersonId }}
  */
 export async function redeemLinkToken(input) {
-  const { tenantId, token, lineUserId, displayName, merge } = zRedeemLinkTokenInput.parse(input)
+  const { tenantId, token, channelAccountId, lineUserId, displayName, merge } = zRedeemLinkTokenInput.parse(input)
 
   const tok = await prisma.identityLinkToken.findUnique({ where: { token } })
   if (!tok || tok.tenantId !== tenantId) throw new Error('Invalid link token')
@@ -141,6 +145,16 @@ export async function redeemLinkToken(input) {
       await tx.person.update({ where: { id: targetPersonId }, data: { displayName } })
     }
 
+    const channelIdentity = await activateChannelIdentity({
+      db: tx,
+      tenantId,
+      personId: targetPersonId,
+      channelAccountId,
+      providerSubject: lineUserId,
+      now,
+      allowReassign: merge,
+    })
+
     await tx.identityLinkToken.update({ where: { id: tok.id }, data: { consumedAt: now } })
     await recordAudit(tx, {
       entityType: 'EXTERNAL_IDENTITY',
@@ -150,7 +164,7 @@ export async function redeemLinkToken(input) {
       payload: { tenantId, provider: PROVIDER, personId: targetPersonId, tokenId: tok.id, ...(fromPersonId ? { fromPersonId } : {}) },
     })
 
-    return { identityId: identity.id, linked, reactivated, merged, fromPersonId }
+    return { identityId: identity.id, linked, reactivated, merged, fromPersonId, channelIdentity }
   })
 
   return {
@@ -160,5 +174,6 @@ export async function redeemLinkToken(input) {
     reactivated: result.reactivated,
     merged: result.merged,
     fromPersonId: result.fromPersonId,
+    channelIdentity: result.channelIdentity,
   }
 }

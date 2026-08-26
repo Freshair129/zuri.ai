@@ -65,7 +65,7 @@ async function reconnecting(send) {
 
 /**
  * The two verbs the e2e specs use, bound to a Playwright request context that
- * already carries the demo-session cookie (`page.request`, not `request`, for
+ * already carries the signed session cookie (`page.request`, not `request`, for
  * anything behind the viewer gate — see the RCA from 2026-08-19).
  *
  * @param {{ get: Function, post: Function }} context

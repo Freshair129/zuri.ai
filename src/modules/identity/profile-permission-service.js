@@ -80,7 +80,7 @@ export async function getMyProfile({ db = prisma, resolve = resolveViewer } = {}
     where: { personId: viewer.principal.id, revokedAt: null },
     select: { provider: true, linkedAt: true, verifiedAt: true },
   })
-  return { ...viewer, identities, session: { type: 'LOCAL_DEMO', active: true } }
+  return { ...viewer, identities, session: { type: 'AUTHENTICATED', active: true } }
 }
 
 // @req FR-062 — the list is scoped by the SAME field the write authorizes on,

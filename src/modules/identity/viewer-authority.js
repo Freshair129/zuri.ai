@@ -100,3 +100,19 @@ export function seesBusiness(viewer, businessId) {
   const visible = grantList(viewer, 'visibleBusinessIds')
   return visible !== null && visible.includes(businessId)
 }
+
+/**
+ * May this viewer act as the SoT pipeline's external data plane, for this
+ * Tenant? True only for a service-account viewer (FR-102) resolved from a
+ * `SotDataPlaneKey` bound to exactly `tenantId`. Deliberately its own
+ * predicate rather than a case inside `isInstallationOperator`: a data-plane
+ * key is not an installation operator and must never be able to satisfy that
+ * check — it can submit and pull SoT decisions for the one Tenant it is
+ * scoped to, nothing an operator grant would additionally unlock (whole-
+ * installation restore, cross-tenant reach).
+ */
+export function isSotDataPlaneFor(viewer, tenantId) {
+  if (!tenantId || typeof tenantId !== 'string') return false
+  if (viewer?.isSotDataPlane !== true) return false
+  return viewer.tenantId === tenantId
+}

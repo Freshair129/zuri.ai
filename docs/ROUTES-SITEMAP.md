@@ -11,7 +11,7 @@
 
 ```text
 /                 EntryShell: minimal Landing → /login
-/login            EntryShell: demo Login button only → /businesses
+/login            EntryShell: credential login → /businesses
 /businesses       BusinessRoutingShell: viewer-visible Business selection
 /overview         BusinessShell: selected Business Overview
 /{domain}/...     BusinessShell: Business-bound domain/sub-domain
@@ -28,7 +28,7 @@ implemented by the current route tree yet.
 
 ```text
 /                         EntryShell: Landing
-/login                    EntryShell: local/demo identity transition
+/login                    EntryShell: authenticated account login
 /onboarding/profile       Profile setup over the resolved Person
 /waiting-room             Profile-only member or pending invitation state
 /workspaces               top-level collaboration Workspace list/home (Portfolio)
@@ -148,11 +148,12 @@ until their parity and BusinessModule gates are met.
 ## API reference
 
 The current API route inventory is maintained in
-[`appendices/A-api-spec.md`](appendices/A-api-spec.md). It contains 67 current route handlers;
-FR-044 adds no login endpoint. The entry routing contract reuses `/api/viewer` and
-`/api/scope` until production authentication introduces a viewer-scoped session
-interface. ADR-027's future contract will add viewer-scoped Profile/Workspace
-entry data and invitation mutations; those endpoints are not present yet.
+[`appendices/A-api-spec.md`](appendices/A-api-spec.md). Credential login and logout
+are `/api/auth/login` and `/api/auth/logout`; protected entry routes consume the
+signed session through the provider-neutral `SessionPort`. The entry routing
+contract still uses `/api/entry` and does not accept client-supplied identity.
+ADR-027's future contract will add viewer-scoped Profile/Workspace entry data and
+invitation mutations; those endpoints are not present yet.
 
 ## Evidence and drift rule
 

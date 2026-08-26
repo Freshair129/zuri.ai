@@ -1,13 +1,21 @@
-// @req FR-016 — idempotent demo seed (4 tenants, 7-mode demo project)
+// @req FR-016 — idempotent sample-data seed (4 tenants, 7-mode sample project)
 // @spec NFR-007 — safe to re-run: every record is upserted by its unique human code.
 // @tested tests/e2e/smoke.spec.js — the whole e2e suite asserts against this data
 const { PrismaClient } = require('@prisma/client')
+const { randomBytes, scryptSync } = require('node:crypto')
 
 // @req FR-041 - seed Business Strategy horizons for the Business-first Overview.
 // @spec ADR-013
 // @tested tests/e2e/fr041-business-first.spec.js
 
 const prisma = new PrismaClient()
+
+function hashSeedPassword(password) {
+  if (typeof password !== 'string' || password.length < 8) throw new Error('ZURI_SEED_OWNER_PASSWORD must be at least 8 characters')
+  const salt = randomBytes(16).toString('hex')
+  const derivedKey = scryptSync(password, salt, 64).toString('hex')
+  return `scrypt$${salt}$${derivedKey}`
+}
 
 async function main() {
   // ---- Portfolio / Tenants / Businesses (4 isolated tenants) ---------------
@@ -67,12 +75,22 @@ async function main() {
     },
   })
 
-  // Local owner person + membership (demo identity only — no auth).
+  // Seeded account identity. A credential is provisioned only when the caller
+  // explicitly supplies ZURI_SEED_OWNER_PASSWORD; there is no password fallback.
   const owner = await prisma.person.upsert({
     where: { code: 'PER-OWNER' },
-    update: {},
+    update: { email: 'owner@local' },
     create: { code: 'PER-OWNER', displayName: 'Local Owner', email: 'owner@local' },
   })
+  const seedOwnerPassword = process.env.ZURI_SEED_OWNER_PASSWORD
+  if (seedOwnerPassword) {
+    const passwordHash = hashSeedPassword(seedOwnerPassword)
+    await prisma.personCredential.upsert({
+      where: { personId: owner.id },
+      update: { passwordHash },
+      create: { personId: owner.id, passwordHash },
+    })
+  }
   const existingMembership = await prisma.membership.findFirst({
     where: { personId: owner.id, tenantId: tenants['TNT-001'].id },
   })
@@ -424,7 +442,7 @@ async function main() {
         businessId: businesses['BUS-001'].id,
         // MEMBER, not OWNER: `resolveViewer` builds `ownedBusinessIds` from
         // OWNER memberships, so a second owner in the demo data would quietly
-        // widen what the demo identity can write.
+        // widen what the seeded account can write.
         role: 'MEMBER',
       },
     })

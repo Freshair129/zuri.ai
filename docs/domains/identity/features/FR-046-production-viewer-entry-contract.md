@@ -9,7 +9,7 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 0.2.0b |
+| **Version** | 0.3.0b |
 | **Status** | Implemented — beta |
 | **Date** | 2026-08-14 |
 | **Relates to** | ADR-017, SDD-024, SEC-008, FR-031, FR-044, ZV2-CR-002 |
@@ -38,8 +38,13 @@ cannot be inferred from browser traffic.
    and SHALL NOT fall back to a demo owner or broad scope.
 7. WHILE the compatibility window is active THEN `/api/viewer` SHALL use the same
    request-session seam and `/api/scope` SHALL NOT be used by Business Routing.
-8. IF explicit local-demo capability is enabled outside production THEN the demo flow
-   MAY create a local-only trusted session; production SHALL never activate that path.
+8. WHEN a user submits an identifier (email or account code) and password to
+   `/api/auth/login` THEN the system SHALL verify the persisted `PersonCredential`
+   and return a signed, expiring HttpOnly `zuri_session` cookie; missing or invalid
+   credentials SHALL return a generic `401` without issuing a cookie.
+9. WHEN a user posts `/api/auth/logout` THEN the system SHALL clear the signed
+   session cookie; no local-demo capability, seeded-owner fallback or client identity
+   input SHALL authenticate a request.
 
 ## Acceptance criteria
 
@@ -53,12 +58,14 @@ cannot be inferred from browser traffic.
 - [x] AC-046-08 Session adapter failure returns `503` and no local fallback.
 - [x] AC-046-09 `/businesses` performs one entry fetch and does not call `/api/scope` or `/api/viewer`.
 - [x] AC-046-10 BusinessShell and protected APIs still re-authorize the active Business/resource server-side.
-- [x] AC-046-11 Non-production demo capability is explicit and is impossible to enable in production.
-- [x] AC-046-12 Unit, contract, integration, browser, build, docs graph/preflight/check, and diff gates pass.
+- [x] AC-046-11 Credential login verifies `PersonCredential`, rejects empty/invalid credentials generically, and issues no cookie on failure.
+- [x] AC-046-12 Successful login issues a signed expiring HttpOnly session; logout clears it; tampered and expired tokens are unauthenticated.
+- [x] AC-046-13 No local-demo capability, seeded-owner fallback or client-controlled identity path remains in runtime authentication.
+- [~] AC-046-14 Authentication unit/contract/integration/browser paths, build, docs graph/preflight/check, and diff gates pass; four unrelated global-view smoke assertions still require explicit project/workspace scope.
 
 ## Out of scope
 
-- choosing or implementing password, LINE Login, OIDC, or a hosted auth vendor;
+- choosing a hosted auth vendor, LINE Login or OIDC;
 - account recovery, MFA, device management, and session-management UI;
 - redesigning Landing/Login visuals or design tokens;
 - changing Membership, Person, Tenant, Business, or Project ownership semantics;
@@ -66,14 +73,17 @@ cannot be inferred from browser traffic.
 
 ## Exit gate
 
-All AC-046 checks are green; `/businesses` cannot observe broad scope inventory;
-production has no implicit seeded-owner fallback; security review finds no client-
-controlled identity input; rollback restores the FR-044 demo routing without schema
-loss; generated traceability links FR-046, SDD-024, and SEC-008 to code and tests.
+Authentication ACs are green; `/businesses` cannot observe broad scope inventory;
+credential login and logout use the signed server session; no seeded-owner or
+local-demo fallback exists; security review finds no client-controlled identity
+input; generated traceability links FR-046, SDD-024, and SEC-008 to code and tests.
+The remaining global-view smoke assertions are an authorization-scope follow-up,
+not a login bypass.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.0b | 2026-08-22 | beta | Added PersonCredential verification, signed session login/logout, and removed the local-demo authentication path | working-tree | ATHER |
 | 0.1.0b | 2026-08-14 | candidate | Initial EARS requirements, AC and scope boundary | pending | ATHER |
 | 0.2.0b | 2026-08-14 | beta | Approved implementation with request-session, entry read model, compatibility and security proof | pending | ATHER |

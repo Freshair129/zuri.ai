@@ -178,6 +178,50 @@ describe('mixed-method authorization seam routes', () => {
     expect(mocks.listDependencies).not.toHaveBeenCalled()
   })
 
+  it('allows a visible Business-scoped dependency list', async () => {
+    mocks.listDependencies.mockResolvedValueOnce([])
+
+    const response = await dependenciesRoute.GET(request('/api/dependencies?businessId=business-b'))
+
+    expect(response.status).toBe(200)
+    expect(mocks.listDependencies).toHaveBeenCalledWith({ businessId: 'business-b' })
+  })
+
+  it('refuses an invisible Business-scoped dependency list', async () => {
+    const response = await dependenciesRoute.GET(request('/api/dependencies?businessId=business-a'))
+
+    expect(response.status).toBe(404)
+    expect(mocks.listDependencies).not.toHaveBeenCalled()
+  })
+
+  it('allows a visible Business-scoped milestone and gate list', async () => {
+    mocks.listMilestonesAndGates.mockResolvedValueOnce({ milestones: [], gates: [] })
+
+    const response = await milestonesRoute.GET(request('/api/milestones?businessId=business-b'))
+
+    expect(response.status).toBe(200)
+    expect(mocks.listMilestonesAndGates).toHaveBeenCalledWith({ businessId: 'business-b' })
+  })
+
+  it('refuses an invisible Business-scoped milestone and gate list', async () => {
+    const response = await milestonesRoute.GET(request('/api/milestones?businessId=business-a'))
+
+    expect(response.status).toBe(404)
+    expect(mocks.listMilestonesAndGates).not.toHaveBeenCalled()
+  })
+
+  it('passes a visible Business scope to the global timeline read', async () => {
+    mocks.listProjectsForTimeline.mockResolvedValueOnce([])
+
+    const response = await projectsRoute.GET(request('/api/projects?view=timeline&businessId=business-b'))
+
+    expect(response.status).toBe(200)
+    expect(mocks.listProjectsForTimeline).toHaveBeenCalledWith({
+      businessId: 'business-b',
+      limit: 500,
+    })
+  })
+
   it('refuses a cross-business Project file list before the service', async () => {
     const response = await projectFilesRoute.GET(request('/api/projects/project-a/files'), { params: { id: 'project-a' } })
 

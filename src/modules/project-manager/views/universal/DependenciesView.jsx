@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Plus, Trash2, ArrowRight } from 'lucide-react'
 import { Card, StatusPill, EmptyState, ErrorState, Modal, Field } from '@/components/ui'
 import { DEPENDENCY_TYPES, DEPENDENCY_ENDPOINT_TYPES } from '@/lib/validation/enums'
+import { useScope } from '@/context/ScopeContext'
 import { useFetch, api, LoadingCard } from '../../components/useApi'
 
 function NewDependencyModal({ open, onClose, onSaved }) {
@@ -87,7 +88,12 @@ function NewDependencyModal({ open, onClose, onSaved }) {
 
 export default function DependenciesView({ projectId }) {
   const [open, setOpen] = useState(false)
-  const url = projectId ? `/api/dependencies?projectId=${projectId}` : '/api/dependencies'
+  const scope = useScope()
+  const businessId = scope.shell.activeBusinessId
+  const params = new URLSearchParams()
+  if (projectId) params.set('projectId', projectId)
+  else if (businessId) params.set('businessId', businessId)
+  const url = projectId || businessId ? `/api/dependencies?${params.toString()}` : null
   const { data, loading, error, reload } = useFetch(url)
 
   return (

@@ -10,7 +10,7 @@ import Link from 'next/link'
 // The removed creation button was the only reader of the router hook and of its
 // own icon, so both imports went with it — an import kept "in case" is how a
 // deleted control grows back without a decision being made.
-import { Bell, Command, Sparkles } from 'lucide-react'
+import { Bell, Command, Sparkles, UserRound } from 'lucide-react'
 import { useScope } from '@/context/ScopeContext'
 import { BASE_CONTEXT_LEVELS, SCOPE_VIEWS } from '@/config/scope-views'
 
@@ -126,8 +126,8 @@ export default function Topbar({ onOpenPalette }) {
           >
             <Bell size={16} aria-hidden />
           </button>
-          <Link href="/profile" aria-label="My profile" className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-[#374151] text-[11px] font-extrabold" title="Local owner (demo identity)">
-            LO
+          <Link href="/profile" aria-label="My profile" className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-[#374151] text-[11px] font-extrabold" title="My profile">
+            <UserRound size={16} aria-hidden />
           </Link>
         </div>
       </div>

@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-14 |
+| **Last Updated** | 2026-08-24 |
 
 | ID | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
@@ -22,3 +22,5 @@
 | RSK-012 | hosted web request triggers a process/file reveal on the server | L | H | separate local runtime capability; hosted deny-by-default; origin/CSRF/viewer checks |
 | RSK-013 | generated mock cleanup deletes human-authored client files | M | H | exact path/hash/classification manifest; unknown files retained; separate owner deletion approval |
 | RSK-014 | disposable cache is treated as authority and serves stale Business relations | M | M | sourceRevision; stale bypass/rebuild; direct SQLite vs cache DTO parity test |
+| RSK-015 | IAM identity/session or Membership revocation is stale on one surface, allowing cross-tenant or post-revocation access | M | H | ADR-045; persisted Session revalidation; active Membership filter; one shared policy seam; negative cross-surface tests; production multi-instance/session-store evidence |
+| RSK-016 | FR-102 SotDataPlaneKey Supabase migration (RLS enable, zuri_app_runtime/zuri_web_login grant) is a reviewed repository artifact, not yet applied against or proven on a live Supabase project — no Supabase CLI is available in this workspace | M | M | static contract test on the migration SQL (`tests/unit/sot-data-plane-key-migration.test.js`); apply-time proof and RLS probe are an explicit operator gate before production traffic, same posture as the FR-080 Vault resolver migration |

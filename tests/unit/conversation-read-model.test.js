@@ -2,9 +2,9 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 // @req FR-091 — the read model's shape claims, held by counted calls rather than by
 // the comment that states them.
-// @spec SDD-049, SEC-001
+// @spec SDD-050, SEC-001
 //
-// SDD-049 says the query count is "constant in the number of conversations". Prose
+// SDD-050 says the query count is "constant in the number of conversations". Prose
 // cannot hold that: the N+1 it forbids is one `map` away and reads perfectly
 // naturally. So the calls are counted, at one row and at two hundred.
 
@@ -63,7 +63,7 @@ beforeEach(() => {
   rows = []
 })
 
-describe('conversation read model query shape (SDD-049)', () => {
+describe('conversation read model query shape (SDD-050)', () => {
   it('costs the same three queries for one conversation and for two hundred', async () => {
     rows = conversationsFor(1)
     await getConversationInbox({ viewer, businessId: 'b-1' })

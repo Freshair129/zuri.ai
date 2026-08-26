@@ -9,7 +9,7 @@ import { LoadingCard, useFetch } from '@/modules/project-manager/components/useA
 
 // @req FR-091 — the CRM domain's Dashboard entry, reading the same authorized
 // composition as the Inbox rather than a second aggregation of its own.
-// @spec SDD-049, BR-001, SDD-007
+// @spec SDD-050, BR-001, SDD-007
 // @tested tests/unit/fr091-inbox-ui-contract.test.js, tests/e2e/fr091-conversation-inbox.spec.js
 //
 // Every figure on this page comes from `GET /api/crm/conversations` — the endpoint the

@@ -12,13 +12,17 @@ owns_models:
   - RoleBinding
   - PersonCredential
   - PasswordResetToken
+  - Session
+  - ChannelIdentity
+  - SotDataPlaneKey
 ---
 
 # Domain charter — identity
 
 Who a principal is and what they may see: external identity resolution
 (lineUserId → Person), link tokens, principal classification
-(CUSTOMER / MEMBER / OWNER), the viewer gate, and PDPA erasure.
+(CUSTOMER / MEMBER / OWNER), persisted session lifecycle, channel onboarding,
+the shared policy-enforcement point, the viewer gate, and PDPA erasure.
 
 ## Boundaries
 
@@ -35,6 +39,12 @@ Who a principal is and what they may see: external identity resolution
 - `resolveLineIdentity` — the one resolver; no other site may resolve a
   lineUserId on its own (see the identity impact scan, archived).
 - `classifyPrincipal`, the viewer gate, `erasePrincipal`.
+- `resolveAuthorizationContext` and `authorizeScope` — the server-owned policy
+  decision used before protected Web/API, agent and tool work. Client, prompt,
+  model and tool scope values cannot widen this context.
+- `Session` is live request authority; a signed cookie without an active,
+  unexpired Session row is not authenticated in the persisted runtime.
+- `resolveSotDataPlaneViewer` (FR-102) is a second, narrower request identity: a `SotDataPlaneKey` bearer token scoped to one Tenant, used only by the two FR-100 SoT decision submit/export routes for the external data plane. It never produces an `isOperator` or Person-shaped viewer and is checked ahead of, not instead of, the session seam.
 - The viewer's authority questions have one answer each, and none of them is
   the global `role` label: **may I write here** → `ownedBusinessIds` (FR-059),
   **which domains may I see here** → `domainsForBusiness(viewer, businessId)`

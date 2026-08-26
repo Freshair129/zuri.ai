@@ -2,6 +2,10 @@
 
 **Status:** Accepted — implementation complete
 
+> Historical authentication note: this decision records the original routing proof.
+> Its demo-login behavior is superseded by ADR-017 D3 and FR-046; the current
+> `/login` route performs credential authentication and then enters Business Routing.
+
 | Field | Value |
 |---|---|
 | **Status** | Accepted — implementation complete |

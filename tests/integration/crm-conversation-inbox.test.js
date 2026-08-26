@@ -11,7 +11,7 @@ import {
 // @req FR-091 — the reader surface over the LINE ingress, proved against rows the real
 // ingest seam wrote rather than against hand-inserted fixtures: if `ingestLineMessage`
 // changes shape, this suite fails, which is the point of reading through it.
-// @spec SDD-049, BR-001, SEC-001
+// @spec SDD-050, BR-001, SEC-001
 
 // One tenant with two businesses (the BR-001 sharing case) and a second tenant that
 // must stay invisible. Codes are prefixed so they cannot collide with the other suites

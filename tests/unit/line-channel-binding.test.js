@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import crypto from 'node:crypto'
 import { createConfiguredLineBindingResolver } from '@/modules/agent/line-channel-binding'
 
-// @req FR-051 — production LINE scope is resolved from one active server-owned binding.
-// @spec SDD-026, BR-012, SEC-010
+// @req FR-052 — production LINE scope is resolved from one active server-owned binding.
+// @spec ADR-018, BR-012, SEC-010
 // @tested tests/unit/line-channel-binding.test.js
 
 const env = {
@@ -14,7 +14,7 @@ const env = {
   ZURI_LINE_BINDING_STATUS: 'ACTIVE',
 }
 
-describe('LineChannelBindingResolver (FR-051)', () => {
+describe('LineChannelBindingResolver (FR-052)', () => {
   it('returns immutable Tenant and Business scope for the configured destination', async () => {
     const resolver = createConfiguredLineBindingResolver(env)
     await expect(resolver.resolve({
@@ -22,6 +22,7 @@ describe('LineChannelBindingResolver (FR-051)', () => {
       destination: 'U-smartgift-destination',
     })).resolves.toEqual({
       bindingId: env.ZURI_LINE_BINDING_ID,
+      channelAccountId: env.ZURI_LINE_BINDING_ID,
       tenantId: env.ZURI_LINE_BINDING_TENANT_ID,
       businessId: env.ZURI_LINE_BINDING_BUSINESS_ID,
     })

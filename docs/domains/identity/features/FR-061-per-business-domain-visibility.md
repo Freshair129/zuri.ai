@@ -67,14 +67,15 @@ The leak was reading the union as the answer to a different question.
 
 ## Decision 2 — every branch fills the map; there is no "sees everything" flag
 
-Platform DEV and the local-development fallback are legitimately unrestricted,
-so a flag (`allDomainsEverywhere: true`) would be a truthful and much smaller
-encoding. It is rejected anyway: the moment a shortcut exists, a consumer will
+Platform DEV is legitimately unrestricted, so a flag (`allDomainsEverywhere: true`)
+would be a truthful and much smaller encoding. It is rejected anyway: the moment a
+shortcut exists, a consumer will
 read the shortcut instead of asking the per-Business question, and this incident
 is a record of exactly that happening three times with `role === 'OWNER'`.
 
-One rule, one field, no branch in the reader. Both of those branches already
-materialise every Business into `visibleBusinessIds`, so the map is the same
+One rule, one field, no branch in the reader. The platform branch already materialises
+every Business into `visibleBusinessIds`, while authenticated Membership branches
+materialise their persisted scope, so the map is the same
 order of magnitude as a value the viewer already carries.
 
 Cost is O(visible Businesses × domains). Accepted at current scale and recorded

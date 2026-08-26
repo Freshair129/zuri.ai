@@ -24,6 +24,7 @@ describe('LINE binding resolver (FR-052)', () => {
 
     expect(binding).toEqual({
       id: '84ed2c90-ab44-46f3-9618-1f24df0744b9', code: 'LINE-SMARTGIFT-OA',
+      channelAccountId: 'LINE-SMARTGIFT-OA',
       tenantId: '77cdbe70-3111-4a04-922a-8059be99a8b0',
       businessId: '834fa869-62f3-431c-a287-e9a95e91175b',
     })

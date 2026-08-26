@@ -3,12 +3,12 @@
 // @spec SDD-019, ADR-012, ADR-028
 
 const { test, expect } = require('@playwright/test')
+const { loginAsOwner } = require('./e2e-auth')
 // api() retries a lost connection, never an answer — see ./reconnecting-request.
 const { api } = require('./reconnecting-request')
 
 async function chooseBusiness(page, name = 'Business 01') {
-  await page.goto('/login')
-  await page.getByRole('button', { name: /demo login/i }).click()
+  await loginAsOwner(page)
   await page.getByRole('button', { name: new RegExp(`Open Business ${name}`) }).click()
   await expect(page).toHaveURL(/overview/)
 }

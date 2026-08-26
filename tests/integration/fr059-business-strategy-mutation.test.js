@@ -29,7 +29,7 @@ import { POST as postGoalRoute } from '@/app/api/business/goals/route'
 import { PATCH as patchGoalRoute } from '@/app/api/business/goals/[id]/route'
 import { POST as postGoalProjectRoute } from '@/app/api/business/goals/[id]/projects/route'
 import { DELETE as deleteGoalProjectRoute } from '@/app/api/business/goals/[id]/projects/[projectId]/route'
-import { LOCAL_DEMO_COOKIE } from '@/modules/identity/session-port'
+import { generateSessionToken } from '@/modules/identity/auth-service'
 import { makeViewer, ownsElsewhere } from '../factories/viewer'
 
 // Repaid from docs/.viewer-fixture-baseline.json on 2026-08-17: every viewer
@@ -62,27 +62,27 @@ function auditFor(entityType, entityId, action) {
   })
 }
 
-// resolveRequestViewer's local-demo path falls back to this well-known code
-// (src/modules/identity/resolve-viewer.js LOCAL_OWNER_CODE) and resolves as
-// OWNER with visibleBusinessIds = every Business in the test database (the
-// dev fallback branch), so it is usable for the route-level happy-path tests
-// below without needing to scope it to particular fixture Businesses.
-const LOCAL_OWNER_CODE = 'PER-OWNER'
+const AUTH_SESSION_SECRET = 'fr059-session-secret-that-is-long-enough-123456'
+const TEST_OWNER_CODE = 'PER-FR059'
+let authenticatedOwnerId = null
 
-async function ensureLocalDemoOwner() {
-  process.env.ZURI_LOCAL_DEMO_AUTH = '1'
-  await prisma.person.upsert({
-    where: { code: LOCAL_OWNER_CODE },
-    update: {},
-    create: { code: LOCAL_OWNER_CODE, displayName: 'Local Owner' },
+async function ensureAuthenticatedOwner() {
+  process.env.ZURI_SESSION_SECRET = AUTH_SESSION_SECRET
+  const owner = await prisma.person.upsert({
+    where: { code: TEST_OWNER_CODE },
+    update: { email: 'fr059-owner@example.test' },
+    create: { code: TEST_OWNER_CODE, displayName: 'FR-059 Owner', email: 'fr059-owner@example.test' },
   })
+  authenticatedOwnerId = owner.id
+  return owner
 }
 
-function demoRequest(url, { method = 'GET', body } = {}) {
+function authenticatedRequest(url, { method = 'GET', body } = {}) {
+  if (!authenticatedOwnerId) throw new Error('Authenticated test owner has not been seeded')
   return new Request(url, {
     method,
     headers: {
-      cookie: `${LOCAL_DEMO_COOKIE}=enabled`,
+      cookie: `zuri_session=${generateSessionToken(authenticatedOwnerId, { secret: AUTH_SESSION_SECRET })}`,
       ...(body !== undefined ? { 'content-type': 'application/json' } : {}),
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -90,8 +90,8 @@ function demoRequest(url, { method = 'GET', body } = {}) {
 }
 
 async function fetchStrategy(businessId) {
-  await ensureLocalDemoOwner()
-  const res = await getBusinessStrategyRoute(demoRequest(`http://local/api/business/strategy?businessId=${businessId}`))
+  await ensureAuthenticatedOwner()
+  const res = await getBusinessStrategyRoute(authenticatedRequest(`http://local/api/business/strategy?businessId=${businessId}`))
   expect(res.status).toBe(200)
   return res.json()
 }
@@ -134,7 +134,17 @@ describe('FR-059 Business Strategy mutation', () => {
     })
     expect(sharedProject.businessId).toBeNull()
 
-    await ensureLocalDemoOwner()
+    const authOwner = await ensureAuthenticatedOwner()
+    for (const business of [businessA, businessB, controlBusiness]) {
+      const existingMembership = await prisma.membership.findFirst({
+        where: { personId: authOwner.id, businessId: business.id },
+      })
+      if (!existingMembership) {
+        await prisma.membership.create({
+          data: { personId: authOwner.id, tenantId: business.tenantId, businessId: business.id, role: 'OWNER' },
+        })
+      }
+    }
 
     // A control roadmap+goal the rest of this suite never touches, so the
     // pinned-shape GET assertion at the bottom of this file has fixed,
@@ -595,7 +605,7 @@ describe('FR-059 Business Strategy mutation', () => {
 
     it('POST /api/business/roadmaps returns 200 with the serialized Roadmap', async () => {
       const res = await postRoadmapRoute(
-        demoRequest('http://local/api/business/roadmaps', {
+        authenticatedRequest('http://local/api/business/roadmaps', {
           method: 'POST',
           body: { businessId: businessA.id, title: 'Route Roadmap', horizons: twoHorizons },
         })
@@ -607,7 +617,7 @@ describe('FR-059 Business Strategy mutation', () => {
 
     it('POST /api/business/roadmaps returns 400 for an invalid horizon count (handle() status mapping)', async () => {
       const res = await postRoadmapRoute(
-        demoRequest('http://local/api/business/roadmaps', {
+        authenticatedRequest('http://local/api/business/roadmaps', {
           method: 'POST',
           body: { businessId: businessA.id, title: 'Bad Roadmap', horizons: [twoHorizons[0]] },
         })
@@ -617,7 +627,7 @@ describe('FR-059 Business Strategy mutation', () => {
 
     it('POST /api/business/roadmaps returns 400 for a negative horizon position (bounded at the schema, not a P2002)', async () => {
       const res = await postRoadmapRoute(
-        demoRequest('http://local/api/business/roadmaps', {
+        authenticatedRequest('http://local/api/business/roadmaps', {
           method: 'POST',
           body: {
             businessId: businessA.id,
@@ -631,7 +641,7 @@ describe('FR-059 Business Strategy mutation', () => {
 
     it('POST /api/business/roadmaps returns 400 for a businessId outside viewer ownership (assertBusinessOwned sets status explicitly)', async () => {
       const res = await postRoadmapRoute(
-        demoRequest('http://local/api/business/roadmaps', {
+        authenticatedRequest('http://local/api/business/roadmaps', {
           method: 'POST',
           body: { businessId: 'nonexistent-business-id', title: 'Should be blocked', horizons: twoHorizons },
         })
@@ -641,7 +651,7 @@ describe('FR-059 Business Strategy mutation', () => {
 
     it('PATCH /api/business/roadmaps/[id] returns 200 with the updated Roadmap', async () => {
       const res = await patchRoadmapRoute(
-        demoRequest(`http://local/api/business/roadmaps/${routeRoadmap.id}`, { method: 'PATCH', body: { title: 'Route Roadmap v2' } }),
+        authenticatedRequest(`http://local/api/business/roadmaps/${routeRoadmap.id}`, { method: 'PATCH', body: { title: 'Route Roadmap v2' } }),
         { params: { id: routeRoadmap.id } }
       )
       expect(res.status).toBe(200)
@@ -651,7 +661,7 @@ describe('FR-059 Business Strategy mutation', () => {
 
     it('POST /api/business/goals returns 200 with the serialized Goal', async () => {
       const res = await postGoalRoute(
-        demoRequest('http://local/api/business/goals', {
+        authenticatedRequest('http://local/api/business/goals', {
           method: 'POST',
           body: { businessId: businessA.id, roadmapId: routeRoadmap.id, horizonId: routeRoadmap.horizons[0].id, title: 'Route Goal' },
         })
@@ -663,7 +673,7 @@ describe('FR-059 Business Strategy mutation', () => {
 
     it('POST /api/business/goals returns 400 for a cross-Business horizonId (isolation, SHOULD-FIX 4)', async () => {
       const res = await postGoalRoute(
-        demoRequest('http://local/api/business/goals', {
+        authenticatedRequest('http://local/api/business/goals', {
           method: 'POST',
           body: { businessId: businessA.id, horizonId: crossBusinessRoadmap.horizons[0].id, title: 'Should fail' },
         })
@@ -673,7 +683,7 @@ describe('FR-059 Business Strategy mutation', () => {
 
     it('PATCH /api/business/goals/[id] returns 200 with the updated Goal', async () => {
       const res = await patchGoalRoute(
-        demoRequest(`http://local/api/business/goals/${routeGoal.id}`, { method: 'PATCH', body: { status: 'ACTIVE' } }),
+        authenticatedRequest(`http://local/api/business/goals/${routeGoal.id}`, { method: 'PATCH', body: { status: 'ACTIVE' } }),
         { params: { id: routeGoal.id } }
       )
       expect(res.status).toBe(200)
@@ -683,7 +693,7 @@ describe('FR-059 Business Strategy mutation', () => {
 
     it('POST /api/business/goals/[id]/projects returns 200 and links the Project', async () => {
       const res = await postGoalProjectRoute(
-        demoRequest(`http://local/api/business/goals/${routeGoal.id}/projects`, { method: 'POST', body: { projectId: projectA.id } }),
+        authenticatedRequest(`http://local/api/business/goals/${routeGoal.id}/projects`, { method: 'POST', body: { projectId: projectA.id } }),
         { params: { id: routeGoal.id } }
       )
       expect(res.status).toBe(200)
@@ -693,7 +703,7 @@ describe('FR-059 Business Strategy mutation', () => {
 
     it('DELETE /api/business/goals/[id]/projects/[projectId] returns 200 and unlinks the Project', async () => {
       const res = await deleteGoalProjectRoute(
-        demoRequest(`http://local/api/business/goals/${routeGoal.id}/projects/${projectA.id}`, { method: 'DELETE' }),
+        authenticatedRequest(`http://local/api/business/goals/${routeGoal.id}/projects/${projectA.id}`, { method: 'DELETE' }),
         { params: { id: routeGoal.id, projectId: projectA.id } }
       )
       expect(res.status).toBe(200)

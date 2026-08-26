@@ -1,6 +1,6 @@
 'use client'
 
-// @req FR-038 — local profile shows the resolved account, language preference, identity link, and session boundary.
+// @req FR-038 — the profile shows the resolved account, language preference, identity link, and session boundary.
 // @spec SDD-017, docs/features/FR-038-profile-and-permissions.md
 // @tested tests/unit/profile-permission-service.test.js
 import { useEffect, useState } from 'react'
@@ -27,7 +27,7 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <PageHeader eyebrow="Account" title="My profile" subtitle="Local MVP account state. Production authentication and session management are a later identity slice." />
+      <PageHeader eyebrow="Account" title="My profile" subtitle="Your authenticated account, identity links, and active session." />
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <SectionTitle caption="Resolved from the viewer gate">Account</SectionTitle>
@@ -38,7 +38,7 @@ export default function ProfilePage() {
           </div>
         </Card>
         <Card>
-          <SectionTitle caption="Stored only in this browser for the local MVP">Language</SectionTitle>
+          <SectionTitle caption="Stored only in this browser">Language</SectionTitle>
           <div className="flex gap-2"><button type="button" className={`btn ${language === 'TH' ? 'btn-primary' : ''}`} onClick={() => changeLanguage('TH')}>ไทย</button><button type="button" className={`btn ${language === 'EN' ? 'btn-primary' : ''}`} onClick={() => changeLanguage('EN')}>English</button></div>
         </Card>
         <Card>
@@ -46,8 +46,8 @@ export default function ProfilePage() {
           <div className="flex items-center gap-2 text-xs"><Link2 size={16} aria-hidden /> {data.identities.some((identity) => identity.provider === 'LINE') ? 'LINE linked' : 'No LINE identity linked'}</div>
         </Card>
         <Card>
-          <SectionTitle caption="No server session store exists in the offline MVP">Sessions</SectionTitle>
-          <div className="flex items-center gap-2 text-xs"><Monitor size={16} aria-hidden /> This device · {data.session.active ? 'active local demo session' : 'inactive'}</div>
+          <SectionTitle caption="Signed HttpOnly session cookie for this device">Sessions</SectionTitle>
+          <div className="flex items-center gap-2 text-xs"><Monitor size={16} aria-hidden /> This device · {data.session.active ? 'active authenticated session' : 'inactive'}</div>
         </Card>
       </div>
     </div>

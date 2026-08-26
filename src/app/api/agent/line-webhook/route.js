@@ -7,12 +7,17 @@ import { resolveCorrelationId } from '@/lib/observability/correlation'
 
 // @req FR-050 — return event-correlated verified reply text/skipReply state to the sole
 // LINE transport owner without receiving or consuming the LINE replyToken here.
+// @req FR-093 — the successful result also names the conversation and the inbound
+//   message row it created, which is what the transport quotes back on
+//   `POST /api/agent/line-delivery` once the customer has actually received a reply.
 // @spec BR-011 — zuri-cli is the sole LINE reply owner when stack answering is enabled.
 
 // @req FR-028 — the LINE webhook seam: the zuri-cli LINE bot forwards webhook events
 //   here; each text message becomes one end-to-end agent turn (FR-027) at Gate E.
 // @req FR-052 — production scope comes only from an active server-owned LINE binding;
 //   client-selected tenantId/businessId is rejected before persistence or model work.
+// @req FR-097 — the resolved binding's server-owned channel namespace is passed into
+//   the identity and authorization seams; the webhook payload cannot select it.
 // @req FR-081 — this is the LINE acquisition channel, so it converges on the one
 //   normalized ingestion envelope: every event becomes raw evidence through the shared
 //   adapter before anything interprets it. There is no second raw-write path.
@@ -106,9 +111,6 @@ export function createLineWebhookPost({
     let resolvedModel = phase1Ports?.model
     let modelResolved = !phase1Ports?.resolveModel
 
-    // FR-081 convergence. Resolved once per batch, from the scope the binding proved.
-    // `null` means this LINE channel has no IntegrationConnection yet, so there is no
-    // evidence lane to write to and the batch behaves exactly as it did before.
     const evidence = await evidenceRecorderFactory({
       tenantId: scope.tenantId,
       businessId: scope.businessId ?? null,
@@ -127,9 +129,6 @@ export function createLineWebhookPost({
         messageType: ev.message?.type,
         connectionId: evidence?.connectionId,
       }
-      // Evidence first, and for EVERY event — including the follow/unfollow/postback
-      // and non-text messages the turn skips. Those were previously discarded with no
-      // record at all; the envelope is the only place they are now durable.
       let evidenceResult = null
       if (evidence) {
         try {
@@ -148,6 +147,7 @@ export function createLineWebhookPost({
           results.push({
             ok: false,
             correlationId,
+            eventId,
             stage: 'EVIDENCE',
             type: ev.type,
             error: err?.message || 'evidence write failed',
@@ -202,7 +202,8 @@ export function createLineWebhookPost({
           model: resolvedModel,
           serverScope: {
             transportVerified: Boolean(phase1Ports),
-            bindingId: scope.id ?? null,
+            bindingId: scope.id ?? scope.bindingId ?? null,
+            channelAccountId: scope.channelAccountId ?? scope.code ?? scope.bindingId ?? undefined,
             businessId: scope.businessId ?? null,
           },
         })
@@ -228,6 +229,12 @@ export function createLineWebhookPost({
           skipReply: turn.response.skipReply === true,
           response: turn.response,
           evidence: evidenceResult,
+          // @req FR-093 — additive, and the only reason they are here: the transport
+          // needs something to name when it reports back what it actually sent. Both
+          // were already computed and were previously visible only in a log line,
+          // which is not a place another process can read from.
+          conversationId: turn.inbound?.conversationId ?? null,
+          inboundMessageId: turn.inbound?.messageId ?? null,
         })
       } catch (err) {
         logger.error('line.webhook.event', {
@@ -241,9 +248,22 @@ export function createLineWebhookPost({
         results.push({
           ok: false,
           correlationId,
+          // @req FR-093 — the transport matches results to events by `eventId`, and
+          // this branch never carried one: a failed result was simply unfindable, and
+          // the fallback got sent because an unmatched result and a failed one both
+          // read as "not ok". That accident is now load-bearing — without the match
+          // the transport cannot pair the ids below with the event it answered.
+          eventId,
           stage: 'TURN',
           error: err?.message || 'turn failed',
           evidence: evidenceResult,
+          // @req FR-093 — a failed turn is exactly when the transport sends the
+          // customer its own fallback, so this is the branch where naming the row
+          // matters most. Ingest runs first and usually succeeded; `err.inbound`
+          // carries what it wrote. Null when the failure was the ingest itself —
+          // then there is genuinely nothing to name, and no id is invented.
+          conversationId: err?.inbound?.conversationId ?? null,
+          inboundMessageId: err?.inbound?.messageId ?? null,
         })
       }
     }

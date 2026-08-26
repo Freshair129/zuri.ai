@@ -128,7 +128,7 @@ export async function updateGate(id, patch, { viewer } = {}) {
  * Widening is additive: the sole consumer is `GET /api/milestones`, whose sole
  * consumer is `MilestonesView`. No caller can break from a key appearing.
  */
-export async function listMilestonesAndGates({ projectId, workstreamId } = {}) {
+export async function listMilestonesAndGates({ projectId, workstreamId, businessId } = {}) {
   const whereM = {}
   const whereG = {}
   if (projectId) {
@@ -138,6 +138,11 @@ export async function listMilestonesAndGates({ projectId, workstreamId } = {}) {
   if (workstreamId) {
     whereM.workstreamId = workstreamId
     whereG.workstreamId = workstreamId
+  }
+  if (businessId) {
+    const projectScope = { businessId, deletedAt: null }
+    whereM.project = projectScope
+    whereG.project = projectScope
   }
   const [milestones, gates] = await Promise.all([
     prisma.milestone.findMany({

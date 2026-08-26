@@ -99,22 +99,8 @@ describe('resolveViewer', () => {
     expect(viewer.ownedBusinessIds).toEqual([])
   })
 
-  it('uses the seeded local owner as OWNER-of-all only for the explicit development fallback', async () => {
-    const viewer = await resolveViewer({
-      db: fakeDb({ people: [{ id: 'p-local', code: 'PER-OWNER', displayName: 'Local Owner' }] }),
-      allowDevelopmentFallback: true,
-    })
-
-    expect(viewer.principal.id).toBe('p-local')
-    expect(viewer.role).toBe('OWNER')
-    expect(viewer.visibleBusinessIds).toEqual(['b-1', 'b-2', 'b-3'])
-    // The local development owner exercises every shell path, so it owns every
-    // seeded Business too — every existing local demo / e2e edit path depends on this.
-    expect(viewer.ownedBusinessIds).toEqual(['b-1', 'b-2', 'b-3'])
-  })
-
-  it('refuses to invent a production principal', async () => {
-    await expect(resolveViewer({ db: fakeDb(), allowDevelopmentFallback: false })).rejects.toThrow('Viewer principal is required')
+  it('refuses to invent a principal when the request has no authenticated identity', async () => {
+    await expect(resolveViewer({ db: fakeDb() })).rejects.toThrow('Viewer principal is required')
   })
 
   it('ownedBusinessIds is always an array, never undefined, across every branch', async () => {
@@ -133,11 +119,5 @@ describe('resolveViewer', () => {
       platformGrant: true,
     })
     expect(Array.isArray(devViewer.ownedBusinessIds)).toBe(true)
-
-    const localViewer = await resolveViewer({
-      db: fakeDb({ people: [{ id: 'p-local2', code: 'PER-OWNER', displayName: 'Local Owner' }] }),
-      allowDevelopmentFallback: true,
-    })
-    expect(Array.isArray(localViewer.ownedBusinessIds)).toBe(true)
   })
 })

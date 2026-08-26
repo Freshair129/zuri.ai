@@ -9,6 +9,7 @@ import { Card, SectionTitle, StatusPill, ProgressBar, DataTable, EmptyState } fr
 import { WORK_STATUSES, MILESTONE_STATUSES, GATE_STATUSES } from '@/lib/validation/enums'
 import { activeItems, formatProgressPercent } from '../../progress/strategies'
 import StatusSelect from '../../components/StatusSelect'
+import { useFetch } from '../../components/useApi'
 
 const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString())
 
@@ -85,12 +86,206 @@ export function SprintBoard({ workstream, reload }) {
   )
 }
 
+/**
+ * @req FR-071 — Data Migration also shows the server-filtered CloudSoTAgent
+ * document staging monitor; raw payload and extracted values stay server-side.
+ * @spec BR-001, SEC-001, SEC-008
+ * @tested tests/unit/document-intake-ui.test.js
+ */
 /** 2. DATA_MIGRATION — Migration Monitor (dataset validation table). */
+function DocumentIntakePanel({ monitor }) {
+  if (monitor.loading) {
+    return <Card><p className="text-[11px] text-muted" role="status">Loading CloudSoTAgent staging status…</p></Card>
+  }
+  if (monitor.error) {
+    return (
+      <Card>
+        <p className="text-xs font-bold" style={{ color: 'var(--danger)' }}>Document intake status unavailable</p>
+        <p className="mt-1 text-[11px] text-muted">{monitor.error}</p>
+        <button type="button" className="btn mt-2" onClick={monitor.reload}>Retry</button>
+      </Card>
+    )
+  }
+
+  const data = monitor.data
+  if (!data) return null
+  if (!data.configured) {
+    return (
+      <Card warm>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[9px] text-muted">CloudSoTAgent · smartgift.document-intake.v1</p>
+            <p className="text-xs font-bold">Document intake connection not provisioned</p>
+          </div>
+          <StatusPill status="MISCONFIGURED" />
+        </div>
+        <p className="mt-2 text-[11px] text-muted">Local ProductIngestAgent และ CustomerIngestAgent ยังไม่มี active primary connection สำหรับ Business นี้</p>
+      </Card>
+    )
+  }
+
+  const records = Array.isArray(data.records) ? data.records : []
+  const staged = records.filter((record) => record.processingStatus === 'STAGED').length
+  const quarantined = records.filter((record) => record.processingStatus === 'QUARANTINED').length
+  const latest = records.slice(0, 8)
+  const formatDate = (value) => value ? new Date(value).toLocaleString() : '—'
+
+  return (
+    <Card>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-[9px] text-muted">CloudSoTAgent · {data.connection?.name || 'document intake'} · {data.contractVersion}</p>
+          <p className="text-xs font-bold">Live document staging</p>
+        </div>
+        <button type="button" className="btn" onClick={monitor.reload}>Refresh</button>
+      </div>
+      <div className="mt-3 grid grid-cols-4 gap-2 text-center text-[10px] max-md:grid-cols-2">
+        <div><p className="text-muted">Shown</p><p className="font-bold">{fmt(records.length)}</p></div>
+        <div><p className="text-muted">Staged</p><p className="font-bold" style={{ color: 'var(--success)' }}>{fmt(staged)}</p></div>
+        <div><p className="text-muted">Quarantined</p><p className="font-bold" style={{ color: quarantined ? 'var(--danger)' : 'var(--ink)' }}>{fmt(quarantined)}</p></div>
+        <div><p className="text-muted">Scope</p><p className="font-mono text-[9px]">{data.scope?.businessId || '—'}</p></div>
+      </div>
+      {latest.length === 0 ? (
+        <p className="mt-3 text-[11px] text-muted">ยังไม่มีเอกสารเข้าคิว staging</p>
+      ) : (
+        <div className="mt-3 overflow-x-auto rounded-xl border border-[#ECEEF1]">
+          <table className="w-full min-w-[720px] text-left text-[10px]">
+            <thead className="bg-[#FAFBFC] text-muted">
+              <tr>
+                <th className="px-2.5 py-2 font-semibold">Document</th>
+                <th className="px-2.5 py-2 font-semibold">Domain / kind</th>
+                <th className="px-2.5 py-2 font-semibold">Fields / methods</th>
+                <th className="px-2.5 py-2 font-semibold">Status</th>
+                <th className="px-2.5 py-2 font-semibold">Received</th>
+              </tr>
+            </thead>
+            <tbody>
+              {latest.map((record) => (
+                <tr key={record.rawRecordId} className="border-t border-[#ECEEF1]">
+                  <td className="px-2.5 py-2 font-mono">{record.documentId}</td>
+                  <td className="px-2.5 py-2">{record.domain || '—'} / {record.kind || '—'}</td>
+                  <td className="px-2.5 py-2">{record.fieldCount} · {(record.extractionMethods || []).join(', ') || '—'}</td>
+                  <td className="px-2.5 py-2"><StatusPill status={record.processingStatus} /></td>
+                  <td className="px-2.5 py-2 text-muted">{formatDate(record.receivedAt)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
+  )
+}
+
+/**
+ * @req FR-071 — Data Migration reads the full server-owned PipelineRun ledger
+ * and keeps stale/missing evidence explicit; WorkItem metrics stay a separate
+ * legacy projection and never become pipeline truth.
+ * @spec ADR-030 D3-D6, SDD-042, SEC-008
+ * @tested tests/unit/pipeline-monitor-ui.test.js
+ */
+function PipelineMonitorPanel({ listMonitor, detailMonitor }) {
+  if (listMonitor.loading || (listMonitor.data?.runs?.length > 0 && detailMonitor.loading)) {
+    return <Card><p className="text-[11px] text-muted" role="status">Loading PipelineRun evidence…</p></Card>
+  }
+  if (listMonitor.error || detailMonitor.error) {
+    return (
+      <Card>
+        <p className="text-xs font-bold" style={{ color: 'var(--danger)' }}>Full pipeline status unavailable</p>
+        <p className="mt-1 text-[11px] text-muted">{listMonitor.error || detailMonitor.error}</p>
+        <button type="button" className="btn mt-2" onClick={listMonitor.reload}>Retry</button>
+      </Card>
+    )
+  }
+
+  const runs = Array.isArray(listMonitor.data?.runs) ? listMonitor.data.runs : []
+  const pipelineRun = detailMonitor.data
+  if (!runs.length || !pipelineRun) {
+    return (
+      <Card warm>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[9px] text-muted">Codex execution → Zuri monitor</p>
+            <p className="text-xs font-bold">No pipeline run evidence</p>
+          </div>
+          <StatusPill status="UNKNOWN" />
+        </div>
+        <p className="mt-2 text-[11px] text-muted">ยังไม่มี PipelineRun ที่ส่ง evidence เข้ามา จึงไม่แสดง progress แทนงานจริง</p>
+      </Card>
+    )
+  }
+
+  const run = pipelineRun.run || runs[0]
+  const stages = Array.isArray(pipelineRun.stageTimeline) ? pipelineRun.stageTimeline : []
+  const reconciliations = Array.isArray(pipelineRun.reconciliations) ? pipelineRun.reconciliations : []
+  const firstFailure = pipelineRun.firstFailure
+  const formatDate = (value) => value ? new Date(value).toLocaleString() : '—'
+
+  return (
+    <Card>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-[9px] text-muted">PipelineRun · {run.dataPipelineDefinitionId} · {run.executionContractId}</p>
+          <p className="text-xs font-bold">Full pipeline evidence</p>
+          <p className="mt-1 font-mono text-[9px] text-muted">Run ID: {run.executionRunId}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <StatusPill status={pipelineRun.status || 'UNKNOWN'} />
+          <button type="button" className="btn" onClick={listMonitor.reload}>Refresh</button>
+        </div>
+      </div>
+      <div className="mt-3 grid grid-cols-5 gap-2 text-center text-[10px] max-md:grid-cols-3">
+        <div><p className="text-muted">Expected</p><p className="font-bold">{fmt(run.expectedCount)}</p></div>
+        <div><p className="text-muted">Actual</p><p className="font-bold">{fmt(run.actualCount)}</p></div>
+        <div><p className="text-muted">Failed</p><p className="font-bold" style={{ color: run.failedCount ? 'var(--danger)' : 'var(--ink)' }}>{fmt(run.failedCount)}</p></div>
+        <div><p className="text-muted">Reconciled</p><p className="font-bold">{fmt(pipelineRun.reconciliation?.actualCount)}</p></div>
+        <div><p className="text-muted">Heartbeat</p><p className="font-mono text-[9px]">{formatDate(pipelineRun.freshness?.lastHeartbeatAt)}</p></div>
+      </div>
+      {firstFailure ? (
+        <div className="mt-3 rounded-lg border border-[#F3C7C7] bg-[#FFF8F8] px-3 py-2 text-[10px]">
+          <p className="font-bold" style={{ color: 'var(--danger)' }}>First failure · {firstFailure.pipelineStageId}</p>
+          <p className="mt-1 text-muted">{firstFailure.failureCode} · step {firstFailure.executionStepId} · attempt {firstFailure.attemptId}</p>
+        </div>
+      ) : null}
+      <div className="mt-3 grid grid-cols-2 gap-3 max-md:grid-cols-1">
+        <div>
+          <p className="mb-1 text-[10px] font-bold">Stage timeline</p>
+          <div className="space-y-1.5">
+            {stages.map((stage) => (
+              <div key={stage.executionStepId} className="flex items-center justify-between gap-2 rounded-lg border border-[#ECEEF1] px-2 py-1.5 text-[9px]">
+                <span className="font-mono">{stage.pipelineStageId}</span>
+                <StatusPill status={stage.status} />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="mb-1 text-[10px] font-bold">Reconciliation / gates</p>
+          <p className="text-[10px] text-muted">Reconciliation: {reconciliations[0]?.result || 'UNKNOWN'}</p>
+          <p className="mt-1 text-[10px] text-muted">Gates: {(pipelineRun.gates || []).map((gate) => `${gate.gateId || 'run-gate'}=${gate.status}`).join(', ') || 'UNKNOWN'}</p>
+          <p className="mt-1 text-[10px] text-muted">Replay worker: {pipelineRun.replay?.workerExecution || 'not requested'}</p>
+        </div>
+      </div>
+    </Card>
+  )
+}
+
 export function MigrationMonitor({ workstream, reload }) {
   const datasets = workstream.items.filter((i) => i.subtype === 'DATASET' || i.metrics.recordsTotal)
-  if (datasets.length === 0) return <EmptyState title="No datasets tracked" hint="Add DATASET items with recordsTotal/validated metrics." />
+  const businessId = workstream.project?.businessId || null
+  const intakePath = businessId ? `/api/ingest/documents?businessId=${encodeURIComponent(businessId)}&limit=25` : null
+  const intake = useFetch(intakePath, [businessId])
+  const pipelineListPath = businessId ? `/api/pipelines/runs?businessId=${encodeURIComponent(businessId)}&limit=1` : null
+  const pipelineList = useFetch(pipelineListPath, [businessId])
+  const latestExecutionRunId = pipelineList.data?.runs?.[0]?.executionRunId || null
+  const pipelineDetailPath = latestExecutionRunId ? `/api/pipelines/runs/${encodeURIComponent(latestExecutionRunId)}` : null
+  const pipelineDetail = useFetch(pipelineDetailPath, [latestExecutionRunId])
+
   return (
     <div className="space-y-3">
+      {businessId ? <PipelineMonitorPanel listMonitor={pipelineList} detailMonitor={pipelineDetail} /> : null}
+      {businessId ? <DocumentIntakePanel monitor={intake} /> : null}
+      {datasets.length === 0 && <EmptyState title="No datasets tracked" hint="Add DATASET items with recordsTotal/validated metrics." />}
       {datasets.map((d) => {
         const m = d.metrics
         const pct = m.recordsTotal > 0 ? Math.round(((m.validated || 0) / m.recordsTotal) * 100) : 0

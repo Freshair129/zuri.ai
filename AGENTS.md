@@ -16,8 +16,8 @@ repository** — the legacy zuri project, discontinued as far as this product is
 concerned ([ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)). Reading it
 as prior art is fine. Writing to it never is.
 
-`D:\workspace\zuri-command-agent` is the LINE OA transport this product's LINE
-surface talks to. Never read or copy its `.env` (secrets).
+`D:\workspace\zuri-edge-device` (`Freshair129/zuri-edge-device`) is the on-premise
+Zuri Edge Device runtime (ADR-041) this product talks to. Never read or copy its `.env` (secrets).
 
 > History (kept so old citations resolve): earlier revisions of this section moved
 > twice — first "standalone, do not copy" (ADR-001), then "copying is expected,
@@ -369,6 +369,34 @@ The same principle applies one level up: **change the label, never the key** —
 UUIDs for data, requirement and feature ids for documents. The duplicate-id
 guard in preflight enforces uniqueness across every family, including FEAT rows.
 
+**How it is enforced** ([ADR-039](docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md),
+preflight Check 12). The duplicate-id guard answers "do two documents claim this
+id right now", and a *moved* id is never a duplicate at any single moment — which
+is how `SDD-049` was repurposed on 2026-08-20 and `FR-051`/`SDD-026` on
+2026-08-15 with every check green. So `docs/.id-ledger.json` additionally pins
+each declared id's **subject**: the leading phrase of its statement. Check 12 is
+CRITICAL when a pinned subject moves, when a new id inherits a subject already
+recorded in its family, when a pinned id vanishes from its registry, when an
+entry that was once pinned is no longer in the ledger, or when a burnt number is
+re-declared.
+
+What that costs you, in practice:
+
+| you did this | what it costs |
+|---|---|
+| declared a new id | `npm run docs:ids -- --write` — one `+` block, no ceremony |
+| reworded a statement past its leading phrase | nothing; the ledger stores no statements |
+| reworded the leading phrase itself, same subject | `--reword <ID> --reason "<sentence>"` |
+| moved or renamed a registry document | nothing — §18 says so, and the check follows the file |
+| retired a statement | strike it through, say why in the status cell, `--supersede <ID> --reason "…"`, and take the next free number |
+| collided with an id main already published | your branch renumbers itself: `--abandon <ID> --to <NEW-ID> --reason "…"` |
+| wrote a new id whose statement opens like a sibling's | `--distinct <ID> --reason "<sentence>"` |
+| decided a number really must mean something else | `--declare <ID> --reason "<sentence>" --declared-in <doc>#<version>`, and the revision row has to name the id |
+
+`npm run docs:ids` is never part of `govern`: a writer inside the gate is a gate
+that silences itself. And nothing in the ledger is ever hand-edited to make a
+build green — an entry never leaves it, so a deleted line is the alarm.
+
 ### 19. Documentation architecture (what lives where)
 
 Set by [ADR-004](docs/decisions/ADR-004-DOCUMENTATION-ARCHITECTURE.md). Four layers, and only
@@ -457,3 +485,14 @@ modes it forbids:
 1. inferring absence from a search miss instead of an authoritative enumeration;
 2. letting an earlier hypothesis survive after newer repository evidence
    contradicts it — the last enumeration wins, not the first guess.
+
+### 22. Knowledge & Retrieval Architecture: Four-Tier Cognitive Stack
+
+Set by [ADR-041](docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md), [ADR-042](docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md), [ADR-043](docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md), and [ADR-044](docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md).
+
+1. **Tier 1 (Zuri-AI & Edge Device)**: Business Execution Client, Live Monitor & Command Console (LINE, FB, Webhook, Prompt-to-Zuri Voice Dispatcher).
+2. **Tier 2 (MSP — `D:\msp`)**: Agent Session Control, Unified Thread ID Authority & Memory Policy (Episodic scratchpads, token budget, vault gates, H0-H4 access ceilings).
+3. **Tier 3 (GKS — `D:\gks`)**: Canonical Knowledge Authority & RAG Orchestrator (Entity identity, ontology, deduplication, scoped search, R0-R6 radius).
+4. **Tier 4 (GenesisBlockDB)**: 6-lane hybrid retrieval substrate only (Vector, Lexical, Graph, SQLite, Bitemporal, Provenance via `query-ir.v1`).
+
+

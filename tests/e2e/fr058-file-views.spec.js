@@ -3,17 +3,17 @@
 // @spec SDD-031, SEC-007
 // @tested tests/e2e/fr058-file-views.spec.js
 const { test, expect } = require('@playwright/test')
+const { loginAsOwner } = require('./e2e-auth')
 // api() retries a lost connection, never an answer — see ./reconnecting-request.
 const { api } = require('./reconnecting-request')
 
 async function chooseBusiness(page) {
-  await page.goto('/login')
-  await page.getByRole('button', { name: /demo login/i }).click()
+  await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/i }).click()
   await expect(page).toHaveURL(/overview/)
 }
 
-// T4 — Business 01 is the only Business the demo viewer can see/reach (seed.js
+// T4 — Business 01 is the only Business the authenticated E2E account can see/reach (seed.js
 // grants no membership for BUS-002..004), and it is the same Business every
 // other e2e spec asserts against, so there is no free Business to redirect to.
 // Isolation instead comes from giving every artifact this file creates a name

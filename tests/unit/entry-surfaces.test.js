@@ -1,4 +1,4 @@
-// @req FR-044 — the entry journey keeps Landing and demo Login outside the BusinessShell.
+// @req FR-044 — the entry journey keeps Landing and Login outside the BusinessShell.
 // @spec ADR-015, SDD-022 — EntryShell owns only the minimal pre-routing surfaces.
 // @tested tests/unit/entry-surfaces.test.js
 
@@ -34,17 +34,18 @@ describe('FR-044 entry surfaces', () => {
     expect(landingSource).not.toContain('Sidebar')
   })
 
-  it('keeps Login credential-free and creates its explicit local demo session through the server route', () => {
+  it('keeps Login outside the shell and submits real credentials to the auth route', () => {
     expect(existsSync(loginPath)).toBe(true)
     const login = readFileSync(loginPath, 'utf8')
     expect(login).toContain('<EntryShell>')
-    expect(login).toContain('action="/api/session/demo"')
+    expect(login).toContain('action="/api/auth/login"')
     expect(login).toContain('method="post"')
+    expect(login).toContain('name="username"')
+    expect(login).toContain('name="password"')
     expect((login.match(/href="\//g) || []).length).toBe(0)
-    expect(login).toContain('demo')
     const executableLogin = login.replace(/\/\/.*$/gm, '')
     expect(executableLogin).not.toContain('/api/viewer')
-    expect(executableLogin).not.toContain('password')
-    expect(executableLogin).not.toContain('token')
+    expect(executableLogin).not.toContain('LOCAL_DEMO')
+    expect(executableLogin).not.toContain('ZURI_LOCAL_DEMO_AUTH')
   })
 })

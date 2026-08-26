@@ -20,6 +20,13 @@ source: v2-native
 > before Business Routing. The route proof below remains the verified FR-044
 > compatibility slice until that follow-up is implemented.
 
+> **Authentication amendment:** the routing boundary in this feature remains
+> authoritative, but the historical demo Login behavior is superseded by
+> [FR-046](FR-046-production-viewer-entry-contract.md) and ADR-017. The current
+> `/login` surface performs credential authentication before Business Routing;
+> the demo CTA and credential-free transition are retained below only as the
+> historical acceptance record for this routing slice.
+
 ## Requirement
 
 The application must make Business selection a precondition of the final Business
@@ -27,7 +34,7 @@ shell. The first slice contains only routing proof surfaces:
 
 ```text
 /          Landing CTA
-/login     Demo Login CTA (no real auth)
+/login     Credential Login (FR-046 amendment)
 /businesses Business Routing and Business selection
 /overview  BusinessShell after selection
 ```

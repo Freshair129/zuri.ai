@@ -54,6 +54,9 @@ const SNAPSHOT_MODELS = [
   // them, which the new foreign keys turn from invisible data loss into a hard error.
   'integrationConnection', 'integrationCredential', 'ingestionRun', 'rawExternalRecord',
   'syncCursor', 'externalEntityRef', 'deadLetterRecord',
+  // @req FR-092 — translated market state is restored after its Integration
+  // evidence and before downstream projections exist.
+  'marketObservation',
   // A roadmap hangs off a Business, a horizon off the roadmap, and a goal off
   // both — so they restore in that order and delete in the reverse. All three,
   // plus projectGoal and roleBinding below, were absent from this list until the
@@ -63,7 +66,9 @@ const SNAPSHOT_MODELS = [
   // @req FR-090 — both hang off Person, so they restore after it and delete
   // before it. A snapshot that omitted them would silently drop the credential
   // a person logs in with, which is the class of loss this list exists to stop.
-  'personCredential', 'passwordResetToken',
+  // @req FR-095 — a persisted session is a child of Person and must survive a
+  // portable restore; raw token material is never exported by the model.
+  'session', 'personCredential', 'passwordResetToken',
   // @req FR-089 — a Team hangs off a Business (restored at the top of this list)
   // and a TeamMembership off both that Team and the Person above, so they
   // restore in this order and delete in the reverse. `projectTeam` needs
@@ -72,7 +77,16 @@ const SNAPSHOT_MODELS = [
   'workspace', 'project', 'planImportReceipt', 'projectTeam', 'projectGoal', 'workstream', 'workContainer', 'workItem',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',
-  'externalRef', 'externalIdentity', 'identityLinkToken',
+  'externalRef', 'externalIdentity', 'channelIdentity', 'identityLinkToken',
+  'pipelineRun', 'pipelineStep', 'pipelineEventReceipt', 'pipelineRecordEvent', 'pipelineReconciliation', 'pipelineGateDecision',
+  // @req FR-100 — a SoT decision hangs off Tenant (and optionally Business),
+  // so it restores after them and deletes before them, alongside the pipeline
+  // evidence it gates.
+  'sotDecision',
+  // @req FR-102 — a data-plane key hangs off Tenant only; like session/
+  // personCredential above, only its hash restores, never the raw secret,
+  // which the model never persists in the first place.
+  'sotDataPlaneKey',
   'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message', 'auditEvent',
 ]
 

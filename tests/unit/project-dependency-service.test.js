@@ -6,7 +6,7 @@ import { PROJECT_A, PROJECT_DEPENDENCY_FIXTURES } from '../fixtures/project-depe
 
 const { prisma } = vi.hoisted(() => ({
   prisma: {
-    project: { findUnique: vi.fn() },
+    project: { findUnique: vi.fn(), findMany: vi.fn() },
     dependency: { findMany: vi.fn() },
     workstream: { findMany: vi.fn(), findUnique: vi.fn() },
     milestone: { findMany: vi.fn(), findUnique: vi.fn() },
@@ -72,6 +72,14 @@ describe('project dependency read service', () => {
     const dependencies = await listDependencies({ projectId: PROJECT_A.id })
 
     expect(dependencies.map((dependency) => dependency.id)).toEqual(['dep-a-internal', 'dep-cross-project'])
+  })
+
+  it('keeps only dependencies whose two endpoints are inside the Business scope', async () => {
+    prisma.project.findMany.mockResolvedValue([{ id: PROJECT_A.id }])
+
+    const dependencies = await listDependencies({ businessId: 'business-a' })
+
+    expect(dependencies.map((dependency) => dependency.id)).toEqual(['dep-a-internal'])
   })
 
   it('rejects an unknown project before projecting dependencies', async () => {

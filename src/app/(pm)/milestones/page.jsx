@@ -10,7 +10,7 @@ import MilestonesView from '@/modules/project-manager/views/universal/Milestones
 export default function GlobalMilestonesPage() {
   return (
     <div>
-      <PageHeader eyebrow="All projects" title="Milestones & Gates" subtitle="Checkpoints and gates across all projects." />
+      <PageHeader eyebrow="Business scope" title="Milestones & Gates" subtitle="Checkpoints and gates across the selected Business." />
       <MilestonesView />
     </div>
   )

@@ -9,6 +9,9 @@ import { zIngestLineMessageInput } from '@/lib/validation/entities'
 // @spec ADR-007 P3/P2 — every LINE message resolves through the ONE identity seam
 //   (resolveLineIdentity, FR-021) before it touches a customer; memory/CRM are keyed
 //   by the resolved principal, never by the raw lineUserId.
+// @req FR-097 — the trusted runtime channel account is carried into identity discovery;
+//   direct compatibility callers use the legacy namespace only when no account exists.
+// @spec ADR-044, ADR-045 D1/D5-D6, BR-020, SEC-018
 // @spec BR-001, SEC-001 — tenant-scoped throughout; a business scope is optional.
 // @tested tests/integration/line-ingest.test.js
 
@@ -34,10 +37,10 @@ const conversationKey = (tenantId, threadId) => ({
  */
 export async function ingestLineMessage(input) {
   const data = zIngestLineMessageInput.parse(input)
-  const { tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId, direction, correlationId } = data
+  const { tenantId, businessId, lineUserId, channelAccountId, displayName, threadId, text, externalMessageId, direction, correlationId } = data
 
   // 1. Identity — the single seam. Resolves (or creates) the Person principal.
-  const identity = await resolveLineIdentity({ tenantId, lineUserId, displayName })
+  const identity = await resolveLineIdentity({ tenantId, lineUserId, channelAccountId, displayName })
 
   // 2. Idempotency: a redelivered message short-circuits before any write.
   //    Both lookups are scoped by construction. A provider message id is unique

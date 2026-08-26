@@ -179,8 +179,8 @@ Tenant Owner is not automatically a Project Owner.
 
 ### D7 — Provider-neutral identity still needs a server-owned session
 
-“ไม่ใช้ auth จริง” means no external provider is required for this slice. It does
-not mean that multi-user invitations can rely on browser-local state. The
+The profile/onboarding target does not require an external provider in this slice.
+It does not mean that multi-user invitations can rely on browser-local state. The
 implementation must retain the provider-neutral trust boundary from ADR-017:
 
 - a server-owned `Person` identity;
@@ -188,8 +188,8 @@ implementation must retain the provider-neutral trust boundary from ADR-017:
 - a single-use, expiring invitation token; and
 - fail-closed production behavior when trusted identity/session data is absent.
 
-Seeded-owner demo fallback remains development-only and must never authorize a
-production Profile, invitation, or Workspace membership.
+No seeded-owner demo fallback exists; a missing or invalid signed session must never
+authorize a Profile, invitation, or Workspace membership.
 
 ### D8 — Pre-shell route and shell contract
 
@@ -288,4 +288,3 @@ moved the failure to first use.
 Owner approved this documentation boundary on 2026-08-17. Implementation remains
 blocked until the schema, trusted session, invitation, route guard, audit and
 regression gates in FR-066/067 are delivered and verified.
-
