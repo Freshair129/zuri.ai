@@ -116,3 +116,19 @@ export function isSotDataPlaneFor(viewer, tenantId) {
   if (viewer?.isSotDataPlane !== true) return false
   return viewer.tenantId === tenantId
 }
+
+/**
+ * May this viewer act as an Enterprise API integration, for this Tenant? True
+ * only for a service-account viewer (FR-106) resolved from an `ApiAccessKey`
+ * bound to exactly `tenantId`. The same reasoning as `isSotDataPlaneFor`, for
+ * the same reason a separate predicate exists at all: an API access key is not
+ * an installation operator, not a Person, and not the SoT data plane — it may
+ * use the FR-019 Enterprise API surface for the one Tenant it names, and a
+ * key can never widen that surface beyond its Tenant however it is presented
+ * (SEC-001, SEC-006, BR-002).
+ */
+export function isApiAccessFor(viewer, tenantId) {
+  if (!tenantId || typeof tenantId !== 'string') return false
+  if (viewer?.isApiAccess !== true) return false
+  return viewer.tenantId === tenantId
+}

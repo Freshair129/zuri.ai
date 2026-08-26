@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-26T16:57:55.193Z",
+  "generatedAt": "2026-08-26T17:42:14.388Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -303,7 +303,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 98,
+            "openApiPaths": 100,
             "missingFromOpenApi": 0
           }
         },
@@ -626,7 +626,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-067",
@@ -640,7 +640,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-075",
@@ -711,6 +711,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 6
+        },
+        {
+          "id": "FR-106",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 14
         }
       ],
       "checks": {
@@ -736,7 +743,7 @@
           "details": {
             "routes": 8,
             "inventoried": 8,
-            "openApiPaths": 98,
+            "openApiPaths": 100,
             "missingFromOpenApi": 0
           }
         },
@@ -770,8 +777,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 11,
-            "present": 11
+            "models": 12,
+            "present": 12
           }
         },
         "authorization": {
@@ -812,6 +819,7 @@
         "docs/domains/identity/features/FR-094-production-iam-boundary.md",
         "docs/domains/identity/features/FR-102-sot-data-plane-service-account.md",
         "docs/domains/identity/features/FR-104-owner-assisted-password-reset.md",
+        "docs/domains/identity/features/FR-106-enterprise-api-access-key.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -825,8 +833,8 @@
         "routes": 13,
         "apiRoutes": 8,
         "pageRoutes": 5,
-        "ownedModels": 11,
-        "featureNotes": 12
+        "ownedModels": 12,
+        "featureNotes": 13
       }
     },
     "integration": {
@@ -893,7 +901,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-101",
@@ -933,7 +941,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 98,
+            "openApiPaths": 100,
             "missingFromOpenApi": 0
           }
         },
@@ -1504,8 +1512,8 @@
           "id": "FR-019",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 10
+          "codeCount": 8,
+          "testCount": 12
         },
         {
           "id": "FR-020",
@@ -1743,7 +1751,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-075",
@@ -1841,7 +1849,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-102",
@@ -1870,6 +1878,13 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 2
+        },
+        {
+          "id": "FR-106",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 9,
+          "testCount": 14
         }
       ],
       "checks": {
@@ -1893,9 +1908,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 81,
-            "inventoried": 81,
-            "openApiPaths": 98,
+            "routes": 83,
+            "inventoried": 83,
+            "openApiPaths": 100,
             "missingFromOpenApi": 0
           }
         },
@@ -1954,8 +1969,8 @@
             }
           ],
           "details": {
-            "mutations": 66,
-            "guardedMutations": 63,
+            "mutations": 68,
+            "guardedMutations": 65,
             "reads": 42,
             "unguardedReads": 0
           }
@@ -2044,8 +2059,8 @@
         }
       ],
       "details": {
-        "routes": 118,
-        "apiRoutes": 81,
+        "routes": 120,
+        "apiRoutes": 83,
         "pageRoutes": 37,
         "ownedModels": 30,
         "featureNotes": 28

@@ -92,6 +92,10 @@ const SNAPSHOT_MODELS = [
   // personCredential above, only its hash restores, never the raw secret,
   // which the model never persists in the first place.
   'sotDataPlaneKey',
+  // @req FR-106 — the Enterprise API key hangs off Tenant only; same rule as
+  // sotDataPlaneKey above: only its hash restores, never the raw secret,
+  // which the model never persists in the first place.
+  'apiAccessKey',
   'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message', 'auditEvent',
 ]
 

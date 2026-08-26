@@ -1,8 +1,10 @@
 import { WORKSPACE_SCOPE_TYPES } from '@/lib/validation/enums'
-import { ownsBusiness } from '@/modules/identity/viewer-authority'
+import { isApiAccessFor, ownsBusiness } from '@/modules/identity/viewer-authority'
 
 // @req FR-065 — the import pipeline authorizes the Workspace it is about to write to.
-// @spec SDD-037, SEC-001, SEC-002, SEC-008, BR-001
+// @req FR-106 — an Enterprise API access key authorizes the same write, scoped to
+// the one Tenant the key is bound to and never wider.
+// @spec SDD-037, SEC-001, SEC-002, SEC-006, SEC-008, BR-001
 // @tested tests/unit/import-authorization.test.js
 //
 // The three /api/import/* routes took `workspaceId` from the request body and
@@ -29,7 +31,18 @@ const AUTHORIZERS = {
   // `ownsBusiness` — not `seesBusiness`, and never `role === 'OWNER'`, which is
   // a per-principal label and has now been mistaken for per-Business authority
   // three separate times.
-  BUSINESS: (viewer, workspace) => ownsBusiness(viewer, workspace.businessId),
+  //
+  // @req FR-106 — an Enterprise API service-account viewer is additionally
+  // authorized when the target Business belongs to the key's own Tenant.
+  // `businessTenantId` is resolved by the caller from the target Business row
+  // itself (plan-import-service resolves it alongside the Workspace), never
+  // from anything the request body claims — so a key can never widen the
+  // upsert surface beyond the Tenant it names (SEC-001, SEC-006). A session
+  // viewer never carries `isApiAccess`, so the clause is inert for every
+  // human path.
+  BUSINESS: (viewer, workspace) =>
+    ownsBusiness(viewer, workspace.businessId)
+    || isApiAccessFor(viewer, workspace.businessTenantId),
 }
 
 /** The scope types this system currently knows how to authorize an import for. */

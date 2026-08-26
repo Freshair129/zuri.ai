@@ -79,7 +79,10 @@ Upsert key ลำดับ: `externalRef` (ถ้ามี) → `code` → ส�
   ที่มี externalRefs ได้เมื่อ schema อัป
 - `GET  /api/resolve?system=SAP&value=CUST-88421` — ขยาย endpoint resolve เดิม
   ให้ค้นด้วย external ID ได้
-- เฟส production: token auth ต่อ tenant, rate limit, idempotency key ต่อ request
+- เฟส production: token auth ต่อ tenant ✅ ทำแล้ว (FR-106 — `ApiAccessKey`,
+  `Authorization: Bearer apik_...` ต่อ tenant, ดู
+  `docs/domains/identity/features/FR-106-enterprise-api-access-key.md`);
+  rate limit และ idempotency key ต่อ request ยังไม่ทำ
 
 ## ใช้งานจริง (curl)
 
@@ -125,8 +128,10 @@ curl -s "http://localhost:3100/api/resolve?system=SAP&value=PS-2026-0042"
 ## สิ่งที่ไม่ทำ
 
 - ไม่มี sync สองทางอัตโนมัติใน MVP (import เป็นรอบ ๆ พร้อม audit)
-- ยังไม่มี token auth ต่อ tenant / rate limit / idempotency key — MVP รันแบบ local
-  ไม่มี auth จริง (อยู่ใน "สิ่งที่ไม่ทำ" ของ MASTER-PROMPT) ต้องเพิ่มก่อนเปิดสู่ภายนอก
+- ~~ยังไม่มี token auth ต่อ tenant~~ **แก้แล้ว 2026-08-26 (FR-106):** ทุก route ของ
+  surface นี้รับ `Authorization: Bearer apik_...` ที่ผูกกับ tenant เดียว ตรวจก่อน
+  session seam; key ที่ผิด/ถูก revoke/ไม่ส่ง ตอบเหมือนกันหมด — ยังเหลือ rate limit /
+  idempotency key ก่อนเปิดสู่ภายนอกเต็มรูปแบบ
 - `labelAs` ถูกเก็บและส่งกลับทาง API แล้ว แต่ยังไม่มีจุดไหนใน UI ที่เอา external id
   มาแสดงแทน code (surface นี้ไม่มี UI ตามสเปก) — เป็นงานของฝั่งที่จะเรียกใช้
 - ไม่ import external ID มาเป็น `code` ตรง ๆ (code = namespace ของเรา,

@@ -14,6 +14,9 @@ import { recordAudit } from '../application/audit'
 // @spec ADR-014, SDD-021, BR-001, SEC-001
 // @req FR-065 — the target Workspace is authorized before the plan is parsed
 // @spec SDD-037, SEC-001, SEC-008
+// @req FR-106 — an Enterprise API key viewer is authorized by the target
+// Business's Tenant, resolved from the database, never widened by the request
+// @spec SEC-006
 // @tested tests/integration/plan-import.test.js, tests/integration/external-ref-import.test.js, tests/integration/project-business-binding.test.js, tests/integration/import-target-authorization.test.js
 // PlanEnvelope import pipeline:
 //   authorize target → JSON → Zod validation → semantic validation → dry-run diff → transactional commit → AuditEvent.
@@ -103,7 +106,21 @@ async function resolveAuthorizedTarget(rawPlan, { workspaceId, viewer }) {
   }
   if (!workspace) return { error: missing() }
 
-  const decision = authorizeImportTarget(viewer, workspace)
+  // @req FR-106 — an Enterprise API service-account viewer is authorized by the
+  // target Business's own Tenant, so resolve that Tenant from the Business row
+  // itself (never from anything the request claims) and hand it to the pure
+  // authorizer. Only resolved for a key viewer: the session path never reads
+  // it, so the human import flow gains no query and no new behaviour.
+  let businessTenantId
+  if (viewer?.isApiAccess === true && workspace.businessId) {
+    const business = await prisma.business.findUnique({
+      where: { id: workspace.businessId },
+      select: { tenantId: true },
+    })
+    businessTenantId = business?.tenantId
+  }
+
+  const decision = authorizeImportTarget(viewer, { ...workspace, businessTenantId })
   if (decision.authorized) return { workspace }
   return { error: decision.reason ?? missing() }
 }
