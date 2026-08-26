@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-26T05:55:14.324Z",
+  "generatedAt": "2026-08-26T07:49:07.981Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 35,
+    "gapCount": 37,
     "gaps": [
       {
         "domain": "agent",
@@ -126,6 +126,7 @@
           "tests/e2e/fr060-business-home.spec.js",
           "tests/e2e/fr091-conversation-inbox.spec.js",
           "tests/integration/crm-conversation-inbox.test.js",
+          "tests/integration/crm-customer-consent.test.js",
           "tests/integration/line-reply-record.test.js",
           "tests/unit/command-palette-index.test.js",
           "tests/unit/conversation-read-model.test.js",
@@ -170,6 +171,25 @@
           "tests/unit/canonical-iam-runtime-role-cutover.test.js",
           "tests/unit/line-binding-resolver.test.js",
           "tests/unit/line-channel-binding.test.js"
+        ]
+      },
+      {
+        "domain": "crm",
+        "id": "REQ-FR-103",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-103 is partial",
+        "evidence": [
+          "src/modules/crm/conversation-read-model.js",
+          "src/modules/crm/customer-consent-service.js",
+          "tests/e2e/fr091-conversation-inbox.spec.js",
+          "tests/integration/crm-conversation-inbox.test.js",
+          "tests/integration/crm-customer-consent.test.js",
+          "tests/unit/conversation-read-model.test.js",
+          "tests/unit/crm-customer-consent-route.test.js",
+          "tests/unit/customer-consent-migration.test.js",
+          "tests/unit/customer-consent-service.test.js",
+          "tests/unit/fr091-inbox-ui-contract.test.js"
         ]
       },
       {
@@ -483,6 +503,7 @@
           "tests/e2e/fr060-business-home.spec.js",
           "tests/e2e/fr091-conversation-inbox.spec.js",
           "tests/integration/crm-conversation-inbox.test.js",
+          "tests/integration/crm-customer-consent.test.js",
           "tests/integration/line-reply-record.test.js",
           "tests/unit/command-palette-index.test.js",
           "tests/unit/conversation-read-model.test.js",
@@ -526,6 +547,25 @@
           "tests/unit/sot-data-plane-key-migration.test.js",
           "tests/unit/sot-decision-service.test.js",
           "tests/unit/viewer-authority.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-103",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-103 is partial",
+        "evidence": [
+          "src/app/(pm)/customer/conversations/page.jsx",
+          "src/app/api/crm/customers/[customerId]/consent/route.js",
+          "tests/e2e/fr091-conversation-inbox.spec.js",
+          "tests/integration/crm-conversation-inbox.test.js",
+          "tests/integration/crm-customer-consent.test.js",
+          "tests/unit/conversation-read-model.test.js",
+          "tests/unit/crm-customer-consent-route.test.js",
+          "tests/unit/customer-consent-migration.test.js",
+          "tests/unit/customer-consent-service.test.js",
+          "tests/unit/fr091-inbox-ui-contract.test.js"
         ]
       }
     ]
@@ -740,7 +780,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 88,
+            "openApiPaths": 89,
             "missingFromOpenApi": 0
           }
         },
@@ -905,7 +945,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-078",
@@ -919,13 +959,14 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 10,
+          "testCount": 11,
           "evidence": [
             "src/modules/crm/conversation-read-model.js",
             "tests/e2e/fr041-business-first.spec.js",
             "tests/e2e/fr060-business-home.spec.js",
             "tests/e2e/fr091-conversation-inbox.spec.js",
             "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
             "tests/integration/line-reply-record.test.js",
             "tests/unit/command-palette-index.test.js",
             "tests/unit/conversation-read-model.test.js",
@@ -970,6 +1011,25 @@
             "tests/unit/canonical-iam-runtime-role-cutover.test.js",
             "tests/unit/line-binding-resolver.test.js",
             "tests/unit/line-channel-binding.test.js"
+          ]
+        },
+        {
+          "id": "FR-103",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 8,
+          "evidence": [
+            "src/modules/crm/conversation-read-model.js",
+            "src/modules/crm/customer-consent-service.js",
+            "tests/e2e/fr091-conversation-inbox.spec.js",
+            "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
+            "tests/unit/conversation-read-model.test.js",
+            "tests/unit/crm-customer-consent-route.test.js",
+            "tests/unit/customer-consent-migration.test.js",
+            "tests/unit/customer-consent-service.test.js",
+            "tests/unit/fr091-inbox-ui-contract.test.js"
           ]
         }
       ],
@@ -1052,6 +1112,7 @@
         "docs/domains/crm/features/FR-078-customer-data-backfill-contract.md",
         "docs/domains/crm/features/FR-091-conversation-inbox.md",
         "docs/domains/crm/features/FR-093-reply-delivery-receipt.md",
+        "docs/domains/crm/features/FR-103-pdpa-consent-attestation.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
@@ -1083,6 +1144,7 @@
             "tests/e2e/fr060-business-home.spec.js",
             "tests/e2e/fr091-conversation-inbox.spec.js",
             "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
             "tests/integration/line-reply-record.test.js",
             "tests/unit/command-palette-index.test.js",
             "tests/unit/conversation-read-model.test.js",
@@ -1126,6 +1188,24 @@
             "tests/unit/line-binding-resolver.test.js",
             "tests/unit/line-channel-binding.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-103",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-103 is partial",
+          "evidence": [
+            "src/modules/crm/conversation-read-model.js",
+            "src/modules/crm/customer-consent-service.js",
+            "tests/e2e/fr091-conversation-inbox.spec.js",
+            "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
+            "tests/unit/conversation-read-model.test.js",
+            "tests/unit/crm-customer-consent-route.test.js",
+            "tests/unit/customer-consent-migration.test.js",
+            "tests/unit/customer-consent-service.test.js",
+            "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
         }
       ],
       "details": {
@@ -1133,7 +1213,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 8,
-        "featureNotes": 3
+        "featureNotes": 4
       }
     },
     "identity": {
@@ -1193,7 +1273,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-061",
@@ -1346,7 +1426,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 88,
+            "openApiPaths": 89,
             "missingFromOpenApi": 0
           }
         },
@@ -1668,7 +1748,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 88,
+            "openApiPaths": 89,
             "missingFromOpenApi": 0
           }
         },
@@ -2384,8 +2464,8 @@
           "id": "FR-059",
           "declared": "done",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 11
+          "codeCount": 10,
+          "testCount": 13
         },
         {
           "id": "FR-060",
@@ -2601,7 +2681,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 10,
+          "testCount": 11,
           "evidence": [
             "src/app/(pm)/customer/conversations/page.jsx",
             "src/app/(pm)/customer/page.jsx",
@@ -2612,6 +2692,7 @@
             "tests/e2e/fr060-business-home.spec.js",
             "tests/e2e/fr091-conversation-inbox.spec.js",
             "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
             "tests/integration/line-reply-record.test.js",
             "tests/unit/command-palette-index.test.js",
             "tests/unit/conversation-read-model.test.js",
@@ -2670,6 +2751,25 @@
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/viewer-authority.test.js"
           ]
+        },
+        {
+          "id": "FR-103",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 8,
+          "evidence": [
+            "src/app/(pm)/customer/conversations/page.jsx",
+            "src/app/api/crm/customers/[customerId]/consent/route.js",
+            "tests/e2e/fr091-conversation-inbox.spec.js",
+            "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
+            "tests/unit/conversation-read-model.test.js",
+            "tests/unit/crm-customer-consent-route.test.js",
+            "tests/unit/customer-consent-migration.test.js",
+            "tests/unit/customer-consent-service.test.js",
+            "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
         }
       ],
       "checks": {
@@ -2693,9 +2793,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 78,
-            "inventoried": 78,
-            "openApiPaths": 88,
+            "routes": 79,
+            "inventoried": 79,
+            "openApiPaths": 89,
             "missingFromOpenApi": 0
           }
         },
@@ -2754,8 +2854,8 @@
             }
           ],
           "details": {
-            "mutations": 63,
-            "guardedMutations": 61,
+            "mutations": 64,
+            "guardedMutations": 62,
             "reads": 42,
             "unguardedReads": 0
           }
@@ -2923,6 +3023,7 @@
             "tests/e2e/fr060-business-home.spec.js",
             "tests/e2e/fr091-conversation-inbox.spec.js",
             "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
             "tests/integration/line-reply-record.test.js",
             "tests/unit/command-palette-index.test.js",
             "tests/unit/conversation-read-model.test.js",
@@ -2965,11 +3066,29 @@
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/viewer-authority.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-103",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-103 is partial",
+          "evidence": [
+            "src/app/(pm)/customer/conversations/page.jsx",
+            "src/app/api/crm/customers/[customerId]/consent/route.js",
+            "tests/e2e/fr091-conversation-inbox.spec.js",
+            "tests/integration/crm-conversation-inbox.test.js",
+            "tests/integration/crm-customer-consent.test.js",
+            "tests/unit/conversation-read-model.test.js",
+            "tests/unit/crm-customer-consent-route.test.js",
+            "tests/unit/customer-consent-migration.test.js",
+            "tests/unit/customer-consent-service.test.js",
+            "tests/unit/fr091-inbox-ui-contract.test.js"
+          ]
         }
       ],
       "details": {
-        "routes": 115,
-        "apiRoutes": 78,
+        "routes": 116,
+        "apiRoutes": 79,
         "pageRoutes": 37,
         "ownedModels": 30,
         "featureNotes": 28

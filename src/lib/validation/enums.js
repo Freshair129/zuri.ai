@@ -114,6 +114,14 @@ export const CHANNELS = ['LINE', 'FACEBOOK', 'WEB']
 export const MESSAGE_DIRECTIONS = ['INBOUND', 'OUTBOUND']
 export const CUSTOMER_LIFECYCLE = ['LEAD', 'ACTIVE', 'DORMANT', 'LOST']
 
+// FR-103 — SEC-005 PDPA consent, recorded on the Customer row that FR-023's own
+// docstring already calls the CRM-sharing unit (businesses in one tenant share
+// the Customer). PENDING is the default for every new Customer from here on;
+// GRANDFATHERED marks a row that predates this column and was already being
+// served, so shipping this migration does not retroactively cut off a live
+// conversation — see the migration comment for the backfill this pairs with.
+export const CUSTOMER_CONSENT_STATUSES = ['PENDING', 'GRANTED', 'DECLINED', 'GRANDFATHERED']
+
 // FR-022 — the P3 gate's staff/customer split. In V2's unified identity a Person
 // is STAFF when it holds a Membership in the tenant (RBAC side) and CUSTOMER when
 // it holds a Customer record (CRM side); a Person that is both resolves to STAFF
@@ -137,6 +145,7 @@ export const zMembershipRole = z.enum(MEMBERSHIP_ROLES)
 export const zChannel = z.enum(CHANNELS)
 export const zMessageDirection = z.enum(MESSAGE_DIRECTIONS)
 export const zCustomerLifecycle = z.enum(CUSTOMER_LIFECYCLE)
+export const zCustomerConsentStatus = z.enum(CUSTOMER_CONSENT_STATUSES)
 export const zPrincipalType = z.enum(PRINCIPAL_TYPES)
 export const zIdentityProvider = z.enum(IDENTITY_PROVIDERS)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)

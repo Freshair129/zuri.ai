@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1186,
-    "total_edges": 3970,
+    "total_nodes": 1196,
+    "total_edges": 4026,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 91,
+      "document": 92,
       "adr": 47,
       "domain": 7,
       "roadmap": 28,
       "feature": 11,
-      "route": 132,
+      "route": 133,
       "model": 63,
-      "requirement": 212,
-      "test": 281,
-      "code_file": 310
+      "requirement": 214,
+      "test": 285,
+      "code_file": 312
     },
     "coverage": {
-      "requirements": 212,
+      "requirements": 214,
       "fr_with_code": "100% (86/86)",
       "fr_with_tests": "100% (86/86)",
-      "rules_anchored_in_code": "91% (81/89)",
+      "rules_anchored_in_code": "92% (83/90)",
       "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 310,
+      "annotated_code_files": 312,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -42,7 +42,8 @@
         "FR-099",
         "FR-100",
         "FR-101",
-        "FR-102"
+        "FR-102",
+        "FR-103"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -53,7 +54,6 @@
         "SDD-040",
         "SDD-041",
         "SDD-046",
-        "SEC-005",
         "SEC-014"
       ],
       "rules_superseded": [
@@ -63,7 +63,11 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "test:tests/integration/openapi-docs.test.js",
+      "code:src/modules/project-manager/api-docs/openapi.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -158,17 +162,22 @@
       "id": "code:src/app/(pm)/customer/conversations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/customer/conversations/page.jsx",
-      "hash": "25cac596",
+      "hash": "ad52879d",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-091"
+          "FR-091",
+          "FR-103",
+          "SEC-005",
+          "FR-059"
         ],
         "@spec": [
           "SDD-050",
+          "SDD-053",
           "BR-001",
           "BR-011",
-          "SDD-007"
+          "SDD-007",
+          "SEC-005"
         ],
         "@tested": [
           "tests/unit/fr091-inbox-ui-contract.test.js",
@@ -1349,6 +1358,27 @@
         ],
         "@tested": [
           "tests/integration/crm-conversation-inbox.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "type": "code_file",
+      "path": "src/app/api/crm/customers/[customerId]/consent/route.js",
+      "hash": "81aa5663",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-103",
+          "SEC-005"
+        ],
+        "@spec": [
+          "SDD-053",
+          "BR-001",
+          "SEC-005"
+        ],
+        "@tested": [
+          "tests/unit/crm-customer-consent-route.test.js"
         ]
       }
     },
@@ -3024,7 +3054,7 @@
       "id": "code:src/components/ui/index.jsx",
       "type": "code_file",
       "path": "src/components/ui/index.jsx",
-      "hash": "bae37bd9",
+      "hash": "b338f26c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3313,7 +3343,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "2a9ecec3",
+      "hash": "7f08f6e8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3895,11 +3925,13 @@
       "id": "code:src/modules/crm/conversation-read-model.js",
       "type": "code_file",
       "path": "src/modules/crm/conversation-read-model.js",
-      "hash": "1336e6e2",
+      "hash": "0e8ee09c",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-091"
+          "FR-091",
+          "FR-103",
+          "SEC-005"
         ],
         "@spec": [
           "SDD-050",
@@ -3911,6 +3943,29 @@
         "@tested": [
           "tests/unit/conversation-read-model.test.js",
           "tests/integration/crm-conversation-inbox.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/crm/customer-consent-service.js",
+      "type": "code_file",
+      "path": "src/modules/crm/customer-consent-service.js",
+      "hash": "d5e2ea60",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-103",
+          "SEC-005"
+        ],
+        "@spec": [
+          "SDD-053",
+          "BR-001",
+          "SEC-005",
+          "SDD-048"
+        ],
+        "@tested": [
+          "tests/unit/customer-consent-service.test.js",
+          "tests/integration/crm-customer-consent.test.js"
         ]
       }
     },
@@ -4839,8 +4894,8 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "8ed69163",
-      "status": "current",
+      "hash": "908e1081",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019"
@@ -6339,9 +6394,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.20.0b",
+      "version": "1.21.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "e6ae7fe9",
+      "hash": "92c3ef2b",
       "status": "current"
     },
     {
@@ -6431,9 +6486,9 @@
       "type": "document",
       "path": "docs/domains/agent/ethics-governance.md",
       "title": "AI Ethics & Data Governance (PDPA)",
-      "version": "1.0.0",
-      "doc_status": "Draft — blocking for `TASK-V2-LINE-INTENT`",
-      "hash": "6c23a732",
+      "version": "1.1.0",
+      "doc_status": "Draft — question #4 closed at MVP scope (FR-103); #1, #2, #3, #6 still block `TASK-V2-LINE-INTENT`",
+      "hash": "92b8d9a6",
       "status": "current"
     },
     {
@@ -6988,6 +7043,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-103-pdpa-consent-attestation",
+      "type": "document",
+      "path": "docs/domains/crm/features/FR-103-pdpa-consent-attestation.md",
+      "title": "FR-103 — SEC-005 PDPA consent attestation (MVP scope)",
+      "hash": "f0713edb",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -7238,9 +7301,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.85.0b",
+      "version": "1.86.0b",
       "doc_status": "Draft",
-      "hash": "48aeae80",
+      "hash": "95ec3130",
       "status": "current"
     },
     {
@@ -7461,7 +7524,7 @@
       "modules": [
         "crm"
       ],
-      "hash": "2386d97f",
+      "hash": "e366b780",
       "status": "current"
     },
     {
@@ -9224,6 +9287,16 @@
       "row_text": "SoT data-plane service-account authentication: a `SotDataPlaneKey` bound to exactly one Tenant lets the SoT pipeline's external data plane authenticate to the FR-100 submit/export endpoints (`Authorization: Bearer sdpk_...`) without a browser session and without installation-operator authority. Revocation takes effect on the next request; the raw secret is never persisted, only its SHA-256 hash. 🔜 implemented locally; Supabase RLS/grant migration gate open "
     },
     {
+      "id": "req:FR-103",
+      "type": "requirement",
+      "family": "FR",
+      "label": "SEC-005 PDPA consent, MVP scope: a Business owner attests in the CRM console that a Customer's consent was captured (`GRANTED`/`DECLINED`), recorded with timestamp and attesting Person on the Customer row FR-023 already treats as the CRM-sharing unit. Every Customer created from here on defaults to `PENDING`; rows that predate this column backfill to `GRANDFATHERED` rather than being retroactively blocked. Closes ethics-governance.md's open question #4 only — it does not gate AI processing, redact model input, or answer retention/provider-terms (#1, #2, #3, #6), which stay open.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "SEC-005 PDPA consent, MVP scope: a Business owner attests in the CRM console that a Customer's consent was captured (`GRANTED`/`DECLINED`), recorded with timestamp and attesting Person on the Customer row FR-023 already treats as the CRM-sharing unit. Every Customer created from here on defaults to `PENDING`; rows that predate this column backfill to `GRANDFATHERED` rather than being retroactively blocked. Closes ethics-governance.md's open question #4 only — it does not gate AI processing, redact model input, or answer retention/provider-terms (#1, #2, #3, #6), which stay open. 🔜 implemented locally; Supabase migration apply pending (no CLI in this workspace, same gate as FR-100/102) "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -9934,6 +10007,16 @@
       "row_text": "IAM is an identity-domain modular-monolith boundary: a persisted Session is the live browser authority, active Membership/RoleBinding rows form the scope input, and one `resolveAuthorizationContext`/`authorizeScope` policy seam is called before Web/API, agent and tool work. Provider and MSP adapters consume the resolved context but cannot replace or widen it. FR-094..098, NFR-019, BR-020, SEC-018, ADR-045 "
     },
     {
+      "id": "req:SDD-053",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "SEC-005 consent is a fourth field group on the FR-023 Customer row, not a new `CustomerBusinessProfile` table — the FR-023 docstring already names Customer the CRM-sharing unit (BR-001), so a second table keyed by (Customer, Business) would duplicate a scope this row already carries. Recording it is a third narrow writer beside the ingest seam and `recordLineReply` (`customer-consent-service`), owner-gated (`ownsBusiness`, never a Member grant) and resolved through the caller's own Business's tenant so a Customer id alone cannot widen the write. The read side extends `getConversationInbox`/`getConversationThread`'s existing `select`, adding no writer to that module.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "SEC-005 consent is a fourth field group on the FR-023 Customer row, not a new `CustomerBusinessProfile` table — the FR-023 docstring already names Customer the CRM-sharing unit (BR-001), so a second table keyed by (Customer, Business) would duplicate a scope this row already carries. Recording it is a third narrow writer beside the ingest seam and `recordLineReply` (`customer-consent-service`), owner-gated (`ownsBusiness`, never a Member grant) and resolved through the caller's own Business's tenant so a Customer id alone cannot widen the write. The read side extends `getConversationInbox`/`getConversationThread`'s existing `select`, adding no writer to that module. FR-103; BR-001, BR-011, SEC-005, SDD-048, SDD-050, SDD-051, FR-023, FR-091 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -9977,11 +10060,11 @@
       "id": "req:SEC-005",
       "type": "requirement",
       "family": "SEC",
-      "label": "PDPA: consent ต่อธุรกิจใน `CustomerBusinessProfile` เมื่อทำ CRM sharing",
+      "label": "PDPA: consent ต่อธุรกิจ เมื่อทำ CRM sharing",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "planned",
       "status": "planned",
-      "row_text": "PDPA: consent ต่อธุรกิจใน `CustomerBusinessProfile` เมื่อทำ CRM sharing 🔜 **เลื่อนขึ้นเป็น P0 ของ PHASE-V2-REPLACE** — ไม่ใช่ \"เฟส CRM ทีหลัง\" อีกแล้ว เพราะ LINE-first แปลว่าข้อมูลลูกค้าเข้าระบบตั้งแต่วันแรก "
+      "row_text": "PDPA: consent ต่อธุรกิจ เมื่อทำ CRM sharing 🔜 **MVP scope เริ่มแล้ว (FR-103)** — attestation + audit trail บน `Customer` โดยตรง (ไม่ใช่ `CustomerBusinessProfile` แยกตาราง ดู SDD-053) ยังไม่ครอบคลุมคำถามที่เหลือใน ethics-governance.md (#1 redact, #2 provider terms, #3 retention, #6 erasure) และยังไม่ gate การส่งข้อความเข้า AI "
     },
     {
       "id": "req:SEC-006",
@@ -10281,6 +10364,14 @@
       "kind": "api",
       "route": "/api/crm/conversations/[id]",
       "path": "src/app/api/crm/conversations/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/crm/customers/[customerId]/consent",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/crm/customers/[customerId]/consent",
+      "path": "src/app/api/crm/customers/[customerId]/consent/route.js",
       "status": "current"
     },
     {
@@ -11626,8 +11717,8 @@
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
-      "hash": "30e599e6",
-      "status": "current"
+      "hash": "8b21e536",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -11725,6 +11816,13 @@
       "type": "test",
       "path": "tests/integration/crm-conversation-inbox.test.js",
       "hash": "553c125b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/crm-customer-consent.test.js",
+      "type": "test",
+      "path": "tests/integration/crm-customer-consent.test.js",
+      "hash": "2e264fb0",
       "status": "current"
     },
     {
@@ -12018,8 +12116,8 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "4412d004",
-      "status": "current"
+      "hash": "c868bd20",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/plan-import-scope.test.js",
@@ -12292,6 +12390,27 @@
       "type": "test",
       "path": "tests/unit/conversation-read-model.test.js",
       "hash": "721a55a7",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/crm-customer-consent-route.test.js",
+      "type": "test",
+      "path": "tests/unit/crm-customer-consent-route.test.js",
+      "hash": "2fe8652d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-consent-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-consent-migration.test.js",
+      "hash": "e80d2ec5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/customer-consent-service.test.js",
+      "type": "test",
+      "path": "tests/unit/customer-consent-service.test.js",
+      "hash": "87aec2b8",
       "status": "current"
     },
     {
@@ -12753,7 +12872,7 @@
       "id": "test:tests/unit/fr091-inbox-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr091-inbox-ui-contract.test.js",
-      "hash": "0c8dcc4f",
+      "hash": "2982c144",
       "status": "current"
     },
     {
@@ -13677,7 +13796,21 @@
     },
     {
       "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:FR-059",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
       "to": "req:FR-091",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:FR-103",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -13692,6 +13825,27 @@
     {
       "from": "code:src/app/(pm)/customer/conversations/page.jsx",
       "to": "req:SDD-050",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:SDD-053",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/customer/conversations/page.jsx",
+      "to": "req:SEC-005",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -15288,6 +15442,41 @@
     {
       "from": "code:src/app/api/crm/conversations/route.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "to": "req:FR-103",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "to": "req:SDD-053",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "to": "req:SEC-005",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19081,6 +19270,13 @@
     },
     {
       "from": "code:src/modules/crm/conversation-read-model.js",
+      "to": "req:FR-103",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-read-model.js",
       "to": "req:SDD-050",
       "type": "follows",
       "status": "current",
@@ -19095,7 +19291,56 @@
     },
     {
       "from": "code:src/modules/crm/conversation-read-model.js",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-read-model.js",
       "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:FR-103",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:SDD-048",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:SDD-053",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:SEC-005",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/customer-consent-service.js",
+      "to": "req:SEC-005",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -24078,6 +24323,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-103",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -24575,6 +24827,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-053",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -24856,6 +25115,13 @@
     },
     {
       "from": "route:api:/api/crm/conversations",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/crm/customers/[customerId]/consent",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -27684,7 +27950,21 @@
     },
     {
       "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:FR-103",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -27699,6 +27979,20 @@
     {
       "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "to": "req:SDD-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:SDD-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "to": "req:SEC-005",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -29077,6 +29371,13 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
       "to": "req:SDD-007",
       "type": "verifies",
       "status": "current",
@@ -29098,10 +29399,73 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-inbox.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-inbox.test.js",
       "to": "req:SEC-009",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "code:src/modules/crm/customer-consent-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:FR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:SDD-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-consent.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/external-ref-import.test.js",
@@ -34117,6 +34481,13 @@
     },
     {
       "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
       "to": "req:SDD-050",
       "type": "verifies",
       "status": "current",
@@ -34131,10 +34502,122 @@
     },
     {
       "from": "test:tests/unit/conversation-read-model.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-read-model.test.js",
       "to": "req:SEC-009",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-customer-consent-route.test.js",
+      "to": "code:src/app/api/crm/customers/[customerId]/consent/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/crm-customer-consent-route.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/crm-customer-consent-route.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/crm-customer-consent-route.test.js",
+      "to": "req:SDD-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/crm-customer-consent-route.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-migration.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-migration.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-migration.test.js",
+      "to": "req:SDD-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-migration.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "code:src/modules/crm/customer-consent-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "req:FR-103",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "req:SDD-048",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "req:SDD-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/customer-consent-service.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/customer-data-contract.test.js",
@@ -37085,7 +37568,21 @@
     },
     {
       "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:FR-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
       "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:FR-103",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -37106,7 +37603,21 @@
     },
     {
       "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:SDD-053",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
       "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr091-inbox-ui-contract.test.js",
+      "to": "req:SEC-005",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

@@ -169,6 +169,8 @@ model Person {
   customerImportApprovals       CustomerImportBatch[]          @relation("CustomerImportBatchApprover")
   customerImportProvenance      CustomerImportProvenance[]     @relation("CustomerImportProvenancePerson")
   customerImportReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionActor")
+  // @req FR-103 — the staff member who attested a Customer's PDPA consent (SEC-005).
+  customerConsentAttestations   Customer[]                     @relation("CustomerConsentRecordedBy")
 }
 
 // @req FR-090 — the production authentication credential and its password-reset
@@ -923,15 +925,29 @@ model Customer {
   deletedAt      DateTime?
   version        Int       @default(1)
 
+  // @req FR-103 — SEC-005 PDPA consent. Lives directly on Customer rather than a
+  // separate per-business join: the FR-023 docstring above already makes this row
+  // the CRM-sharing unit ("businesses in one tenant share the customer"), so a
+  // second table keyed by (Customer, Business) would duplicate a scope this row
+  // already carries. `consentStatus` defaults to PENDING for every new Customer;
+  // `GRANDFATHERED` is the one-time backfill value for rows that predate this
+  // column (see the paired migration) — it is never written by the service.
+  consentStatus             String    @default("PENDING")
+  consentRecordedAt         DateTime?
+  consentRecordedByPersonId String?
+  consentNote               String?
+
   tenant                Tenant                         @relation(fields: [tenantId], references: [id])
   business              Business?                      @relation(fields: [businessId], references: [id])
   person                Person                         @relation(fields: [personId], references: [id])
+  consentRecordedBy     Person?                        @relation("CustomerConsentRecordedBy", fields: [consentRecordedByPersonId], references: [id])
   conversations         Conversation[]
   importProvenance      CustomerImportProvenance[]     @relation("CustomerImportProvenanceCustomer")
   importReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionTargetCustomer")
 
   @@unique([tenantId, personId])
   @@index([businessId])
+  @@index([consentStatus])
 }
 
 model CustomerImportBatch {
