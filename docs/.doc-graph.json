@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1184,
-    "total_edges": 3962,
+    "total_nodes": 1185,
+    "total_edges": 3965,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 132,
       "model": 63,
       "requirement": 212,
-      "test": 280,
+      "test": 281,
       "code_file": 310
     },
     "coverage": {
@@ -63,10 +63,10 @@
     }
   },
   "drift": {
-    "changed": [
-      "code:src/modules/project-manager/application/backup-service.js"
+    "changed": [],
+    "added": [
+      "test:tests/unit/sot-decision-migration.test.js"
     ],
-    "added": [],
     "removed": []
   },
   "nodes": [
@@ -4900,7 +4900,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "a3cfe507",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -13399,6 +13399,13 @@
       "type": "test",
       "path": "tests/unit/sot-data-plane-key-migration.test.js",
       "hash": "730da23f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/sot-decision-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/sot-decision-migration.test.js",
+      "hash": "2f062541",
       "status": "current"
     },
     {
@@ -40720,6 +40727,27 @@
     {
       "from": "test:tests/unit/sot-data-plane-key-migration.test.js",
       "to": "req:SEC-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-decision-migration.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-decision-migration.test.js",
+      "to": "req:FR-100",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-decision-migration.test.js",
+      "to": "req:SEC-002",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

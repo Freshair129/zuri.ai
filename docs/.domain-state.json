@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-24T11:35:09.686Z",
+  "generatedAt": "2026-08-25T15:25:39.892Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -294,6 +294,7 @@
           "tests/integration/sot-decisions-route.test.js",
           "tests/unit/fr045-backup-contract.test.js",
           "tests/unit/sot-data-plane-auth.test.js",
+          "tests/unit/sot-decision-migration.test.js",
           "tests/unit/sot-decision-service.test.js",
           "tests/unit/sot-inbox-ui.test.js"
         ]
@@ -503,6 +504,7 @@
           "tests/integration/sot-decisions-route.test.js",
           "tests/unit/fr045-backup-contract.test.js",
           "tests/unit/sot-data-plane-auth.test.js",
+          "tests/unit/sot-decision-migration.test.js",
           "tests/unit/sot-decision-service.test.js",
           "tests/unit/sot-inbox-ui.test.js"
         ]
@@ -1591,7 +1593,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 7,
+          "testCount": 8,
           "evidence": [
             "src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
             "src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
@@ -1603,6 +1605,7 @@
             "tests/integration/sot-decisions-route.test.js",
             "tests/unit/fr045-backup-contract.test.js",
             "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-decision-migration.test.js",
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/sot-inbox-ui.test.js"
           ]
@@ -1801,6 +1804,7 @@
             "tests/integration/sot-decisions-route.test.js",
             "tests/unit/fr045-backup-contract.test.js",
             "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-decision-migration.test.js",
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/sot-inbox-ui.test.js"
           ]
@@ -2635,7 +2639,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 7,
+          "testCount": 8,
           "evidence": [
             "src/modules/project-manager/application/backup-service.js",
             "tests/integration/backup.test.js",
@@ -2643,6 +2647,7 @@
             "tests/integration/sot-decisions-route.test.js",
             "tests/unit/fr045-backup-contract.test.js",
             "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-decision-migration.test.js",
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/sot-inbox-ui.test.js"
           ]
@@ -2938,6 +2943,7 @@
             "tests/integration/sot-decisions-route.test.js",
             "tests/unit/fr045-backup-contract.test.js",
             "tests/unit/sot-data-plane-auth.test.js",
+            "tests/unit/sot-decision-migration.test.js",
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/sot-inbox-ui.test.js"
           ]
