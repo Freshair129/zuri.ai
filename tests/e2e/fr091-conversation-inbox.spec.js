@@ -17,6 +17,16 @@ async function chooseBusiness(page, name = 'Business 01') {
  *
  * Inserting rows would be faster and would prove less. What this page has to be right
  * about is the shape the ingest seam actually writes, so the fixture goes through it.
+ *
+ * The webhook is a batch: it answers 200 for a *received* batch and reports each
+ * event's own outcome in `results[]` — an event can be `ok: false` inside a 200.
+ * Asserting only `response.ok()` therefore proves nothing about the row this
+ * fixture exists to create, and that gap was load-bearing: on 2026-08-26 the
+ * consent test spent a full 45s pressing รีเฟรช on a conversation whose ingest
+ * event had failed transiently inside a 200, invisible to the fixture. The event
+ * write is atomic (one $transaction), so re-sending the same webhookEventId
+ * after a failed attempt is clean; this is fixture SETUP being retried, never
+ * the assertion the test measures.
  */
 async function ingest(page, { thread, userId, displayName, messages }) {
   const scope = await (await page.request.get('/api/scope')).json()
@@ -25,21 +35,29 @@ async function ingest(page, { thread, userId, displayName, messages }) {
 
   for (const [index, text] of messages.entries()) {
     const id = `${thread}-${stamp}-${index}`
-    const response = await page.request.post('/api/agent/line-webhook', {
-      data: {
-        tenantId: business.tenantId,
-        businessId: business.id,
-        displayName,
-        events: [{
-          webhookEventId: id,
-          type: 'message',
-          source: { userId: `${userId}-${stamp}` },
-          message: { id, type: 'text', text },
-          timestamp: Date.now(),
-        }],
-      },
-    })
-    expect(response.ok()).toBe(true)
+    let outcome
+    for (let attempt = 0; attempt < 3 && !outcome?.ok; attempt++) {
+      if (attempt > 0) await page.waitForTimeout(300 * attempt)
+      const response = await page.request.post('/api/agent/line-webhook', {
+        data: {
+          tenantId: business.tenantId,
+          businessId: business.id,
+          displayName,
+          events: [{
+            webhookEventId: id,
+            type: 'message',
+            source: { userId: `${userId}-${stamp}` },
+            message: { id, type: 'text', text },
+            timestamp: Date.now(),
+          }],
+        },
+      })
+      expect(response.ok()).toBe(true)
+      outcome = (await response.json()).results?.[0]
+    }
+    // A persistent failure now reports its actual stage and error instead of
+    // surfacing later as a mystery row-timeout in the inbox.
+    expect(outcome?.ok, `webhook event ${id} failed: ${JSON.stringify(outcome)}`).toBe(true)
   }
   return { displayName, last: messages[messages.length - 1] }
 }
