@@ -63,118 +63,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "doc:E-risk-matrix",
-      "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
-      "domain:identity",
-      "domain:integration",
-      "doc:FEATURES",
-      "doc:INTERFACE-INVENTORY",
-      "doc:PRD-SDD-v1.0",
-      "test:tests/integration/agent-action-gate.test.js",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/db-runtime-config.test.js",
-      "test:tests/unit/line-binding-resolver.test.js",
-      "test:tests/unit/line-channel-binding.test.js",
-      "test:tests/unit/viewer-authority.test.js",
-      "code:src/app/api/agent/line-webhook/route.js",
-      "code:src/app/api/auth/logout/route.js",
-      "code:src/config/domains.js",
-      "code:src/lib/db.js",
-      "code:src/lib/validation/entities.js",
-      "code:src/modules/agent/action-gate.js",
-      "code:src/modules/agent/auth-context.js",
-      "code:src/modules/agent/context.js",
-      "code:src/modules/agent/line-binding-resolver.js",
-      "code:src/modules/agent/line-channel-binding.js",
-      "code:src/modules/agent/tools.js",
-      "code:src/modules/agent/turn.js",
-      "code:src/modules/crm/line-ingest-service.js",
-      "code:src/modules/identity/auth-service.js",
-      "code:src/modules/identity/classify-principal.js",
-      "code:src/modules/identity/erase-principal.js",
-      "code:src/modules/identity/link-line-identity.js",
-      "code:src/modules/identity/resolve-line-identity.js",
-      "code:src/modules/identity/resolve-viewer.js",
-      "code:src/modules/identity/session-port.js",
-      "code:src/modules/identity/viewer-authority.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js"
-    ],
-    "added": [
-      "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
-      "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
-      "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
-      "doc:FR-094-production-iam-boundary",
-      "doc:FR-102-sot-data-plane-service-account",
-      "doc:FR-099-sot-pipeline-plan-board",
-      "doc:FR-100-sot-approval-inbox",
-      "doc:FR-101-sot-pipeline-graph-dashboard",
-      "doc:PLAN-FR-094-PRODUCTION-IAM",
-      "doc:PLAN-FR-097-VERIFIED-CHANNEL-ONBOARDING",
-      "doc:ROADMAP-zuri-ai-24w-program",
-      "feat:FEAT-010",
-      "feat:FEAT-011",
-      "route:page:/platform/sot-pipeline/graph",
-      "route:page:/platform/sot-pipeline/inbox",
-      "route:page:/platform/sot-pipeline",
-      "route:api:/api/platform/sot/decisions/export",
-      "route:api:/api/platform/sot/decisions",
-      "route:api:/api/platform/sot/decisions/[decisionId]/decide",
-      "route:api:/api/platform/sot/plan",
-      "model:Session",
-      "model:ChannelIdentity",
-      "model:SotDecision",
-      "model:SotDataPlaneKey",
-      "req:FR-094",
-      "req:FR-095",
-      "req:FR-096",
-      "req:FR-097",
-      "req:FR-098",
-      "req:FR-099",
-      "req:FR-100",
-      "req:FR-101",
-      "req:FR-102",
-      "req:NFR-019",
-      "req:BR-020",
-      "req:SDD-052",
-      "req:SEC-018",
-      "req:SEC-019",
-      "test:tests/integration/channel-identity.test.js",
-      "test:tests/integration/iam-authorization.test.js",
-      "test:tests/integration/sot-decisions-route.test.js",
-      "test:tests/unit/authorization-context.test.js",
-      "test:tests/unit/canonical-iam-migration.test.js",
-      "test:tests/unit/canonical-iam-runtime-role-cutover.test.js",
-      "test:tests/unit/doc-graph-delivery-attribution.test.js",
-      "test:tests/unit/iam-session.test.js",
-      "test:tests/unit/mint-sot-data-plane-key-cli.test.js",
-      "test:tests/unit/sot-data-plane-auth.test.js",
-      "test:tests/unit/sot-data-plane-key-migration.test.js",
-      "test:tests/unit/sot-decision-migration.test.js",
-      "test:tests/unit/sot-decision-service.test.js",
-      "test:tests/unit/sot-inbox-ui.test.js",
-      "test:tests/unit/sot-pipeline-graph.test.js",
-      "test:tests/unit/sot-plan-board-ui.test.js",
-      "test:tests/unit/sot-plan-service.test.js",
-      "test:tests/unit/sot-plan-status.test.js",
-      "code:src/app/(pm)/platform/sot-pipeline/graph/page.jsx",
-      "code:src/app/(pm)/platform/sot-pipeline/inbox/page.jsx",
-      "code:src/app/(pm)/platform/sot-pipeline/page.jsx",
-      "code:src/app/api/platform/sot/decisions/export/route.js",
-      "code:src/app/api/platform/sot/decisions/route.js",
-      "code:src/app/api/platform/sot/decisions/[decisionId]/decide/route.js",
-      "code:src/app/api/platform/sot/plan/route.js",
-      "code:src/modules/identity/authorization-context.js",
-      "code:src/modules/identity/channel-identity.js",
-      "code:src/modules/identity/sot-data-plane-auth.js",
-      "code:src/modules/integration/application/sot-decision-service.js",
-      "code:src/modules/integration/application/sot-pipeline-graph.js",
-      "code:src/modules/integration/application/sot-plan-service.js",
-      "code:src/modules/integration/application/sot-plan.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -1064,7 +954,7 @@
       "type": "code_file",
       "path": "src/app/api/agent/line-webhook/route.js",
       "hash": "abea824d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-050",
@@ -1133,7 +1023,7 @@
       "type": "code_file",
       "path": "src/app/api/auth/logout/route.js",
       "hash": "a17e355d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -3155,7 +3045,7 @@
       "type": "code_file",
       "path": "src/config/domains.js",
       "hash": "a61d960e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
@@ -3300,7 +3190,7 @@
       "type": "code_file",
       "path": "src/lib/db.js",
       "hash": "077b1514",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-030",
@@ -3410,7 +3300,7 @@
       "type": "code_file",
       "path": "src/lib/validation/entities.js",
       "hash": "2a98b0fa",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-087",
@@ -3448,7 +3338,7 @@
       "type": "code_file",
       "path": "src/modules/agent/action-gate.js",
       "hash": "9ae10168",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-026",
@@ -3490,7 +3380,7 @@
       "type": "code_file",
       "path": "src/modules/agent/auth-context.js",
       "hash": "ff5d4669",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-057",
@@ -3536,7 +3426,7 @@
       "type": "code_file",
       "path": "src/modules/agent/context.js",
       "hash": "c5e826ca",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-025",
@@ -3664,7 +3554,7 @@
       "type": "code_file",
       "path": "src/modules/agent/line-binding-resolver.js",
       "hash": "37ed43dc",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-052",
@@ -3685,7 +3575,7 @@
       "type": "code_file",
       "path": "src/modules/agent/line-channel-binding.js",
       "hash": "4a450631",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-052",
@@ -3894,7 +3784,7 @@
       "type": "code_file",
       "path": "src/modules/agent/tools.js",
       "hash": "22c314b0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-025",
@@ -3911,7 +3801,7 @@
       "type": "code_file",
       "path": "src/modules/agent/turn.js",
       "hash": "672efb98",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-027",
@@ -4060,7 +3950,7 @@
       "type": "code_file",
       "path": "src/modules/crm/line-ingest-service.js",
       "hash": "8682592d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-023",
@@ -4105,7 +3995,7 @@
       "type": "code_file",
       "path": "src/modules/identity/auth-service.js",
       "hash": "26b0e3ef",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -4171,7 +4061,7 @@
       "type": "code_file",
       "path": "src/modules/identity/classify-principal.js",
       "hash": "27d3d8f6",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-022"
@@ -4210,7 +4100,7 @@
       "type": "code_file",
       "path": "src/modules/identity/erase-principal.js",
       "hash": "d520c5a4",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-022",
@@ -4244,7 +4134,7 @@
       "type": "code_file",
       "path": "src/modules/identity/link-line-identity.js",
       "hash": "5259bcbb",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-022",
@@ -4372,7 +4262,7 @@
       "type": "code_file",
       "path": "src/modules/identity/resolve-line-identity.js",
       "hash": "107fdd51",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-021",
@@ -4394,7 +4284,7 @@
       "type": "code_file",
       "path": "src/modules/identity/resolve-viewer.js",
       "hash": "e592c263",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-031",
@@ -4423,7 +4313,7 @@
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
       "hash": "cc3cff76",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -4465,7 +4355,7 @@
       "type": "code_file",
       "path": "src/modules/identity/viewer-authority.js",
       "hash": "56a68d07",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-059",
@@ -4950,7 +4840,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "8ed69163",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -5008,7 +4898,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "a3cfe507",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -6452,7 +6342,7 @@
       "version": "1.20.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "e6ae7fe9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -6498,7 +6388,7 @@
       "version": "1.11.0",
       "doc_status": "Draft",
       "hash": "fe625cbc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -6534,7 +6424,7 @@
       "version": "1.2.0",
       "doc_status": "Draft",
       "hash": "3a8beb94",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ethics-governance",
@@ -6580,7 +6470,7 @@
       "version": "1.6.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "658071c7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -7125,7 +7015,7 @@
       "version": "1.2.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "ff345397",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:LINE-PHASE1-CANARY",
@@ -7351,7 +7241,7 @@
       "version": "1.85.0b",
       "doc_status": "Draft",
       "hash": "48aeae80",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -7600,7 +7490,7 @@
         "identity"
       ],
       "hash": "b1ba1848",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:integration",
@@ -7631,7 +7521,7 @@
         "integration"
       ],
       "hash": "fefb0ee3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:knowledge",
@@ -11603,7 +11493,7 @@
       "path": "docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md",
       "title": "ADR-039 — Requirement ids are pinned by subject anchor",
       "hash": "ac57ea2f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE",
@@ -11758,7 +11648,7 @@
       "type": "test",
       "path": "tests/integration/agent-action-gate.test.js",
       "hash": "66f36487",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/agent-context.test.js",
@@ -12129,7 +12019,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "4412d004",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/plan-import-scope.test.js",
@@ -12500,7 +12390,7 @@
       "type": "test",
       "path": "tests/unit/db-runtime-config.test.js",
       "hash": "3e1b56f5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/dependency-map-view.test.js",
@@ -12983,7 +12873,7 @@
       "type": "test",
       "path": "tests/unit/line-binding-resolver.test.js",
       "hash": "07c18f76",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/line-canary-preflight.test.js",
@@ -12997,7 +12887,7 @@
       "type": "test",
       "path": "tests/unit/line-channel-binding.test.js",
       "hash": "605ccffc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/line-registry-service.test.js",
@@ -13606,7 +13496,7 @@
       "type": "test",
       "path": "tests/unit/viewer-authority.test.js",
       "hash": "073a1841",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/viewer-factory-contract.test.js",
