@@ -440,6 +440,7 @@
     "ADR-041",
     "ADR-042",
     "ADR-043",
+    "ADR-044",
     "ADR-045",
     "ADR-046",
     "ADR-047",
@@ -5083,6 +5084,19 @@
         {
           "anchor": "four tier cognitive architecture",
           "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-044": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md",
+      "status": "current",
+      "statement_digest": "b3f6479a5c62edb515bd988b2c7b478e48bba53d9d5485c8b52ff9da11115ff6",
+      "history": [
+        {
+          "anchor": "unified thread id omni channel identity live command",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
