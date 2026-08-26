@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1206,
-    "total_edges": 4069,
+    "total_nodes": 1198,
+    "total_edges": 4036,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 93,
+      "document": 92,
       "adr": 47,
       "domain": 7,
       "roadmap": 28,
       "feature": 11,
-      "route": 135,
+      "route": 133,
       "model": 63,
-      "requirement": 216,
-      "test": 288,
-      "code_file": 314
+      "requirement": 214,
+      "test": 287,
+      "code_file": 312
     },
     "coverage": {
-      "requirements": 216,
+      "requirements": 214,
       "fr_with_code": "100% (86/86)",
       "fr_with_tests": "100% (86/86)",
-      "rules_anchored_in_code": "93% (85/91)",
+      "rules_anchored_in_code": "92% (83/90)",
       "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 314,
+      "annotated_code_files": 312,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -43,8 +43,7 @@
         "FR-100",
         "FR-101",
         "FR-102",
-        "FR-103",
-        "FR-104"
+        "FR-103"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -54,7 +53,8 @@
         "SDD-038",
         "SDD-040",
         "SDD-041",
-        "SDD-046"
+        "SDD-046",
+        "SEC-014"
       ],
       "rules_superseded": [
         "SDD-001",
@@ -64,26 +64,10 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:PRD-SDD-v1.0",
       "test:tests/e2e/fr091-conversation-inbox.spec.js",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/e2e-reconnecting-request.test.js",
-      "code:src/modules/identity/auth-service.js",
-      "code:src/modules/project-manager/api-docs/openapi.js"
+      "test:tests/unit/e2e-reconnecting-request.test.js"
     ],
-    "added": [
-      "doc:FR-104-owner-assisted-password-reset",
-      "route:api:/api/auth/reset-password",
-      "route:api:/api/platform/users/password-resets",
-      "req:FR-104",
-      "req:SDD-054",
-      "test:tests/integration/password-reset-flow.test.js",
-      "test:tests/unit/password-reset-routes.test.js",
-      "test:tests/unit/password-reset-service.test.js",
-      "code:src/app/api/auth/reset-password/route.js",
-      "code:src/app/api/platform/users/password-resets/route.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -1062,26 +1046,6 @@
         "@tested": [
           "tests/unit/fr046-auth-route.test.js",
           "tests/unit/iam-session.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/app/api/auth/reset-password/route.js",
-      "type": "code_file",
-      "path": "src/app/api/auth/reset-password/route.js",
-      "hash": "d5e8afc4",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-104"
-        ],
-        "@spec": [
-          "SDD-054",
-          "SEC-008",
-          "SEC-014"
-        ],
-        "@tested": [
-          "tests/unit/password-reset-routes.test.js"
         ]
       }
     },
@@ -2167,26 +2131,6 @@
         ],
         "@tested": [
           "tests/unit/sot-plan-service.test.js"
-        ]
-      }
-    },
-    {
-      "id": "code:src/app/api/platform/users/password-resets/route.js",
-      "type": "code_file",
-      "path": "src/app/api/platform/users/password-resets/route.js",
-      "hash": "227e72ca",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-104"
-        ],
-        "@spec": [
-          "SDD-054",
-          "SEC-008",
-          "SEC-014"
-        ],
-        "@tested": [
-          "tests/unit/password-reset-routes.test.js"
         ]
       }
     },
@@ -4104,13 +4048,12 @@
       "id": "code:src/modules/identity/auth-service.js",
       "type": "code_file",
       "path": "src/modules/identity/auth-service.js",
-      "hash": "363e61f3",
-      "status": "changed",
+      "hash": "26b0e3ef",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
-          "FR-095",
-          "FR-104"
+          "FR-095"
         ],
         "@spec": [
           "SDD-024",
@@ -4121,9 +4064,7 @@
         "@tested": [
           "tests/unit/auth-service.test.js",
           "tests/unit/iam-session.test.js",
-          "tests/unit/fr046-auth-route.test.js",
-          "tests/unit/password-reset-service.test.js",
-          "tests/integration/password-reset-flow.test.js"
+          "tests/unit/fr046-auth-route.test.js"
         ]
       }
     },
@@ -4952,8 +4893,8 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "1f3447ff",
-      "status": "changed",
+      "hash": "908e1081",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -6452,10 +6393,10 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.22.0b",
+      "version": "1.21.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "54a12dc6",
-      "status": "changed"
+      "hash": "92c3ef2b",
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -7109,14 +7050,6 @@
       "status": "current"
     },
     {
-      "id": "doc:FR-104-owner-assisted-password-reset",
-      "type": "document",
-      "path": "docs/domains/identity/features/FR-104-owner-assisted-password-reset.md",
-      "title": "FR-104 — Owner-assisted password reset",
-      "hash": "1450dfcc",
-      "status": "current"
-    },
-    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -7367,10 +7300,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.87.0b",
+      "version": "1.86.0b",
       "doc_status": "Draft",
-      "hash": "35a1c6a1",
-      "status": "changed"
+      "hash": "95ec3130",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -9226,11 +9159,11 @@
       "id": "req:FR-090",
       "type": "requirement",
       "family": "FR",
-      "label": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. **Resolution (2026-08-26):** the branch was never merged and no longer needs to be — `main` grew its own superior implementations of everything it held (`PersonCredential` login/logout via FR-046/FR-095; password reset via FR-104, reimplemented rather than revived because the draft returned the raw reset token to the unauthenticated caller). Its FR-082/FR-083 claims stay burnt on the pipeline canvas. The branch is deleted; `Workstream.laneId` remains declared-only.",
+      "label": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. When the owning branch lands it must renumber: it currently claims FR-082/FR-083, which `main` already spent on the pipeline canvas, and its \"Development Overview Dashboard\" overlaps FR-086 — both are product decisions, not merge mechanics.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. **Resolution (2026-08-26):** the branch was never merged and no longer needs to be — `main` grew its own superior implementations of everything it held (`PersonCredential` login/logout via FR-046/FR-095; password reset via FR-104, reimplemented rather than revived because the draft returned the raw reset token to the unauthenticated caller). Its FR-082/FR-083 claims stay burnt on the pipeline canvas. The branch is deleted; `Workstream.laneId` remains declared-only. 🟠 schema declared to match the live database; the once-owning branch is resolved — login by FR-046/095, reset by FR-104 "
+      "row_text": "Schema declaration for the live production-auth tables: `PersonCredential`, `PasswordResetToken` and `Workstream.laneId` exist on the Supabase database — `PersonCredential` with a real credential row and `laneId` with a distinct value on every Workstream — but existed in no committed schema, having been pushed there from the unmerged branch `codex/postgres-primary-runtime`. This requirement declares their shape so the schema describes the database that exists. It is deliberately **declaration only**: no service, route or UI is in scope, and the feature code remains on that branch. The reason it cannot wait for that branch to merge is that `prisma migrate diff` proposes `DROP TABLE \"PersonCredential\"` against an undeclared table, so any routine `db push` destroys a live credential without the operator reading the SQL. Registering the tables here removes the destructive suggestion without deciding the feature's fate. When the owning branch lands it must renumber: it currently claims FR-082/FR-083, which `main` already spent on the pipeline canvas, and its \"Development Overview Dashboard\" overlaps FR-086 — both are product decisions, not merge mechanics. 🟠 schema declared to match the live database; the owning feature is unmerged "
     },
     {
       "id": "req:FR-091",
@@ -9361,16 +9294,6 @@
       "declared": "planned",
       "status": "planned",
       "row_text": "SEC-005 PDPA consent, MVP scope: a Business owner attests in the CRM console that a Customer's consent was captured (`GRANTED`/`DECLINED`), recorded with timestamp and attesting Person on the Customer row FR-023 already treats as the CRM-sharing unit. Every Customer created from here on defaults to `PENDING`; rows that predate this column backfill to `GRANDFATHERED` rather than being retroactively blocked. Closes ethics-governance.md's open question #4 only — it does not gate AI processing, redact model input, or answer retention/provider-terms (#1, #2, #3, #6), which stay open. 🔜 implemented locally; Supabase migration apply pending (no CLI in this workspace, same gate as FR-100/102) "
-    },
-    {
-      "id": "req:FR-104",
-      "type": "requirement",
-      "family": "FR",
-      "label": "Owner-assisted password reset: a Business owner over a Business the target Person belongs to — the same authority boundary as FR-038 Membership administration — or the installation operator mints a single-use, one-hour, hash-bound reset token (`POST /api/platform/users/password-resets`), and the public `POST /api/auth/reset-password` consumes it: new `PersonCredential`, token burnt, **every active Session revoked**. The raw token appears exactly once, in the authenticated mint response, for out-of-band handover (LINE, in person); it is stored only as a SHA-256 digest and never logged or audited in any form. There is deliberately no public forgot-password route: with no mail transport, such a route either returns the token to the unauthenticated caller — an account-takeover primitive, which is what the abandoned FR-082 draft on `codex/postgres-primary-runtime` shipped and the reason it was not revived as-is — or returns nothing and resets nothing. Uses the `PasswordResetToken` table FR-090 declared (its `token` column now carries the digest).",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Owner-assisted password reset: a Business owner over a Business the target Person belongs to — the same authority boundary as FR-038 Membership administration — or the installation operator mints a single-use, one-hour, hash-bound reset token (`POST /api/platform/users/password-resets`), and the public `POST /api/auth/reset-password` consumes it: new `PersonCredential`, token burnt, **every active Session revoked**. The raw token appears exactly once, in the authenticated mint response, for out-of-band handover (LINE, in person); it is stored only as a SHA-256 digest and never logged or audited in any form. There is deliberately no public forgot-password route: with no mail transport, such a route either returns the token to the unauthenticated caller — an account-takeover primitive, which is what the abandoned FR-082 draft on `codex/postgres-primary-runtime` shipped and the reason it was not revived as-is — or returns nothing and resets nothing. Uses the `PasswordResetToken` table FR-090 declared (its `token` column now carries the digest). 🔜 implemented locally with unit + real-db full-cycle integration tests "
     },
     {
       "id": "req:NFR-001",
@@ -10093,16 +10016,6 @@
       "row_text": "SEC-005 consent is a fourth field group on the FR-023 Customer row, not a new `CustomerBusinessProfile` table — the FR-023 docstring already names Customer the CRM-sharing unit (BR-001), so a second table keyed by (Customer, Business) would duplicate a scope this row already carries. Recording it is a third narrow writer beside the ingest seam and `recordLineReply` (`customer-consent-service`), owner-gated (`ownsBusiness`, never a Member grant) and resolved through the caller's own Business's tenant so a Customer id alone cannot widen the write. The read side extends `getConversationInbox`/`getConversationThread`'s existing `select`, adding no writer to that module. FR-103; BR-001, BR-011, SEC-005, SDD-048, SDD-050, SDD-051, FR-023, FR-091 "
     },
     {
-      "id": "req:SDD-054",
-      "type": "requirement",
-      "family": "SDD",
-      "label": "Password reset splits into an authenticated mint leg and a public consume leg because token delivery, not token math, is the hard problem: with no mail transport, \"who hands the secret to the user\" must be a person with standing authority, so mint reuses FR-038's boundary (owner of a Business the target belongs to, or the installation operator) and returns the raw token exactly once. Storage is digest-only in the existing `PasswordResetToken.token` column (no schema change — a digest is a string), lookup is by digest so the raw value never reaches a query or log, failure is one generic `INVALID_OR_EXPIRED_TOKEN` across unknown/used/expired, and consumption revokes every active FR-095 Session in the same breath — a stolen session must not survive the reset that exists to evict it.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current",
-      "row_text": "Password reset splits into an authenticated mint leg and a public consume leg because token delivery, not token math, is the hard problem: with no mail transport, \"who hands the secret to the user\" must be a person with standing authority, so mint reuses FR-038's boundary (owner of a Business the target belongs to, or the installation operator) and returns the raw token exactly once. Storage is digest-only in the existing `PasswordResetToken.token` column (no schema change — a digest is a string), lookup is by digest so the raw value never reaches a query or log, failure is one generic `INVALID_OR_EXPIRED_TOKEN` across unknown/used/expired, and consumption revokes every active FR-095 Session in the same breath — a stolen session must not survive the reset that exists to evict it. FR-104; FR-038, FR-046, FR-095, SEC-008, SEC-014, SDD-052 "
-    },
-    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -10338,14 +10251,6 @@
       "kind": "api",
       "route": "/api/auth/logout",
       "path": "src/app/api/auth/logout/route.js",
-      "status": "current"
-    },
-    {
-      "id": "route:api:/api/auth/reset-password",
-      "type": "route",
-      "kind": "api",
-      "route": "/api/auth/reset-password",
-      "path": "src/app/api/auth/reset-password/route.js",
       "status": "current"
     },
     {
@@ -10770,14 +10675,6 @@
       "kind": "api",
       "route": "/api/platform/users",
       "path": "src/app/api/platform/users/route.js",
-      "status": "current"
-    },
-    {
-      "id": "route:api:/api/platform/users/password-resets",
-      "type": "route",
-      "kind": "api",
-      "route": "/api/platform/users/password-resets",
-      "path": "src/app/api/platform/users/password-resets/route.js",
       "status": "current"
     },
     {
@@ -12218,14 +12115,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "e1746e73",
-      "status": "changed"
-    },
-    {
-      "id": "test:tests/integration/password-reset-flow.test.js",
-      "type": "test",
-      "path": "tests/integration/password-reset-flow.test.js",
-      "hash": "029d26b4",
+      "hash": "c868bd20",
       "status": "current"
     },
     {
@@ -12485,6 +12375,13 @@
       "type": "test",
       "path": "tests/unit/connection-health.test.js",
       "hash": "5d75d534",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/contract-plan-artifacts.test.js",
+      "type": "test",
+      "path": "tests/unit/contract-plan-artifacts.test.js",
+      "hash": "1ac634b1",
       "status": "current"
     },
     {
@@ -13230,20 +13127,6 @@
       "status": "current"
     },
     {
-      "id": "test:tests/unit/password-reset-routes.test.js",
-      "type": "test",
-      "path": "tests/unit/password-reset-routes.test.js",
-      "hash": "1a7aff96",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/password-reset-service.test.js",
-      "type": "test",
-      "path": "tests/unit/password-reset-service.test.js",
-      "hash": "dda9e258",
-      "status": "current"
-    },
-    {
       "id": "test:tests/unit/people-directory.test.js",
       "type": "test",
       "path": "tests/unit/people-directory.test.js",
@@ -13605,6 +13488,13 @@
       "type": "test",
       "path": "tests/unit/scope-view-context.test.js",
       "hash": "0a6f4793",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/self-plan-generator.test.js",
+      "type": "test",
+      "path": "tests/unit/self-plan-generator.test.js",
+      "hash": "64fa8fdc",
       "status": "current"
     },
     {
@@ -14998,34 +14888,6 @@
     {
       "from": "code:src/app/api/auth/logout/route.js",
       "to": "req:SEC-018",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/auth/reset-password/route.js",
-      "to": "req:FR-104",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/auth/reset-password/route.js",
-      "to": "req:SDD-054",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/auth/reset-password/route.js",
-      "to": "req:SEC-008",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/auth/reset-password/route.js",
-      "to": "req:SEC-014",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -16706,34 +16568,6 @@
     {
       "from": "code:src/app/api/platform/sot/plan/route.js",
       "to": "req:FR-101",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/platform/users/password-resets/route.js",
-      "to": "req:FR-104",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/platform/users/password-resets/route.js",
-      "to": "req:SDD-054",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/platform/users/password-resets/route.js",
-      "to": "req:SEC-008",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/platform/users/password-resets/route.js",
-      "to": "req:SEC-014",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -19632,13 +19466,6 @@
     {
       "from": "code:src/modules/identity/auth-service.js",
       "to": "req:FR-095",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/identity/auth-service.js",
-      "to": "req:FR-104",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -24516,13 +24343,6 @@
       "source": "prd-registry"
     },
     {
-      "from": "req:FR-104",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -25027,13 +24847,6 @@
       "source": "prd-registry"
     },
     {
-      "from": "req:SDD-054",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -25217,13 +25030,6 @@
     },
     {
       "from": "route:api:/api/auth/logout",
-      "to": "domain:project-manager",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter-glob"
-    },
-    {
-      "from": "route:api:/api/auth/reset-password",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -25589,13 +25395,6 @@
     {
       "from": "route:api:/api/platform/sot/plan",
       "to": "domain:integration",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter-glob"
-    },
-    {
-      "from": "route:api:/api/platform/users/password-resets",
-      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -32209,76 +32008,6 @@
       "source": "transitive"
     },
     {
-      "from": "test:tests/integration/password-reset-flow.test.js",
-      "to": "code:src/modules/identity/auth-service.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/integration/password-reset-flow.test.js",
-      "to": "req:FR-046",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/password-reset-flow.test.js",
-      "to": "req:FR-095",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/password-reset-flow.test.js",
-      "to": "req:FR-104",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/password-reset-flow.test.js",
-      "to": "req:SDD-024",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/password-reset-flow.test.js",
-      "to": "req:SDD-052",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/password-reset-flow.test.js",
-      "to": "req:SDD-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/password-reset-flow.test.js",
-      "to": "req:SEC-008",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/password-reset-flow.test.js",
-      "to": "req:SEC-014",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/password-reset-flow.test.js",
-      "to": "req:SEC-018",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
       "from": "test:tests/integration/plan-import-scope.test.js",
       "to": "req:FR-012",
       "type": "verifies",
@@ -33715,13 +33444,6 @@
     },
     {
       "from": "test:tests/unit/auth-service.test.js",
-      "to": "req:FR-104",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/auth-service.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -34710,6 +34432,34 @@
     {
       "from": "test:tests/unit/connection-health.test.js",
       "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/contract-plan-artifacts.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/contract-plan-artifacts.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/contract-plan-artifacts.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/contract-plan-artifacts.test.js",
+      "to": "req:FR-069",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -36578,13 +36328,6 @@
     },
     {
       "from": "test:tests/unit/fr046-auth-route.test.js",
-      "to": "req:FR-104",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/fr046-auth-route.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -38237,13 +37980,6 @@
     },
     {
       "from": "test:tests/unit/iam-session.test.js",
-      "to": "req:FR-104",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/iam-session.test.js",
       "to": "req:NFR-019",
       "type": "verifies",
       "status": "current",
@@ -38910,118 +38646,6 @@
     {
       "from": "test:tests/unit/overview-split.test.js",
       "to": "req:SDD-033",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/password-reset-routes.test.js",
-      "to": "code:src/app/api/auth/reset-password/route.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/password-reset-routes.test.js",
-      "to": "code:src/app/api/platform/users/password-resets/route.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/password-reset-routes.test.js",
-      "to": "req:FR-104",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/password-reset-routes.test.js",
-      "to": "req:SDD-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/password-reset-routes.test.js",
-      "to": "req:SEC-008",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/password-reset-routes.test.js",
-      "to": "req:SEC-014",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/password-reset-service.test.js",
-      "to": "code:src/modules/identity/auth-service.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/password-reset-service.test.js",
-      "to": "req:FR-046",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/password-reset-service.test.js",
-      "to": "req:FR-095",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/password-reset-service.test.js",
-      "to": "req:FR-104",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/password-reset-service.test.js",
-      "to": "req:SDD-024",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/password-reset-service.test.js",
-      "to": "req:SDD-052",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/password-reset-service.test.js",
-      "to": "req:SDD-054",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/password-reset-service.test.js",
-      "to": "req:SEC-008",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/password-reset-service.test.js",
-      "to": "req:SEC-014",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/password-reset-service.test.js",
-      "to": "req:SEC-018",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -41559,6 +41183,41 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/shell-mode.test.js",

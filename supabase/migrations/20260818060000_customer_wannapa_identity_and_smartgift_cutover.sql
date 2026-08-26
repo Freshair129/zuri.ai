@@ -239,8 +239,4 @@ values (
 )
 on conflict (id) do nothing;
 
-insert into supabase_migrations.schema_migrations (version, name)
-values ('20260818060000', 'customer_wannapa_identity_and_smartgift_cutover')
-on conflict (version) do nothing;
-
 commit;

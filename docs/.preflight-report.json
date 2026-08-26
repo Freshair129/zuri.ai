@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 183,
-    "routes": 91,
-    "test_files": 288
+    "docs": 182,
+    "routes": 89,
+    "test_files": 287
   },
   "summary": {
     "critical": 0,
@@ -197,7 +197,7 @@
       "files": [
         "docs/roadmap/ROADMAP.md"
       ],
-      "action": "Current suite: 129 Vitest + 28 Playwright across 288 files"
+      "action": "Current suite: 129 Vitest + 28 Playwright across 287 files"
     },
     {
       "id": "I18",
@@ -225,8 +225,8 @@
       "id": "I20",
       "severity": "info",
       "check": "id-stability",
-      "title": "370 id(s) pinned across 10 families",
-      "details": "ADR 47 · BR 20 · FEAT 11 · FR 104 · MI-RQ 72 · NFR 19 · RSK 16 · SDD 54 · SEC 19 · ZV2-CR 8 · roster 370",
+      "title": "368 id(s) pinned across 10 families",
+      "details": "ADR 47 · BR 20 · FEAT 11 · FR 103 · MI-RQ 72 · NFR 19 · RSK 16 · SDD 53 · SEC 19 · ZV2-CR 8 · roster 368",
       "files": [
         "docs/.id-ledger.json"
       ],
