@@ -838,3 +838,10 @@
 - **Code:** `src/app/(control)/control/roadmap/page.jsx` · `src/app/(control)/layout.jsx` · `src/components/layouts/PlatformControlGuard.jsx` · `src/components/layouts/PlatformControlShell.jsx` · `src/lib/platform-control-guard.js` · `src/modules/platform-control/components/ProgramRoadmapBoard.jsx` · `src/modules/platform-control/program-roadmap-data.js`
 - **Follows:** NFR-008, SDD-055, SEC-020
 - **Tests:** `tests/unit/platform-control-guard.test.js` · `tests/unit/platform-control-route-contract.test.js`
+
+### FR-106 — Enterprise API tenant token authentication: the FR-019 Enterprise API refuses every request that does not present a valid per-Tenant service-account key, generalizing the FR-102 pattern (ADR-047 D3 deliberately scoped its `SotDataPlaneKey` to the two SoT routes and named this generalization as the follow-up) rather than inventing a second mechanism: an `ApiAccessKey` bound to exactly one Tenant, presented as `Authorization: Bearer`, stored only as a SHA-256 digest, minted by an installation operator or an owner in that Tenant with the raw secret shown exactly once, revocable with effect on the next request, and never readable back. Scope on every request is the key's own Tenant — a key can never widen the ExternalRef/upsert surface beyond the Tenant it names (SEC-001, BR-002), and an invalid, revoked or missing key answers identically so the endpoint is not an enumeration oracle. This closes SEC-006, which has held the Enterprise API in a declared-but-unenforced state since ADR-047 recorded that "no API-key mechanism exists anywhere in zuri-ai".
+
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
