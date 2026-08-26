@@ -453,6 +453,7 @@
     "ADR-046",
     "ADR-047",
     "ADR-048",
+    "ADR-049",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -5265,6 +5266,19 @@
       "history": [
         {
           "anchor": "platform control is outside the business shell",
+          "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-049": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md",
+      "status": "current",
+      "statement_digest": "bfa1b6a00eaab7d62e66842d568cceb5da74bccfe14b463123d04ea569b1babc",
+      "history": [
+        {
+          "anchor": "executionplanbundle is the package above planenvelope",
           "since": "2026-08-26",
           "reason": "declared"
         }

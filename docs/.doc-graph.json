@@ -3,13 +3,13 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1256,
-    "total_edges": 4246,
+    "total_nodes": 1258,
+    "total_edges": 4258,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 94,
-      "adr": 48,
+      "document": 95,
+      "adr": 49,
       "domain": 8,
       "roadmap": 28,
       "feature": 11,
@@ -48,8 +48,55 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [],
+    "changed": [
+      "doc:A-api-spec",
+      "doc:B-db-schema",
+      "domain:crm",
+      "domain:identity",
+      "doc:FR-066-profile-first-workspace-onboarding",
+      "doc:FR-067-workspace-invitation-and-scoped-membership",
+      "doc:INTERFACE-INVENTORY",
+      "doc:PRD-SDD-v1.0",
+      "test:tests/integration/backup.test.js",
+      "test:tests/integration/openapi-docs.test.js",
+      "code:src/app/(entry)/businesses/page.jsx",
+      "code:src/lib/validation/enums.js",
+      "code:src/modules/identity/resolve-viewer.js",
+      "code:src/modules/project-manager/api-docs/openapi.js",
+      "code:src/modules/project-manager/application/backup-service.js",
+      "code:src/modules/project-manager/application/scope-service.js"
+    ],
+    "added": [
+      "route:page:/onboarding/profile",
+      "route:page:/waiting-room",
+      "route:page:/workspace-home",
+      "route:api:/api/onboarding/profile",
+      "route:api:/api/onboarding/state",
+      "route:api:/api/onboarding/workspaces",
+      "route:api:/api/workspace-invites/accept",
+      "route:api:/api/workspace-invites",
+      "route:api:/api/workspace-invites/[id]",
+      "route:api:/api/workspace-memberships",
+      "model:WorkspaceMembership",
+      "model:WorkspaceInvite",
+      "test:tests/integration/workspace-onboarding-flow.test.js",
+      "test:tests/unit/onboarding-service.test.js",
+      "test:tests/unit/workspace-invite-service.test.js",
+      "test:tests/unit/workspace-onboarding-routes.test.js",
+      "code:src/app/(entry)/onboarding/profile/page.jsx",
+      "code:src/app/(entry)/waiting-room/page.jsx",
+      "code:src/app/(entry)/workspace-home/page.jsx",
+      "code:src/app/api/onboarding/profile/route.js",
+      "code:src/app/api/onboarding/state/route.js",
+      "code:src/app/api/onboarding/workspaces/route.js",
+      "code:src/app/api/workspace-invites/accept/route.js",
+      "code:src/app/api/workspace-invites/route.js",
+      "code:src/app/api/workspace-invites/[id]/route.js",
+      "code:src/app/api/workspace-memberships/route.js",
+      "code:src/modules/identity/onboarding-service.js",
+      "code:src/modules/identity/onboarding-steps.js",
+      "code:src/modules/identity/workspace-membership-service.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -118,7 +165,7 @@
       "type": "code_file",
       "path": "src/app/(entry)/businesses/page.jsx",
       "hash": "f2a8ad81",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-046",
@@ -3656,7 +3703,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "9e45f234",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
@@ -4693,7 +4740,7 @@
       "type": "code_file",
       "path": "src/modules/identity/resolve-viewer.js",
       "hash": "7ae264ce",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-031",
@@ -5306,7 +5353,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "60e50335",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019"
@@ -5364,7 +5411,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "7d798f7f",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-013",
@@ -5820,7 +5867,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/scope-service.js",
       "hash": "7942a090",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-001",
@@ -6829,7 +6876,7 @@
       "version": "1.22.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "c9c3264c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -6875,7 +6922,7 @@
       "version": "1.11.0",
       "doc_status": "Draft",
       "hash": "c683f676",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -6929,6 +6976,14 @@
       "path": "docs/EXECUTION-MODES.md",
       "title": "Seven Execution Modes",
       "hash": "93f419cf",
+      "status": "current"
+    },
+    {
+      "id": "doc:EXECUTION-PLAN-BUNDLE",
+      "type": "document",
+      "path": "docs/domains/project-manager/EXECUTION-PLAN-BUNDLE.md",
+      "title": "ExecutionPlanBundle — self-contained multi-project planning package",
+      "hash": "1b3b7980",
       "status": "current"
     },
     {
@@ -7294,7 +7349,7 @@
       "version": "1.0.0",
       "doc_status": "✅ Implemented (2026-08-26) — `onboarding-service.js`, `/api/onboarding/*`, `/onboarding/profile`, `/waiting-room`, `/workspace-home` (D8's provisional `/workspaces` path is occupied by the PM Space compatibility page; its move to `/spaces` is a separate slice)",
       "hash": "62c889b8",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-067-workspace-invitation-and-scoped-membership",
@@ -7304,7 +7359,7 @@
       "version": "1.0.0",
       "doc_status": "✅ Implemented (2026-08-26) — `workspace-membership-service.js`, `WorkspaceMembership`/`WorkspaceInvite` (portfolioId-keyed), `/api/workspace-invites/*`, `/api/workspace-memberships`; BR-016 grants-nothing proven in `tests/integration/workspace-onboarding-flow.test.js`",
       "hash": "e148ea0b",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-068-human-visible-execution-roadmap",
@@ -7526,7 +7581,7 @@
       "version": "1.2.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "39d91c2a",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:LINE-PHASE1-CANARY",
@@ -7752,7 +7807,7 @@
       "version": "1.91.0b",
       "doc_status": "Draft",
       "hash": "61ae2883",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -7973,7 +8028,7 @@
         "crm"
       ],
       "hash": "6f523610",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:identity",
@@ -8006,7 +8061,7 @@
         "identity"
       ],
       "hash": "7e86626c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:integration",
@@ -8144,7 +8199,7 @@
         "business",
         "people"
       ],
-      "hash": "8ab564dc",
+      "hash": "8cd51610",
       "status": "current"
     },
     {
@@ -12306,6 +12361,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "type": "adr",
+      "path": "docs/decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md",
+      "title": "ADR-049 — ExecutionPlanBundle is the package above PlanEnvelope",
+      "hash": "444fcc6a",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -12450,7 +12513,7 @@
       "type": "test",
       "path": "tests/integration/backup.test.js",
       "hash": "f94ce7c6",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/channel-identity.test.js",
@@ -12772,7 +12835,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "5a8789e5",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -28718,6 +28781,90 @@
     {
       "from": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
       "to": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:BR-007",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:BR-009",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:FR-069",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:FR-070",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:SDD-009",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:SDD-037",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:SEC-001",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:SEC-002",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
       "type": "relates",
       "status": "current",
       "source": "control-block"

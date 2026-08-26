@@ -1,0 +1,165 @@
+{
+  "kind": "EXECUTION_PLAN_BUNDLE",
+  "schemaVersion": "1.0",
+  "manifest": {
+    "code": "ZURI-KNOWLEDGE-2026",
+    "title": "Zuri Knowledge Intelligence Program",
+    "description": "Example self-contained bundle carrying strategy, two Project PlanEnvelopes and a cross-project dependency.",
+    "createdAt": "2026-08-26T19:54:00+07:00",
+    "createdBy": "Planning Agent"
+  },
+  "scope": {
+    "businessCode": "BUS-001",
+    "defaultWorkspaceCode": "WS-B01-TRANSFORMATION"
+  },
+  "strategy": {
+    "roadmap": {
+      "code": "RM-KNOWLEDGE",
+      "title": "Knowledge & Agent Intelligence"
+    },
+    "horizons": [
+      {
+        "ref": "H1",
+        "key": "H1",
+        "label": "Foundation",
+        "position": 1
+      },
+      {
+        "ref": "H2",
+        "key": "H2",
+        "label": "Knowledge Infrastructure",
+        "position": 2
+      }
+    ],
+    "goals": [
+      {
+        "ref": "GOAL-KNOWLEDGE",
+        "code": "GOAL-KNOWLEDGE",
+        "title": "Canonical knowledge is operational",
+        "horizonRef": "H2"
+      }
+    ]
+  },
+  "projects": [
+    {
+      "bundleProjectRef": "PROJECT-MSP",
+      "goalRefs": ["GOAL-KNOWLEDGE"],
+      "plan": {
+        "schemaVersion": "1.0",
+        "generatedBy": "Planning Agent",
+        "generatedAt": "2026-08-26T19:54:00+07:00",
+        "scope": {
+          "portfolioCode": "PF-001",
+          "tenantCode": "TNT-001",
+          "businessCode": "BUS-001",
+          "workspaceCode": "WS-B01-TRANSFORMATION"
+        },
+        "project": {
+          "code": "PRJ-MSP",
+          "name": "MSP Session and Memory Authority",
+          "description": "Example Project carried as a normal PlanEnvelope.",
+          "type": "GENERAL",
+          "status": "PLANNED"
+        },
+        "workstreams": [
+          {
+            "code": "WST-MSP-FOUNDATION",
+            "name": "MSP Foundation",
+            "executionMode": "SOFTWARE_SPRINT",
+            "progressStrategy": "TASK_WEIGHT",
+            "progressWeight": 1,
+            "containers": [
+              {
+                "code": "SPR-MSP-01",
+                "subtype": "SPRINT",
+                "title": "MSP contract foundation",
+                "status": "PLANNED"
+              }
+            ],
+            "items": [
+              {
+                "code": "MSP-001",
+                "containerCode": "SPR-MSP-01",
+                "subtype": "TASK",
+                "title": "Define session authority contract",
+                "status": "PLANNED",
+                "weight": 1
+              }
+            ],
+            "milestones": [],
+            "gates": []
+          }
+        ],
+        "repositories": [],
+        "dependencies": []
+      }
+    },
+    {
+      "bundleProjectRef": "PROJECT-GKS",
+      "goalRefs": ["GOAL-KNOWLEDGE"],
+      "plan": {
+        "schemaVersion": "1.0",
+        "generatedBy": "Planning Agent",
+        "generatedAt": "2026-08-26T19:54:00+07:00",
+        "scope": {
+          "portfolioCode": "PF-001",
+          "tenantCode": "TNT-001",
+          "businessCode": "BUS-001",
+          "workspaceCode": "WS-B01-TRANSFORMATION"
+        },
+        "project": {
+          "code": "PRJ-GKS",
+          "name": "GKS Knowledge Authority",
+          "description": "Second Project in the same programme bundle.",
+          "type": "GENERAL",
+          "status": "PLANNED"
+        },
+        "workstreams": [
+          {
+            "code": "WST-GKS-FOUNDATION",
+            "name": "GKS Foundation",
+            "executionMode": "SOFTWARE_SPRINT",
+            "progressStrategy": "TASK_WEIGHT",
+            "progressWeight": 1,
+            "containers": [
+              {
+                "code": "SPR-GKS-01",
+                "subtype": "SPRINT",
+                "title": "GKS contract foundation",
+                "status": "PLANNED"
+              }
+            ],
+            "items": [
+              {
+                "code": "GKS-001",
+                "containerCode": "SPR-GKS-01",
+                "subtype": "TASK",
+                "title": "Define canonical knowledge orchestration boundary",
+                "status": "PLANNED",
+                "weight": 1
+              }
+            ],
+            "milestones": [],
+            "gates": []
+          }
+        ],
+        "repositories": [],
+        "dependencies": []
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "sourceProjectRef": "PROJECT-MSP",
+      "targetProjectRef": "PROJECT-GKS",
+      "relation": "BLOCKS",
+      "description": "GKS integration assumes the MSP session boundary is available."
+    }
+  ],
+  "trace": {
+    "correlationId": "planning-session-2026-08-26",
+    "idempotencyKey": "zuri-knowledge-2026-v1",
+    "sourceType": "AGENT",
+    "sourceRef": "chat-planning"
+  }
+}
