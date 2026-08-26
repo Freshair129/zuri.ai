@@ -80,7 +80,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-AUTH-REPAY | PHASE-ZAI-PRODUCT | task | Authorization repayment to zero baselines: import target (FR-065), PM mutation (FR-072), repository ownership (FR-073), scope creation (FR-074), installation-operator authority (FR-075) | P0 | Claude | done | FR-046; FR-061 | ../domains/project-manager/features/FR-065-import-target-authorization.md |
 | TASK-FEAT-003 | PHASE-ZAI-PRODUCT | task | Execution planning: human-visible roadmap (FR-068), plan blueprint + intake (FR-069), stable execution/domain/tag identities (FR-070) | P1 | Claude | done | FR-012 | ../domains/project-manager/features/FR-068-human-visible-execution-roadmap.md |
 | TASK-FR-076-078 | PHASE-ZAI-PRODUCT | task | Product Owner Business role binding (FR-076), Project Inventory MVP (FR-077), SmartGift customer backfill contract + review queue (FR-078) | P1 | Claude | done | FR-046 | ../domains/crm/features/FR-078-customer-data-backfill-contract.md |
-| TASK-FEAT-008 | PHASE-ZAI-PRODUCT | task | Projects Dashboard (FR-086 shipped) + project priority (FR-087), accountable PIC (FR-088), Team grouping models (FR-089) | P1 | Claude | review (FR-086 done; FR-087..089 built with tests — PRD status ruling pending) | FR-005; ADR-036; ADR-037 | ../domains/project-manager/features/FR-086-projects-dashboard.md |
+| TASK-FEAT-008 | PHASE-ZAI-PRODUCT | task | Projects Dashboard (FR-086 shipped) + project priority (FR-087), accountable PIC (FR-088), Team grouping models (FR-089) | P1 | Claude | done (FR-087..089 status ruling resolved 2026-08-26 — PRD 1.89.0b) | FR-005; ADR-036; ADR-037 | ../domains/project-manager/features/FR-086-projects-dashboard.md |
 | TASK-FR-090 | PHASE-ZAI-PRODUCT | task | Live production-auth table declaration (PersonCredential, PasswordResetToken, laneId) — resolved 2026-08-26: source branch deleted; successors TASK-FEAT-010 (login/session) and the password-reset row under PHASE-ZAI-IAM | P0 | Claude | done | - | PRD-SDD FR-090 |
 | TASK-FR-105 | PHASE-ZAI-PRODUCT | task | Platform Programme Roadmap `/control/roadmap`: isOperator-only read-only projection of the 24-week programme (ADR-048) | P2 | Claude | done | FR-075; ADR-048 | ../domains/platform-control/features/FR-105-platform-programme-roadmap.md |
 | TASK-FR-081 | PHASE-ZAI-RUNTIME | task | Raw external ingestion boundary: one normalized envelope, tenant/connection-scoped repository, dead-letter records (FR-081) | P0 | Claude | done | FR-079; BR-002 | ../domains/integration/features/FR-081-raw-external-ingestion.md |
@@ -113,7 +113,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
    และ group-thread isolation rule; งานหลัก (console, thread minting, dispatcher)
    อยู่นอก repo นี้ตาม ADR-044 D1
 
-> **PRD status columns ที่ตามโค้ดไม่ทัน**: FR-087..089, FR-091, FR-093, FR-097,
-> FR-099..105 มีโค้ด + เทสต์ครบใน tree แต่ช่องสถานะใน `docs/PRD-SDD-v1.0.md`
-> ยังเป็น 🔜 (FEATURE-MAP จึงติดป้าย "🟠 built, not declared") — การ flip สถานะ
-> เป็นงานแก้ PRD แยกต่างหาก ต้องบันทึก revision row ตามระเบียบของไฟล์นั้น
+> **PRD status columns**: sync แล้วเมื่อ 2026-08-26 (PRD revision 1.89.0b) —
+> FR-087..089, 091, 093, 097, 099..105 flip ตามโค้ดจริง; FR-100/102/103 เป็น 🟠
+> เพราะ migration ทั้งสามยังไม่ apply บน live Supabase (ledger ตรวจ read-only
+> จบที่ `20260822204604` — RSK-016)
