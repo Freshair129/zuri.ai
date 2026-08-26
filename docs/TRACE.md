@@ -795,7 +795,7 @@
 ### FR-100 — SoT approval inbox and decision export: one tenant/business-scoped `SotDecision` queue (PRICE_ROW, ENTITY, FILE_CLASSIFICATION, PHASE_GATE) that the external data plane **submits** into (idempotent batch, `.strict()` envelope, payload-hash versioning), a human **decides** in the browser (audited, immutable rows, new version to change a decision), and the data plane **pulls** from (`export?since=` cursor) to apply approved facts to its own DuckDB/graph stores — zuri-ai never writes into the retrieval substrate, keeping Tier 1 inside the ADR-043 boundary during the Boss-approved `:8888` interim. Closes the open loop where approvals in `price_approval.csv` reached nothing (17,702 staged price rows, 0 approved in store).
 
 - **Feature:** FEAT-011 — SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline
-- **Status:** n/a
+- **Status:** done
 - **Surface:** `/platform/sot-pipeline/inbox` (page) · `/api/platform/sot/decisions/[decisionId]/decide` (api) · `/api/platform/sot/decisions/export` (api) · `/api/platform/sot/decisions` (api)
 - **Code:** `src/app/(pm)/platform/sot-pipeline/inbox/page.jsx` · `src/app/api/platform/sot/decisions/[decisionId]/decide/route.js` · `src/app/api/platform/sot/decisions/export/route.js` · `src/app/api/platform/sot/decisions/route.js` · `src/modules/integration/application/sot-decision-service.js` · `src/modules/project-manager/application/backup-service.js`
 - **Follows:** BR-002, BR-008, FR-100, FR-102, SDD-023, SEC-002, SEC-008
@@ -812,14 +812,14 @@
 
 ### FR-102 — SoT data-plane service-account authentication: a `SotDataPlaneKey` bound to exactly one Tenant lets the SoT pipeline's external data plane authenticate to the FR-100 submit/export endpoints (`Authorization: Bearer sdpk_...`) without a browser session and without installation-operator authority. Revocation takes effect on the next request; the raw secret is never persisted, only its SHA-256 hash.
 
-- **Status:** n/a
+- **Status:** done
 - **Code:** `src/modules/identity/sot-data-plane-auth.js` · `src/modules/integration/application/sot-decision-service.js` · `src/modules/project-manager/application/backup-service.js`
 - **Follows:** BR-002, BR-008, FR-100, FR-102, SDD-023, SEC-002, SEC-008, SEC-019
 - **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/sot-decisions-route.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/mint-sot-data-plane-key-cli.test.js` · `tests/unit/sot-data-plane-auth.test.js` · `tests/unit/sot-data-plane-key-migration.test.js` · `tests/unit/sot-decision-service.test.js` · `tests/unit/viewer-authority.test.js`
 
 ### FR-103 — SEC-005 PDPA consent, MVP scope: a Business owner attests in the CRM console that a Customer's consent was captured (`GRANTED`/`DECLINED`), recorded with timestamp and attesting Person on the Customer row FR-023 already treats as the CRM-sharing unit. Every Customer created from here on defaults to `PENDING`; rows that predate this column backfill to `GRANDFATHERED` rather than being retroactively blocked. Closes ethics-governance.md's open question #4 only — it does not gate AI processing, redact model input, or answer retention/provider-terms (#1, #2, #3, #6), which stay open.
 
-- **Status:** n/a
+- **Status:** done
 - **Surface:** `/customer/conversations` (page) · `/api/crm/customers/[customerId]/consent` (api)
 - **Code:** `src/app/(pm)/customer/conversations/page.jsx` · `src/app/api/crm/customers/[customerId]/consent/route.js` · `src/modules/crm/conversation-read-model.js` · `src/modules/crm/customer-consent-service.js`
 - **Follows:** BR-001, BR-011, SDD-007, SDD-048, SDD-050, SDD-053, SEC-001, SEC-005, SEC-009
@@ -843,7 +843,7 @@
 
 ### FR-106 — Enterprise API tenant token authentication: the FR-019 Enterprise API refuses every request that does not present a valid per-Tenant service-account key, generalizing the FR-102 pattern (ADR-047 D3 deliberately scoped its `SotDataPlaneKey` to the two SoT routes and named this generalization as the follow-up) rather than inventing a second mechanism: an `ApiAccessKey` bound to exactly one Tenant, presented as `Authorization: Bearer`, stored only as a SHA-256 digest, minted by an installation operator or an owner in that Tenant with the raw secret shown exactly once, revocable with effect on the next request, and never readable back. Scope on every request is the key's own Tenant — a key can never widen the ExternalRef/upsert surface beyond the Tenant it names (SEC-001, BR-002), and an invalid, revoked or missing key answers identically so the endpoint is not an enumeration oracle. This closes SEC-006, which has held the Enterprise API in a declared-but-unenforced state since ADR-047 recorded that "no API-key mechanism exists anywhere in zuri-ai".
 
-- **Status:** n/a
+- **Status:** done
 - **Surface:** `/api/docs` (api) · `/api/import/commit` (api) · `/api/import/dry-run` (api) · `/api/platform/api-access-keys/[id]` (api) · `/api/platform/api-access-keys` (api) · `/api/resolve` (api)
 - **Code:** `src/app/api/docs/route.js` · `src/app/api/import/commit/route.js` · `src/app/api/import/dry-run/route.js` · `src/app/api/platform/api-access-keys/[id]/route.js` · `src/app/api/platform/api-access-keys/route.js` · `src/app/api/resolve/route.js` · `src/modules/identity/api-access-auth.js` · `src/modules/project-manager/application/backup-service.js` · `src/modules/project-manager/import/import-authorization.js` · `src/modules/project-manager/import/plan-import-service.js`
 - **Follows:** BR-001, BR-002, BR-008, BR-009, FR-069, SDD-003, SDD-006, SDD-009, SDD-021, SDD-023, SDD-037, SEC-001, SEC-002, SEC-006, SEC-008
@@ -851,7 +851,7 @@
 
 ### FR-107 — Installation-operator grant store and bootstrap: FR-075's `isOperator` capability becomes holdable in production. A `PlatformGrant` row (Person-bound, capability `OPERATOR`, revocable, audited) is the server-held store, and the session port resolves `platformGrant` from it on every request — replacing the hardcoded `false` that made the capability unholdable by any web session — so revoking a grant denies the very next request and no session snapshot outlives it (NFR-019 discipline). `scripts/bootstrap-operator.mjs` creates the installation's FIRST operator (Person + scrypt credential with a random initial password shown exactly once + ACTIVE grant, one transaction, audited with no password material) and refuses while any ACTIVE OPERATOR grant stands — bootstrap serves the empty operator set only; every later grant is issued by a standing operator. Where the store is absent (test doubles, pre-migration databases) resolution reads `false`, the pre-FR-107 behavior, never a widened one.
 
-- **Status:** n/a
+- **Status:** done
 - **Code:** `src/modules/identity/operator-bootstrap.js` · `src/modules/identity/session-port.js` · `src/modules/project-manager/application/backup-service.js`
 - **Follows:** BR-008, FR-075, SDD-023, SDD-024, SDD-052, SEC-008, SEC-014, SEC-018
 - **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/unit/bootstrap-operator-cli.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/fr046-session-port.test.js` · `tests/unit/iam-session.test.js` · `tests/unit/operator-bootstrap.test.js` · `tests/unit/platform-grant-migration.test.js`

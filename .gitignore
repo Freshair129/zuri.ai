@@ -34,3 +34,6 @@ _worktrees/
 
 .vercel
 .env*
+
+.vercel
+.env*
