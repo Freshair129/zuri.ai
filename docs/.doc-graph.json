@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 1196,
-    "total_edges": 4026,
+    "total_edges": 4027,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -64,9 +64,8 @@
   },
   "drift": {
     "changed": [
-      "test:tests/e2e/fr091-conversation-inbox.spec.js",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/modules/project-manager/api-docs/openapi.js"
+      "test:tests/unit/sot-decision-service.test.js",
+      "code:src/modules/integration/application/sot-decision-service.js"
     ],
     "added": [],
     "removed": []
@@ -4491,8 +4490,8 @@
       "id": "code:src/modules/integration/application/sot-decision-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/sot-decision-service.js",
-      "hash": "747ae596",
-      "status": "current",
+      "hash": "a642c27e",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-100",
@@ -4895,7 +4894,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "908e1081",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -11718,7 +11717,7 @@
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
       "hash": "8b21e536",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -12117,7 +12116,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "c868bd20",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/plan-import-scope.test.js",
@@ -13537,8 +13536,8 @@
       "id": "test:tests/unit/sot-decision-service.test.js",
       "type": "test",
       "path": "tests/unit/sot-decision-service.test.js",
-      "hash": "6a57c52d",
-      "status": "current"
+      "hash": "256d3005",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/sot-inbox-ui.test.js",
@@ -41349,6 +41348,13 @@
     {
       "from": "test:tests/unit/sot-decision-service.test.js",
       "to": "req:FR-102",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/sot-decision-service.test.js",
+      "to": "req:FR-103",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
