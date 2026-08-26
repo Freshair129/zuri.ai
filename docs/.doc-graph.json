@@ -63,15 +63,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/unit/project-roadmap-ui.test.js",
-      "code:src/app/(pm)/audit/page.jsx",
-      "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx"
-    ],
-    "added": [
-      "test:tests/unit/audit-page.test.js",
-      "code:src/modules/project-manager/application/project-roadmap-labels.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -130,7 +123,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/audit/page.jsx",
       "hash": "a66ed2c0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-014",
@@ -709,7 +702,7 @@
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
       "hash": "441189ef",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-068"
@@ -13524,7 +13517,7 @@
       "type": "test",
       "path": "tests/unit/project-roadmap-ui.test.js",
       "hash": "540eb1b1",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/project-team-service.test.js",
