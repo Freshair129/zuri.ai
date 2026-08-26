@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1208,
-    "total_edges": 4078,
+    "total_nodes": 1224,
+    "total_edges": 4115,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 93,
-      "adr": 47,
-      "domain": 7,
+      "document": 94,
+      "adr": 48,
+      "domain": 8,
       "roadmap": 28,
       "feature": 11,
-      "route": 135,
+      "route": 136,
       "model": 63,
-      "requirement": 216,
-      "test": 290,
-      "code_file": 314
+      "requirement": 219,
+      "test": 292,
+      "code_file": 321
     },
     "coverage": {
-      "requirements": 216,
+      "requirements": 219,
       "fr_with_code": "100% (86/86)",
       "fr_with_tests": "100% (86/86)",
-      "rules_anchored_in_code": "93% (85/91)",
+      "rules_anchored_in_code": "94% (87/93)",
       "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 314,
+      "annotated_code_files": 321,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -44,7 +44,8 @@
         "FR-101",
         "FR-102",
         "FR-103",
-        "FR-104"
+        "FR-104",
+        "FR-105"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -64,26 +65,28 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
+      "doc:INTERFACE-INVENTORY",
       "doc:PRD-SDD-v1.0",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/customer-profile-contract-receipt.test.js",
-      "test:tests/unit/platform-approver-profile-migration.test.js",
-      "test:tests/unit/smartgift-document-intake-migration.test.js",
-      "code:src/modules/identity/auth-service.js",
-      "code:src/modules/project-manager/api-docs/openapi.js"
+      "doc:ROUTES-SITEMAP",
+      "test:tests/unit/domain-state.test.js"
     ],
     "added": [
-      "doc:FR-104-owner-assisted-password-reset",
-      "route:api:/api/auth/reset-password",
-      "route:api:/api/platform/users/password-resets",
-      "req:FR-104",
-      "req:SDD-054",
-      "test:tests/integration/password-reset-flow.test.js",
-      "test:tests/unit/password-reset-routes.test.js",
-      "test:tests/unit/password-reset-service.test.js",
-      "code:src/app/api/auth/reset-password/route.js",
-      "code:src/app/api/platform/users/password-resets/route.js"
+      "spec:ADR-048-PLATFORM-CONTROL-SHELL",
+      "domain:platform-control",
+      "doc:FR-105-platform-programme-roadmap",
+      "route:page:/control/roadmap",
+      "req:FR-105",
+      "req:SDD-055",
+      "req:SEC-020",
+      "test:tests/unit/platform-control-guard.test.js",
+      "test:tests/unit/platform-control-route-contract.test.js",
+      "code:src/app/(control)/control/roadmap/page.jsx",
+      "code:src/app/(control)/layout.jsx",
+      "code:src/components/layouts/PlatformControlGuard.jsx",
+      "code:src/components/layouts/PlatformControlShell.jsx",
+      "code:src/lib/platform-control-guard.js",
+      "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "code:src/modules/platform-control/program-roadmap-data.js"
     ],
     "removed": []
   },
@@ -111,6 +114,40 @@
         "@tested": [
           "tests/e2e/smoke.spec.js",
           "tests/e2e/fr041-business-first.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(control)/control/roadmap/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(control)/control/roadmap/page.jsx",
+      "hash": "7d09b716",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-105"
+        ],
+        "@spec": [
+          "SDD-055",
+          "SEC-020"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-route-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(control)/layout.jsx",
+      "type": "code_file",
+      "path": "src/app/(control)/layout.jsx",
+      "hash": "d89c6b11",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-105"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-route-contract.test.js"
         ]
       }
     },
@@ -3064,6 +3101,42 @@
       }
     },
     {
+      "id": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/PlatformControlGuard.jsx",
+      "hash": "c1ff12ac",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-105"
+        ],
+        "@spec": [
+          "SEC-020"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-guard.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/layouts/PlatformControlShell.jsx",
+      "type": "code_file",
+      "path": "src/components/layouts/PlatformControlShell.jsx",
+      "hash": "9e1960a8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-105"
+        ],
+        "@spec": [
+          "NFR-008"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-route-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/components/layouts/Sidebar.jsx",
       "type": "code_file",
       "path": "src/components/layouts/Sidebar.jsx",
@@ -3355,6 +3428,24 @@
         ],
         "@tested": [
           "tests/unit/observability-logger.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/lib/platform-control-guard.js",
+      "type": "code_file",
+      "path": "src/lib/platform-control-guard.js",
+      "hash": "289d1e52",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-105"
+        ],
+        "@spec": [
+          "SEC-020"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-guard.test.js"
         ]
       }
     },
@@ -4106,7 +4197,7 @@
       "type": "code_file",
       "path": "src/modules/identity/auth-service.js",
       "hash": "363e61f3",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -4950,11 +5041,45 @@
       }
     },
     {
+      "id": "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "type": "code_file",
+      "path": "src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "hash": "8bf57bd1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-105"
+        ],
+        "@spec": [
+          "SDD-055",
+          "NFR-008"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-route-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/platform-control/program-roadmap-data.js",
+      "type": "code_file",
+      "path": "src/modules/platform-control/program-roadmap-data.js",
+      "hash": "7f837adf",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-105"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-route-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "1f3447ff",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -6456,7 +6581,7 @@
       "version": "1.22.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "54a12dc6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -7118,6 +7243,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-105-platform-programme-roadmap",
+      "type": "document",
+      "path": "docs/domains/platform-control/features/FR-105-platform-programme-roadmap.md",
+      "title": "FR-105 — Platform Programme Roadmap",
+      "hash": "c7a0c482",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -7144,8 +7277,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.2.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "ff345397",
-      "status": "current"
+      "hash": "e7efda4b",
+      "status": "changed"
     },
     {
       "id": "doc:LINE-PHASE1-CANARY",
@@ -7368,9 +7501,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.87.0b",
+      "version": "1.88.0b",
       "doc_status": "Draft",
-      "hash": "35a1c6a1",
+      "hash": "5c4ee242",
       "status": "changed"
     },
     {
@@ -7432,8 +7565,8 @@
       "title": "Zuri — Route and Shell Sitemap",
       "version": "1.0.0",
       "doc_status": "draft",
-      "hash": "3b058e48",
-      "status": "current"
+      "hash": "8860fdc7",
+      "status": "changed"
     },
     {
       "id": "doc:SITEMAP-DOMAIN-NAV",
@@ -7683,6 +7816,26 @@
         "market-intelligence"
       ],
       "hash": "9e066efd",
+      "status": "current"
+    },
+    {
+      "id": "domain:platform-control",
+      "type": "domain",
+      "path": "docs/domains/platform-control/CHARTER.md",
+      "title": "Domain — platform-control",
+      "owns_models": [],
+      "owns_routes": [
+        "src/app/(control)/control/**"
+      ],
+      "owns_code": [
+        "src/modules/platform-control/**",
+        "src/components/layouts/PlatformControlShell.jsx",
+        "src/components/layouts/PlatformControlGuard.jsx"
+      ],
+      "modules": [
+        "platform-control"
+      ],
+      "hash": "12568078",
       "status": "current"
     },
     {
@@ -9374,6 +9527,16 @@
       "row_text": "Owner-assisted password reset: a Business owner over a Business the target Person belongs to — the same authority boundary as FR-038 Membership administration — or the installation operator mints a single-use, one-hour, hash-bound reset token (`POST /api/platform/users/password-resets`), and the public `POST /api/auth/reset-password` consumes it: new `PersonCredential`, token burnt, **every active Session revoked**. The raw token appears exactly once, in the authenticated mint response, for out-of-band handover (LINE, in person); it is stored only as a SHA-256 digest and never logged or audited in any form. There is deliberately no public forgot-password route: with no mail transport, such a route either returns the token to the unauthenticated caller — an account-takeover primitive, which is what the abandoned FR-082 draft on `codex/postgres-primary-runtime` shipped and the reason it was not revived as-is — or returns nothing and resets nothing. Uses the `PasswordResetToken` table FR-090 declared (its `token` column now carries the digest). 🔜 implemented locally with unit + real-db full-cycle integration tests "
     },
     {
+      "id": "req:FR-105",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The board is a static plan snapshot re-projected from ROADMAP-ZURI-AI-24W-PROGRAM's own frontmatter and tables (currently v0.3.0, baseline 7d8c9d0), carrying the document's `draft` status. It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion. Declared as FR-105 rather than the branch's original FR-094, which main's canonical IAM slice claimed first (AGENTS.md §18 — the later declaration renumbers).",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The board is a static plan snapshot re-projected from ROADMAP-ZURI-AI-24W-PROGRAM's own frontmatter and tables (currently v0.3.0, baseline 7d8c9d0), carrying the document's `draft` status. It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion. Declared as FR-105 rather than the branch's original FR-094, which main's canonical IAM slice claimed first (AGENTS.md §18 — the later declaration renumbers). 🔜 implemented locally; operator-only static route, pending deployment evidence "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -10104,6 +10267,16 @@
       "row_text": "Password reset splits into an authenticated mint leg and a public consume leg because token delivery, not token math, is the hard problem: with no mail transport, \"who hands the secret to the user\" must be a person with standing authority, so mint reuses FR-038's boundary (owner of a Business the target belongs to, or the installation operator) and returns the raw token exactly once. Storage is digest-only in the existing `PasswordResetToken.token` column (no schema change — a digest is a string), lookup is by digest so the raw value never reaches a query or log, failure is one generic `INVALID_OR_EXPIRED_TOKEN` across unknown/used/expired, and consumption revokes every active FR-095 Session in the same breath — a stolen session must not survive the reset that exists to evict it. FR-104; FR-038, FR-046, FR-095, SEC-008, SEC-014, SDD-052 "
     },
     {
+      "id": "req:SDD-055",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Platform Control mounts in its own App Router route group and resolves only the existing trusted viewer contract. The pure guard distinguishes loading, unauthenticated, forbidden and ready states before the board mounts; authorization calls Identity's `isInstallationOperator` predicate, so a visibility label or any composition of Business grants cannot accidentally become installation authority. The programme board is imported at build time as a constant plan snapshot: it has no fetch, mutation, API route, persistence model or live-progress calculation.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Platform Control mounts in its own App Router route group and resolves only the existing trusted viewer contract. The pure guard distinguishes loading, unauthenticated, forbidden and ready states before the board mounts; authorization calls Identity's `isInstallationOperator` predicate, so a visibility label or any composition of Business grants cannot accidentally become installation authority. The programme board is imported at build time as a constant plan snapshot: it has no fetch, mutation, API route, persistence model or live-progress calculation. FR-105; FR-075, ADR-048, NFR-008 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -10292,6 +10465,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "The SoT data-plane key fails closed on scope and secrecy: a key authenticates only the tenantId it is bound to, never widens to installation-operator authority however it is presented, and the raw secret is never persisted, logged or returned after mint time — only its SHA-256 hash and a short non-reconstructing prefix are stored. Revocation takes effect on the very next request. FR-102 / ADR-047 security gate "
+    },
+    {
+      "id": "req:SEC-020",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Platform Control fails closed: the server route guard renders programme content only after a trusted viewer satisfies `isInstallationOperator`; unauthorised HTML contains no programme data. `isPlatform`, role labels, visible domains, visible Businesses and owned Businesses/Tenants are not authorization inputs. The static projection contains no Business/user data and has no write or API path.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Platform Control fails closed: the server route guard renders programme content only after a trusted viewer satisfies `isInstallationOperator`; unauthorised HTML contains no programme data. `isPlatform`, role labels, visible domains, visible Businesses and owned Businesses/Tenants are not authorization inputs. The static projection contains no Business/user data and has no write or API path. FR-105 / FR-075 / ADR-048 security gate "
     },
     {
       "id": "route:api:/api/agent/heartbeat",
@@ -11054,6 +11237,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/control/roadmap",
+      "type": "route",
+      "kind": "page",
+      "route": "/control/roadmap",
+      "path": "src/app/(control)/control/roadmap/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/customer",
       "type": "route",
       "kind": "page",
@@ -11754,6 +11945,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
+      "type": "adr",
+      "path": "docs/decisions/ADR-048-PLATFORM-CONTROL-SHELL.md",
+      "title": "ADR-048 — Platform Control is outside the Business Shell",
+      "hash": "9ef29f4f",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -12220,7 +12419,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "e1746e73",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -12591,7 +12790,7 @@
       "type": "test",
       "path": "tests/unit/customer-profile-contract-receipt.test.js",
       "hash": "4de9ffeb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/customer-profile-target-verification.test.js",
@@ -12688,8 +12887,8 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
-      "hash": "3b86cfe8",
-      "status": "current"
+      "hash": "cd09510a",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/e2e-reconnecting-request.test.js",
@@ -13326,7 +13525,21 @@
       "type": "test",
       "path": "tests/unit/platform-approver-profile-migration.test.js",
       "hash": "34f79a9f",
-      "status": "changed"
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform-control-guard.test.js",
+      "type": "test",
+      "path": "tests/unit/platform-control-guard.test.js",
+      "hash": "514a33b6",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform-control-route-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/platform-control-route-contract.test.js",
+      "hash": "edf5c387",
+      "status": "current"
     },
     {
       "id": "test:tests/unit/platform/cloud-sot-agent.test.js",
@@ -13641,7 +13854,7 @@
       "type": "test",
       "path": "tests/unit/smartgift-document-intake-migration.test.js",
       "hash": "6e2cb541",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/smartgift-rag-pipeline.test.js",
@@ -13845,6 +14058,34 @@
       "from": "code:prisma/seed.js",
       "to": "req:NFR-007",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(control)/control/roadmap/page.jsx",
+      "to": "req:FR-105",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(control)/control/roadmap/page.jsx",
+      "to": "req:SDD-055",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(control)/control/roadmap/page.jsx",
+      "to": "req:SEC-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(control)/layout.jsx",
+      "to": "req:FR-105",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -18119,6 +18360,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "to": "req:FR-105",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "to": "req:SEC-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlShell.jsx",
+      "to": "req:FR-105",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/layouts/PlatformControlShell.jsx",
+      "to": "req:NFR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/components/layouts/Sidebar.jsx",
       "to": "req:FR-039",
       "type": "implements",
@@ -18520,6 +18789,20 @@
     {
       "from": "code:src/lib/observability/logger.js",
       "to": "req:SEC-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/platform-control-guard.js",
+      "to": "req:FR-105",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/platform-control-guard.js",
+      "to": "req:SEC-020",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -20712,6 +20995,34 @@
       "from": "code:src/modules/people/components/PeopleDirectory.jsx",
       "to": "req:SDD-020",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "to": "req:FR-105",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "to": "req:NFR-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "to": "req:SDD-055",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/platform-control/program-roadmap-data.js",
+      "to": "req:FR-105",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -24538,6 +24849,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-105",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -25049,6 +25367,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-055",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -25190,6 +25515,13 @@
     },
     {
       "from": "req:SEC-019",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-020",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -25849,6 +26181,13 @@
     {
       "from": "route:page:/businesses",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/control/roadmap",
+      "to": "domain:platform-control",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -27452,6 +27791,48 @@
     {
       "from": "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
       "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
+      "to": "req:FR-075",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
+      "to": "req:FR-105",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
+      "to": "req:NFR-008",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
+      "to": "spec:ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-048-PLATFORM-CONTROL-SHELL",
+      "to": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
       "type": "relates",
       "status": "current",
       "source": "control-block"
@@ -39607,6 +39988,97 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "code:src/components/layouts/PlatformControlGuard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "code:src/lib/platform-control-guard.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "req:FR-105",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-guard.test.js",
+      "to": "req:SEC-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "code:src/app/(control)/control/roadmap/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "code:src/app/(control)/layout.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "code:src/components/layouts/PlatformControlShell.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "code:src/modules/platform-control/program-roadmap-data.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:FR-105",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:SDD-055",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:SEC-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform/cloud-sot-agent.test.js",

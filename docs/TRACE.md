@@ -830,3 +830,11 @@
 - **Code:** `src/app/api/auth/reset-password/route.js` · `src/app/api/platform/users/password-resets/route.js` · `src/modules/identity/auth-service.js`
 - **Follows:** SDD-024, SDD-052, SDD-054, SEC-008, SEC-014, SEC-018
 - **Tests:** `tests/integration/password-reset-flow.test.js` · `tests/unit/auth-service.test.js` · `tests/unit/fr046-auth-route.test.js` · `tests/unit/iam-session.test.js` · `tests/unit/password-reset-routes.test.js` · `tests/unit/password-reset-service.test.js`
+
+### FR-105 — Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The board is a static plan snapshot re-projected from ROADMAP-ZURI-AI-24W-PROGRAM's own frontmatter and tables (currently v0.3.0, baseline 7d8c9d0), carrying the document's `draft` status. It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion. Declared as FR-105 rather than the branch's original FR-094, which main's canonical IAM slice claimed first (AGENTS.md §18 — the later declaration renumbers).
+
+- **Status:** planned
+- **Surface:** `/control/roadmap` (page)
+- **Code:** `src/app/(control)/control/roadmap/page.jsx` · `src/app/(control)/layout.jsx` · `src/components/layouts/PlatformControlGuard.jsx` · `src/components/layouts/PlatformControlShell.jsx` · `src/lib/platform-control-guard.js` · `src/modules/platform-control/components/ProgramRoadmapBoard.jsx` · `src/modules/platform-control/program-roadmap-data.js`
+- **Follows:** NFR-008, SDD-055, SEC-020
+- **Tests:** `tests/unit/platform-control-guard.test.js` · `tests/unit/platform-control-route-contract.test.js`

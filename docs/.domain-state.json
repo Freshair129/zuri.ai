@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-26T10:00:08.365Z",
+  "generatedAt": "2026-08-26T10:21:05.980Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -27,8 +27,8 @@
   ],
   "overall": {
     "status": "partial",
-    "domainCount": 7,
-    "gapCount": 39,
+    "domainCount": 8,
+    "gapCount": 43,
     "gaps": [
       {
         "domain": "agent",
@@ -407,6 +407,36 @@
         ]
       },
       {
+        "domain": "platform-control",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "platform-control",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "platform-control",
+        "id": "REQ-FR-105",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-105 is partial",
+        "evidence": [
+          "src/app/(control)/control/roadmap/page.jsx",
+          "src/components/layouts/PlatformControlGuard.jsx",
+          "src/components/layouts/PlatformControlShell.jsx",
+          "src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+          "src/modules/platform-control/program-roadmap-data.js",
+          "tests/unit/platform-control-guard.test.js",
+          "tests/unit/platform-control-route-contract.test.js"
+        ]
+      },
+      {
         "domain": "project-manager",
         "id": "CONTRACT-001",
         "severity": "medium",
@@ -601,6 +631,19 @@
           "tests/unit/iam-session.test.js",
           "tests/unit/password-reset-routes.test.js",
           "tests/unit/password-reset-service.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-105",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-105 is partial",
+        "evidence": [
+          "src/components/layouts/PlatformControlGuard.jsx",
+          "src/components/layouts/PlatformControlShell.jsx",
+          "tests/unit/platform-control-guard.test.js",
+          "tests/unit/platform-control-route-contract.test.js"
         ]
       }
     ]
@@ -2267,6 +2310,145 @@
         "featureNotes": 1
       }
     },
+    "platform-control": {
+      "status": "partial",
+      "requirements": [
+        {
+          "id": "FR-105",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 2,
+          "evidence": [
+            "src/app/(control)/control/roadmap/page.jsx",
+            "src/components/layouts/PlatformControlGuard.jsx",
+            "src/components/layouts/PlatformControlShell.jsx",
+            "src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+            "src/modules/platform-control/program-roadmap-data.js",
+            "tests/unit/platform-control-guard.test.js",
+            "tests/unit/platform-control-route-contract.test.js"
+          ]
+        }
+      ],
+      "checks": {
+        "ui": {
+          "status": "verified",
+          "evidence": [
+            "docs/INTERFACE-INVENTORY.md"
+          ],
+          "gaps": [],
+          "details": {
+            "routes": 1,
+            "inventoried": 1,
+            "missing": 0
+          }
+        },
+        "httpApi": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "mcp": {
+          "status": "verified",
+          "evidence": [
+            "src/app/api/mcp/route.js",
+            "src/modules/project-manager/mcp/transport.js",
+            "tests/unit/pipeline-mcp-transport.test.js",
+            "tests/unit/project-manager-mcp.test.js"
+          ],
+          "gaps": []
+        },
+        "runtimeContract": {
+          "status": "partial",
+          "evidence": [
+            "docs/TRACE.md",
+            "src/modules/project-manager/import/plan-schema.js"
+          ],
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
+        },
+        "jsonSchema": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "database": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "authorization": {
+          "status": "not_applicable",
+          "evidence": [],
+          "gaps": []
+        },
+        "tests": {
+          "status": "partial",
+          "evidence": [
+            "docs/TRACE.md"
+          ],
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
+        }
+      },
+      "evidence": [
+        "docs/INTERFACE-INVENTORY.md",
+        "docs/TRACE.md",
+        "docs/domains/platform-control/CHARTER.md",
+        "docs/domains/platform-control/features/FR-105-platform-programme-roadmap.md",
+        "src/app/api/mcp/route.js",
+        "src/modules/project-manager/import/plan-schema.js",
+        "src/modules/project-manager/mcp/transport.js",
+        "tests/unit/pipeline-mcp-transport.test.js",
+        "tests/unit/project-manager-mcp.test.js"
+      ],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-105",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-105 is partial",
+          "evidence": [
+            "src/app/(control)/control/roadmap/page.jsx",
+            "src/components/layouts/PlatformControlGuard.jsx",
+            "src/components/layouts/PlatformControlShell.jsx",
+            "src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+            "src/modules/platform-control/program-roadmap-data.js",
+            "tests/unit/platform-control-guard.test.js",
+            "tests/unit/platform-control-route-contract.test.js"
+          ]
+        }
+      ],
+      "details": {
+        "routes": 1,
+        "apiRoutes": 0,
+        "pageRoutes": 1,
+        "ownedModels": 0,
+        "featureNotes": 1
+      }
+    },
     "project-manager": {
       "status": "partial",
       "requirements": [
@@ -2857,6 +3039,19 @@
             "tests/unit/password-reset-routes.test.js",
             "tests/unit/password-reset-service.test.js"
           ]
+        },
+        {
+          "id": "FR-105",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 2,
+          "evidence": [
+            "src/components/layouts/PlatformControlGuard.jsx",
+            "src/components/layouts/PlatformControlShell.jsx",
+            "tests/unit/platform-control-guard.test.js",
+            "tests/unit/platform-control-route-contract.test.js"
+          ]
         }
       ],
       "checks": {
@@ -3187,6 +3382,18 @@
             "tests/unit/iam-session.test.js",
             "tests/unit/password-reset-routes.test.js",
             "tests/unit/password-reset-service.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-105",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-105 is partial",
+          "evidence": [
+            "src/components/layouts/PlatformControlGuard.jsx",
+            "src/components/layouts/PlatformControlShell.jsx",
+            "tests/unit/platform-control-guard.test.js",
+            "tests/unit/platform-control-route-contract.test.js"
           ]
         }
       ],

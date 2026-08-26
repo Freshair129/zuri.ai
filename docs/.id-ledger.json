@@ -210,6 +210,7 @@
     "FR-102",
     "FR-103",
     "FR-104",
+    "FR-105",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -283,6 +284,7 @@
     "SDD-052",
     "SDD-053",
     "SDD-054",
+    "SDD-055",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -302,6 +304,7 @@
     "SEC-017",
     "SEC-018",
     "SEC-019",
+    "SEC-020",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -448,6 +451,7 @@
     "ADR-045",
     "ADR-046",
     "ADR-047",
+    "ADR-048",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -2080,6 +2084,19 @@
         }
       ]
     },
+    "FR-105": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3121fa857848eecc3b51de456bbca83a410c2b235308a62caeca54f8efd6528a",
+      "history": [
+        {
+          "anchor": "platform programme roadmap",
+          "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3037,6 +3054,19 @@
         }
       ]
     },
+    "SDD-055": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e47985a6d25f46b6a2c553b7161f7343bbef35f86e3a6f761063fc5a9756ad65",
+      "history": [
+        {
+          "anchor": "platform control mounts in its own app router route group",
+          "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3288,6 +3318,19 @@
         {
           "anchor": "the sot data plane key fails closed on scope and secrecy",
           "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-020": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4e48e5fa36100c5cda6f49060590556a43db849117f6cf9877f7f53c0b01212a",
+      "history": [
+        {
+          "anchor": "platform control fails closed",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
@@ -5196,6 +5239,19 @@
         {
           "anchor": "sot data plane",
           "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-048": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-048-PLATFORM-CONTROL-SHELL.md",
+      "status": "current",
+      "statement_digest": "47e6c647c76c9944af09e08e94615b0796df29136046b82fbf523dd47ae4b91f",
+      "history": [
+        {
+          "anchor": "platform control is outside the business shell",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
