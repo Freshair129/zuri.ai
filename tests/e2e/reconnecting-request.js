@@ -47,20 +47,36 @@ function isConnectionLost(error) {
 }
 
 /**
- * Run a request thunk, reconnecting once if the connection died before any
- * response arrived.
+ * Run a request thunk, retrying once if no usable answer arrived: the
+ * connection died before any response, or the response was a 503.
+ *
+ * Why 503 joins the connection-lost class (2026-08-26): the fr077 `limit=1`
+ * spec went red twice in one day at `expect(response.ok()).toBe(true)` on a
+ * read that passed 3 seconds later on retry — an answer arrived, but it was
+ * "unavailable". In this app a 503 has exactly one source: `handle()` /
+ * `resolveRequestViewer` map a failed session-adapter read to
+ * SESSION_UNAVAILABLE, and under full-suite CI load SQLite can refuse that
+ * read transiently. 503 is the one status whose *meaning* is "try again";
+ * every other status — 200, 400, 404, 500 — is an answer about the boundary
+ * under test and is still handed back untouched on the first attempt.
+ *
+ * The discipline is unchanged: one extra attempt total, never an assertion
+ * retry, and a second failure of either kind propagates.
  *
  * @template T
  * @param {() => Promise<T>} send issues exactly one request
  * @returns {Promise<T>}
  */
 async function reconnecting(send) {
+  let first
   try {
-    return await send()
+    first = await send()
   } catch (error) {
     if (!isConnectionLost(error)) throw error
     return send()
   }
+  if (typeof first?.status === 'function' && first.status() === 503) return send()
+  return first
 }
 
 /**

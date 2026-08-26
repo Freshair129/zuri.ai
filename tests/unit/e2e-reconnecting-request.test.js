@@ -28,7 +28,7 @@ describe('the e2e reconnecting request retries the connection, never the answer'
     // The whole point. A 500 means the server answered — wrongly, but it answered,
     // and the assertion that catches that must see it on the first attempt. If this
     // ever calls twice, a flaky route has been given somewhere to hide.
-    for (const status of [400, 404, 409, 500, 503]) {
+    for (const status of [400, 404, 409, 500]) {
       const send = vi.fn().mockResolvedValue(response(status))
 
       const result = await reconnecting(send)
@@ -36,6 +36,23 @@ describe('the e2e reconnecting request retries the connection, never the answer'
       expect(result.status()).toBe(status)
       expect(send).toHaveBeenCalledTimes(1)
     }
+  })
+
+  it('retries a 503 once — the one status whose meaning is "try again"', async () => {
+    // 2026-08-26: fr077's limit=1 spec went red twice in one day on a read that
+    // passed 3s later. In this app a 503 has exactly one source — handle() maps
+    // a failed session-adapter read to SESSION_UNAVAILABLE — so it is the
+    // transport class wearing an HTTP status, not an answer about the boundary
+    // under test. Still one extra attempt total: a second 503 comes back as-is.
+    const recovers = vi.fn().mockResolvedValueOnce(response(503)).mockResolvedValue(response(200))
+    const result = await reconnecting(recovers)
+    expect(result.status()).toBe(200)
+    expect(recovers).toHaveBeenCalledTimes(2)
+
+    const stays = vi.fn().mockResolvedValue(response(503))
+    const second = await reconnecting(stays)
+    expect(second.status()).toBe(503)
+    expect(stays).toHaveBeenCalledTimes(2)
   })
 
   it('rethrows anything that is not a lost connection, without a second attempt', async () => {
