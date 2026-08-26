@@ -25,9 +25,13 @@ model Portfolio {
   updatedAt DateTime @updatedAt
   version   Int      @default(1)
 
-  tenants       Tenant[]
-  legalEntities LegalEntity[]
-  workspaces    Workspace[]
+  tenants              Tenant[]
+  legalEntities        LegalEntity[]
+  workspaces           Workspace[]
+  // @req FR-067 — the top-level collaboration Workspace the user sees IS this
+  // Portfolio (ADR-027 §D2); membership and invites key off portfolioId.
+  workspaceMemberships WorkspaceMembership[]
+  workspaceInvites     WorkspaceInvite[]
 }
 
 model Tenant {
@@ -159,6 +163,10 @@ model Person {
   code        String   @unique
   displayName String
   email       String?
+  // @req FR-066 — Profile completion marker: an identity step over Person
+  // (ADR-027 D1), never an authorization grant (BR-016). Null = the person has
+  // not finished the profile-first onboarding step yet.
+  profileCompletedAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -179,6 +187,69 @@ model Person {
   customerImportReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionActor")
   // @req FR-103 — the staff member who attested a Customer's PDPA consent (SEC-005).
   customerConsentAttestations   Customer[]                     @relation("CustomerConsentRecordedBy")
+  // @req FR-067 — Workspace collaboration grants and the invites this person issued.
+  workspaceMemberships          WorkspaceMembership[]
+  workspaceInvitesIssued        WorkspaceInvite[]              @relation("WorkspaceInviteInviter")
+}
+
+// @req FR-067 — Workspace collaboration membership, keyed by `portfolioId`:
+// the user-facing top-level Workspace IS schema Portfolio (ADR-027 §D2/D5),
+// never schema `Workspace`, which is a Space one level below Business.
+// @spec BR-016 — a DISTINCT authority layer, same discipline as FR-089's
+// TeamMembership: `resolveViewer` never reads this table, so holding one grants
+// nothing on the existing viewer contract — no visibleBusinessIds, no
+// ownedBusinessIds, no domains. Tenant/Business/Space/Project access remains a
+// separate server-authorized assignment (AC-067.5).
+// @tested tests/integration/workspace-onboarding-flow.test.js
+model WorkspaceMembership {
+  id                String   @id @default(uuid())
+  portfolioId       String
+  personId          String
+  role              String   @default("MEMBER")
+  status            String   @default("ACTIVE")
+  invitedByPersonId String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  version           Int      @default(1)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id])
+  person    Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, personId])
+  @@index([personId, status])
+  @@index([portfolioId, status])
+}
+
+// @req FR-067 — scoped, expiring, single-use Workspace invite. `tokenHash` is a
+// SHA-256 digest (SEC-014, the FR-104 discipline): the raw token appears exactly
+// once in the authenticated mint response and is never persisted or logged.
+// EXPIRED is deliberately not a persisted status — expiry is a fail-closed
+// comparison against `expiresAt` at acceptance time, so a clock cannot be
+// outrun by a status column that nobody updated.
+// @spec SEC-014, BR-016, SDD-038
+// @tested tests/unit/workspace-invite-service.test.js
+model WorkspaceInvite {
+  id                 String    @id @default(uuid())
+  portfolioId        String
+  invitedByPersonId  String
+  targetPersonId     String?
+  invitedEmail       String?
+  role               String    @default("MEMBER")
+  status             String    @default("PENDING")
+  tokenHash          String    @unique
+  expiresAt          DateTime
+  acceptedByPersonId String?
+  acceptedAt         DateTime?
+  revokedAt          DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id])
+  invitedBy Person    @relation("WorkspaceInviteInviter", fields: [invitedByPersonId], references: [id])
+
+  @@index([portfolioId, status])
+  @@index([targetPersonId, status])
+  @@index([invitedEmail, status])
 }
 
 // @req FR-090 — the production authentication credential and its password-reset

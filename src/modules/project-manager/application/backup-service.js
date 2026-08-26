@@ -69,6 +69,11 @@ const SNAPSHOT_MODELS = [
   // @req FR-095 — a persisted session is a child of Person and must survive a
   // portable restore; raw token material is never exported by the model.
   'session', 'personCredential', 'passwordResetToken',
+  // @req FR-067 — both hang off Portfolio (top of this list) and Person (just
+  // above), so they restore here and delete in the reverse. Like
+  // passwordResetToken, an invite's raw token is never exported — the model
+  // stores only the SHA-256 digest (SEC-014).
+  'workspaceMembership', 'workspaceInvite',
   // @req FR-089 — a Team hangs off a Business (restored at the top of this list)
   // and a TeamMembership off both that Team and the Person above, so they
   // restore in this order and delete in the reverse. `projectTeam` needs

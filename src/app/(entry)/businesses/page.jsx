@@ -6,6 +6,11 @@
 // @req FR-044 — Business selection is a routing boundary before the BusinessShell.
 // @spec ADR-015, SDD-022 — viewer grants decide visibility; Portfolio/Tenant are ancestry labels only.
 // @tested tests/unit/business-routing-page.test.js, tests/unit/business-routing.test.js
+// @req FR-066 — a person with no visible Business is not stranded on an empty
+// list: they are routed to the pre-Business journey (Waiting Room, which sends
+// an incomplete Profile to Profile setup first — AC-066.1) instead of being
+// asked to create or select operating scope here.
+// @spec ADR-027 D8, SDD-038
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, Building2 } from 'lucide-react'
@@ -52,7 +57,15 @@ export default function BusinessesPage() {
     }
   }, [entry.error, router])
 
-  if (entry.loading || entry.error === 'AUTH_REQUIRED' || entry.error === 'SESSION_UNAVAILABLE') return <LoadingCard />
+  // @req FR-066 — no Business access yet → the pre-Business journey, never an
+  // operating-scope prompt (AC-066.1). The Waiting Room forwards an incomplete
+  // Profile to Profile setup.
+  const noBusinessAccess = !entry.loading && !entry.error && (entry.data?.businesses || []).length === 0
+  useEffect(() => {
+    if (noBusinessAccess) router.replace('/waiting-room')
+  }, [noBusinessAccess, router])
+
+  if (entry.loading || noBusinessAccess || entry.error === 'AUTH_REQUIRED' || entry.error === 'SESSION_UNAVAILABLE') return <LoadingCard />
 
   if (entry.error) {
     return <ErrorState title="Unable to load Business Routing" detail={entry.error} retry={entry.reload} />

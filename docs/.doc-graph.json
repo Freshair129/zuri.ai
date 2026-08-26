@@ -3,32 +3,30 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1239,
-    "total_edges": 4191,
+    "total_nodes": 1270,
+    "total_edges": 4325,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 95,
-      "adr": 48,
+      "document": 96,
+      "adr": 49,
       "domain": 8,
       "roadmap": 28,
       "feature": 11,
-      "route": 138,
-      "model": 64,
+      "route": 148,
+      "model": 66,
       "requirement": 220,
-      "test": 298,
-      "code_file": 325
+      "test": 302,
+      "code_file": 338
     },
     "coverage": {
       "requirements": 220,
-      "fr_with_code": "100% (100/100)",
-      "fr_with_tests": "100% (100/100)",
-      "rules_anchored_in_code": "94% (87/93)",
+      "fr_with_code": "100% (102/102)",
+      "fr_with_tests": "100% (102/102)",
+      "rules_anchored_in_code": "96% (89/93)",
       "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 325,
+      "annotated_code_files": 338,
       "fr_planned": [
-        "FR-066",
-        "FR-067",
         "FR-082",
         "FR-083",
         "FR-084",
@@ -37,9 +35,7 @@
       "fr_without_code": [],
       "fr_without_tests": [],
       "rules_without_anchor": [
-        "BR-016",
         "BR-017",
-        "SDD-038",
         "SDD-040",
         "SDD-041",
         "SDD-046"
@@ -51,8 +47,37 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [],
+    "changed": [
+      "doc:A-api-spec",
+      "doc:B-db-schema",
+      "domain:identity",
+      "doc:FR-019-enterprise-api",
+      "doc:PRD-SDD-v1.0",
+      "test:tests/integration/openapi-docs.test.js",
+      "code:src/app/api/docs/route.js",
+      "code:src/app/api/import/commit/route.js",
+      "code:src/app/api/import/dry-run/route.js",
+      "code:src/app/api/resolve/route.js",
+      "code:src/modules/identity/viewer-authority.js",
+      "code:src/modules/project-manager/api-docs/openapi.js",
+      "code:src/modules/project-manager/application/backup-service.js",
+      "code:src/modules/project-manager/import/import-authorization.js",
+      "code:src/modules/project-manager/import/plan-import-service.js"
+    ],
+    "added": [
+      "doc:FR-106-enterprise-api-access-key",
+      "route:api:/api/platform/api-access-keys",
+      "route:api:/api/platform/api-access-keys/[id]",
+      "model:ApiAccessKey",
+      "test:tests/integration/enterprise-api-auth.test.js",
+      "test:tests/unit/api-access-auth.test.js",
+      "test:tests/unit/api-access-key-migration.test.js",
+      "test:tests/unit/api-access-key-routes.test.js",
+      "test:tests/unit/mint-api-access-key-cli.test.js",
+      "code:src/app/api/platform/api-access-keys/route.js",
+      "code:src/app/api/platform/api-access-keys/[id]/route.js",
+      "code:src/modules/identity/api-access-auth.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -120,23 +145,84 @@
       "id": "code:src/app/(entry)/businesses/page.jsx",
       "type": "code_file",
       "path": "src/app/(entry)/businesses/page.jsx",
-      "hash": "52f9de63",
+      "hash": "f2a8ad81",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
-          "FR-044"
+          "FR-044",
+          "FR-066"
         ],
         "@spec": [
           "SDD-024",
           "SEC-008",
-          "SDD-022"
+          "SDD-022",
+          "SDD-038"
         ],
         "@tested": [
           "tests/unit/fr046-api-ui-contract.test.js",
           "tests/e2e/fr046-entry-contract.spec.js",
           "tests/unit/business-routing-page.test.js",
           "tests/unit/business-routing.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(entry)/onboarding/profile/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(entry)/onboarding/profile/page.jsx",
+      "hash": "482b4468",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-066"
+        ],
+        "@spec": [
+          "BR-016",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/workspace-onboarding-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(entry)/waiting-room/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(entry)/waiting-room/page.jsx",
+      "hash": "08c2373a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-066",
+          "FR-067"
+        ],
+        "@spec": [
+          "BR-016",
+          "SEC-014",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/workspace-onboarding-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(entry)/workspace-home/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(entry)/workspace-home/page.jsx",
+      "hash": "f47b0957",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-066"
+        ],
+        "@spec": [
+          "BR-016",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/workspace-onboarding-routes.test.js"
         ]
       }
     },
@@ -1470,7 +1556,7 @@
       "type": "code_file",
       "path": "src/app/api/docs/route.js",
       "hash": "d22e3662",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
@@ -1751,7 +1837,7 @@
       "type": "code_file",
       "path": "src/app/api/import/commit/route.js",
       "hash": "0528ef71",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-012",
@@ -1772,7 +1858,7 @@
       "type": "code_file",
       "path": "src/app/api/import/dry-run/route.js",
       "hash": "d5f6eaf2",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-012",
@@ -1907,6 +1993,66 @@
         "@tested": [
           "tests/integration/fr072-milestone-gate-authorization.test.js",
           "tests/unit/authorization-seam-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/onboarding/profile/route.js",
+      "type": "code_file",
+      "path": "src/app/api/onboarding/profile/route.js",
+      "hash": "d978e9bb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-066"
+        ],
+        "@spec": [
+          "BR-016",
+          "SEC-014",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/workspace-onboarding-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/onboarding/state/route.js",
+      "type": "code_file",
+      "path": "src/app/api/onboarding/state/route.js",
+      "hash": "f09d47e7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-066"
+        ],
+        "@spec": [
+          "BR-016",
+          "SEC-014",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/workspace-onboarding-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/onboarding/workspaces/route.js",
+      "type": "code_file",
+      "path": "src/app/api/onboarding/workspaces/route.js",
+      "hash": "61c7e4b3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-066"
+        ],
+        "@spec": [
+          "BR-016",
+          "SEC-014",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/workspace-onboarding-routes.test.js"
         ]
       }
     },
@@ -2675,7 +2821,7 @@
       "type": "code_file",
       "path": "src/app/api/resolve/route.js",
       "hash": "7609b920",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
@@ -2838,6 +2984,86 @@
         "@tested": [
           "tests/integration/fr072-work-service-authorization.test.js",
           "tests/unit/authorization-seam-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/workspace-invites/[id]/route.js",
+      "type": "code_file",
+      "path": "src/app/api/workspace-invites/[id]/route.js",
+      "hash": "1d49ba08",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-067"
+        ],
+        "@spec": [
+          "BR-016",
+          "SEC-014",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/workspace-onboarding-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/workspace-invites/accept/route.js",
+      "type": "code_file",
+      "path": "src/app/api/workspace-invites/accept/route.js",
+      "hash": "2ac851d0",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-067"
+        ],
+        "@spec": [
+          "BR-016",
+          "SEC-014",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/workspace-onboarding-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/workspace-invites/route.js",
+      "type": "code_file",
+      "path": "src/app/api/workspace-invites/route.js",
+      "hash": "8308849e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-067"
+        ],
+        "@spec": [
+          "BR-016",
+          "SEC-014",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/workspace-onboarding-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/workspace-memberships/route.js",
+      "type": "code_file",
+      "path": "src/app/api/workspace-memberships/route.js",
+      "hash": "cc117667",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-067"
+        ],
+        "@spec": [
+          "BR-016",
+          "SEC-014",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/workspace-onboarding-routes.test.js"
         ]
       }
     },
@@ -3504,7 +3730,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "7f08f6e8",
+      "hash": "9e45f234",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4391,6 +4617,45 @@
       }
     },
     {
+      "id": "code:src/modules/identity/onboarding-service.js",
+      "type": "code_file",
+      "path": "src/modules/identity/onboarding-service.js",
+      "hash": "4acdab57",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-066"
+        ],
+        "@spec": [
+          "BR-016",
+          "SEC-014",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/onboarding-service.test.js",
+          "tests/integration/workspace-onboarding-flow.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/onboarding-steps.js",
+      "type": "code_file",
+      "path": "src/modules/identity/onboarding-steps.js",
+      "hash": "ac3150a6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-066"
+        ],
+        "@spec": [
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/onboarding-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/product-owner-authority.js",
       "type": "code_file",
       "path": "src/modules/identity/product-owner-authority.js",
@@ -4523,7 +4788,7 @@
       "id": "code:src/modules/identity/resolve-viewer.js",
       "type": "code_file",
       "path": "src/modules/identity/resolve-viewer.js",
-      "hash": "e592c263",
+      "hash": "7ae264ce",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4533,7 +4798,8 @@
           "FR-076",
           "SDD-034",
           "FR-074",
-          "FR-075"
+          "FR-075",
+          "FR-067"
         ],
         "@spec": [
           "FR-031",
@@ -4544,7 +4810,8 @@
         "@tested": [
           "tests/unit/viewer-gate.test.js",
           "tests/unit/fr061-per-business-domain-visibility.test.js",
-          "tests/unit/fr076-product-owner-business-assignment.test.js"
+          "tests/unit/fr076-product-owner-business-assignment.test.js",
+          "tests/integration/workspace-onboarding-flow.test.js"
         ]
       }
     },
@@ -4595,7 +4862,7 @@
       "type": "code_file",
       "path": "src/modules/identity/viewer-authority.js",
       "hash": "0d425973",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-059",
@@ -4630,6 +4897,27 @@
         ],
         "@tested": [
           "tests/unit/fr061-per-business-domain-visibility.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/workspace-membership-service.js",
+      "type": "code_file",
+      "path": "src/modules/identity/workspace-membership-service.js",
+      "hash": "5a09a061",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-067"
+        ],
+        "@spec": [
+          "BR-016",
+          "SEC-014",
+          "SDD-038"
+        ],
+        "@tested": [
+          "tests/unit/workspace-invite-service.test.js",
+          "tests/integration/workspace-onboarding-flow.test.js"
         ]
       }
     },
@@ -5113,8 +5401,8 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "9a9737f9",
-      "status": "current",
+      "hash": "2c8df1e9",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019"
@@ -5171,8 +5459,8 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "53841926",
-      "status": "current",
+      "hash": "e291fd7e",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-013",
@@ -5183,6 +5471,7 @@
           "FR-092",
           "FR-090",
           "FR-095",
+          "FR-067",
           "FR-089",
           "FR-100",
           "FR-102",
@@ -5627,7 +5916,7 @@
       "id": "code:src/modules/project-manager/application/scope-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/scope-service.js",
-      "hash": "45e7113c",
+      "hash": "7942a090",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5982,7 +6271,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/import/import-authorization.js",
       "hash": "ddbe7fb6",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-065",
@@ -6006,7 +6295,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
       "hash": "60efd1e4",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-012",
@@ -6638,10 +6927,10 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.23.0b",
+      "version": "1.24.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "537a3c51",
-      "status": "current"
+      "hash": "0c6f9474",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -6686,8 +6975,8 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.11.0",
       "doc_status": "Draft",
-      "hash": "2bf1ae59",
-      "status": "current"
+      "hash": "5260478c",
+      "status": "changed"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -6744,6 +7033,14 @@
       "status": "current"
     },
     {
+      "id": "doc:EXECUTION-PLAN-BUNDLE",
+      "type": "document",
+      "path": "docs/domains/project-manager/EXECUTION-PLAN-BUNDLE.md",
+      "title": "ExecutionPlanBundle — self-contained multi-project planning package",
+      "hash": "1b3b7980",
+      "status": "current"
+    },
+    {
       "id": "doc:EXTRACT-MSP.codex",
       "type": "document",
       "path": "docs/prompts/EXTRACT-MSP.codex.md",
@@ -6789,7 +7086,7 @@
       "version": "1.1.0",
       "doc_status": "Implemented (FR-019)",
       "hash": "f54d902f",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-020-adaptive-shell",
@@ -7103,9 +7400,9 @@
       "type": "document",
       "path": "docs/domains/identity/features/FR-066-profile-first-workspace-onboarding.md",
       "title": "FR-066 — Profile-first Workspace onboarding",
-      "version": "0.1.0b",
-      "doc_status": "Design approved — implementation pending",
-      "hash": "704b2b85",
+      "version": "1.0.0",
+      "doc_status": "✅ Implemented (2026-08-26) — `onboarding-service.js`, `/api/onboarding/*`, `/onboarding/profile`, `/waiting-room`, `/workspace-home` (D8's provisional `/workspaces` path is occupied by the PM Space compatibility page; its move to `/spaces` is a separate slice)",
+      "hash": "62c889b8",
       "status": "current"
     },
     {
@@ -7113,9 +7410,9 @@
       "type": "document",
       "path": "docs/domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md",
       "title": "FR-067 — Workspace invitation and scoped membership",
-      "version": "0.1.0b",
-      "doc_status": "Design approved — implementation pending",
-      "hash": "612ae8b4",
+      "version": "1.0.0",
+      "doc_status": "✅ Implemented (2026-08-26) — `workspace-membership-service.js`, `WorkspaceMembership`/`WorkspaceInvite` (portfolioId-keyed), `/api/workspace-invites/*`, `/api/workspace-memberships`; BR-016 grants-nothing proven in `tests/integration/workspace-onboarding-flow.test.js`",
+      "hash": "e148ea0b",
       "status": "current"
     },
     {
@@ -7347,7 +7644,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.2.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "e7efda4b",
+      "hash": "39d91c2a",
       "status": "current"
     },
     {
@@ -7571,10 +7868,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.90.0b",
+      "version": "1.92.0b",
       "doc_status": "Draft",
-      "hash": "a7e01136",
-      "status": "current"
+      "hash": "4eaf743f",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -7794,7 +8091,7 @@
       "modules": [
         "crm"
       ],
-      "hash": "e366b780",
+      "hash": "6f523610",
       "status": "current"
     },
     {
@@ -7812,19 +8109,24 @@
         "Session",
         "ChannelIdentity",
         "SotDataPlaneKey",
+        "WorkspaceMembership",
+        "WorkspaceInvite",
         "ApiAccessKey"
       ],
       "owns_routes": [
         "src/app/(entry)/**",
         "src/app/login/**",
-        "src/app/api/entry/**"
+        "src/app/api/entry/**",
+        "src/app/api/onboarding/**",
+        "src/app/api/workspace-invites/**",
+        "src/app/api/workspace-memberships/**"
       ],
       "owns_code": [],
       "modules": [
         "identity"
       ],
-      "hash": "490140e1",
-      "status": "current"
+      "hash": "87871bb7",
+      "status": "changed"
     },
     {
       "id": "domain:integration",
@@ -7962,7 +8264,7 @@
         "business",
         "people"
       ],
-      "hash": "8ab564dc",
+      "hash": "8cd51610",
       "status": "current"
     },
     {
@@ -8354,6 +8656,16 @@
     },
     {
       "id": "model:Workspace",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:WorkspaceInvite",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:WorkspaceMembership",
       "type": "model",
       "status": "current"
     },
@@ -9218,9 +9530,9 @@
       "family": "FR",
       "label": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant. 🔜 design approved; implementation pending "
+      "declared": "done",
+      "status": "current",
+      "row_text": "Profile-first onboarding: after a provider-neutral local identity/session exists, every new person completes a Profile before being asked to create or select operating scope. A Profile-only member may remain in Waiting Room without creating Organization/Tenant, Business, Space or Project; an owner may create a top-level Workspace and add those scopes only when needed. Profile is not an authorization grant. ✅ implemented "
     },
     {
       "id": "req:FR-067",
@@ -9228,9 +9540,9 @@
       "family": "FR",
       "label": "Workspace collaboration boundary: an authorized Workspace/Tenant owner can issue a scoped, expiring, single-use invite that creates a separate WorkspaceMembership. Workspace membership grants only Workspace collaboration visibility; Tenant, Business, Space and Project access require separate server-authorized assignment, with audit and fail-closed replay/revocation behavior.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Workspace collaboration boundary: an authorized Workspace/Tenant owner can issue a scoped, expiring, single-use invite that creates a separate WorkspaceMembership. Workspace membership grants only Workspace collaboration visibility; Tenant, Business, Space and Project access require separate server-authorized assignment, with audit and fail-closed replay/revocation behavior. 🔜 design approved; implementation pending "
+      "declared": "done",
+      "status": "current",
+      "row_text": "Workspace collaboration boundary: an authorized Workspace/Tenant owner can issue a scoped, expiring, single-use invite that creates a separate WorkspaceMembership. Workspace membership grants only Workspace collaboration visibility; Tenant, Business, Space and Project access require separate server-authorized assignment, with audit and fail-closed replay/revocation behavior. ✅ implemented "
     },
     {
       "id": "req:FR-068",
@@ -10923,6 +11235,30 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/onboarding/profile",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/onboarding/profile",
+      "path": "src/app/api/onboarding/profile/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/onboarding/state",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/onboarding/state",
+      "path": "src/app/api/onboarding/state/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/onboarding/workspaces",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/onboarding/workspaces",
+      "path": "src/app/api/onboarding/workspaces/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/people",
       "type": "route",
       "kind": "api",
@@ -11283,6 +11619,38 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/workspace-invites",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/workspace-invites",
+      "path": "src/app/api/workspace-invites/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/workspace-invites/[id]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/workspace-invites/[id]",
+      "path": "src/app/api/workspace-invites/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/workspace-invites/accept",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/workspace-invites/accept",
+      "path": "src/app/api/workspace-invites/accept/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/workspace-memberships",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/workspace-memberships",
+      "path": "src/app/api/workspace-memberships/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/workspaces/[id]",
       "type": "route",
       "kind": "api",
@@ -11408,6 +11776,14 @@
       "kind": "page",
       "route": "/milestones",
       "path": "src/app/(pm)/milestones/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/onboarding/profile",
+      "type": "route",
+      "kind": "page",
+      "route": "/onboarding/profile",
+      "path": "src/app/(entry)/onboarding/profile/page.jsx",
       "status": "current"
     },
     {
@@ -11643,11 +12019,27 @@
       "status": "current"
     },
     {
+      "id": "route:page:/waiting-room",
+      "type": "route",
+      "kind": "page",
+      "route": "/waiting-room",
+      "path": "src/app/(entry)/waiting-room/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/work",
       "type": "route",
       "kind": "page",
       "route": "/work",
       "path": "src/app/(pm)/work/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/workspace-home",
+      "type": "route",
+      "kind": "page",
+      "route": "/workspace-home",
+      "path": "src/app/(entry)/workspace-home/page.jsx",
       "status": "current"
     },
     {
@@ -12055,6 +12447,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "type": "adr",
+      "path": "docs/decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md",
+      "title": "ADR-049 — ExecutionPlanBundle is the package above PlanEnvelope",
+      "hash": "444fcc6a",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -12198,7 +12598,7 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "tests/integration/backup.test.js",
-      "hash": "e9999e30",
+      "hash": "f94ce7c6",
       "status": "current"
     },
     {
@@ -12527,8 +12927,8 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "673060f5",
-      "status": "current"
+      "hash": "7bb4559e",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -12640,6 +13040,13 @@
       "type": "test",
       "path": "tests/integration/work-listing-scope.test.js",
       "hash": "206e2f3f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "type": "test",
+      "path": "tests/integration/workspace-onboarding-flow.test.js",
+      "hash": "4c212471",
       "status": "current"
     },
     {
@@ -13574,6 +13981,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/onboarding-service.test.js",
+      "type": "test",
+      "path": "tests/unit/onboarding-service.test.js",
+      "hash": "7fa63aa5",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/overview-split.test.js",
       "type": "test",
       "path": "tests/unit/overview-split.test.js",
@@ -14134,6 +14548,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/workspace-invite-service.test.js",
+      "type": "test",
+      "path": "tests/unit/workspace-invite-service.test.js",
+      "hash": "11a8f298",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "type": "test",
+      "path": "tests/unit/workspace-onboarding-routes.test.js",
+      "hash": "1e6a0ded",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/zuri-cli-canary-receipt.test.js",
       "type": "test",
       "path": "tests/unit/zuri-cli-canary-receipt.test.js",
@@ -14249,6 +14677,13 @@
     },
     {
       "from": "code:src/app/(entry)/businesses/page.jsx",
+      "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/businesses/page.jsx",
       "to": "req:SDD-022",
       "type": "follows",
       "status": "current",
@@ -14263,7 +14698,91 @@
     },
     {
       "from": "code:src/app/(entry)/businesses/page.jsx",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/businesses/page.jsx",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/onboarding/profile/page.jsx",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/onboarding/profile/page.jsx",
+      "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/onboarding/profile/page.jsx",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/waiting-room/page.jsx",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/waiting-room/page.jsx",
+      "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/waiting-room/page.jsx",
+      "to": "req:FR-067",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/waiting-room/page.jsx",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/waiting-room/page.jsx",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/workspace-home/page.jsx",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/workspace-home/page.jsx",
+      "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/workspace-home/page.jsx",
+      "to": "req:SDD-038",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -16866,6 +17385,90 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/onboarding/profile/route.js",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/profile/route.js",
+      "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/profile/route.js",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/profile/route.js",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/state/route.js",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/state/route.js",
+      "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/state/route.js",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/state/route.js",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/workspaces/route.js",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/workspaces/route.js",
+      "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/workspaces/route.js",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/workspaces/route.js",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/people/route.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -18261,6 +18864,118 @@
     {
       "from": "code:src/app/api/work/route.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-invites/[id]/route.js",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-invites/[id]/route.js",
+      "to": "req:FR-067",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-invites/[id]/route.js",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-invites/[id]/route.js",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-invites/accept/route.js",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-invites/accept/route.js",
+      "to": "req:FR-067",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-invites/accept/route.js",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-invites/accept/route.js",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-invites/route.js",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-invites/route.js",
+      "to": "req:FR-067",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-invites/route.js",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-invites/route.js",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-memberships/route.js",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-memberships/route.js",
+      "to": "req:FR-067",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-memberships/route.js",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/workspace-memberships/route.js",
+      "to": "req:SEC-014",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -20443,6 +21158,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/onboarding-service.js",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/onboarding-service.js",
+      "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/onboarding-service.js",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/onboarding-service.js",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/onboarding-steps.js",
+      "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/onboarding-steps.js",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/product-owner-authority.js",
       "to": "req:FR-076",
       "type": "implements",
@@ -20640,6 +21397,13 @@
     },
     {
       "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:FR-067",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
       "to": "req:FR-074",
       "type": "implements",
       "status": "current",
@@ -20816,6 +21580,34 @@
     {
       "from": "code:src/modules/identity/viewer-domains.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/workspace-membership-service.js",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/workspace-membership-service.js",
+      "to": "req:FR-067",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/workspace-membership-service.js",
+      "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/workspace-membership-service.js",
+      "to": "req:SEC-014",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -21411,6 +22203,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-045",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-067",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -24335,6 +25134,20 @@
       "source": "charter"
     },
     {
+      "from": "model:WorkspaceInvite",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:WorkspaceMembership",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Workstream",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -26225,6 +27038,27 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/onboarding/profile",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/onboarding/state",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/onboarding/workspaces",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/people",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -26540,6 +27374,34 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/workspace-invites/[id]",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/workspace-invites/accept",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/workspace-invites",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/workspace-memberships",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/workspaces/[id]",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -26640,6 +27502,13 @@
     {
       "from": "route:page:/milestones",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/onboarding/profile",
+      "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -26848,8 +27717,22 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/waiting-room",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/work",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/workspace-home",
+      "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -28234,6 +29117,90 @@
       "source": "control-block"
     },
     {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:BR-007",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:BR-009",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:FR-069",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:FR-070",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:SDD-009",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:SDD-037",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:SEC-001",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "req:SEC-002",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "spec:ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "spec:ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION",
+      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/e2e/fr040-project-work.spec.js",
       "to": "req:FR-006",
       "type": "verifies",
@@ -28711,6 +29678,13 @@
     },
     {
       "from": "test:tests/e2e/fr046-entry-contract.spec.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr046-entry-contract.spec.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -28729,6 +29703,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr046-entry-contract.spec.js",
+      "to": "req:SDD-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/e2e/fr046-entry-contract.spec.js",
@@ -30199,6 +31180,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/backup.test.js",
@@ -31735,6 +32723,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-075",
       "type": "verifies",
       "status": "current",
@@ -33051,6 +34046,13 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-071",
       "type": "verifies",
       "status": "current",
@@ -34303,6 +35305,118 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "code:src/modules/identity/onboarding-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "code:src/modules/identity/resolve-viewer.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "code:src/modules/identity/workspace-membership-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:BR-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-031",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:SDD-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:SDD-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "code:src/lib/validation/enums.js",
       "type": "tests",
@@ -35333,6 +36447,13 @@
     },
     {
       "from": "test:tests/unit/business-routing-page.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-routing-page.test.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
@@ -35341,6 +36462,13 @@
     {
       "from": "test:tests/unit/business-routing-page.test.js",
       "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-routing-page.test.js",
+      "to": "req:SDD-038",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -35382,6 +36510,13 @@
     },
     {
       "from": "test:tests/unit/business-routing.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-routing.test.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
@@ -35390,6 +36525,13 @@
     {
       "from": "test:tests/unit/business-routing.test.js",
       "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/business-routing.test.js",
+      "to": "req:SDD-038",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -36929,6 +38071,13 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-075",
       "type": "verifies",
       "status": "current",
@@ -37552,6 +38701,13 @@
     },
     {
       "from": "test:tests/unit/fr046-api-ui-contract.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-api-ui-contract.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -37591,6 +38747,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr046-api-ui-contract.test.js",
+      "to": "req:SDD-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr046-api-ui-contract.test.js",
@@ -38357,6 +39520,13 @@
     },
     {
       "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
       "to": "req:FR-074",
       "type": "verifies",
       "status": "current",
@@ -38533,6 +39703,13 @@
     {
       "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
       "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-067",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -39926,6 +41103,48 @@
     {
       "from": "test:tests/unit/observability-logger.test.js",
       "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/onboarding-service.test.js",
+      "to": "code:src/modules/identity/onboarding-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/onboarding-service.test.js",
+      "to": "code:src/modules/identity/onboarding-steps.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/onboarding-service.test.js",
+      "to": "req:BR-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/onboarding-service.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/onboarding-service.test.js",
+      "to": "req:SDD-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/onboarding-service.test.js",
+      "to": "req:SEC-014",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -43376,6 +44595,13 @@
     },
     {
       "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
       "to": "req:FR-074",
       "type": "verifies",
       "status": "current",
@@ -43440,6 +44666,146 @@
     {
       "from": "test:tests/unit/wbs-structure.test.js",
       "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-invite-service.test.js",
+      "to": "code:src/modules/identity/workspace-membership-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-invite-service.test.js",
+      "to": "req:BR-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-invite-service.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-invite-service.test.js",
+      "to": "req:SDD-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-invite-service.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "code:src/app/(entry)/onboarding/profile/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "code:src/app/(entry)/waiting-room/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "code:src/app/(entry)/workspace-home/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "code:src/app/api/onboarding/profile/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "code:src/app/api/onboarding/state/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "code:src/app/api/onboarding/workspaces/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "code:src/app/api/workspace-invites/[id]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "code:src/app/api/workspace-invites/accept/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "code:src/app/api/workspace-invites/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "code:src/app/api/workspace-memberships/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "req:BR-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "req:SDD-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "req:SEC-014",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

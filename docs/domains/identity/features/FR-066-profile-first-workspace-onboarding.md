@@ -9,8 +9,8 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 0.1.0b |
-| **Status** | Design approved — implementation pending |
+| **Version** | 1.0.0 |
+| **Status** | ✅ Implemented (2026-08-26) — `onboarding-service.js`, `/api/onboarding/*`, `/onboarding/profile`, `/waiting-room`, `/workspace-home` (D8's provisional `/workspaces` path is occupied by the PM Space compatibility page; its move to `/spaces` is a separate slice) |
 | **Date** | 2026-08-17 |
 | **Relates to** | [ADR-027](../../../decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md), FR-038, FR-044, FR-046, SDD-038 |
 
@@ -80,5 +80,6 @@ use (ADR-027 §D8):
 - choosing a real authentication provider;
 - creating a Personal Space automatically for every Profile;
 - changing Project ownership or the seven execution modes;
-- implementing the route or database changes in this documentation slice.
+- ~~implementing the route or database changes in this documentation slice~~
+  (that later slice is now this one — implemented 2026-08-26).
 

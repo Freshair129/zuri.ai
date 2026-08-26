@@ -1,0 +1,291 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.ai/contracts/execution-plan-bundle.schema.json",
+  "title": "ExecutionPlanBundle",
+  "description": "Self-contained programme-level planning package. The bundle is transport/orchestration data only; each projects[].plan remains a canonical PlanEnvelope.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "schemaVersion", "manifest", "scope", "projects"],
+  "properties": {
+    "kind": {
+      "const": "EXECUTION_PLAN_BUNDLE"
+    },
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "manifest": {
+      "$ref": "#/$defs/manifest"
+    },
+    "scope": {
+      "$ref": "#/$defs/scope"
+    },
+    "strategy": {
+      "$ref": "#/$defs/strategy"
+    },
+    "projects": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "$ref": "#/$defs/projectEntry"
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "$ref": "#/$defs/crossProjectDependency"
+      },
+      "default": []
+    },
+    "trace": {
+      "$ref": "#/$defs/trace"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Non-authoritative package metadata. Importers must not execute or authorize from arbitrary metadata.",
+      "maxProperties": 50,
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "code": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "title"],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/code"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "type": "string",
+          "maxLength": 300
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["businessCode"],
+      "properties": {
+        "businessCode": {
+          "$ref": "#/$defs/code",
+          "description": "Selector inside the trusted viewer's authorization ceiling; never proof of authority."
+        },
+        "defaultWorkspaceCode": {
+          "$ref": "#/$defs/code",
+          "description": "Optional default workspace selector for nested plans."
+        }
+      }
+    },
+    "strategy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "roadmap": {
+          "$ref": "#/$defs/roadmap"
+        },
+        "horizons": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/horizon"
+          },
+          "default": []
+        },
+        "goals": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "$ref": "#/$defs/goal"
+          },
+          "default": []
+        }
+      }
+    },
+    "roadmap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "title"],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/code"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 5000
+        }
+      }
+    },
+    "horizon": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "key", "label", "position"],
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/ref",
+          "description": "Bundle-local symbol used by goals."
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "position": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        }
+      }
+    },
+    "goal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "code", "title"],
+      "properties": {
+        "ref": {
+          "$ref": "#/$defs/ref",
+          "description": "Bundle-local symbol used from projectEntry.goalRefs."
+        },
+        "code": {
+          "$ref": "#/$defs/code"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 5000
+        },
+        "horizonRef": {
+          "$ref": "#/$defs/ref"
+        },
+        "metadata": {
+          "type": "object",
+          "maxProperties": 50,
+          "additionalProperties": true
+        }
+      }
+    },
+    "projectEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bundleProjectRef", "plan"],
+      "properties": {
+        "bundleProjectRef": {
+          "$ref": "#/$defs/ref",
+          "description": "Bundle-local project symbol used by cross-project dependencies."
+        },
+        "workspaceCode": {
+          "$ref": "#/$defs/code",
+          "description": "Optional per-project workspace selector inside the authorized scope; defaults to scope.defaultWorkspaceCode or the nested PlanEnvelope scope."
+        },
+        "goalRefs": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/ref"
+          },
+          "default": []
+        },
+        "plan": {
+          "$ref": "./plan-envelope.schema.json"
+        }
+      }
+    },
+    "crossProjectDependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceProjectRef", "targetProjectRef", "relation"],
+      "properties": {
+        "sourceProjectRef": {
+          "$ref": "#/$defs/ref"
+        },
+        "targetProjectRef": {
+          "$ref": "#/$defs/ref"
+        },
+        "relation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Dependency relation vocabulary is validated semantically by the Project Manager against the canonical dependency contract."
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2000
+        },
+        "metadata": {
+          "type": "object",
+          "maxProperties": 50,
+          "additionalProperties": true
+        }
+      }
+    },
+    "trace": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "correlationId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "sourceType": {
+          "type": "string",
+          "enum": ["HUMAN", "AGENT", "API", "MCP", "IMPORT", "OTHER"]
+        },
+        "sourceRef": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "replayOfBundleRunId": {
+          "type": "string",
+          "maxLength": 256
+        }
+      }
+    }
+  }
+}

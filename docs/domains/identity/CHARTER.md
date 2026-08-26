@@ -5,6 +5,9 @@ owns_routes:
   - src/app/(entry)/**
   - src/app/login/**
   - src/app/api/entry/**
+  - src/app/api/onboarding/**
+  - src/app/api/workspace-invites/**
+  - src/app/api/workspace-memberships/**
 owns_models:
   - ExternalIdentity
   - IdentityLinkToken
@@ -15,6 +18,8 @@ owns_models:
   - Session
   - ChannelIdentity
   - SotDataPlaneKey
+  - WorkspaceMembership
+  - WorkspaceInvite
   - ApiAccessKey
 ---
 
@@ -66,17 +71,23 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
   platform `DEV`, Workspace/Portfolio ancestry and visibility do not infer it
   (FR-076 / ADR-033).
 
-## Approved next boundary (ADR-027)
+## Profile-first onboarding and the Workspace collaboration boundary (ADR-027, implemented)
 
-Profile completion is an identity step over `Person`, not an authorization grant.
-The Profile-first entry may resolve a Profile-only person into a Waiting Room
-without creating a Tenant, Business or Project. Workspace invitation and
-WorkspaceMembership are a separate collaboration contract from the existing
-Tenant/Business `Membership`; they must not widen `visibleBusinessIds`,
-`ownedBusinessIds`, or per-Business domain grants. This boundary is documented in
-FR-066/067 and remains implementation-pending.
+Profile completion is an identity step over `Person`
+(`Person.profileCompletedAt`, written by `onboarding-service`), not an
+authorization grant. The Profile-first entry resolves a Profile-only person into
+the Waiting Room without creating a Tenant, Business or Project. Workspace
+invitation (`WorkspaceInvite`, hash-bound single-use tokens per SEC-014) and
+`WorkspaceMembership` (keyed by `portfolioId`, ADR-027 §D2) are a separate
+collaboration contract from the existing Tenant/Business `Membership`; they
+widen nothing — `resolveViewer` never reads `WorkspaceMembership` (BR-016), so
+holding one grants no `visibleBusinessIds`, `ownedBusinessIds`, or per-Business
+domain. Implemented by FR-066/067 (`onboarding-service.js`,
+`workspace-membership-service.js`).
 
 ## Known shared-write exceptions (debt, visible on purpose)
 
-- Writes `Person` (owned by crm) during linking and erasure — recorded in both
-  charters; target state is a crm contract call.
+- Writes `Person` (owned by crm) during linking, erasure and FR-066 profile
+  completion (`displayName`/`email`/`profileCompletedAt` in
+  `onboarding-service.js`) — recorded in both charters; target state is a crm
+  contract call.

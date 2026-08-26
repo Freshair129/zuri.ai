@@ -9,8 +9,8 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 0.1.0b |
-| **Status** | Design approved — implementation pending |
+| **Version** | 1.0.0 |
+| **Status** | ✅ Implemented (2026-08-26) — `workspace-membership-service.js`, `WorkspaceMembership`/`WorkspaceInvite` (portfolioId-keyed), `/api/workspace-invites/*`, `/api/workspace-memberships`; BR-016 grants-nothing proven in `tests/integration/workspace-onboarding-flow.test.js` |
 | **Date** | 2026-08-17 |
 | **Relates to** | [ADR-027](../../../decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md), FR-031, FR-036, FR-038, FR-046, FR-065, SDD-015, SDD-037, SDD-038, BR-016, SEC-003, SEC-014 |
 
