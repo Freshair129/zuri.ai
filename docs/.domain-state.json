@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-26T16:30:11.461Z",
+  "generatedAt": "2026-08-26T16:57:55.193Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 8,
-    "gapCount": 14,
+    "gapCount": 10,
     "gaps": [
       {
         "domain": "agent",
@@ -55,36 +55,6 @@
           "tests/unit/postgres-business-knowledge.test.js",
           "tests/unit/supabase-production-isolation.test.js"
         ]
-      },
-      {
-        "domain": "identity",
-        "id": "CONTRACT-001",
-        "severity": "medium",
-        "check": "runtimeContract",
-        "summary": "At least one requirement in this domain is not fully code-and-test verified"
-      },
-      {
-        "domain": "identity",
-        "id": "TEST-001",
-        "severity": "medium",
-        "check": "tests",
-        "summary": "At least one requirement lacks complete code-and-test evidence"
-      },
-      {
-        "domain": "identity",
-        "id": "REQ-FR-066",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-066 is planned",
-        "evidence": []
-      },
-      {
-        "domain": "identity",
-        "id": "REQ-FR-067",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-067 is planned",
-        "evidence": []
       },
       {
         "domain": "knowledge",
@@ -333,7 +303,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 91,
+            "openApiPaths": 98,
             "missingFromOpenApi": 0
           }
         },
@@ -579,7 +549,7 @@
       }
     },
     "identity": {
-      "status": "partial",
+      "status": "verified",
       "requirements": [
         {
           "id": "FR-021",
@@ -600,7 +570,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-036",
@@ -614,7 +584,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-044",
@@ -642,7 +612,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-062",
@@ -653,38 +623,38 @@
         },
         {
           "id": "FR-066",
-          "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 0
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 9,
+          "testCount": 7
         },
         {
           "id": "FR-067",
-          "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 0
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 9
         },
         {
           "id": "FR-074",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-076",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-078",
@@ -751,8 +721,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 2,
-            "inventoried": 2,
+            "routes": 5,
+            "inventoried": 5,
             "missing": 0
           }
         },
@@ -764,9 +734,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
-            "openApiPaths": 91,
+            "routes": 8,
+            "inventoried": 8,
+            "openApiPaths": 98,
             "missingFromOpenApi": 0
           }
         },
@@ -781,18 +751,12 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": [
-            {
-              "id": "CONTRACT-001",
-              "severity": "medium",
-              "summary": "At least one requirement in this domain is not fully code-and-test verified"
-            }
-          ]
+          "gaps": []
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -806,35 +770,29 @@
           ],
           "gaps": [],
           "details": {
-            "models": 9,
-            "present": 9
+            "models": 11,
+            "present": 11
           }
         },
         "authorization": {
-          "status": "unknown",
+          "status": "verified",
           "evidence": [
             "docs/appendices/A-api-spec.md"
           ],
           "gaps": [],
           "details": {
-            "mutations": 0,
-            "guardedMutations": 0,
-            "reads": 1,
+            "mutations": 6,
+            "guardedMutations": 6,
+            "reads": 2,
             "unguardedReads": 0
           }
         },
         "tests": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": [
-            {
-              "id": "TEST-001",
-              "severity": "medium",
-              "summary": "At least one requirement lacks complete code-and-test evidence"
-            }
-          ]
+          "gaps": []
         }
       },
       "evidence": [
@@ -862,39 +820,12 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [
-        {
-          "id": "CONTRACT-001",
-          "severity": "medium",
-          "check": "runtimeContract",
-          "summary": "At least one requirement in this domain is not fully code-and-test verified"
-        },
-        {
-          "id": "TEST-001",
-          "severity": "medium",
-          "check": "tests",
-          "summary": "At least one requirement lacks complete code-and-test evidence"
-        },
-        {
-          "id": "REQ-FR-066",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-066 is planned",
-          "evidence": []
-        },
-        {
-          "id": "REQ-FR-067",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-067 is planned",
-          "evidence": []
-        }
-      ],
+      "gaps": [],
       "details": {
-        "routes": 3,
-        "apiRoutes": 1,
-        "pageRoutes": 2,
-        "ownedModels": 9,
+        "routes": 13,
+        "apiRoutes": 8,
+        "pageRoutes": 5,
+        "ownedModels": 11,
         "featureNotes": 12
       }
     },
@@ -1002,7 +933,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 91,
+            "openApiPaths": 98,
             "missingFromOpenApi": 0
           }
         },
@@ -1588,7 +1519,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-032",
@@ -1637,7 +1568,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-039",
@@ -1728,7 +1659,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-062",
@@ -1756,6 +1687,13 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
+          "testCount": 9
+        },
+        {
+          "id": "FR-067",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
           "testCount": 9
         },
         {
@@ -1805,14 +1743,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-077",
@@ -1957,7 +1895,7 @@
           "details": {
             "routes": 81,
             "inventoried": 81,
-            "openApiPaths": 91,
+            "openApiPaths": 98,
             "missingFromOpenApi": 0
           }
         },

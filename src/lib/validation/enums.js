@@ -122,6 +122,23 @@ export const CUSTOMER_LIFECYCLE = ['LEAD', 'ACTIVE', 'DORMANT', 'LOST']
 // conversation — see the migration comment for the backfill this pairs with.
 export const CUSTOMER_CONSENT_STATUSES = ['PENDING', 'GRANTED', 'DECLINED', 'GRANDFATHERED']
 
+// FR-066/FR-067 — Workspace collaboration boundary (ADR-027 D5). "Workspace"
+// here is the top-level container, schema Portfolio — never schema Workspace,
+// which is a Space (see WORKSPACE_SCOPE_TYPES above, a different axis).
+// Statuses are frozen from what the code actually writes: ADR-027 D5 also names
+// a PENDING membership, but nothing writes one — the waiting state is a PENDING
+// *invite*, not a pending membership row — so it is deliberately absent here
+// (the CONTAINER_STATUSES discipline: add it when something sets it).
+export const WORKSPACE_MEMBERSHIP_ROLES = ['OWNER', 'ADMIN', 'MEMBER']
+export const WORKSPACE_MEMBERSHIP_STATUSES = ['ACTIVE', 'REMOVED']
+// An invite can never mint OWNER: ownership is taken by creating the Workspace
+// or by a later owner-authorized change, not by a token (AC-067.6). Derived
+// from the parent so it cannot drift from it.
+export const WORKSPACE_INVITE_ROLES = WORKSPACE_MEMBERSHIP_ROLES.filter((r) => r !== 'OWNER')
+// EXPIRED is not persisted: expiry is a fail-closed comparison against
+// `expiresAt` at acceptance time, never a status column somebody must update.
+export const WORKSPACE_INVITE_STATUSES = ['PENDING', 'ACCEPTED', 'REVOKED']
+
 // FR-022 — the P3 gate's staff/customer split. In V2's unified identity a Person
 // is STAFF when it holds a Membership in the tenant (RBAC side) and CUSTOMER when
 // it holds a Customer record (CRM side); a Person that is both resolves to STAFF
@@ -146,6 +163,10 @@ export const zChannel = z.enum(CHANNELS)
 export const zMessageDirection = z.enum(MESSAGE_DIRECTIONS)
 export const zCustomerLifecycle = z.enum(CUSTOMER_LIFECYCLE)
 export const zCustomerConsentStatus = z.enum(CUSTOMER_CONSENT_STATUSES)
+export const zWorkspaceMembershipRole = z.enum(WORKSPACE_MEMBERSHIP_ROLES)
+export const zWorkspaceMembershipStatus = z.enum(WORKSPACE_MEMBERSHIP_STATUSES)
+export const zWorkspaceInviteRole = z.enum(WORKSPACE_INVITE_ROLES)
+export const zWorkspaceInviteStatus = z.enum(WORKSPACE_INVITE_STATUSES)
 export const zPrincipalType = z.enum(PRINCIPAL_TYPES)
 export const zIdentityProvider = z.enum(IDENTITY_PROVIDERS)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)

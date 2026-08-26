@@ -84,10 +84,46 @@ CREATE TABLE "Person" (
     "code" TEXT NOT NULL,
     "displayName" TEXT NOT NULL,
     "email" TEXT,
+    "profileCompletedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Person_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "WorkspaceMembership" (
+    "id" TEXT NOT NULL,
+    "portfolioId" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "role" TEXT NOT NULL DEFAULT 'MEMBER',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "invitedByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "WorkspaceMembership_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "WorkspaceInvite" (
+    "id" TEXT NOT NULL,
+    "portfolioId" TEXT NOT NULL,
+    "invitedByPersonId" TEXT NOT NULL,
+    "targetPersonId" TEXT,
+    "invitedEmail" TEXT,
+    "role" TEXT NOT NULL DEFAULT 'MEMBER',
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "tokenHash" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "acceptedByPersonId" TEXT,
+    "acceptedAt" TIMESTAMP(3),
+    "revokedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "WorkspaceInvite_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -623,6 +659,10 @@ CREATE TABLE "Customer" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
     "version" INTEGER NOT NULL DEFAULT 1,
+    "consentStatus" TEXT NOT NULL DEFAULT 'PENDING',
+    "consentRecordedAt" TIMESTAMP(3),
+    "consentRecordedByPersonId" TEXT,
+    "consentNote" TEXT,
 
     CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
 );
@@ -1194,6 +1234,27 @@ CREATE INDEX "Branch_businessId_idx" ON "Branch"("businessId");
 CREATE UNIQUE INDEX "Person_code_key" ON "Person"("code");
 
 -- CreateIndex
+CREATE INDEX "WorkspaceMembership_personId_status_idx" ON "WorkspaceMembership"("personId", "status");
+
+-- CreateIndex
+CREATE INDEX "WorkspaceMembership_portfolioId_status_idx" ON "WorkspaceMembership"("portfolioId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WorkspaceMembership_portfolioId_personId_key" ON "WorkspaceMembership"("portfolioId", "personId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WorkspaceInvite_tokenHash_key" ON "WorkspaceInvite"("tokenHash");
+
+-- CreateIndex
+CREATE INDEX "WorkspaceInvite_portfolioId_status_idx" ON "WorkspaceInvite"("portfolioId", "status");
+
+-- CreateIndex
+CREATE INDEX "WorkspaceInvite_targetPersonId_status_idx" ON "WorkspaceInvite"("targetPersonId", "status");
+
+-- CreateIndex
+CREATE INDEX "WorkspaceInvite_invitedEmail_status_idx" ON "WorkspaceInvite"("invitedEmail", "status");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "PersonCredential_personId_key" ON "PersonCredential"("personId");
 
 -- CreateIndex
@@ -1491,6 +1552,9 @@ CREATE UNIQUE INDEX "Customer_code_key" ON "Customer"("code");
 CREATE INDEX "Customer_businessId_idx" ON "Customer"("businessId");
 
 -- CreateIndex
+CREATE INDEX "Customer_consentStatus_idx" ON "Customer"("consentStatus");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Customer_tenantId_personId_key" ON "Customer"("tenantId", "personId");
 
 -- CreateIndex
@@ -1749,6 +1813,18 @@ ALTER TABLE "Business" ADD CONSTRAINT "Business_legalEntityId_fkey" FOREIGN KEY 
 ALTER TABLE "Branch" ADD CONSTRAINT "Branch_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "WorkspaceMembership" ADD CONSTRAINT "WorkspaceMembership_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkspaceMembership" ADD CONSTRAINT "WorkspaceMembership_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkspaceInvite" ADD CONSTRAINT "WorkspaceInvite_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkspaceInvite" ADD CONSTRAINT "WorkspaceInvite_invitedByPersonId_fkey" FOREIGN KEY ("invitedByPersonId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "PersonCredential" ADD CONSTRAINT "PersonCredential_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -1924,6 +2000,9 @@ ALTER TABLE "Customer" ADD CONSTRAINT "Customer_businessId_fkey" FOREIGN KEY ("b
 
 -- AddForeignKey
 ALTER TABLE "Customer" ADD CONSTRAINT "Customer_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Customer" ADD CONSTRAINT "Customer_consentRecordedByPersonId_fkey" FOREIGN KEY ("consentRecordedByPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "CustomerImportBatch" ADD CONSTRAINT "CustomerImportBatch_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

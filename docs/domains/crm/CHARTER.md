@@ -64,7 +64,8 @@ turn flows through before any agent work happens.
 
 ## Known shared-write exceptions (debt, visible on purpose)
 
-- `Person` is also written by identity's linking/erasure flows
-  (`link-line-identity`, `erase-principal`) — PDPA erasure must redact the
+- `Person` is also written by identity's linking/erasure and FR-066 profile
+  flows (`link-line-identity`, `erase-principal`, `onboarding-service`) —
+  PDPA erasure must redact the
   global Person. Target state per the architecture spec is a contract call
   into crm; today it is a direct write, recorded here so the gap stays visible.
