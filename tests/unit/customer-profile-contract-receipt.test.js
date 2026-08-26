@@ -18,9 +18,13 @@ describe('FR-078 target-schema contract receipt', () => {
     expect(migration).toMatch(/raise exception 'customer rows already exist/i)
   })
 
-  it('is append-only and registered in migration history', () => {
+  it('is append-only and leaves migration history to the Supabase CLI', () => {
     expect(migration).toMatch(/on conflict \(code\) do nothing/i)
-    expect(migration).toMatch(/insert into supabase_migrations\.schema_migrations/i)
+    // History bookkeeping belongs to the CLI, never to the migration itself —
+    // the live ledger already records this version (verified 2026-08-26), and
+    // the repo-wide guard in smartgift-document-intake-migration.test.js now
+    // fails any migration that self-inserts.
+    expect(migration).not.toMatch(/insert into supabase_migrations\.schema_migrations/i)
     expect(migration).not.toMatch(/update zuri_core\.bootstrap_audit_event/i)
   })
 })
