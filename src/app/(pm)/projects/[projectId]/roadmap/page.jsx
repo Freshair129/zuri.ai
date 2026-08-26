@@ -6,6 +6,7 @@ import { LoadingCard, useFetch } from '@/modules/project-manager/components/useA
 import WorkViewTabs from '@/modules/project-manager/components/WorkViewTabs'
 import { MODE_LABELS } from '@/lib/validation/enums'
 import { formatProgressPercent } from '@/modules/project-manager/progress/strategies'
+import { humanizeEnumValue, reasonLabel, resolveContainerLabel, resolveItemLabel } from '@/modules/project-manager/application/project-roadmap-labels'
 
 // @req FR-068 — Human-visible Execution Roadmap includes Business Goals and
 // the same Project execution hierarchy used by the other Work views.
@@ -19,7 +20,7 @@ function dateLabel(value) {
 
 function Unavailable({ value }) {
   if (!value || value.status !== 'UNAVAILABLE') return null
-  return <span className="text-[11px] text-muted">Unavailable ({value.reasonCode})</span>
+  return <span className="text-[11px] text-muted" title={value.reasonCode}>{reasonLabel(value.reasonCode)}</span>
 }
 
 function ContractValue({ label, value }) {
@@ -60,7 +61,7 @@ function WorkItemRow({ item }) {
     <div aria-label={`${item.title} work item details`} className="rounded-lg border border-[var(--border)] bg-[var(--surface-card)] px-3 py-2">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[10px] text-muted">{item.code} · {item.subtype} · {item.typedId.key}={item.typedId.value}</p>
+          <p className="text-[10px] text-muted" title={`${item.typedId.key} = ${item.typedId.value}`}>{item.code} · {item.subtype}</p>
           <p className="truncate text-xs font-semibold">{item.title}</p>
         </div>
         <StatusPill status={item.status} />
@@ -86,13 +87,14 @@ function PlanSection({ plan, containers, items }) {
     <Card>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] text-muted">{plan.planCode} · {MODE_LABELS[plan.executionModeId] || plan.executionModeId}</p>
+          <p className="text-[10px] text-muted" title={`Plan ID: ${plan.planId}`}>{plan.planCode} · {MODE_LABELS[plan.executionModeId] || plan.executionModeId}</p>
           <h3 className="text-sm font-bold">{plan.name}</h3>
           <p className="mt-1 text-[10px] text-muted">{plan.displayVocabulary.containers.join(' → ')} → {plan.displayVocabulary.items.join(' / ')}</p>
           <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted" aria-label="Execution plan identities">
-            <span>Plan ID: {plan.planId}</span>
             <span>Execution contract: {plan.executionContractId || '—'}</span>
-            <span>Current container: {plan.currentContainerId || '—'}</span>
+            <span title={plan.currentContainerId ? `Current container ID: ${plan.currentContainerId}` : undefined}>
+              Current container: {resolveContainerLabel(containers, plan.currentContainerId) || '—'}
+            </span>
           </div>
         </div>
         <StatusPill status={plan.status} />
@@ -107,13 +109,15 @@ function PlanSection({ plan, containers, items }) {
           <div key={container.containerId} className="rounded-lg bg-[var(--surface-mid)] px-3 py-2">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <p className="text-[10px] text-muted">{container.code} · {container.subtype} · {container.typedId.key}={container.typedId.value}</p>
+                <p className="text-[10px] text-muted" title={`${container.typedId.key} = ${container.typedId.value}`}>{container.code} · {container.subtype}</p>
                 <p className="text-xs font-semibold">{container.title}</p>
               </div>
               <StatusPill status={container.status} />
             </div>
             <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted" aria-label="Execution container contract fields">
-              <span>Parent: {container.parentContainerId || '—'}</span>
+              <span title={container.parentContainerId ? `Parent container ID: ${container.parentContainerId}` : undefined}>
+                Parent: {resolveContainerLabel(containers, container.parentContainerId) || '—'}
+              </span>
               <span>Start: {dateLabel(container.startAt)}</span>
               <span>Target: {dateLabel(container.targetAt)}</span>
               <ContractValue label="Progress evidence" value={container.progressEvidence} />
@@ -173,7 +177,7 @@ export default function ProjectRoadmapPage() {
           </div>
         </Card>
         <Card>
-          <SectionTitle caption={`Deadline: ${data.summary.deadlineState}`}>Project outcome</SectionTitle>
+          <SectionTitle caption={`Deadline: ${humanizeEnumValue(data.summary.deadlineState)}`}>Project outcome</SectionTitle>
           <p className="text-sm font-semibold">{data.project.outcome || 'No project outcome recorded.'}</p>
           <p className="mt-2 text-[10px] text-muted">Target: {dateLabel(data.project.targetAt)}</p>
           <div className="mt-2"><Unavailable value={data.project.accountableOwner} /></div>
@@ -201,9 +205,13 @@ export default function ProjectRoadmapPage() {
           <SectionTitle caption={`${data.dependencies.items.length} project-contained edges`}>Dependencies and blockers</SectionTitle>
           <ul aria-label="Roadmap dependency list" className="space-y-2">
             {data.dependencies.items.length === 0 ? <li className="text-xs text-muted">No project-contained dependencies.</li> : data.dependencies.items.map((edge) => (
-              <li key={edge.id} className="rounded-lg bg-[var(--surface-mid)] px-3 py-2 text-xs">
+              <li
+                key={edge.id}
+                className="rounded-lg bg-[var(--surface-mid)] px-3 py-2 text-xs"
+                title={`${edge.source.endpointType}:${edge.source.endpointId} → ${edge.target.endpointType}:${edge.target.endpointId}`}
+              >
                 <p><span className="font-semibold">{edge.source.code || edge.source.title}</span> → <span className="font-semibold">{edge.target.code || edge.target.title}</span> <span className="ml-2 text-muted">{edge.dependencyType}</span></p>
-                <p className="mt-1 text-[10px] text-muted">{edge.source.endpointType}:{edge.source.endpointId} → {edge.target.endpointType}:{edge.target.endpointId} · Blocked reason: {edge.blockedReason || '—'} · Affected item: {edge.affectedItemId || '—'}</p>
+                <p className="mt-1 text-[10px] text-muted">Blocked reason: {edge.blockedReason || '—'} · Affected item: {resolveItemLabel(data.items, edge.affectedItemId) || '—'}</p>
                 <p className="text-[10px] text-muted">Blocker owner: {edge.blockingOwner?.status === 'UNAVAILABLE' ? <Unavailable value={edge.blockingOwner} /> : edge.blockingOwner?.displayName || '—'}</p>
               </li>
             ))}
@@ -215,7 +223,9 @@ export default function ProjectRoadmapPage() {
           <p className="mt-1 text-xs">Carry-over: {data.closure.summary.carryOver ?? '—'}</p>
           <div className="mt-2"><Unavailable value={data.closure.decision} /></div>
           <div className="mt-3 space-y-1 text-xs">
-            {data.closure.gates.length === 0 ? <p className="text-muted">No gates recorded.</p> : data.closure.gates.map((gate) => <p key={gate.id}>{gate.code} · {gate.title} · {gate.status} · gate_id={gate.id} · Evidence: {gate.evidencePresent ? 'present' : 'unavailable'}</p>)}
+            {data.closure.gates.length === 0 ? <p className="text-muted">No gates recorded.</p> : data.closure.gates.map((gate) => (
+              <p key={gate.id} title={`Gate ID: ${gate.id}`}>{gate.code} · {gate.title} · {gate.status} · Evidence: {gate.evidencePresent ? 'present' : 'unavailable'}</p>
+            ))}
           </div>
         </Card>
       </div>
