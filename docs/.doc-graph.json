@@ -63,11 +63,11 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [
-      "test:tests/unit/contract-plan-artifacts.test.js",
-      "test:tests/unit/self-plan-generator.test.js"
+    "changed": [
+      "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "test:tests/unit/e2e-reconnecting-request.test.js"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -11716,8 +11716,8 @@
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
-      "hash": "8b21e536",
-      "status": "current"
+      "hash": "4bf9ded0",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -12584,8 +12584,8 @@
       "id": "test:tests/unit/e2e-reconnecting-request.test.js",
       "type": "test",
       "path": "tests/unit/e2e-reconnecting-request.test.js",
-      "hash": "3159667a",
-      "status": "current"
+      "hash": "798ce722",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/e2e-warmup.test.js",
