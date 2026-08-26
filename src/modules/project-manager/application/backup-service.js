@@ -68,7 +68,7 @@ const SNAPSHOT_MODELS = [
   // a person logs in with, which is the class of loss this list exists to stop.
   // @req FR-095 — a persisted session is a child of Person and must survive a
   // portable restore; raw token material is never exported by the model.
-  'session', 'personCredential', 'passwordResetToken',
+  'session', 'personCredential', 'passwordResetToken', 'platformGrant',
   // @req FR-089 — a Team hangs off a Business (restored at the top of this list)
   // and a TeamMembership off both that Team and the Person above, so they
   // restore in this order and delete in the reverse. `projectTeam` needs

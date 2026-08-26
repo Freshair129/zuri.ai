@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-26T16:30:11.461Z",
+  "generatedAt": "2026-08-26T17:34:30.600Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -300,7 +300,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-097",
@@ -628,7 +628,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-059",
@@ -676,8 +676,8 @@
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 11
+          "codeCount": 3,
+          "testCount": 13
         },
         {
           "id": "FR-076",
@@ -705,14 +705,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-096",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-097",
@@ -741,6 +741,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 6
+        },
+        {
+          "id": "FR-107",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 5
         }
       ],
       "checks": {
@@ -806,8 +813,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 9,
-            "present": 9
+            "models": 10,
+            "present": 10
           }
         },
         "authorization": {
@@ -894,7 +901,7 @@
         "routes": 3,
         "apiRoutes": 1,
         "pageRoutes": 2,
-        "ownedModels": 9,
+        "ownedModels": 10,
         "featureNotes": 12
       }
     },
@@ -1693,7 +1700,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 59,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-056",
@@ -1812,7 +1819,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-077",
@@ -1896,7 +1903,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-100",

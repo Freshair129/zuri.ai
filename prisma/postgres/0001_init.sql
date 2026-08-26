@@ -91,6 +91,20 @@ CREATE TABLE "Person" (
 );
 
 -- CreateTable
+CREATE TABLE "PlatformGrant" (
+    "id" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "capability" TEXT NOT NULL DEFAULT 'OPERATOR',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "grantedByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "revokedAt" TIMESTAMP(3),
+    "revokeReason" TEXT,
+
+    CONSTRAINT "PlatformGrant_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "PersonCredential" (
     "id" TEXT NOT NULL,
     "personId" TEXT NOT NULL,
@@ -623,6 +637,10 @@ CREATE TABLE "Customer" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
     "version" INTEGER NOT NULL DEFAULT 1,
+    "consentStatus" TEXT NOT NULL DEFAULT 'PENDING',
+    "consentRecordedAt" TIMESTAMP(3),
+    "consentRecordedByPersonId" TEXT,
+    "consentNote" TEXT,
 
     CONSTRAINT "Customer_pkey" PRIMARY KEY ("id")
 );
@@ -1194,6 +1212,12 @@ CREATE INDEX "Branch_businessId_idx" ON "Branch"("businessId");
 CREATE UNIQUE INDEX "Person_code_key" ON "Person"("code");
 
 -- CreateIndex
+CREATE INDEX "PlatformGrant_capability_status_idx" ON "PlatformGrant"("capability", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PlatformGrant_personId_capability_key" ON "PlatformGrant"("personId", "capability");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "PersonCredential_personId_key" ON "PersonCredential"("personId");
 
 -- CreateIndex
@@ -1491,6 +1515,9 @@ CREATE UNIQUE INDEX "Customer_code_key" ON "Customer"("code");
 CREATE INDEX "Customer_businessId_idx" ON "Customer"("businessId");
 
 -- CreateIndex
+CREATE INDEX "Customer_consentStatus_idx" ON "Customer"("consentStatus");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Customer_tenantId_personId_key" ON "Customer"("tenantId", "personId");
 
 -- CreateIndex
@@ -1749,6 +1776,12 @@ ALTER TABLE "Business" ADD CONSTRAINT "Business_legalEntityId_fkey" FOREIGN KEY 
 ALTER TABLE "Branch" ADD CONSTRAINT "Branch_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "PlatformGrant" ADD CONSTRAINT "PlatformGrant_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PlatformGrant" ADD CONSTRAINT "PlatformGrant_grantedByPersonId_fkey" FOREIGN KEY ("grantedByPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "PersonCredential" ADD CONSTRAINT "PersonCredential_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -1924,6 +1957,9 @@ ALTER TABLE "Customer" ADD CONSTRAINT "Customer_businessId_fkey" FOREIGN KEY ("b
 
 -- AddForeignKey
 ALTER TABLE "Customer" ADD CONSTRAINT "Customer_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Customer" ADD CONSTRAINT "Customer_consentRecordedByPersonId_fkey" FOREIGN KEY ("consentRecordedByPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "CustomerImportBatch" ADD CONSTRAINT "CustomerImportBatch_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -15,6 +15,7 @@ owns_models:
   - Session
   - ChannelIdentity
   - SotDataPlaneKey
+  - PlatformGrant
 ---
 
 # Domain charter — identity
