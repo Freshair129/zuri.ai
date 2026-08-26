@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1186,
-    "total_edges": 3970,
+    "total_nodes": 1188,
+    "total_edges": 3979,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,8 +16,8 @@
       "route": 132,
       "model": 63,
       "requirement": 212,
-      "test": 281,
-      "code_file": 310
+      "test": 282,
+      "code_file": 311
     },
     "coverage": {
       "requirements": 212,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (86/86)",
       "rules_anchored_in_code": "91% (81/89)",
       "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 310,
+      "annotated_code_files": 311,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -63,8 +63,15 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [],
+    "changed": [
+      "test:tests/unit/project-roadmap-ui.test.js",
+      "code:src/app/(pm)/audit/page.jsx",
+      "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx"
+    ],
+    "added": [
+      "test:tests/unit/audit-page.test.js",
+      "code:src/modules/project-manager/application/project-roadmap-labels.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -122,14 +129,16 @@
       "id": "code:src/app/(pm)/audit/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/audit/page.jsx",
-      "hash": "86ba33c7",
-      "status": "current",
+      "hash": "a66ed2c0",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-014"
+          "FR-014",
+          "FR-046"
         ],
         "@tested": [
-          "tests/e2e/smoke.spec.js"
+          "tests/e2e/smoke.spec.js",
+          "tests/unit/audit-page.test.js"
         ]
       }
     },
@@ -694,8 +703,8 @@
       "id": "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
-      "hash": "32e510eb",
-      "status": "current",
+      "hash": "441189ef",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-068"
@@ -5194,6 +5203,26 @@
         "@tested": [
           "tests/unit/project-list-contract.test.js",
           "tests/integration/project-list-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/project-roadmap-labels.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/project-roadmap-labels.js",
+      "hash": "c12d8c33",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-068",
+          "FR-070"
+        ],
+        "@spec": [
+          "SDD-039",
+          "FR-070"
+        ],
+        "@tested": [
+          "tests/unit/project-roadmap-ui.test.js"
         ]
       }
     },
@@ -12169,6 +12198,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/audit-page.test.js",
+      "type": "test",
+      "path": "tests/unit/audit-page.test.js",
+      "hash": "c6dda94e",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/auth-service.test.js",
       "type": "test",
       "path": "tests/unit/auth-service.test.js",
@@ -13257,8 +13293,8 @@
       "id": "test:tests/unit/project-roadmap-ui.test.js",
       "type": "test",
       "path": "tests/unit/project-roadmap-ui.test.js",
-      "hash": "de90d9ce",
-      "status": "current"
+      "hash": "540eb1b1",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/project-team-service.test.js",
@@ -13629,6 +13665,13 @@
     {
       "from": "code:src/app/(pm)/audit/page.jsx",
       "to": "req:FR-014",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/audit/page.jsx",
+      "to": "req:FR-046",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -20839,6 +20882,34 @@
     {
       "from": "code:src/modules/project-manager/application/project-list-read-model.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-roadmap-labels.js",
+      "to": "req:FR-068",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-roadmap-labels.js",
+      "to": "req:FR-070",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-roadmap-labels.js",
+      "to": "req:FR-070",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-roadmap-labels.js",
+      "to": "req:SDD-039",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -33045,6 +33116,27 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/audit-page.test.js",
+      "to": "code:src/app/(pm)/audit/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/audit-page.test.js",
+      "to": "req:FR-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/audit-page.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/auth-service.test.js",
       "to": "code:src/modules/identity/auth-service.js",
       "type": "tests",
@@ -39711,6 +39803,13 @@
     {
       "from": "test:tests/unit/project-roadmap-ui.test.js",
       "to": "code:src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-roadmap-ui.test.js",
+      "to": "code:src/modules/project-manager/application/project-roadmap-labels.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
