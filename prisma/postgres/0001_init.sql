@@ -92,6 +92,20 @@ CREATE TABLE "Person" (
 );
 
 -- CreateTable
+CREATE TABLE "PlatformGrant" (
+    "id" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "capability" TEXT NOT NULL DEFAULT 'OPERATOR',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "grantedByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "revokedAt" TIMESTAMP(3),
+    "revokeReason" TEXT,
+
+    CONSTRAINT "PlatformGrant_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "WorkspaceMembership" (
     "id" TEXT NOT NULL,
     "portfolioId" TEXT NOT NULL,
@@ -1251,6 +1265,12 @@ CREATE INDEX "Branch_businessId_idx" ON "Branch"("businessId");
 CREATE UNIQUE INDEX "Person_code_key" ON "Person"("code");
 
 -- CreateIndex
+CREATE INDEX "PlatformGrant_capability_status_idx" ON "PlatformGrant"("capability", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PlatformGrant_personId_capability_key" ON "PlatformGrant"("personId", "capability");
+
+-- CreateIndex
 CREATE INDEX "WorkspaceMembership_personId_status_idx" ON "WorkspaceMembership"("personId", "status");
 
 -- CreateIndex
@@ -1834,6 +1854,12 @@ ALTER TABLE "Business" ADD CONSTRAINT "Business_legalEntityId_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "Branch" ADD CONSTRAINT "Branch_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PlatformGrant" ADD CONSTRAINT "PlatformGrant_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PlatformGrant" ADD CONSTRAINT "PlatformGrant_grantedByPersonId_fkey" FOREIGN KEY ("grantedByPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "WorkspaceMembership" ADD CONSTRAINT "WorkspaceMembership_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

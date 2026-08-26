@@ -69,6 +69,9 @@ const SNAPSHOT_MODELS = [
   // @req FR-095 — a persisted session is a child of Person and must survive a
   // portable restore; raw token material is never exported by the model.
   'session', 'personCredential', 'passwordResetToken',
+  // @req FR-107 — an operator grant hangs off Person; a snapshot that omitted
+  // it would restore an installation with no operator (or silently drop one).
+  'platformGrant',
   // @req FR-067 — both hang off Portfolio (top of this list) and Person (just
   // above), so they restore here and delete in the reverse. Like
   // passwordResetToken, an invite's raw token is never exported — the model
