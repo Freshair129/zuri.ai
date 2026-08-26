@@ -107,11 +107,18 @@ describe('FR-100 sot decisions — decide', () => {
     const decided = await decideSotDecision(id, { decision: 'APPROVED' }, { viewer: owner })
     expect(decided.status).toBe('APPROVED')
     expect(decided.decidedAt).toBeTruthy()
+    // resolveViewer returns `{ principal: { id }, ... }`, never a top-level
+    // personId — `viewer?.personId` reads as undefined through the real route,
+    // which is exactly the bug this asserts against (found while building
+    // FR-103's customer-consent-service.js, which needed the same field).
+    expect(decided.decidedByPersonId).toBe(owner.principal.id)
 
     const row = await prisma.sotDecision.findUnique({ where: { id } })
+    expect(row.decidedByPersonId).toBe(owner.principal.id)
     expect(row.auditEventId).toBeTruthy()
     const audit = await prisma.auditEvent.findUnique({ where: { id: row.auditEventId } })
     expect(audit.action).toBe('SOT_DECISION_APPROVED')
+    expect(audit.actorId).toBe(owner.principal.id)
 
     await expect(decideSotDecision(id, { decision: 'REJECTED', reason: 'x' }, { viewer: owner }))
       .rejects.toThrow(/already decided/)
