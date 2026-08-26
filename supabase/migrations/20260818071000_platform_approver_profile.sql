@@ -72,8 +72,4 @@ values (
 )
 on conflict (code) do nothing;
 
-insert into supabase_migrations.schema_migrations (version, name)
-values ('20260818071000', 'platform_approver_profile')
-on conflict (version) do nothing;
-
 commit;

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 // @req FR-071 — SmartGift document intake has one deterministic active primary
 // receiver and remains a server-owned, no-secret staging connection.
@@ -11,6 +12,9 @@ const migration = readFileSync(
   'supabase/migrations/20260820212547_smartgift_document_intake_connection.sql',
   'utf8',
 )
+const migrationFiles = readdirSync('supabase/migrations')
+  .filter((file) => file.endsWith('.sql'))
+  .map((file) => join('supabase/migrations', file))
 
 describe('FR-071 SmartGift document intake bootstrap migration', () => {
   it('provisions the provider and active primary connection for the approved Business', () => {
@@ -34,5 +38,11 @@ describe('FR-071 SmartGift document intake bootstrap migration', () => {
     expect(migration).toMatch(/ON CONFLICT \("id"\) DO NOTHING/i)
     expect(migration).toContain('SMARTGIFT_DOCUMENT_INTAKE_BUSINESS_MISSING')
     expect(migration).toContain('SMARTGIFT_DOCUMENT_INTAKE_CONNECTION_MISMATCH')
+  })
+
+  it('leaves migration history to the Supabase CLI', () => {
+    for (const file of migrationFiles) {
+      expect(readFileSync(file, 'utf8')).not.toMatch(/insert\s+into\s+supabase_migrations\.schema_migrations/i)
+    }
   })
 })
