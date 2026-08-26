@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-26T09:07:52.748Z",
+  "generatedAt": "2026-08-26T08:42:21.036Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 39,
+    "gapCount": 37,
     "gaps": [
       {
         "domain": "agent",
@@ -264,22 +264,6 @@
           "tests/unit/sot-data-plane-key-migration.test.js",
           "tests/unit/sot-decision-service.test.js",
           "tests/unit/viewer-authority.test.js"
-        ]
-      },
-      {
-        "domain": "identity",
-        "id": "REQ-FR-104",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-104 is partial",
-        "evidence": [
-          "src/modules/identity/auth-service.js",
-          "tests/integration/password-reset-flow.test.js",
-          "tests/unit/auth-service.test.js",
-          "tests/unit/fr046-auth-route.test.js",
-          "tests/unit/iam-session.test.js",
-          "tests/unit/password-reset-routes.test.js",
-          "tests/unit/password-reset-service.test.js"
         ]
       },
       {
@@ -585,23 +569,6 @@
           "tests/unit/fr091-inbox-ui-contract.test.js",
           "tests/unit/sot-decision-service.test.js"
         ]
-      },
-      {
-        "domain": "project-manager",
-        "id": "REQ-FR-104",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-104 is partial",
-        "evidence": [
-          "src/app/api/auth/reset-password/route.js",
-          "src/app/api/platform/users/password-resets/route.js",
-          "tests/integration/password-reset-flow.test.js",
-          "tests/unit/auth-service.test.js",
-          "tests/unit/fr046-auth-route.test.js",
-          "tests/unit/iam-session.test.js",
-          "tests/unit/password-reset-routes.test.js",
-          "tests/unit/password-reset-service.test.js"
-        ]
       }
     ]
   },
@@ -815,7 +782,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 91,
+            "openApiPaths": 89,
             "missingFromOpenApi": 0
           }
         },
@@ -1303,7 +1270,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 49
+          "testCount": 47
         },
         {
           "id": "FR-059",
@@ -1380,7 +1347,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 10
         },
         {
           "id": "FR-096",
@@ -1438,22 +1405,6 @@
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/viewer-authority.test.js"
           ]
-        },
-        {
-          "id": "FR-104",
-          "declared": "planned",
-          "status": "partial",
-          "codeCount": 1,
-          "testCount": 6,
-          "evidence": [
-            "src/modules/identity/auth-service.js",
-            "tests/integration/password-reset-flow.test.js",
-            "tests/unit/auth-service.test.js",
-            "tests/unit/fr046-auth-route.test.js",
-            "tests/unit/iam-session.test.js",
-            "tests/unit/password-reset-routes.test.js",
-            "tests/unit/password-reset-service.test.js"
-          ]
         }
       ],
       "checks": {
@@ -1479,7 +1430,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 91,
+            "openApiPaths": 89,
             "missingFromOpenApi": 0
           }
         },
@@ -1566,7 +1517,6 @@
         "docs/domains/identity/features/FR-076-product-owner-business-assignment.md",
         "docs/domains/identity/features/FR-094-production-iam-boundary.md",
         "docs/domains/identity/features/FR-102-sot-data-plane-service-account.md",
-        "docs/domains/identity/features/FR-104-owner-assisted-password-reset.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1642,21 +1592,6 @@
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/viewer-authority.test.js"
           ]
-        },
-        {
-          "id": "REQ-FR-104",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-104 is partial",
-          "evidence": [
-            "src/modules/identity/auth-service.js",
-            "tests/integration/password-reset-flow.test.js",
-            "tests/unit/auth-service.test.js",
-            "tests/unit/fr046-auth-route.test.js",
-            "tests/unit/iam-session.test.js",
-            "tests/unit/password-reset-routes.test.js",
-            "tests/unit/password-reset-service.test.js"
-          ]
         }
       ],
       "details": {
@@ -1664,7 +1599,7 @@
         "apiRoutes": 1,
         "pageRoutes": 2,
         "ownedModels": 9,
-        "featureNotes": 12
+        "featureNotes": 11
       }
     },
     "integration": {
@@ -1817,7 +1752,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 91,
+            "openApiPaths": 89,
             "missingFromOpenApi": 0
           }
         },
@@ -2513,7 +2448,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 58,
-          "testCount": 49
+          "testCount": 47
         },
         {
           "id": "FR-056",
@@ -2782,7 +2717,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 10
         },
         {
           "id": "FR-100",
@@ -2840,23 +2775,6 @@
             "tests/unit/fr091-inbox-ui-contract.test.js",
             "tests/unit/sot-decision-service.test.js"
           ]
-        },
-        {
-          "id": "FR-104",
-          "declared": "planned",
-          "status": "partial",
-          "codeCount": 2,
-          "testCount": 6,
-          "evidence": [
-            "src/app/api/auth/reset-password/route.js",
-            "src/app/api/platform/users/password-resets/route.js",
-            "tests/integration/password-reset-flow.test.js",
-            "tests/unit/auth-service.test.js",
-            "tests/unit/fr046-auth-route.test.js",
-            "tests/unit/iam-session.test.js",
-            "tests/unit/password-reset-routes.test.js",
-            "tests/unit/password-reset-service.test.js"
-          ]
         }
       ],
       "checks": {
@@ -2880,9 +2798,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 81,
-            "inventoried": 81,
-            "openApiPaths": 91,
+            "routes": 79,
+            "inventoried": 79,
+            "openApiPaths": 89,
             "missingFromOpenApi": 0
           }
         },
@@ -2941,8 +2859,8 @@
             }
           ],
           "details": {
-            "mutations": 66,
-            "guardedMutations": 63,
+            "mutations": 64,
+            "guardedMutations": 62,
             "reads": 42,
             "unguardedReads": 0
           }
@@ -3172,27 +3090,11 @@
             "tests/unit/fr091-inbox-ui-contract.test.js",
             "tests/unit/sot-decision-service.test.js"
           ]
-        },
-        {
-          "id": "REQ-FR-104",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-104 is partial",
-          "evidence": [
-            "src/app/api/auth/reset-password/route.js",
-            "src/app/api/platform/users/password-resets/route.js",
-            "tests/integration/password-reset-flow.test.js",
-            "tests/unit/auth-service.test.js",
-            "tests/unit/fr046-auth-route.test.js",
-            "tests/unit/iam-session.test.js",
-            "tests/unit/password-reset-routes.test.js",
-            "tests/unit/password-reset-service.test.js"
-          ]
         }
       ],
       "details": {
-        "routes": 118,
-        "apiRoutes": 81,
+        "routes": 116,
+        "apiRoutes": 79,
         "pageRoutes": 37,
         "ownedModels": 30,
         "featureNotes": 28

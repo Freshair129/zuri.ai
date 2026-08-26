@@ -1,0 +1,30 @@
+{
+  "artifact": "zuri.schedule/1",
+  "projectId": "REPLACE-WITH-PROJECT-ID",
+  "note": "Dates for the checkout rebuild. Codes must already exist in Zuri (committed via a PlanEnvelope).",
+  "entries": [
+    {
+      "kind": "container",
+      "code": "SPR-CHK-01",
+      "startAt": "2026-09-01T09:00:00+07:00",
+      "targetAt": "2026-09-12T18:00:00+07:00"
+    },
+    {
+      "kind": "item",
+      "code": "CHK-101",
+      "startAt": "2026-09-01T09:00:00+07:00",
+      "targetAt": "2026-09-05T18:00:00+07:00"
+    },
+    {
+      "kind": "milestone",
+      "code": "MS-CHK-CODE-FREEZE",
+      "title": "Code freeze",
+      "targetAt": "2026-10-15T17:00:00+07:00"
+    },
+    {
+      "kind": "gate",
+      "code": "GATE-CHK-SECURITY",
+      "targetAt": "2026-10-20T10:00:00+07:00"
+    }
+  ]
+}
