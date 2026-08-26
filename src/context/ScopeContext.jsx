@@ -11,6 +11,9 @@ import { resolveView, DEFAULT_VIEW } from '@/config/scope-views'
 // @req FR-046 — entry surfaces never prefetch the broad compatibility scope inventory.
 // @spec ADR-017, SDD-024, SEC-008
 // @tested tests/unit/fr046-api-ui-contract.test.js, tests/e2e/fr046-entry-contract.spec.js
+// @req FR-094 — public programme status cannot request Business scope data.
+// @spec ADR-039 D5, SDD-052
+// @tested tests/unit/platform-control-route-contract.test.js
 // Scope hierarchy: Portfolio → Tenant → Business → Workspace → Project.
 // Tenant is derived from the selected Business (tenant = isolation, never a branch).
 // `viewMode` (erp | pm) is a presentation lens over the same hierarchy — see scope-views.js.
@@ -20,6 +23,7 @@ const ScopeContext = createContext(null)
 const STORAGE_KEY = 'zuri-v2-scope'
 const VIEW_KEY = 'zuri-v2-view'
 const ENTRY_PATHS = new Set(['/', '/login', '/businesses'])
+const PUBLIC_STATIC_PATHS = new Set(['/programme'])
 
 export function ScopeProvider({ children }) {
   const pathname = usePathname()
@@ -60,7 +64,7 @@ export function ScopeProvider({ children }) {
       if (savedView) setViewMode(savedView)
     } catch {}
     setRestored(true)
-    if (ENTRY_PATHS.has(pathname)) return
+    if (ENTRY_PATHS.has(pathname) || PUBLIC_STATIC_PATHS.has(pathname)) return
     refresh()
   }, [pathname, refresh])
 

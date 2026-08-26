@@ -1,7 +1,7 @@
 ---
-version: "1.0.0"
+version: "1.2.0"
 created_at: "2026-08-20T12:00:00+07:00,ATHER"
-last_update: "2026-08-20T12:00:00+07:00,ATHER"
+last_update: "2026-08-20T15:15:00+07:00,ATHER"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -57,17 +57,25 @@ Missing viewer redirects to `/login`. A trusted but non-operator viewer receives
 a non-enumerating 404 state. The server route guard runs before the board is
 rendered, so unauthorised HTML never contains programme data.
 
-### D3 — The first board is a read-only plan projection
+### D3 — The board separates the submitted plan from verified evidence
 
-The board renders the approved 24-week programme submitted on 2026-08-20:
-six phases, twelve sprints, thirty tasks, eight acceptance gates and ten proposal
-deliverables. It stores no progress, Business data, user data or mutable status.
+The board renders the approved 24-week programme: six phases, twelve sprints,
+thirty tasks, eight acceptance gates and ten proposal deliverables. Its programme
+calendar starts on the GitHub repository-creation date, 2026-08-11 (Day 1), not
+the former draft-calendar date.
 
-The page identifies itself as a **plan snapshot**, including its supplied baseline
-commit (`6ad6ae9`) and document status (`draft`). It does not derive programme
-completion from Git commit counts and it must not present live repository activity
-as roadmap progress. A future authoritative programme source may replace the
-static projection only through a separately approved contract.
+The page identifies the plan as a **plan snapshot**, including its supplied
+baseline commit (`6ad6ae9`) and document status (`draft`). A second, separately
+labelled **evidence snapshot** presents aggregate GitHub-default-branch activity
+and the verified SmartGift migration facts as of 2026-08-20. It contains no raw
+source rows, PII, local filesystem paths, prices, cost, credentials or mutation
+control.
+
+Commit activity and migration counts are evidence only. They do not calculate
+programme completion, satisfy acceptance gates, authorize a migration or claim
+deployment/UAT readiness. The initial evidence snapshot is build-time data with
+no GitHub API, source-DuckDB, Supabase or browser write path. Refreshing it or
+introducing a live monitor requires a separately approved source-of-truth contract.
 
 ### D4 — One Vercel application, distinct protected route
 
@@ -75,6 +83,19 @@ The control route deploys with the standalone `zuri-ai` application, but has its
 own URL and authorization boundary. It does not use the legacy `zuri1.0` Vercel
 project and does not need a separate Business subdomain. A custom subdomain, if
 later required, is routing/hosting configuration only; it must preserve D1-D3.
+
+### D5 — `/programme` is a public, removable status share
+
+`/programme` renders exactly the build-time aggregate plan and evidence snapshot
+from D3 without a viewer, login, Business context, API, database access or write
+path; the root scope provider excludes this path from its `/api/scope` preload.
+It is intentionally public, not merely obscured: a URL is not access
+control. It must never add raw source rows, PII, prices, cost, credentials, local
+paths, live GitHub/Supabase/DuckDB data or a migration action.
+
+The operator-only `/control/roadmap` remains unchanged. Removing public sharing
+means deleting only `/programme`; it does not alter the platform control guard or
+Business navigation.
 
 ## Consequences
 
@@ -102,4 +123,6 @@ installation-wide authority.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.0 | 2026-08-20 | accepted | Added the public, aggregate-only and removable `/programme` status share without weakening the operator route | working-tree | ATHER |
+| 1.1.0 | 2026-08-20 | accepted | Anchored Day 1 at repository creation and added a no-PII, read-only evidence snapshot boundary | working-tree | ATHER |
 | 1.0.0 | 2026-08-20 | accepted | Separated the installation-operator programme board from the Business Shell and fixed its authorization/data boundaries | working-tree | ATHER |

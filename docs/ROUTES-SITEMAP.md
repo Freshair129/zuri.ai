@@ -54,6 +54,8 @@ Root Provider Layout
 │   └── /businesses
 ├── PlatformControlShell (requires isOperator; no Business scope)
 │   └── /control/roadmap
+├── Public Programme Share (no login; static aggregate only)
+│   └── /programme
 └── BusinessShell (requires activeBusinessId)
     ├── /overview
     ├── /people
@@ -141,6 +143,9 @@ until their parity and BusinessModule gates are met.
 - `/control/roadmap` requires a trusted installation operator but no Business
   selection. It is outside `DOMAINS`; `isPlatform`, role and Business ownership
   are insufficient. See ADR-039.
+- `/programme` is the explicitly public, no-login share of the safe static
+  programme/evidence aggregate. It is not an operator route and has no API,
+  source-data access or action surface. See ADR-039 D5.
 - Missing viewer → `/login`.
 - Missing Business → `/businesses`.
 - Missing Profile → `/onboarding/profile` in the ADR-027 target flow.

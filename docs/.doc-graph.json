@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1073,
-    "total_edges": 3515,
+    "total_nodes": 1075,
+    "total_edges": 3538,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 8,
       "roadmap": 25,
       "feature": 9,
-      "route": 118,
+      "route": 119,
       "model": 53,
       "requirement": 201,
       "test": 247,
-      "code_file": 282
+      "code_file": 283
     },
     "coverage": {
       "requirements": 201,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (82/82)",
       "rules_anchored_in_code": "90% (78/87)",
       "nfr_evidence_based": "18 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 282,
+      "annotated_code_files": 283,
       "fr_planned": [
         "FR-066",
         "FR-067",
@@ -2561,6 +2561,24 @@
       }
     },
     {
+      "id": "code:src/app/programme/page.jsx",
+      "type": "code_file",
+      "path": "src/app/programme/page.jsx",
+      "hash": "79c81a46",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094"
+        ],
+        "@spec": [
+          "SDD-052"
+        ],
+        "@tested": [
+          "tests/unit/platform-control-route-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/components/landing/ZuriLanding.jsx",
       "type": "code_file",
       "path": "src/components/landing/ZuriLanding.jsx",
@@ -2729,7 +2747,7 @@
       "id": "code:src/components/layouts/PlatformControlShell.jsx",
       "type": "code_file",
       "path": "src/components/layouts/PlatformControlShell.jsx",
-      "hash": "590b435b",
+      "hash": "809bee7b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2875,7 +2893,7 @@
       "id": "code:src/context/ScopeContext.jsx",
       "type": "code_file",
       "path": "src/context/ScopeContext.jsx",
-      "hash": "c6867546",
+      "hash": "6d3b4617",
       "status": "current",
       "annotations": {
         "@req": [
@@ -2883,18 +2901,21 @@
           "FR-020",
           "FR-039",
           "FR-046",
+          "FR-094",
           "FR-043"
         ],
         "@spec": [
           "SDD-018",
           "SDD-024",
-          "SEC-008"
+          "SEC-008",
+          "SDD-052"
         ],
         "@tested": [
           "tests/e2e/smoke.spec.js",
           "tests/unit/scope-view-context.test.js",
           "tests/unit/fr046-api-ui-contract.test.js",
-          "tests/e2e/fr046-entry-contract.spec.js"
+          "tests/e2e/fr046-entry-contract.spec.js",
+          "tests/unit/platform-control-route-contract.test.js"
         ]
       }
     },
@@ -4353,7 +4374,7 @@
       "id": "code:src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
       "type": "code_file",
       "path": "src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
-      "hash": "2364fd7f",
+      "hash": "8fc9d979",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4372,7 +4393,7 @@
       "id": "code:src/modules/platform-control/program-roadmap-data.js",
       "type": "code_file",
       "path": "src/modules/platform-control/program-roadmap-data.js",
-      "hash": "4676c4ee",
+      "hash": "451974fb",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6331,7 +6352,7 @@
       "type": "document",
       "path": "docs/domains/platform-control/features/FR-094-platform-programme-roadmap.md",
       "title": "FR-094 — Platform Programme Roadmap",
-      "hash": "e7105299",
+      "hash": "5b2bc519",
       "status": "current"
     },
     {
@@ -6361,7 +6382,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.2.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "a0c3d8b8",
+      "hash": "b14646bd",
       "status": "current"
     },
     {
@@ -6571,7 +6592,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.78.0b",
       "doc_status": "Draft",
-      "hash": "3a477063",
+      "hash": "88874300",
       "status": "current"
     },
     {
@@ -6625,7 +6646,7 @@
       "title": "Zuri — Route and Shell Sitemap",
       "version": "1.0.0",
       "doc_status": "draft",
-      "hash": "89c301e8",
+      "hash": "d7d44aa8",
       "status": "current"
     },
     {
@@ -6879,7 +6900,8 @@
       "title": "Domain — platform-control",
       "owns_models": [],
       "owns_routes": [
-        "src/app/(control)/control/**"
+        "src/app/(control)/control/**",
+        "src/app/programme/**"
       ],
       "owns_code": [
         "src/modules/platform-control/**",
@@ -6889,7 +6911,7 @@
       "modules": [
         "platform-control"
       ],
-      "hash": "876dabe3",
+      "hash": "89de2406",
       "status": "current"
     },
     {
@@ -8400,11 +8422,11 @@
       "id": "req:FR-094",
       "type": "requirement",
       "family": "FR",
-      "label": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The initial board is a static plan snapshot (six phases, twelve sprints, thirty tasks, eight gates and ten deliverables) carrying its supplied baseline and `draft` status. It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion.",
+      "label": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The board has a static plan snapshot (six phases, twelve sprints, thirty tasks, eight gates and ten deliverables) and a separately labelled build-time evidence snapshot. Day 1 is GitHub repository creation (2026-08-11); aggregate default-branch history and verified SmartGift migration facts are evidence, never programme completion. `/programme` is the separately approved public, removable share of that exact safe aggregate; it does not authorize `/control/roadmap`. Neither route exposes PII, raw rows, prices, cost, credentials, local paths, API or a write path.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The initial board is a static plan snapshot (six phases, twelve sprints, thirty tasks, eight gates and ten deliverables) carrying its supplied baseline and `draft` status. It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion. 🟢 implemented locally; operator-only static route, pending deployment evidence "
+      "row_text": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The board has a static plan snapshot (six phases, twelve sprints, thirty tasks, eight gates and ten deliverables) and a separately labelled build-time evidence snapshot. Day 1 is GitHub repository creation (2026-08-11); aggregate default-branch history and verified SmartGift migration facts are evidence, never programme completion. `/programme` is the separately approved public, removable share of that exact safe aggregate; it does not authorize `/control/roadmap`. Neither route exposes PII, raw rows, prices, cost, credentials, local paths, API or a write path. 🟢 implemented locally; public share deployment pending evidence "
     },
     {
       "id": "req:NFR-001",
@@ -9100,11 +9122,11 @@
       "id": "req:SDD-052",
       "type": "requirement",
       "family": "SDD",
-      "label": "Platform Control mounts in its own App Router route group and resolves only the existing trusted viewer contract. The pure guard distinguishes loading, unauthenticated, forbidden and ready states before the board mounts; authorization calls Identity's `isInstallationOperator` predicate, so a visibility label or any composition of Business grants cannot accidentally become installation authority. The first programme board is imported at build time as a constant plan snapshot: it has no fetch, mutation, API route, persistence model or live-progress calculation.",
+      "label": "Platform Control mounts in its own App Router route group and resolves only the existing trusted viewer contract. The pure guard distinguishes loading, unauthenticated, forbidden and ready states before the board mounts; authorization calls Identity's `isInstallationOperator` predicate, so a visibility label or any composition of Business grants cannot accidentally become installation authority. `/programme` reuses the same build-time-only board without mounting the guard, but has no broader data source or capability. The programme board and its aggregate evidence snapshot are imported as constants: they have no fetch, mutation, API route, persistence model or live-progress calculation. Evidence fields permit only day/date, aggregate count, bounded status, public identifier and observation metadata; PII, raw rows, financial values, local paths and secrets are absent by construction.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Platform Control mounts in its own App Router route group and resolves only the existing trusted viewer contract. The pure guard distinguishes loading, unauthenticated, forbidden and ready states before the board mounts; authorization calls Identity's `isInstallationOperator` predicate, so a visibility label or any composition of Business grants cannot accidentally become installation authority. The first programme board is imported at build time as a constant plan snapshot: it has no fetch, mutation, API route, persistence model or live-progress calculation. FR-094; FR-075, ADR-039, NFR-008 "
+      "row_text": "Platform Control mounts in its own App Router route group and resolves only the existing trusted viewer contract. The pure guard distinguishes loading, unauthenticated, forbidden and ready states before the board mounts; authorization calls Identity's `isInstallationOperator` predicate, so a visibility label or any composition of Business grants cannot accidentally become installation authority. `/programme` reuses the same build-time-only board without mounting the guard, but has no broader data source or capability. The programme board and its aggregate evidence snapshot are imported as constants: they have no fetch, mutation, API route, persistence model or live-progress calculation. Evidence fields permit only day/date, aggregate count, bounded status, public identifier and observation metadata; PII, raw rows, financial values, local paths and secrets are absent by construction. FR-094; FR-075, ADR-039, NFR-008 "
     },
     {
       "id": "req:SEC-001",
@@ -10055,6 +10077,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/programme",
+      "type": "route",
+      "kind": "page",
+      "route": "/programme",
+      "path": "src/app/programme/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/projects",
       "type": "route",
       "kind": "page",
@@ -10543,7 +10573,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-039-PLATFORM-CONTROL-SHELL.md",
       "title": "ADR-039 — Platform Control is outside the Business Shell",
-      "hash": "cf75d8e0",
+      "hash": "7a1e71c4",
       "status": "current"
     },
     {
@@ -11936,7 +11966,7 @@
       "id": "test:tests/unit/platform-control-route-contract.test.js",
       "type": "test",
       "path": "tests/unit/platform-control-route-contract.test.js",
-      "hash": "04080a7c",
+      "hash": "f62d0194",
       "status": "current"
     },
     {
@@ -15967,6 +15997,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/programme/page.jsx",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/programme/page.jsx",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/components/landing/ZuriLanding.jsx",
       "to": "req:FR-056",
       "type": "implements",
@@ -16416,6 +16460,13 @@
     },
     {
       "from": "code:src/context/ScopeContext.jsx",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/context/ScopeContext.jsx",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -16424,6 +16475,13 @@
     {
       "from": "code:src/context/ScopeContext.jsx",
       "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/context/ScopeContext.jsx",
+      "to": "req:SDD-052",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -22925,6 +22983,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/programme",
+      "to": "domain:platform-control",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/projects/[projectId]/all-work",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -24634,6 +24699,13 @@
     },
     {
       "from": "test:tests/e2e/fr046-entry-contract.spec.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr046-entry-contract.spec.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -24652,6 +24724,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr046-entry-contract.spec.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/e2e/fr046-entry-contract.spec.js",
@@ -25292,6 +25371,13 @@
     },
     {
       "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -25370,6 +25456,13 @@
     {
       "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:SDD-047",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:SDD-052",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -32096,6 +32189,13 @@
     },
     {
       "from": "test:tests/unit/fr046-api-ui-contract.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-api-ui-contract.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -32135,6 +32235,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr046-api-ui-contract.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr046-api-ui-contract.test.js",
@@ -34630,7 +34737,21 @@
     },
     {
       "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "code:src/app/programme/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
       "to": "code:src/components/layouts/PlatformControlShell.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "code:src/context/ScopeContext.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
@@ -34651,6 +34772,41 @@
     },
     {
       "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:FR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:FR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:FR-043",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
       "to": "req:FR-094",
       "type": "verifies",
       "status": "current",
@@ -34665,10 +34821,31 @@
     },
     {
       "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
       "to": "req:SDD-052",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform-control-route-contract.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform-control-route-contract.test.js",
@@ -36436,6 +36613,13 @@
     },
     {
       "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
       "to": "req:SDD-012",
       "type": "verifies",
       "status": "current",
@@ -36465,6 +36649,13 @@
     {
       "from": "test:tests/unit/scope-view-context.test.js",
       "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/scope-view-context.test.js",
+      "to": "req:SDD-052",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

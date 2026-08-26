@@ -1,14 +1,15 @@
 'use client'
 
-// @req FR-094 — render the submitted programme without treating it as Business progress.
-// @spec ADR-039 D3, SDD-052, NFR-008
+// @req FR-094 — render the submitted programme and bounded evidence without Business progress.
+// @spec ADR-039 D3, D5, SDD-052, NFR-008
 // @tested tests/unit/platform-control-route-contract.test.js
 
 import { useState } from 'react'
-import { ChevronDown, ClipboardList, Flag, Layers3, ShieldCheck } from 'lucide-react'
+import { ChevronDown, ClipboardList, Database, Flag, GitCommitHorizontal, Layers3, ShieldCheck, Workflow } from 'lucide-react'
 import { Card, Kpi, PageHeader, ProgressBar, StatusPill } from '@/components/ui'
 import {
   PROGRAMME_DELIVERABLES,
+  PROGRAMME_EVIDENCE_SNAPSHOT,
   PROGRAMME_GATES,
   PROGRAMME_PHASES,
   PROGRAMME_SNAPSHOT,
@@ -17,29 +18,80 @@ import {
 
 const badgeStatus = (status) => status.toUpperCase().replace(/-/g, '_')
 
-export default function ProgramRoadmapBoard() {
+export default function ProgramRoadmapBoard({ publicShare = false }) {
   const [openPhase, setOpenPhase] = useState('PHASE-ZAI-01')
 
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="PLATFORM PROGRAMME · OPERATOR ONLY"
+        eyebrow={publicShare ? 'ZURI AI · PUBLIC PROGRAMME STATUS' : 'PLATFORM PROGRAMME · OPERATOR ONLY'}
         title="Zuri AI — 24-week delivery programme"
-        subtitle="Read-only plan snapshot. It is not Business progress and it is not calculated from Git activity."
+        subtitle="Read-only plan and evidence snapshots. Commit activity is never programme completion."
       />
 
       <Card warm className="flex flex-wrap items-center gap-x-5 gap-y-2">
         <span className="pill pill-review">{PROGRAMME_SNAPSHOT.status.toUpperCase()} PLAN</span>
-        <span className="text-xs text-muted">{PROGRAMME_SNAPSHOT.programmeStart} → {PROGRAMME_SNAPSHOT.programmeEnd}</span>
+        <span className="text-xs text-muted">Day 1 {PROGRAMME_SNAPSHOT.programmeStart} → Week 24 {PROGRAMME_SNAPSHOT.programmeEnd}</span>
         <span className="text-xs text-muted">baseline <code className="font-semibold text-[var(--text-primary)]">{PROGRAMME_SNAPSHOT.baselineCommit}</code></span>
         <span className="text-xs text-muted">{PROGRAMME_SNAPSHOT.sourceLabel} · v{PROGRAMME_SNAPSHOT.version}</span>
       </Card>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Programme scope">
-        <Kpi label="Delivery window" value="24 weeks" meta="24 Aug 2026 – 7 Feb 2027" />
+        <Kpi label="Delivery window" value="24 weeks" meta="11 Aug 2026 – 25 Jan 2027" />
         <Kpi label="Programme structure" value="6 / 12" meta="phases / two-week sprints" />
         <Kpi label="Task containers" value={PROGRAMME_TASKS.length} meta="submitted work items" />
         <Kpi label="Acceptance gates" value={PROGRAMME_GATES.length} meta="all eight currently unmet in plan" tone="warn" />
+      </section>
+
+      <section aria-labelledby="evidence-snapshot-title" className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Database size={17} aria-hidden />
+          <div>
+            <h2 id="evidence-snapshot-title" className="text-base font-bold">Verified evidence snapshot</h2>
+            <p className="text-xs text-muted">Aggregate-only, observed {PROGRAMME_EVIDENCE_SNAPSHOT.observedAt}. It cannot run, approve or replay a migration.</p>
+          </div>
+        </div>
+
+        <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="GitHub history evidence">
+          <Kpi label="Repository Day 1" value="11 Aug" meta="created 23:27 ICT · D1" />
+          <Kpi label="Initial commit" value={PROGRAMME_EVIDENCE_SNAPSHOT.github.initialCommit} meta="23:30 ICT · same calendar day" />
+          <Kpi label="Default-branch commits" value={PROGRAMME_EVIDENCE_SNAPSHOT.github.totalCommits} meta="D1–D10 through 20 Aug" tone="good" />
+          <Kpi label="Current evidence day" value="D10" meta="20 Aug 2026 · calendar-inclusive" />
+        </section>
+
+        <div className="grid gap-6 xl:grid-cols-2">
+          <Card>
+            <div className="mb-3 flex items-center gap-2"><GitCommitHorizontal size={17} aria-hidden /><h3 className="font-bold">GitHub default-branch history</h3></div>
+            <div className="mb-3 grid grid-cols-2 gap-2">
+              {PROGRAMME_EVIDENCE_SNAPSHOT.github.weeklyCommits.map((week) => (
+                <div key={week.label} className="rounded-md bg-[var(--bg-subtle)] p-3"><p className="text-[11px] font-semibold">{week.label}</p><p className="mt-1 text-xl font-bold">{week.commits}</p><p className="text-[10px] text-muted">{week.dates}</p></div>
+              ))}
+            </div>
+            <div className="grid grid-cols-5 gap-2" aria-label="Daily commit counts">
+              {PROGRAMME_EVIDENCE_SNAPSHOT.github.dailyCommits.map(([day, date, commits]) => (
+                <div key={day} className="rounded-md border border-[var(--border-subtle)] p-2 text-center"><p className="text-[10px] font-semibold">{day}</p><p className="text-lg font-bold">{commits}</p><p className="text-[9px] text-muted">{date}</p></div>
+              ))}
+            </div>
+          </Card>
+
+          <Card>
+            <div className="mb-3 flex items-center gap-2"><Workflow size={17} aria-hidden /><h3 className="font-bold">SmartGift migration evidence</h3></div>
+            <ul className="space-y-3">
+              {PROGRAMME_EVIDENCE_SNAPSHOT.migrations.map((item) => (
+                <li key={item.id} className="rounded-md border border-[var(--border-subtle)] p-3"><div className="flex flex-wrap items-center gap-2"><code className="text-[11px] font-semibold">{item.id}</code><StatusPill status={badgeStatus(item.status)} /><strong className="text-sm">{item.title}</strong></div><p className="mt-1 text-xs text-muted">{item.detail}</p><p className="mt-1 text-[10px] text-muted">{item.observed}</p></li>
+              ))}
+            </ul>
+          </Card>
+        </div>
+
+        <Card warm>
+          <div className="mb-3 flex items-center gap-2"><ShieldCheck size={17} aria-hidden /><h3 className="font-bold">Related Zuri data-pipeline domains</h3></div>
+          <ul className="grid gap-3 md:grid-cols-2">
+            {PROGRAMME_EVIDENCE_SNAPSHOT.pipelineDomains.map((item) => (
+              <li key={item.id} className="rounded-md border border-[var(--border-subtle)] bg-white p-3"><div className="flex flex-wrap items-center gap-2"><code className="text-[11px] font-semibold">{item.id}</code><StatusPill status={badgeStatus(item.status)} /><strong className="text-sm">{item.title}</strong></div><p className="mt-1 text-xs text-muted">{item.detail}</p></li>
+            ))}
+          </ul>
+        </Card>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">

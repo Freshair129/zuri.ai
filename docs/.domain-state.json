@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-20T07:18:23.560Z",
+  "generatedAt": "2026-08-20T08:00:51.260Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -809,7 +809,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-059",
@@ -1418,8 +1418,8 @@
           "id": "FR-094",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 2
+          "codeCount": 6,
+          "testCount": 6
         }
       ],
       "checks": {
@@ -1430,8 +1430,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
+            "routes": 2,
+            "inventoried": 2,
             "missing": 0
           }
         },
@@ -1492,9 +1492,9 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 1,
+        "routes": 2,
         "apiRoutes": 0,
-        "pageRoutes": 1,
+        "pageRoutes": 2,
         "ownedModels": 0,
         "featureNotes": 1
       }
@@ -1514,7 +1514,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-003",
@@ -1633,7 +1633,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-031",
@@ -1696,7 +1696,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-040",
@@ -1724,7 +1724,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-044",
@@ -1745,7 +1745,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 56,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-056",
@@ -2005,8 +2005,8 @@
           "id": "FR-094",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 2
+          "codeCount": 3,
+          "testCount": 6
         }
       ],
       "checks": {
