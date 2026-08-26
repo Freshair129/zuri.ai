@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1196,
-    "total_edges": 4027,
+    "total_nodes": 1198,
+    "total_edges": 4036,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 133,
       "model": 63,
       "requirement": 214,
-      "test": 285,
+      "test": 287,
       "code_file": 312
     },
     "coverage": {
@@ -64,8 +64,8 @@
   },
   "drift": {
     "changed": [
-      "test:tests/unit/sot-decision-service.test.js",
-      "code:src/modules/integration/application/sot-decision-service.js"
+      "test:tests/e2e/fr091-conversation-inbox.spec.js",
+      "test:tests/unit/e2e-reconnecting-request.test.js"
     ],
     "added": [],
     "removed": []
@@ -4491,7 +4491,7 @@
       "type": "code_file",
       "path": "src/modules/integration/application/sot-decision-service.js",
       "hash": "a642c27e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-100",
@@ -11716,8 +11716,8 @@
       "id": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
-      "hash": "8b21e536",
-      "status": "current"
+      "hash": "4bf9ded0",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -12378,6 +12378,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/contract-plan-artifacts.test.js",
+      "type": "test",
+      "path": "tests/unit/contract-plan-artifacts.test.js",
+      "hash": "1ac634b1",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/controlled-line-activation-migration.test.js",
       "type": "test",
       "path": "tests/unit/controlled-line-activation-migration.test.js",
@@ -12577,8 +12584,8 @@
       "id": "test:tests/unit/e2e-reconnecting-request.test.js",
       "type": "test",
       "path": "tests/unit/e2e-reconnecting-request.test.js",
-      "hash": "3159667a",
-      "status": "current"
+      "hash": "798ce722",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/e2e-warmup.test.js",
@@ -13484,6 +13491,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/self-plan-generator.test.js",
+      "type": "test",
+      "path": "tests/unit/self-plan-generator.test.js",
+      "hash": "64fa8fdc",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/shell-mode.test.js",
       "type": "test",
       "path": "tests/unit/shell-mode.test.js",
@@ -13537,7 +13551,7 @@
       "type": "test",
       "path": "tests/unit/sot-decision-service.test.js",
       "hash": "256d3005",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/sot-inbox-ui.test.js",
@@ -34423,6 +34437,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/contract-plan-artifacts.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/contract-plan-artifacts.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/contract-plan-artifacts.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/contract-plan-artifacts.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/controlled-line-activation-migration.test.js",
       "to": "req:FR-055",
       "type": "verifies",
@@ -41141,6 +41183,41 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/self-plan-generator.test.js",
+      "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/shell-mode.test.js",
