@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-26T07:49:07.981Z",
+  "generatedAt": "2026-08-26T08:54:34.919Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 7,
-    "gapCount": 37,
+    "gapCount": 39,
     "gaps": [
       {
         "domain": "agent",
@@ -189,7 +189,8 @@
           "tests/unit/crm-customer-consent-route.test.js",
           "tests/unit/customer-consent-migration.test.js",
           "tests/unit/customer-consent-service.test.js",
-          "tests/unit/fr091-inbox-ui-contract.test.js"
+          "tests/unit/fr091-inbox-ui-contract.test.js",
+          "tests/unit/sot-decision-service.test.js"
         ]
       },
       {
@@ -263,6 +264,22 @@
           "tests/unit/sot-data-plane-key-migration.test.js",
           "tests/unit/sot-decision-service.test.js",
           "tests/unit/viewer-authority.test.js"
+        ]
+      },
+      {
+        "domain": "identity",
+        "id": "REQ-FR-104",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-104 is partial",
+        "evidence": [
+          "src/modules/identity/auth-service.js",
+          "tests/integration/password-reset-flow.test.js",
+          "tests/unit/auth-service.test.js",
+          "tests/unit/fr046-auth-route.test.js",
+          "tests/unit/iam-session.test.js",
+          "tests/unit/password-reset-routes.test.js",
+          "tests/unit/password-reset-service.test.js"
         ]
       },
       {
@@ -565,7 +582,25 @@
           "tests/unit/crm-customer-consent-route.test.js",
           "tests/unit/customer-consent-migration.test.js",
           "tests/unit/customer-consent-service.test.js",
-          "tests/unit/fr091-inbox-ui-contract.test.js"
+          "tests/unit/fr091-inbox-ui-contract.test.js",
+          "tests/unit/sot-decision-service.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-104",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-104 is partial",
+        "evidence": [
+          "src/app/api/auth/reset-password/route.js",
+          "src/app/api/platform/users/password-resets/route.js",
+          "tests/integration/password-reset-flow.test.js",
+          "tests/unit/auth-service.test.js",
+          "tests/unit/fr046-auth-route.test.js",
+          "tests/unit/iam-session.test.js",
+          "tests/unit/password-reset-routes.test.js",
+          "tests/unit/password-reset-service.test.js"
         ]
       }
     ]
@@ -780,7 +815,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 89,
+            "openApiPaths": 91,
             "missingFromOpenApi": 0
           }
         },
@@ -1018,7 +1053,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 2,
-          "testCount": 8,
+          "testCount": 9,
           "evidence": [
             "src/modules/crm/conversation-read-model.js",
             "src/modules/crm/customer-consent-service.js",
@@ -1029,7 +1064,8 @@
             "tests/unit/crm-customer-consent-route.test.js",
             "tests/unit/customer-consent-migration.test.js",
             "tests/unit/customer-consent-service.test.js",
-            "tests/unit/fr091-inbox-ui-contract.test.js"
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/sot-decision-service.test.js"
           ]
         }
       ],
@@ -1204,7 +1240,8 @@
             "tests/unit/crm-customer-consent-route.test.js",
             "tests/unit/customer-consent-migration.test.js",
             "tests/unit/customer-consent-service.test.js",
-            "tests/unit/fr091-inbox-ui-contract.test.js"
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/sot-decision-service.test.js"
           ]
         }
       ],
@@ -1266,7 +1303,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 47
+          "testCount": 49
         },
         {
           "id": "FR-059",
@@ -1343,7 +1380,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 10
+          "testCount": 12
         },
         {
           "id": "FR-096",
@@ -1401,6 +1438,22 @@
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/viewer-authority.test.js"
           ]
+        },
+        {
+          "id": "FR-104",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 6,
+          "evidence": [
+            "src/modules/identity/auth-service.js",
+            "tests/integration/password-reset-flow.test.js",
+            "tests/unit/auth-service.test.js",
+            "tests/unit/fr046-auth-route.test.js",
+            "tests/unit/iam-session.test.js",
+            "tests/unit/password-reset-routes.test.js",
+            "tests/unit/password-reset-service.test.js"
+          ]
         }
       ],
       "checks": {
@@ -1426,7 +1479,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 89,
+            "openApiPaths": 91,
             "missingFromOpenApi": 0
           }
         },
@@ -1513,6 +1566,7 @@
         "docs/domains/identity/features/FR-076-product-owner-business-assignment.md",
         "docs/domains/identity/features/FR-094-production-iam-boundary.md",
         "docs/domains/identity/features/FR-102-sot-data-plane-service-account.md",
+        "docs/domains/identity/features/FR-104-owner-assisted-password-reset.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1588,6 +1642,21 @@
             "tests/unit/sot-decision-service.test.js",
             "tests/unit/viewer-authority.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-104",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-104 is partial",
+          "evidence": [
+            "src/modules/identity/auth-service.js",
+            "tests/integration/password-reset-flow.test.js",
+            "tests/unit/auth-service.test.js",
+            "tests/unit/fr046-auth-route.test.js",
+            "tests/unit/iam-session.test.js",
+            "tests/unit/password-reset-routes.test.js",
+            "tests/unit/password-reset-service.test.js"
+          ]
         }
       ],
       "details": {
@@ -1595,7 +1664,7 @@
         "apiRoutes": 1,
         "pageRoutes": 2,
         "ownedModels": 9,
-        "featureNotes": 11
+        "featureNotes": 12
       }
     },
     "integration": {
@@ -1748,7 +1817,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 89,
+            "openApiPaths": 91,
             "missingFromOpenApi": 0
           }
         },
@@ -2444,7 +2513,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 58,
-          "testCount": 47
+          "testCount": 49
         },
         {
           "id": "FR-056",
@@ -2713,7 +2782,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 10
+          "testCount": 12
         },
         {
           "id": "FR-100",
@@ -2757,7 +2826,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 2,
-          "testCount": 8,
+          "testCount": 9,
           "evidence": [
             "src/app/(pm)/customer/conversations/page.jsx",
             "src/app/api/crm/customers/[customerId]/consent/route.js",
@@ -2768,7 +2837,25 @@
             "tests/unit/crm-customer-consent-route.test.js",
             "tests/unit/customer-consent-migration.test.js",
             "tests/unit/customer-consent-service.test.js",
-            "tests/unit/fr091-inbox-ui-contract.test.js"
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/sot-decision-service.test.js"
+          ]
+        },
+        {
+          "id": "FR-104",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 6,
+          "evidence": [
+            "src/app/api/auth/reset-password/route.js",
+            "src/app/api/platform/users/password-resets/route.js",
+            "tests/integration/password-reset-flow.test.js",
+            "tests/unit/auth-service.test.js",
+            "tests/unit/fr046-auth-route.test.js",
+            "tests/unit/iam-session.test.js",
+            "tests/unit/password-reset-routes.test.js",
+            "tests/unit/password-reset-service.test.js"
           ]
         }
       ],
@@ -2793,9 +2880,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 79,
-            "inventoried": 79,
-            "openApiPaths": 89,
+            "routes": 81,
+            "inventoried": 81,
+            "openApiPaths": 91,
             "missingFromOpenApi": 0
           }
         },
@@ -2854,8 +2941,8 @@
             }
           ],
           "details": {
-            "mutations": 64,
-            "guardedMutations": 62,
+            "mutations": 66,
+            "guardedMutations": 63,
             "reads": 42,
             "unguardedReads": 0
           }
@@ -3082,13 +3169,30 @@
             "tests/unit/crm-customer-consent-route.test.js",
             "tests/unit/customer-consent-migration.test.js",
             "tests/unit/customer-consent-service.test.js",
-            "tests/unit/fr091-inbox-ui-contract.test.js"
+            "tests/unit/fr091-inbox-ui-contract.test.js",
+            "tests/unit/sot-decision-service.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-104",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-104 is partial",
+          "evidence": [
+            "src/app/api/auth/reset-password/route.js",
+            "src/app/api/platform/users/password-resets/route.js",
+            "tests/integration/password-reset-flow.test.js",
+            "tests/unit/auth-service.test.js",
+            "tests/unit/fr046-auth-route.test.js",
+            "tests/unit/iam-session.test.js",
+            "tests/unit/password-reset-routes.test.js",
+            "tests/unit/password-reset-service.test.js"
           ]
         }
       ],
       "details": {
-        "routes": 116,
-        "apiRoutes": 79,
+        "routes": 118,
+        "apiRoutes": 81,
         "pageRoutes": 37,
         "ownedModels": 30,
         "featureNotes": 28

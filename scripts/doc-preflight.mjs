@@ -828,9 +828,12 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
   // Structurally exempt, not baselined debt: authentication lifecycle endpoints
   // establish or clear the session and therefore cannot require a viewer first.
   // They are exemptions rather than baseline entries because resolving a viewer
-  // there would be a broken authentication boundary.
+  // there would be a broken authentication boundary. reset-password (FR-104) is
+  // the same class: the caller's only credential is the handed-over token, and
+  // demanding a session from someone locked out of theirs is the broken boundary.
   const IS_AUTH_LIFECYCLE_ENDPOINT = (p) =>
-    p.includes('/api/auth/login/') || p.includes('/api/auth/logout/') || p.split('/').includes('session')
+    p.includes('/api/auth/login/') || p.includes('/api/auth/logout/') ||
+    p.includes('/api/auth/reset-password/') || p.split('/').includes('session')
   const offenders = []
   for (const file of walk(path.join(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue

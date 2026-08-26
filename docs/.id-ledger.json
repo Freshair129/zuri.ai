@@ -209,6 +209,7 @@
     "FR-101",
     "FR-102",
     "FR-103",
+    "FR-104",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -281,6 +282,7 @@
     "SDD-051",
     "SDD-052",
     "SDD-053",
+    "SDD-054",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2063,6 +2065,19 @@
         }
       ]
     },
+    "FR-104": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "76f6aec5eba5118647e6decdf88aa4586436b7b81c3961e5526fb9fcbdec8bed",
+      "history": [
+        {
+          "anchor": "owner assisted password reset",
+          "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3002,6 +3017,19 @@
       "history": [
         {
           "anchor": "sec 005 consent is a fourth field group on the fr 023",
+          "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-054": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6020433c0f922e3783490eb9b83da5882b6fe82deedee2c49dd106daaabc3128",
+      "history": [
+        {
+          "anchor": "password reset splits into an authenticated mint leg and a",
           "since": "2026-08-26",
           "reason": "declared"
         }
