@@ -222,6 +222,7 @@
     "FR-112",
     "FR-113",
     "FR-114",
+    "FR-115",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -304,6 +305,7 @@
     "SDD-060",
     "SDD-061",
     "SDD-062",
+    "SDD-063",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2266,6 +2268,19 @@
         }
       ]
     },
+    "FR-115": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "67365bc61ae183419abd23e3f7724fa991862c04dacc83433ee5a787719b7fe0",
+      "history": [
+        {
+          "anchor": "document parsing into a structured artifact that keeps its",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3337,6 +3352,19 @@
       "history": [
         {
           "anchor": "widening what knowledge may carry must not widen what",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-063": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c80d706ce3a6ee6e760e99d72481281c7c9dbe8ff4c0e1a098ed1c54caa1d476",
+      "history": [
+        {
+          "anchor": "the parser produces the block shape stage 7 already",
           "since": "2026-08-27",
           "reason": "declared"
         }
