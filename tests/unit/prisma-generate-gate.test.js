@@ -1,3 +1,4 @@
+import path from 'path'
 import { describe, it, expect } from 'vitest'
 import {
   schemaFingerprint,
@@ -25,6 +26,25 @@ describe('schema fingerprint', () => {
     const lf = schemaFingerprint('s', { read: () => SCHEMA })
     const crlf = schemaFingerprint('s', { read: () => SCHEMA.replace(/\n/g, '\r\n') })
     expect(crlf).toBe(lf)
+  })
+
+  it('separates two checkouts that share one node_modules, even with identical schema text', () => {
+    // The generated client bakes its schema directory in and resolves a relative
+    // `file:` datasource against THAT directory. A client generated for a sibling
+    // checkout therefore opens a database in the wrong tree — silently, because the
+    // schema text is byte-identical. Junctioning node_modules between checkouts is
+    // what puts the two in contact.
+    const read = () => SCHEMA
+    const here = schemaFingerprint(path.join('/zuri-ai', 'prisma', 'schema.prisma'), { read })
+    const sibling = schemaFingerprint(path.join('/zuri-ai-deploy', 'prisma', 'schema.prisma'), { read })
+    expect(sibling).not.toBe(here)
+  })
+
+  it('does not move when the same schema is named by a relative and an absolute path', () => {
+    const read = () => SCHEMA
+    const relative = schemaFingerprint(path.join('prisma', 'schema.prisma'), { read })
+    const absolute = schemaFingerprint(path.resolve('prisma', 'schema.prisma'), { read })
+    expect(relative).toBe(absolute)
   })
 
   it('changes when the schema changes', () => {
