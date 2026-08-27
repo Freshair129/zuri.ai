@@ -220,6 +220,7 @@
     "FR-110",
     "FR-111",
     "FR-112",
+    "FR-113",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -299,6 +300,7 @@
     "SDD-057",
     "SDD-058",
     "SDD-059",
+    "SDD-060",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2233,6 +2235,21 @@
         }
       ]
     },
+    "FR-113": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "58c34eb8960b407abb766ca950ae424ba72d4abc2be7f843ebb42988d475f9c7",
+      "history": [
+        {
+          "anchor": "entity candidate extraction from chunks and structured",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-08-27",
+      "statement_digest_reason": "The row was widened to name provenance among the fields a candidate carries, after review found the implementation carried it while the statement did not; the subject and the six catalog fields are unchanged."
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3263,6 +3280,19 @@
       "history": [
         {
           "anchor": "chunking is a pure calculator in the knowledge lane with no",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-060": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "7e14aa67890cf9f72d53632216beaaf4253b077bff71055641a6177c767716d0",
+      "history": [
+        {
+          "anchor": "entity recognition is a seam with a deterministic default",
           "since": "2026-08-27",
           "reason": "declared"
         }
