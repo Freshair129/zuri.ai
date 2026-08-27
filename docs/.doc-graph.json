@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1312,
-    "total_edges": 4474,
+    "total_nodes": 1317,
+    "total_edges": 4482,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 102,
+      "document": 103,
       "adr": 50,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 234,
-      "test": 308,
-      "code_file": 348
+      "requirement": 236,
+      "test": 309,
+      "code_file": 349
     },
     "coverage": {
-      "requirements": 234,
-      "fr_with_code": "100% (105/105)",
-      "fr_with_tests": "100% (105/105)",
-      "rules_anchored_in_code": "91% (91/100)",
+      "requirements": 236,
+      "fr_with_code": "100% (106/106)",
+      "fr_with_tests": "100% (106/106)",
+      "rules_anchored_in_code": "91% (92/101)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 348,
+      "annotated_code_files": 349,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,9 +55,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:ROADMAP"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -5145,6 +5143,24 @@
       }
     },
     {
+      "id": "code:src/modules/knowledge/entity-extraction.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/entity-extraction.js",
+      "hash": "94faed6b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-113"
+        ],
+        "@spec": [
+          "SDD-060"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-entity-extraction.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/gbdb-rag-service.js",
       "type": "code_file",
       "path": "src/modules/knowledge/gbdb-rag-service.js",
@@ -7856,6 +7872,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-113-entity-candidate-extraction",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
+      "title": "FR-113 — Entity candidate extraction from chunks and structured records",
+      "hash": "a5199abc",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -8116,9 +8140,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.99.0b",
+      "version": "1.100.0b",
       "doc_status": "Draft",
-      "hash": "fc8eacd2",
+      "hash": "4556d525",
       "status": "current"
     },
     {
@@ -8155,7 +8179,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "abc689c2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -10283,6 +10307,16 @@
       "row_text": "Structural knowledge chunking with parent-child lineage: a parsed document is split along its own structure — document → section → chunk — rather than at a fixed token stride, and every chunk carries the eight fields FR-109's `DPS-KI-CHUNK` catalog row already fixes (`chunk_id`, `parent_id`, `document_id`, `sequence`, `heading_path`, `token_count`, `scope`, `provenance`). `heading_path` carries the whole ancestor chain rather than the nearest heading, so a chunk retrieved on its own still says where in the document it came from. A section too large to retrieve as one unit additionally gets overlapping fixed windows beneath it, parented to the section chunk and reported as a warning — the fallback the specification names (§12), never the default; the windows overlap because without it a sentence lying across a boundary is left whole in neither. Chunking derives nothing it is given: `scope` comes from FR-111 classification and `provenance` from Stage 3, both upstream. The function is pure — no I/O, no clock, no randomness — so the same document chunks to the same ids every time, which is what lets BR-021 treat a reprocessed document as the same knowledge rather than a duplicate. Stage 7 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 12 unit tests "
     },
     {
+      "id": "req:FR-113",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Entity candidate extraction from chunks and structured records: FR-112's chunks and caller-named record fields both yield `EntityCandidate` objects carrying the six fields FR-109's `DPS-KI-ENTITY-EXTRACT` catalog row fixes — `candidate_id`, type, mention, `normalized_name`, `source_chunk_id`, `confidence` — plus the originating chunk or record, the scope it was found in, and the provenance carried from that source so the chain back to the raw artifact survives, so a candidate can never be read outside its tenant (SEC-001, BR-001). A candidate is a mention with a guess attached and never an identity: the specification states it outright (§13, \"EntityCandidate ยังไม่ใช่ canonical entity\"), so two mentions of the same name stay two candidates and nothing here merges, links or resolves them — that judgement is Stage 9, which ADR-050 D2 and the specification both assign to GKS. Recognition is a seam with a deliberately narrow deterministic default (SDD-060); a record mention is read from a declared field rather than guessed, and carries confidence 1 for that reason. Pure — no I/O, no clock, no randomness, no model — so the same input yields the same candidate ids, which is what lets BR-021 treat a reprocessed document as the same knowledge. Stage 8 is Tier 1 under ADR-050, so this executes here.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Entity candidate extraction from chunks and structured records: FR-112's chunks and caller-named record fields both yield `EntityCandidate` objects carrying the six fields FR-109's `DPS-KI-ENTITY-EXTRACT` catalog row fixes — `candidate_id`, type, mention, `normalized_name`, `source_chunk_id`, `confidence` — plus the originating chunk or record, the scope it was found in, and the provenance carried from that source so the chain back to the raw artifact survives, so a candidate can never be read outside its tenant (SEC-001, BR-001). A candidate is a mention with a guess attached and never an identity: the specification states it outright (§13, \"EntityCandidate ยังไม่ใช่ canonical entity\"), so two mentions of the same name stay two candidates and nothing here merges, links or resolves them — that judgement is Stage 9, which ADR-050 D2 and the specification both assign to GKS. Recognition is a seam with a deliberately narrow deterministic default (SDD-060); a record mention is read from a declared field rather than guessed, and carries confidence 1 for that reason. Pure — no I/O, no clock, no randomness, no model — so the same input yields the same candidate ids, which is what lets BR-021 treat a reprocessed document as the same knowledge. Stage 8 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 17 unit tests "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -11071,6 +11105,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Chunking is a pure calculator in the knowledge lane, with no persistence and no model. `src/modules/knowledge/chunking.js` takes parsed blocks plus a scope and a provenance and returns chunk objects; it opens no database, writes no table and declares no Prisma model, so the knowledge charter's `owns_models: []` stays true (SDD-057, ADR-050). Persisting chunks is a later slice and will need a charter change — pinning the boundary here makes it a decision rather than an oversight. Token counting is a whitespace approximation on purpose: a model tokenizer would couple Stage 7 to whichever embedding model Stage 15 happens to use, and this number exists to choose a split point, not to be billed against. Exactness belongs at the embedding boundary, where the model is known. FR-112; FR-109, FR-111, BR-021, SDD-057, ADR-050 "
+    },
+    {
+      "id": "req:SDD-060",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Entity recognition is a seam with a deterministic default, not a model dependency. `extractEntityCandidates` takes an optional `recognizer`; the default recognises legal-form organisation patterns only — `บริษัท … จำกัด`, `ห้างหุ้นส่วนจำกัด …`, `… Co., Ltd.` — because in those the suffix IS the evidence: the grammar announces the type without anyone recognising the name inside it. Person, product, location and the rest of §13's type list need a model, and a model in the knowledge lane would couple Stage 8 to whatever recognises Thai and English text this month (the SDD-059 reasoning, one stage over). An empty seam was rejected as the alternative: shipping a hook with nothing behind it is what makes Stage 15 embedding read as delivered when it is not, and this requirement declines to repeat that shape. `normalized_name` is lexical and uses only the mention itself — trim, collapse, strip the legal wrapper. The moment it consults a registry, a catalogue or the other candidates in the batch it has begun deciding two mentions are one thing, and that decision is Stage 9's.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Entity recognition is a seam with a deterministic default, not a model dependency. `extractEntityCandidates` takes an optional `recognizer`; the default recognises legal-form organisation patterns only — `บริษัท … จำกัด`, `ห้างหุ้นส่วนจำกัด …`, `… Co., Ltd.` — because in those the suffix IS the evidence: the grammar announces the type without anyone recognising the name inside it. Person, product, location and the rest of §13's type list need a model, and a model in the knowledge lane would couple Stage 8 to whatever recognises Thai and English text this month (the SDD-059 reasoning, one stage over). An empty seam was rejected as the alternative: shipping a hook with nothing behind it is what makes Stage 15 embedding read as delivered when it is not, and this requirement declines to repeat that shape. `normalized_name` is lexical and uses only the mention itself — trim, collapse, strip the legal wrapper. The moment it consults a registry, a catalogue or the other candidates in the batch it has begun deciding two mentions are one thing, and that decision is Stage 9's. FR-113; FR-109, FR-112, SDD-059, ADR-050 "
     },
     {
       "id": "req:SEC-001",
@@ -14284,6 +14328,13 @@
       "type": "test",
       "path": "tests/unit/knowledge-chunking.test.js",
       "hash": "847f52a1",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-entity-extraction.test.js",
+      "type": "test",
+      "path": "tests/unit/knowledge-entity-extraction.test.js",
+      "hash": "1d458835",
       "status": "current"
     },
     {
@@ -22416,6 +22467,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/entity-extraction.js",
+      "to": "req:FR-113",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/entity-extraction.js",
+      "to": "req:SDD-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/gbdb-rag-service.js",
       "to": "req:FR-024",
       "type": "implements",
@@ -26980,6 +27045,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-113",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -27527,6 +27599,13 @@
     },
     {
       "from": "req:SDD-059",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-060",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -42018,6 +42097,34 @@
     {
       "from": "test:tests/unit/knowledge-chunking.test.js",
       "to": "req:SDD-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-entity-extraction.test.js",
+      "to": "code:src/modules/knowledge/entity-extraction.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-entity-extraction.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-entity-extraction.test.js",
+      "to": "req:FR-113",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-entity-extraction.test.js",
+      "to": "req:SDD-060",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

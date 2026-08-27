@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-27T09:09:54.938Z",
+  "generatedAt": "2026-08-27T10:25:55.309Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -99,7 +99,8 @@
         "check": "requirements",
         "summary": "FR-109 is planned",
         "evidence": [
-          "tests/unit/knowledge-chunking.test.js"
+          "tests/unit/knowledge-chunking.test.js",
+          "tests/unit/knowledge-entity-extraction.test.js"
         ]
       },
       {
@@ -1126,9 +1127,10 @@
           "declared": "planned",
           "status": "planned",
           "codeCount": 0,
-          "testCount": 1,
+          "testCount": 2,
           "evidence": [
-            "tests/unit/knowledge-chunking.test.js"
+            "tests/unit/knowledge-chunking.test.js",
+            "tests/unit/knowledge-entity-extraction.test.js"
           ]
         },
         {
@@ -1147,6 +1149,13 @@
         },
         {
           "id": "FR-112",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 1
+        },
+        {
+          "id": "FR-113",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1226,6 +1235,7 @@
         "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
         "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
         "docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md",
+        "docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -1272,7 +1282,8 @@
           "check": "requirements",
           "summary": "FR-109 is planned",
           "evidence": [
-            "tests/unit/knowledge-chunking.test.js"
+            "tests/unit/knowledge-chunking.test.js",
+            "tests/unit/knowledge-entity-extraction.test.js"
           ]
         },
         {
@@ -1295,7 +1306,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 0,
-        "featureNotes": 6
+        "featureNotes": 7
       }
     },
     "market-intelligence": {
