@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1333,
-    "total_edges": 4522,
+    "total_nodes": 1336,
+    "total_edges": 4514,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 105,
+      "document": 106,
       "adr": 50,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 241,
-      "test": 315,
-      "code_file": 352
+      "requirement": 243,
+      "test": 314,
+      "code_file": 353
     },
     "coverage": {
-      "requirements": 241,
-      "fr_with_code": "100% (109/109)",
-      "fr_with_tests": "100% (109/109)",
-      "rules_anchored_in_code": "92% (96/104)",
+      "requirements": 243,
+      "fr_with_code": "100% (110/110)",
+      "fr_with_tests": "100% (110/110)",
+      "rules_anchored_in_code": "92% (97/105)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 352,
+      "annotated_code_files": 353,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -54,12 +54,14 @@
   },
   "drift": {
     "changed": [
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/agent/auth-context.js"
+      "doc:PRD-SDD-v1.0"
     ],
     "added": [
-      "test:tests/integration/agent-request-envelope.test.js",
-      "test:tests/unit/agent-requestable-sensitivity.test.js"
+      "doc:FR-116-derived-object-provenance",
+      "req:FR-116",
+      "req:SDD-064",
+      "test:tests/unit/knowledge-provenance.test.js",
+      "code:src/modules/knowledge/provenance.js"
     ],
     "removed": []
   },
@@ -3757,8 +3759,8 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "af428261",
-      "status": "changed",
+      "hash": "d447b07e",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -3824,8 +3826,8 @@
       "id": "code:src/modules/agent/auth-context.js",
       "type": "code_file",
       "path": "src/modules/agent/auth-context.js",
-      "hash": "1a79d4ee",
-      "status": "changed",
+      "hash": "ff5d4669",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-057",
@@ -3842,8 +3844,7 @@
           "SEC-018"
         ],
         "@tested": [
-          "tests/integration/agent-multi-principal.test.js",
-          "tests/integration/agent-request-envelope.test.js"
+          "tests/integration/agent-multi-principal.test.js"
         ]
       }
     },
@@ -5342,6 +5343,24 @@
         ],
         "@tested": [
           "tests/integration/knowledge-project.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/provenance.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/provenance.js",
+      "hash": "16d741ec",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-116"
+        ],
+        "@spec": [
+          "SDD-064"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-provenance.test.js"
         ]
       }
     },
@@ -7957,6 +7976,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-116-derived-object-provenance",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-116-derived-object-provenance.md",
+      "title": "FR-116 — Derived-object provenance and the lineage chain back to a source",
+      "hash": "29fac36b",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -8217,10 +8244,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.103.0b",
+      "version": "1.104.0b",
       "doc_status": "Draft",
-      "hash": "be835394",
-      "status": "current"
+      "hash": "7b7bcdfe",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -10414,6 +10441,16 @@
       "row_text": "Document parsing into a structured artifact that keeps its link to the raw source: a document becomes a `ParsedArtifact` carrying `document_id`, `parsed_from`, `structure`, `text_blocks`, `tables`, `metadata` and `warnings` (spec §7 plus the warnings channel the refusals below report through), where `parsed_from` is the link back to the raw artifact FR-081 stored and `metadata` records the extractor version, so a reparse after a parser change is distinguishable from the original. This closes a gap that made the stages above it unreachable: `chunkDocument` (FR-112) consumes `blocks` and, before this, nothing in `src/` produced that shape — every caller was a test, so Stages 7 and 8 were two modules with no upstream. Parsing is deterministic and refuses structure that is not there: a `#` inside a fenced or indented code block is not a heading, `#hashtag` without a space is prose, a run of dashes with no text above it is a thematic break rather than a setext heading, a sentence containing a pipe is not a table, and a table whose separator disagrees with its header is reported and left as prose rather than read with a column dropped or invented. Markdown and plain text only; the formats needing a model or a binary keep arriving through FR-071's intake contract. Stage 2 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 17 unit tests "
     },
     {
+      "id": "req:FR-116",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Derived-object provenance and the lineage chain back to a source: a knowledge object carries the ten fields §8 requires of anything that came from a source — `source_id`, `source_type`, `source_uri`, `source_version`, `artifact_id`, `ingested_at`, `parsed_at`, `pipeline_version`, `extractor_version`, `checksum` — and a derived object additionally names its `derivation_method` and the `source_objects` it came from, so the chain Fact → Chunk → ParsedArtifact → RawArtifact → Source can be walked and either reaches a source or says plainly that it did not. **This carries and validates a chain of identifiers it does not mint**: identity is established by FR-071's execution ledger and by Stage 2, and FR-116 consumes it — the moment it generated a `doc_id` it would have crossed into FR-071's subject rather than sitting beside it. The contract arrives after the field did: FR-112 and FR-113 have been passing a `provenance` object between them that nothing defined and nothing checked, and Stage 2 (FR-115) hands them one, and this is what gives that blob a meaning. Nothing is defaulted, an empty provenance is refused as loudly as an absent one, and an artifact parsed before it was ingested is refused because that order cannot have happened. Stage 3 is Tier 1 under ADR-050, so this executes here.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Derived-object provenance and the lineage chain back to a source: a knowledge object carries the ten fields §8 requires of anything that came from a source — `source_id`, `source_type`, `source_uri`, `source_version`, `artifact_id`, `ingested_at`, `parsed_at`, `pipeline_version`, `extractor_version`, `checksum` — and a derived object additionally names its `derivation_method` and the `source_objects` it came from, so the chain Fact → Chunk → ParsedArtifact → RawArtifact → Source can be walked and either reaches a source or says plainly that it did not. **This carries and validates a chain of identifiers it does not mint**: identity is established by FR-071's execution ledger and by Stage 2, and FR-116 consumes it — the moment it generated a `doc_id` it would have crossed into FR-071's subject rather than sitting beside it. The contract arrives after the field did: FR-112 and FR-113 have been passing a `provenance` object between them that nothing defined and nothing checked, and Stage 2 (FR-115) hands them one, and this is what gives that blob a meaning. Nothing is defaulted, an empty provenance is refused as loudly as an absent one, and an artifact parsed before it was ingested is refused because that order cannot have happened. Stage 3 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 23 unit tests "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -11242,6 +11279,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "The parser produces the block shape Stage 7 already consumes. `parseDocument` returns `structure` as an array of `{ type: heading or text, level, text }`, which is exactly the `blocks` argument `chunkDocument` reads — so Stage 2 hands Stage 7 its input rather than the two agreeing by coincidence across two test suites that each build the shape. **Stage 7 owns the shape**; it existed first and its tests define it, and the parser conforms to it. The seam is held by a test that feeds real parser output straight into `chunkDocument` and asserts on the resulting chunks, because a written statement that two shapes match is prose, and prose is not a contract — the same reason a green governance run does not prove a link resolves. Markdown and plain text are parsed here; PDF, DOCX, OCR and vision layout are not, and are received instead through FR-071's `smartgift.document-intake.v1` front door, which validates someone else's extraction rather than performing one. FR-115; FR-112, FR-071, FR-109, ADR-050 "
+    },
+    {
+      "id": "req:SDD-064",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Declaring knowledge derived is a claim that names its sources, not an exemption from having any. Spec §8 forbids publishing a Fact or Relation whose source cannot be traced \"unless explicitly declared DERIVED / INFERRED / COMPUTED\", which read naively is an escape hatch: type the word and the requirement lifts. The declaration therefore exempts an object from having a RAW source and never from having sources — an object that declares itself derived and can name nothing is not derived, it is unattributed, and it does not publish. Naming is not enough either: `assertPublishable` requires a resolver and refuses a named source that nothing resolves, because a check that accepts an unresolvable name lets the declaration back itself, which is the laundering this decision exists to stop arriving through the door the decision built. There is deliberately no shape-only mode; whether a named source exists is the question, and a permissive default would answer a different one.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Declaring knowledge derived is a claim that names its sources, not an exemption from having any. Spec §8 forbids publishing a Fact or Relation whose source cannot be traced \"unless explicitly declared DERIVED / INFERRED / COMPUTED\", which read naively is an escape hatch: type the word and the requirement lifts. The declaration therefore exempts an object from having a RAW source and never from having sources — an object that declares itself derived and can name nothing is not derived, it is unattributed, and it does not publish. Naming is not enough either: `assertPublishable` requires a resolver and refuses a named source that nothing resolves, because a check that accepts an unresolvable name lets the declaration back itself, which is the laundering this decision exists to stop arriving through the door the decision built. There is deliberately no shape-only mode; whether a named source exists is the question, and a permissive default would answer a different one. FR-116; FR-071, FR-112, FR-113, SDD-042, ADR-050 "
     },
     {
       "id": "req:SEC-001",
@@ -13170,13 +13217,6 @@
       "status": "current"
     },
     {
-      "id": "test:tests/integration/agent-request-envelope.test.js",
-      "type": "test",
-      "path": "tests/integration/agent-request-envelope.test.js",
-      "hash": "6a7ab267",
-      "status": "current"
-    },
-    {
       "id": "test:tests/integration/agent-runtime.test.js",
       "type": "test",
       "path": "tests/integration/agent-runtime.test.js",
@@ -13685,13 +13725,6 @@
       "type": "test",
       "path": "tests/unit/activation-readiness-integration.test.js",
       "hash": "d901fad4",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/agent-requestable-sensitivity.test.js",
-      "type": "test",
-      "path": "tests/unit/agent-requestable-sensitivity.test.js",
-      "hash": "711917a5",
       "status": "current"
     },
     {
@@ -14497,6 +14530,13 @@
       "type": "test",
       "path": "tests/unit/knowledge-parsing.test.js",
       "hash": "1429fabe",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-provenance.test.js",
+      "type": "test",
+      "path": "tests/unit/knowledge-provenance.test.js",
+      "hash": "71a52970",
       "status": "current"
     },
     {
@@ -22811,6 +22851,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/provenance.js",
+      "to": "req:FR-116",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/provenance.js",
+      "to": "req:SDD-064",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/query.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -27291,6 +27345,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-116",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -27866,6 +27927,13 @@
     },
     {
       "from": "req:SDD-063",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-064",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -32353,90 +32421,6 @@
     },
     {
       "from": "test:tests/integration/agent-multi-principal.test.js",
-      "to": "req:SEC-018",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-request-envelope.test.js",
-      "to": "code:src/modules/agent/auth-context.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/integration/agent-request-envelope.test.js",
-      "to": "req:BR-015",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-request-envelope.test.js",
-      "to": "req:BR-020",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-request-envelope.test.js",
-      "to": "req:FR-057",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/agent-request-envelope.test.js",
-      "to": "req:FR-096",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-request-envelope.test.js",
-      "to": "req:FR-097",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-request-envelope.test.js",
-      "to": "req:FR-098",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-request-envelope.test.js",
-      "to": "req:FR-111",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/agent-request-envelope.test.js",
-      "to": "req:SDD-030",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-request-envelope.test.js",
-      "to": "req:SDD-052",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/agent-request-envelope.test.js",
-      "to": "req:SEC-013",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/agent-request-envelope.test.js",
       "to": "req:SEC-018",
       "type": "verifies",
       "status": "current",
@@ -37387,27 +37371,6 @@
     {
       "from": "test:tests/unit/activation-readiness-integration.test.js",
       "to": "req:SEC-012",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/agent-requestable-sensitivity.test.js",
-      "to": "req:FR-057",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/agent-requestable-sensitivity.test.js",
-      "to": "req:FR-111",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/agent-requestable-sensitivity.test.js",
-      "to": "req:SEC-013",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -42567,6 +42530,27 @@
     {
       "from": "test:tests/unit/knowledge-parsing.test.js",
       "to": "req:SDD-063",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-provenance.test.js",
+      "to": "code:src/modules/knowledge/provenance.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-provenance.test.js",
+      "to": "req:FR-116",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-provenance.test.js",
+      "to": "req:SDD-064",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
