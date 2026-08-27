@@ -48,20 +48,12 @@
   },
   "drift": {
     "changed": [
-      "doc:B-db-schema",
-      "domain:identity",
       "doc:PRD-SDD-v1.0",
-      "code:src/modules/identity/session-port.js",
-      "code:src/modules/project-manager/application/backup-service.js"
-    ],
-    "added": [
-      "model:PlatformGrant",
-      "req:FR-107",
       "test:tests/unit/bootstrap-operator-cli.test.js",
       "test:tests/unit/operator-bootstrap.test.js",
-      "test:tests/unit/platform-grant-migration.test.js",
       "code:src/modules/identity/operator-bootstrap.js"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -4643,8 +4635,8 @@
       "id": "code:src/modules/identity/operator-bootstrap.js",
       "type": "code_file",
       "path": "src/modules/identity/operator-bootstrap.js",
-      "hash": "c0ae7107",
-      "status": "current",
+      "hash": "a3fd2130",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-107",
@@ -4825,7 +4817,7 @@
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
       "hash": "b30318b2",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -5467,7 +5459,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "208e99f6",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -6984,7 +6976,7 @@
       "version": "1.11.0",
       "doc_status": "Draft",
       "hash": "3dd639b5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -7878,7 +7870,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.93.0b",
       "doc_status": "Draft",
-      "hash": "9b6bc922",
+      "hash": "639d2eee",
       "status": "changed"
     },
     {
@@ -8135,7 +8127,7 @@
         "identity"
       ],
       "hash": "2aa71436",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:integration",
@@ -13175,8 +13167,8 @@
       "id": "test:tests/unit/bootstrap-operator-cli.test.js",
       "type": "test",
       "path": "tests/unit/bootstrap-operator-cli.test.js",
-      "hash": "8ab1521b",
-      "status": "current"
+      "hash": "481d5ffe",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/breadcrumb-switcher.test.js",
@@ -14022,8 +14014,8 @@
       "id": "test:tests/unit/operator-bootstrap.test.js",
       "type": "test",
       "path": "tests/unit/operator-bootstrap.test.js",
-      "hash": "4e187ccd",
-      "status": "current"
+      "hash": "59cd16dc",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/overview-split.test.js",

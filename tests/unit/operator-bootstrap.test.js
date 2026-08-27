@@ -89,6 +89,47 @@ describe('bootstrapOperator', () => {
   })
 })
 
+describe('bootstrapOperator grant-only mode', () => {
+  it('still refuses while any ACTIVE OPERATOR grant stands — grant-only serves the empty set only', async () => {
+    const { db } = bootstrapDb({ standingGrant: { id: 'grant-existing' } })
+    await expect(bootstrapOperator({ email: 'boss@example.com', grantOnly: true, db }))
+      .rejects.toMatchObject({ status: 409, message: expect.stringContaining('BOOTSTRAP_REFUSED_OPERATOR_EXISTS') })
+    expect(db.$transaction).not.toHaveBeenCalled()
+  })
+
+  it('refuses when the target Person does not exist — grant-only grants, it never creates', async () => {
+    const { db } = bootstrapDb()
+    await expect(bootstrapOperator({ email: 'ghost@example.com', grantOnly: true, db }))
+      .rejects.toMatchObject({ status: 404, message: expect.stringContaining('BOOTSTRAP_GRANT_ONLY_PERSON_NOT_FOUND') })
+    expect(db.$transaction).not.toHaveBeenCalled()
+  })
+
+  it('issues only the ACTIVE OPERATOR grant + audit for a Person who already holds a credential, and returns no password', async () => {
+    const { db, tx, created } = bootstrapDb({
+      existingPerson: { id: 'per-boss', code: 'PER-BOSS', displayName: 'Boss', credential: { id: 'cred-existing' } },
+    })
+    const result = await bootstrapOperator({ email: 'boss@example.com', grantOnly: true, db })
+
+    expect(tx.person.create).not.toHaveBeenCalled()
+    expect(tx.personCredential.create).not.toHaveBeenCalled()
+    expect(created.grant).toMatchObject({ personId: 'per-boss', capability: 'OPERATOR', status: 'ACTIVE' })
+    expect(created.audit.action).toBe('OPERATOR_BOOTSTRAPPED')
+    expect(JSON.parse(created.audit.payloadJson)).toMatchObject({ personCode: 'PER-BOSS', grantId: 'grant-1', grantOnly: true })
+    expect(result).toMatchObject({ personId: 'per-boss', personCode: 'PER-BOSS', displayName: 'Boss', grantId: 'grant-1' })
+    expect(result.initialPassword).toBeUndefined()
+  })
+
+  it('never touches the credential of a credential-less Person either — no credential is minted on its behalf', async () => {
+    const { db, tx } = bootstrapDb({
+      existingPerson: { id: 'per-1', code: 'PER-KEEP', displayName: 'Keep', credential: null },
+    })
+    const result = await bootstrapOperator({ email: 'keep@example.com', grantOnly: true, db })
+    expect(tx.personCredential.create).not.toHaveBeenCalled()
+    expect(result.grantId).toBe('grant-1')
+    expect(result.initialPassword).toBeUndefined()
+  })
+})
+
 describe('hasOperatorGrant → session port', () => {
   it('is false when the store is absent (test doubles, pre-migration databases)', async () => {
     expect(await hasOperatorGrant('per-1', {})).toBe(false)
