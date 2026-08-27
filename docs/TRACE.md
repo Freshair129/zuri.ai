@@ -871,7 +871,7 @@
 - **Status:** planned
 - **Code:** —
 - **Follows:** —
-- **Tests:** —
+- **Tests:** `tests/unit/knowledge-chunking.test.js`
 
 ### FR-110 — Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2).
 
@@ -888,3 +888,10 @@
 - **Code:** —
 - **Follows:** —
 - **Tests:** —
+
+### FR-112 — Structural knowledge chunking with parent-child lineage: a parsed document is split along its own structure — document → section → chunk — rather than at a fixed token stride, and every chunk carries the eight fields FR-109's `DPS-KI-CHUNK` catalog row already fixes (`chunk_id`, `parent_id`, `document_id`, `sequence`, `heading_path`, `token_count`, `scope`, `provenance`). `heading_path` carries the whole ancestor chain rather than the nearest heading, so a chunk retrieved on its own still says where in the document it came from. A section too large to retrieve as one unit additionally gets overlapping fixed windows beneath it, parented to the section chunk and reported as a warning — the fallback the specification names (§12), never the default; the windows overlap because without it a sentence lying across a boundary is left whole in neither. Chunking derives nothing it is given: `scope` comes from FR-111 classification and `provenance` from Stage 3, both upstream. The function is pure — no I/O, no clock, no randomness — so the same document chunks to the same ids every time, which is what lets BR-021 treat a reprocessed document as the same knowledge rather than a duplicate. Stage 7 is Tier 1 under ADR-050, so this executes here.
+
+- **Status:** done
+- **Code:** `src/modules/knowledge/chunking.js`
+- **Follows:** SDD-059
+- **Tests:** `tests/unit/knowledge-chunking.test.js`
