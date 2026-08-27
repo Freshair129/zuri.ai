@@ -871,7 +871,7 @@
 - **Status:** planned
 - **Code:** —
 - **Follows:** —
-- **Tests:** `tests/unit/knowledge-chunking.test.js`
+- **Tests:** `tests/unit/knowledge-chunking.test.js` · `tests/unit/knowledge-entity-extraction.test.js`
 
 ### FR-110 — Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2).
 
@@ -895,3 +895,10 @@
 - **Code:** `src/modules/knowledge/chunking.js`
 - **Follows:** SDD-059
 - **Tests:** `tests/unit/knowledge-chunking.test.js`
+
+### FR-113 — Entity candidate extraction from chunks and structured records: FR-112's chunks and caller-named record fields both yield `EntityCandidate` objects carrying the six fields FR-109's `DPS-KI-ENTITY-EXTRACT` catalog row fixes — `candidate_id`, type, mention, `normalized_name`, `source_chunk_id`, `confidence` — plus the originating chunk or record, the scope it was found in, and the provenance carried from that source so the chain back to the raw artifact survives, so a candidate can never be read outside its tenant (SEC-001, BR-001). A candidate is a mention with a guess attached and never an identity: the specification states it outright (§13, "EntityCandidate ยังไม่ใช่ canonical entity"), so two mentions of the same name stay two candidates and nothing here merges, links or resolves them — that judgement is Stage 9, which ADR-050 D2 and the specification both assign to GKS. Recognition is a seam with a deliberately narrow deterministic default (SDD-060); a record mention is read from a declared field rather than guessed, and carries confidence 1 for that reason. Pure — no I/O, no clock, no randomness, no model — so the same input yields the same candidate ids, which is what lets BR-021 treat a reprocessed document as the same knowledge. Stage 8 is Tier 1 under ADR-050, so this executes here.
+
+- **Status:** done
+- **Code:** `src/modules/knowledge/entity-extraction.js`
+- **Follows:** SDD-060
+- **Tests:** `tests/unit/knowledge-entity-extraction.test.js`
