@@ -922,4 +922,11 @@
 - **Status:** done
 - **Code:** `src/modules/knowledge/provenance.js`
 - **Follows:** SDD-064
-- **Tests:** `tests/unit/knowledge-provenance.test.js`
+- **Tests:** `tests/unit/knowledge-dedup.test.js` · `tests/unit/knowledge-provenance.test.js`
+
+### FR-117 — Deduplication and version relationships within one tenant: an artifact is placed against the ones already held as a `DUPLICATE_OF`, a `REVISION_OF`, or independent of all of them, using BR-021's four-part ingestion identity — source identity, source version, content hash and pipeline version — computed inside a tenant and never across one (SEC-021). Both rules have carried no code anchor since they were declared; this is what gives them one. A revision emits its supersession as a PAIR, `SUPERSEDES` from the incoming artifact and `SUPERSEDED_BY` back to the one it replaced, because a graph carrying only the forward edge cannot answer "what replaced this?" from the side that was replaced, which is the side that gets asked. A duplicate emits no edge, having replaced nothing. A reparse under a changed pipeline version is a revision rather than a duplicate even when every byte matches, which is what makes reprocessing a whole corpus safe after a parser change. Nothing is defaulted: a missing component of the key is refused rather than hashed as an empty string, because a hole in a key is not an absence but a value every other artifact missing that part will collide with. `DERIVED_FROM` is never assigned here — that edge is provenance and FR-116 owns it. Stage 6 is Tier 1 under ADR-050, so this executes here.
+
+- **Status:** done
+- **Code:** `src/modules/knowledge/dedup.js`
+- **Follows:** BR-021, SEC-021
+- **Tests:** `tests/unit/knowledge-dedup.test.js`
