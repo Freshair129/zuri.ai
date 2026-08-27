@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1291,
-    "total_edges": 4429,
+    "total_nodes": 1292,
+    "total_edges": 4436,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -17,7 +17,7 @@
       "model": 67,
       "requirement": 223,
       "test": 307,
-      "code_file": 346
+      "code_file": 347
     },
     "coverage": {
       "requirements": 223,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (104/104)",
       "rules_anchored_in_code": "96% (90/94)",
       "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 346,
+      "annotated_code_files": 347,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -48,9 +48,28 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0"
+      "doc:A-api-spec",
+      "doc:FEATURES",
+      "doc:PRD-SDD-v1.0",
+      "test:tests/integration/openapi-docs.test.js",
+      "code:src/modules/project-manager/api-docs/openapi.js",
+      "code:src/modules/project-manager/application/business-strategy-mutation-service.js",
+      "code:src/modules/project-manager/import/plan-import-service.js"
     ],
-    "added": [],
+    "added": [
+      "doc:FR-108-execution-plan-bundle",
+      "route:api:/api/import/bundle/commit",
+      "route:api:/api/import/bundle/dry-run",
+      "test:tests/integration/execution-plan-bundle.test.js",
+      "test:tests/unit/bundle-schema.test.js",
+      "code:src/app/api/import/bundle/commit/route.js",
+      "code:src/app/api/import/bundle/dry-run/route.js",
+      "code:src/modules/project-manager/import/bundle/bundle-commit-service.js",
+      "code:src/modules/project-manager/import/bundle/bundle-dry-run.js",
+      "code:src/modules/project-manager/import/bundle/bundle-receipt.js",
+      "code:src/modules/project-manager/import/bundle/bundle-resolver.js",
+      "code:src/modules/project-manager/import/bundle/bundle-schema.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -3169,7 +3188,7 @@
       "id": "code:src/app/login/page.jsx",
       "type": "code_file",
       "path": "src/app/login/page.jsx",
-      "hash": "76a59d43",
+      "hash": "9d060c8a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3184,6 +3203,7 @@
         "@tested": [
           "tests/unit/entry-surfaces.test.js",
           "tests/unit/fr046-api-ui-contract.test.js",
+          "tests/unit/fr046-auth-route.test.js",
           "tests/e2e/fr046-entry-contract.spec.js"
         ]
       }
@@ -4633,6 +4653,25 @@
       }
     },
     {
+      "id": "code:src/modules/identity/login-error-copy.js",
+      "type": "code_file",
+      "path": "src/modules/identity/login-error-copy.js",
+      "hash": "76031772",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-046"
+        ],
+        "@spec": [
+          "SDD-024",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/fr046-auth-route.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/onboarding-service.js",
       "type": "code_file",
       "path": "src/modules/identity/onboarding-service.js",
@@ -5441,7 +5480,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "45ce57f1",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019"
@@ -5534,7 +5573,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/business-strategy-mutation-service.js",
       "hash": "f2890e13",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-059"
@@ -6444,7 +6483,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
       "hash": "a81eaac1",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-012",
@@ -7080,7 +7119,7 @@
       "version": "1.25.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "bb7e6667",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -7216,7 +7255,7 @@
       "version": "1.6.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "99f270ba",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -13154,7 +13193,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "b78ae5c7",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -13790,14 +13829,14 @@
       "id": "test:tests/unit/fr046-api-ui-contract.test.js",
       "type": "test",
       "path": "tests/unit/fr046-api-ui-contract.test.js",
-      "hash": "465d5fcb",
+      "hash": "0b58916d",
       "status": "current"
     },
     {
       "id": "test:tests/unit/fr046-auth-route.test.js",
       "type": "test",
       "path": "tests/unit/fr046-auth-route.test.js",
-      "hash": "68c472c9",
+      "hash": "3ec449bf",
       "status": "current"
     },
     {
@@ -21484,6 +21523,27 @@
     {
       "from": "code:src/modules/identity/link-line-identity.js",
       "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/login-error-copy.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/login-error-copy.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/login-error-copy.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -39655,10 +39715,31 @@
     },
     {
       "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "code:src/app/login/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
       "to": "code:src/modules/identity/auth-service.js",
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "code:src/modules/identity/login-error-copy.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr046-auth-route.test.js",
@@ -39677,6 +39758,13 @@
     {
       "from": "test:tests/unit/fr046-auth-route.test.js",
       "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
