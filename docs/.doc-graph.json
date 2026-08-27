@@ -48,28 +48,12 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:FEATURES",
       "doc:PRD-SDD-v1.0",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/business-strategy-mutation-service.js",
-      "code:src/modules/project-manager/import/plan-import-service.js"
+      "test:tests/unit/bootstrap-operator-cli.test.js",
+      "test:tests/unit/operator-bootstrap.test.js",
+      "code:src/modules/identity/operator-bootstrap.js"
     ],
-    "added": [
-      "doc:FR-108-execution-plan-bundle",
-      "route:api:/api/import/bundle/commit",
-      "route:api:/api/import/bundle/dry-run",
-      "test:tests/integration/execution-plan-bundle.test.js",
-      "test:tests/unit/bundle-schema.test.js",
-      "code:src/app/api/import/bundle/commit/route.js",
-      "code:src/app/api/import/bundle/dry-run/route.js",
-      "code:src/modules/project-manager/import/bundle/bundle-commit-service.js",
-      "code:src/modules/project-manager/import/bundle/bundle-dry-run.js",
-      "code:src/modules/project-manager/import/bundle/bundle-receipt.js",
-      "code:src/modules/project-manager/import/bundle/bundle-resolver.js",
-      "code:src/modules/project-manager/import/bundle/bundle-schema.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -4714,8 +4698,8 @@
       "id": "code:src/modules/identity/operator-bootstrap.js",
       "type": "code_file",
       "path": "src/modules/identity/operator-bootstrap.js",
-      "hash": "c0ae7107",
-      "status": "current",
+      "hash": "a3fd2130",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-107",
@@ -5480,7 +5464,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "45ce57f1",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -5573,7 +5557,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/business-strategy-mutation-service.js",
       "hash": "f2890e13",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-059"
@@ -6483,7 +6467,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
       "hash": "a81eaac1",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-012",
@@ -7119,7 +7103,7 @@
       "version": "1.25.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "bb7e6667",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -7255,7 +7239,7 @@
       "version": "1.6.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "99f270ba",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -8067,9 +8051,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.96.0b",
+      "version": "1.97.0b",
       "doc_status": "Draft",
-      "hash": "ce05da08",
+      "hash": "6046dfb9",
       "status": "changed"
     },
     {
@@ -13193,7 +13177,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "b78ae5c7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -13416,8 +13400,8 @@
       "id": "test:tests/unit/bootstrap-operator-cli.test.js",
       "type": "test",
       "path": "tests/unit/bootstrap-operator-cli.test.js",
-      "hash": "8ab1521b",
-      "status": "current"
+      "hash": "481d5ffe",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/breadcrumb-switcher.test.js",
@@ -14270,8 +14254,8 @@
       "id": "test:tests/unit/operator-bootstrap.test.js",
       "type": "test",
       "path": "tests/unit/operator-bootstrap.test.js",
-      "hash": "4e187ccd",
-      "status": "current"
+      "hash": "59cd16dc",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/overview-split.test.js",

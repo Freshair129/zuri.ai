@@ -3,6 +3,9 @@
 //   ACTIVE OPERATOR PlatformGrant in one transaction, audited, and REFUSES when
 //   any ACTIVE OPERATOR grant already exists — bootstrap is for an empty
 //   operator set only; every later grant must be issued by a standing operator.
+//   grantOnly issues just the grant + audit to an EXISTING Person (credential
+//   or not, never touched) — the first operator may already hold a credential
+//   via the FR-104 reset flow while the operator set is still empty.
 // @spec FR-075, SEC-008, SEC-014
 // @tested tests/unit/operator-bootstrap.test.js
 //
@@ -36,11 +39,13 @@ function failure(status, message) {
 /**
  * Create the installation's FIRST operator. Fails closed when one exists.
  * Returns the initial password exactly once — it is never persisted in any
- * form but its scrypt hash, and never audited.
+ * form but its scrypt hash, and never audited. With `grantOnly`, issues only
+ * the ACTIVE OPERATOR grant (+ audit) to an existing Person and returns no
+ * password — no credential is read, written or required.
  */
-export async function bootstrapOperator({ email, displayName, db = prisma, now = () => new Date() } = {}) {
+export async function bootstrapOperator({ email, displayName, grantOnly = false, db = prisma, now = () => new Date() } = {}) {
   if (typeof email !== 'string' || !email.includes('@')) throw failure(400, 'BOOTSTRAP_EMAIL_REQUIRED')
-  if (typeof displayName !== 'string' || !displayName.trim()) throw failure(400, 'BOOTSTRAP_DISPLAY_NAME_REQUIRED')
+  if (!grantOnly && (typeof displayName !== 'string' || !displayName.trim())) throw failure(400, 'BOOTSTRAP_DISPLAY_NAME_REQUIRED')
 
   const standing = await db.platformGrant.findFirst({
     where: { capability: OPERATOR_CAPABILITY, status: 'ACTIVE' },
@@ -52,6 +57,26 @@ export async function bootstrapOperator({ email, displayName, db = prisma, now =
     where: { email },
     select: { id: true, code: true, displayName: true, credential: { select: { id: true } } },
   })
+
+  if (grantOnly) {
+    if (!existing) throw failure(404, 'BOOTSTRAP_GRANT_ONLY_PERSON_NOT_FOUND — grant-only issues a grant to an existing Person; it never creates one')
+    const grantId = await db.$transaction(async (tx) => {
+      const grant = await tx.platformGrant.create({
+        data: { personId: existing.id, capability: OPERATOR_CAPABILITY, status: 'ACTIVE' },
+        select: { id: true },
+      })
+      await recordAudit(tx, {
+        entityType: 'PERSON',
+        entityId: existing.id,
+        action: 'OPERATOR_BOOTSTRAPPED',
+        actorId: null,
+        payload: { personCode: existing.code, grantId: grant.id, grantOnly: true, at: now().toISOString() },
+      })
+      return grant.id
+    })
+    return { personId: existing.id, personCode: existing.code, displayName: existing.displayName, grantId }
+  }
+
   if (existing?.credential) {
     throw failure(409, 'BOOTSTRAP_REFUSED_CREDENTIAL_EXISTS — this Person already holds a credential; bootstrap never overwrites one')
   }
