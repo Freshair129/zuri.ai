@@ -221,6 +221,7 @@
     "FR-111",
     "FR-112",
     "FR-113",
+    "FR-114",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -301,6 +302,7 @@
     "SDD-058",
     "SDD-059",
     "SDD-060",
+    "SDD-061",
     "SDD-062",
     "SEC-001",
     "SEC-002",
@@ -2251,6 +2253,19 @@
       "statement_digest_reviewed_at": "2026-08-27",
       "statement_digest_reason": "The row was widened to name provenance among the fields a candidate carries, after review found the implementation carried it while the statement did not; the subject and the six catalog fields are unchanged."
     },
+    "FR-114": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "cb653c4823213fa49ae629ef533abbbf7c22ec60cd5bbf89ccb707d039b758dd",
+      "history": [
+        {
+          "anchor": "canonical normalization that never destroys the raw value",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3299,6 +3314,21 @@
         }
       ]
     },
+    "SDD-061": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6c94fd58147dd1c892aab7ea9cbf096319e842e9e1aeafa8171a00dc7cdc2f99",
+      "history": [
+        {
+          "anchor": "a normalizer that cannot decide reports the ambiguity",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-08-27",
+      "statement_digest_reason": "Corrected the non-existent-date example to the four-digit form the implementation actually reaches, and restored the same lost backslash; the decision itself is unchanged."
+    },
     "SDD-062": {
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3310,9 +3340,7 @@
           "since": "2026-08-27",
           "reason": "declared"
         }
-      ],
-      "statement_digest_reviewed_at": "2026-08-27",
-      "statement_digest_reason": "Narrowed the agent-guard claim: write-tools rejects out-of-range action sensitivity but auth-context validates nothing and already defaults to the string PUBLIC, so the separation rests on naming there."
+      ]
     },
     "SEC-001": {
       "family": "SEC",
