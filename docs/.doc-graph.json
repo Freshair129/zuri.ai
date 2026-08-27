@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1317,
+    "total_nodes": 1318,
     "total_edges": 4482,
     "dangling_edges": 0,
     "node_types": {
@@ -16,7 +16,7 @@
       "route": 150,
       "model": 67,
       "requirement": 236,
-      "test": 309,
+      "test": 310,
       "code_file": 349
     },
     "coverage": {
@@ -58,7 +58,9 @@
     "changed": [
       "doc:ROADMAP"
     ],
-    "added": [],
+    "added": [
+      "test:tests/unit/roadmap-evidence.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -8180,7 +8182,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "02068edd",
+      "hash": "ae2e48bd",
       "status": "changed"
     },
     {
@@ -14862,6 +14864,13 @@
       "type": "test",
       "path": "tests/unit/repositories-page-ui-contract.test.js",
       "hash": "eabd3a57",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/roadmap-evidence.test.js",
+      "type": "test",
+      "path": "tests/unit/roadmap-evidence.test.js",
+      "hash": "e52f6b3c",
       "status": "current"
     },
     {
