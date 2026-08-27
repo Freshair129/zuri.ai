@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-27T23:05:29.466Z",
+  "generatedAt": "2026-08-27T23:30:35.658Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1172,6 +1172,13 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
+          "testCount": 2
+        },
+        {
+          "id": "FR-117",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
           "testCount": 1
         }
       ],
@@ -1252,6 +1259,7 @@
         "docs/domains/knowledge/features/FR-114-canonical-normalization.md",
         "docs/domains/knowledge/features/FR-115-document-parsing.md",
         "docs/domains/knowledge/features/FR-116-derived-object-provenance.md",
+        "docs/domains/knowledge/features/FR-117-deduplication-and-versioning.md",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -1315,7 +1323,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 0,
-        "featureNotes": 10
+        "featureNotes": 11
       }
     },
     "market-intelligence": {

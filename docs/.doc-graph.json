@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1338,
-    "total_edges": 4529,
+    "total_nodes": 1343,
+    "total_edges": 4539,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 106,
+      "document": 107,
       "adr": 50,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 243,
-      "test": 316,
-      "code_file": 353
+      "requirement": 245,
+      "test": 317,
+      "code_file": 354
     },
     "coverage": {
-      "requirements": 243,
-      "fr_with_code": "100% (110/110)",
-      "fr_with_tests": "100% (110/110)",
-      "rules_anchored_in_code": "92% (97/105)",
+      "requirements": 245,
+      "fr_with_code": "100% (111/111)",
+      "fr_with_tests": "100% (111/111)",
+      "rules_anchored_in_code": "93% (99/106)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 353,
+      "annotated_code_files": 354,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -38,13 +38,12 @@
       "fr_without_tests": [],
       "rules_without_anchor": [
         "BR-017",
-        "BR-021",
         "BR-022",
         "SDD-040",
         "SDD-041",
         "SDD-046",
         "SDD-057",
-        "SEC-021"
+        "SDD-065"
       ],
       "rules_superseded": [
         "SDD-001",
@@ -53,8 +52,16 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [],
+    "changed": [
+      "doc:PRD-SDD-v1.0"
+    ],
+    "added": [
+      "doc:FR-117-deduplication-and-versioning",
+      "req:FR-117",
+      "req:SDD-065",
+      "test:tests/unit/knowledge-dedup.test.js",
+      "code:src/modules/knowledge/dedup.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -5162,6 +5169,25 @@
       }
     },
     {
+      "id": "code:src/modules/knowledge/dedup.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/dedup.js",
+      "hash": "300c7849",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-117"
+        ],
+        "@spec": [
+          "SEC-021",
+          "BR-021"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-dedup.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/entity-extraction.js",
       "type": "code_file",
       "path": "src/modules/knowledge/entity-extraction.js",
@@ -7977,6 +8003,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-117-deduplication-and-versioning",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-117-deduplication-and-versioning.md",
+      "title": "FR-117 — Deduplication and version relationships within one tenant",
+      "hash": "8fb844b3",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -8237,10 +8271,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.104.0b",
+      "version": "1.106.0b",
       "doc_status": "Draft",
-      "hash": "7b7bcdfe",
-      "status": "current"
+      "hash": "a253705b",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -10444,6 +10478,16 @@
       "row_text": "Derived-object provenance and the lineage chain back to a source: a knowledge object carries the ten fields §8 requires of anything that came from a source — `source_id`, `source_type`, `source_uri`, `source_version`, `artifact_id`, `ingested_at`, `parsed_at`, `pipeline_version`, `extractor_version`, `checksum` — and a derived object additionally names its `derivation_method` and the `source_objects` it came from, so the chain Fact → Chunk → ParsedArtifact → RawArtifact → Source can be walked and either reaches a source or says plainly that it did not. **This carries and validates a chain of identifiers it does not mint**: identity is established by FR-071's execution ledger and by Stage 2, and FR-116 consumes it — the moment it generated a `doc_id` it would have crossed into FR-071's subject rather than sitting beside it. The contract arrives after the field did: FR-112 and FR-113 have been passing a `provenance` object between them that nothing defined and nothing checked, and Stage 2 (FR-115) hands them one, and this is what gives that blob a meaning. Nothing is defaulted, an empty provenance is refused as loudly as an absent one, and an artifact parsed before it was ingested is refused because that order cannot have happened. Stage 3 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 23 unit tests "
     },
     {
+      "id": "req:FR-117",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Deduplication and version relationships within one tenant: an artifact is placed against the ones already held as a `DUPLICATE_OF`, a `REVISION_OF`, or independent of all of them, using BR-021's four-part ingestion identity — source identity, source version, content hash and pipeline version — computed inside a tenant and never across one (SEC-021). Both rules have carried no code anchor since they were declared; this is what gives them one. A revision emits its supersession as a PAIR, `SUPERSEDES` from the incoming artifact and `SUPERSEDED_BY` back to the one it replaced, because a graph carrying only the forward edge cannot answer \"what replaced this?\" from the side that was replaced, which is the side that gets asked. A duplicate emits no edge, having replaced nothing. A reparse under a changed pipeline version is a revision rather than a duplicate even when every byte matches, which is what makes reprocessing a whole corpus safe after a parser change. Nothing is defaulted: a missing component of the key is refused rather than hashed as an empty string, because a hole in a key is not an absence but a value every other artifact missing that part will collide with. `DERIVED_FROM` is never assigned here — that edge is provenance and FR-116 owns it. Stage 6 is Tier 1 under ADR-050, so this executes here.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Deduplication and version relationships within one tenant: an artifact is placed against the ones already held as a `DUPLICATE_OF`, a `REVISION_OF`, or independent of all of them, using BR-021's four-part ingestion identity — source identity, source version, content hash and pipeline version — computed inside a tenant and never across one (SEC-021). Both rules have carried no code anchor since they were declared; this is what gives them one. A revision emits its supersession as a PAIR, `SUPERSEDES` from the incoming artifact and `SUPERSEDED_BY` back to the one it replaced, because a graph carrying only the forward edge cannot answer \"what replaced this?\" from the side that was replaced, which is the side that gets asked. A duplicate emits no edge, having replaced nothing. A reparse under a changed pipeline version is a revision rather than a duplicate even when every byte matches, which is what makes reprocessing a whole corpus safe after a parser change. Nothing is defaulted: a missing component of the key is refused rather than hashed as an empty string, because a hole in a key is not an absence but a value every other artifact missing that part will collide with. `DERIVED_FROM` is never assigned here — that edge is provenance and FR-116 owns it. Stage 6 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 18 unit tests "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -11284,6 +11328,16 @@
       "row_text": "Declaring knowledge derived is a claim that names its sources, not an exemption from having any. Spec §8 forbids publishing a Fact or Relation whose source cannot be traced \"unless explicitly declared DERIVED / INFERRED / COMPUTED\", which read naively is an escape hatch: type the word and the requirement lifts. The declaration therefore exempts an object from having a RAW source and never from having sources — an object that declares itself derived and can name nothing is not derived, it is unattributed, and it does not publish. Naming is not enough either: `assertPublishable` requires a resolver and refuses a named source that nothing resolves, because a check that accepts an unresolvable name lets the declaration back itself, which is the laundering this decision exists to stop arriving through the door the decision built. There is deliberately no shape-only mode; whether a named source exists is the question, and a permissive default would answer a different one. FR-116; FR-071, FR-112, FR-113, SDD-042, ADR-050 "
     },
     {
+      "id": "req:SDD-065",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Cross-tenant deduplication is made inexpressible rather than forbidden. The tenant is folded into the ingestion identity hash itself, so two tenants holding a byte-identical document cannot produce the same key and there is no comparison to prohibit — a rule enforced by what can be constructed outlives one enforced by a check that has to fire, and a check can be deleted by someone who reads it as redundant. Section 11 lists five dedup strategies and this implements three: exact checksum, canonical checksum and source-native id, all of which read what the artifacts say about themselves. Content similarity and structural similarity are declined, and not merely as unimplemented: both require a threshold, and a threshold chosen in this module would be a judgement about which documents count as \"the same\" made by whoever typed the number and inherited by everyone after. The same reasoning declines inferring a lineage from a filename — `contract-v1.pdf` beside `contract-v2.pdf` is a hint a human left, not a claim the system can verify.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Cross-tenant deduplication is made inexpressible rather than forbidden. The tenant is folded into the ingestion identity hash itself, so two tenants holding a byte-identical document cannot produce the same key and there is no comparison to prohibit — a rule enforced by what can be constructed outlives one enforced by a check that has to fire, and a check can be deleted by someone who reads it as redundant. Section 11 lists five dedup strategies and this implements three: exact checksum, canonical checksum and source-native id, all of which read what the artifacts say about themselves. Content similarity and structural similarity are declined, and not merely as unimplemented: both require a threshold, and a threshold chosen in this module would be a judgement about which documents count as \"the same\" made by whoever typed the number and inherited by everyone after. The same reasoning declines inferring a lineage from a filename — `contract-v1.pdf` beside `contract-v2.pdf` is a hint a human left, not a claim the system can verify. FR-117; SEC-021, BR-021, FR-081, FR-116, ADR-050 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -11489,9 +11543,9 @@
       "family": "SEC",
       "label": "Knowledge ingestion never deduplicates across tenants and never embeds credentials or access tokens: deduplication compares only within one tenant's scope, because two tenants holding a content-identical document hold two facts, and collapsing them is a cross-tenant disclosure wearing the costume of an optimisation (spec §34; SEC-001). Secrets are redacted before parsing and are never embedded, never indexed, and never written into a log line or a quarantine record — a quarantine store is exactly where an unredacted failure payload would come to rest. Source authenticity is verified wherever the channel permits it; transport and sensitive storage are encrypted.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Knowledge ingestion never deduplicates across tenants and never embeds credentials or access tokens: deduplication compares only within one tenant's scope, because two tenants holding a content-identical document hold two facts, and collapsing them is a cross-tenant disclosure wearing the costume of an optimisation (spec §34; SEC-001). Secrets are redacted before parsing and are never embedded, never indexed, and never written into a log line or a quarantine record — a quarantine store is exactly where an unredacted failure payload would come to rest. Source authenticity is verified wherever the channel permits it; transport and sensitive storage are encrypted. 🔜 declared 2026-08-27 — rule declared ahead of the pipeline it governs "
+      "declared": "done",
+      "status": "current",
+      "row_text": "Knowledge ingestion never deduplicates across tenants and never embeds credentials or access tokens: deduplication compares only within one tenant's scope, because two tenants holding a content-identical document hold two facts, and collapsing them is a cross-tenant disclosure wearing the costume of an optimisation (spec §34; SEC-001). Secrets are redacted before parsing and are never embedded, never indexed, and never written into a log line or a quarantine record — a quarantine store is exactly where an unredacted failure payload would come to rest. Source authenticity is verified wherever the channel permits it; transport and sensitive storage are encrypted. ✅ implemented 2026-08-28 by FR-117 — the pipeline it was declared ahead of "
     },
     {
       "id": "route:api:/api/agent/heartbeat",
@@ -14516,6 +14570,13 @@
       "type": "test",
       "path": "tests/unit/knowledge-classification.test.js",
       "hash": "325c0550",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-dedup.test.js",
+      "type": "test",
+      "path": "tests/unit/knowledge-dedup.test.js",
+      "hash": "56b910b0",
       "status": "current"
     },
     {
@@ -22711,6 +22772,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/dedup.js",
+      "to": "req:BR-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/dedup.js",
+      "to": "req:FR-117",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/dedup.js",
+      "to": "req:SEC-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/entity-extraction.js",
       "to": "req:FR-113",
       "type": "implements",
@@ -27359,6 +27441,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-117",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -27941,6 +28030,13 @@
     },
     {
       "from": "req:SDD-064",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-065",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -42572,6 +42668,41 @@
     {
       "from": "test:tests/unit/knowledge-classification.test.js",
       "to": "req:SDD-062",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-dedup.test.js",
+      "to": "code:src/modules/knowledge/dedup.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-dedup.test.js",
+      "to": "req:BR-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-dedup.test.js",
+      "to": "req:FR-116",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-dedup.test.js",
+      "to": "req:FR-117",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-dedup.test.js",
+      "to": "req:SEC-021",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
