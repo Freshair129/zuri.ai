@@ -53,14 +53,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/agent/auth-context.js"
-    ],
-    "added": [
-      "test:tests/integration/agent-request-envelope.test.js",
-      "test:tests/unit/agent-requestable-sensitivity.test.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -3758,7 +3752,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "af428261",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -3825,7 +3819,7 @@
       "type": "code_file",
       "path": "src/modules/agent/auth-context.js",
       "hash": "1a79d4ee",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-057",
