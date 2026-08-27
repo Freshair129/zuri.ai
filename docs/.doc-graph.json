@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1336,
+    "total_nodes": 1337,
     "total_edges": 4514,
     "dangling_edges": 0,
     "node_types": {
@@ -16,7 +16,7 @@
       "route": 150,
       "model": 67,
       "requirement": 243,
-      "test": 314,
+      "test": 315,
       "code_file": 353
     },
     "coverage": {
@@ -53,15 +53,9 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:PRD-SDD-v1.0"
-    ],
+    "changed": [],
     "added": [
-      "doc:FR-116-derived-object-provenance",
-      "req:FR-116",
-      "req:SDD-064",
-      "test:tests/unit/knowledge-provenance.test.js",
-      "code:src/modules/knowledge/provenance.js"
+      "test:tests/unit/roadmap-coverage.test.js"
     ],
     "removed": []
   },
@@ -8247,7 +8241,7 @@
       "version": "1.104.0b",
       "doc_status": "Draft",
       "hash": "7b7bcdfe",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -15062,6 +15056,13 @@
       "type": "test",
       "path": "tests/unit/repositories-page-ui-contract.test.js",
       "hash": "eabd3a57",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/roadmap-coverage.test.js",
+      "type": "test",
+      "path": "tests/unit/roadmap-coverage.test.js",
+      "hash": "de42d042",
       "status": "current"
     },
     {

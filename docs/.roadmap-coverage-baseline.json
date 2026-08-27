@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "Accepted debt for preflight Check 14 (roadmap-coverage): requirements that have shipped code but no Backlog Items row in docs/roadmap/ROADMAP.md. Shrink-only — an entry may be removed when its row is written, and may never be added to silence a new finding.",
+  "requirements": [
+    "FR-022",
+    "FR-030",
+    "FR-031",
+    "FR-032",
+    "FR-033",
+    "FR-034",
+    "FR-035",
+    "FR-036",
+    "FR-037",
+    "FR-038",
+    "FR-039",
+    "FR-042",
+    "FR-043",
+    "FR-044",
+    "FR-047",
+    "FR-048",
+    "FR-049",
+    "FR-050",
+    "FR-051",
+    "FR-052",
+    "FR-054",
+    "FR-055",
+    "FR-056",
+    "FR-071",
+    "FR-114",
+    "FR-115",
+    "FR-116"
+  ],
+  "notes": {
+    "legacy-ten": "FR-022 and FR-030..FR-071 predate this check: shell, navigation, scope-routing, knowledge-pilot and pipeline-monitor work from the era when the roadmap tracked phases rather than individual requirements. Several were previously invisible because an earlier draft of this check counted a mention in a Dependencies cell or a Phases goal as ownership - it is not, and removing that leniency made the real debt visible rather than creating it. Each needs a row under its owning phase; none is a defect in the code.",
+    "pending-three-FR-114-115-116": "NOT legacy debt. Their rows exist in PR #142, open when this check was written. Listed here only so this branch is green against main as it stands; when #142 lands, Check 14 reports them as repaid and this file must shrink by three. Do not write new rows for them - read #142 first."
+  }
+}

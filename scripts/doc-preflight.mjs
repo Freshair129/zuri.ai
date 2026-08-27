@@ -13,6 +13,7 @@ import { readCanonical } from './canonical-text.mjs'
 import { collectDeclared } from './id-anchors.mjs'
 import { evaluateIdStability } from './id-stability.mjs'
 import { findBrokenEvidence } from './roadmap-evidence.mjs'
+import { findUncoveredRequirements } from './roadmap-coverage.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -1103,6 +1104,59 @@ if (existsSync(ROADMAP)) {
   if (remaining) {
     add('info', 'roadmap-evidence', `${remaining} roadmap reference(s) name a document that no longer exists (accepted debt)`, `baseline: ${rel(ROADMAP_EVIDENCE_BASELINE)}`, [rel(ROADMAP_EVIDENCE_BASELINE)],
       'Repoint or retire them; the baseline may only shrink')
+  }
+}
+
+// ---- Check 14: a delivered requirement must have a roadmap row (ratchet) --
+// Check 13 above verifies that a roadmap row's evidence resolves. It has no
+// opinion about a row that was never written — and on 2026-08-28 that is exactly
+// what happened: FR-114, FR-115 and FR-116 all merged, all with code and tests,
+// and the roadmap carried rows for none of them. It went three stages behind
+// `main` and nothing said so, including the check that had just been added to
+// that same table. The gap was found by reading main after a merge.
+//
+// Every other guard failure recorded in this file was a guard reading the wrong
+// *field*. This one reads the wrong *set*: a check over the rows that exist can
+// never see the row that does not. The only fix for that class is a check
+// starting from the other side, so this one begins with delivered requirements
+// and asks which have no row, rather than beginning with rows and asking whether
+// they are good.
+//
+// The two decisions worth knowing are in scripts/roadmap-coverage.mjs: ranges
+// are expanded (without that, 22 of 32 findings would be false), and delivery is
+// read from `implements` edges rather than from a status cell, because a ✅ is a
+// claim someone typed while an edge is one the filesystem can retract.
+//
+// Depends on a fresh graph — run docs:graph before this.
+const ROADMAP_COVERAGE_BASELINE = path.join(SPEC_PACK, '.roadmap-coverage-baseline.json')
+if (existsSync(ROADMAP) && existsSync(GRAPH)) {
+  const g = JSON.parse(read(GRAPH))
+  const delivered = new Set(
+    g.edges
+      .filter((e) => e.type === 'implements' && /^req:FR-\d{3}$/.test(e.to))
+      .map((e) => e.to.slice(4))
+  )
+  const uncovered = findUncoveredRequirements({ roadmapText: read(ROADMAP), delivered })
+  const baseline = existsSync(ROADMAP_COVERAGE_BASELINE)
+    ? JSON.parse(read(ROADMAP_COVERAGE_BASELINE)).requirements || []
+    : []
+  const known = new Set(baseline)
+
+  const introduced = uncovered.filter((id) => !known.has(id))
+  if (introduced.length) {
+    add('critical', 'roadmap-coverage', `${introduced.length} delivered requirement(s) have no roadmap row`, introduced.join(', '), [rel(ROADMAP)],
+      'Add a Backlog Items row under the owning phase — the roadmap is source_of_truth and Mission Control reads it, so a delivered requirement with no row understates what shipped. ' +
+        'Never widen .roadmap-coverage-baseline.json to silence this')
+  }
+  const repaid = baseline.filter((id) => !uncovered.includes(id))
+  if (repaid.length) {
+    add('info', 'roadmap-coverage', `${repaid.length} baseline requirement(s) now have a roadmap row`, repaid.join(', '), [rel(ROADMAP_COVERAGE_BASELINE)],
+      'Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground')
+  }
+  const remaining = uncovered.length - introduced.length
+  if (remaining) {
+    add('info', 'roadmap-coverage', `${remaining} delivered requirement(s) carry no roadmap row (accepted debt)`, `baseline: ${rel(ROADMAP_COVERAGE_BASELINE)}`, [rel(ROADMAP_COVERAGE_BASELINE)],
+      'Write their rows as their phases are revisited; the baseline may only shrink')
   }
 }
 
