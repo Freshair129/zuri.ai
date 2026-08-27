@@ -39,11 +39,11 @@ const ABANDONED_AFTER_MS = 6 * 60 * 60 * 1000
 const FOUNDATION_TABLES = ['Portfolio', 'Tenant', 'Business']
 
 // Databases are per-run, but the generated Prisma client is one directory shared
-// by every run. Two runs generating into it at once lose a rename race —
-// `EPERM … query_engine-windows.dll.node.tmp…` — which `prisma db push` reports
-// on stdout while still exiting 0, so the loser would continue against whichever
-// client happened to survive. Generation is therefore gated on the schema's
-// fingerprint and serialised by a lock, and a lost race fails rather than
+// by every run. Two runs generating into it at once lose a rename
+// race — `EPERM … query_engine-windows.dll.node.tmp…` — which `prisma db push`
+// reports on stdout while still exiting 0, so the loser would continue against
+// whichever client happened to survive. Generation is therefore gated on the
+// schema's fingerprint and serialised by a lock, and a lost race fails rather than
 // printing a line of noise.
 const SCHEMA_PATH = path.join(ROOT, 'prisma', 'schema.prisma')
 const CLIENT_DIR = path.join(ROOT, 'node_modules', '.prisma', 'client')
@@ -56,14 +56,40 @@ const LOCK_STALE_MS = 120_000
 const LOCK_POLL_MS = 250
 
 /**
- * Identity of the schema the client must match. Newlines are normalised first:
- * `core.autocrlf` makes the same blob arrive as LF or CRLF depending on the
- * checkout, and a fingerprint that moves with the checkout would force a
- * regeneration on every machine. Same rule as the doc graph — see
- * .brain/rca/2026-08-16-doc-graph-line-ending-hash-drift.md.
+ * The directory a generated client belongs to. Prisma bakes its schema directory
+ * into the client and resolves a relative `file:` datasource against THAT path,
+ * never the cwd — so a client generated for another checkout opens a database in
+ * the wrong tree. On Windows the path is case-insensitive, so fold it there; on a
+ * case-sensitive filesystem two differently-cased directories are two directories.
+ */
+function schemaHome(schemaPath) {
+  const home = path.resolve(path.dirname(schemaPath))
+  return process.platform === 'win32' ? home.toLowerCase() : home
+}
+
+/**
+ * Identity of the schema the client must match — its content AND the directory it
+ * was generated for. Newlines are normalised first: `core.autocrlf` makes the same
+ * blob arrive as LF or CRLF depending on the checkout, and a fingerprint that moved
+ * with the line endings would force a regeneration on every machine. Same rule as
+ * the doc graph — see .brain/rca/2026-08-16-doc-graph-line-ending-hash-drift.md.
+ *
+ * The directory is in the hash because content alone cannot tell two checkouts
+ * apart. Junction a second checkout's node_modules at this one's — the usual way to
+ * skip a reinstall — and both share `.prisma/client`; whichever generated last wins,
+ * and the loser silently resolves its per-run database against the other tree, gets
+ * an empty SQLite file, and fails every query with "table main.Portfolio does not
+ * exist" while `prisma db push` and assertSchemaApplied both report success against
+ * the right file. Byte-identical schemas made that invisible to a content-only hash.
+ * Two checkouts sharing one client now regenerate as they alternate — slower, and
+ * serialised by the lock below, which is the correct trade against running a suite
+ * on a client that belongs to a different tree.
  */
 export function schemaFingerprint(schemaPath = SCHEMA_PATH, { read = readFileSync } = {}) {
-  return createHash('sha256').update(normalizeNewlines(read(schemaPath, 'utf8'))).digest('hex').slice(0, 16)
+  return createHash('sha256')
+    .update(`${schemaHome(schemaPath)}\u0000${normalizeNewlines(read(schemaPath, 'utf8'))}`)
+    .digest('hex')
+    .slice(0, 16)
 }
 
 /** The fingerprint recorded beside the generated client, or null if there is none. */
