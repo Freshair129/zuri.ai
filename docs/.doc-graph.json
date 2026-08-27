@@ -3,35 +3,34 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1280,
-    "total_edges": 4366,
+    "total_nodes": 1292,
+    "total_edges": 4436,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 96,
+      "document": 97,
       "adr": 49,
       "domain": 8,
       "roadmap": 28,
       "feature": 12,
-      "route": 148,
+      "route": 150,
       "model": 67,
       "requirement": 223,
-      "test": 305,
-      "code_file": 340
+      "test": 307,
+      "code_file": 347
     },
     "coverage": {
       "requirements": 223,
-      "fr_with_code": "100% (103/103)",
-      "fr_with_tests": "100% (103/103)",
-      "rules_anchored_in_code": "95% (89/94)",
+      "fr_with_code": "100% (104/104)",
+      "fr_with_tests": "100% (104/104)",
+      "rules_anchored_in_code": "96% (90/94)",
       "nfr_evidence_based": "19 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 340,
+      "annotated_code_files": 347,
       "fr_planned": [
         "FR-082",
         "FR-083",
         "FR-084",
-        "FR-085",
-        "FR-108"
+        "FR-085"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -39,8 +38,7 @@
         "BR-017",
         "SDD-040",
         "SDD-041",
-        "SDD-046",
-        "SDD-056"
+        "SDD-046"
       ],
       "rules_superseded": [
         "SDD-001",
@@ -1807,6 +1805,49 @@
         ],
         "@tested": [
           "tests/integration/fr072-milestone-gate-authorization.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/import/bundle/commit/route.js",
+      "type": "code_file",
+      "path": "src/app/api/import/bundle/commit/route.js",
+      "hash": "9be773da",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-108"
+        ],
+        "@spec": [
+          "SDD-056",
+          "BR-007",
+          "BR-009",
+          "SEC-001",
+          "SEC-002"
+        ],
+        "@tested": [
+          "tests/integration/execution-plan-bundle.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/import/bundle/dry-run/route.js",
+      "type": "code_file",
+      "path": "src/app/api/import/bundle/dry-run/route.js",
+      "hash": "1053cc6e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-108"
+        ],
+        "@spec": [
+          "SDD-056",
+          "SEC-001",
+          "SEC-002",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/execution-plan-bundle.test.js"
         ]
       }
     },
@@ -5422,7 +5463,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "2c8df1e9",
+      "hash": "45ce57f1",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5515,7 +5556,7 @@
       "id": "code:src/modules/project-manager/application/business-strategy-mutation-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/business-strategy-mutation-service.js",
-      "hash": "f8b7c2f0",
+      "hash": "f2890e13",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6249,6 +6290,115 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/import/bundle/bundle-commit-service.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/bundle/bundle-commit-service.js",
+      "hash": "24e2a41e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-108"
+        ],
+        "@spec": [
+          "SDD-056",
+          "BR-007",
+          "BR-009",
+          "SEC-001",
+          "SEC-002",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/execution-plan-bundle.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/import/bundle/bundle-dry-run.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/bundle/bundle-dry-run.js",
+      "hash": "c444960d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-108"
+        ],
+        "@spec": [
+          "SDD-056",
+          "BR-007",
+          "BR-009",
+          "SEC-001",
+          "SEC-002"
+        ],
+        "@tested": [
+          "tests/integration/execution-plan-bundle.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/import/bundle/bundle-receipt.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/bundle/bundle-receipt.js",
+      "hash": "8de4b56e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-108"
+        ],
+        "@spec": [
+          "SDD-056",
+          "BR-002",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/execution-plan-bundle.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/import/bundle/bundle-resolver.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/bundle/bundle-resolver.js",
+      "hash": "f9401a48",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-108"
+        ],
+        "@spec": [
+          "SDD-056",
+          "SEC-001",
+          "SEC-002",
+          "BR-001",
+          "BR-002"
+        ],
+        "@tested": [
+          "tests/integration/execution-plan-bundle.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/import/bundle/bundle-schema.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/import/bundle/bundle-schema.js",
+      "hash": "e32daece",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-108"
+        ],
+        "@spec": [
+          "SDD-056",
+          "BR-007",
+          "BR-009",
+          "SEC-002"
+        ],
+        "@tested": [
+          "tests/unit/bundle-schema.test.js",
+          "tests/integration/execution-plan-bundle.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/import/external-ref.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/external-ref.js",
@@ -6316,7 +6466,7 @@
       "id": "code:src/modules/project-manager/import/plan-import-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/import/plan-import-service.js",
-      "hash": "60efd1e4",
+      "hash": "a81eaac1",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6327,7 +6477,8 @@
           "FR-043",
           "FR-065",
           "FR-106",
-          "SDD-037"
+          "SDD-037",
+          "FR-108"
         ],
         "@spec": [
           "FR-069",
@@ -6949,9 +7100,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.24.0b",
+      "version": "1.25.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "0c6f9474",
+      "hash": "bb7e6667",
       "status": "current"
     },
     {
@@ -7087,7 +7238,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.6.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "3c5d9f76",
+      "hash": "99f270ba",
       "status": "current"
     },
     {
@@ -7640,6 +7791,16 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-108-execution-plan-bundle",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-108-execution-plan-bundle.md",
+      "title": "ExecutionPlanBundle import orchestration — the runtime slice of ADR-049",
+      "version": "1.0.0",
+      "doc_status": "Implemented (FR-108, SDD-056, FEAT-012)",
+      "hash": "ff10a436",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -7890,9 +8051,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.96.0b",
+      "version": "1.97.0b",
       "doc_status": "Draft",
-      "hash": "df028035",
+      "hash": "6046dfb9",
       "status": "changed"
     },
     {
@@ -8371,7 +8532,7 @@
       "id": "feat:FEAT-012",
       "type": "feature",
       "label": "ExecutionPlanBundle — one portable, self-contained programme artifact (strategy + N Projects + cross-Project dependencies) imported through one combined dry-run and one confirmation, above the canonical PlanEnvelope",
-      "declared": "building",
+      "declared": "live",
       "status": "current"
     },
     {
@@ -9985,9 +10146,9 @@
       "family": "FR",
       "label": "ExecutionPlanBundle import orchestration: the self-contained multi-Project planning package above PlanEnvelope (ADR-049; normative schema `contracts/execution-plan-bundle.schema.json`) becomes importable end to end. A Bundle Import Orchestrator in the project-manager intake lane coordinates EXISTING application services only — it writes no table directly and creates no second PlanEnvelope writer (BR-009). Scope is resolved from the trusted viewer before any sensitive parsing or preview (ADR-049 D5 — previewing another tenant's plan is refused exactly as a write would be); bundle schema and bundle-level semantics validate; strategy (Roadmap/Horizons/Goals) dry-runs; bundle-local symbolic refs resolve to canonical UUIDs inside the authorized scope and fail closed on unknown, ambiguous, cross-Business, cross-Workspace or type-mismatched targets, granting no authority (D4); every Project entry runs the EXISTING PlanEnvelope dry-run; cross-Project dependencies validate against the combined preview; and one combined preview precedes one explicit confirmation — any unresolved conflict keeps the whole bundle non-committable (D7). Commit is one database transaction in the current single-database scope (D8 atomic mode, documented), producing a bundle receipt whose `trace.idempotencyKey` binds to the normalized payload hash: a replayed key returns the prior receipt, the same key with a different hash is refused, and audit lineage connects the bundle occurrence to the per-Project receipts it caused (D9). Surfaces `POST /api/import/bundle/dry-run` and `POST /api/import/bundle/commit`; every transport converges on the orchestrator (D3). Bundles are data only — nothing arriving in one is ever executed (BR-007, SEC-002, D6).",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "ExecutionPlanBundle import orchestration: the self-contained multi-Project planning package above PlanEnvelope (ADR-049; normative schema `contracts/execution-plan-bundle.schema.json`) becomes importable end to end. A Bundle Import Orchestrator in the project-manager intake lane coordinates EXISTING application services only — it writes no table directly and creates no second PlanEnvelope writer (BR-009). Scope is resolved from the trusted viewer before any sensitive parsing or preview (ADR-049 D5 — previewing another tenant's plan is refused exactly as a write would be); bundle schema and bundle-level semantics validate; strategy (Roadmap/Horizons/Goals) dry-runs; bundle-local symbolic refs resolve to canonical UUIDs inside the authorized scope and fail closed on unknown, ambiguous, cross-Business, cross-Workspace or type-mismatched targets, granting no authority (D4); every Project entry runs the EXISTING PlanEnvelope dry-run; cross-Project dependencies validate against the combined preview; and one combined preview precedes one explicit confirmation — any unresolved conflict keeps the whole bundle non-committable (D7). Commit is one database transaction in the current single-database scope (D8 atomic mode, documented), producing a bundle receipt whose `trace.idempotencyKey` binds to the normalized payload hash: a replayed key returns the prior receipt, the same key with a different hash is refused, and audit lineage connects the bundle occurrence to the per-Project receipts it caused (D9). Surfaces `POST /api/import/bundle/dry-run` and `POST /api/import/bundle/commit`; every transport converges on the orchestrator (D3). Bundles are data only — nothing arriving in one is ever executed (BR-007, SEC-002, D6). 🔜 declared 2026-08-27 — implementation authorized (owner: \"ทำ PR #121\"), agent lane "
+      "declared": "done",
+      "status": "current",
+      "row_text": "ExecutionPlanBundle import orchestration: the self-contained multi-Project planning package above PlanEnvelope (ADR-049; normative schema `contracts/execution-plan-bundle.schema.json`) becomes importable end to end. A Bundle Import Orchestrator in the project-manager intake lane coordinates EXISTING application services only — it writes no table directly and creates no second PlanEnvelope writer (BR-009). Scope is resolved from the trusted viewer before any sensitive parsing or preview (ADR-049 D5 — previewing another tenant's plan is refused exactly as a write would be); bundle schema and bundle-level semantics validate; strategy (Roadmap/Horizons/Goals) dry-runs; bundle-local symbolic refs resolve to canonical UUIDs inside the authorized scope and fail closed on unknown, ambiguous, cross-Business, cross-Workspace or type-mismatched targets, granting no authority (D4); every Project entry runs the EXISTING PlanEnvelope dry-run; cross-Project dependencies validate against the combined preview; and one combined preview precedes one explicit confirmation — any unresolved conflict keeps the whole bundle non-committable (D7). Commit is one database transaction in the current single-database scope (D8 atomic mode, documented), producing a bundle receipt whose `trace.idempotencyKey` binds to the normalized payload hash: a replayed key returns the prior receipt, the same key with a different hash is refused, and audit lineage connects the bundle occurrence to the per-Project receipts it caused (D9). Surfaces `POST /api/import/bundle/dry-run` and `POST /api/import/bundle/commit`; every transport converges on the orchestrator (D3). Bundles are data only — nothing arriving in one is ever executed (BR-007, SEC-002, D6). ✅ implemented 2026-08-27 — agent lane "
     },
     {
       "id": "req:NFR-001",
@@ -10735,9 +10896,9 @@
       "family": "SDD",
       "label": "Bundle Import Orchestrator shape (ADR-049 D3/D8): five modules under `src/modules/project-manager/import/bundle/` — `bundle-schema` (runtime Zod validator aligned with the JSON Schema), `bundle-resolver` (bundle-local symbol and scope resolution), `bundle-dry-run` (combined preview), `bundle-commit-service` (atomic-mode commit reusing the PM application services), `bundle-receipt` (idempotency and audit lineage). The orchestrator is the only bundle-side caller of the strategy and PlanEnvelope services; the routes stay thin transports. First implementation documents atomic mode; a future external-owner bundle must switch to the coordinated state machine ADR-049 D8 specifies rather than pretending distributed atomicity.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Bundle Import Orchestrator shape (ADR-049 D3/D8): five modules under `src/modules/project-manager/import/bundle/` — `bundle-schema` (runtime Zod validator aligned with the JSON Schema), `bundle-resolver` (bundle-local symbol and scope resolution), `bundle-dry-run` (combined preview), `bundle-commit-service` (atomic-mode commit reusing the PM application services), `bundle-receipt` (idempotency and audit lineage). The orchestrator is the only bundle-side caller of the strategy and PlanEnvelope services; the routes stay thin transports. First implementation documents atomic mode; a future external-owner bundle must switch to the coordinated state machine ADR-049 D8 specifies rather than pretending distributed atomicity. 🔜 declared 2026-08-27 "
+      "declared": "done",
+      "status": "current",
+      "row_text": "Bundle Import Orchestrator shape (ADR-049 D3/D8): five modules under `src/modules/project-manager/import/bundle/` — `bundle-schema` (runtime Zod validator aligned with the JSON Schema), `bundle-resolver` (bundle-local symbol and scope resolution), `bundle-dry-run` (combined preview), `bundle-commit-service` (atomic-mode commit reusing the PM application services), `bundle-receipt` (idempotency and audit lineage). The orchestrator is the only bundle-side caller of the strategy and PlanEnvelope services; the routes stay thin transports. First implementation documents atomic mode; a future external-owner bundle must switch to the coordinated state machine ADR-049 D8 specifies rather than pretending distributed atomicity. ✅ implemented 2026-08-27 "
     },
     {
       "id": "req:SEC-001",
@@ -11233,6 +11394,22 @@
       "kind": "api",
       "route": "/api/gates/[id]",
       "path": "src/app/api/gates/[id]/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/import/bundle/commit",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/import/bundle/commit",
+      "path": "src/app/api/import/bundle/commit/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/import/bundle/dry-run",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/import/bundle/dry-run",
+      "path": "src/app/api/import/bundle/dry-run/route.js",
       "status": "current"
     },
     {
@@ -12702,6 +12879,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/execution-plan-bundle.test.js",
+      "type": "test",
+      "path": "tests/integration/execution-plan-bundle.test.js",
+      "hash": "9a970591",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/external-ref-import.test.js",
       "type": "test",
       "path": "tests/integration/external-ref-import.test.js",
@@ -12992,7 +13176,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "7bb4559e",
+      "hash": "b78ae5c7",
       "status": "current"
     },
     {
@@ -13224,6 +13408,13 @@
       "type": "test",
       "path": "tests/unit/breadcrumb-switcher.test.js",
       "hash": "ffa81b51",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/bundle-schema.test.js",
+      "type": "test",
+      "path": "tests/unit/bundle-schema.test.js",
+      "hash": "13b01116",
       "status": "current"
     },
     {
@@ -17171,6 +17362,83 @@
     },
     {
       "from": "code:src/app/api/gates/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/bundle/commit/route.js",
+      "to": "req:BR-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/bundle/commit/route.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/bundle/commit/route.js",
+      "to": "req:FR-108",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/bundle/commit/route.js",
+      "to": "req:SDD-056",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/bundle/commit/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/bundle/commit/route.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/bundle/dry-run/route.js",
+      "to": "req:FR-108",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/bundle/dry-run/route.js",
+      "to": "req:SDD-056",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/bundle/dry-run/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/bundle/dry-run/route.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/import/bundle/dry-run/route.js",
       "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
@@ -23694,6 +23962,202 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-commit-service.js",
+      "to": "req:BR-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-commit-service.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-commit-service.js",
+      "to": "req:FR-108",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-commit-service.js",
+      "to": "req:SDD-056",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-commit-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-commit-service.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-commit-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-dry-run.js",
+      "to": "req:BR-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-dry-run.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-dry-run.js",
+      "to": "req:FR-108",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-dry-run.js",
+      "to": "req:SDD-056",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-dry-run.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-dry-run.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-receipt.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-receipt.js",
+      "to": "req:FR-108",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-receipt.js",
+      "to": "req:SDD-056",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-receipt.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-resolver.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-resolver.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-resolver.js",
+      "to": "req:FR-108",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-resolver.js",
+      "to": "req:SDD-056",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-resolver.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-resolver.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-schema.js",
+      "to": "req:BR-007",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-schema.js",
+      "to": "req:BR-009",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-schema.js",
+      "to": "req:FR-108",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-schema.js",
+      "to": "req:SDD-056",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/bundle/bundle-schema.js",
+      "to": "req:SEC-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/import/external-ref.js",
       "to": "doc:FR-019-enterprise-api",
       "type": "references",
@@ -23871,6 +24335,13 @@
     {
       "from": "code:src/modules/project-manager/import/plan-import-service.js",
       "to": "req:FR-106",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/import/plan-import-service.js",
+      "to": "req:FR-108",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -27167,6 +27638,20 @@
     },
     {
       "from": "route:api:/api/gates",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/import/bundle/commit",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/import/bundle/dry-run",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -31716,6 +32201,125 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "code:src/app/api/import/bundle/commit/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "code:src/app/api/import/bundle/dry-run/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "code:src/modules/project-manager/import/bundle/bundle-commit-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "code:src/modules/project-manager/import/bundle/bundle-dry-run.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "code:src/modules/project-manager/import/bundle/bundle-receipt.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "code:src/modules/project-manager/import/bundle/bundle-resolver.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "code:src/modules/project-manager/import/bundle/bundle-schema.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "req:BR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "req:FR-108",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "req:SDD-056",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "req:SEC-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/execution-plan-bundle.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/external-ref-import.test.js",
       "to": "code:src/modules/project-manager/import/external-ref.js",
       "type": "tests",
@@ -31788,6 +32392,13 @@
     {
       "from": "test:tests/integration/external-ref-import.test.js",
       "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/external-ref-import.test.js",
+      "to": "req:FR-108",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -33404,6 +34015,13 @@
     },
     {
       "from": "test:tests/integration/import-target-authorization.test.js",
+      "to": "req:FR-108",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/import-target-authorization.test.js",
       "to": "req:SDD-006",
       "type": "verifies",
       "status": "current",
@@ -34272,6 +34890,13 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-108",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -34462,6 +35087,13 @@
     {
       "from": "test:tests/integration/plan-import.test.js",
       "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/plan-import.test.js",
+      "to": "req:FR-108",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -34735,6 +35367,13 @@
     {
       "from": "test:tests/integration/project-business-binding.test.js",
       "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/project-business-binding.test.js",
+      "to": "req:FR-108",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -36604,6 +37243,48 @@
     {
       "from": "test:tests/unit/breadcrumb-switcher.test.js",
       "to": "req:SDD-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/bundle-schema.test.js",
+      "to": "code:src/modules/project-manager/import/bundle/bundle-schema.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/bundle-schema.test.js",
+      "to": "req:BR-007",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/bundle-schema.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/bundle-schema.test.js",
+      "to": "req:FR-108",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/bundle-schema.test.js",
+      "to": "req:SDD-056",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/bundle-schema.test.js",
+      "to": "req:SEC-002",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

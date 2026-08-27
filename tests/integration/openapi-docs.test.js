@@ -66,9 +66,10 @@ describe('OpenAPI document', () => {
     expect(doc['x-zuri-route-inventory']).toMatchObject({
       source: 'src/app/api/**/route.js',
       // FR-066/067's seven onboarding/invite routes plus FR-106's two
-      // (the Enterprise API key mint and revoke).
-      pathCount: 100,
-      operationCount: 132,
+      // (the Enterprise API key mint and revoke) plus FR-108's two
+      // (the ExecutionPlanBundle dry-run and commit).
+      pathCount: 102,
+      operationCount: 134,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
