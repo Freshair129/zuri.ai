@@ -9,7 +9,8 @@ import { useRouter } from 'next/navigation'
 import EntryShell from '@/components/layouts/EntryShell'
 // @req FR-046 — owner entry creates an explicit server-owned session cookie.
 // @spec ADR-017, SDD-024, SEC-008
-// @tested tests/unit/fr046-api-ui-contract.test.js, tests/e2e/fr046-entry-contract.spec.js
+// @tested tests/unit/fr046-api-ui-contract.test.js, tests/unit/fr046-auth-route.test.js, tests/e2e/fr046-entry-contract.spec.js
+import { LOGIN_ERROR_NETWORK, loginErrorMessage } from '@/modules/identity/login-error-copy'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -31,13 +32,16 @@ export default function LoginPage() {
       })
       const result = await response.json()
       if (!response.ok) {
-        setError('The username or password is incorrect.')
+        // Only a 401 is a credential failure. A 503 AUTH_UNAVAILABLE means the
+        // server cannot mint a session at all, and saying "wrong password" there
+        // sends the operator hunting the wrong thing.
+        setError(loginErrorMessage(response.status, result))
         return
       }
       router.replace(result.redirect || '/businesses')
       router.refresh()
     } catch {
-      setError('Unable to sign in right now. Please try again.')
+      setError(LOGIN_ERROR_NETWORK)
     } finally {
       setSubmitting(false)
     }
