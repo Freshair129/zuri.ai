@@ -2,7 +2,7 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.1.0"
+version: "2.3.0"
 updated: "2026-08-27"
 owner: "Owen"
 source_of_truth: true
@@ -35,6 +35,10 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > ExecutionPlanBundle ใช้งานจริง (FR-108 — import แผน 17-Stage ขึ้น production
 > เป็นเคสแรก), Stage 7 chunking (FR-112); FR-066/067 ส่งมอบแล้ว; RSK-016 ปิด
 > (migration ทั้ง 6 apply + ledger ครบ); เพิ่ม PHASE-ZAI-KNOWLEDGE
+> Revision 2.3.0 (2026-08-27): เปิดแถว Stage 8 — entity candidate extraction
+> (FR-113, SDD-060) กำลังทำใน knowledge lane, ปลดล็อกโดย `source_chunk_id`
+> ของ FR-112 แถวนี้ลงก่อนงาน merge เพื่อให้ lane มีที่อยู่ในตารางตั้งแต่เริ่ม
+> (id จองไว้แล้ว, PRD row มาพร้อม PR ของ lane)
 
 ## Phases
 
@@ -51,7 +55,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | PHASE-ZAI-CRM | CRM console + consent: Conversation Inbox (FR-091), reply receipt (FR-093), PDPA consent attestation (FR-103 ปิด SEC-005), market translation (FR-092) | code + tests ครบทุกตัวรวม e2e (`tests/e2e/fr091-conversation-inbox.spec.js`) | done | 100 |
 | PHASE-ZAI-IAM | Production IAM (FEAT-010: FR-094..098, ADR-045) + password reset (FR-104) + onboarding/invites (FR-066/067 — ส่งมอบ 2026-08-27) + Enterprise API token auth (FR-106 ปิด SEC-006) + operator grant store/bootstrap (FR-107 — operator คนแรก live บน production) | เหลือ tail เดียว: FEAT-010 hardening (FR-097 provider evidence) | in-progress | 90 |
 | PHASE-ZAI-SOT | SoT pipeline console (FEAT-011: FR-099..101) + data-plane service-account auth (FR-102, ADR-047) | ~~RSK-016~~ ปิดแล้ว 2026-08-27 (migration ทั้ง 6 apply + ledger); เหลือ: decision loop เดินจริงกับ data plane ภายนอก | in-progress | 95 |
-| PHASE-ZAI-KNOWLEDGE | 17-Stage Knowledge Ingestion & GraphRAG (ADR-050): governance declaration (FEAT-013: FR-109..111) + Stage 7 chunking calculator ส่งมอบแล้ว (FR-112, SDD-059 — pure calculator, ไม่มี model) | ทั้ง 17 stages มีเจ้าของ/implementation ตาม tier boundary; FR-110/111 ส่งมอบ | in-progress | 15 |
+| PHASE-ZAI-KNOWLEDGE | 17-Stage Knowledge Ingestion & GraphRAG (ADR-050): governance declaration (FEAT-013: FR-109..111) + Stage 7 chunking calculator ส่งมอบแล้ว (FR-112, SDD-059 — pure calculator, ไม่มี model); Stage 8 entity candidate extraction (FR-113) กำลังทำ | ทั้ง 17 stages มีเจ้าของ/implementation ตาม tier boundary; FR-110/111 ส่งมอบ | in-progress | 15 |
 
 ## Backlog Items
 
@@ -97,6 +101,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FEAT-007 | PHASE-ZAI-RUNTIME | task | Pipeline Builder canvas: structure editing (FR-082), edge creation (FR-083), handoff contracts (FR-084), contract-gated release (FR-085) — ADR-035 design only, implementation not authorized | P2 | Owen | planned | FR-007; FR-040; ADR-035 | ../domains/project-manager/features/FR-082-pipeline-canvas.md |
 | TASK-FEAT-013 | PHASE-ZAI-KNOWLEDGE | task | Knowledge Ingestion Governance (FEAT-013, proposed): stage catalog + job trace (FR-109), published snapshot contract (FR-110), sensitivity lattice + processing policy (FR-111) — ADR-050 documentary declaration only, ไม่มี route/model/code และ implementation ยังไม่ถูก authorize | P2 | Owen | planned | FR-071; SDD-057; SDD-058; ADR-042; ADR-043; ADR-046; ADR-050 | PRD-SDD FR-109..111; ../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md |
 | TASK-FR-112 | PHASE-ZAI-KNOWLEDGE | task | Structural knowledge chunking (FR-112): Stage 7 ของ catalog เป็น pure calculator ใน knowledge lane — ไม่มี model/persistence/route (SDD-059 pin เป็น decision), metadata ตรงตาม FR-109 (`chunk_id`, `parent_id`, `heading_path`, ...) | P1 | Claude | done | FR-109; ADR-050; SDD-059 | ../domains/knowledge/features/FR-112 (PRD row) |
+| TASK-FR-113 | PHASE-ZAI-KNOWLEDGE | task | Entity candidate extraction (FR-113, SDD-060): Stage 8 ของ catalog — pure calculator ใน knowledge lane, ปลดล็อกโดย `source_chunk_id` ของ FR-112; ผลิต **candidate เท่านั้น** ไม่แตะ canonical identity (Stage 9 resolution เป็นของ GKS ตาม ADR-050); recognition เป็น seam + deterministic default (structured fields + org-suffix patterns) แทน model dependency; evidence fields ตาม FR-109 (`candidate_id`, type, mention, `normalized_name`, `source_chunk_id`, `confidence`) | P1 | Claude | in-progress | FR-109; FR-112; ADR-050; SDD-060 | PRD-SDD FR-113 |
 | TASK-FEAT-009 | PHASE-ZAI-CRM | task | CRM Conversation Inbox (FR-091, read-only per BR-011) + LINE reply delivery receipt (FR-093) | P0 | Claude | done | FR-023; FR-052; FR-081 | ../domains/crm/features/FR-091-conversation-inbox.md |
 | TASK-FR-103 | PHASE-ZAI-CRM | task | PDPA consent attestation on Customer (FR-103) — closes SEC-005, P0 open since 2026-08-12; owner attests GRANTED/DECLINED in the CRM console, legacy rows GRANDFATHERED | P0 | Claude | done | FR-091; SEC-005 | ../domains/crm/features/FR-103-pdpa-consent-attestation.md |
 | TASK-FR-092 | PHASE-ZAI-CRM | task | Market translation core: RawExternalRecord → provider-neutral MarketObservation (FR-092) | P1 | Claude | done | FR-081 | ../domains/market-intelligence/features/FR-092-market-translation-core.md |
