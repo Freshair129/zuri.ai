@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-27T11:10:20.231Z",
+  "generatedAt": "2026-08-27T11:33:02.993Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1160,6 +1160,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 1
+        },
+        {
+          "id": "FR-114",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 1
         }
       ],
       "checks": {
@@ -1236,6 +1243,7 @@
         "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
         "docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md",
         "docs/domains/knowledge/features/FR-113-entity-candidate-extraction.md",
+        "docs/domains/knowledge/features/FR-114-canonical-normalization.md",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -1306,7 +1314,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 0,
-        "featureNotes": 7
+        "featureNotes": 8
       }
     },
     "market-intelligence": {

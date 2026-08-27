@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 197,
+    "docs": 198,
     "routes": 102,
-    "test_files": 309
+    "test_files": 310
   },
   "summary": {
     "critical": 0,
@@ -225,8 +225,8 @@
       "id": "I20",
       "severity": "info",
       "check": "id-stability",
-      "title": "395 id(s) pinned across 10 families",
-      "details": "ADR 50 · BR 22 · FEAT 13 · FR 113 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 60 · SEC 21 · ZV2-CR 8 · roster 395",
+      "title": "397 id(s) pinned across 10 families",
+      "details": "ADR 50 · BR 22 · FEAT 13 · FR 114 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 61 · SEC 21 · ZV2-CR 8 · roster 397",
       "files": [
         "docs/.id-ledger.json"
       ],
