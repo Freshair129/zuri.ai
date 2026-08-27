@@ -295,6 +295,5 @@ which says who may run a stage rather than where its code sits.
 - [ADR-043 — Four-tier cognitive architecture](../../../decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md)
 - [ADR-046 — SoT pipeline interim serving and pulled decisions](../../../decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
-- `Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline
-  Specification` (`docs/`) — §4, §5, §33, §36 are the sections this note
+- [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §4, §5, §33, §36 are the sections this note
   elaborates

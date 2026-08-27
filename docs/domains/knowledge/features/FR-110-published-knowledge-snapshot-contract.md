@@ -250,6 +250,5 @@ never a copy of the corpus.
 - [ADR-042 — Decoupled standalone knowledge and GraphRAG service](../../../decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md)
 - [ADR-043 — Four-tier cognitive architecture](../../../decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
-- `Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline
-  Specification` (`docs/`) — §23, §24, §25, §26 are the sections this note
+- [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §23, §24, §25, §26 are the sections this note
   elaborates

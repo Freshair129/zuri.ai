@@ -56,29 +56,18 @@
   },
   "drift": {
     "changed": [
-      "domain:knowledge",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP"
-    ],
-    "added": [
       "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "doc:FR-109-knowledge-ingestion-stage-catalog",
       "doc:FR-110-published-knowledge-snapshot-contract",
       "doc:FR-111-knowledge-sensitivity-lattice",
-      "doc:Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification",
-      "feat:FEAT-013",
-      "req:FR-109",
-      "req:FR-110",
-      "req:FR-111",
-      "req:NFR-020",
-      "req:BR-021",
-      "req:BR-022",
-      "req:SDD-057",
-      "req:SDD-058",
-      "req:SEC-021"
+      "doc:ROADMAP"
     ],
-    "removed": []
+    "added": [
+      "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC"
+    ],
+    "removed": [
+      "doc:Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification"
+    ]
   },
   "nodes": [
     {
@@ -7263,7 +7252,7 @@
       "version": "1.7.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "8ce6904e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -7829,24 +7818,24 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
-      "hash": "d64a7e66",
-      "status": "current"
+      "hash": "b7340c42",
+      "status": "changed"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
       "title": "FR-110 — Published knowledge snapshot contract",
-      "hash": "737245d7",
-      "status": "current"
+      "hash": "72bbea2d",
+      "status": "changed"
     },
     {
       "id": "doc:FR-111-knowledge-sensitivity-lattice",
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
       "title": "FR-111 — Knowledge sensitivity lattice and processing policy",
-      "hash": "53edbcab",
-      "status": "current"
+      "hash": "d4e32219",
+      "status": "changed"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -7876,6 +7865,16 @@
       "version": "1.2.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "39d91c2a",
+      "status": "current"
+    },
+    {
+      "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
+      "type": "document",
+      "path": "docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md",
+      "title": "Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification",
+      "version": "1.0.0",
+      "doc_status": "Draft — adopted as the source specification by ADR-050",
+      "hash": "4685378c",
       "status": "current"
     },
     {
@@ -8102,7 +8101,7 @@
       "version": "1.98.0b",
       "doc_status": "Draft",
       "hash": "57e8edbf",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8137,7 +8136,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "8360b0ff",
+      "hash": "b578d3c5",
       "status": "changed"
     },
     {
@@ -8192,16 +8191,6 @@
       "version": "2.0.0",
       "doc_status": "Accepted",
       "hash": "6f15ca8e",
-      "status": "current"
-    },
-    {
-      "id": "doc:Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification",
-      "type": "document",
-      "path": "docs/Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification.md",
-      "title": "Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification",
-      "version": "1.0.0",
-      "doc_status": "Draft — adopted as the source specification by ADR-050",
-      "hash": "4685378c",
       "status": "current"
     },
     {
@@ -8413,7 +8402,7 @@
         "knowledge"
       ],
       "hash": "f9443f2e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -12856,8 +12845,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md",
       "title": "ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership",
-      "hash": "007a50a5",
-      "status": "current"
+      "hash": "5d52297b",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",

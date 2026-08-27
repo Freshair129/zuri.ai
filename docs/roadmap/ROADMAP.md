@@ -88,7 +88,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-105 | PHASE-ZAI-PRODUCT | task | Platform Programme Roadmap `/control/roadmap`: isOperator-only read-only projection of the 24-week programme (ADR-048) | P2 | Claude | done | FR-075; ADR-048 | ../domains/platform-control/features/FR-105-platform-programme-roadmap.md |
 | TASK-FR-081 | PHASE-ZAI-RUNTIME | task | Raw external ingestion boundary: one normalized envelope, tenant/connection-scoped repository, dead-letter records (FR-081) | P0 | Claude | done | FR-079; BR-002 | ../domains/integration/features/FR-081-raw-external-ingestion.md |
 | TASK-FEAT-007 | PHASE-ZAI-RUNTIME | task | Pipeline Builder canvas: structure editing (FR-082), edge creation (FR-083), handoff contracts (FR-084), contract-gated release (FR-085) — ADR-035 design only, implementation not authorized | P2 | Owen | planned | FR-007; FR-040; ADR-035 | ../domains/project-manager/features/FR-082-pipeline-canvas.md |
-| TASK-FEAT-013 | PHASE-ZAI-RUNTIME | task | Knowledge Ingestion Governance (FEAT-013, proposed): stage catalog + job trace (FR-109), published snapshot contract (FR-110), sensitivity lattice + processing policy (FR-111) — ADR-050 documentary declaration only, ไม่มี route/model/code และ implementation ยังไม่ถูก authorize | P2 | Owen | planned | FR-071; SDD-057; SDD-058; ADR-042; ADR-043; ADR-046; ADR-050 | PRD-SDD FR-109..111; ../Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification.md |
+| TASK-FEAT-013 | PHASE-ZAI-RUNTIME | task | Knowledge Ingestion Governance (FEAT-013, proposed): stage catalog + job trace (FR-109), published snapshot contract (FR-110), sensitivity lattice + processing policy (FR-111) — ADR-050 documentary declaration only, ไม่มี route/model/code และ implementation ยังไม่ถูก authorize | P2 | Owen | planned | FR-071; SDD-057; SDD-058; ADR-042; ADR-043; ADR-046; ADR-050 | PRD-SDD FR-109..111; ../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md |
 | TASK-FEAT-009 | PHASE-ZAI-CRM | task | CRM Conversation Inbox (FR-091, read-only per BR-011) + LINE reply delivery receipt (FR-093) | P0 | Claude | done | FR-023; FR-052; FR-081 | ../domains/crm/features/FR-091-conversation-inbox.md |
 | TASK-FR-103 | PHASE-ZAI-CRM | task | PDPA consent attestation on Customer (FR-103) — closes SEC-005, P0 open since 2026-08-12; owner attests GRANTED/DECLINED in the CRM console, legacy rows GRANDFATHERED | P0 | Claude | done | FR-091; SEC-005 | ../domains/crm/features/FR-103-pdpa-consent-attestation.md |
 | TASK-FR-092 | PHASE-ZAI-CRM | task | Market translation core: RawExternalRecord → provider-neutral MarketObservation (FR-092) | P1 | Claude | done | FR-081 | ../domains/market-intelligence/features/FR-092-market-translation-core.md |
@@ -124,7 +124,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
    boundary — ไม่ authorize runtime slice. SDD-057 ระบุให้ reuse execution ledger
    ของ FR-071 แทนการประกาศ model ใหม่ ส่วน SDD-058 / NFR-020 / BR-021 / BR-022 /
    SEC-021 เป็นกฎที่ประกาศล่วงหน้าก่อน pipeline ที่มันกำกับ. เอกสารต้นทางคือ
-   `../Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification.md`
+   `../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md`
 
 > **PRD status columns**: sync แล้วเมื่อ 2026-08-26 (PRD revision 1.89.0b) —
 > FR-087..089, 091, 093, 097, 099..105 flip ตามโค้ดจริง; FR-100/102/103 เป็น 🟠

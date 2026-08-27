@@ -249,6 +249,5 @@ not a Prisma schema change made here.
 - [ADR-041 — Zuri edge device topology](../../../decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md)
 - [ADR-043 — Four-tier cognitive architecture](../../../decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md)
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md)
-- `Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline
-  Specification` (`docs/`) — §3.3, §10 (Stage 5), §34, §35 are the sections
+- [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §3.3, §10 (Stage 5), §34, §35 are the sections
   this note elaborates
