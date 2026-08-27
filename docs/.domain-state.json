@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-26T23:59:37.221Z",
+  "generatedAt": "2026-08-27T00:31:56.397Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -303,7 +303,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 100,
+            "openApiPaths": 102,
             "missingFromOpenApi": 0
           }
         },
@@ -750,7 +750,7 @@
           "details": {
             "routes": 8,
             "inventoried": 8,
-            "openApiPaths": 100,
+            "openApiPaths": 102,
             "missingFromOpenApi": 0
           }
         },
@@ -948,7 +948,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 100,
+            "openApiPaths": 102,
             "missingFromOpenApi": 0
           }
         },
@@ -1899,6 +1899,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 8
+        },
+        {
+          "id": "FR-108",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 8,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -1922,9 +1929,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 83,
-            "inventoried": 83,
-            "openApiPaths": 100,
+            "routes": 85,
+            "inventoried": 85,
+            "openApiPaths": 102,
             "missingFromOpenApi": 0
           }
         },
@@ -1983,8 +1990,8 @@
             }
           ],
           "details": {
-            "mutations": 68,
-            "guardedMutations": 65,
+            "mutations": 70,
+            "guardedMutations": 67,
             "reads": 42,
             "unguardedReads": 0
           }
@@ -2037,6 +2044,7 @@
         "docs/domains/project-manager/features/FR-077-project-inventory-mvp.md",
         "docs/domains/project-manager/features/FR-082-pipeline-canvas.md",
         "docs/domains/project-manager/features/FR-086-projects-dashboard.md",
+        "docs/domains/project-manager/features/FR-108-execution-plan-bundle.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -2073,11 +2081,11 @@
         }
       ],
       "details": {
-        "routes": 120,
-        "apiRoutes": 83,
+        "routes": 122,
+        "apiRoutes": 85,
         "pageRoutes": 37,
         "ownedModels": 30,
-        "featureNotes": 28
+        "featureNotes": 29
       }
     }
   }

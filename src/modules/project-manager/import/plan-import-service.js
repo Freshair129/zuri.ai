@@ -89,7 +89,7 @@ export async function resolveImportWorkspaceId({ workspaceId, projectId } = {}) 
  * Only the field naming the target is read from `rawPlan` here — never the plan
  * body — so an unauthorized caller learns nothing about the envelope they sent.
  */
-async function resolveAuthorizedTarget(rawPlan, { workspaceId, viewer }) {
+async function resolveAuthorizedTarget(rawPlan, { workspaceId, viewer, db = prisma }) {
   const workspaceCode =
     typeof rawPlan?.scope?.workspaceCode === 'string' ? rawPlan.scope.workspaceCode : null
 
@@ -100,9 +100,9 @@ async function resolveAuthorizedTarget(rawPlan, { workspaceId, viewer }) {
 
   let workspace = null
   if (workspaceId) {
-    workspace = await prisma.workspace.findUnique({ where: { id: workspaceId } })
+    workspace = await db.workspace.findUnique({ where: { id: workspaceId } })
   } else if (workspaceCode) {
-    workspace = await prisma.workspace.findUnique({ where: { code: workspaceCode } })
+    workspace = await db.workspace.findUnique({ where: { code: workspaceCode } })
   }
   if (!workspace) return { error: missing() }
 
@@ -113,7 +113,7 @@ async function resolveAuthorizedTarget(rawPlan, { workspaceId, viewer }) {
   // it, so the human import flow gains no query and no new behaviour.
   let businessTenantId
   if (viewer?.isApiAccess === true && workspace.businessId) {
-    const business = await prisma.business.findUnique({
+    const business = await db.business.findUnique({
       where: { id: workspace.businessId },
       select: { tenantId: true },
     })
@@ -133,10 +133,14 @@ async function resolveAuthorizedTarget(rawPlan, { workspaceId, viewer }) {
  * `viewer` is REQUIRED (@req FR-065) — a read-only preview of a scope you were
  * not given is the same leak as writing to it, so the dry run is authorized
  * identically to the commit.
+ *
+ * `db` (@req FR-108) lets the ExecutionPlanBundle orchestrator run this same
+ * pipeline inside its own single transaction. It defaults to the shared client,
+ * so every existing caller is byte-for-byte unchanged.
  */
-export async function dryRunPlan(rawPlan, { workspaceId, viewer } = {}) {
+export async function dryRunPlan(rawPlan, { workspaceId, viewer, db = prisma } = {}) {
   // Authorize the target BEFORE parsing the plan.
-  const target = await resolveAuthorizedTarget(rawPlan, { workspaceId, viewer })
+  const target = await resolveAuthorizedTarget(rawPlan, { workspaceId, viewer, db })
   if (target.error) return { valid: false, errors: [target.error], preview: null }
   const workspace = target.workspace
 
@@ -204,7 +208,7 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer } = {}) {
       )
     }
     const code = entity.code
-    const decided = await resolveEntityIdentity({ kind, code, externalRefs: entity.externalRefs })
+    const decided = await resolveEntityIdentity({ kind, code, externalRefs: entity.externalRefs }, db)
     resolution[code] = decided
     if (decided.conflict) {
       conflicts.push({ kind, code, reason: decided.conflict })
@@ -224,7 +228,7 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer } = {}) {
     }
 
     if (decided.matchedBy === 'externalRef') {
-      const existing = await prisma[model].findUnique({ where: { id: decided.entityId } })
+      const existing = await db[model].findUnique({ where: { id: decided.entityId } })
       const conflict = (existing && scopeViolation(existing)) || (extraConflictCheck ? extraConflictCheck(existing) : null)
       if (conflict) conflicts.push({ kind, code, reason: conflict })
       else
@@ -243,13 +247,13 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer } = {}) {
     // above), so skip it rather than let Prisma treat `undefined` as "field
     // not filtered", which would silently widen the search back to global.
     const scopeResolved = Object.values(scope).every(Boolean)
-    const existing = scopeResolved ? await prisma[model].findFirst({ where: { code, ...scope } }) : null
+    const existing = scopeResolved ? await db[model].findFirst({ where: { code, ...scope } }) : null
     if (!existing) {
       // Not found inside scope. Before calling it an insert, make sure the
       // code is not already claimed by a row somewhere else — that must
       // surface as a conflict, not a silent insert that would collide with
       // the database's global-unique code at commit.
-      const elsewhere = await prisma[model].findUnique({ where: { code } })
+      const elsewhere = await db[model].findUnique({ where: { code } })
       if (elsewhere) {
         conflicts.push({ kind, code, reason: scopeViolation(elsewhere) || `${kind} code "${code}" already exists outside the target scope` })
         return null
@@ -282,14 +286,14 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer } = {}) {
   // never a silently ignored link.
   const goalIds = plan.project.goalIds || []
   const goals = goalIds.length && targetBusinessId
-    ? await prisma.businessGoal.findMany({
+    ? await db.businessGoal.findMany({
       where: { id: { in: goalIds }, businessId: targetBusinessId },
       select: { id: true, code: true, title: true },
     })
     : []
   const goalById = new Map(goals.map((goal) => [goal.id, goal]))
   const existingGoalLinks = existingProject && goalIds.length
-    ? await prisma.projectGoal.findMany({
+    ? await db.projectGoal.findMany({
       where: { projectId: existingProject.id, goalId: { in: goalIds } },
       select: { goalId: true },
     })
@@ -318,7 +322,7 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer } = {}) {
   // Repositories keep code-only identity (they are our own registry, not a
   // customer record), so they are classified without external refs.
   for (const r of plan.repositories || []) {
-    const existing = await prisma.repository.findUnique({ where: { code: r.code } })
+    const existing = await db.repository.findUnique({ where: { code: r.code } })
     if (existing) updates.push({ kind: 'repository', code: r.code, title: r.fullName || r.code })
     else inserts.push({ kind: 'repository', code: r.code, title: r.fullName || r.code })
   }
@@ -355,8 +359,8 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer } = {}) {
  * `viewer` is REQUIRED (@req FR-065) and is authorized by the dry run this
  * delegates to — one decision point, not two that could disagree.
  */
-export async function commitPlan(rawPlan, { workspaceId, viewer } = {}) {
-  const dry = await dryRunPlan(rawPlan, { workspaceId, viewer })
+export async function commitPlan(rawPlan, { workspaceId, viewer, db = prisma } = {}) {
+  const dry = await dryRunPlan(rawPlan, { workspaceId, viewer, db })
   if (!dry.valid) {
     return { committed: false, errors: dry.errors, preview: dry.preview }
   }
@@ -371,7 +375,7 @@ export async function commitPlan(rawPlan, { workspaceId, viewer } = {}) {
   const replayOfExecutionRunId = plan.trace?.replayOfExecutionRunId || null
   const replayOfExecutionStepId = plan.trace?.replayOfExecutionStepId || null
 
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await db.$transaction(async (tx) => {
     if (idempotencyKey) {
       const existingReceipt = await tx.planImportReceipt.findUnique({
         where: { idempotencyKey },
