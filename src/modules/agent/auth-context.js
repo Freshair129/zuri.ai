@@ -8,7 +8,8 @@ import { channelIdentityIsVerified } from '@/modules/identity/channel-identity'
 //   verified legacy ExternalIdentity row.
 // @spec ADR-022, ADR-044, ADR-045, SDD-030, SDD-052, BR-015, BR-020, SEC-013, SEC-018 — transport identity is not business authority;
 //   model/client/thread values cannot widen the authorized vault set.
-// @tested tests/integration/agent-multi-principal.test.js
+// @tested tests/integration/agent-multi-principal.test.js, tests/integration/agent-request-envelope.test.js,
+//   tests/unit/agent-requestable-sensitivity.test.js
 
 const DEFAULT_AGENT_ID = 'zuri-line-agent'
 const DEFAULT_WORKSPACE_ID = 'default'
@@ -94,6 +95,48 @@ function vaultScope({ tenantId, principalId, agentId, workspaceId, projectId }) 
   }
 }
 
+// The levels an agent request may ASK for — a subset of FR-111's knowledge
+// sensitivity lattice (KNOWLEDGE_SENSITIVITY_LEVELS, src/lib/validation/enums.js),
+// never the lattice itself. One member today, because no entitlement model
+// grants a principal a level yet: nothing behind this envelope checks a
+// request against what a principal may actually reach. Validated is not
+// authorized — this list says what a request may claim, never what it is
+// granted; msp-vault-resolver.js and every knowledge reader still decide
+// independently, and today they decide PUBLIC regardless of what is asked.
+//
+// Widening this list is not a vocabulary change; it is a promise that an
+// entitlement check now exists behind it. Build that first, then widen this.
+// This is an agent-domain policy decision, not a knowledge-domain one, so it
+// lives beside the guard that reads it rather than in enums.js next to the
+// lattice it restricts.
+//
+// tests/unit/agent-requestable-sensitivity.test.js pins that this stays a
+// subset of the lattice (vocabulary drift — a value here the lattice does
+// not have). tests/integration/agent-request-envelope.test.js pins that a
+// request above this ceiling is rejected, not silently admitted (height —
+// the thing a well-meaning future widening would get wrong).
+const AGENT_REQUESTABLE_SENSITIVITY = ['PUBLIC']
+
+// Absent, null or blank floors at the narrowest request, never at null or at
+// whatever the caller typed. Present-but-not-requestable throws: a request
+// for a level nothing can authorize is refused, not silently downgraded and
+// not silently admitted. This is the ONE site handling `sensitivity`, on
+// purpose — an earlier version of this function had a second site, a
+// parameter default duplicating this same floor, which meant a caller
+// passing null skipped the default and reached a bare `?? 'PUBLIC'` that
+// validated nothing. Removing the second site removes that hazard
+// structurally instead of relying on a test to keep catching it.
+function resolveRequestedSensitivity(value) {
+  const cleaned = clean(value)
+  if (cleaned === null) return 'PUBLIC'
+  if (!AGENT_REQUESTABLE_SENSITIVITY.includes(cleaned)) {
+    throw new Error(
+      `sensitivity "${cleaned}" is not requestable — the agent domain currently authorizes only ${AGENT_REQUESTABLE_SENSITIVITY.join(', ')}`,
+    )
+  }
+  return cleaned
+}
+
 /**
  * Resolve identity, membership and private-vault authorization in one turn.
  * `serverScope` is supplied by the trusted runtime seam. It is never populated
@@ -108,8 +151,13 @@ export async function resolveAgentAuthorization({
   sessionId = null,
   instanceId = null,
   eventId = null,
+  // Request floors. Both defaults cover only the omitted-argument path; a
+  // caller that passes null or a blank string lands on the matching fallback
+  // in the `request` envelope below. `sensitivity` has no default here — it
+  // is resolved (and, unlike these two, validated) by
+  // resolveRequestedSensitivity, above.
   capability = 'READ',
-  sensitivity = 'PUBLIC',
+  sensitivity,
   consent = 'UNKNOWN',
   serverScope = {},
 } = {}) {
@@ -215,9 +263,27 @@ export async function resolveAgentAuthorization({
       eventId: clean(eventId),
     }),
     request: Object.freeze({
+      // Floors, not conveniences. Each of these three is the narrowest thing a turn
+      // can assert, so an absent, null or blank argument lands on "asked for the
+      // least" instead of on null: READ is the least verb, UNKNOWN asserts no
+      // consent, and PUBLIC is the least sensitive level a request may ask to reach
+      // — ADR-022 D3/D7 grant for the *requested* capability and sensitivity.
+      //
+      // `sensitivity` is not a separate vocabulary from FR-111's knowledge lattice —
+      // it IS that lattice, restricted to what resolveRequestedSensitivity (above)
+      // currently authorizes requesting. `capability` and `consent` only float to
+      // their floor on an absent/null/blank argument, taking whatever else is typed;
+      // `sensitivity` additionally rejects a value outside AGENT_REQUESTABLE_SENSITIVITY,
+      // because unlike those two it has a lattice above PUBLIC that a caller could
+      // otherwise ask for with nothing behind the ask to authorize it.
+      //
+      // agent-request-envelope.test.js exercises both floors (absent/null/blank ->
+      // PUBLIC, all three fields) and the sensitivity rejection (a value above the
+      // ceiling throws); agent-requestable-sensitivity.test.js pins the ceiling
+      // itself as a subset of the lattice.
       agentId,
       capability: clean(capability) ?? 'READ',
-      sensitivity: clean(sensitivity) ?? 'PUBLIC',
+      sensitivity: resolveRequestedSensitivity(sensitivity),
       consent: clean(consent) ?? 'UNKNOWN',
     }),
     policy: Object.freeze({
@@ -243,4 +309,4 @@ export async function resolveAgentAuthorization({
   }
 }
 
-export { vaultScope, DEFAULT_AGENT_ID }
+export { vaultScope, DEFAULT_AGENT_ID, AGENT_REQUESTABLE_SENSITIVITY }
