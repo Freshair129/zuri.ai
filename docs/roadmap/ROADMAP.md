@@ -30,6 +30,11 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > Revision 2.1.0 (2026-08-27): บันทึก FEAT-013 / FR-109..111 (17-Stage Knowledge
 > Ingestion & GraphRAG) เป็น **declaration เท่านั้น** — ประกาศใน PRD แล้ว
 > แต่ยังไม่มี route/model/code ใด ๆ
+> Revision 2.2.0 (2026-08-27): ครอบ FR-106..108 + FR-112 ที่ส่งมอบวันนี้ —
+> SEC-006 ปิด (FR-106), operator authority เกิดจริงบน production (FR-107),
+> ExecutionPlanBundle ใช้งานจริง (FR-108 — import แผน 17-Stage ขึ้น production
+> เป็นเคสแรก), Stage 7 chunking (FR-112); FR-066/067 ส่งมอบแล้ว; RSK-016 ปิด
+> (migration ทั้ง 6 apply + ledger ครบ); เพิ่ม PHASE-ZAI-KNOWLEDGE
 
 ## Phases
 
@@ -41,11 +46,12 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | PHASE-ZV2-DECIDE | Zuri v1 module merge vs Zuri v2 foundation decision | Owner decision recorded per ZURI-INTEGRATION-ASSESSMENT.md | done | 100 |
 | PHASE-ZV2-MERGE | ~~Ship PM into Zuri v1 as a module (ADR-002)~~ — **cancelled by ADR-003**: V2 replaces V1, so anything mounted into V1 retires with it | n/a | cancelled | 0 |
 | PHASE-V2-REPLACE | ~~Replace the legacy project by reuse~~ — program retired by ADR-024: zuri-ai is standalone, nothing is lifted, no cutover. Delivered tasks below stand as shipped product work | retired | closed (ADR-024) | 8 |
-| PHASE-ZAI-PRODUCT | Standalone product build-out หลัง ADR-024: read views + domain surfaces (FR-058..064, FR-086), authorization repayment (FR-065, FR-072..075), execution planning (FEAT-003), inventory/backfill (FR-076..078), schema declaration (FR-090), operator console (FR-105) | ทุก FR มี code + tests ใน TRACE.md; route/viewer baselines repaid เป็นศูนย์ (2026-08-17/18) | done | 100 |
-| PHASE-ZAI-RUNTIME | Phase 1 LINE runtime + ingestion boundary + integrations (FR-079..081, FEAT-004); Pipeline Builder canvas (FEAT-007) ยัง design-only; 17-Stage Knowledge Ingestion (FEAT-013 / FR-109..111) ยัง declaration-only ไม่นับรวมใน progress | local delivery เขียวครบ; production gates ที่เหลือ: live Vault provisioning, LINE canary, real-provider evaluation | in-progress | 80 |
+| PHASE-ZAI-PRODUCT | Standalone product build-out หลัง ADR-024: read views + domain surfaces (FR-058..064, FR-086), authorization repayment (FR-065, FR-072..075), execution planning (FEAT-003), inventory/backfill (FR-076..078), schema declaration (FR-090), operator console (FR-105), bundle import orchestration (FR-108/ADR-049 — ใช้จริงแล้ว: แผน 17-Stage ถูก import ขึ้น production ผ่านมัน) | ทุก FR มี code + tests ใน TRACE.md; route/viewer baselines repaid เป็นศูนย์ (2026-08-17/18) | done | 100 |
+| PHASE-ZAI-RUNTIME | Phase 1 LINE runtime + ingestion boundary + integrations (FR-079..081, FEAT-004); Pipeline Builder canvas (FEAT-007) ยัง design-only | local delivery เขียวครบ; production gates ที่เหลือ: live Vault provisioning, LINE canary, real-provider evaluation | in-progress | 80 |
 | PHASE-ZAI-CRM | CRM console + consent: Conversation Inbox (FR-091), reply receipt (FR-093), PDPA consent attestation (FR-103 ปิด SEC-005), market translation (FR-092) | code + tests ครบทุกตัวรวม e2e (`tests/e2e/fr091-conversation-inbox.spec.js`) | done | 100 |
-| PHASE-ZAI-IAM | Production IAM (FEAT-010: FR-094..098, ADR-045) + owner-assisted password reset (FR-104); onboarding/invites (FR-066/067) ยังไม่เริ่ม — tracked เป็น TASK-ZAI-003/004 ใน 24w program | FEAT-010 hardening จบ; FR-066/067 ส่งมอบ; SEC-006 มีเจ้าของ | in-progress | 70 |
-| PHASE-ZAI-SOT | SoT pipeline console (FEAT-011: FR-099..101) + data-plane service-account auth (FR-102, ADR-047) | live Supabase apply gate (RSK-016) ปิด; decision loop เดินจริงกับ data plane ภายนอก | in-progress | 90 |
+| PHASE-ZAI-IAM | Production IAM (FEAT-010: FR-094..098, ADR-045) + password reset (FR-104) + onboarding/invites (FR-066/067 — ส่งมอบ 2026-08-27) + Enterprise API token auth (FR-106 ปิด SEC-006) + operator grant store/bootstrap (FR-107 — operator คนแรก live บน production) | เหลือ tail เดียว: FEAT-010 hardening (FR-097 provider evidence) | in-progress | 90 |
+| PHASE-ZAI-SOT | SoT pipeline console (FEAT-011: FR-099..101) + data-plane service-account auth (FR-102, ADR-047) | ~~RSK-016~~ ปิดแล้ว 2026-08-27 (migration ทั้ง 6 apply + ledger); เหลือ: decision loop เดินจริงกับ data plane ภายนอก | in-progress | 95 |
+| PHASE-ZAI-KNOWLEDGE | 17-Stage Knowledge Ingestion & GraphRAG (ADR-050): governance declaration (FEAT-013: FR-109..111) + Stage 7 chunking calculator ส่งมอบแล้ว (FR-112, SDD-059 — pure calculator, ไม่มี model) | ทั้ง 17 stages มีเจ้าของ/implementation ตาม tier boundary; FR-110/111 ส่งมอบ | in-progress | 15 |
 
 ## Backlog Items
 
@@ -86,39 +92,41 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FEAT-008 | PHASE-ZAI-PRODUCT | task | Projects Dashboard (FR-086 shipped) + project priority (FR-087), accountable PIC (FR-088), Team grouping models (FR-089) | P1 | Claude | done (FR-087..089 status ruling resolved 2026-08-26 — PRD 1.89.0b) | FR-005; ADR-036; ADR-037 | ../domains/project-manager/features/FR-086-projects-dashboard.md |
 | TASK-FR-090 | PHASE-ZAI-PRODUCT | task | Live production-auth table declaration (PersonCredential, PasswordResetToken, laneId) — resolved 2026-08-26: source branch deleted; successors TASK-FEAT-010 (login/session) and the password-reset row under PHASE-ZAI-IAM | P0 | Claude | done | - | PRD-SDD FR-090 |
 | TASK-FR-105 | PHASE-ZAI-PRODUCT | task | Platform Programme Roadmap `/control/roadmap`: isOperator-only read-only projection of the 24-week programme (ADR-048) | P2 | Claude | done | FR-075; ADR-048 | ../domains/platform-control/features/FR-105-platform-programme-roadmap.md |
+| TASK-FR-108 | PHASE-ZAI-PRODUCT | task | ExecutionPlanBundle import orchestration (FR-108, ADR-049, FEAT-012 live): 5 โมดูล orchestrator + `POST /api/import/bundle/{dry-run,commit}` — one preview / one confirmation / atomic commit / hash-bound idempotent receipt; พิสูจน์ end-to-end แล้ว: แผน 17-Stage ถูก import ขึ้น production SmartGift ผ่านมันเป็นเคสแรก (`PRJ-KNOWLEDGE-17S`) | P0 | Claude | done | FR-012; FR-059; ADR-049; SDD-056 | ../domains/project-manager/features/FR-108-execution-plan-bundle.md |
 | TASK-FR-081 | PHASE-ZAI-RUNTIME | task | Raw external ingestion boundary: one normalized envelope, tenant/connection-scoped repository, dead-letter records (FR-081) | P0 | Claude | done | FR-079; BR-002 | ../domains/integration/features/FR-081-raw-external-ingestion.md |
 | TASK-FEAT-007 | PHASE-ZAI-RUNTIME | task | Pipeline Builder canvas: structure editing (FR-082), edge creation (FR-083), handoff contracts (FR-084), contract-gated release (FR-085) — ADR-035 design only, implementation not authorized | P2 | Owen | planned | FR-007; FR-040; ADR-035 | ../domains/project-manager/features/FR-082-pipeline-canvas.md |
-| TASK-FEAT-013 | PHASE-ZAI-RUNTIME | task | Knowledge Ingestion Governance (FEAT-013, proposed): stage catalog + job trace (FR-109), published snapshot contract (FR-110), sensitivity lattice + processing policy (FR-111) — ADR-050 documentary declaration only, ไม่มี route/model/code และ implementation ยังไม่ถูก authorize | P2 | Owen | planned | FR-071; SDD-057; SDD-058; ADR-042; ADR-043; ADR-046; ADR-050 | PRD-SDD FR-109..111; ../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md |
+| TASK-FEAT-013 | PHASE-ZAI-KNOWLEDGE | task | Knowledge Ingestion Governance (FEAT-013, proposed): stage catalog + job trace (FR-109), published snapshot contract (FR-110), sensitivity lattice + processing policy (FR-111) — ADR-050 documentary declaration only, ไม่มี route/model/code และ implementation ยังไม่ถูก authorize | P2 | Owen | planned | FR-071; SDD-057; SDD-058; ADR-042; ADR-043; ADR-046; ADR-050 | PRD-SDD FR-109..111; ../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md |
+| TASK-FR-112 | PHASE-ZAI-KNOWLEDGE | task | Structural knowledge chunking (FR-112): Stage 7 ของ catalog เป็น pure calculator ใน knowledge lane — ไม่มี model/persistence/route (SDD-059 pin เป็น decision), metadata ตรงตาม FR-109 (`chunk_id`, `parent_id`, `heading_path`, ...) | P1 | Claude | done | FR-109; ADR-050; SDD-059 | ../domains/knowledge/features/FR-112 (PRD row) |
 | TASK-FEAT-009 | PHASE-ZAI-CRM | task | CRM Conversation Inbox (FR-091, read-only per BR-011) + LINE reply delivery receipt (FR-093) | P0 | Claude | done | FR-023; FR-052; FR-081 | ../domains/crm/features/FR-091-conversation-inbox.md |
 | TASK-FR-103 | PHASE-ZAI-CRM | task | PDPA consent attestation on Customer (FR-103) — closes SEC-005, P0 open since 2026-08-12; owner attests GRANTED/DECLINED in the CRM console, legacy rows GRANDFATHERED | P0 | Claude | done | FR-091; SEC-005 | ../domains/crm/features/FR-103-pdpa-consent-attestation.md |
 | TASK-FR-092 | PHASE-ZAI-CRM | task | Market translation core: RawExternalRecord → provider-neutral MarketObservation (FR-092) | P1 | Claude | done | FR-081 | ../domains/market-intelligence/features/FR-092-market-translation-core.md |
 | TASK-FEAT-010 | PHASE-ZAI-IAM | task | Production IAM (ADR-045): canonical principal (FR-094), persisted sessions (FR-095), shared policy enforcement (FR-096), verified channel onboarding (FR-097), agent/tool/MSP authorization (FR-098) | P0 | Claude | in-progress (code + tests landed; production hardening tail per Issue #99) | FR-046; ADR-045 | ../domains/identity/features/FR-094-production-iam-boundary.md |
 | TASK-FR-104 | PHASE-ZAI-IAM | task | Owner-assisted password reset (FR-104): authenticated mint + public consume, digest-only storage, all sessions revoked — deliberately no public forgot-password route | P0 | Claude | done | FR-090; FR-095 | ../domains/identity/features/FR-104-owner-assisted-password-reset.md |
-| TASK-SEC-006 | PHASE-ZAI-IAM | task | Enterprise API tenant token auth (SEC-006, still missing) — generalize the FR-102 bearer-key pattern beyond the two SoT routes | P1 | Owen | planned | FR-019; FR-102; ADR-047 | PRD-SDD SEC-006 |
-| TASK-FEAT-011 | PHASE-ZAI-SOT | task | SoT pipeline console: plan board (FR-099), approval inbox + decision export (FR-100), graph dashboard (FR-101) | P0 | Claude | done (local; approved facts applied by the external data plane) | FR-071; ADR-046 | ../domains/integration/features/FR-100-sot-approval-inbox.md |
-| TASK-FR-102 | PHASE-ZAI-SOT | task | SoT data-plane service-account key (FR-102, ADR-047): Bearer `sdpk_` auth for submit/export, SHA-256 digest only, per-Tenant binding | P0 | Claude | done (live Supabase apply gate — RSK-016) | FR-100; ADR-047 | ../domains/identity/features/FR-102-sot-data-plane-service-account.md |
+| TASK-SEC-006 | PHASE-ZAI-IAM | task | Enterprise API tenant token auth — delivered as FR-106: `ApiAccessKey` per-Tenant bearer key on the FR-019 surface, key-or-session (ADR-047 D3 generalized); closes SEC-006 | P1 | Claude | done | FR-019; FR-102; ADR-047 | ../domains/identity/features/FR-106-enterprise-api-access-key.md |
+| TASK-FR-107 | PHASE-ZAI-IAM | task | Installation-operator grant store + bootstrap (FR-107): `PlatformGrant` resolved per request in the session port (แทน hardcoded false), bootstrap CLI + `--grant-only` mode; operator คนแรกถูก bootstrap บน production แล้ว (PER-BOSS) | P0 | Claude | done | FR-075; FR-095; FR-104 | ../domains/identity/features/FR-107 (PRD row) |
+| TASK-FR-066-067 | PHASE-ZAI-IAM | task | Profile-first onboarding + Waiting Room (FR-066) และ workspace collaboration invites (FR-067): `WorkspaceMembership`/`WorkspaceInvite` เป็น authority layer แยก (BR-016), invite ตามวินัย SEC-014 | P0 | Claude | done | FR-046; ADR-027 | ../domains/identity/features/FR-066-profile-first-workspace-onboarding.md |
+| TASK-FEAT-011 | PHASE-ZAI-SOT | task | SoT pipeline console: plan board (FR-099), approval inbox + decision export (FR-100), graph dashboard (FR-101) | P0 | Claude | done | FR-071; ADR-046 | ../domains/integration/features/FR-100-sot-approval-inbox.md |
+| TASK-FR-102 | PHASE-ZAI-SOT | task | SoT data-plane service-account key (FR-102, ADR-047): Bearer `sdpk_` auth for submit/export, SHA-256 digest only, per-Tenant binding | P0 | Claude | done (RSK-016 ปิด 2026-08-27 — migration apply + ledger ครบ) | FR-100; ADR-047 | ../domains/identity/features/FR-102-sot-data-plane-service-account.md |
 
 ## สิ่งที่ยังไม่ได้สร้างจริง (จาก gap analysis 2026-08-26 — เรียงตามน้ำหนัก)
 
 รายการนี้คือส่วนที่ registry ประกาศแล้วแต่ยังไม่มีโค้ด หรือมี gate ภายนอกค้าง —
 ตัวเลขสถานะในตารางข้างบนไม่นับสิ่งเหล่านี้ว่าเสร็จ:
 
-1. **FR-066 / FR-067** — profile-first onboarding + workspace invites (ยังไม่มีโค้ด;
-   BR-016 / SEC-014 / SDD-038 รอทั้งหมด) — tracked เป็น TASK-ZAI-003/004 ใน
-   `ROADMAP-zuri-ai-24w-program.md`
-2. **SEC-006** — Enterprise API tenant token auth (TASK-SEC-006 ข้างบน)
+1. ~~FR-066 / FR-067~~ — **ส่งมอบแล้ว 2026-08-27** (แถว TASK-FR-066-067)
+2. ~~SEC-006~~ — **ปิดแล้ว** ผ่าน FR-106 (แถว TASK-SEC-006)
 3. **FEAT-007 / FR-082..085** — Pipeline Builder canvas: design-only ตาม ADR-035
 4. **FR-071 tail** — canonical apply, Product/Customer promotion, publish (SoT loop
    ที่ FR-100 เปิดทางเดินข้างไว้ให้)
 5. **Production/activation gates** บน slice ที่โค้ดเสร็จแล้ว: LINE canary +
    real-provider evaluation (FR-053..055), live Vault provisioning (FR-079/080),
-   remote identity migration (FR-076), live Supabase apply ของ FR-102 (RSK-016)
+   remote identity migration (FR-076) — ~~live Supabase apply (RSK-016)~~ ปิดแล้ว 2026-08-27
 6. **ADR-044 in-repo seam** — ยังไม่มี FR สำหรับ Conversation ↔ unified-thread join
    และ group-thread isolation rule; งานหลัก (console, thread minting, dispatcher)
    อยู่นอก repo นี้ตาม ADR-044 D1
 7. **FEAT-013 / FR-109..111** — 17-Stage Knowledge Ingestion & GraphRAG pipeline:
    ประกาศใน PRD เมื่อ 2026-08-27 (revision 1.97.0b) ภายใต้ ADR-050 แต่
-   **ยังไม่มีอะไรทำงานเลย** — ไม่มี route, ไม่มี model, ไม่มีโค้ด, ไม่มีเทสต์;
+   **Stage 7 มี implementation แล้ว** (FR-112 chunking calculator, 2026-08-27) ส่วนที่เหลือยังไม่มี route/model/code;
    FR-109/110/111 เป็น 🔜 และตัวแถวเองระบุว่าไม่ authorize อะไรทั้งสิ้น ส่วน
    FEAT-013 เป็น proposed. ADR-050 เองก็ Accepted เฉพาะ contract/documentation
    boundary — ไม่ authorize runtime slice. SDD-057 ระบุให้ reuse execution ledger
@@ -126,7 +134,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
    SEC-021 เป็นกฎที่ประกาศล่วงหน้าก่อน pipeline ที่มันกำกับ. เอกสารต้นทางคือ
    `../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md`
 
-> **PRD status columns**: sync แล้วเมื่อ 2026-08-26 (PRD revision 1.89.0b) —
-> FR-087..089, 091, 093, 097, 099..105 flip ตามโค้ดจริง; FR-100/102/103 เป็น 🟠
-> เพราะ migration ทั้งสามยังไม่ apply บน live Supabase (ledger ตรวจ read-only
-> จบที่ `20260822204604` — RSK-016)
+> **PRD status columns**: sync ล่าสุด 2026-08-27 (PRD 1.94.0b "RSK-016 closed" ถึง 1.99.0b) —
+> FR-100/102/103/106/107 เป็น ✅ หลัง migration ทั้ง 6 apply บน live; FR-105 มี
+> deployment evidence (`zuri-ai-woad.vercel.app`); FR-108/112 ✅; FR-109..111 ยัง 🔜
+> ตาม declaration; ค้าง 🟠 เดียวคือ FR-097 (provider evidence)
