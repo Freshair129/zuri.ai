@@ -102,9 +102,9 @@ export const GATE_STATUSES = ['OPEN', 'PASSED', 'BLOCKED', 'WAIVED']
 // write-tools.js speak the action one; agent/auth-context.js speaks THIS one —
 // its only value is the string 'PUBLIC', a lattice member, not LOW or HIGH.
 // `write-tools.js` rejects an action sensitivity outside LOW/HIGH, so a knowledge
-// value cannot reach that path; `agent/auth-context.js` validates nothing and
-// already defaults to the string 'PUBLIC', so the separation rests on naming
-// there, not on a guard.
+// value cannot reach that path; `agent/auth-context.js` validates a request against
+// AGENT_REQUESTABLE_SENSITIVITY (a policy-restricted subset of this lattice, not
+// a copy of it), so the separation rests on a guard there, not only on naming.
 export const KNOWLEDGE_SENSITIVITY_LEVELS = ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL', 'RESTRICTED']
 
 export const WORKSPACE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']

@@ -443,7 +443,7 @@
 - **Status:** n/a
 - **Code:** `src/modules/agent/auth-context.js` · `src/modules/agent/context.js` · `src/modules/agent/memory-port.js` · `src/modules/agent/msp-memory-port.js` · `src/modules/agent/msp-vault-resolver.js` · `src/modules/agent/scoped-memory.js`
 - **Follows:** BR-015, BR-020, SDD-030, SDD-052, SEC-013, SEC-018
-- **Tests:** `tests/integration/agent-context.test.js` · `tests/integration/agent-msp-port.test.js` · `tests/integration/agent-multi-principal.test.js` · `tests/integration/agent-runtime.test.js` · `tests/integration/msp-vault-memory-port.test.js` · `tests/unit/msp-vault-resolver.test.js`
+- **Tests:** `tests/integration/agent-context.test.js` · `tests/integration/agent-msp-port.test.js` · `tests/integration/agent-multi-principal.test.js` · `tests/integration/agent-request-envelope.test.js` · `tests/integration/agent-runtime.test.js` · `tests/integration/msp-vault-memory-port.test.js` · `tests/unit/agent-requestable-sensitivity.test.js` · `tests/unit/msp-vault-resolver.test.js`
 
 ### FR-058 — File Manager views: the Business and Project File Manager render the existing FR-045 asset set in four switchable read views — grid (current behaviour), timeline (ordered by `FileAsset.updatedAt`/`createdAt`), by-project (the read model's existing BUSINESS/PROJECT `groups`), and preview (inline for authorized `LOCAL_FILE` content via `/api/files/{id}/content`, mime-gated; link-out for `EXTERNAL_URL`). View choice is client state only — no new persistence, route or write path; the read-model `assetDto` gains `createdAt`/`updatedAt` additively.
 
@@ -764,7 +764,7 @@
 - **Status:** n/a
 - **Code:** `src/modules/agent/action-gate.js` · `src/modules/agent/auth-context.js` · `src/modules/agent/context.js` · `src/modules/agent/tools.js` · `src/modules/identity/authorization-context.js` · `src/modules/identity/session-port.js`
 - **Follows:** BR-009, BR-015, BR-020, SDD-009, SDD-024, SDD-030, SDD-052, SEC-008, SEC-013, SEC-018
-- **Tests:** `tests/integration/agent-action-gate.test.js` · `tests/integration/agent-context.test.js` · `tests/integration/agent-multi-principal.test.js` · `tests/integration/agent-tools.test.js` · `tests/integration/iam-authorization.test.js` · `tests/unit/authorization-context.test.js` · `tests/unit/canonical-iam-migration.test.js` · `tests/unit/canonical-iam-runtime-role-cutover.test.js` · `tests/unit/fr046-session-port.test.js` · `tests/unit/iam-session.test.js` · `tests/unit/operator-bootstrap.test.js`
+- **Tests:** `tests/integration/agent-action-gate.test.js` · `tests/integration/agent-context.test.js` · `tests/integration/agent-multi-principal.test.js` · `tests/integration/agent-request-envelope.test.js` · `tests/integration/agent-tools.test.js` · `tests/integration/iam-authorization.test.js` · `tests/unit/authorization-context.test.js` · `tests/unit/canonical-iam-migration.test.js` · `tests/unit/canonical-iam-runtime-role-cutover.test.js` · `tests/unit/fr046-session-port.test.js` · `tests/unit/iam-session.test.js` · `tests/unit/operator-bootstrap.test.js`
 
 ### FR-097 — Verified channel onboarding: a valid LINE signature proves transport origin only; a new channel subject remains pending until server-owned linking/onboarding and active Membership authorize private data or staff capability.
 
@@ -773,7 +773,7 @@
 - **Surface:** `/api/agent/line-webhook` (api)
 - **Code:** `src/app/api/agent/line-webhook/route.js` · `src/modules/agent/auth-context.js` · `src/modules/agent/line-binding-resolver.js` · `src/modules/agent/line-channel-binding.js` · `src/modules/agent/turn.js` · `src/modules/crm/line-ingest-service.js` · `src/modules/identity/channel-identity.js` · `src/modules/identity/link-line-identity.js` · `src/modules/identity/resolve-line-identity.js`
 - **Follows:** BR-001, BR-002, BR-011, BR-012, BR-015, BR-020, NFR-017, SDD-026, SDD-030, SDD-048, SDD-052, SEC-001, SEC-010, SEC-013, SEC-018
-- **Tests:** `tests/integration/agent-multi-principal.test.js` · `tests/integration/agent-turn.test.js` · `tests/integration/agent-webhook-route.test.js` · `tests/integration/channel-identity.test.js` · `tests/integration/identity-link.test.js` · `tests/integration/identity-resolve.test.js` · `tests/integration/line-ingest.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/unit/canonical-iam-migration.test.js` · `tests/unit/canonical-iam-runtime-role-cutover.test.js` · `tests/unit/line-binding-resolver.test.js` · `tests/unit/line-channel-binding.test.js`
+- **Tests:** `tests/integration/agent-multi-principal.test.js` · `tests/integration/agent-request-envelope.test.js` · `tests/integration/agent-turn.test.js` · `tests/integration/agent-webhook-route.test.js` · `tests/integration/channel-identity.test.js` · `tests/integration/identity-link.test.js` · `tests/integration/identity-resolve.test.js` · `tests/integration/line-ingest.test.js` · `tests/integration/line-oa-evidence-convergence.test.js` · `tests/unit/canonical-iam-migration.test.js` · `tests/unit/canonical-iam-runtime-role-cutover.test.js` · `tests/unit/line-binding-resolver.test.js` · `tests/unit/line-channel-binding.test.js`
 
 ### FR-098 — Agent/tool/MSP authorization: every retrieval, action and tool call consumes the immutable shared authorization context, uses only server-resolved resource/vault identifiers, audits denial without secrets or customer content, and fails closed before side effects.
 
@@ -781,7 +781,7 @@
 - **Status:** n/a
 - **Code:** `src/modules/agent/action-gate.js` · `src/modules/agent/auth-context.js` · `src/modules/agent/context.js` · `src/modules/agent/tools.js` · `src/modules/identity/authorization-context.js`
 - **Follows:** BR-009, BR-015, BR-020, SDD-009, SDD-030, SDD-052, SEC-013, SEC-018
-- **Tests:** `tests/integration/agent-action-gate.test.js` · `tests/integration/agent-context.test.js` · `tests/integration/agent-multi-principal.test.js` · `tests/integration/agent-tools.test.js` · `tests/integration/iam-authorization.test.js` · `tests/unit/authorization-context.test.js` · `tests/unit/canonical-iam-migration.test.js` · `tests/unit/canonical-iam-runtime-role-cutover.test.js`
+- **Tests:** `tests/integration/agent-action-gate.test.js` · `tests/integration/agent-context.test.js` · `tests/integration/agent-multi-principal.test.js` · `tests/integration/agent-request-envelope.test.js` · `tests/integration/agent-tools.test.js` · `tests/integration/iam-authorization.test.js` · `tests/unit/authorization-context.test.js` · `tests/unit/canonical-iam-migration.test.js` · `tests/unit/canonical-iam-runtime-role-cutover.test.js`
 
 ### FR-099 — SoT pipeline plan board: the business-wide Source-of-Truth pipeline's phase plan (P0–P10) lives as strict-validated data (`contracts/sot-pipeline-plan.v1.json`) and is rendered at `/platform/sot-pipeline` with status **derived** from FR-071 run evidence plus FR-100 pending-decision counts — `planned/running/blocked/done` is computed by a pure function, never typed in, so the board cannot disagree with the tracking data it reads. Reader surface only; the plan file changes by PR.
 
@@ -887,7 +887,7 @@
 - **Status:** done
 - **Code:** `src/lib/validation/enums.js` · `src/modules/knowledge/classification.js`
 - **Follows:** BR-004, BR-009, SDD-002, SDD-032, SDD-058, SDD-062
-- **Tests:** `tests/integration/xlsx-intake.test.js` · `tests/unit/knowledge-classification.test.js` · `tests/unit/plan-schema.test.js`
+- **Tests:** `tests/integration/agent-request-envelope.test.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/agent-requestable-sensitivity.test.js` · `tests/unit/knowledge-classification.test.js` · `tests/unit/plan-schema.test.js`
 
 ### FR-112 — Structural knowledge chunking with parent-child lineage: a parsed document is split along its own structure — document → section → chunk — rather than at a fixed token stride, and every chunk carries the eight fields FR-109's `DPS-KI-CHUNK` catalog row already fixes (`chunk_id`, `parent_id`, `document_id`, `sequence`, `heading_path`, `token_count`, `scope`, `provenance`). `heading_path` carries the whole ancestor chain rather than the nearest heading, so a chunk retrieved on its own still says where in the document it came from. A section too large to retrieve as one unit additionally gets overlapping fixed windows beneath it, parented to the section chunk and reported as a warning — the fallback the specification names (§12), never the default; the windows overlap because without it a sentence lying across a boundary is left whole in neither. Chunking derives nothing it is given: `scope` comes from FR-111 classification and `provenance` from Stage 3, both upstream. The function is pure — no I/O, no clock, no randomness — so the same document chunks to the same ids every time, which is what lets BR-021 treat a reprocessed document as the same knowledge rather than a duplicate. Stage 7 is Tier 1 under ADR-050, so this executes here.
 
