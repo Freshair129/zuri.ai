@@ -12,6 +12,11 @@ vi.mock('@/modules/identity/auth-service', () => ({
 
 import { POST as login } from '@/app/api/auth/login/route'
 import { POST as logout } from '@/app/api/auth/logout/route'
+import {
+  LOGIN_ERROR_CREDENTIALS,
+  LOGIN_ERROR_UNAVAILABLE,
+  loginErrorMessage,
+} from '@/modules/identity/login-error-copy'
 
 // @req FR-046 — credential login creates a signed, server-owned session cookie.
 // @spec ADR-017, SDD-024, SEC-008
@@ -65,6 +70,16 @@ describe('FR-046 credential auth routes', () => {
     expect(response.headers.get('set-cookie')).toBeNull()
   })
 
+  it('returns 503 AUTH_UNAVAILABLE when a session cannot be minted at all', async () => {
+    auth.authenticateUser.mockRejectedValue(new Error('SESSION_SECRET_REQUIRED'))
+
+    const response = await login(request({ username: 'owner@example.com', password: 'correct horse battery staple' }))
+
+    expect(response.status).toBe(503)
+    expect(await response.json()).toEqual({ success: false, error: 'AUTH_UNAVAILABLE' })
+    expect(response.headers.get('set-cookie')).toBeNull()
+  })
+
   it('clears the session cookie on logout and marks it Secure in production', async () => {
     vi.stubEnv('NODE_ENV', 'production')
 
@@ -77,5 +92,40 @@ describe('FR-046 credential auth routes', () => {
     expect(cookie).toContain('Max-Age=0')
     expect(cookie).toContain('HttpOnly')
     expect(cookie).toContain('Secure')
+  })
+})
+
+// @req FR-046 — the login screen must not report a server-state failure as a
+// credential failure. A masked 503 AUTH_UNAVAILABLE (missing ZURI_SESSION_SECRET)
+// read as "wrong password" on 2026-08-27 and cost a long diagnosis.
+// @spec ADR-017, SDD-024, SEC-008
+// @tested tests/unit/fr046-auth-route.test.js
+describe('FR-046 login failure copy', () => {
+  afterEach(() => {
+    auth.authenticateUser.mockReset()
+  })
+
+  it('blames the credentials only for the 401 the route returns for bad credentials', async () => {
+    auth.authenticateUser.mockResolvedValue({ success: false, error: 'INVALID_CREDENTIALS' })
+    const response = await login(request({ username: 'owner@example.com', password: 'wrong' }))
+
+    expect(loginErrorMessage(response.status, await response.json())).toBe(LOGIN_ERROR_CREDENTIALS)
+  })
+
+  it('renders the 503 the route returns as unavailability, never as a bad password', async () => {
+    auth.authenticateUser.mockRejectedValue(new Error('SESSION_SECRET_REQUIRED'))
+    const response = await login(request({ username: 'owner@example.com', password: 'correct horse battery staple' }))
+    const message = loginErrorMessage(response.status, await response.json())
+
+    expect(response.status).toBe(503)
+    expect(message).toContain(LOGIN_ERROR_UNAVAILABLE)
+    expect(message).toContain('AUTH_UNAVAILABLE')
+    expect(message).not.toBe(LOGIN_ERROR_CREDENTIALS)
+  })
+
+  it('falls back to the status code for any other non-OK response', () => {
+    expect(loginErrorMessage(500, {})).toBe(`${LOGIN_ERROR_UNAVAILABLE} (รหัส: HTTP 500)`)
+    expect(loginErrorMessage(404, null)).toContain('HTTP 404')
+    expect(loginErrorMessage(500, {})).not.toBe(LOGIN_ERROR_CREDENTIALS)
   })
 })
