@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 194,
-    "routes": 100,
-    "test_files": 305
+    "docs": 195,
+    "routes": 102,
+    "test_files": 307
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 21,
+    "info": 20,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -223,27 +223,6 @@
     },
     {
       "id": "I20",
-      "severity": "info",
-      "check": "id-stability",
-      "title": "SDD-057 statement digest changed without an anchor move",
-      "details": "canonical SHA-256 90e59d46f4facabe19501cfb4b77b05aeb3ff76cf755563d0938aaafd37d0cc0 → 755306dfbb770e31902c7bde38241a46491071dbfa9f8372ba232b919c9bb11a · citation files: docs/appendices/D-traceability.md, docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md, docs/domains/knowledge/CHARTER.md, docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md, docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md, docs/FEATURE-MAP.md, docs/roadmap/ROADMAP.md, docs/TRACE.md, docs/Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification.md",
-      "files": [
-        "docs/PRD-SDD-v1.0.md",
-        "docs/.id-ledger.json",
-        "docs/appendices/D-traceability.md",
-        "docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md",
-        "docs/domains/knowledge/CHARTER.md",
-        "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
-        "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
-        "docs/FEATURE-MAP.md",
-        "docs/roadmap/ROADMAP.md",
-        "docs/TRACE.md",
-        "docs/Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification.md"
-      ],
-      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review SDD-057 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
-    },
-    {
-      "id": "I21",
       "severity": "info",
       "check": "id-stability",
       "title": "391 id(s) pinned across 10 families",

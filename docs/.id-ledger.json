@@ -3218,7 +3218,7 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "90e59d46f4facabe19501cfb4b77b05aeb3ff76cf755563d0938aaafd37d0cc0",
+      "statement_digest": "755306dfbb770e31902c7bde38241a46491071dbfa9f8372ba232b919c9bb11a",
       "history": [
         {
           "anchor": "the seventeen stage knowledge ingestion pipeline reuses the",
