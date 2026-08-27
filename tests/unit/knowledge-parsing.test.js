@@ -213,3 +213,26 @@ describe('a fence is closed by its own marker, not by any fence-looking line', (
     expect(artifact.structure.filter((n) => n.type === 'heading').map((n) => n.text)).toEqual(['real heading'])
   })
 })
+
+// Characterization, not TDD: these pin guards that already exist and were
+// found untested by review. The setext fix's correctness now rests on the
+// pipe check — the very thing the old guard got wrong — so it should not be
+// the one condition in this file with nothing holding it.
+describe('the pipe guard on setext, which the fix now depends on', () => {
+  it('does not promote a pipe-bearing line that is not a table row', () => {
+    const artifact = parse(['Item | Qty', '---', 'Body.'].join('\n'))
+    expect(artifact.structure.filter((n) => n.type === 'heading')).toEqual([])
+  })
+
+  it('does not promote a header row when its table was refused for a bad separator', () => {
+    const artifact = parse(['| A | B | C |', '|---|---|', '| 1 | 2 | 3 |', '---', 'After.'].join('\n'))
+    expect(artifact.structure.filter((n) => n.type === 'heading')).toEqual([])
+    expect(artifact.warnings.join(' ')).toMatch(/separator/i)
+  })
+
+  it('a well-formed table is consumed whole, so its separator never reaches the setext branch', () => {
+    const artifact = parse(['| Item | Qty |', '| --- | --- |', '| Gift set | 10 |'].join('\n'))
+    expect(artifact.structure.filter((n) => n.type === 'heading')).toEqual([])
+    expect(artifact.tables).toHaveLength(1)
+  })
+})

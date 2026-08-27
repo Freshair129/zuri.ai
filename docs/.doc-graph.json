@@ -55,7 +55,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "doc:PRD-SDD-v1.0"
+    ],
     "added": [],
     "removed": []
   },
@@ -8194,8 +8196,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.103.0b",
       "doc_status": "Draft",
-      "hash": "16c0f86c",
-      "status": "current"
+      "hash": "4a053537",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -10366,7 +10368,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Entity candidate extraction from chunks and structured records: FR-112's chunks and caller-named record fields both yield `EntityCandidate` objects carrying the six fields FR-109's `DPS-KI-ENTITY-EXTRACT` catalog row fixes — `candidate_id`, type, mention, `normalized_name`, `source_chunk_id`, `confidence` — plus the originating chunk or record, the scope it was found in, and the provenance carried from that source so the chain back to the raw artifact survives, so a candidate can never be read outside its tenant (SEC-001, BR-001). A candidate is a mention with a guess attached and never an identity: the specification states it outright (§13, \"EntityCandidate ยังไม่ใช่ canonical entity\"), so two mentions of the same name stay two candidates and nothing here merges, links or resolves them — that judgement is Stage 9, which ADR-050 D2 and the specification both assign to GKS. Recognition is a seam with a deliberately narrow deterministic default (SDD-060); a record mention is read from a declared field rather than guessed, and carries confidence 1 for that reason. Pure — no I/O, no clock, no randomness, no model — so the same input yields the same candidate ids, which is what lets BR-021 treat a reprocessed document as the same knowledge. Stage 8 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 17 unit tests "
+      "row_text": "Entity candidate extraction from chunks and structured records: FR-112's chunks and caller-named record fields both yield `EntityCandidate` objects carrying the six fields FR-109's `DPS-KI-ENTITY-EXTRACT` catalog row fixes — `candidate_id`, type, mention, `normalized_name`, `source_chunk_id`, `confidence` — plus the originating chunk or record, the scope it was found in, and the provenance carried from that source so the chain back to the raw artifact survives, so a candidate can never be read outside its tenant (SEC-001, BR-001). A candidate is a mention with a guess attached and never an identity: the specification states it outright (§13, \"EntityCandidate ยังไม่ใช่ canonical entity\"), so two mentions of the same name stay two candidates and nothing here merges, links or resolves them — that judgement is Stage 9, which ADR-050 D2 and the specification both assign to GKS. Recognition is a seam with a deliberately narrow deterministic default (SDD-060); a record mention is read from a declared field rather than guessed, and carries confidence 1 for that reason. Pure — no I/O, no clock, no randomness, no model — so the same input yields the same candidate ids, which is what lets BR-021 treat a reprocessed document as the same knowledge. Stage 8 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 29 unit tests "
     },
     {
       "id": "req:FR-114",
@@ -10382,11 +10384,11 @@
       "id": "req:FR-115",
       "type": "requirement",
       "family": "FR",
-      "label": "Document parsing into a structured artifact that keeps its link to the raw source: a document becomes a `ParsedArtifact` carrying `document_id`, `parsed_from`, `structure`, `text_blocks`, `tables` and `metadata` (spec §7), where `parsed_from` is the link back to the raw artifact FR-081 stored and `metadata` records the extractor version, so a reparse after a parser change is distinguishable from the original. This closes a gap that made the stages above it unreachable: `chunkDocument` (FR-112) consumes `blocks` and, before this, nothing in `src/` produced that shape — every caller was a test, so Stages 7 and 8 were two modules with no upstream. Parsing is deterministic and refuses structure that is not there: a `#` inside a fenced or indented code block is not a heading, `#hashtag` without a space is prose, a run of dashes with no text above it is a thematic break rather than a setext heading, a sentence containing a pipe is not a table, and a table whose separator disagrees with its header is reported and left as prose rather than read with a column dropped or invented. Markdown and plain text only; the formats needing a model or a binary keep arriving through FR-071's intake contract. Stage 2 is Tier 1 under ADR-050, so this executes here.",
+      "label": "Document parsing into a structured artifact that keeps its link to the raw source: a document becomes a `ParsedArtifact` carrying `document_id`, `parsed_from`, `structure`, `text_blocks`, `tables`, `metadata` and `warnings` (spec §7 plus the warnings channel the refusals below report through), where `parsed_from` is the link back to the raw artifact FR-081 stored and `metadata` records the extractor version, so a reparse after a parser change is distinguishable from the original. This closes a gap that made the stages above it unreachable: `chunkDocument` (FR-112) consumes `blocks` and, before this, nothing in `src/` produced that shape — every caller was a test, so Stages 7 and 8 were two modules with no upstream. Parsing is deterministic and refuses structure that is not there: a `#` inside a fenced or indented code block is not a heading, `#hashtag` without a space is prose, a run of dashes with no text above it is a thematic break rather than a setext heading, a sentence containing a pipe is not a table, and a table whose separator disagrees with its header is reported and left as prose rather than read with a column dropped or invented. Markdown and plain text only; the formats needing a model or a binary keep arriving through FR-071's intake contract. Stage 2 is Tier 1 under ADR-050, so this executes here.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Document parsing into a structured artifact that keeps its link to the raw source: a document becomes a `ParsedArtifact` carrying `document_id`, `parsed_from`, `structure`, `text_blocks`, `tables` and `metadata` (spec §7), where `parsed_from` is the link back to the raw artifact FR-081 stored and `metadata` records the extractor version, so a reparse after a parser change is distinguishable from the original. This closes a gap that made the stages above it unreachable: `chunkDocument` (FR-112) consumes `blocks` and, before this, nothing in `src/` produced that shape — every caller was a test, so Stages 7 and 8 were two modules with no upstream. Parsing is deterministic and refuses structure that is not there: a `#` inside a fenced or indented code block is not a heading, `#hashtag` without a space is prose, a run of dashes with no text above it is a thematic break rather than a setext heading, a sentence containing a pipe is not a table, and a table whose separator disagrees with its header is reported and left as prose rather than read with a column dropped or invented. Markdown and plain text only; the formats needing a model or a binary keep arriving through FR-071's intake contract. Stage 2 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 17 unit tests "
+      "row_text": "Document parsing into a structured artifact that keeps its link to the raw source: a document becomes a `ParsedArtifact` carrying `document_id`, `parsed_from`, `structure`, `text_blocks`, `tables`, `metadata` and `warnings` (spec §7 plus the warnings channel the refusals below report through), where `parsed_from` is the link back to the raw artifact FR-081 stored and `metadata` records the extractor version, so a reparse after a parser change is distinguishable from the original. This closes a gap that made the stages above it unreachable: `chunkDocument` (FR-112) consumes `blocks` and, before this, nothing in `src/` produced that shape — every caller was a test, so Stages 7 and 8 were two modules with no upstream. Parsing is deterministic and refuses structure that is not there: a `#` inside a fenced or indented code block is not a heading, `#hashtag` without a space is prose, a run of dashes with no text above it is a thematic break rather than a setext heading, a sentence containing a pipe is not a table, and a table whose separator disagrees with its header is reported and left as prose rather than read with a column dropped or invented. Markdown and plain text only; the formats needing a model or a binary keep arriving through FR-071's intake contract. Stage 2 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 17 unit tests "
     },
     {
       "id": "req:NFR-001",
@@ -14440,7 +14442,7 @@
       "id": "test:tests/unit/knowledge-parsing.test.js",
       "type": "test",
       "path": "tests/unit/knowledge-parsing.test.js",
-      "hash": "49c41111",
+      "hash": "1429fabe",
       "status": "current"
     },
     {
