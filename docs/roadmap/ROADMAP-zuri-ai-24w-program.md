@@ -2,10 +2,10 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "draft"
-version: "0.3.0"
-updated: "2026-08-23"
+version: "0.4.0"
+updated: "2026-08-27"
 repo_created_at: "2026-08-11T16:27:54Z"
-baseline_commit: "7d8c9d0"
+baseline_commit: "ff6f6b0"
 programme_start: "2026-08-24"
 programme_end: "2027-02-07"
 owner: "Owen"
@@ -70,22 +70,29 @@ Only these tokens are recognised by the board parser and may appear in a `Status
 ### 2.2 This plan is measured against a moving repository
 
 The repository is under active daily development by more than one agent. Between the first
-baseline of this document (`6ad6ae9`, 20 Aug) and this one (`7d8c9d0`, 23 Aug) the tree gained
-105 commits, two features, and five architecture decisions. Two consequences:
+baseline of this document (`6ad6ae9`, 20 Aug) and the 0.3.0 one (`7d8c9d0`, 23 Aug) the tree
+gained 105 commits, two features, and five architecture decisions. In the four days from there
+to the 0.4.0 stamp (`ff6f6b0`, 27 Aug) it gained a further 53 commits, nineteen declared
+features and seven architecture decisions (43 ADR files to 50). Two consequences:
 
 - **Every figure below is stamped with the commit it was measured at.** A figure without a commit
   stamp is not evidence.
 - **Re-baseline before quoting.** Section 5 is a snapshot, not a live feed. Re-run the commands in
   section 5.2 before using any number in a commercial conversation.
 
-At the moment this revision was written, `docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md`
+At the moment revision 0.3.0 was written, `docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md`
 existed in the working tree but was not yet tracked — a sixth decision being authored while this
 plan was being re-baselined against the fifth. That is the condition this section describes, not
-a hypothetical one.
+a hypothetical one. ADR-044 was finally committed on D16; ADR-045 to ADR-050 entered the tree
+between D13 and D17, out of numeric order, which is what concurrent authoring looks like.
 
 ## 3. Evidence Baseline
 
-Measured against `D:\zuri-ai` at commit `7d8c9d0`, 2026-08-23 04:05 +07.
+Measured against `D:\zuri-ai` at commit `7d8c9d0`, 2026-08-23 04:05 +07. **This table is left at
+its 0.3.0 stamp and has been overtaken.** Section 5.2 and section 5.3 carry the counts at
+`ff6f6b0`, 2026-08-27: 112 declared, 105 live, 308 test files, 445 commits. The deliverable
+reality check in 3.1 is likewise a `7d8c9d0` reading; where D14 to D17 changed it, section 5.5
+says so.
 
 | Measure | Value | Where it comes from |
 |---|---|---|
@@ -168,9 +175,9 @@ already met and are listed so that a regression is visible, not as programme pro
 |---|---|---|
 | GitHub repository created | **2026-08-11 23:27:54 +07** (`2026-08-11T16:27:54Z`) | `gh repo view Freshair129/zuri.ai --json createdAt` |
 | First commit | 2026-08-11 23:30:51 +07, `9030f25` | `git log --reverse` |
-| Latest commit at baseline | 2026-08-23 04:05:11 +07, `7d8c9d0` | `git log -1` |
-| Elapsed | **13 calendar days** (D1 = 11 Aug, D13 = 23 Aug) | derived |
-| Commits | 392 | `git rev-list --count HEAD` |
+| Latest commit at baseline | 2026-08-27 16:21:43 +07, `ff6f6b0` | `git log -1` |
+| Elapsed | **17 calendar days** (D1 = 11 Aug, D17 = 27 Aug) | derived |
+| Commits | 445 | `git rev-list --count HEAD` |
 
 **The repository date is a publication date, not an inception date.** The first commit is titled
 *"Initial commit: Zuri v2 spec pack + zuri-v2-lab MVP"* and lands 144 files already sitting under
@@ -178,24 +185,32 @@ already met and are listed so that a regression is visible, not as programme pro
 amount this repository cannot measure. Every figure below therefore describes **repository history
 from 11 Aug 2026 onward**, and nothing in it should be read as the total effort behind the product.
 
-### 5.2 What shipped in those 13 days
+### 5.2 What shipped in those 17 days
 
 Counted with `git log --no-merges --numstat`, so no change is counted twice through a merge
 commit. Path filtering is applied in `awk` rather than as a git pathspec, because a pathspec
 switches on history simplification and changes the totals.
 
+Three further details of the method, recorded at 0.4.0 so the figures can be re-derived rather
+than re-guessed. Days are cut on **committer** date (`--date=short --pretty=format:'#%cd'`),
+which places a commit in the day it landed rather than the day its branch was opened. The awk
+filter selects on a **numeric first field**, not on a three-field line: `--numstat` writes a
+rename as `40 40 old => new`, so an `NF==3` test silently drops every rename and undercounts.
+And the `Commits` column in section 5.3 counts **every** commit including merges, which is why
+it sums to `git rev-list --count HEAD` while the churn columns exclude them.
+
 | Measure | Value | Scope |
 |---|---|---|
-| Lines inserted | **292,937** | excluding `.next*` build artifacts and `package-lock.json` |
-| Lines deleted | 81,720 | same |
-| Net lines | **211,217** | insertions minus deletions |
-| Lines inserted, corpus also excluded | 253,703 | additionally excluding `docs/v1-inherited` |
-| Lines deleted, corpus also excluded | 42,486 | same |
-| Net lines, corpus also excluded | **211,217** | identical, because the corpus went in and out in full |
-| Lines standing in the tree | **198,574** | `git ls-files` minus lockfile and binaries |
-| Features declared | 0 to 93 | rows beginning `FR-` in `docs/FEATURE-MAP.md` per day |
-| Features live | 0 to 82 | same table |
-| Test files tracked | 9 to 263 | `tests/**/*.{test,spec}.js` in the git tree |
+| Lines inserted | **334,263** | excluding `.next*` build artifacts and `package-lock.json` |
+| Lines deleted | 86,290 | same |
+| Net lines | **247,973** | insertions minus deletions |
+| Lines inserted, corpus also excluded | 295,029 | additionally excluding `docs/v1-inherited` |
+| Lines deleted, corpus also excluded | 47,056 | same |
+| Net lines, corpus also excluded | **247,973** | identical, because the corpus went in and out in full |
+| Lines standing in the tree | **234,853** | `git ls-files` minus lockfile and binaries |
+| Features declared | 0 to 112 | rows beginning `FR-` in `docs/FEATURE-MAP.md` per day |
+| Features live | 0 to 105 | same table |
+| Test files tracked | 9 to 308 | `tests/**/*.{test,spec}.js` in the git tree |
 
 Three counting decisions, stated so the number can be checked rather than trusted:
 
@@ -206,18 +221,81 @@ Three counting decisions, stated so the number can be checked rather than truste
    documentation corpus into `docs/v1-inherited/` as read-only reference. Commit `ab82c26`
    (16 Aug) untracked it again under ADR-005 rev 2. Because it went in and out in full, the **net**
    figure is the same either way — which is itself the check that the exclusion is correct.
-3. **Deletions are subtracted.** 211,217 is net. Gross authored output was higher; the difference
+3. **Deletions are subtracted.** 247,973 is net. Gross authored output was higher; the difference
    is genuine rework, most of it the 12 Aug flatten from `zuri-v2-lab/` to repo root.
 
-The gap between net lines (211,217) and lines standing (198,574) is 12,643. Binary and excluded
+The gap between net lines (247,973) and lines standing (234,853) is 13,120. Binary and excluded
 files count as changed lines in `--numstat` but as zero in a line count of the tree, so the two
 measures cannot be identical. Both are given because neither alone is the whole answer.
 
-### 5.3 Day-by-day history — D1 to D13
+One correction to the previous revision, stated rather than quietly absorbed. Lines standing is
+counted over tracked text files (`git ls-files`, lockfile and binaries removed, `wc -l`). Run
+against `7d8c9d0` on a clean tree that command returns **198,392**, 182 fewer than the 198,574
+recorded at 0.3.0. Committed history cannot produce the difference, so the earlier figure was
+almost certainly measured over a working tree carrying uncommitted edits — the condition
+section 2.2 describes. The 0.4.0 figure is measured on a clean tree at `ff6f6b0`. Every churn
+figure in this section and the whole of section 5.3, by contrast, reproduces the 0.3.0 numbers
+exactly day for day, which is what makes the two revisions comparable.
+
+#### What landed in D14 to D17
+
+Named because these four days are the first that fall **inside** the programme: W1 opened Mon
+2026-08-24, which is D14. Each item below is read from `docs/PRD-SDD-v1.0.md`,
+`docs/FEATURES.md` or `docs/decisions/` at `ff6f6b0`, not from commit subjects. For context on
+the restated D13 row above: the twelve commits after the 0.3.0 baseline that Sunday carried the
+canonical IAM slice (FR-094 to FR-098, ADR-045, still `🟠` partial at `ff6f6b0`) and the first
+commit of this very document.
+
+- **D14, 24 Aug.** The SoT Pipeline Console — plan board, approval inbox and node/edge status
+  graph — declared and built. It was authored as FEAT-010 / FR-095 to FR-097 and renumbered
+  the same day to **FEAT-011 / FR-099 to FR-101**, because main's canonical IAM slice had
+  already claimed those numbers (AGENTS.md §18 — the later declaration renumbers). FR-102, the
+  SoT data-plane service-account key, landed under ADR-047. All three console FRs read
+  `✅ implemented` at `ff6f6b0`; FEAT-011 itself still reads `building`.
+- **D15, 25 Aug.** Two commits, one of substance: the production Supabase migration for
+  `SotDecision` (FR-100).
+- **D16, 26 Aug.** FR-094 to FR-102 pinned in the id ledger and ADR-044 added; FR-103, SEC-005
+  PDPA consent attestation at MVP scope; **FR-104, owner-assisted password reset**; FR-105, the
+  operator-only read-only projection of *this document* at `/control/roadmap`; an agent skill
+  pack for contract-shaped artifacts; and ADR-049 with the normative
+  `contracts/execution-plan-bundle.schema.json`, accepted for the contract boundary with its
+  runtime named as a separate slice. FR-106 was declared on this day, not built.
+- **D17, 27 Aug.** **FR-066 and FR-067 implemented** — profile-first onboarding and the workspace
+  collaboration boundary, which this plan still carries as `planned` in TASK-ZAI-003 and
+  TASK-ZAI-004. **FR-106**, Enterprise API tenant token authentication, closing SEC-006.
+  **FR-107**, the installation-operator grant store, plus its `--grant-only` bootstrap mode for
+  the credentialed-Person, empty-operator-set case. **RSK-016 closed**: all six pending Supabase
+  migrations applied to the live database and recorded in `supabase_migrations.schema_migrations`
+  (`sot_data_plane_key`, `sot_decision`, `customer_consent`, `workspace_onboarding`,
+  `api_access_key`, `platform_grant`). **FR-108**, ExecutionPlanBundle import orchestration,
+  declared with SDD-056 and FEAT-012 and then implemented the same day. **ADR-050** pinned the
+  knowledge-ingestion tier boundary, and under it FR-109, FR-110, FR-111, SDD-057, SDD-058,
+  NFR-020, BR-021, BR-022 and SEC-021 were declared. **FR-112**, structural chunking with
+  parent-child lineage — Stage 7, the one stage ADR-050 assigns to Tier 1 — implemented as a pure
+  calculator with twelve unit tests (SDD-059).
+
+**Implemented is not the same as declared, and this list mixes both.** Implemented and carrying
+tests: FR-104, FR-106, FR-107, FR-108 (with SDD-056), FR-112 (with SDD-059), and FR-066/FR-067.
+**Declared only, with no route, model or code authorized by the row**: FR-109, FR-110 and FR-111,
+each marked `🔜 declared 2026-08-27 — documentary declaration only` in the PRD, together with
+SDD-057, SDD-058, NFR-020, BR-021, BR-022 and SEC-021, which are the rules and design decisions
+written ahead of the pipeline they govern. FEAT-012 is `live`; **FEAT-013, the Knowledge Ingestion
+Governance bundle over FR-109 to FR-111, is `proposed`** — reading it as delivered would be a
+straightforward misreport. ADR-049 and ADR-050 are both accepted for the contract and
+documentation boundary only; ADR-050 says in its own status line that no runtime slice is
+authorized by it.
+
+### 5.3 Day-by-day history — D1 to D17
 
 **Scope note.** This table keeps the vendored V1 corpus *in*, so its import on D2 and its removal
 on D6 are both visible as real events in the repository's shape. Its insertion column therefore
-sums to 292,937 and its net to 211,217, reconciling exactly with section 5.2.
+sums to 334,263 and its net to 247,973, reconciling exactly with section 5.2.
+
+**D13 is restated at 0.4.0.** At 0.3.0 the D13 row read 2 commits and +229 lines, because the
+baseline commit `7d8c9d0` fell at 04:05 and cut the day in half. Twelve more commits landed
+that same Sunday. D13 now carries the whole calendar day — 14 commits, +8,240 — which is the
+only form in which the series can still sum to a total. D1 to D12 are unchanged, digit for
+digit, from 0.3.0.
 
 | Day | Date | Weekday | Commits | +Lines | -Lines | Net | Cumulative | FR declared | FR live | Test files |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -233,14 +311,19 @@ sums to 292,937 and its net to 211,217, reconciling exactly with section 5.2.
 | D10 | 2026-08-20 | Thu | 86 | 18,472 | 2,192 | +16,280 | 198,781 | 93 | 81 | 246 |
 | D11 | 2026-08-21 | Fri | 31 | 13,069 | 1,869 | +11,200 | 209,981 | 93 | 82 | 262 |
 | D12 | 2026-08-22 | Sat | 7 | 2,392 | 1,385 | +1,007 | 210,988 | 93 | 82 | 263 |
-| D13 | 2026-08-23 | Sun | 2 | 281 | 52 | +229 | 211,217 | 93 | 82 | 263 |
+| D13 | 2026-08-23 | Sun | 14 | 8,581 | 341 | +8,240 | 219,228 | 98 | 86 | 270 |
+| D14 | 2026-08-24 | Mon | 6 | 5,487 | 623 | +4,864 | 224,092 | 102 | 86 | 280 |
+| D15 | 2026-08-25 | Tue | 2 | 153 | 17 | +136 | 224,228 | 102 | 86 | 281 |
+| D16 | 2026-08-26 | Wed | 20 | 13,258 | 2,687 | +10,571 | 234,799 | 106 | 99 | 293 |
+| D17 | 2026-08-27 | Thu | 13 | 14,128 | 954 | +13,174 | 247,973 | 112 | 105 | 308 |
 
 `n/a` on D1 because `docs/FEATURE-MAP.md` did not exist yet — the generated registry first appears
 on D2, so there is no count to report for D1 rather than a zero. Twenty FR ids were already present
 in the D1 spec pack; they are simply not yet a registry.
 
-The cumulative column closes at 211,217, which is exactly the net in section 5.2. That
-reconciliation is the check that the day series is complete.
+The cumulative column closes at 247,973, which is exactly the net in section 5.2. That
+reconciliation is the check that the day series is complete. The `Commits` column closes the
+same way: 445, which is `git rev-list --count HEAD` at `ff6f6b0`.
 
 ### 5.4 The 24-week calendar
 
@@ -249,7 +332,7 @@ Sunday 23 Aug and W1 opens the next morning, so there is no unscheduled gap.
 
 | Anchor | Date |
 |---|---|
-| Baseline commit `7d8c9d0` | Sun 2026-08-23 |
+| Programme anchor commit `7d8c9d0` | Sun 2026-08-23 |
 | Programme W1 begins | **Mon 2026-08-24** |
 | Programme W24 ends | **Sun 2027-02-07** |
 
@@ -265,29 +348,39 @@ Sunday 23 Aug and W1 opens the next morning, so there is no unscheduled gap.
 ### 5.5 History laid against the plan
 
 This is the comparison the proposal cannot make for itself. The left column is what the repository
-actually did in 13 days; the right is what the proposal budgets for the same ground.
+actually did in 17 days; the right is what the proposal budgets for the same ground.
 
-| Proposal band | Budgeted | Already standing at the baseline | Read |
+One structural change since 0.3.0: D14 to D17 fall **inside** programme W1, which opened Mon
+2026-08-24. The left column is therefore no longer purely pre-programme history, and rows that
+cite a D14 to D17 date are citing delivery, not inheritance. No completion figure is derived
+from any of it — this document does not turn git activity into programme progress
+(ADR-048 D3, FR-105), and a phase or band percentage still moves only on the evidence its Task
+Container names.
+
+| Proposal band | Budgeted | Already standing, and what landed since the 0.3.0 baseline | Read |
 |---|---|---|---|
-| W1-4 Foundation | 4 weeks | FR-001 to FR-030, FR-039, FR-043, FR-051, FR-052, FR-071 — shipped D1 to D11 | Band is substantially spent before W1 opens |
+| W1-4 Foundation | 4 weeks | FR-001 to FR-030, FR-039, FR-043, FR-051, FR-052, FR-071 — shipped D1 to D11. Since: FR-104 owner-assisted password reset (D16), FR-066 profile-first onboarding and FR-067 workspace collaboration boundary (D17), FR-107 operator grant store and bootstrap (D17) | Band was substantially spent before W1 opened, and W1 itself has now delivered the two identity features TASK-ZAI-003 and TASK-ZAI-004 name. Those two backlog rows still read `planned` and are not moved here: a status change is the Task Container's evidence to record, not this table's |
 | W5-8 Business Core and governance | 4 weeks | FR-032 to FR-038, FR-041, FR-042, FR-060, FR-014 — shipped D3 to D8 | Roughly one third spent; roles and L1-L4 remain |
-| W9-12 Two businesses and connectors | 4 weeks | FR-020, FR-043, FR-061, FR-062, FR-079 to FR-081, FR-091 to FR-093 — shipped D6 to D12 | Scaffolding spent; second business and analytics remain |
+| W9-12 Two businesses and connectors | 4 weeks | FR-020, FR-043, FR-061, FR-062, FR-079 to FR-081, FR-091 to FR-093 — shipped D6 to D12. Since: FEAT-011 SoT Pipeline Console, FR-099 to FR-101 (D14) with the FR-100 production migration (D15), FR-102 SoT data-plane key (D14), FR-106 Enterprise API tenant token auth closing SEC-006 (D17) | A second governed ingestion path and its authentication now exist. Still outstanding and unchanged: Business number two, cross-business analytics, and connectors two and three as the proposal counts them |
 | W13-16 Visual Office 2.5D | 4 weeks | nothing | Fully outstanding |
-| W17-20 Second Brain and Node View 3D | 4 weeks | FR-024, FR-025, FR-029 read ports (D4); ADR-042 and ADR-043 pinned (D12) | Fully outstanding; the decisions exist, the product does not |
+| W17-20 Second Brain and Node View 3D | 4 weeks | FR-024, FR-025, FR-029 read ports (D4); ADR-042 and ADR-043 pinned (D12); ADR-050 and the FR-109/110/111 + SDD-057/058 + NFR-020 + BR-021/022 + SEC-021 declaration (D17, documentary only); FR-112 structural chunking implemented (D17) | Outstanding as a product. One of the seventeen ingestion stages — Stage 7, the only one ADR-050 assigns to Tier 1 — now has code and tests; the other sixteen have ids and rules and nothing else, and FEAT-013 over them is `proposed` |
 | W21-24 Hardening and handover | 4 weeks | FR-053, FR-054 harnesses — shipped D5 | Fully outstanding minus those harnesses |
 
-Three cautions against reading the 13-day history as a velocity forecast.
+Three cautions against reading the 17-day history as a velocity forecast.
 
-- **The history is not steady state.** Days 7, 8 and 10 carry 199 of the 392 commits, while D13
+- **The history is not steady state.** Days 7, 8 and 10 carry 199 of the 445 commits, while D15
   carries 2. A 24-week programme has to survive review, UAT and holidays, none of which appear in
-  a 13-day sample.
+  a 17-day sample.
 - **The remaining work is a different kind of work.** What shipped was largely backend contracts
   and governed CRUD over a model that was already designed. Weeks 13 to 20 are a 2.5D renderer, a
   3D graph view and a governed memory product — none of which have a precedent in this repository
   to extrapolate from.
 - **The architecture is still moving.** ADR-041, ADR-042 and ADR-043 were pinned on D11 and D12,
-  after this plan was first drafted. A decision that lands mid-programme can invalidate a sprint
-  that was scoped before it. Section 2.2 is the standing instruction for that.
+  after this plan was first drafted; ADR-044 to ADR-050 entered the tree between D13 and D17,
+  seven more in five days, and six of them — ADR-044, ADR-046, ADR-047, ADR-048, ADR-049 and
+  ADR-050 — after the programme clock started on D14. A decision that lands mid-programme can
+  invalidate a sprint that was scoped before it. Section 2.2 is the standing instruction for
+  that.
 
 ## Phases
 
@@ -1731,3 +1824,4 @@ ui_state:
 | 0.1.0 | 2026-08-20 | Initial authoring against baseline `6ad6ae9`. Proposal 24-week structure mapped onto the verified build: six phases, twelve sprints, thirty backlog items with complete Task Containers, eight acceptance gates restated from the proposal acceptance criteria. |
 | 0.2.0 | 2026-08-20 | Added section 5, Timeline and Provenance: repository creation date, day-by-day history, counting decisions, the anchored 24-week calendar, and the history-against-plan overlay. Phases and Sprints tables gained a Dates column. |
 | 0.3.0 | 2026-08-23 | **Re-baselined to `7d8c9d0`.** The 0.1.0 and 0.2.0 files were destroyed by a concurrent `git reset --hard` in this working tree while untracked, and the repository moved 105 commits in the interval. Corrections in this revision: churn is now measured with `--no-merges` and `awk` path filtering instead of a git pathspec, because a pathspec enables history simplification and inflated the earlier deletion figures; history extended from 10 to 13 days; features 91 to 93 declared and 80 to 82 live; test files 233 to 263; TASK-ZAI-005 closed because FR-071 went live on D11; TASK-ZAI-002 widened from four undeclared features to five; ADR-042 and ADR-043 added as governing sources for the Second Brain tasks; section 2.2 added to state that this plan is measured against a moving repository. |
+| 0.4.0 | 2026-08-27 | **History brought forward to `ff6f6b0`, D17.** No re-planning: phases, sprints, backlog rows, Task Containers, gates and statuses are untouched. Section 5.3 extended from D13 to D17 and D13 restated to the full calendar day (the 0.3.0 row stopped at the 04:05 baseline commit); section 5.2 totals re-derived over the whole period — 334,263 inserted, 86,290 deleted, 247,973 net, reconciling with the day series exactly; features 93 to 112 declared and 82 to 105 live; test files 263 to 308; commits 392 to 445; section 5.1 re-stamped. The measurement method is now written out in full (committer-date day cut, numeric-first-field awk so renames are not dropped, merges counted in the `Commits` column only) because the 0.3.0 figures could otherwise not be reproduced. Lines standing recounted on a clean tree, with the 182-line divergence from the 0.3.0 figure stated rather than absorbed. Section 5.5 corrected on three bands for what D14 to D17 actually delivered; section 3 marked as an overtaken 0.3.0 stamp. |
