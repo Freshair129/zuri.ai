@@ -909,3 +909,10 @@
 - **Code:** `src/modules/knowledge/normalization.js`
 - **Follows:** SDD-061
 - **Tests:** `tests/unit/knowledge-normalization.test.js`
+
+### FR-115 — Document parsing into a structured artifact that keeps its link to the raw source: a document becomes a `ParsedArtifact` carrying `document_id`, `parsed_from`, `structure`, `text_blocks`, `tables` and `metadata` (spec §7), where `parsed_from` is the link back to the raw artifact FR-081 stored and `metadata` records the extractor version, so a reparse after a parser change is distinguishable from the original. This closes a gap that made the stages above it unreachable: `chunkDocument` (FR-112) consumes `blocks` and, before this, nothing in `src/` produced that shape — every caller was a test, so Stages 7 and 8 were two modules with no upstream. Parsing is deterministic and refuses structure that is not there: a `#` inside a fenced or indented code block is not a heading, `#hashtag` without a space is prose, a run of dashes with no text above it is a thematic break rather than a setext heading, a sentence containing a pipe is not a table, and a table whose separator disagrees with its header is reported and left as prose rather than read with a column dropped or invented. Markdown and plain text only; the formats needing a model or a binary keep arriving through FR-071's intake contract. Stage 2 is Tier 1 under ADR-050, so this executes here.
+
+- **Status:** done
+- **Code:** `src/modules/knowledge/parsing.js`
+- **Follows:** SDD-063
+- **Tests:** `tests/unit/knowledge-parsing.test.js`

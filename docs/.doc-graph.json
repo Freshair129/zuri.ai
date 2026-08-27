@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1322,
-    "total_edges": 4489,
+    "total_nodes": 1327,
+    "total_edges": 4496,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 104,
+      "document": 105,
       "adr": 50,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 238,
-      "test": 310,
-      "code_file": 350
+      "requirement": 240,
+      "test": 311,
+      "code_file": 351
     },
     "coverage": {
-      "requirements": 238,
-      "fr_with_code": "100% (107/107)",
-      "fr_with_tests": "100% (107/107)",
-      "rules_anchored_in_code": "91% (93/102)",
+      "requirements": 240,
+      "fr_with_code": "100% (108/108)",
+      "fr_with_tests": "100% (108/108)",
+      "rules_anchored_in_code": "91% (94/103)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 350,
+      "annotated_code_files": 351,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -5265,6 +5265,24 @@
       }
     },
     {
+      "id": "code:src/modules/knowledge/parsing.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/parsing.js",
+      "hash": "666dcfd5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-115"
+        ],
+        "@spec": [
+          "SDD-063"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-parsing.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/postgres-business-knowledge.js",
       "type": "code_file",
       "path": "src/modules/knowledge/postgres-business-knowledge.js",
@@ -7906,6 +7924,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-115-document-parsing",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-115-document-parsing.md",
+      "title": "FR-115 — Document parsing into a structured artifact that keeps its link to the raw source",
+      "hash": "0d7e4238",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -8166,9 +8192,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.101.0b",
+      "version": "1.103.0b",
       "doc_status": "Draft",
-      "hash": "f25401af",
+      "hash": "16c0f86c",
       "status": "current"
     },
     {
@@ -10353,6 +10379,16 @@
       "row_text": "Canonical normalization that never destroys the raw value: a value is returned as the pair `{ raw, canonical }`, where `raw` is the input byte for byte and `canonical` is the comparable form — the specification's §3.1 invariant that raw data stays recoverable, made structural rather than promised, and the evidence FR-109's `DPS-KI-NORMALIZE` catalog row already asks for. Six categories are normalized: Unicode and whitespace (NFC, plus the invisible spaces `s` does not match, plus the one Thai fold NFC misses — `สำ` written as NIKHAHIT + SARA AA renders identically to SARA AM and NFC leaves the two unequal), dates (Thai and Gregorian digits, four-digit Buddhist years without a hint, two-digit years only with a declared era), Thai telephone numbers to E.164, email with the domain lowercased and the local part left alone because RFC 5321 makes it case-sensitive, and organisation names by the lexical rule this requirement now owns. Stage 8 imports that rule rather than keeping a second copy, and the order is fixed and stated: normalization runs before extraction, so one mention is stripped once by one rule. Where the value does not decide, nothing is decided for it (SDD-061). Stage 4 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 29 unit tests "
     },
     {
+      "id": "req:FR-115",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Document parsing into a structured artifact that keeps its link to the raw source: a document becomes a `ParsedArtifact` carrying `document_id`, `parsed_from`, `structure`, `text_blocks`, `tables` and `metadata` (spec §7), where `parsed_from` is the link back to the raw artifact FR-081 stored and `metadata` records the extractor version, so a reparse after a parser change is distinguishable from the original. This closes a gap that made the stages above it unreachable: `chunkDocument` (FR-112) consumes `blocks` and, before this, nothing in `src/` produced that shape — every caller was a test, so Stages 7 and 8 were two modules with no upstream. Parsing is deterministic and refuses structure that is not there: a `#` inside a fenced or indented code block is not a heading, `#hashtag` without a space is prose, a run of dashes with no text above it is a thematic break rather than a setext heading, a sentence containing a pipe is not a table, and a table whose separator disagrees with its header is reported and left as prose rather than read with a column dropped or invented. Markdown and plain text only; the formats needing a model or a binary keep arriving through FR-071's intake contract. Stage 2 is Tier 1 under ADR-050, so this executes here.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Document parsing into a structured artifact that keeps its link to the raw source: a document becomes a `ParsedArtifact` carrying `document_id`, `parsed_from`, `structure`, `text_blocks`, `tables` and `metadata` (spec §7), where `parsed_from` is the link back to the raw artifact FR-081 stored and `metadata` records the extractor version, so a reparse after a parser change is distinguishable from the original. This closes a gap that made the stages above it unreachable: `chunkDocument` (FR-112) consumes `blocks` and, before this, nothing in `src/` produced that shape — every caller was a test, so Stages 7 and 8 were two modules with no upstream. Parsing is deterministic and refuses structure that is not there: a `#` inside a fenced or indented code block is not a heading, `#hashtag` without a space is prose, a run of dashes with no text above it is a thematic break rather than a setext heading, a sentence containing a pipe is not a table, and a table whose separator disagrees with its header is reported and left as prose rather than read with a column dropped or invented. Markdown and plain text only; the formats needing a model or a binary keep arriving through FR-071's intake contract. Stage 2 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 17 unit tests "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -11161,6 +11197,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "A normalizer that cannot decide reports the ambiguity instead of resolving it — and reports it by withholding the canonical value, not by attaching a warning beside one. A warning next to a readable field is a warning somebody skips: if `canonical` holds a guess, a caller will use it. So an undecidable value returns `canonical: null` with the reason, and the caller has nothing else to read. The case that sets the rule is a Thai date like `25/8/26`, which is 2526 BE or 2026 CE with nothing in the string to separate them — forty-three years apart, both plausible, and no downstream check can catch the wrong one. The same withholding covers an undeclared field order (`5/8/69`, where day and month are both twelve or under) and a date that does not exist (`31/2/2569`, which must never roll into March). Six of §9's twelve categories are normalized; currency, unit, product code, country/region, timezone and identifier format are declined for a stronger reason than missing locale data — their canonical form is business-configured, so one invented here would be wrong in a way that looks authoritative. FR-114; FR-109, FR-113, SDD-060, BR-021, ADR-050 "
+    },
+    {
+      "id": "req:SDD-063",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "The parser produces the block shape Stage 7 already consumes. `parseDocument` returns `structure` as an array of `{ type: heading or text, level, text }`, which is exactly the `blocks` argument `chunkDocument` reads — so Stage 2 hands Stage 7 its input rather than the two agreeing by coincidence across two test suites that each build the shape. **Stage 7 owns the shape**; it existed first and its tests define it, and the parser conforms to it. The seam is held by a test that feeds real parser output straight into `chunkDocument` and asserts on the resulting chunks, because a written statement that two shapes match is prose, and prose is not a contract — the same reason a green governance run does not prove a link resolves. Markdown and plain text are parsed here; PDF, DOCX, OCR and vision layout are not, and are received instead through FR-071's `smartgift.document-intake.v1` front door, which validates someone else's extraction rather than performing one.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "The parser produces the block shape Stage 7 already consumes. `parseDocument` returns `structure` as an array of `{ type: heading or text, level, text }`, which is exactly the `blocks` argument `chunkDocument` reads — so Stage 2 hands Stage 7 its input rather than the two agreeing by coincidence across two test suites that each build the shape. **Stage 7 owns the shape**; it existed first and its tests define it, and the parser conforms to it. The seam is held by a test that feeds real parser output straight into `chunkDocument` and asserts on the resulting chunks, because a written statement that two shapes match is prose, and prose is not a contract — the same reason a green governance run does not prove a link resolves. Markdown and plain text are parsed here; PDF, DOCX, OCR and vision layout are not, and are received instead through FR-071's `smartgift.document-intake.v1` front door, which validates someone else's extraction rather than performing one. FR-115; FR-112, FR-071, FR-109, ADR-050 "
     },
     {
       "id": "req:SEC-001",
@@ -14388,6 +14434,13 @@
       "type": "test",
       "path": "tests/unit/knowledge-normalization.test.js",
       "hash": "130a1934",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-parsing.test.js",
+      "type": "test",
+      "path": "tests/unit/knowledge-parsing.test.js",
+      "hash": "49c41111",
       "status": "current"
     },
     {
@@ -22611,6 +22664,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/parsing.js",
+      "to": "req:FR-115",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/parsing.js",
+      "to": "req:SDD-063",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/postgres-business-knowledge.js",
       "to": "req:FR-051",
       "type": "implements",
@@ -27126,6 +27193,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-115",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -27687,6 +27761,13 @@
     },
     {
       "from": "req:SDD-061",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-063",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -42230,6 +42311,27 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-parsing.test.js",
+      "to": "code:src/modules/knowledge/parsing.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-parsing.test.js",
+      "to": "req:FR-115",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-parsing.test.js",
+      "to": "req:SDD-063",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/line-activation-contract.test.js",

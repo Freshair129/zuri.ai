@@ -222,6 +222,7 @@
     "FR-112",
     "FR-113",
     "FR-114",
+    "FR-115",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -303,6 +304,7 @@
     "SDD-059",
     "SDD-060",
     "SDD-061",
+    "SDD-063",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2265,6 +2267,19 @@
         }
       ]
     },
+    "FR-115": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "9ca8810441edcfb641afe63bbd532778a016a47af16e00a686bed0ce93a29f42",
+      "history": [
+        {
+          "anchor": "document parsing into a structured artifact that keeps its",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3327,6 +3342,19 @@
       ],
       "statement_digest_reviewed_at": "2026-08-27",
       "statement_digest_reason": "Corrected the non-existent-date example to the four-digit form the implementation actually reaches, and restored the same lost backslash; the decision itself is unchanged."
+    },
+    "SDD-063": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c80d706ce3a6ee6e760e99d72481281c7c9dbe8ff4c0e1a098ed1c54caa1d476",
+      "history": [
+        {
+          "anchor": "the parser produces the block shape stage 7 already",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
     },
     "SEC-001": {
       "family": "SEC",
