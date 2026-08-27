@@ -902,3 +902,10 @@
 - **Code:** `src/modules/knowledge/entity-extraction.js`
 - **Follows:** SDD-060
 - **Tests:** `tests/unit/knowledge-entity-extraction.test.js`
+
+### FR-114 — Canonical normalization that never destroys the raw value: a value is returned as the pair `{ raw, canonical }`, where `raw` is the input byte for byte and `canonical` is the comparable form — the specification's §3.1 invariant that raw data stays recoverable, made structural rather than promised, and the evidence FR-109's `DPS-KI-NORMALIZE` catalog row already asks for. Six categories are normalized: Unicode and whitespace (NFC, plus the invisible spaces `s` does not match, plus the one Thai fold NFC misses — `สำ` written as NIKHAHIT + SARA AA renders identically to SARA AM and NFC leaves the two unequal), dates (Thai and Gregorian digits, four-digit Buddhist years without a hint, two-digit years only with a declared era), Thai telephone numbers to E.164, email with the domain lowercased and the local part left alone because RFC 5321 makes it case-sensitive, and organisation names by the lexical rule this requirement now owns. Stage 8 imports that rule rather than keeping a second copy, and the order is fixed and stated: normalization runs before extraction, so one mention is stripped once by one rule. Where the value does not decide, nothing is decided for it (SDD-061). Stage 4 is Tier 1 under ADR-050, so this executes here.
+
+- **Status:** done
+- **Code:** `src/modules/knowledge/normalization.js`
+- **Follows:** SDD-061
+- **Tests:** `tests/unit/knowledge-normalization.test.js`

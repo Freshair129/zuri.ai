@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1317,
-    "total_edges": 4482,
+    "total_nodes": 1322,
+    "total_edges": 4489,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 103,
+      "document": 104,
       "adr": 50,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 236,
-      "test": 309,
-      "code_file": 349
+      "requirement": 238,
+      "test": 310,
+      "code_file": 350
     },
     "coverage": {
-      "requirements": 236,
-      "fr_with_code": "100% (106/106)",
-      "fr_with_tests": "100% (106/106)",
-      "rules_anchored_in_code": "91% (92/101)",
+      "requirements": 238,
+      "fr_with_code": "100% (107/107)",
+      "fr_with_tests": "100% (107/107)",
+      "rules_anchored_in_code": "91% (93/102)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 349,
+      "annotated_code_files": 350,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -55,9 +55,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:ROADMAP"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -5148,7 +5146,7 @@
       "id": "code:src/modules/knowledge/entity-extraction.js",
       "type": "code_file",
       "path": "src/modules/knowledge/entity-extraction.js",
-      "hash": "94faed6b",
+      "hash": "092e30f6",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5245,6 +5243,24 @@
         ],
         "@tested": [
           "tests/integration/knowledge-project.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/normalization.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/normalization.js",
+      "hash": "8b37ccc3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-114"
+        ],
+        "@spec": [
+          "SDD-061"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-normalization.test.js"
         ]
       }
     },
@@ -7882,6 +7898,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-114-canonical-normalization",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-114-canonical-normalization.md",
+      "title": "FR-114 — Canonical normalization that never destroys the raw value",
+      "hash": "e044d351",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -8142,9 +8166,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.100.0b",
+      "version": "1.101.0b",
       "doc_status": "Draft",
-      "hash": "4556d525",
+      "hash": "f25401af",
       "status": "current"
     },
     {
@@ -8181,7 +8205,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "02068edd",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -10319,6 +10343,16 @@
       "row_text": "Entity candidate extraction from chunks and structured records: FR-112's chunks and caller-named record fields both yield `EntityCandidate` objects carrying the six fields FR-109's `DPS-KI-ENTITY-EXTRACT` catalog row fixes — `candidate_id`, type, mention, `normalized_name`, `source_chunk_id`, `confidence` — plus the originating chunk or record, the scope it was found in, and the provenance carried from that source so the chain back to the raw artifact survives, so a candidate can never be read outside its tenant (SEC-001, BR-001). A candidate is a mention with a guess attached and never an identity: the specification states it outright (§13, \"EntityCandidate ยังไม่ใช่ canonical entity\"), so two mentions of the same name stay two candidates and nothing here merges, links or resolves them — that judgement is Stage 9, which ADR-050 D2 and the specification both assign to GKS. Recognition is a seam with a deliberately narrow deterministic default (SDD-060); a record mention is read from a declared field rather than guessed, and carries confidence 1 for that reason. Pure — no I/O, no clock, no randomness, no model — so the same input yields the same candidate ids, which is what lets BR-021 treat a reprocessed document as the same knowledge. Stage 8 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 17 unit tests "
     },
     {
+      "id": "req:FR-114",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Canonical normalization that never destroys the raw value: a value is returned as the pair `{ raw, canonical }`, where `raw` is the input byte for byte and `canonical` is the comparable form — the specification's §3.1 invariant that raw data stays recoverable, made structural rather than promised, and the evidence FR-109's `DPS-KI-NORMALIZE` catalog row already asks for. Six categories are normalized: Unicode and whitespace (NFC, plus the invisible spaces `s` does not match, plus the one Thai fold NFC misses — `สำ` written as NIKHAHIT + SARA AA renders identically to SARA AM and NFC leaves the two unequal), dates (Thai and Gregorian digits, four-digit Buddhist years without a hint, two-digit years only with a declared era), Thai telephone numbers to E.164, email with the domain lowercased and the local part left alone because RFC 5321 makes it case-sensitive, and organisation names by the lexical rule this requirement now owns. Stage 8 imports that rule rather than keeping a second copy, and the order is fixed and stated: normalization runs before extraction, so one mention is stripped once by one rule. Where the value does not decide, nothing is decided for it (SDD-061). Stage 4 is Tier 1 under ADR-050, so this executes here.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Canonical normalization that never destroys the raw value: a value is returned as the pair `{ raw, canonical }`, where `raw` is the input byte for byte and `canonical` is the comparable form — the specification's §3.1 invariant that raw data stays recoverable, made structural rather than promised, and the evidence FR-109's `DPS-KI-NORMALIZE` catalog row already asks for. Six categories are normalized: Unicode and whitespace (NFC, plus the invisible spaces `s` does not match, plus the one Thai fold NFC misses — `สำ` written as NIKHAHIT + SARA AA renders identically to SARA AM and NFC leaves the two unequal), dates (Thai and Gregorian digits, four-digit Buddhist years without a hint, two-digit years only with a declared era), Thai telephone numbers to E.164, email with the domain lowercased and the local part left alone because RFC 5321 makes it case-sensitive, and organisation names by the lexical rule this requirement now owns. Stage 8 imports that rule rather than keeping a second copy, and the order is fixed and stated: normalization runs before extraction, so one mention is stripped once by one rule. Where the value does not decide, nothing is decided for it (SDD-061). Stage 4 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 29 unit tests "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -11117,6 +11151,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Entity recognition is a seam with a deterministic default, not a model dependency. `extractEntityCandidates` takes an optional `recognizer`; the default recognises legal-form organisation patterns only — `บริษัท … จำกัด`, `ห้างหุ้นส่วนจำกัด …`, `… Co., Ltd.` — because in those the suffix IS the evidence: the grammar announces the type without anyone recognising the name inside it. Person, product, location and the rest of §13's type list need a model, and a model in the knowledge lane would couple Stage 8 to whatever recognises Thai and English text this month (the SDD-059 reasoning, one stage over). An empty seam was rejected as the alternative: shipping a hook with nothing behind it is what makes Stage 15 embedding read as delivered when it is not, and this requirement declines to repeat that shape. `normalized_name` is lexical and uses only the mention itself — trim, collapse, strip the legal wrapper. The moment it consults a registry, a catalogue or the other candidates in the batch it has begun deciding two mentions are one thing, and that decision is Stage 9's. FR-113; FR-109, FR-112, SDD-059, ADR-050 "
+    },
+    {
+      "id": "req:SDD-061",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "A normalizer that cannot decide reports the ambiguity instead of resolving it — and reports it by withholding the canonical value, not by attaching a warning beside one. A warning next to a readable field is a warning somebody skips: if `canonical` holds a guess, a caller will use it. So an undecidable value returns `canonical: null` with the reason, and the caller has nothing else to read. The case that sets the rule is a Thai date like `25/8/26`, which is 2526 BE or 2026 CE with nothing in the string to separate them — forty-three years apart, both plausible, and no downstream check can catch the wrong one. The same withholding covers an undeclared field order (`5/8/69`, where day and month are both twelve or under) and a date that does not exist (`31/2/2569`, which must never roll into March). Six of §9's twelve categories are normalized; currency, unit, product code, country/region, timezone and identifier format are declined for a stronger reason than missing locale data — their canonical form is business-configured, so one invented here would be wrong in a way that looks authoritative.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A normalizer that cannot decide reports the ambiguity instead of resolving it — and reports it by withholding the canonical value, not by attaching a warning beside one. A warning next to a readable field is a warning somebody skips: if `canonical` holds a guess, a caller will use it. So an undecidable value returns `canonical: null` with the reason, and the caller has nothing else to read. The case that sets the rule is a Thai date like `25/8/26`, which is 2526 BE or 2026 CE with nothing in the string to separate them — forty-three years apart, both plausible, and no downstream check can catch the wrong one. The same withholding covers an undeclared field order (`5/8/69`, where day and month are both twelve or under) and a date that does not exist (`31/2/2569`, which must never roll into March). Six of §9's twelve categories are normalized; currency, unit, product code, country/region, timezone and identifier format are declined for a stronger reason than missing locale data — their canonical form is business-configured, so one invented here would be wrong in a way that looks authoritative. FR-114; FR-109, FR-113, SDD-060, BR-021, ADR-050 "
     },
     {
       "id": "req:SEC-001",
@@ -14337,6 +14381,13 @@
       "type": "test",
       "path": "tests/unit/knowledge-entity-extraction.test.js",
       "hash": "1d458835",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-normalization.test.js",
+      "type": "test",
+      "path": "tests/unit/knowledge-normalization.test.js",
+      "hash": "130a1934",
       "status": "current"
     },
     {
@@ -22546,6 +22597,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/normalization.js",
+      "to": "req:FR-114",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/normalization.js",
+      "to": "req:SDD-061",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/postgres-business-knowledge.js",
       "to": "req:FR-051",
       "type": "implements",
@@ -27054,6 +27119,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-114",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -27608,6 +27680,13 @@
     },
     {
       "from": "req:SDD-060",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-061",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -42127,6 +42206,27 @@
     {
       "from": "test:tests/unit/knowledge-entity-extraction.test.js",
       "to": "req:SDD-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-normalization.test.js",
+      "to": "code:src/modules/knowledge/normalization.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-normalization.test.js",
+      "to": "req:FR-114",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-normalization.test.js",
+      "to": "req:SDD-061",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

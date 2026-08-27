@@ -2,6 +2,12 @@
 // @spec SDD-060, docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md §13 — candidates only, never canonical identity
 // @tested tests/unit/knowledge-entity-extraction.test.js
 
+// Stage 4 owns normalization and Stage 8 consumes it. The order is fixed:
+// normalization runs BEFORE extraction, so a mention is stripped once, by one
+// rule, wherever it came from. Two copies of this would drift and then two
+// spellings of one company would stop matching for a reason nobody could see.
+import { normalizeOrganizationName } from './normalization'
+
 /**
  * Legal-form patterns. These earn their place because the suffix IS the evidence:
  * a string ending in `จำกัด` or `Ltd.` announces itself as an organization without
@@ -27,38 +33,6 @@ const ORGANISATION_PATTERNS = [
 const PARTNERSHIP_PREFIX = 'ห้างหุ้นส่วนจำกัด'
 const NAME_STOP_WORDS = new Set(['และ', 'หรือ', 'กับ', 'เป็น', 'โดย', 'ซึ่ง', 'ที่'])
 const MAX_NAME_TOKENS = 5
-
-const LEGAL_AFFIXES = [
-  /^บริษัท\s+/,
-  /\s+จำกัด$/,
-  /^ห้างหุ้นส่วนจำกัด\s+/,
-  /\s*(?:Co\.,?|Ltd\.?|Limited)\s*$/i,
-]
-
-/**
- * Reduces a mention to a comparable form using ONLY the mention itself.
- *
- * This is the field where the Stage 8/9 boundary is easiest to lose. Normalizing
- * is lexical: trim, collapse whitespace, strip the legal wrapper. The moment it
- * consults a registry, a canonical catalogue, or the other candidates in the
- * batch, it has started deciding that two mentions are the same thing — and that
- * decision is Stage 9's, which the specification assigns to GKS by name.
- */
-function normalizeMention(mention) {
-  let value = mention.trim().replace(/\s+/g, ' ')
-  let changed = true
-  while (changed) {
-    changed = false
-    for (const affix of LEGAL_AFFIXES) {
-      const next = value.replace(affix, '').trim()
-      if (next !== value && next) {
-        value = next
-        changed = true
-      }
-    }
-  }
-  return value
-}
 
 /**
  * Finds entity candidates in FR-112 chunks.
@@ -87,7 +61,7 @@ export function extractEntityCandidates({ chunks, records, recognizer = defaultR
       candidate_id: `${record.record_id}~e0`,
       type: record.type,
       mention: record.mention,
-      normalized_name: normalizeMention(record.mention),
+      normalized_name: normalizeOrganizationName(record.mention),
       source_chunk_id: null,
       source_record_id: record.record_id,
       confidence: record.confidence ?? 1,
@@ -104,7 +78,7 @@ export function extractEntityCandidates({ chunks, records, recognizer = defaultR
         candidate_id: `${chunk.chunk_id}~e${index}`,
         type: hit.type,
         mention: hit.mention,
-        normalized_name: normalizeMention(hit.mention),
+        normalized_name: normalizeOrganizationName(hit.mention),
         source_chunk_id: chunk.chunk_id,
         source_record_id: null,
         confidence: hit.confidence,
