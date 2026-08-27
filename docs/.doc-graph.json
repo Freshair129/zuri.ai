@@ -56,7 +56,7 @@
   },
   "drift": {
     "changed": [
-      "test:tests/unit/prisma-generate-gate.test.js"
+      "doc:ROADMAP"
     ],
     "added": [],
     "removed": []
@@ -8154,8 +8154,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "b578d3c5",
-      "status": "current"
+      "hash": "abc689c2",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -14662,7 +14662,7 @@
       "type": "test",
       "path": "tests/unit/prisma-generate-gate.test.js",
       "hash": "1d645807",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/profile-permission-service.test.js",
