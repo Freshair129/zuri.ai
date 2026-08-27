@@ -2,7 +2,7 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.3.0"
+version: "2.3.1"
 updated: "2026-08-27"
 owner: "Owen"
 source_of_truth: true
@@ -40,6 +40,13 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > ของ FR-112; PHASE-ZAI-KNOWLEDGE 15 → 20 (สองใน 17 stage มี implementation
 > ในเลนนี้แล้ว) แถวนี้ต้อง merge **หลัง** PR ของ lane เสมอ เพราะ PRD row และ
 > ledger pin ของ FR-113 อยู่ในนั้น ไม่ใช่ในไฟล์นี้
+> Revision 2.3.1 (2026-08-27): ซ่อมช่อง Source Section ที่ชี้ไปไฟล์ซึ่งไม่มีอยู่
+> — สามแถวยังใช้ path ยุคก่อน flatten (`features/…`), สองแถวใช้รูป
+> `…/FR-xxx (PRD row)` ที่ไม่เคย resolve; FR-112 ชี้ไป feature note จริงแล้ว
+> ส่วน FR-107 ไม่มี note จึงอ้าง PRD row ตรง ๆ ตามความจริง เหลือหนึ่งแถว
+> (TASK-V2-PARITY) เป็นหนี้ที่รับไว้ใน `docs/.roadmap-evidence-baseline.json`
+> เพราะเอกสารหายไปพร้อมโปรแกรมที่ ADR-024 retire คอลัมน์นี้มี preflight
+> Check 13 ตรวจแล้วตั้งแต่บัดนี้ — ก่อนหน้านี้ไม่มีอะไรตรวจเลย
 
 ## Phases
 
@@ -66,10 +73,10 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-ZV2-GOV-DOCS | PHASE-ZV2-GOV | task | PRD-SDD v1.0 + appendices + doc-graph + preflight all green | P0 | Claude | done | TASK-ZV2-MVP-CORE | PRD-SDD 1.6 |
 | TASK-FR-017 | PHASE-ZV2-INTAKE | task | UI wizard: start-from-objective, builds envelope into validate/dry-run/commit pipeline | P0 | Claude | done | - | PRD-SDD FR-017 |
 | TASK-FR-018 | PHASE-ZV2-INTAKE | task | Excel template generator (from Zod schema) + xlsx-to-envelope converter with per-row errors | P1 | Claude | done | TASK-FR-017 | PRD-SDD FR-018 |
-| TASK-FR-020 | PHASE-ZV2-INTAKE | task | Adaptive shell: single business hides switchers, multi business gets portfolio landing | P1 | Claude | done | - | features/FR-020-adaptive-shell |
-| TASK-FR-040 | PHASE-V2-REPLACE | task | Project-local Work views: WBS Structure Plan plus Dependency Map, without changing shell scope or persistence | P1 | Codex | done | FR-005; FR-007; FR-039; ADR-012 | features/FR-040-project-work-views |
+| TASK-FR-020 | PHASE-ZV2-INTAKE | task | Adaptive shell: single business hides switchers, multi business gets portfolio landing | P1 | Claude | done | - | ../domains/project-manager/features/FR-020-adaptive-shell.md |
+| TASK-FR-040 | PHASE-V2-REPLACE | task | Project-local Work views: WBS Structure Plan plus Dependency Map, without changing shell scope or persistence | P1 | Codex | done | FR-005; FR-007; FR-039; ADR-012 | ../domains/project-manager/features/FR-040-project-work-views.md |
 | TASK-FR-041-042 | PHASE-V2-REPLACE | task | Business-first Overview with Business Strategy Roadmap/Goals and HR / People peer domain | P0 | Codex | done | FR-035; FR-039; ADR-013 | ../domains/project-manager/features/FR-041-business-strategy-overview.md; ../domains/project-manager/features/FR-042-hr-people-peer-domain.md |
-| TASK-FR-019 | PHASE-ZV2-INTAKE | task | Enterprise API: ExternalRef mapping, upsert-by-external-id, OpenAPI from Zod | P2 | Claude | done | TASK-FR-018 | features/FR-019-enterprise-api |
+| TASK-FR-019 | PHASE-ZV2-INTAKE | task | Enterprise API: ExternalRef mapping, upsert-by-external-id, OpenAPI from Zod | P2 | Claude | done | TASK-FR-018 | ../domains/project-manager/features/FR-019-enterprise-api.md |
 | TASK-ZV2-DECISION | PHASE-ZV2-DECIDE | task | Record owner decision: merge as v1 module or promote to v2 foundation — decided A→B, ADR-002 | P1 | Owen | done | TASK-FR-017; TASK-FR-020 | ZURI-INTEGRATION-ASSESSMENT |
 | TASK-MERGE-VOCAB | PHASE-ZV2-MERGE | task | ~~Adopt canonical scope vocabulary in Zuri v1~~ | P1 | Owen | cancelled | - | ADR-003 |
 | TASK-MERGE-BIZDIM | PHASE-ZV2-MERGE | task | ~~Business dimension on every new Zuri v1 table~~ | P1 | Owen | cancelled | - | ADR-003 |
@@ -101,7 +108,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-081 | PHASE-ZAI-RUNTIME | task | Raw external ingestion boundary: one normalized envelope, tenant/connection-scoped repository, dead-letter records (FR-081) | P0 | Claude | done | FR-079; BR-002 | ../domains/integration/features/FR-081-raw-external-ingestion.md |
 | TASK-FEAT-007 | PHASE-ZAI-RUNTIME | task | Pipeline Builder canvas: structure editing (FR-082), edge creation (FR-083), handoff contracts (FR-084), contract-gated release (FR-085) — ADR-035 design only, implementation not authorized | P2 | Owen | planned | FR-007; FR-040; ADR-035 | ../domains/project-manager/features/FR-082-pipeline-canvas.md |
 | TASK-FEAT-013 | PHASE-ZAI-KNOWLEDGE | task | Knowledge Ingestion Governance (FEAT-013, proposed): stage catalog + job trace (FR-109), published snapshot contract (FR-110), sensitivity lattice + processing policy (FR-111) — ADR-050 documentary declaration only, ไม่มี route/model/code และ implementation ยังไม่ถูก authorize | P2 | Owen | planned | FR-071; SDD-057; SDD-058; ADR-042; ADR-043; ADR-046; ADR-050 | PRD-SDD FR-109..111; ../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md |
-| TASK-FR-112 | PHASE-ZAI-KNOWLEDGE | task | Structural knowledge chunking (FR-112): Stage 7 ของ catalog เป็น pure calculator ใน knowledge lane — ไม่มี model/persistence/route (SDD-059 pin เป็น decision), metadata ตรงตาม FR-109 (`chunk_id`, `parent_id`, `heading_path`, ...) | P1 | Claude | done | FR-109; ADR-050; SDD-059 | ../domains/knowledge/features/FR-112 (PRD row) |
+| TASK-FR-112 | PHASE-ZAI-KNOWLEDGE | task | Structural knowledge chunking (FR-112): Stage 7 ของ catalog เป็น pure calculator ใน knowledge lane — ไม่มี model/persistence/route (SDD-059 pin เป็น decision), metadata ตรงตาม FR-109 (`chunk_id`, `parent_id`, `heading_path`, ...) | P1 | Claude | done | FR-109; ADR-050; SDD-059 | ../domains/knowledge/features/FR-112-structural-knowledge-chunking.md |
 | TASK-FR-113 | PHASE-ZAI-KNOWLEDGE | task | Entity candidate extraction (FR-113, SDD-060): Stage 8 ของ catalog — pure calculator ใน knowledge lane, ปลดล็อกโดย `source_chunk_id` ของ FR-112; ผลิต **candidate เท่านั้น** ไม่แตะ canonical identity (Stage 9 resolution เป็นของ GKS ตาม ADR-050); recognition เป็น seam + deterministic default แทน model dependency — caller-named fields บน structured record + องค์กรสามรูปแบบ (`บริษัท … จำกัด`, `ห้างหุ้นส่วนจำกัด …`, `… Co., Ltd./Ltd./Limited`) โดยรูปห้างหุ้นส่วนเป็น prefix-only ไม่มีอะไรในไวยากรณ์บอกว่าชื่อจบตรงไหน จึงสแกนถึง delimiter และเมื่อชนขอบ token จะลด confidence ของตัวเอง + ออก warning แทนที่จะตัดชื่อทิ้งเงียบ ๆ; evidence fields ตาม FR-109 (`candidate_id`, type, mention, `normalized_name`, `source_chunk_id`, `confidence`) | P1 | Claude | done | FR-109; FR-112; ADR-050; SDD-060 | ../domains/knowledge/features/FR-113-entity-candidate-extraction.md |
 | TASK-FEAT-009 | PHASE-ZAI-CRM | task | CRM Conversation Inbox (FR-091, read-only per BR-011) + LINE reply delivery receipt (FR-093) | P0 | Claude | done | FR-023; FR-052; FR-081 | ../domains/crm/features/FR-091-conversation-inbox.md |
 | TASK-FR-103 | PHASE-ZAI-CRM | task | PDPA consent attestation on Customer (FR-103) — closes SEC-005, P0 open since 2026-08-12; owner attests GRANTED/DECLINED in the CRM console, legacy rows GRANDFATHERED | P0 | Claude | done | FR-091; SEC-005 | ../domains/crm/features/FR-103-pdpa-consent-attestation.md |
@@ -109,7 +116,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FEAT-010 | PHASE-ZAI-IAM | task | Production IAM (ADR-045): canonical principal (FR-094), persisted sessions (FR-095), shared policy enforcement (FR-096), verified channel onboarding (FR-097), agent/tool/MSP authorization (FR-098) | P0 | Claude | in-progress (code + tests landed; production hardening tail per Issue #99) | FR-046; ADR-045 | ../domains/identity/features/FR-094-production-iam-boundary.md |
 | TASK-FR-104 | PHASE-ZAI-IAM | task | Owner-assisted password reset (FR-104): authenticated mint + public consume, digest-only storage, all sessions revoked — deliberately no public forgot-password route | P0 | Claude | done | FR-090; FR-095 | ../domains/identity/features/FR-104-owner-assisted-password-reset.md |
 | TASK-SEC-006 | PHASE-ZAI-IAM | task | Enterprise API tenant token auth — delivered as FR-106: `ApiAccessKey` per-Tenant bearer key on the FR-019 surface, key-or-session (ADR-047 D3 generalized); closes SEC-006 | P1 | Claude | done | FR-019; FR-102; ADR-047 | ../domains/identity/features/FR-106-enterprise-api-access-key.md |
-| TASK-FR-107 | PHASE-ZAI-IAM | task | Installation-operator grant store + bootstrap (FR-107): `PlatformGrant` resolved per request in the session port (แทน hardcoded false), bootstrap CLI + `--grant-only` mode; operator คนแรกถูก bootstrap บน production แล้ว (PER-BOSS) | P0 | Claude | done | FR-075; FR-095; FR-104 | ../domains/identity/features/FR-107 (PRD row) |
+| TASK-FR-107 | PHASE-ZAI-IAM | task | Installation-operator grant store + bootstrap (FR-107): `PlatformGrant` resolved per request in the session port (แทน hardcoded false), bootstrap CLI + `--grant-only` mode; operator คนแรกถูก bootstrap บน production แล้ว (PER-BOSS) | P0 | Claude | done | FR-075; FR-095; FR-104 | PRD-SDD FR-107 |
 | TASK-FR-066-067 | PHASE-ZAI-IAM | task | Profile-first onboarding + Waiting Room (FR-066) และ workspace collaboration invites (FR-067): `WorkspaceMembership`/`WorkspaceInvite` เป็น authority layer แยก (BR-016), invite ตามวินัย SEC-014 | P0 | Claude | done | FR-046; ADR-027 | ../domains/identity/features/FR-066-profile-first-workspace-onboarding.md |
 | TASK-FEAT-011 | PHASE-ZAI-SOT | task | SoT pipeline console: plan board (FR-099), approval inbox + decision export (FR-100), graph dashboard (FR-101) | P0 | Claude | done | FR-071; ADR-046 | ../domains/integration/features/FR-100-sot-approval-inbox.md |
 | TASK-FR-102 | PHASE-ZAI-SOT | task | SoT data-plane service-account key (FR-102, ADR-047): Bearer `sdpk_` auth for submit/export, SHA-256 digest only, per-Tenant binding | P0 | Claude | done (RSK-016 ปิด 2026-08-27 — migration apply + ledger ครบ) | FR-100; ADR-047 | ../domains/identity/features/FR-102-sot-data-plane-service-account.md |
