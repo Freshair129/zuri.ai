@@ -223,6 +223,7 @@
     "FR-113",
     "FR-114",
     "FR-115",
+    "FR-116",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -306,6 +307,7 @@
     "SDD-061",
     "SDD-062",
     "SDD-063",
+    "SDD-064",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2281,6 +2283,19 @@
         }
       ]
     },
+    "FR-116": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "fa20cc106791f01d6de454980ddef90b34e615a42cb6fa071d36542d3e10e832",
+      "history": [
+        {
+          "anchor": "derived object provenance and the lineage chain back to a",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3365,6 +3380,19 @@
       "history": [
         {
           "anchor": "the parser produces the block shape stage 7 already",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-064": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3c5edeb1d85e0ef0c7ad3bd520ff785803c1bbb44ffc4b8b4f3255237869f5b3",
+      "history": [
+        {
+          "anchor": "declaring knowledge derived is a claim that names its",
           "since": "2026-08-27",
           "reason": "declared"
         }
