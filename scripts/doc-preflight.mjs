@@ -12,6 +12,7 @@ import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
 import { collectDeclared } from './id-anchors.mjs'
 import { evaluateIdStability } from './id-stability.mjs'
+import { findBrokenEvidence } from './roadmap-evidence.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -1028,6 +1029,80 @@ const ID_LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
     ledgerPath: rel(ID_LEDGER),
   })) {
     add(f.severity, f.check, f.title, f.details, f.files, f.action)
+  }
+}
+
+// ---- Check 13: the roadmap's evidence column must resolve (ratchet) -------
+// ROADMAP.md declares itself `source_of_truth: true` and `live_document: true`,
+// and GoVibe Mission Control reads it directly. Its `Source Section` column is
+// the only pointer a reader has from a delivery claim to the artifact backing
+// it, so a pointer at a file that does not exist is a claim nobody can falsify.
+//
+// On 2026-08-27 a row was given `../domains/knowledge/features/FR-113-entity-
+// candidate-extraction.md` while that file existed only in a different branch,
+// and the whole chain reported `dangling 0` and PASS. Check 2 above did not see
+// it: that check matches markdown links, `[text](href)`, and these cells are
+// bare paths. So the one file whose own frontmatter claims to be a source of
+// truth was the one file whose references nothing resolved.
+//
+// What counts as a path (the predicate this check turns on):
+//   A `;`-separated reference is a path claim if, after a trailing parenthetical
+//   annotation is stripped, it contains `/`. That cleanly separates the two
+//   populations already in the column: locations (`../domains/crm/features/
+//   FR-078-....md`, `changes/ZV2-CR-005-....md`) from registry references
+//   (`PRD-SDD 1.3`, `ADR-024`, `PRD-SDD FR-109..111`), which name an id or a
+//   section rather than a file and are not checkable from the filesystem.
+//
+// The hybrid form `../domains/identity/features/FR-107 (PRD row)` was the one
+// real judgement call. It is NOT treated as a legitimate non-path: the prefix is
+// still a claim about where something lives, and exempting it would let any
+// broken pointer be laundered by appending a parenthetical. The annotation is
+// stripped and the path is checked. Both instances present when this check was
+// written were repaired rather than baselined — FR-112's note exists under its
+// full slug, and FR-107 has no note at all, so that cell became the registry
+// reference it was really describing.
+//
+// Two resolution bases, deliberately: `docs/roadmap/` and `docs/`. The column
+// genuinely mixes them — `../domains/...` is relative to the roadmap directory,
+// `roadmap/PLAN-FR-045-....md` and `changes/ZV2-CR-005-....md` are relative to
+// docs/ — and both forms name files that exist. Accepting either base can miss a
+// path that resolves from the base its author did not mean; demanding one would
+// report two correct pointers as broken, and a check that cries wolf on working
+// links teaches people to "repair" them. A false negative here is recoverable; a
+// false positive corrupts the thing being checked.
+//
+// A missing `.md` extension is accepted for the same reason: several cells omit
+// it and still name a real file.
+const ROADMAP = path.join(SPEC_PACK, 'roadmap', 'ROADMAP.md')
+const ROADMAP_EVIDENCE_BASELINE = path.join(SPEC_PACK, '.roadmap-evidence-baseline.json')
+if (existsSync(ROADMAP)) {
+  const { broken, structural } = findBrokenEvidence({
+    roadmapText: read(ROADMAP),
+    exists: (repoRelPath) => existsSync(path.join(ROOT, repoRelPath)),
+  })
+  for (const s of structural) {
+    add('warning', 'roadmap-evidence', s.title, rel(ROADMAP), [rel(ROADMAP)], s.action)
+  }
+  const baseline = existsSync(ROADMAP_EVIDENCE_BASELINE)
+    ? JSON.parse(read(ROADMAP_EVIDENCE_BASELINE)).references || []
+    : []
+  const known = new Set(baseline)
+
+  const introduced = broken.filter((b) => !known.has(b))
+  if (introduced.length) {
+    add('critical', 'roadmap-evidence', `${introduced.length} roadmap row(s) cite evidence that does not exist`, introduced.join(', '), [rel(ROADMAP)],
+      'Point the Source Section at the real file, or cite the registry (e.g. `PRD-SDD FR-xxx`) when no document backs the row — ' +
+        'never widen .roadmap-evidence-baseline.json to silence this')
+  }
+  const repaid = baseline.filter((b) => !broken.includes(b))
+  if (repaid.length) {
+    add('info', 'roadmap-evidence', `${repaid.length} baseline reference(s) now resolve`, repaid.join(', '), [rel(ROADMAP_EVIDENCE_BASELINE)],
+      'Remove them from .roadmap-evidence-baseline.json so the ratchet keeps its ground')
+  }
+  const remaining = broken.length - introduced.length
+  if (remaining) {
+    add('info', 'roadmap-evidence', `${remaining} roadmap reference(s) name a document that no longer exists (accepted debt)`, `baseline: ${rel(ROADMAP_EVIDENCE_BASELINE)}`, [rel(ROADMAP_EVIDENCE_BASELINE)],
+      'Repoint or retire them; the baseline may only shrink')
   }
 }
 

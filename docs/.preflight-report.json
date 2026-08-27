@@ -9,7 +9,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 20,
+    "info": 21,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -231,6 +231,17 @@
         "docs/.id-ledger.json"
       ],
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
+    },
+    {
+      "id": "I21",
+      "severity": "info",
+      "check": "roadmap-evidence",
+      "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
+      "details": "baseline: docs/.roadmap-evidence-baseline.json",
+      "files": [
+        "docs/.roadmap-evidence-baseline.json"
+      ],
+      "action": "Repoint or retire them; the baseline may only shrink"
     }
   ]
 }

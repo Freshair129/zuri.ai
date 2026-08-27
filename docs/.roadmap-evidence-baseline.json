@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "Accepted debt for preflight Check 13 (roadmap-evidence): Source Section references in docs/roadmap/ROADMAP.md that name a document which no longer exists in the live tree. Shrink-only — an entry may be removed when the reference is repaired or retired, and may never be added to silence a new finding.",
+  "references": [
+    "TASK-V2-PARITY::replacement/PARITY-INVENTORY"
+  ],
+  "notes": {
+    "TASK-V2-PARITY::replacement/PARITY-INVENTORY": "The parity inventory belonged to the reuse programme ADR-024 retired, and no document by that name survives anywhere in the tree - docs/archive/rwang-tasks/ holds eight parity-*.md work products, none of which is the inventory this row claims. Left as debt rather than repointed at an archive file that is not the artefact named, or quietly reduced to `ADR-024` like its sibling rows: either move would erase the record that this row's evidence went missing. The row's own Status is `done` for work completed before the retirement, so the claim is historical and the missing pointer costs nothing operationally."
+  }
+}
