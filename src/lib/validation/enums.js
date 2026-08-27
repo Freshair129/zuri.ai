@@ -98,7 +98,9 @@ export const GATE_STATUSES = ['OPEN', 'PASSED', 'BLOCKED', 'WAIVED']
 //
 // Named KNOWLEDGE_ rather than SENSITIVITY_ on purpose. `sensitivity` already
 // means something else in the agent domain — FR-026 action sensitivity, LOW/HIGH,
-// about step-up re-auth — and the two vocabularies share nothing but the word.
+// about step-up re-auth. Three usages, two vocabularies: action-gate.js and
+// write-tools.js speak the action one; agent/auth-context.js speaks THIS one —
+// its only value is the string 'PUBLIC', a lattice member, not LOW or HIGH.
 // `write-tools.js` rejects an action sensitivity outside LOW/HIGH, so a knowledge
 // value cannot reach that path; `agent/auth-context.js` validates nothing and
 // already defaults to the string 'PUBLIC', so the separation rests on naming

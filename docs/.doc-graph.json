@@ -53,7 +53,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "code:src/lib/validation/enums.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -3751,8 +3753,8 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "cc411832",
-      "status": "current",
+      "hash": "d447b07e",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
