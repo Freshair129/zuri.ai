@@ -1,3 +1,4 @@
+import { KNOWLEDGE_SENSITIVITY_LEVELS } from '@/lib/validation/enums'
 import { z } from 'zod'
 
 // @req FR-047 — curated business knowledge is a strict public projection behind registered reads.
@@ -48,7 +49,7 @@ const zBusinessKnowledgeRecord = z.object({
   as_of: z.string().datetime(),
   approved_at: z.string().datetime(),
   is_active: z.literal(true),
-  sensitivity: z.literal('PUBLIC'),
+  sensitivity: z.enum(KNOWLEDGE_SENSITIVITY_LEVELS),
   contract_version: z.literal('1.0.0'),
 }).strict('forbidden or unrecognized business knowledge field')
 
@@ -92,11 +93,20 @@ function searchMatches(record, term) {
 
 function packet(query, records) {
   const asOf = records.map((record) => record.as_of).sort().at(-1) ?? null
+  const above = records.find((record) => record.sensitivity !== 'PUBLIC')
+  if (above) {
+    throw new Error(
+      `business knowledge packet would carry a ${above.sensitivity} record (${above.product_code}) under a PUBLIC label`,
+    )
+  }
+
   return {
     queryId: query.queryId,
     queryVersion: '1.0.0',
     tenantId: query.tenantId ?? null,
     businessId: query.businessId,
+    // The surface's ceiling, not a description of the records. It reads as a
+    // claim, so it is enforced as one below rather than trusted.
     sensitivity: 'PUBLIC',
     asOf,
     records,

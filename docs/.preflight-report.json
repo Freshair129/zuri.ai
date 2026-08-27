@@ -4,7 +4,7 @@
   "scanned": {
     "docs": 198,
     "routes": 102,
-    "test_files": 311
+    "test_files": 312
   },
   "summary": {
     "critical": 0,
@@ -225,8 +225,8 @@
       "id": "I20",
       "severity": "info",
       "check": "id-stability",
-      "title": "397 id(s) pinned across 10 families",
-      "details": "ADR 50 · BR 22 · FEAT 13 · FR 114 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 61 · SEC 21 · ZV2-CR 8 · roster 397",
+      "title": "398 id(s) pinned across 10 families",
+      "details": "ADR 50 · BR 22 · FEAT 13 · FR 114 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 62 · SEC 21 · ZV2-CR 8 · roster 398",
       "files": [
         "docs/.id-ledger.json"
       ],

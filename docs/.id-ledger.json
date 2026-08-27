@@ -303,6 +303,7 @@
     "SDD-059",
     "SDD-060",
     "SDD-061",
+    "SDD-062",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -3327,6 +3328,19 @@
       ],
       "statement_digest_reviewed_at": "2026-08-27",
       "statement_digest_reason": "Corrected the non-existent-date example to the four-digit form the implementation actually reaches, and restored the same lost backslash; the decision itself is unchanged."
+    },
+    "SDD-062": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "15b85c731681bbdd8217f84603d76def2fb843ab4423861fec3c6e653d994568",
+      "history": [
+        {
+          "anchor": "widening what knowledge may carry must not widen what",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
     },
     "SEC-001": {
       "family": "SEC",

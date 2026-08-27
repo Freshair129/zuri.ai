@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1323,
-    "total_edges": 4489,
+    "total_nodes": 1326,
+    "total_edges": 4500,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,25 +15,24 @@
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 238,
-      "test": 311,
-      "code_file": 350
+      "requirement": 239,
+      "test": 312,
+      "code_file": 351
     },
     "coverage": {
-      "requirements": 238,
-      "fr_with_code": "100% (107/107)",
-      "fr_with_tests": "100% (107/107)",
-      "rules_anchored_in_code": "91% (93/102)",
+      "requirements": 239,
+      "fr_with_code": "100% (108/108)",
+      "fr_with_tests": "100% (108/108)",
+      "rules_anchored_in_code": "92% (95/103)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 350,
+      "annotated_code_files": 351,
       "fr_planned": [
         "FR-082",
         "FR-083",
         "FR-084",
         "FR-085",
         "FR-109",
-        "FR-110",
-        "FR-111"
+        "FR-110"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -45,7 +44,6 @@
         "SDD-041",
         "SDD-046",
         "SDD-057",
-        "SDD-058",
         "SEC-021"
       ],
       "rules_superseded": [
@@ -56,10 +54,15 @@
   },
   "drift": {
     "changed": [
-      "doc:ROADMAP"
+      "doc:FR-111-knowledge-sensitivity-lattice",
+      "doc:PRD-SDD-v1.0",
+      "code:src/lib/validation/enums.js",
+      "code:src/modules/knowledge/business-contract.js"
     ],
     "added": [
-      "test:tests/unit/roadmap-evidence.test.js"
+      "req:SDD-062",
+      "test:tests/unit/knowledge-classification.test.js",
+      "code:src/modules/knowledge/classification.js"
     ],
     "removed": []
   },
@@ -3757,12 +3760,13 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "9e45f234",
-      "status": "current",
+      "hash": "d447b07e",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
           "FR-087",
+          "FR-111",
           "FR-012"
         ],
         "@spec": [
@@ -5113,8 +5117,8 @@
       "id": "code:src/modules/knowledge/business-contract.js",
       "type": "code_file",
       "path": "src/modules/knowledge/business-contract.js",
-      "hash": "68d82afc",
-      "status": "current",
+      "hash": "ca2d1454",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-047"
@@ -5143,6 +5147,25 @@
         ],
         "@tested": [
           "tests/unit/knowledge-chunking.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/classification.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/classification.js",
+      "hash": "d3e0f0ee",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-111"
+        ],
+        "@spec": [
+          "SDD-062",
+          "SDD-058"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-classification.test.js"
         ]
       }
     },
@@ -7882,8 +7905,8 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
       "title": "FR-111 — Knowledge sensitivity lattice and processing policy",
-      "hash": "d4e32219",
-      "status": "current"
+      "hash": "4c3f287f",
+      "status": "changed"
     },
     {
       "id": "doc:FR-112-structural-knowledge-chunking",
@@ -8170,10 +8193,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.101.0b",
+      "version": "1.102.0b",
       "doc_status": "Draft",
-      "hash": "f25401af",
-      "status": "current"
+      "hash": "26cba885",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -8209,7 +8232,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "ae2e48bd",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -10322,9 +10345,9 @@
       "family": "FR",
       "label": "Knowledge sensitivity lattice and processing policy fields: business knowledge carries a real classification instead of the single `sensitivity: z.literal('PUBLIC')` the FR-047 contract admits today (`src/modules/knowledge/business-contract.js`) — widening to the PUBLIC / INTERNAL / CONFIDENTIAL / RESTRICTED lattice and adding the per-object processing policy the pipeline must obey before it indexes anything: retention, export, `cloud_processing_allowed` and `embedding_allowed` (spec §10). Classification happens before indexing, never as a filter applied after retrieval (spec §3.3): in the index-everything-then-filter pattern a scope mistake is a disclosure rather than a ranking error, and the filter is the only thing standing between the two. RESTRICTED with `cloud_processing_allowed = false` forces all seventeen stages onto local execution (SDD-058). Extends — never replaces — the SEC-001 tenant guard and the SEC-009 deny-by-default public read boundary.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Knowledge sensitivity lattice and processing policy fields: business knowledge carries a real classification instead of the single `sensitivity: z.literal('PUBLIC')` the FR-047 contract admits today (`src/modules/knowledge/business-contract.js`) — widening to the PUBLIC / INTERNAL / CONFIDENTIAL / RESTRICTED lattice and adding the per-object processing policy the pipeline must obey before it indexes anything: retention, export, `cloud_processing_allowed` and `embedding_allowed` (spec §10). Classification happens before indexing, never as a filter applied after retrieval (spec §3.3): in the index-everything-then-filter pattern a scope mistake is a disclosure rather than a ranking error, and the filter is the only thing standing between the two. RESTRICTED with `cloud_processing_allowed = false` forces all seventeen stages onto local execution (SDD-058). Extends — never replaces — the SEC-001 tenant guard and the SEC-009 deny-by-default public read boundary. 🔜 declared 2026-08-27 — documentary declaration only; no route, model or code is authorized by this row "
+      "declared": "done",
+      "status": "current",
+      "row_text": "Knowledge sensitivity lattice and processing policy fields: business knowledge carries a real classification instead of the single `sensitivity: z.literal('PUBLIC')` the FR-047 contract admits today (`src/modules/knowledge/business-contract.js`) — widening to the PUBLIC / INTERNAL / CONFIDENTIAL / RESTRICTED lattice and adding the per-object processing policy the pipeline must obey before it indexes anything: retention, export, `cloud_processing_allowed` and `embedding_allowed` (spec §10). Classification happens before indexing, never as a filter applied after retrieval (spec §3.3): in the index-everything-then-filter pattern a scope mistake is a disclosure rather than a ranking error, and the filter is the only thing standing between the two. RESTRICTED with `cloud_processing_allowed = false` forces all seventeen stages onto local execution (SDD-058). Extends — never replaces — the SEC-001 tenant guard and the SEC-009 deny-by-default public read boundary. ✅ implemented 2026-08-27 — lattice, the four policy fields, classify-before-index and per-object execution location; 24 unit tests. AC-111.5 waits on a stage runner, AC-111.7 on Stage 15 embedding, AC-111.8 on Stage 6 dedup, AC-111.10 on the Stage 17 gate — each named rather than left as pending "
     },
     {
       "id": "req:FR-112",
@@ -11165,6 +11188,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "A normalizer that cannot decide reports the ambiguity instead of resolving it — and reports it by withholding the canonical value, not by attaching a warning beside one. A warning next to a readable field is a warning somebody skips: if `canonical` holds a guess, a caller will use it. So an undecidable value returns `canonical: null` with the reason, and the caller has nothing else to read. The case that sets the rule is a Thai date like `25/8/26`, which is 2526 BE or 2026 CE with nothing in the string to separate them — forty-three years apart, both plausible, and no downstream check can catch the wrong one. The same withholding covers an undeclared field order (`5/8/69`, where day and month are both twelve or under) and a date that does not exist (`31/2/2569`, which must never roll into March). Six of §9's twelve categories are normalized; currency, unit, product code, country/region, timezone and identifier format are declined for a stronger reason than missing locale data — their canonical form is business-configured, so one invented here would be wrong in a way that looks authoritative. FR-114; FR-109, FR-113, SDD-060, BR-021, ADR-050 "
+    },
+    {
+      "id": "req:SDD-062",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Widening what knowledge may carry must not widen what knowledge is served. `business-contract.js` holds two decisions that share a word: the record schema, which says what may be STORED, and the query filter, which says what is SERVED to a public surface. FR-111 widens the first to the four-level lattice and leaves the second at `PUBLIC`, and the two are separate on purpose rather than by oversight. The failure this pins against is not somebody deliberately opening the filter — it is somebody reading `record.sensitivity === 'PUBLIC'`, seeing that the enum now has four values, and correcting the comparison because it looks stale. It is not stale; it is the boundary. The packet stops asserting its own label and verifies it instead: it refuses to wrap a record above `PUBLIC` rather than stamping `PUBLIC` on whatever it was handed, so a future widening of the filter fails loudly instead of leaking. The lattice lives in `src/lib/validation/enums.js` and is named `KNOWLEDGE_SENSITIVITY_LEVELS` because `sensitivity` already means FR-026 action sensitivity (LOW/HIGH) elsewhere; `write-tools.js` rejects an action sensitivity outside LOW/HIGH so a knowledge value cannot reach that path, but `agent/auth-context.js` validates nothing and already defaults to the string `PUBLIC` — so the separation rests on naming there rather than on a guard, and saying so is the point of pinning it.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Widening what knowledge may carry must not widen what knowledge is served. `business-contract.js` holds two decisions that share a word: the record schema, which says what may be STORED, and the query filter, which says what is SERVED to a public surface. FR-111 widens the first to the four-level lattice and leaves the second at `PUBLIC`, and the two are separate on purpose rather than by oversight. The failure this pins against is not somebody deliberately opening the filter — it is somebody reading `record.sensitivity === 'PUBLIC'`, seeing that the enum now has four values, and correcting the comparison because it looks stale. It is not stale; it is the boundary. The packet stops asserting its own label and verifies it instead: it refuses to wrap a record above `PUBLIC` rather than stamping `PUBLIC` on whatever it was handed, so a future widening of the filter fails loudly instead of leaking. The lattice lives in `src/lib/validation/enums.js` and is named `KNOWLEDGE_SENSITIVITY_LEVELS` because `sensitivity` already means FR-026 action sensitivity (LOW/HIGH) elsewhere; `write-tools.js` rejects an action sensitivity outside LOW/HIGH so a knowledge value cannot reach that path, but `agent/auth-context.js` validates nothing and already defaults to the string `PUBLIC` — so the separation rests on naming there rather than on a guard, and saying so is the point of pinning it. FR-111; FR-047, SEC-009, SDD-058, ADR-050 "
     },
     {
       "id": "req:SEC-001",
@@ -14378,6 +14411,13 @@
       "type": "test",
       "path": "tests/unit/knowledge-chunking.test.js",
       "hash": "847f52a1",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-classification.test.js",
+      "type": "test",
+      "path": "tests/unit/knowledge-classification.test.js",
+      "hash": "325c0550",
       "status": "current"
     },
     {
@@ -20551,6 +20591,13 @@
     },
     {
       "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-111",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
       "to": "req:SDD-002",
       "type": "follows",
       "status": "current",
@@ -22526,6 +22573,27 @@
     {
       "from": "code:src/modules/knowledge/chunking.js",
       "to": "req:SDD-059",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/classification.js",
+      "to": "req:FR-111",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/classification.js",
+      "to": "req:SDD-058",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/classification.js",
+      "to": "req:SDD-062",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -27698,6 +27766,13 @@
     },
     {
       "from": "req:SDD-061",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-062",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -36938,6 +37013,13 @@
     },
     {
       "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-111",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "req:SDD-002",
       "type": "verifies",
       "status": "current",
@@ -42194,6 +42276,34 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/knowledge-classification.test.js",
+      "to": "code:src/modules/knowledge/classification.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-classification.test.js",
+      "to": "req:FR-111",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-classification.test.js",
+      "to": "req:SDD-058",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-classification.test.js",
+      "to": "req:SDD-062",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/knowledge-entity-extraction.test.js",
       "to": "code:src/modules/knowledge/entity-extraction.js",
       "type": "tests",
@@ -43477,6 +43587,13 @@
     {
       "from": "test:tests/unit/plan-schema.test.js",
       "to": "req:FR-087",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-111",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
