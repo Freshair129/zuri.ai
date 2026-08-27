@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-27T07:16:22.163Z",
+  "generatedAt": "2026-08-27T08:54:59.823Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -98,7 +98,9 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-109 is planned",
-        "evidence": []
+        "evidence": [
+          "tests/unit/knowledge-chunking.test.js"
+        ]
       },
       {
         "domain": "knowledge",
@@ -1124,7 +1126,10 @@
           "declared": "planned",
           "status": "planned",
           "codeCount": 0,
-          "testCount": 0
+          "testCount": 1,
+          "evidence": [
+            "tests/unit/knowledge-chunking.test.js"
+          ]
         },
         {
           "id": "FR-110",
@@ -1139,6 +1144,13 @@
           "status": "planned",
           "codeCount": 0,
           "testCount": 0
+        },
+        {
+          "id": "FR-112",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 1
         }
       ],
       "checks": {
@@ -1213,6 +1225,7 @@
         "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
         "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
         "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
+        "docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -1258,7 +1271,9 @@
           "severity": "medium",
           "check": "requirements",
           "summary": "FR-109 is planned",
-          "evidence": []
+          "evidence": [
+            "tests/unit/knowledge-chunking.test.js"
+          ]
         },
         {
           "id": "REQ-FR-110",
@@ -1280,7 +1295,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 0,
-        "featureNotes": 5
+        "featureNotes": 6
       }
     },
     "market-intelligence": {

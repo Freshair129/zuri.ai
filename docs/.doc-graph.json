@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1307,
-    "total_edges": 4466,
+    "total_nodes": 1312,
+    "total_edges": 4474,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 101,
+      "document": 102,
       "adr": 50,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 232,
-      "test": 307,
-      "code_file": 347
+      "requirement": 234,
+      "test": 308,
+      "code_file": 348
     },
     "coverage": {
-      "requirements": 232,
-      "fr_with_code": "100% (104/104)",
-      "fr_with_tests": "100% (104/104)",
-      "rules_anchored_in_code": "91% (90/99)",
+      "requirements": 234,
+      "fr_with_code": "100% (105/105)",
+      "fr_with_tests": "100% (105/105)",
+      "rules_anchored_in_code": "91% (91/100)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 347,
+      "annotated_code_files": 348,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -56,18 +56,10 @@
   },
   "drift": {
     "changed": [
-      "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
-      "doc:FR-109-knowledge-ingestion-stage-catalog",
-      "doc:FR-110-published-knowledge-snapshot-contract",
-      "doc:FR-111-knowledge-sensitivity-lattice",
-      "doc:ROADMAP"
+      "test:tests/unit/prisma-generate-gate.test.js"
     ],
-    "added": [
-      "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC"
-    ],
-    "removed": [
-      "doc:Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification"
-    ]
+    "added": [],
+    "removed": []
   },
   "nodes": [
     {
@@ -5135,6 +5127,24 @@
       }
     },
     {
+      "id": "code:src/modules/knowledge/chunking.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/chunking.js",
+      "hash": "8a5492c7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-112"
+        ],
+        "@spec": [
+          "SDD-059"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-chunking.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/gbdb-rag-service.js",
       "type": "code_file",
       "path": "src/modules/knowledge/gbdb-rag-service.js",
@@ -7819,7 +7829,7 @@
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
       "hash": "b7340c42",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
@@ -7827,7 +7837,7 @@
       "path": "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
       "title": "FR-110 — Published knowledge snapshot contract",
       "hash": "72bbea2d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-111-knowledge-sensitivity-lattice",
@@ -7835,7 +7845,15 @@
       "path": "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
       "title": "FR-111 — Knowledge sensitivity lattice and processing policy",
       "hash": "d4e32219",
-      "status": "changed"
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-112-structural-knowledge-chunking",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-112-structural-knowledge-chunking.md",
+      "title": "FR-112 — Structural knowledge chunking with parent-child lineage",
+      "hash": "b1653dad",
+      "status": "current"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -8098,9 +8116,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.98.0b",
+      "version": "1.99.0b",
       "doc_status": "Draft",
-      "hash": "57e8edbf",
+      "hash": "fc8eacd2",
       "status": "current"
     },
     {
@@ -8137,7 +8155,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "b578d3c5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -10255,6 +10273,16 @@
       "row_text": "Knowledge sensitivity lattice and processing policy fields: business knowledge carries a real classification instead of the single `sensitivity: z.literal('PUBLIC')` the FR-047 contract admits today (`src/modules/knowledge/business-contract.js`) — widening to the PUBLIC / INTERNAL / CONFIDENTIAL / RESTRICTED lattice and adding the per-object processing policy the pipeline must obey before it indexes anything: retention, export, `cloud_processing_allowed` and `embedding_allowed` (spec §10). Classification happens before indexing, never as a filter applied after retrieval (spec §3.3): in the index-everything-then-filter pattern a scope mistake is a disclosure rather than a ranking error, and the filter is the only thing standing between the two. RESTRICTED with `cloud_processing_allowed = false` forces all seventeen stages onto local execution (SDD-058). Extends — never replaces — the SEC-001 tenant guard and the SEC-009 deny-by-default public read boundary. 🔜 declared 2026-08-27 — documentary declaration only; no route, model or code is authorized by this row "
     },
     {
+      "id": "req:FR-112",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Structural knowledge chunking with parent-child lineage: a parsed document is split along its own structure — document → section → chunk — rather than at a fixed token stride, and every chunk carries the eight fields FR-109's `DPS-KI-CHUNK` catalog row already fixes (`chunk_id`, `parent_id`, `document_id`, `sequence`, `heading_path`, `token_count`, `scope`, `provenance`). `heading_path` carries the whole ancestor chain rather than the nearest heading, so a chunk retrieved on its own still says where in the document it came from. A section too large to retrieve as one unit additionally gets overlapping fixed windows beneath it, parented to the section chunk and reported as a warning — the fallback the specification names (§12), never the default; the windows overlap because without it a sentence lying across a boundary is left whole in neither. Chunking derives nothing it is given: `scope` comes from FR-111 classification and `provenance` from Stage 3, both upstream. The function is pure — no I/O, no clock, no randomness — so the same document chunks to the same ids every time, which is what lets BR-021 treat a reprocessed document as the same knowledge rather than a duplicate. Stage 7 is Tier 1 under ADR-050, so this executes here.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Structural knowledge chunking with parent-child lineage: a parsed document is split along its own structure — document → section → chunk — rather than at a fixed token stride, and every chunk carries the eight fields FR-109's `DPS-KI-CHUNK` catalog row already fixes (`chunk_id`, `parent_id`, `document_id`, `sequence`, `heading_path`, `token_count`, `scope`, `provenance`). `heading_path` carries the whole ancestor chain rather than the nearest heading, so a chunk retrieved on its own still says where in the document it came from. A section too large to retrieve as one unit additionally gets overlapping fixed windows beneath it, parented to the section chunk and reported as a warning — the fallback the specification names (§12), never the default; the windows overlap because without it a sentence lying across a boundary is left whole in neither. Chunking derives nothing it is given: `scope` comes from FR-111 classification and `provenance` from Stage 3, both upstream. The function is pure — no I/O, no clock, no randomness — so the same document chunks to the same ids every time, which is what lets BR-021 treat a reprocessed document as the same knowledge rather than a duplicate. Stage 7 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 12 unit tests "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -11033,6 +11061,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Knowledge ingestion stage execution location is policy-driven, not deployment-driven. The specification's split (Stages 1–8 local edge, 9–14 cloud GKS, 15–17 selected execution) is an illustrative default, not the contract: the binding input is the data's own classification, so RESTRICTED knowledge carrying `cloud_processing_allowed = false` runs all seventeen stages locally and no topology or environment change may override that. Location is therefore resolved per object from FR-111's policy fields at each stage boundary, never read from deployment configuration — a data boundary that configuration can widen is not a boundary. FR-111; FR-109, SEC-021, ADR-041, ADR-050 "
+    },
+    {
+      "id": "req:SDD-059",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Chunking is a pure calculator in the knowledge lane, with no persistence and no model. `src/modules/knowledge/chunking.js` takes parsed blocks plus a scope and a provenance and returns chunk objects; it opens no database, writes no table and declares no Prisma model, so the knowledge charter's `owns_models: []` stays true (SDD-057, ADR-050). Persisting chunks is a later slice and will need a charter change — pinning the boundary here makes it a decision rather than an oversight. Token counting is a whitespace approximation on purpose: a model tokenizer would couple Stage 7 to whichever embedding model Stage 15 happens to use, and this number exists to choose a split point, not to be billed against. Exactness belongs at the embedding boundary, where the model is known.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Chunking is a pure calculator in the knowledge lane, with no persistence and no model. `src/modules/knowledge/chunking.js` takes parsed blocks plus a scope and a provenance and returns chunk objects; it opens no database, writes no table and declares no Prisma model, so the knowledge charter's `owns_models: []` stays true (SDD-057, ADR-050). Persisting chunks is a later slice and will need a charter change — pinning the boundary here makes it a decision rather than an oversight. Token counting is a whitespace approximation on purpose: a model tokenizer would couple Stage 7 to whichever embedding model Stage 15 happens to use, and this number exists to choose a split point, not to be billed against. Exactness belongs at the embedding boundary, where the model is known. FR-112; FR-109, FR-111, BR-021, SDD-057, ADR-050 "
     },
     {
       "id": "req:SEC-001",
@@ -12846,7 +12884,7 @@
       "path": "docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md",
       "title": "ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership",
       "hash": "5d52297b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -14242,6 +14280,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/knowledge-chunking.test.js",
+      "type": "test",
+      "path": "tests/unit/knowledge-chunking.test.js",
+      "hash": "847f52a1",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/line-activation-contract.test.js",
       "type": "test",
       "path": "tests/unit/line-activation-contract.test.js",
@@ -14616,8 +14661,8 @@
       "id": "test:tests/unit/prisma-generate-gate.test.js",
       "type": "test",
       "path": "tests/unit/prisma-generate-gate.test.js",
-      "hash": "009bbbef",
-      "status": "current"
+      "hash": "1d645807",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/profile-permission-service.test.js",
@@ -22357,6 +22402,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/chunking.js",
+      "to": "req:FR-112",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/chunking.js",
+      "to": "req:SDD-059",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/gbdb-rag-service.js",
       "to": "req:FR-024",
       "type": "implements",
@@ -26914,6 +26973,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-112",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -27454,6 +27520,13 @@
     },
     {
       "from": "req:SDD-058",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-059",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -41920,6 +41993,34 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-chunking.test.js",
+      "to": "code:src/modules/knowledge/chunking.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-chunking.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-chunking.test.js",
+      "to": "req:FR-112",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-chunking.test.js",
+      "to": "req:SDD-059",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/line-activation-contract.test.js",

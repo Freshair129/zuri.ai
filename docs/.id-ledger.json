@@ -219,6 +219,7 @@
     "FR-109",
     "FR-110",
     "FR-111",
+    "FR-112",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -297,6 +298,7 @@
     "SDD-056",
     "SDD-057",
     "SDD-058",
+    "SDD-059",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2218,6 +2220,19 @@
         }
       ]
     },
+    "FR-112": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8fd64baa59ccfe1515027a59f755082cd7151e7fd0e03de76427b602683d830a",
+      "history": [
+        {
+          "anchor": "structural knowledge chunking with parent child lineage",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3235,6 +3250,19 @@
       "history": [
         {
           "anchor": "knowledge ingestion stage execution location is policy",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-059": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4d56725ca23906aadd63a03fe27c4c48bd771d97a65251907c26afe551433c8e",
+      "history": [
+        {
+          "anchor": "chunking is a pure calculator in the knowledge lane with no",
           "since": "2026-08-27",
           "reason": "declared"
         }
