@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-27T00:09:24.450Z",
+  "generatedAt": "2026-08-27T00:20:53.762Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -458,7 +458,7 @@
         },
         {
           "id": "FR-103",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 2,
           "testCount": 9
@@ -700,7 +700,7 @@
         },
         {
           "id": "FR-102",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 9
@@ -714,14 +714,14 @@
         },
         {
           "id": "FR-106",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 14
         },
         {
           "id": "FR-107",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 2,
           "testCount": 8
@@ -905,7 +905,7 @@
         },
         {
           "id": "FR-100",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 5,
           "testCount": 9
@@ -919,7 +919,7 @@
         },
         {
           "id": "FR-102",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 9
@@ -1853,21 +1853,21 @@
         },
         {
           "id": "FR-100",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 9
         },
         {
           "id": "FR-102",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 9
         },
         {
           "id": "FR-103",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 2,
           "testCount": 9
@@ -1888,14 +1888,14 @@
         },
         {
           "id": "FR-106",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 9,
           "testCount": 14
         },
         {
           "id": "FR-107",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 8
