@@ -213,6 +213,7 @@
     "FR-105",
     "FR-106",
     "FR-107",
+    "FR-108",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -287,6 +288,7 @@
     "SDD-053",
     "SDD-054",
     "SDD-055",
+    "SDD-056",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -318,6 +320,7 @@
     "FEAT-009",
     "FEAT-010",
     "FEAT-011",
+    "FEAT-012",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -2126,6 +2129,19 @@
         }
       ]
     },
+    "FR-108": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "59620ed70a53857bb88eea29afc7a8e342fd3eda114515c0218e4aa5ca040ff4",
+      "history": [
+        {
+          "anchor": "executionplanbundle import orchestration",
+          "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3096,6 +3112,19 @@
         }
       ]
     },
+    "SDD-056": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "2b6c97f3c788e3b815ab982bfa09bc2153779ad10081d40a2ca7ecb6b40891cd",
+      "history": [
+        {
+          "anchor": "bundle import orchestrator shape adr 049 d3 d8",
+          "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3503,6 +3532,19 @@
         {
           "anchor": "sot pipeline console",
           "since": "2026-08-24",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-012": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "ea630c32ae0a8a510143c008a5ba69790c0d4aa9cea79cad7c4984ecb56b732b",
+      "history": [
+        {
+          "anchor": "executionplanbundle",
+          "since": "2026-08-26",
           "reason": "declared"
         }
       ]
