@@ -222,6 +222,7 @@
     "FR-112",
     "FR-113",
     "FR-114",
+    "FR-116",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -304,6 +305,7 @@
     "SDD-060",
     "SDD-061",
     "SDD-062",
+    "SDD-064",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2266,6 +2268,21 @@
         }
       ]
     },
+    "FR-116": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5c83293a030c708f3403c743bc1a2ed8314e60432172175d33aa0923b79b41e8",
+      "history": [
+        {
+          "anchor": "derived object provenance and the lineage chain back to a",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-08-27",
+      "statement_digest_reason": "Cited Stage 2 rather than FR-115, which is declared only on an unmerged branch; a registry statement must not name an id a reader cannot look up on main."
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3337,6 +3354,19 @@
       "history": [
         {
           "anchor": "widening what knowledge may carry must not widen what",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-064": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3c5edeb1d85e0ef0c7ad3bd520ff785803c1bbb44ffc4b8b4f3255237869f5b3",
+      "history": [
+        {
+          "anchor": "declaring knowledge derived is a claim that names its",
           "since": "2026-08-27",
           "reason": "declared"
         }

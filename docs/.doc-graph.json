@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1326,
-    "total_edges": 4500,
+    "total_nodes": 1331,
+    "total_edges": 4507,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 104,
+      "document": 105,
       "adr": 50,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 239,
-      "test": 312,
-      "code_file": 351
+      "requirement": 241,
+      "test": 313,
+      "code_file": 352
     },
     "coverage": {
-      "requirements": 239,
-      "fr_with_code": "100% (108/108)",
-      "fr_with_tests": "100% (108/108)",
-      "rules_anchored_in_code": "92% (95/103)",
+      "requirements": 241,
+      "fr_with_code": "100% (109/109)",
+      "fr_with_tests": "100% (109/109)",
+      "rules_anchored_in_code": "92% (96/104)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 351,
+      "annotated_code_files": 352,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -53,17 +53,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:FR-111-knowledge-sensitivity-lattice",
-      "doc:PRD-SDD-v1.0",
-      "code:src/lib/validation/enums.js",
-      "code:src/modules/knowledge/business-contract.js"
-    ],
-    "added": [
-      "req:SDD-062",
-      "test:tests/unit/knowledge-classification.test.js",
-      "code:src/modules/knowledge/classification.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -3761,7 +3752,7 @@
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
       "hash": "d447b07e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
@@ -5118,7 +5109,7 @@
       "type": "code_file",
       "path": "src/modules/knowledge/business-contract.js",
       "hash": "ca2d1454",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-047"
@@ -5326,6 +5317,24 @@
         ],
         "@tested": [
           "tests/integration/knowledge-project.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/knowledge/provenance.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/provenance.js",
+      "hash": "16d741ec",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-116"
+        ],
+        "@spec": [
+          "SDD-064"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-provenance.test.js"
         ]
       }
     },
@@ -7906,7 +7915,7 @@
       "path": "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
       "title": "FR-111 — Knowledge sensitivity lattice and processing policy",
       "hash": "4c3f287f",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-112-structural-knowledge-chunking",
@@ -7930,6 +7939,14 @@
       "path": "docs/domains/knowledge/features/FR-114-canonical-normalization.md",
       "title": "FR-114 — Canonical normalization that never destroys the raw value",
       "hash": "e044d351",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-116-derived-object-provenance",
+      "type": "document",
+      "path": "docs/domains/knowledge/features/FR-116-derived-object-provenance.md",
+      "title": "FR-116 — Derived-object provenance and the lineage chain back to a source",
+      "hash": "29fac36b",
       "status": "current"
     },
     {
@@ -8193,10 +8210,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.102.0b",
+      "version": "1.104.0b",
       "doc_status": "Draft",
-      "hash": "26cba885",
-      "status": "changed"
+      "hash": "7fe02e2c",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -10380,6 +10397,16 @@
       "row_text": "Canonical normalization that never destroys the raw value: a value is returned as the pair `{ raw, canonical }`, where `raw` is the input byte for byte and `canonical` is the comparable form — the specification's §3.1 invariant that raw data stays recoverable, made structural rather than promised, and the evidence FR-109's `DPS-KI-NORMALIZE` catalog row already asks for. Six categories are normalized: Unicode and whitespace (NFC, plus the invisible spaces `s` does not match, plus the one Thai fold NFC misses — `สำ` written as NIKHAHIT + SARA AA renders identically to SARA AM and NFC leaves the two unequal), dates (Thai and Gregorian digits, four-digit Buddhist years without a hint, two-digit years only with a declared era), Thai telephone numbers to E.164, email with the domain lowercased and the local part left alone because RFC 5321 makes it case-sensitive, and organisation names by the lexical rule this requirement now owns. Stage 8 imports that rule rather than keeping a second copy, and the order is fixed and stated: normalization runs before extraction, so one mention is stripped once by one rule. Where the value does not decide, nothing is decided for it (SDD-061). Stage 4 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 29 unit tests "
     },
     {
+      "id": "req:FR-116",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Derived-object provenance and the lineage chain back to a source: a knowledge object carries the ten fields §8 requires of anything that came from a source — `source_id`, `source_type`, `source_uri`, `source_version`, `artifact_id`, `ingested_at`, `parsed_at`, `pipeline_version`, `extractor_version`, `checksum` — and a derived object additionally names its `derivation_method` and the `source_objects` it came from, so the chain Fact → Chunk → ParsedArtifact → RawArtifact → Source can be walked and either reaches a source or says plainly that it did not. **This carries and validates a chain of identifiers it does not mint**: identity is established by FR-071's execution ledger and by Stage 2, and FR-116 consumes it — the moment it generated a `doc_id` it would have crossed into FR-071's subject rather than sitting beside it. The contract arrives after the field did: FR-112 and FR-113 have been passing a `provenance` object between them that nothing defined and nothing checked, and Stage 2 will hand them one, and this is what gives that blob a meaning. Nothing is defaulted, an empty provenance is refused as loudly as an absent one, and an artifact parsed before it was ingested is refused because that order cannot have happened. Stage 3 is Tier 1 under ADR-050, so this executes here.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Derived-object provenance and the lineage chain back to a source: a knowledge object carries the ten fields §8 requires of anything that came from a source — `source_id`, `source_type`, `source_uri`, `source_version`, `artifact_id`, `ingested_at`, `parsed_at`, `pipeline_version`, `extractor_version`, `checksum` — and a derived object additionally names its `derivation_method` and the `source_objects` it came from, so the chain Fact → Chunk → ParsedArtifact → RawArtifact → Source can be walked and either reaches a source or says plainly that it did not. **This carries and validates a chain of identifiers it does not mint**: identity is established by FR-071's execution ledger and by Stage 2, and FR-116 consumes it — the moment it generated a `doc_id` it would have crossed into FR-071's subject rather than sitting beside it. The contract arrives after the field did: FR-112 and FR-113 have been passing a `provenance` object between them that nothing defined and nothing checked, and Stage 2 will hand them one, and this is what gives that blob a meaning. Nothing is defaulted, an empty provenance is refused as loudly as an absent one, and an artifact parsed before it was ingested is refused because that order cannot have happened. Stage 3 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 23 unit tests "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -11198,6 +11225,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Widening what knowledge may carry must not widen what knowledge is served. `business-contract.js` holds two decisions that share a word: the record schema, which says what may be STORED, and the query filter, which says what is SERVED to a public surface. FR-111 widens the first to the four-level lattice and leaves the second at `PUBLIC`, and the two are separate on purpose rather than by oversight. The failure this pins against is not somebody deliberately opening the filter — it is somebody reading `record.sensitivity === 'PUBLIC'`, seeing that the enum now has four values, and correcting the comparison because it looks stale. It is not stale; it is the boundary. The packet stops asserting its own label and verifies it instead: it refuses to wrap a record above `PUBLIC` rather than stamping `PUBLIC` on whatever it was handed, so a future widening of the filter fails loudly instead of leaking. The lattice lives in `src/lib/validation/enums.js` and is named `KNOWLEDGE_SENSITIVITY_LEVELS` because `sensitivity` already means FR-026 action sensitivity (LOW/HIGH) elsewhere; `write-tools.js` rejects an action sensitivity outside LOW/HIGH so a knowledge value cannot reach that path, but `agent/auth-context.js` validates nothing and already defaults to the string `PUBLIC` — so the separation rests on naming there rather than on a guard, and saying so is the point of pinning it. FR-111; FR-047, SEC-009, SDD-058, ADR-050 "
+    },
+    {
+      "id": "req:SDD-064",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Declaring knowledge derived is a claim that names its sources, not an exemption from having any. Spec §8 forbids publishing a Fact or Relation whose source cannot be traced \"unless explicitly declared DERIVED / INFERRED / COMPUTED\", which read naively is an escape hatch: type the word and the requirement lifts. The declaration therefore exempts an object from having a RAW source and never from having sources — an object that declares itself derived and can name nothing is not derived, it is unattributed, and it does not publish. Naming is not enough either: `assertPublishable` requires a resolver and refuses a named source that nothing resolves, because a check that accepts an unresolvable name lets the declaration back itself, which is the laundering this decision exists to stop arriving through the door the decision built. There is deliberately no shape-only mode; whether a named source exists is the question, and a permissive default would answer a different one.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Declaring knowledge derived is a claim that names its sources, not an exemption from having any. Spec §8 forbids publishing a Fact or Relation whose source cannot be traced \"unless explicitly declared DERIVED / INFERRED / COMPUTED\", which read naively is an escape hatch: type the word and the requirement lifts. The declaration therefore exempts an object from having a RAW source and never from having sources — an object that declares itself derived and can name nothing is not derived, it is unattributed, and it does not publish. Naming is not enough either: `assertPublishable` requires a resolver and refuses a named source that nothing resolves, because a check that accepts an unresolvable name lets the declaration back itself, which is the laundering this decision exists to stop arriving through the door the decision built. There is deliberately no shape-only mode; whether a named source exists is the question, and a permissive default would answer a different one. FR-116; FR-071, FR-112, FR-113, SDD-042, ADR-050 "
     },
     {
       "id": "req:SEC-001",
@@ -14432,6 +14469,13 @@
       "type": "test",
       "path": "tests/unit/knowledge-normalization.test.js",
       "hash": "130a1934",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-provenance.test.js",
+      "type": "test",
+      "path": "tests/unit/knowledge-provenance.test.js",
+      "hash": "71a52970",
       "status": "current"
     },
     {
@@ -22732,6 +22776,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/provenance.js",
+      "to": "req:FR-116",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/provenance.js",
+      "to": "req:SDD-064",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/query.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -27205,6 +27263,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-116",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -27773,6 +27838,13 @@
     },
     {
       "from": "req:SDD-062",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-064",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -42351,6 +42423,27 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-provenance.test.js",
+      "to": "code:src/modules/knowledge/provenance.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-provenance.test.js",
+      "to": "req:FR-116",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-provenance.test.js",
+      "to": "req:SDD-064",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/line-activation-contract.test.js",

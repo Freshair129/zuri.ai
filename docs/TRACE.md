@@ -909,3 +909,10 @@
 - **Code:** `src/modules/knowledge/normalization.js`
 - **Follows:** SDD-061
 - **Tests:** `tests/unit/knowledge-normalization.test.js`
+
+### FR-116 — Derived-object provenance and the lineage chain back to a source: a knowledge object carries the ten fields §8 requires of anything that came from a source — `source_id`, `source_type`, `source_uri`, `source_version`, `artifact_id`, `ingested_at`, `parsed_at`, `pipeline_version`, `extractor_version`, `checksum` — and a derived object additionally names its `derivation_method` and the `source_objects` it came from, so the chain Fact → Chunk → ParsedArtifact → RawArtifact → Source can be walked and either reaches a source or says plainly that it did not. **This carries and validates a chain of identifiers it does not mint**: identity is established by FR-071's execution ledger and by Stage 2, and FR-116 consumes it — the moment it generated a `doc_id` it would have crossed into FR-071's subject rather than sitting beside it. The contract arrives after the field did: FR-112 and FR-113 have been passing a `provenance` object between them that nothing defined and nothing checked, and Stage 2 will hand them one, and this is what gives that blob a meaning. Nothing is defaulted, an empty provenance is refused as loudly as an absent one, and an artifact parsed before it was ingested is refused because that order cannot have happened. Stage 3 is Tier 1 under ADR-050, so this executes here.
+
+- **Status:** done
+- **Code:** `src/modules/knowledge/provenance.js`
+- **Follows:** SDD-064
+- **Tests:** `tests/unit/knowledge-provenance.test.js`
