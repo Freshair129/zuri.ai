@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-27T14:01:28.435Z",
+  "generatedAt": "2026-08-27T22:59:10.864Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -254,7 +254,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 6
+          "testCount": 8
         },
         {
           "id": "FR-079",
@@ -289,21 +289,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-097",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-098",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 8
+          "testCount": 9
         }
       ],
       "checks": {
@@ -473,7 +473,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-103",
@@ -701,21 +701,21 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-097",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-098",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-102",
@@ -1137,7 +1137,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 5
         },
         {
           "id": "FR-112",

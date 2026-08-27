@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1336,
-    "total_edges": 4514,
+    "total_nodes": 1338,
+    "total_edges": 4529,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 150,
       "model": 67,
       "requirement": 243,
-      "test": 314,
+      "test": 316,
       "code_file": 353
     },
     "coverage": {
@@ -54,14 +54,12 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0"
+      "code:src/lib/validation/enums.js",
+      "code:src/modules/agent/auth-context.js"
     ],
     "added": [
-      "doc:FR-116-derived-object-provenance",
-      "req:FR-116",
-      "req:SDD-064",
-      "test:tests/unit/knowledge-provenance.test.js",
-      "code:src/modules/knowledge/provenance.js"
+      "test:tests/integration/agent-request-envelope.test.js",
+      "test:tests/unit/agent-requestable-sensitivity.test.js"
     ],
     "removed": []
   },
@@ -3759,8 +3757,8 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "d447b07e",
-      "status": "current",
+      "hash": "af428261",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-086",
@@ -3826,8 +3824,8 @@
       "id": "code:src/modules/agent/auth-context.js",
       "type": "code_file",
       "path": "src/modules/agent/auth-context.js",
-      "hash": "ff5d4669",
-      "status": "current",
+      "hash": "1a79d4ee",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-057",
@@ -3844,7 +3842,8 @@
           "SEC-018"
         ],
         "@tested": [
-          "tests/integration/agent-multi-principal.test.js"
+          "tests/integration/agent-multi-principal.test.js",
+          "tests/integration/agent-request-envelope.test.js"
         ]
       }
     },
@@ -8247,7 +8246,7 @@
       "version": "1.104.0b",
       "doc_status": "Draft",
       "hash": "7b7bcdfe",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -13217,6 +13216,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/agent-request-envelope.test.js",
+      "type": "test",
+      "path": "tests/integration/agent-request-envelope.test.js",
+      "hash": "6a7ab267",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/agent-runtime.test.js",
       "type": "test",
       "path": "tests/integration/agent-runtime.test.js",
@@ -13725,6 +13731,13 @@
       "type": "test",
       "path": "tests/unit/activation-readiness-integration.test.js",
       "hash": "d901fad4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/agent-requestable-sensitivity.test.js",
+      "type": "test",
+      "path": "tests/unit/agent-requestable-sensitivity.test.js",
+      "hash": "711917a5",
       "status": "current"
     },
     {
@@ -32427,6 +32440,90 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/agent-request-envelope.test.js",
+      "to": "code:src/modules/agent/auth-context.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/agent-request-envelope.test.js",
+      "to": "req:BR-015",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-request-envelope.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-request-envelope.test.js",
+      "to": "req:FR-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-request-envelope.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-request-envelope.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-request-envelope.test.js",
+      "to": "req:FR-098",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-request-envelope.test.js",
+      "to": "req:FR-111",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-request-envelope.test.js",
+      "to": "req:SDD-030",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-request-envelope.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/agent-request-envelope.test.js",
+      "to": "req:SEC-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/agent-request-envelope.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/agent-runtime.test.js",
       "to": "code:src/modules/agent/runtime.js",
       "type": "tests",
@@ -37371,6 +37468,27 @@
     {
       "from": "test:tests/unit/activation-readiness-integration.test.js",
       "to": "req:SEC-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/agent-requestable-sensitivity.test.js",
+      "to": "req:FR-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/agent-requestable-sensitivity.test.js",
+      "to": "req:FR-111",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/agent-requestable-sensitivity.test.js",
+      "to": "req:SEC-013",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
