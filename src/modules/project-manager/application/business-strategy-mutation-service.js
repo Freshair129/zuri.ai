@@ -109,6 +109,11 @@ const zHorizonInput = z.object({
 
 export const zRoadmapCreateInput = z.object({
   businessId: z.string().min(1),
+  // Optional caller-declared code (FR-108): the ExecutionPlanBundle orchestrator
+  // must create a Roadmap under the bundle's own stable code so a re-import
+  // matches it by identity instead of minting a title-derived duplicate. Absent
+  // (every pre-FR-108 caller), the title-derived uniqueHumanCode is unchanged.
+  code: z.string().min(1).max(128).optional(),
   title: z.string().min(1),
   description: z.string().nullish(),
   status: zRoadmapStatus.default('ACTIVE'),
@@ -135,6 +140,8 @@ export const zRoadmapPatchInput = z.object({
 // they must agree.
 export const zGoalCreateInput = z.object({
   businessId: z.string().min(1),
+  // Optional caller-declared code (FR-108) — same rule as zRoadmapCreateInput.
+  code: z.string().min(1).max(128).optional(),
   roadmapId: z.string().min(1).nullish(),
   horizonId: z.string().min(1),
   title: z.string().min(1),
@@ -267,9 +274,19 @@ export async function createRoadmap(input, { db = prisma, viewer } = {}) {
   assertHorizonsWellFormed(data.horizons)
   const business = await db.business.findUnique({ where: { id: data.businessId }, select: { id: true } })
   if (!business) throw new Error('Business not found')
-  const code = await uniqueHumanCode('RM', data.title, async (candidate) =>
-    Boolean(await db.businessRoadmap.findUnique({ where: { code: candidate } }))
-  )
+  let code
+  if (data.code) {
+    // A declared code is an identity claim, not a suggestion: if it is already
+    // taken the caller's premise is wrong, so refuse rather than suffix it.
+    if (await db.businessRoadmap.findUnique({ where: { code: data.code } })) {
+      throw conflict(`Roadmap code "${data.code}" already exists`)
+    }
+    code = data.code
+  } else {
+    code = await uniqueHumanCode('RM', data.title, async (candidate) =>
+      Boolean(await db.businessRoadmap.findUnique({ where: { code: candidate } }))
+    )
+  }
 
   const roadmap = await db.$transaction(async (tx) => {
     const created = await tx.businessRoadmap.create({
@@ -452,9 +469,19 @@ export async function createGoal(input, { db = prisma, viewer } = {}) {
   }
   const roadmapId = data.roadmapId ?? horizon.roadmapId
 
-  const code = await uniqueHumanCode('GOAL', data.title, async (candidate) =>
-    Boolean(await db.businessGoal.findUnique({ where: { code: candidate } }))
-  )
+  let code
+  if (data.code) {
+    // Same identity rule as createRoadmap: a declared code that is already
+    // taken is refused, never quietly suffixed into a lookalike.
+    if (await db.businessGoal.findUnique({ where: { code: data.code } })) {
+      throw conflict(`Goal code "${data.code}" already exists`)
+    }
+    code = data.code
+  } else {
+    code = await uniqueHumanCode('GOAL', data.title, async (candidate) =>
+      Boolean(await db.businessGoal.findUnique({ where: { code: candidate } }))
+    )
+  }
 
   const goal = await db.$transaction(async (tx) => {
     const created = await tx.businessGoal.create({
