@@ -863,3 +863,27 @@
 - **Code:** —
 - **Follows:** —
 - **Tests:** —
+
+### FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046).
+
+- **Feature:** FEAT-013 — Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
+
+### FR-110 — Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2).
+
+- **Feature:** FEAT-013 — Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
+
+### FR-111 — Knowledge sensitivity lattice and processing policy fields: business knowledge carries a real classification instead of the single `sensitivity: z.literal('PUBLIC')` the FR-047 contract admits today (`src/modules/knowledge/business-contract.js`) — widening to the PUBLIC / INTERNAL / CONFIDENTIAL / RESTRICTED lattice and adding the per-object processing policy the pipeline must obey before it indexes anything: retention, export, `cloud_processing_allowed` and `embedding_allowed` (spec §10). Classification happens before indexing, never as a filter applied after retrieval (spec §3.3): in the index-everything-then-filter pattern a scope mistake is a disclosure rather than a ranking error, and the filter is the only thing standing between the two. RESTRICTED with `cloud_processing_allowed = false` forces all seventeen stages onto local execution (SDD-058). Extends — never replaces — the SEC-001 tenant guard and the SEC-009 deny-by-default public read boundary.
+
+- **Feature:** FEAT-013 — Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —

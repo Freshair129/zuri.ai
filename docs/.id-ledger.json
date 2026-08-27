@@ -106,6 +106,8 @@
     "BR-018",
     "BR-019",
     "BR-020",
+    "BR-021",
+    "BR-022",
     "FR-001",
     "FR-002",
     "FR-003",
@@ -214,6 +216,9 @@
     "FR-106",
     "FR-107",
     "FR-108",
+    "FR-109",
+    "FR-110",
+    "FR-111",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -233,6 +238,7 @@
     "NFR-017",
     "NFR-018",
     "NFR-019",
+    "NFR-020",
     "SDD-001",
     "SDD-002",
     "SDD-003",
@@ -289,6 +295,8 @@
     "SDD-054",
     "SDD-055",
     "SDD-056",
+    "SDD-057",
+    "SDD-058",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -309,6 +317,7 @@
     "SEC-018",
     "SEC-019",
     "SEC-020",
+    "SEC-021",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -321,6 +330,7 @@
     "FEAT-010",
     "FEAT-011",
     "FEAT-012",
+    "FEAT-013",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -458,6 +468,7 @@
     "ADR-047",
     "ADR-048",
     "ADR-049",
+    "ADR-050",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -726,6 +737,32 @@
         {
           "anchor": "person is the canonical internal principal provider channel",
           "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-021": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "172d75026f9a71b131bde34d53ee5660acf4ac1d50795f39d95aaa8dd54592b3",
+      "history": [
+        {
+          "anchor": "knowledge ingestion idempotency is keyed on source identity",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-022": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8315df7323e0f296672c6dea1b80620636a021ea987b4ce32575440ed07883a0",
+      "history": [
+        {
+          "anchor": "a knowledge object that fails a stage is quarantined with",
+          "since": "2026-08-27",
           "reason": "declared"
         }
       ]
@@ -2142,6 +2179,45 @@
         }
       ]
     },
+    "FR-109": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a5a386fd98edd0a7f468eae0715c1fde1eb059670caf10f10aa43d2b46d7fef6",
+      "history": [
+        {
+          "anchor": "seventeen stage knowledge ingestion stage catalog and job",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-110": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "40876b81cf0bd066f9692d3bf5615d06c730a943159580104a45fddf91cdea23",
+      "history": [
+        {
+          "anchor": "published knowledge snapshot contract",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-111": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "73a1bb16453ba1153edad3d1a504edfa0312b5716c3721042900340d1c64e5f8",
+      "history": [
+        {
+          "anchor": "knowledge sensitivity lattice and processing policy fields",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -2385,6 +2461,19 @@
         {
           "anchor": "iam decisions are recomputed from trusted server state per",
           "since": "2026-08-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-020": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "13f2c1711ac911a9c2121aeaae162e09dd3f502b516c09883a46e3c53f64012b",
+      "history": [
+        {
+          "anchor": "every knowledge ingestion stage emits per stage and",
+          "since": "2026-08-27",
           "reason": "declared"
         }
       ]
@@ -3125,6 +3214,32 @@
         }
       ]
     },
+    "SDD-057": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "90e59d46f4facabe19501cfb4b77b05aeb3ff76cf755563d0938aaafd37d0cc0",
+      "history": [
+        {
+          "anchor": "the seventeen stage knowledge ingestion pipeline reuses the",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-058": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "12ae69466bb4d60fce310bf210249711fc6c2f4f530663d2e3ebf8caf8e52c16",
+      "history": [
+        {
+          "anchor": "knowledge ingestion stage execution location is policy",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3393,6 +3508,19 @@
         }
       ]
     },
+    "SEC-021": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "47cdd1dc83626bd4408b6c2162f4f729e251282f66229f94bf58bd87c5d9fe01",
+      "history": [
+        {
+          "anchor": "knowledge ingestion never deduplicates across tenants and",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
     "FEAT-001": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
@@ -3545,6 +3673,19 @@
         {
           "anchor": "executionplanbundle",
           "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-013": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "2eb3b8cf812a3a450c5be785a8481e82358273778a23c7a161adbe4b290d8fc0",
+      "history": [
+        {
+          "anchor": "knowledge ingestion governance",
+          "since": "2026-08-27",
           "reason": "declared"
         }
       ]
@@ -5336,6 +5477,19 @@
         {
           "anchor": "executionplanbundle is the package above planenvelope",
           "since": "2026-08-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-050": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "c53ca0c98ee190fd11daa2a709742230901cfa79a76f57f9960c055dc6b2177d",
+      "history": [
+        {
+          "anchor": "knowledge ingestion tier boundary and stage ownership",
+          "since": "2026-08-27",
           "reason": "declared"
         }
       ]

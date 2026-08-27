@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-26T23:59:37.221Z",
+  "generatedAt": "2026-08-27T03:37:21.170Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 8,
-    "gapCount": 10,
+    "gapCount": 13,
     "gaps": [
       {
         "domain": "agent",
@@ -91,6 +91,30 @@
           "tests/unit/project-manager-mcp.test.js",
           "tests/unit/smartgift-document-intake-migration.test.js"
         ]
+      },
+      {
+        "domain": "knowledge",
+        "id": "REQ-FR-109",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-109 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "knowledge",
+        "id": "REQ-FR-110",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-110 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "knowledge",
+        "id": "REQ-FR-111",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-111 is planned",
+        "evidence": []
       },
       {
         "domain": "project-manager",
@@ -1094,6 +1118,27 @@
             "tests/unit/project-manager-mcp.test.js",
             "tests/unit/smartgift-document-intake-migration.test.js"
           ]
+        },
+        {
+          "id": "FR-109",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-110",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-111",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -1165,6 +1210,9 @@
         "docs/domains/knowledge/CHARTER.md",
         "docs/domains/knowledge/features/FR-047-line-business-knowledge-pilot.md",
         "docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md",
+        "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
+        "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
+        "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -1204,6 +1252,27 @@
             "tests/unit/project-manager-mcp.test.js",
             "tests/unit/smartgift-document-intake-migration.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-109",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-109 is planned",
+          "evidence": []
+        },
+        {
+          "id": "REQ-FR-110",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-110 is planned",
+          "evidence": []
+        },
+        {
+          "id": "REQ-FR-111",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-111 is planned",
+          "evidence": []
         }
       ],
       "details": {
@@ -1211,7 +1280,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 0,
-        "featureNotes": 2
+        "featureNotes": 5
       }
     },
     "market-intelligence": {

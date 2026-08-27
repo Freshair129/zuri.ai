@@ -2,8 +2,8 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.0.0"
-updated: "2026-08-26"
+version: "2.1.0"
+updated: "2026-08-27"
 owner: "Owen"
 source_of_truth: true
 live_document: true
@@ -27,6 +27,9 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > FR-058..FR-105 ที่ส่งมอบแล้วแต่ไม่เคยมีแถว, แก้ path หลักฐานที่ยังชี้
 > `zuri-v2-lab/` (โครงสร้างถูก flatten ตั้งแต่ 2026-08-12), และปิดแถวที่งานจริง
 > ย้ายไปอยู่ใน id ใหม่แล้ว
+> Revision 2.1.0 (2026-08-27): บันทึก FEAT-013 / FR-109..111 (17-Stage Knowledge
+> Ingestion & GraphRAG) เป็น **declaration เท่านั้น** — ประกาศใน PRD แล้ว
+> แต่ยังไม่มี route/model/code ใด ๆ
 
 ## Phases
 
@@ -39,7 +42,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | PHASE-ZV2-MERGE | ~~Ship PM into Zuri v1 as a module (ADR-002)~~ — **cancelled by ADR-003**: V2 replaces V1, so anything mounted into V1 retires with it | n/a | cancelled | 0 |
 | PHASE-V2-REPLACE | ~~Replace the legacy project by reuse~~ — program retired by ADR-024: zuri-ai is standalone, nothing is lifted, no cutover. Delivered tasks below stand as shipped product work | retired | closed (ADR-024) | 8 |
 | PHASE-ZAI-PRODUCT | Standalone product build-out หลัง ADR-024: read views + domain surfaces (FR-058..064, FR-086), authorization repayment (FR-065, FR-072..075), execution planning (FEAT-003), inventory/backfill (FR-076..078), schema declaration (FR-090), operator console (FR-105) | ทุก FR มี code + tests ใน TRACE.md; route/viewer baselines repaid เป็นศูนย์ (2026-08-17/18) | done | 100 |
-| PHASE-ZAI-RUNTIME | Phase 1 LINE runtime + ingestion boundary + integrations (FR-079..081, FEAT-004); Pipeline Builder canvas (FEAT-007) ยัง design-only | local delivery เขียวครบ; production gates ที่เหลือ: live Vault provisioning, LINE canary, real-provider evaluation | in-progress | 80 |
+| PHASE-ZAI-RUNTIME | Phase 1 LINE runtime + ingestion boundary + integrations (FR-079..081, FEAT-004); Pipeline Builder canvas (FEAT-007) ยัง design-only; 17-Stage Knowledge Ingestion (FEAT-013 / FR-109..111) ยัง declaration-only ไม่นับรวมใน progress | local delivery เขียวครบ; production gates ที่เหลือ: live Vault provisioning, LINE canary, real-provider evaluation | in-progress | 80 |
 | PHASE-ZAI-CRM | CRM console + consent: Conversation Inbox (FR-091), reply receipt (FR-093), PDPA consent attestation (FR-103 ปิด SEC-005), market translation (FR-092) | code + tests ครบทุกตัวรวม e2e (`tests/e2e/fr091-conversation-inbox.spec.js`) | done | 100 |
 | PHASE-ZAI-IAM | Production IAM (FEAT-010: FR-094..098, ADR-045) + owner-assisted password reset (FR-104); onboarding/invites (FR-066/067) ยังไม่เริ่ม — tracked เป็น TASK-ZAI-003/004 ใน 24w program | FEAT-010 hardening จบ; FR-066/067 ส่งมอบ; SEC-006 มีเจ้าของ | in-progress | 70 |
 | PHASE-ZAI-SOT | SoT pipeline console (FEAT-011: FR-099..101) + data-plane service-account auth (FR-102, ADR-047) | live Supabase apply gate (RSK-016) ปิด; decision loop เดินจริงกับ data plane ภายนอก | in-progress | 90 |
@@ -85,6 +88,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-105 | PHASE-ZAI-PRODUCT | task | Platform Programme Roadmap `/control/roadmap`: isOperator-only read-only projection of the 24-week programme (ADR-048) | P2 | Claude | done | FR-075; ADR-048 | ../domains/platform-control/features/FR-105-platform-programme-roadmap.md |
 | TASK-FR-081 | PHASE-ZAI-RUNTIME | task | Raw external ingestion boundary: one normalized envelope, tenant/connection-scoped repository, dead-letter records (FR-081) | P0 | Claude | done | FR-079; BR-002 | ../domains/integration/features/FR-081-raw-external-ingestion.md |
 | TASK-FEAT-007 | PHASE-ZAI-RUNTIME | task | Pipeline Builder canvas: structure editing (FR-082), edge creation (FR-083), handoff contracts (FR-084), contract-gated release (FR-085) — ADR-035 design only, implementation not authorized | P2 | Owen | planned | FR-007; FR-040; ADR-035 | ../domains/project-manager/features/FR-082-pipeline-canvas.md |
+| TASK-FEAT-013 | PHASE-ZAI-RUNTIME | task | Knowledge Ingestion Governance (FEAT-013, proposed): stage catalog + job trace (FR-109), published snapshot contract (FR-110), sensitivity lattice + processing policy (FR-111) — ADR-050 documentary declaration only, ไม่มี route/model/code และ implementation ยังไม่ถูก authorize | P2 | Owen | planned | FR-071; SDD-057; SDD-058; ADR-042; ADR-043; ADR-046; ADR-050 | PRD-SDD FR-109..111; ../Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification.md |
 | TASK-FEAT-009 | PHASE-ZAI-CRM | task | CRM Conversation Inbox (FR-091, read-only per BR-011) + LINE reply delivery receipt (FR-093) | P0 | Claude | done | FR-023; FR-052; FR-081 | ../domains/crm/features/FR-091-conversation-inbox.md |
 | TASK-FR-103 | PHASE-ZAI-CRM | task | PDPA consent attestation on Customer (FR-103) — closes SEC-005, P0 open since 2026-08-12; owner attests GRANTED/DECLINED in the CRM console, legacy rows GRANDFATHERED | P0 | Claude | done | FR-091; SEC-005 | ../domains/crm/features/FR-103-pdpa-consent-attestation.md |
 | TASK-FR-092 | PHASE-ZAI-CRM | task | Market translation core: RawExternalRecord → provider-neutral MarketObservation (FR-092) | P1 | Claude | done | FR-081 | ../domains/market-intelligence/features/FR-092-market-translation-core.md |
@@ -112,6 +116,15 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 6. **ADR-044 in-repo seam** — ยังไม่มี FR สำหรับ Conversation ↔ unified-thread join
    และ group-thread isolation rule; งานหลัก (console, thread minting, dispatcher)
    อยู่นอก repo นี้ตาม ADR-044 D1
+7. **FEAT-013 / FR-109..111** — 17-Stage Knowledge Ingestion & GraphRAG pipeline:
+   ประกาศใน PRD เมื่อ 2026-08-27 (revision 1.97.0b) ภายใต้ ADR-050 แต่
+   **ยังไม่มีอะไรทำงานเลย** — ไม่มี route, ไม่มี model, ไม่มีโค้ด, ไม่มีเทสต์;
+   FR-109/110/111 เป็น 🔜 และตัวแถวเองระบุว่าไม่ authorize อะไรทั้งสิ้น ส่วน
+   FEAT-013 เป็น proposed. ADR-050 เองก็ Accepted เฉพาะ contract/documentation
+   boundary — ไม่ authorize runtime slice. SDD-057 ระบุให้ reuse execution ledger
+   ของ FR-071 แทนการประกาศ model ใหม่ ส่วน SDD-058 / NFR-020 / BR-021 / BR-022 /
+   SEC-021 เป็นกฎที่ประกาศล่วงหน้าก่อน pipeline ที่มันกำกับ. เอกสารต้นทางคือ
+   `../Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification.md`
 
 > **PRD status columns**: sync แล้วเมื่อ 2026-08-26 (PRD revision 1.89.0b) —
 > FR-087..089, 091, 093, 097, 099..105 flip ตามโค้ดจริง; FR-100/102/103 เป็น 🟠
