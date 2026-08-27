@@ -88,6 +88,23 @@ export const WORK_STATUSES = ['PLANNED', 'READY', 'IN_PROGRESS', 'REVIEW', 'BLOC
 export const CONTAINER_STATUSES = ['PLANNED', 'ACTIVE']
 export const MILESTONE_STATUSES = ['PLANNED', 'IN_PROGRESS', 'DONE', 'MISSED']
 export const GATE_STATUSES = ['OPEN', 'PASSED', 'BLOCKED', 'WAIVED']
+// @req FR-111 — the knowledge sensitivity lattice, listed most open first.
+//
+// The order is descriptive, not a contract. Nothing compares by position: every
+// site in the codebase tests equality against 'PUBLIC', and SDD-062 is the
+// decision that the serve filter STAYS that way. Do not read this ordering as an
+// invitation to make a filter lattice-aware — that is the exact change SDD-062
+// exists to stop.
+//
+// Named KNOWLEDGE_ rather than SENSITIVITY_ on purpose. `sensitivity` already
+// means something else in the agent domain — FR-026 action sensitivity, LOW/HIGH,
+// about step-up re-auth — and the two vocabularies share nothing but the word.
+// `write-tools.js` rejects an action sensitivity outside LOW/HIGH, so a knowledge
+// value cannot reach that path; `agent/auth-context.js` validates nothing and
+// already defaults to the string 'PUBLIC', so the separation rests on naming
+// there, not on a guard.
+export const KNOWLEDGE_SENSITIVITY_LEVELS = ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL', 'RESTRICTED']
+
 export const WORKSPACE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
 export const MEMBERSHIP_ROLES = ['OWNER', 'MEMBER']
 

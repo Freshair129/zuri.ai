@@ -301,6 +301,7 @@
     "SDD-058",
     "SDD-059",
     "SDD-060",
+    "SDD-062",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -3297,6 +3298,21 @@
           "reason": "declared"
         }
       ]
+    },
+    "SDD-062": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "15b85c731681bbdd8217f84603d76def2fb843ab4423861fec3c6e653d994568",
+      "history": [
+        {
+          "anchor": "widening what knowledge may carry must not widen what",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-08-27",
+      "statement_digest_reason": "Narrowed the agent-guard claim: write-tools rejects out-of-range action sensitivity but auth-context validates nothing and already defaults to the string PUBLIC, so the separation rests on naming there."
     },
     "SEC-001": {
       "family": "SEC",
