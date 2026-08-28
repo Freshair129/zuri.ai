@@ -218,12 +218,15 @@ Each of the other ten names its blocker below, and four of them name a
 names a boundary — Stages 9-17 report from GKS and GenesisBlockDB, which is
 ADR-050 D3 and not a gap in this repository.
 
-The remaining five wait on **a stage runner: the thing that executes a stage
-and writes a `PipelineRecordEvent` for it.** No such thing exists, and — more
-to the point — **no id declares one.** It is named here by a phrase rather than
-by a key, which in this repository means nothing tracks it: no PRD row, no
-roadmap row, no coverage check that can see it. Whoever opens the next slice
-declares that FR first, so the blocker stops being invisible.
+The remaining five wait on **ledger-writing wiring: something that calls
+FR-118's composition and writes a `PipelineRecordEvent` for each stage.** As of
+2026-08-28 the compute half has a name — FR-118, `runKnowledgeIngestionStages`,
+seven Tier 1 stages composed in one pass — and it is what removed "stage
+runner" from being an undeclared word for the whole gap. The persistence half
+is still unnamed: no id declares the thing that takes FR-118's envelope and
+writes it onto the FR-071 ledger. Whoever opens that slice declares the FR
+first, so this half of the blocker stops being invisible the same way the
+compute half just did.
 
 - [x] **AC-109.1** `DPL-KNOWLEDGE-INGEST-V1` is registered as one pipeline
       definition carrying exactly the seventeen `DPS-KI-*` stage ids above, and
@@ -233,8 +236,9 @@ declares that FR first, so the blocker stops being invisible.
 - [ ] **AC-109.2** At least one structured and at least one unstructured source
       type can be ingested through the same catalog, with no second stage list
       for either.
-      Waits on **a stage runner** (undeclared). The catalog admits any source
-      type; nothing executes a stage for one.
+      Waits on **ledger-writing wiring** (undeclared). FR-118 now shows a
+      structured and an unstructured source composing through the same seven
+      calls; what is still missing is registering that as a tracked run.
 - [ ] **AC-109.3** The raw artifact is stored before transformation and is
       recoverable from `artifact_id` after normalization has run (spec §3.1).
       Waits on **binding `artifact_id` to storage that already exists**. FR-081's
@@ -265,9 +269,11 @@ declares that FR first, so the blocker stops being invisible.
 - [ ] **AC-109.7** One `pipeline_job_id` resolves the full §33 chain from Source
       to Published Snapshot, with per-record disposition on
       `PipelineRecordEvent` bound through `docId` / `picId` / `factId`.
-      Waits on **the stage runner** (undeclared). `PipelineRecordEvent` already
-      carries `docId` / `picId` / `factId` with an index on each and is written
-      on every record event; no producer supplies a non-null value.
+      Waits on **ledger-writing wiring** (undeclared). `PipelineRecordEvent`
+      already carries `docId` / `picId` / `factId` with an index on each and is
+      written on every record event; no producer supplies a non-null value.
+      FR-118 produces the per-stage results a producer would write from — it
+      does not write them.
 - [x] **AC-109.8** A stage occurrence is identified by
       `pipelineStageId + executionStepId`; inserting a new stage does not
       renumber or invalidate the evidence of an earlier job. A stage id is now
@@ -301,9 +307,10 @@ declares that FR first, so the blocker stops being invisible.
 - [ ] **AC-109.13** A new source artifact updates only the affected entities,
       facts, graph regions and indexes; rebuilding the whole knowledge graph is
       not the normal path (spec §30).
-      Waits on **the stage runner** (undeclared). BR-021's key already
-      distinguishes a new derivation from a duplicate, which is the input an
-      incremental path needs; nothing consumes it yet.
+      Waits on **ledger-writing wiring** (undeclared). FR-118's `dedup` result
+      already distinguishes `REVISION_OF` from `DUPLICATE_OF` on every call —
+      the input an incremental path needs — and nothing yet acts differently
+      on the two.
 
 ## Non-goals
 
@@ -314,7 +321,8 @@ declares that FR first, so the blocker stops being invisible.
   no migration, no route.
 - **Not the trace and not the monitor.** The catalog and the run identity are
   built; ten of the thirteen acceptance criteria are not, and every one of them
-  waits on a stage runner writing `PipelineRecordEvent` rows. Reading this note
+  wait on ledger-writing wiring that would call FR-118 and write
+  `PipelineRecordEvent` rows. Reading this note
   as "FR-109 is done" would overstate it by ten criteria.
 - zuri-ai does not execute the stages ADR-050 assigns to GKS or
   GenesisBlockDB. Entity resolution, ontology authority, fact and relation
