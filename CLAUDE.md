@@ -61,6 +61,30 @@ and `docs:preflight` safely; a lane that runs tests needs its own real install
 (`npm ci` through a junction deletes the primary's `node_modules` — it has
 happened twice).
 
+**Creating one.** Prefer the session's native `EnterWorktree` tool — it places
+the worktree under `.claude/worktrees/` and switches the session into it in one
+step. Where that tool isn't available, fall back to `git worktree add`, and
+follow this project's own convention: a sibling directory, `D:\zuri-ai-<lane>`,
+next to `D:\zuri-ai` rather than nested inside it. Nine of them already exist
+this way. A sibling lives outside the repo tree, so there is nothing inside
+`D:\zuri-ai` that a stray `git add` could pick up.
+
+**Do not use the generic `.worktrees/` default.** The `superpowers:using-git-worktrees`
+skill defaults to a `.worktrees/` folder at the project root, and in this repo
+that path is **not** gitignored (`git check-ignore -q .worktrees` confirms it) —
+so following that default turns worktree contents into trackable files sitting
+inside the very tree they're meant to be isolated from. Add it to `.gitignore`
+first if you ever use that convention here; otherwise use the sibling layout
+above or `EnterWorktree`.
+
+**Run the test baseline before doing anything else in a new worktree.** This
+is not hygiene — it already cost real time once. In `D:\zuri-ai-fr107`,
+`node_modules` was a junction back to the primary, and the shared Prisma client
+resolved its relative SQLite path against the wrong tree; roughly 70 test
+suites failed as a result, and it was only discovered mid-work rather than at
+setup. A plain `npm test` run as the first thing in a new worktree catches this
+in the first minute instead of the middle of a task.
+
 Refresh the primary only on a clean tree: `git fetch && git checkout --detach
 origin/main`. Before any writing git command anywhere, `git branch
 --show-current` — a write on the wrong branch usually succeeds.
