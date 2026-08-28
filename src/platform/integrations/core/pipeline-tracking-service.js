@@ -137,6 +137,13 @@ function stageData(event, step, now) {
     retryable: event.retryable,
     tagIdsJson: json(event.tagIds, []),
     identityRefsJson: json(event.identityRefs, IDENTITY_REFS_EMPTY),
+    // NFR-020 (SDD-070): only set when the caller actually supplies a count.
+    // Omitted on STEP_STARTED/HEARTBEAT, which have nothing to report yet,
+    // and on every event from a caller that predates this field — writing
+    // undefined here would overwrite an already-recorded count with nothing.
+    ...(typeof event.actualCount === 'number' ? { actualCount: event.actualCount } : {}),
+    ...(typeof event.insertedCount === 'number' ? { insertedCount: event.insertedCount } : {}),
+    ...(typeof event.failedCount === 'number' ? { failedCount: event.failedCount } : {}),
     ...(event.eventType === 'STEP_HEARTBEAT' || event.status === 'RUNNING' ? { lastHeartbeatAt: now } : {}),
     ...(event.status === 'RUNNING' && !step.startedAt ? { startedAt: now } : {}),
     ...(terminal ? { finishedAt: now } : {}),
@@ -533,6 +540,23 @@ export async function recordPipelineEvent(input, {
       runStatus = event.status
     }
     if (event.status === 'FAILED' && runStatus === 'QUEUED') runStatus = 'RUNNING'
+
+    // NFR-020 (SDD-070). The monitor's execution board has read
+    // `run.actualCount` / `run.failedCount` since before this write existed —
+    // @default(0), never set by anything, "Failed: 0" rendered in the normal
+    // ink a real zero would earn. Only recompute when THIS event actually
+    // reported a count; every event that doesn't (the majority) leaves the
+    // run's aggregate exactly as the last one that did left it, for the same
+    // reason a single step never overwrites its own count with an omitted one.
+    const runCounts = (typeof event.actualCount === 'number'
+      || typeof event.insertedCount === 'number' || typeof event.failedCount === 'number')
+      ? (await tx.pipelineStep.findMany({ where: { runId: run.id } })).reduce((acc, s) => ({
+          actualCount: acc.actualCount + (s.actualCount || 0),
+          insertedCount: acc.insertedCount + (s.insertedCount || 0),
+          failedCount: acc.failedCount + (s.failedCount || 0),
+        }), { actualCount: 0, insertedCount: 0, failedCount: 0 })
+      : null
+
     const runUpdate = {
       status: runStatus,
       currentStageId: event.pipelineStageId || run.currentStageId || null,
@@ -544,6 +568,7 @@ export async function recordPipelineEvent(input, {
       ...(event.status === 'FAILED' && !run.primaryFailureCode
         ? { primaryFailureCode: event.failureCode, primaryErrorRef: event.errorRef, primaryRetryable: event.retryable }
         : {}),
+      ...(runCounts || {}),
     }
     const updatedRun = await tx.pipelineRun.update({ where: { id: run.id }, data: runUpdate })
     const receiptPayload = {

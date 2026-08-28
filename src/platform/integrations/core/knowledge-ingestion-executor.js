@@ -7,7 +7,9 @@ import { createPipelineRun, recordPipelineEvent } from './pipeline-tracking-serv
 
 // @req FR-109 — the ledger-writing wiring: something calls FR-118's stage
 // composition and writes its result onto the FR-071 ledger, bound through docId.
-// @spec SDD-069, SDD-066, SDD-057, BR-021, ADR-050 D4
+// @req NFR-020 — real per-stage counts, read from what each stage actually
+// produced rather than a uniform placeholder.
+// @spec SDD-069, SDD-070, SDD-066, SDD-057, BR-021, ADR-050 D4
 // @tested tests/integration/fr109-knowledge-ingestion-executor.test.js
 
 const SHA256_HEX = /^[a-f0-9]{64}$/i
@@ -25,6 +27,45 @@ const TIER1_STAGES = [
   ['DPS-KI-CHUNK', 'chunks'],
   ['DPS-KI-ENTITY-EXTRACT', 'entity_candidates'],
 ]
+
+/**
+ * NFR-020's per-stage counts (SDD-070) for each of the seven Tier 1 stages,
+ * read from FR-118's actual output rather than reported as a uniform "1 in, 1
+ * out" for every stage. `records_failed` is always 0 here: this executor only
+ * reaches this loop after `runKnowledgeIngestionStages` has already returned
+ * successfully (see the docstring below on what an exception does instead),
+ * so nothing in this pass has failed.
+ *
+ * Normalization is the one stage where `records_out` is not equal to
+ * `records_in`: FR-114 declines to normalize a value it cannot decide,
+ * returning `canonical: null` rather than guessing (SDD-061). That decline is
+ * not a failure — it is normalization working exactly as designed — so it
+ * counts against `records_out`, never against `records_failed`.
+ */
+function stageCounts(pipelineStageId, stageResult, input) {
+  const structuredFields = input.structuredFields || []
+  const structuredRecords = input.structuredRecords || []
+  switch (pipelineStageId) {
+    case 'DPS-KI-NORMALIZE':
+      return {
+        actualCount: structuredFields.length,
+        insertedCount: stageResult.normalized_fields.filter((f) => f.canonical !== null).length,
+        failedCount: 0,
+      }
+    case 'DPS-KI-CHUNK':
+      return { actualCount: 1, insertedCount: stageResult.chunks.length, failedCount: 0 }
+    case 'DPS-KI-ENTITY-EXTRACT':
+      return {
+        actualCount: stageResult.chunks.length + structuredRecords.length,
+        insertedCount: stageResult.entity_candidates.length,
+        failedCount: 0,
+      }
+    default:
+      // Parse, provenance, classify and dedupe each transform exactly one
+      // document-level object into one document-level result.
+      return { actualCount: 1, insertedCount: 1, failedCount: 0 }
+  }
+}
 
 /**
  * Registers a knowledge ingestion run and writes the seven Tier 1 stages'
@@ -135,6 +176,7 @@ export async function ingestKnowledgeDocument(input, {
   for (const [pipelineStageId, resultKey] of TIER1_STAGES) {
     const step = stepByStage[pipelineStageId]
     const stageOutputHash = hashContractPayload(stageResult[resultKey])
+    const counts = stageCounts(pipelineStageId, stageResult, input)
 
     await recordPipelineEvent({
       ...eventBase,
@@ -178,6 +220,7 @@ export async function ingestKnowledgeDocument(input, {
       idempotencyKey: `${identity}:${pipelineStageId}:succeeded`,
       inputHash: null,
       outputHash: stageOutputHash,
+      ...counts,
     }, runOptions)
 
     stageEvents.push({ pipelineStageId, ...succeeded })

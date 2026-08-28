@@ -242,6 +242,15 @@ export const zPipelineEvent = z.object({
   idempotencyKey: zId,
   inputHash: zNullableHash,
   outputHash: zNullableHash,
+  // NFR-020's per-stage counts (SDD-070), reusing PipelineStep's own count
+  // columns rather than adding new ones: actualCount is records_in,
+  // insertedCount is records_out, failedCount is records_failed. Optional so
+  // every existing caller — the Supabase migration path, every fixture in
+  // this file's own test suite — is unaffected; a step event that omits them
+  // updates nothing about counts, exactly as it always has.
+  actualCount: zCount.optional(),
+  insertedCount: zCount.optional(),
+  failedCount: zCount.optional(),
   tagIds: z.array(zId).max(100),
   identityRefs: zIdentityRefs,
   failureCode: z.string().trim().min(1).max(200).nullable(),

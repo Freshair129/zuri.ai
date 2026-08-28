@@ -271,10 +271,16 @@ AC-109.13 names a decision nothing has made yet: acting differently on a
 - [ ] **AC-109.6** Every one of the seventeen stages reports its catalog
       evidence and the six NFR-020 per-stage metrics; a stage that produced
       nothing reports zero rather than being absent.
-      The seven Tier 1 stages now report catalog evidence (SDD-069); none of
-      the six NFR-020 metrics (`records_in`, `records_out`, ...) are computed
-      or attached anywhere. Waits on **NFR-020** itself (declared 2026-08-27,
-      unimplemented) and, for the other nine stages, on a Tier 3/4 reporter.
+      The seven Tier 1 stages report catalog evidence (SDD-069) and now four
+      of the six metrics too (SDD-070) — `records_in`/`records_out` read from
+      what each stage actually produced (the real chunk count for Stage 7,
+      the real candidate count for Stage 8, not a placeholder), `records_failed`
+      always 0 on this success-only path, `processing_time` already computed
+      from timestamps SDD-069 sets. Still not "every one of seventeen": the
+      other nine stages report nothing (waits on a Tier 3/4 reporter), and
+      `records_quarantined`/`retry_count` are declined for all seven —
+      BR-022 and replay-within-run don't exist, so there is nothing real to
+      attach.
 - [ ] **AC-109.7** One `pipeline_job_id` resolves the full §33 chain from Source
       to Published Snapshot, with per-record disposition on
       `PipelineRecordEvent` bound through `docId` / `picId` / `factId`.
