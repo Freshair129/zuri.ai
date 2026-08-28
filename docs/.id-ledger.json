@@ -224,6 +224,7 @@
     "FR-114",
     "FR-115",
     "FR-116",
+    "FR-117",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -308,6 +309,7 @@
     "SDD-062",
     "SDD-063",
     "SDD-064",
+    "SDD-065",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2296,6 +2298,19 @@
         }
       ]
     },
+    "FR-117": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6cd0962b67786dbc102be9d9cc59fca6f58370b0772642d842f3bb9f8292012a",
+      "history": [
+        {
+          "anchor": "deduplication and version relationships within one tenant",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3393,6 +3408,19 @@
       "history": [
         {
           "anchor": "declaring knowledge derived is a claim that names its",
+          "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-065": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "27a18b20e96ec8307fa78f935f23314ca0504c0ac88895bb52f7b525d4f95b91",
+      "history": [
+        {
+          "anchor": "cross tenant deduplication is made inexpressible rather",
           "since": "2026-08-27",
           "reason": "declared"
         }

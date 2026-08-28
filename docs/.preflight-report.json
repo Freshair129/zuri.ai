@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 200,
+    "docs": 201,
     "routes": 102,
-    "test_files": 315
+    "test_files": 317
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 22,
+    "info": 21,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -225,8 +225,8 @@
       "id": "I20",
       "severity": "info",
       "check": "id-stability",
-      "title": "402 id(s) pinned across 10 families",
-      "details": "ADR 50 · BR 22 · FEAT 13 · FR 116 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 64 · SEC 21 · ZV2-CR 8 · roster 402",
+      "title": "404 id(s) pinned across 10 families",
+      "details": "ADR 50 · BR 22 · FEAT 13 · FR 117 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 65 · SEC 21 · ZV2-CR 8 · roster 404",
       "files": [
         "docs/.id-ledger.json"
       ],
@@ -242,17 +242,6 @@
         "docs/.roadmap-evidence-baseline.json"
       ],
       "action": "Repoint or retire them; the baseline may only shrink"
-    },
-    {
-      "id": "I22",
-      "severity": "info",
-      "check": "roadmap-coverage",
-      "title": "27 delivered requirement(s) carry no roadmap row (accepted debt)",
-      "details": "baseline: docs/.roadmap-coverage-baseline.json",
-      "files": [
-        "docs/.roadmap-coverage-baseline.json"
-      ],
-      "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     }
   ]
 }
