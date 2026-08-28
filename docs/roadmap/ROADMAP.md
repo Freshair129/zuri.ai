@@ -2,7 +2,7 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.5.0"
+version: "2.5.1"
 updated: "2026-08-28"
 owner: "Owen"
 source_of_truth: true
@@ -58,6 +58,12 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > merge-queue pass โดยตั้งใจ — FR-117 อยู่บน main แล้วและ preflight Check 14
 > ที่กำลังจะเข้าจะยิง CRITICAL ทันทีที่พบ FR ที่ส่งมอบแล้วแต่ไม่มีแถว การเขียน
 > แถวคือทางแก้ ไม่ใช่การขยาย baseline ซึ่ง check นั้นห้ามไว้เอง
+> Revision 2.5.1 (2026-08-28): แก้คำกล่าวอ้างเท็จที่ผมเขียนเองใน 2.5.0 — ประโยค
+> "2 → 4 → 6 → 7 → 8 เดินเป็น pipeline ได้จริง" ไม่จริง ตรวจ import ของทุกชุดเทสต์
+> ในเลน knowledge แล้ว: ชุดที่ประกอบโมดูลมากที่สุดประกอบได้สามตัว และรอยต่อที่
+> พิสูจน์แล้วเป็นคู่ ๆ สี่คู่ — สายของคู่ไม่ใช่สาย ไม่มี check ตัวไหนจับข้อนี้ได้และ
+> จะไม่มีวันจับได้ เพราะ guard ทุกตัวเริ่มจาก id ที่ประกาศแล้ว ส่วนคำกล่าวอ้างเกินจริง
+> เดินทางผ่านร้อยแก้วที่ agent เขียน chain ธรรมาภิบาลเขียวและถูกต้องตลอดเวลา
 
 ## Phases
 
@@ -74,7 +80,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | PHASE-ZAI-CRM | CRM console + consent: Conversation Inbox (FR-091), reply receipt (FR-093), PDPA consent attestation (FR-103 ปิด SEC-005), market translation (FR-092) | code + tests ครบทุกตัวรวม e2e (`tests/e2e/fr091-conversation-inbox.spec.js`) | done | 100 |
 | PHASE-ZAI-IAM | Production IAM (FEAT-010: FR-094..098, ADR-045) + password reset (FR-104) + onboarding/invites (FR-066/067 — ส่งมอบ 2026-08-27) + Enterprise API token auth (FR-106 ปิด SEC-006) + operator grant store/bootstrap (FR-107 — operator คนแรก live บน production) | เหลือ tail เดียว: FEAT-010 hardening (FR-097 provider evidence) | in-progress | 90 |
 | PHASE-ZAI-SOT | SoT pipeline console (FEAT-011: FR-099..101) + data-plane service-account auth (FR-102, ADR-047) | ~~RSK-016~~ ปิดแล้ว 2026-08-27 (migration ทั้ง 6 apply + ledger); เหลือ: decision loop เดินจริงกับ data plane ภายนอก | in-progress | 95 |
-| PHASE-ZAI-KNOWLEDGE | 17-Stage Knowledge Ingestion & GraphRAG (ADR-050): governance declaration (FEAT-013: FR-109..111) + Stage 7 chunking calculator ส่งมอบแล้ว (FR-112, SDD-059 — pure calculator, ไม่มี model); Stage 8 entity candidate extraction ส่งมอบแล้ว (FR-113, SDD-060 — candidate เท่านั้น, recognition เป็น seam); Stage 2 parsing (FR-115), Stage 3 provenance (FR-116), Stage 4 normalization (FR-114), Stage 5 classification (FR-111) และ Stage 6 dedup/versioning (FR-117) ส่งมอบครบ — **Tier 1 ครบทุก stage แล้ว** (1..8) และ 2 → 4 → 6 → 7 → 8 เดินเป็น pipeline ได้จริง; BR-021 กับ SEC-021 หลุดจากรายการ rules-without-code-anchor เป็นหลักฐานเชิงกลไก | ทั้ง 17 stages มีเจ้าของ/implementation ตาม tier boundary; FR-110 ส่งมอบ; stage 9..17 เป็นของ GKS/GenesisBlockDB ตาม ADR-050 | in-progress | 50 |
+| PHASE-ZAI-KNOWLEDGE | 17-Stage Knowledge Ingestion & GraphRAG (ADR-050): governance declaration (FEAT-013: FR-109..111) + Stage 7 chunking calculator ส่งมอบแล้ว (FR-112, SDD-059 — pure calculator, ไม่มี model); Stage 8 entity candidate extraction ส่งมอบแล้ว (FR-113, SDD-060 — candidate เท่านั้น, recognition เป็น seam); Stage 2 parsing (FR-115), Stage 3 provenance (FR-116), Stage 4 normalization (FR-114), Stage 5 classification (FR-111) และ Stage 6 dedup/versioning (FR-117) ส่งมอบครบ — **ทุก stage ของ Tier 1 มี implementation แล้ว** (1..8) — อ่านว่า *แต่ละ stage มีโค้ดของตัวเอง* ไม่ใช่ *tier นี้ทำงานได้*: ยังไม่มีอะไรเรียกทั้งแปดตัวเรียงกัน รอยต่อที่พิสูจน์แล้วเป็น **คู่** ไม่ใช่สาย (parsing→chunking, chunking→entity-extraction, classification→chunking, dedup→ingestion-job) และตัวที่จะรันมันคือ **stage runner ที่ยังไม่มีใครประกาศเป็น FR** ทั้งที่ FR-109 และ FR-111 บน main อ้างถึงมันเป็นตัวขวางอยู่แล้ว; BR-021 กับ SEC-021 หลุดจากรายการ rules-without-code-anchor เป็นหลักฐานเชิงกลไก | ทั้ง 17 stages มีเจ้าของ/implementation ตาม tier boundary; **มี stage runner ที่เรียก Tier 1 ต่อกันได้จริง** (ยังไม่ถูกประกาศเป็น FR); FR-110 ส่งมอบ; stage 9..17 เป็นของ GKS/GenesisBlockDB ตาม ADR-050 | in-progress | 50 |
 
 ## Backlog Items
 
