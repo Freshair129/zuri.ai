@@ -95,6 +95,38 @@ export function claimedRequirements(roadmapText) {
  * made to retract. A requirement still marked `🔜 declared` with no code is
  * correctly not a gap: its row arrives with its implementation, and demanding
  * one earlier would make the roadmap a wish list.
+ *
+ * **A consequence worth knowing before you plan a branch: this check makes a
+ * requirement's roadmap row a prerequisite for its own feature PR.** The moment
+ * a branch adds `@req FR-xxx` to a source file, the graph gains an `implements`
+ * edge and the id counts as delivered here — so with no row claiming it, the
+ * branch is CRITICAL. The row has to exist on main *before* the feature PR can
+ * go green. Yet the row cites an id whose PRD declaration ships with that very
+ * PR, which reads like a row pointing at nothing.
+ *
+ * It resolves because **ROADMAP.md is not an id registry.** Check 12 and the id
+ * ledger read the declaring documents, and the roadmap is not one, so a row may
+ * name an id no registry has declared yet. Verified 2026-08-28: PR #154 added
+ * the TASK-FR-118 row while FR-118 existed only on an unmerged branch;
+ * `docs:ids -- --write` reported 0 added and govern passed clean. So the
+ * ordering is: **land the row PR first, then the feature PR.**
+ *
+ * Two qualifications, because the paragraph above is the kind of thing that
+ * hardens into ceremony if its limits are not written next to it.
+ *
+ * Splitting this across two PRs is **not** something the check requires. Putting
+ * the row in the feature PR satisfies it in one step and is simpler. The split
+ * happened here only because the roadmap lane and the feature lane were held by
+ * different concurrent sessions. Do not read the two-PR dance as sanctioned
+ * shape; it is the shape parallel lanes force.
+ *
+ * And **FR-117 is not a precedent for this, though it looks like one.** Merge
+ * order on main, UTC: the FR-117 feature landed 23:42, its roadmap row landed
+ * 00:21 via PR #142, and this check itself landed 00:41 via PR #144. The feature
+ * preceded its row and was never tested against this check at all — it did not
+ * follow row-first, it predated the rule. FR-118 is the first requirement the
+ * circularity actually constrained. Recorded because the opposite was asserted
+ * in conversation and believed by two sessions until someone read the dates.
  */
 export function findUncoveredRequirements({ roadmapText, delivered }) {
   const claimed = claimedRequirements(roadmapText)
