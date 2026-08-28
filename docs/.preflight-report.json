@@ -4,13 +4,13 @@
   "scanned": {
     "docs": 203,
     "routes": 102,
-    "test_files": 327
+    "test_files": 324
   },
   "summary": {
-    "critical": 1,
+    "critical": 0,
     "warning": 0,
     "info": 22,
-    "overall": "CRITICAL"
+    "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -193,6 +193,15 @@
     {
       "id": "I17",
       "severity": "info",
+      "check": "requirement-coverage",
+      "title": "Gaps in SDD numbering",
+      "details": "SDD-072",
+      "files": [],
+      "action": "Intentional gaps are fine — confirm nothing was lost"
+    },
+    {
+      "id": "I18",
+      "severity": "info",
       "check": "enum-copy",
       "title": "1 hand-copied enum list(s) remain (accepted debt)",
       "details": "0 of them are INCOMPLETE copies — those are the ones that silently drop a value: ",
@@ -202,7 +211,7 @@
       "action": "Derive from enums.js; the baseline may only shrink"
     },
     {
-      "id": "I18",
+      "id": "I19",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -213,34 +222,11 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I19",
-      "severity": "info",
-      "check": "id-stability",
-      "title": "SDD-072 statement digest changed without an anchor move",
-      "details": "canonical SHA-256 f92fe39250f98f70a84811fc8d7afc884b262e21f5767f2913ac3b7fdaae59db → 0d243988ac1f2448a0968baa36885af6ace50dcaa4e16ddc23c7aa4aaec17829 · citation files: src/modules/knowledge/quarantine.js, src/modules/knowledge/stage-runner.js, src/platform/integrations/core/knowledge-ingestion-executor.js, tests/integration/fr119-knowledge-ingestion-quarantine.test.js, tests/unit/knowledge-quarantine.test.js, tests/unit/knowledge-stage-runner-trace.test.js, docs/appendices/D-traceability.md, docs/domains/knowledge/CHARTER.md, docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md, docs/FEATURE-MAP.md, docs/TRACE.md",
-      "files": [
-        "docs/PRD-SDD-v1.0.md",
-        "docs/.id-ledger.json",
-        "src/modules/knowledge/quarantine.js",
-        "src/modules/knowledge/stage-runner.js",
-        "src/platform/integrations/core/knowledge-ingestion-executor.js",
-        "tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
-        "tests/unit/knowledge-quarantine.test.js",
-        "tests/unit/knowledge-stage-runner-trace.test.js",
-        "docs/appendices/D-traceability.md",
-        "docs/domains/knowledge/CHARTER.md",
-        "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
-        "docs/FEATURE-MAP.md",
-        "docs/TRACE.md"
-      ],
-      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review SDD-072 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
-    },
-    {
       "id": "I20",
       "severity": "info",
       "check": "id-stability",
-      "title": "414 id(s) pinned across 10 families",
-      "details": "ADR 51 · BR 22 · FEAT 13 · FR 119 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 72 · SEC 21 · ZV2-CR 8 · roster 414",
+      "title": "413 id(s) pinned across 10 families",
+      "details": "ADR 51 · BR 22 · FEAT 13 · FR 118 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 72 · SEC 21 · ZV2-CR 8 · roster 413",
       "files": [
         "docs/.id-ledger.json"
       ],
@@ -258,18 +244,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "C22",
-      "severity": "critical",
-      "check": "roadmap-coverage",
-      "title": "1 delivered requirement(s) have no roadmap row",
-      "details": "FR-119",
-      "files": [
-        "docs/roadmap/ROADMAP.md"
-      ],
-      "action": "Add a Backlog Items row under the owning phase — the roadmap is source_of_truth and Mission Control reads it, so a delivered requirement with no row understates what shipped. Never widen .roadmap-coverage-baseline.json to silence this"
-    },
-    {
-      "id": "I23",
+      "id": "I22",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "23 delivered requirement(s) carry no roadmap row (accepted debt)",
