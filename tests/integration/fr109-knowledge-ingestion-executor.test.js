@@ -143,6 +143,54 @@ describe('FR-109 ledger-writing wiring', () => {
     }
   })
 
+  it('writes NFR-020 per-stage counts read from what each stage actually produced', async () => {
+    const result = await ingest({
+      documentId: 'doc-exec-metrics',
+      artifactOver: { source_version: 'v-metrics' },
+      structuredFields: [
+        { value: '25/8/2569', kind: 'date', era: 'BE' }, // decides
+        { value: 'x', kind: 'phone' }, // declines -- not a phone number
+      ],
+      structuredRecords: [{
+        record_id: 'rec-exec-metrics', type: 'ORGANIZATION', mention: 'Acme Co., Ltd.',
+        scope: { tenantId, businessId }, provenance: { source_ref: 'crm' },
+      }],
+    })
+
+    const byStage = Object.fromEntries(result.stages.map((s) => [s.pipelineStageId, s.step]))
+
+    // Document-level stages: one document in, one document-level result out.
+    for (const id of ['DPS-KI-PARSE', 'DPS-KI-PROVENANCE', 'DPS-KI-CLASSIFY', 'DPS-KI-DEDUPE']) {
+      expect(byStage[id].actualCount).toBe(1)
+      expect(byStage[id].insertedCount).toBe(1)
+      expect(byStage[id].failedCount).toBe(0)
+    }
+
+    // Normalize: 2 fields in, only the decidable one out -- the declined one
+    // counts against records_out, never against records_failed (SDD-061).
+    expect(byStage['DPS-KI-NORMALIZE'].actualCount).toBe(2)
+    expect(byStage['DPS-KI-NORMALIZE'].insertedCount).toBe(1)
+    expect(byStage['DPS-KI-NORMALIZE'].failedCount).toBe(0)
+
+    // Chunk: 1 document in, N chunks out -- the real chunk count, not "1".
+    expect(byStage['DPS-KI-CHUNK'].actualCount).toBe(1)
+    expect(byStage['DPS-KI-CHUNK'].insertedCount).toBeGreaterThan(0)
+
+    // Entity extraction: chunks + the structured record in, candidates out.
+    expect(byStage['DPS-KI-ENTITY-EXTRACT'].actualCount)
+      .toBe(byStage['DPS-KI-CHUNK'].insertedCount + 1)
+    expect(byStage['DPS-KI-ENTITY-EXTRACT'].insertedCount).toBeGreaterThan(0)
+
+    // The run-level aggregate is the sum across all seven stages, not the
+    // last stage's own numbers -- the execution monitor reads THIS field.
+    const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: result.run.executionRunId } })
+    const expectedActual = Object.values(byStage).reduce((sum, s) => sum + s.actualCount, 0)
+    const expectedInserted = Object.values(byStage).reduce((sum, s) => sum + s.insertedCount, 0)
+    expect(run.actualCount).toBe(expectedActual)
+    expect(run.insertedCount).toBe(expectedInserted)
+    expect(run.failedCount).toBe(0)
+  })
+
   it('is idempotent end to end — re-ingesting the same artifact writes nothing new', async () => {
     const first = await ingest({ documentId: 'doc-exec-idem', artifactOver: { source_version: 'v-idem' } })
     const run = await prisma.pipelineRun.findUnique({ where: { executionRunId: first.run.executionRunId } })

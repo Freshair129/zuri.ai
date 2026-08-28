@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1359,
-    "total_edges": 4623,
+    "total_nodes": 1362,
+    "total_edges": 4635,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,15 +15,15 @@
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 250,
-      "test": 323,
+      "requirement": 252,
+      "test": 324,
       "code_file": 357
     },
     "coverage": {
-      "requirements": 250,
+      "requirements": 252,
       "fr_with_code": "100% (113/113)",
       "fr_with_tests": "100% (113/113)",
-      "rules_anchored_in_code": "95% (105/110)",
+      "rules_anchored_in_code": "96% (107/112)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 357,
       "fr_planned": [
@@ -49,18 +49,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "domain:integration",
-      "domain:knowledge",
-      "doc:FR-109-knowledge-ingestion-stage-catalog",
-      "doc:PRD-SDD-v1.0",
-      "test:tests/integration/fr109-ingestion-run-identity.test.js"
-    ],
-    "added": [
-      "req:SDD-069",
-      "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "code:src/platform/integrations/core/knowledge-ingestion-executor.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -7117,15 +7107,17 @@
       "id": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "hash": "614cfb80",
+      "hash": "6cd45d0b",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-109",
-          "FR-118"
+          "FR-118",
+          "NFR-020"
         ],
         "@spec": [
           "SDD-069",
+          "SDD-070",
           "SDD-066",
           "SDD-057",
           "BR-021"
@@ -7139,7 +7131,7 @@
       "id": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-contract.js",
-      "hash": "91301bef",
+      "hash": "b3f9d24a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7163,7 +7155,7 @@
       "id": "code:src/platform/integrations/core/pipeline-tracking-service.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-service.js",
-      "hash": "3d603cf0",
+      "hash": "a9a85332",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8013,8 +8005,8 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
-      "hash": "4d353e59",
-      "status": "changed"
+      "hash": "1feb495a",
+      "status": "current"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
@@ -8351,8 +8343,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.106.0b",
       "doc_status": "Draft",
-      "hash": "acd7c368",
-      "status": "changed"
+      "hash": "44ca6af3",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8645,7 +8637,7 @@
         "integration"
       ],
       "hash": "81c11264",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:knowledge",
@@ -8658,8 +8650,8 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "c38a36b6",
-      "status": "changed"
+      "hash": "a7a825f1",
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -10777,9 +10769,9 @@
       "family": "NFR",
       "label": "Every knowledge ingestion stage emits per-stage and pipeline-level metrics: each stage reports `records_in`, `records_out`, `records_failed`, `records_quarantined`, `processing_time` and `retry_count`; the pipeline reports `ingestion_lag`, `pipeline_latency`, `publication_latency`, `error_rate`, `quarantine_rate`, `entity_resolution_rate` and `retrieval_quality_score` (spec §32). A stage that reports nothing is indistinguishable from a stage that did nothing — that is the failure mode this requires away, and it is why the counts are per stage rather than per run.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
+      "declared": "done",
       "status": "current",
-      "row_text": "Every knowledge ingestion stage emits per-stage and pipeline-level metrics: each stage reports `records_in`, `records_out`, `records_failed`, `records_quarantined`, `processing_time` and `retry_count`; the pipeline reports `ingestion_lag`, `pipeline_latency`, `publication_latency`, `error_rate`, `quarantine_rate`, `entity_resolution_rate` and `retrieval_quality_score` (spec §32). A stage that reports nothing is indistinguishable from a stage that did nothing — that is the failure mode this requires away, and it is why the counts are per stage rather than per run. spec §32; carried on the FR-109 job trace; declared 2026-08-27 "
+      "row_text": "Every knowledge ingestion stage emits per-stage and pipeline-level metrics: each stage reports `records_in`, `records_out`, `records_failed`, `records_quarantined`, `processing_time` and `retry_count`; the pipeline reports `ingestion_lag`, `pipeline_latency`, `publication_latency`, `error_rate`, `quarantine_rate`, `entity_resolution_rate` and `retrieval_quality_score` (spec §32). A stage that reports nothing is indistinguishable from a stage that did nothing — that is the failure mode this requires away, and it is why the counts are per stage rather than per run. ✅ implemented 2026-08-28 for four of six per-stage metrics — `records_in`/`records_out`/`records_failed` (SDD-070, reusing `PipelineStep`'s own `actualCount`/`insertedCount`/`failedCount` columns, unwritten since FR-071) and `processing_time` (already computed as `durationMs` in `getPipelineMonitor`'s stage timeline from timestamps SDD-069 already sets — no new field needed). `records_quarantined` and `retry_count` stay unwired: BR-022 and replay-within-run don't exist for knowledge ingestion, so there is nothing real to report, and a stored 0 would repeat the exact defect this same slice found and fixed on `PipelineRun` — see the note below. All seven pipeline-level metrics stay declined: six need FR-110, GKS or GenesisBlockDB; `ingestion_lag` looked cheap (`run.createdAt` minus the artifact's own `ingested_at`) until checking found `PipelineRun` stores no such field — computing it would add one, which is schema growth this slice did not set out to do. spec §32; carried on the FR-109 job trace; declared 2026-08-27 "
     },
     {
       "id": "req:SDD-001",
@@ -11470,6 +11462,26 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "The ledger-writing wiring binds one artifact identity to one run to one document's worth of evidence, and every event's idempotency key is derived from that identity alone — never from the caller's `documentId`. `ingestKnowledgeDocument` writes a `RECORD_STARTED` / `RECORD_SUCCEEDED` pair (`docId` bound to `documentId`) around a `STEP_STARTED` / `STEP_SUCCEEDED` pair per Tier 1 stage, using the `PipelineStep` rows `createPipelineRun` already materializes from `KNOWLEDGE_INGESTION_STAGE_CATALOG` — no second step is created. The run is never marked finished: nine of the seventeen catalog steps belong to GKS and GenesisBlockDB (ADR-050 D3) and this repository does not execute them, so sending `RUN_FINISHED` here would claim a run seven-seventeenths done is complete. A stage failure inside FR-118's composition is not caught, classified or written as `STEP_FAILED` — the composition is one synchronous call with no partial result, so nothing at this layer can name which of the seven stages threw without restructuring FR-118's contract, which this slice does not do; the already-registered run stays at `QUEUED` with every step `NOT_STARTED`; an honest \"attempted, nothing recorded\" rather than a guess. The whole function is resumable by construction: replaying it with the same artifact replays every event's own idempotency check (FR-071) rather than needing a resume branch of its own. FR-109; SDD-066, SDD-057, SDD-067, BR-021, ADR-050 D4 "
+    },
+    {
+      "id": "req:SDD-070",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "NFR-020's per-stage counts are written by reusing `PipelineStep`'s own `actualCount`/`insertedCount`/`failedCount` columns — present since FR-071, unwritten by anything until this decision. `zPipelineEvent` gains three optional fields under the same names; `stageData()` persists them only when a caller actually supplies one, so a `STEP_HEARTBEAT` or a plain success from the Supabase migration path — every existing caller — leaves them exactly as they were, and an already-recorded count is never overwritten with an omitted one. `actualCount` is `records_in`, `insertedCount` is `records_out`, `failedCount` is `records_failed` — a field-name mapping decision, the same shape as SDD-068's `checksum`/`content_hash`. `records_quarantined` and `retry_count` are not wired to anything: BR-022's quarantine vocabulary and replay-within-run don't exist for knowledge ingestion, and a stored 0 for either would be indistinguishable from a measured zero — the exact defect found on `PipelineRun` while building this. This fix does not reach backward: every migration-pipeline run and every knowledge-ingestion run that predates this slice keeps its `@default(0)`, and `actualCount`/`failedCount` are `Int` NOT NULL with nothing correlating \"never measured\" — no signal distinguishes an old unmeasured zero from a new measured one. The monitor's `fmt()` already renders `null` as `—` rather than `0`; it has simply never been given a null. Closing that gap needs a migration of its own and is not this slice's to make.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "NFR-020's per-stage counts are written by reusing `PipelineStep`'s own `actualCount`/`insertedCount`/`failedCount` columns — present since FR-071, unwritten by anything until this decision. `zPipelineEvent` gains three optional fields under the same names; `stageData()` persists them only when a caller actually supplies one, so a `STEP_HEARTBEAT` or a plain success from the Supabase migration path — every existing caller — leaves them exactly as they were, and an already-recorded count is never overwritten with an omitted one. `actualCount` is `records_in`, `insertedCount` is `records_out`, `failedCount` is `records_failed` — a field-name mapping decision, the same shape as SDD-068's `checksum`/`content_hash`. `records_quarantined` and `retry_count` are not wired to anything: BR-022's quarantine vocabulary and replay-within-run don't exist for knowledge ingestion, and a stored 0 for either would be indistinguishable from a measured zero — the exact defect found on `PipelineRun` while building this. This fix does not reach backward: every migration-pipeline run and every knowledge-ingestion run that predates this slice keeps its `@default(0)`, and `actualCount`/`failedCount` are `Int` NOT NULL with nothing correlating \"never measured\" — no signal distinguishes an old unmeasured zero from a new measured one. The monitor's `fmt()` already renders `null` as `—` rather than `0`; it has simply never been given a null. Closing that gap needs a migration of its own and is not this slice's to make. NFR-020; SDD-069, SDD-066, SDD-057, BR-021 "
+    },
+    {
+      "id": "req:SDD-071",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "The execution monitor has read `PipelineRun.actualCount` / `.failedCount` since before anything wrote them — `@default(0)`, and `mode-bodies.jsx` renders `Failed` in the normal ink specifically because it is zero. That is not an empty panel; it is a false one, indistinguishable on screen from a real zero. `recordPipelineEvent` now aggregates the run's counts from every `PipelineStep` row sharing its `runId` whenever an event supplies a count — real summed integers, not nulls, so the same `",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "The execution monitor has read `PipelineRun.actualCount` / `.failedCount` since before anything wrote them — `@default(0)`, and `mode-bodies.jsx` renders `Failed` in the normal ink specifically because it is zero. That is not an empty panel; it is a false one, indistinguishable on screen from a real zero. `recordPipelineEvent` now aggregates the run's counts from every `PipelineStep` row sharing its `runId` whenever an event supplies a count — real summed integers, not nulls, so the same `  0` coercion in `runSummary`/`stepSummary` that would have silently absorbed a null has nothing to undermine. Aggregate-on-completion, not finalization-only: a run half done showing a final-looking zero would be the same defect in slower motion, and knowledge-ingestion runs never reach `RUN_FINISHED` in this repository (ADR-050 D3) — finalization-only would mean never. The aggregate sums every step row sharing a `runId`, which assumes one row per stage per run; `(runId, pipelineStageId)` carries no uniqueness constraint, only a non-unique index, so a stage retried under a fresh `executionStepId` would be double-counted rather than reporting its true count. Nothing today constructs that — SDD-069 materializes each stage's step once and reuses it; replay creates its steps under a new `runId`, never summed into the original. A second row is not a hypothetical the design left open: the step state machine retries a stage in place — `REPLAYING: ['REPLAYING', 'RUNNING', 'SUCCEEDED', 'FAILED']`, on the same row — and ADR-030's own rejected-alternatives table names the other direction, reusing ids across a retry, as overwriting history and making the result non-auditable. So `(runId, pipelineStageId)` staying unenforced is a real gap against the design's own intent, not an open question — `@@unique([runId, pipelineStageId])` is very likely correct, pending a check for existing duplicate rows before any migration can apply it. Pinned by two tests, not fixed ahead of that check: a fake-db unit test recording today's behaviour against a fake that cannot enforce a uniqueness constraint and would silently go stale the moment a migration lands, and a real-database integration test constructing the same duplicate directly — the one that will actually start failing, at the `create` call rather than at an assertion, the day the constraint exists. NFR-020; SDD-070, SDD-069, ADR-030 "
     },
     {
       "id": "req:SEC-001",
@@ -13518,6 +13530,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr071-pipeline-step-count-aggregation.test.js",
+      "type": "test",
+      "path": "tests/integration/fr071-pipeline-step-count-aggregation.test.js",
+      "hash": "6a72a350",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/fr072-dependency-authorization.test.js",
       "type": "test",
       "path": "tests/integration/fr072-dependency-authorization.test.js",
@@ -13606,13 +13625,13 @@
       "type": "test",
       "path": "tests/integration/fr109-ingestion-run-identity.test.js",
       "hash": "82e1b671",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
       "type": "test",
       "path": "tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "hash": "cdf3078a",
+      "hash": "e297fcff",
       "status": "current"
     },
     {
@@ -15117,7 +15136,7 @@
       "id": "test:tests/unit/platform/pipeline-tracking-service.test.js",
       "type": "test",
       "path": "tests/unit/platform/pipeline-tracking-service.test.js",
-      "hash": "5cdecbbc",
+      "hash": "1ed802eb",
       "status": "current"
     },
     {
@@ -25834,6 +25853,13 @@
     },
     {
       "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
+      "to": "req:NFR-020",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "to": "req:SDD-057",
       "type": "follows",
       "status": "current",
@@ -25849,6 +25875,13 @@
     {
       "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "to": "req:SDD-069",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
+      "to": "req:SDD-070",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -28452,6 +28485,20 @@
     },
     {
       "from": "req:SDD-069",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-070",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-071",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -34100,6 +34147,27 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/fr071-pipeline-step-count-aggregation.test.js",
+      "to": "req:NFR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr071-pipeline-step-count-aggregation.test.js",
+      "to": "req:SDD-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr071-pipeline-step-count-aggregation.test.js",
+      "to": "req:SDD-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/fr072-dependency-authorization.test.js",
       "to": "code:src/app/api/dependencies/[id]/route.js",
       "type": "tests",
@@ -35263,7 +35331,21 @@
     },
     {
       "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
+      "to": "req:NFR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
       "to": "req:SDD-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
+      "to": "req:SDD-061",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -35281,6 +35363,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
+      "to": "req:SDD-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/iam-authorization.test.js",
@@ -45238,6 +45327,13 @@
     },
     {
       "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
+      "to": "req:NFR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -45246,6 +45342,13 @@
     {
       "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
       "to": "req:SDD-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
+      "to": "req:SDD-070",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

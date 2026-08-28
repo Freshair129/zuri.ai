@@ -273,6 +273,158 @@ describe('FR-071 pipeline tracking service', () => {
     expect(result.run.status).toBe('RUNNING')
   })
 
+  // @req NFR-020 — per-stage counts (SDD-070): actualCount is records_in,
+  // insertedCount is records_out, failedCount is records_failed. Columns that
+  // have existed on PipelineStep since FR-071 and that nothing wrote until now.
+  it('persists NFR-020 per-stage counts only when the event supplies them', async () => {
+    const created = await createPipelineRun(runInput(), { db, viewer, idFactory: ids })
+    const step = db.pipelineStep.rows.find((row) => row.pipelineStageId === 'DPS-SCHEMA-VALIDATE')
+    await recordPipelineEvent(event(created.run, step, {
+      eventType: 'STEP_STARTED', status: 'RUNNING', idempotencyKey: 'event-start-counts',
+      failureCode: null, errorRef: null, retryable: null,
+    }), { db, viewer })
+    const succeeded = await recordPipelineEvent(event(created.run, step, {
+      eventType: 'STEP_SUCCEEDED', status: 'SUCCEEDED', idempotencyKey: 'event-success-counts',
+      failureCode: null, errorRef: null, retryable: null,
+      actualCount: 7, insertedCount: 5, failedCount: 2,
+    }), { db, viewer })
+
+    expect(succeeded.step.actualCount).toBe(7)
+    expect(succeeded.step.insertedCount).toBe(5)
+    expect(succeeded.step.failedCount).toBe(2)
+
+    // The execution monitor reads `run.actualCount` / `run.failedCount`
+    // directly (mode-bodies.jsx) — @default(0), never aggregated from steps
+    // until this change. A step-only fix leaves the board showing
+    // Expected 17 / Actual 0 / Failed 0 regardless of what happened.
+    expect(succeeded.run.actualCount).toBe(7)
+    expect(succeeded.run.insertedCount).toBe(5)
+    expect(succeeded.run.failedCount).toBe(2)
+  })
+
+  it('aggregates the run’s counts across every step that has reported one, not just the latest', async () => {
+    const created = await createPipelineRun(runInput(), { db, viewer, idFactory: ids })
+    const schemaStep = db.pipelineStep.rows.find((row) => row.pipelineStageId === 'DPS-SCHEMA-VALIDATE')
+    const reconcileStep = db.pipelineStep.rows.find((row) => row.pipelineStageId === 'DPS-RECONCILE')
+
+    await recordPipelineEvent(event(created.run, schemaStep, {
+      eventType: 'STEP_STARTED', status: 'RUNNING', idempotencyKey: 'agg-start-1',
+      failureCode: null, errorRef: null, retryable: null,
+    }), { db, viewer })
+    await recordPipelineEvent(event(created.run, schemaStep, {
+      eventType: 'STEP_SUCCEEDED', status: 'SUCCEEDED', idempotencyKey: 'agg-success-1',
+      failureCode: null, errorRef: null, retryable: null,
+      actualCount: 3, insertedCount: 3, failedCount: 0,
+    }), { db, viewer })
+    await recordPipelineEvent(event(created.run, reconcileStep, {
+      eventType: 'STEP_STARTED', status: 'RUNNING', idempotencyKey: 'agg-start-2',
+      failureCode: null, errorRef: null, retryable: null,
+    }), { db, viewer })
+    const secondSucceeded = await recordPipelineEvent(event(created.run, reconcileStep, {
+      eventType: 'STEP_SUCCEEDED', status: 'SUCCEEDED', idempotencyKey: 'agg-success-2',
+      failureCode: null, errorRef: null, retryable: null,
+      actualCount: 4, insertedCount: 2, failedCount: 1,
+    }), { db, viewer })
+
+    // 3+4=7, 3+2=5, 0+1=1 — the sum across both steps, not the second
+    // event's own numbers standing alone.
+    expect(secondSucceeded.run.actualCount).toBe(7)
+    expect(secondSucceeded.run.insertedCount).toBe(5)
+    expect(secondSucceeded.run.failedCount).toBe(1)
+  })
+
+  it('leaves the run’s counts untouched by an event that reports none', async () => {
+    const created = await createPipelineRun(runInput(), { db, viewer, idFactory: ids })
+    const step = db.pipelineStep.rows.find((row) => row.pipelineStageId === 'DPS-SCHEMA-VALIDATE')
+    await recordPipelineEvent(event(created.run, step, {
+      eventType: 'STEP_STARTED', status: 'RUNNING', idempotencyKey: 'noagg-start',
+      failureCode: null, errorRef: null, retryable: null,
+    }), { db, viewer })
+    const succeeded = await recordPipelineEvent(event(created.run, step, {
+      eventType: 'STEP_SUCCEEDED', status: 'SUCCEEDED', idempotencyKey: 'noagg-success',
+      failureCode: null, errorRef: null, retryable: null,
+      // no counts — a plain success from the Supabase migration path, as
+      // every existing caller sends it today
+    }), { db, viewer })
+
+    expect(succeeded.run.actualCount).toBe(0)
+    expect(succeeded.run.failedCount).toBe(0)
+  })
+
+  it('never overwrites an already-recorded count with a later event that omits it', async () => {
+    const created = await createPipelineRun(runInput(), { db, viewer, idFactory: ids })
+    const step = db.pipelineStep.rows.find((row) => row.pipelineStageId === 'DPS-SCHEMA-VALIDATE')
+    await recordPipelineEvent(event(created.run, step, {
+      eventType: 'STEP_STARTED', status: 'RUNNING', idempotencyKey: 'event-start-2',
+      failureCode: null, errorRef: null, retryable: null,
+      actualCount: 4, // an unusual but valid shape: counts known at start
+    }), { db, viewer })
+    const succeeded = await recordPipelineEvent(event(created.run, step, {
+      eventType: 'STEP_SUCCEEDED', status: 'SUCCEEDED', idempotencyKey: 'event-success-2',
+      failureCode: null, errorRef: null, retryable: null,
+      // No counts on this event — heartbeats and plain success events from
+      // every existing caller (the Supabase migration path) never supply
+      // them, and writing `undefined` here must not clobber the 4 already
+      // recorded. Omission is not zero.
+    }), { db, viewer })
+
+    expect(succeeded.step.actualCount).toBe(4)
+  })
+
+  // NFR-020's run-level aggregate sums every `PipelineStep` row sharing the
+  // run's id — it assumes ONE step row per stage per run. A second row is not
+  // a hypothetical shape the design left open: the step state machine
+  // (`REPLAYING: ['REPLAYING', 'RUNNING', 'SUCCEEDED', 'FAILED']`) retries a
+  // stage IN PLACE, on the same row, and ADR-030's own rejected-alternatives
+  // table names reusing ids across a retry as the thing that "overwrites
+  // history and makes the result non-auditable" the other way round — a
+  // second run, never a second step row within one run. So a second
+  // `PipelineStep` for a stage this run already has is not merely unintended;
+  // it is the shape the design already rejected once. `(runId,
+  // pipelineStageId)` carries no uniqueness constraint to say so — a
+  // non-unique index only — which is a real gap, tracked for a schema fix
+  // pending a production duplicate check (see the real-database test below,
+  // which is the one that will actually notice when that constraint lands).
+  //
+  // This fake-db suite cannot pin that fix: `model()`'s `create()` has no
+  // concept of a unique constraint, so this test would keep passing with
+  // TODAY's number even after a real migration made the scenario impossible
+  // — a stale test asserting a wrong future, silently. It stays here as a
+  // record of current behaviour against the fake, not as the test that
+  // should change when the schema does.
+  it('sums every step row sharing a stage today — the fake db cannot enforce the uniqueness a migration would add', async () => {
+    const created = await createPipelineRun(runInput(), { db, viewer, idFactory: ids })
+    const step = db.pipelineStep.rows.find((row) => row.pipelineStageId === 'DPS-SCHEMA-VALIDATE')
+    await recordPipelineEvent(event(created.run, step, {
+      eventType: 'STEP_STARTED', status: 'RUNNING', idempotencyKey: 'retry-attempt-1-start',
+      failureCode: null, errorRef: null, retryable: null,
+    }), { db, viewer })
+    await recordPipelineEvent(event(created.run, step, {
+      eventType: 'STEP_SUCCEEDED', status: 'SUCCEEDED', idempotencyKey: 'retry-attempt-1',
+      failureCode: null, errorRef: null, retryable: null,
+      actualCount: 5, insertedCount: 5, failedCount: 0,
+    }), { db, viewer })
+
+    // A second attempt at the SAME stage, under a fresh executionStepId --
+    // nothing in this repo constructs this today, but nothing prevents it. A
+    // freshly auto-created step starts NOT_STARTED, so it needs the same
+    // STARTED -> SUCCEEDED lifecycle any step does.
+    const retryStep = { pipelineStageId: step.pipelineStageId, executionStepId: 'step-retry-2', attemptId: 'attempt-retry-2', sequence: step.sequence }
+    await recordPipelineEvent(event(created.run, retryStep, {
+      eventType: 'STEP_STARTED', status: 'RUNNING', idempotencyKey: 'retry-attempt-2-start',
+      failureCode: null, errorRef: null, retryable: null,
+    }), { db, viewer })
+    const secondAttempt = await recordPipelineEvent(event(created.run, retryStep, {
+      eventType: 'STEP_SUCCEEDED', status: 'SUCCEEDED', idempotencyKey: 'retry-attempt-2',
+      failureCode: null, errorRef: null, retryable: null,
+      actualCount: 5, insertedCount: 5, failedCount: 0,
+    }), { db, viewer })
+
+    // Documented current behaviour: 10, not 5 -- the sum of both attempts'
+    // records_in, not the true count of 5 records the stage actually saw.
+    expect(secondAttempt.run.actualCount).toBe(10)
+  })
+
   it('returns a redacted monitor with first failure and stale unknown evidence', async () => {
     const created = await createPipelineRun(runInput(), { db, viewer, idFactory: ids, now: () => new Date('2026-08-21T01:00:00Z') })
     const step = db.pipelineStep.rows.find((row) => row.pipelineStageId === 'DPS-SOURCE-SNAPSHOT')

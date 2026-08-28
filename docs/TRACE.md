@@ -871,7 +871,7 @@
 - **Status:** done
 - **Surface:** `/api/pipelines/runs` (api)
 - **Code:** `src/app/api/pipelines/runs/route.js` · `src/modules/knowledge/ingestion-job.js` · `src/platform/integrations/core/knowledge-ingestion-executor.js` · `src/platform/integrations/core/pipeline-tracking-contract.js`
-- **Follows:** BR-021, SDD-042, SDD-057, SDD-066, SDD-067, SDD-069, SEC-003, SEC-008, SEC-021
+- **Follows:** BR-021, SDD-042, SDD-057, SDD-066, SDD-067, SDD-069, SDD-070, SEC-003, SEC-008, SEC-021
 - **Tests:** `tests/integration/fr109-ingestion-run-identity.test.js` · `tests/integration/fr109-knowledge-ingestion-executor.test.js` · `tests/integration/openapi-docs.test.js` · `tests/unit/knowledge-chunking.test.js` · `tests/unit/knowledge-entity-extraction.test.js` · `tests/unit/knowledge-ingestion-job.test.js` · `tests/unit/knowledge-stage-runner.test.js` · `tests/unit/pipeline-tracking-route.test.js` · `tests/unit/platform/knowledge-ingestion-catalog.test.js` · `tests/unit/platform/pipeline-tracking-contract.test.js` · `tests/unit/platform/pipeline-tracking-service.test.js`
 
 ### FR-110 — Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2).
@@ -936,5 +936,5 @@
 
 - **Status:** done
 - **Code:** `src/modules/knowledge/stage-runner.js` · `src/platform/integrations/core/knowledge-ingestion-executor.js`
-- **Follows:** BR-021, FR-109, SDD-057, SDD-066, SDD-068, SDD-068, ADR-050 D1-D2, docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md, SDD-069
+- **Follows:** BR-021, FR-109, SDD-057, SDD-066, SDD-068, SDD-068, ADR-050 D1-D2, docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md, SDD-069, SDD-070
 - **Tests:** `tests/integration/fr109-knowledge-ingestion-executor.test.js` · `tests/unit/knowledge-stage-runner.test.js`

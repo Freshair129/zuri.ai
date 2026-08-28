@@ -315,6 +315,8 @@
     "SDD-067",
     "SDD-068",
     "SDD-069",
+    "SDD-070",
+    "SDD-071",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -3492,6 +3494,34 @@
       "history": [
         {
           "anchor": "the ledger writing wiring binds one artifact identity to",
+          "since": "2026-08-28",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-070": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "7e757bf85e69d8fcc5b89700886bfe2e1e89e7034c42e915ab2cd59cf588dbef",
+      "history": [
+        {
+          "anchor": "nfr 020 s per stage counts are written by reusing",
+          "since": "2026-08-28",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-08-28",
+      "statement_digest_reason": "Added the historical-zeros caveat this same slice's own review surfaced: the count fix does not reach backward, and pre-existing runs keep an indistinguishable @default(0)."
+    },
+    "SDD-071": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "9d34f0d6ad2484c29b4c08306f9881ab03ff816b7be5551b9f4d6f1014479447",
+      "history": [
+        {
+          "anchor": "the execution monitor has read pipelinerun actualcount",
           "since": "2026-08-28",
           "reason": "declared"
         }

@@ -95,6 +95,18 @@ SDD-069 is the persistence half (writing that composition onto the FR-071
 ledger). The phrase is retired because it stopped being able to name anything
 precisely the moment a second thing needed the same word.
 
+**NFR-020 moved from zero to partial the same way (SDD-070, SDD-071):** four
+of its six per-stage metrics now write real values, computed per Tier 1 stage
+from what actually happened rather than a uniform placeholder. Wiring it
+surfaced a defect outside this domain entirely — the execution monitor
+(`src/modules/project-manager/views/execution/mode-bodies.jsx`) reads
+`PipelineRun.actualCount`/`.failedCount` directly, and nothing had ever
+written either; `@default(0)` rendered as a measured zero on a live screen,
+`Failed` in normal ink because it was zero. Fixed in the integration domain's
+own file (`recordPipelineEvent` now aggregates real counts onto the run),
+found from this side because knowledge ingestion was the first caller to
+report a count at all.
+
 ### Declared, not implemented — FR-110 (🔜)
 
 Not a contract this domain exposes today. It is a documentary declaration
