@@ -59,9 +59,15 @@ to this domain — which is the point: a rule held by a constraint outlives a
 rule held by whichever caller remembers to check.
 
 FR-109 itself is delivered at three of its thirteen acceptance criteria: the
-catalog and the run identity, not the job trace and not the monitor. Both of
-those wait on a stage runner writing `PipelineRecordEvent` rows, and no stage
-runner exists.
+catalog and the run identity, not the job trace and not the monitor. Four of
+the ten remaining wait on a declared id — NFR-020, BR-022, FR-110 and SDD-059's
+charter change — and one waits on GKS and GenesisBlockDB reporting onto the
+ledger, which ADR-050 D3 puts outside this repository.
+
+The other five wait on a stage runner writing `PipelineRecordEvent` rows. **No
+stage runner exists and no id declares one**, so nothing in this repository can
+see that it is missing: not a PRD row, not the roadmap, not a coverage check.
+The next slice in this lane declares that FR before writing it.
 
 ### Declared, not implemented — FR-110 (🔜)
 

@@ -211,11 +211,19 @@ after a parser or embedding-model upgrade safe to run over a whole corpus.
 
 Drawn from the specification's §40 Minimum Acceptance Criteria, restricted to
 what FR-109 owns — the catalog, the trace and the evidence. **Three of the
-thirteen are built.** The catalog and the run identity landed on 2026-08-28;
-the trace and the monitor did not, because both need a stage runner writing
-record events and no stage runner exists. The ten unbuilt criteria each name
-what they wait on rather than sitting unmarked, so the gap is legible without
-reading the code.
+thirteen are built** — AC-109.1, AC-109.8 and AC-109.9, all landed 2026-08-28.
+
+Each of the other ten names its blocker below, and four of them name a
+**declared id**: NFR-020, BR-022, FR-110 and SDD-059's charter change. One
+names a boundary — Stages 9-17 report from GKS and GenesisBlockDB, which is
+ADR-050 D3 and not a gap in this repository.
+
+The remaining five wait on **a stage runner: the thing that executes a stage
+and writes a `PipelineRecordEvent` for it.** No such thing exists, and — more
+to the point — **no id declares one.** It is named here by a phrase rather than
+by a key, which in this repository means nothing tracks it: no PRD row, no
+roadmap row, no coverage check that can see it. Whoever opens the next slice
+declares that FR first, so the blocker stops being invisible.
 
 - [x] **AC-109.1** `DPL-KNOWLEDGE-INGEST-V1` is registered as one pipeline
       definition carrying exactly the seventeen `DPS-KI-*` stage ids above, and
@@ -225,25 +233,41 @@ reading the code.
 - [ ] **AC-109.2** At least one structured and at least one unstructured source
       type can be ingested through the same catalog, with no second stage list
       for either.
-      Waits on a stage runner.
+      Waits on **a stage runner** (undeclared). The catalog admits any source
+      type; nothing executes a stage for one.
 - [ ] **AC-109.3** The raw artifact is stored before transformation and is
       recoverable from `artifact_id` after normalization has run (spec §3.1).
-      Waits on artifact storage.
+      Waits on **binding `artifact_id` to storage that already exists**. FR-081's
+      `RawExternalRecord` holds `payloadJson`, `payloadHash` and `sourceUri`,
+      so the raw artifact IS stored before transformation and IS recoverable —
+      by FR-081's own idempotency key. What is missing is narrower than a
+      subsystem: nothing resolves a run's `artifact_id` to that row, because
+      `RawExternalRecord` carries no artifact id and the run carries it only as
+      `artifactRef` and in `identityRefs.artifactIds`. A column or a documented
+      convention, not a build.
 - [ ] **AC-109.4** Every derived object carries provenance, and the §8 chain
       `Fact → Chunk → ParsedArtifact → RawArtifact → Source` can be walked from
       any published object.
-      Waits on persisted derived objects; FR-116 has the walk, nothing stores its input yet.
+      Waits on **persisted derived objects and FR-110**. FR-116 already walks the
+      chain and terminates on cycles; it has nothing to walk over, and
+      "published object" is FR-110's contract, which is declared and unbuilt.
 - [ ] **AC-109.5** A chunk resolves back to its document through `document_id`,
       `parent_id`, `sequence` and `heading_path`.
-      Waits on chunk persistence; FR-112 computes the fields, nothing writes them.
+      Waits on **chunk persistence, which SDD-059 already scoped**: FR-112
+      computes all four fields, and SDD-059 states that storing chunks is a
+      later slice needing a knowledge-charter change. A declared decision, not
+      an open question.
 - [ ] **AC-109.6** Every one of the seventeen stages reports its catalog
       evidence and the six NFR-020 per-stage metrics; a stage that produced
       nothing reports zero rather than being absent.
-      Waits on NFR-020 metrics.
+      Waits on **NFR-020** (declared 2026-08-27, unimplemented) and on the stage
+      runner that would emit the counts.
 - [ ] **AC-109.7** One `pipeline_job_id` resolves the full §33 chain from Source
       to Published Snapshot, with per-record disposition on
       `PipelineRecordEvent` bound through `docId` / `picId` / `factId`.
-      Waits on record events being written.
+      Waits on **the stage runner** (undeclared). `PipelineRecordEvent` already
+      carries `docId` / `picId` / `factId` with an index on each and is written
+      on every record event; no producer supplies a non-null value.
 - [x] **AC-109.8** A stage occurrence is identified by
       `pipelineStageId + executionStepId`; inserting a new stage does not
       renumber or invalidate the evidence of an earlier job. A stage id is now
@@ -261,20 +285,25 @@ reading the code.
 - [ ] **AC-109.10** A failed object is classified retryable / non-retryable /
       review-required and quarantined with the complete BR-022 envelope; no
       object is dropped.
-      Waits on BR-022 quarantine.
+      Waits on **BR-022** (declared 2026-08-27, unimplemented).
 - [ ] **AC-109.11** The job lifecycle exposes `RECEIVED`, `PROCESSING`,
       `VALIDATING`, `READY_TO_PUBLISH`, `PUBLISHED` and the failure states
       `RETRYABLE_FAILED`, `QUARANTINED`, `REJECTED`, `SUPERSEDED`, and never
       infers `PUBLISHED` from elapsed time or a stale heartbeat.
-      Waits on the FR-110 job lifecycle.
+      Waits on **FR-110** (declared 2026-08-27, unimplemented) — the nine job
+      states are its lifecycle, not a second one.
 - [ ] **AC-109.12** Stages executed outside Tier 1 still report their evidence
       onto the ledger, and zuri-ai executes no stage the tier boundary assigns
       to GKS or GenesisBlockDB.
-      Waits on a Tier 3/4 reporter.
+      Waits on **GKS and GenesisBlockDB reporting onto this ledger**. Not a gap
+      in this repository: ADR-050 D3 assigns those nine stages elsewhere, and
+      the half zuri-ai owns — executing none of them — holds today.
 - [ ] **AC-109.13** A new source artifact updates only the affected entities,
       facts, graph regions and indexes; rebuilding the whole knowledge graph is
       not the normal path (spec §30).
-      Waits on incremental reprocessing.
+      Waits on **the stage runner** (undeclared). BR-021's key already
+      distinguishes a new derivation from a duplicate, which is the input an
+      incremental path needs; nothing consumes it yet.
 
 ## Non-goals
 
