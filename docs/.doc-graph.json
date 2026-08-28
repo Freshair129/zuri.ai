@@ -49,10 +49,10 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [
-      "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE"
+    "changed": [
+      "doc:ROADMAP"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -8329,8 +8329,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "f26bb431",
-      "status": "current"
+      "hash": "c549b4f4",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
