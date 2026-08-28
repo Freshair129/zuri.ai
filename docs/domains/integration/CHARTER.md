@@ -119,6 +119,17 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
 - `src/modules/integration/application/integration-management-service.js` — the
   owner-scoped read and create path behind `/platform/integrations`; raw secret
   values never cross it and connection health is computed, never stored.
+- `src/platform/integrations/core/pipeline-tracking-contract.js` /
+  `pipeline-tracking-service.js` — the FR-071 execution ledger's identity
+  envelope and server-owned write path; `PIPELINE_DEFINITIONS` (SDD-066) is
+  the registry both this domain's and the knowledge domain's pipeline
+  definitions validate against.
+- `src/platform/integrations/core/knowledge-ingestion-executor.js` —
+  `ingestKnowledgeDocument` (FR-109), the persistence half of knowledge
+  ingestion: calls the knowledge domain's pure `runKnowledgeIngestionStages`
+  (FR-118) and `knowledgeIngestionRunInput`, then writes their result onto
+  this ledger. The only file in this lane that imports from
+  `src/modules/knowledge/`, and it imports pure functions only.
 - `src/modules/agent/phase1-runtime.js` — binding-scoped Phase 1 composition.
 - `docs/decisions/ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI.md` — planned Platform
   management and provisioning boundary.

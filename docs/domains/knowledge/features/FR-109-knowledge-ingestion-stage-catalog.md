@@ -210,35 +210,38 @@ after a parser or embedding-model upgrade safe to run over a whole corpus.
 ## Acceptance criteria
 
 Drawn from the specification's §40 Minimum Acceptance Criteria, restricted to
-what FR-109 owns — the catalog, the trace and the evidence. **Three of the
-thirteen are built** — AC-109.1, AC-109.8 and AC-109.9, all landed 2026-08-28.
+what FR-109 owns — the catalog, the trace and the evidence. **Four of the
+thirteen are built** — AC-109.1, AC-109.2, AC-109.8 and AC-109.9.
 
-Each of the other ten names its blocker below, and four of them name a
-**declared id**: NFR-020, BR-022, FR-110 and SDD-059's charter change. One
-names a boundary — Stages 9-17 report from GKS and GenesisBlockDB, which is
-ADR-050 D3 and not a gap in this repository.
+The persistence half this note used to call unnamed now has one:
+`ingestKnowledgeDocument` (SDD-069) calls FR-118's seven-stage composition and
+writes a `RECORD_STARTED`/`RECORD_SUCCEEDED` pair — `docId` bound — around a
+`STEP_STARTED`/`STEP_SUCCEEDED` pair per Tier 1 stage, onto the
+`PipelineStep`/`PipelineRecordEvent` rows `createPipelineRun` already
+materializes. That closed AC-109.2 outright and gave AC-109.4, .7 and .13 real
+evidence for the Tier 1 portion of what each asks — without closing any of the
+three, because each also needs something this slice does not build.
 
-The remaining five wait on **ledger-writing wiring: something that calls
-FR-118's composition and writes a `PipelineRecordEvent` for each stage.** As of
-2026-08-28 the compute half has a name — FR-118, `runKnowledgeIngestionStages`,
-seven Tier 1 stages composed in one pass — and it is what removed "stage
-runner" from being an undeclared word for the whole gap. The persistence half
-is still unnamed: no id declares the thing that takes FR-118's envelope and
-writes it onto the FR-071 ledger. Whoever opens that slice declares the FR
-first, so this half of the blocker stops being invisible the same way the
-compute half just did.
+Of the remaining nine: five name a **declared id** — NFR-020, BR-022, FR-110
+(twice, for AC-109.7 and AC-109.11) and SDD-059's charter change. One names a
+boundary — Stages 9-17 report from GKS and GenesisBlockDB, which is ADR-050 D3
+and not a gap in this repository. AC-109.3 names a column, not a subsystem.
+AC-109.13 names a decision nothing has made yet: acting differently on a
+`REVISION_OF` result than on a fresh one.
 
 - [x] **AC-109.1** `DPL-KNOWLEDGE-INGEST-V1` is registered as one pipeline
       definition carrying exactly the seventeen `DPS-KI-*` stage ids above, and
       is distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`. Both definitions
       live in `PIPELINE_DEFINITIONS`; a test asserts the seventeen ids in order
       and asserts the two catalogs share no id.
-- [ ] **AC-109.2** At least one structured and at least one unstructured source
+- [x] **AC-109.2** At least one structured and at least one unstructured source
       type can be ingested through the same catalog, with no second stage list
-      for either.
-      Waits on **ledger-writing wiring** (undeclared). FR-118 now shows a
-      structured and an unstructured source composing through the same seven
-      calls; what is still missing is registering that as a tracked run.
+      for either. `ingestKnowledgeDocument` registers a real
+      `DPL-KNOWLEDGE-INGEST-V1` run and writes real per-stage evidence for both
+      an unstructured document (prose text) and a structured record, through
+      the same seven-stage call sequence — proven by two integration tests
+      against the real database, not asserted from FR-118's pass-through alone
+      (SDD-069).
 - [ ] **AC-109.3** The raw artifact is stored before transformation and is
       recoverable from `artifact_id` after normalization has run (spec §3.1).
       Waits on **binding `artifact_id` to storage that already exists**. FR-081's
@@ -252,9 +255,13 @@ compute half just did.
 - [ ] **AC-109.4** Every derived object carries provenance, and the §8 chain
       `Fact → Chunk → ParsedArtifact → RawArtifact → Source` can be walked from
       any published object.
-      Waits on **persisted derived objects and FR-110**. FR-116 already walks the
-      chain and terminates on cycles; it has nothing to walk over, and
-      "published object" is FR-110's contract, which is declared and unbuilt.
+      SDD-069 gives the Tier 1 portion a real `docId`-bound record on the
+      ledger; the §8 chain it names is domain objects (Chunk, ParsedArtifact),
+      not ledger evidence, and none of those are persisted anywhere a resolver
+      could walk. Waits on **persisted derived objects and FR-110**. FR-116
+      already walks the chain and terminates on cycles; it has nothing to walk
+      over, and "published object" is FR-110's contract, which is declared and
+      unbuilt.
 - [ ] **AC-109.5** A chunk resolves back to its document through `document_id`,
       `parent_id`, `sequence` and `heading_path`.
       Waits on **chunk persistence, which SDD-059 already scoped**: FR-112
@@ -264,16 +271,18 @@ compute half just did.
 - [ ] **AC-109.6** Every one of the seventeen stages reports its catalog
       evidence and the six NFR-020 per-stage metrics; a stage that produced
       nothing reports zero rather than being absent.
-      Waits on **NFR-020** (declared 2026-08-27, unimplemented) and on the stage
-      runner that would emit the counts.
+      The seven Tier 1 stages now report catalog evidence (SDD-069); none of
+      the six NFR-020 metrics (`records_in`, `records_out`, ...) are computed
+      or attached anywhere. Waits on **NFR-020** itself (declared 2026-08-27,
+      unimplemented) and, for the other nine stages, on a Tier 3/4 reporter.
 - [ ] **AC-109.7** One `pipeline_job_id` resolves the full §33 chain from Source
       to Published Snapshot, with per-record disposition on
       `PipelineRecordEvent` bound through `docId` / `picId` / `factId`.
-      Waits on **ledger-writing wiring** (undeclared). `PipelineRecordEvent`
-      already carries `docId` / `picId` / `factId` with an index on each and is
-      written on every record event; no producer supplies a non-null value.
-      FR-118 produces the per-stage results a producer would write from — it
-      does not write them.
+      `docId`-bound disposition is real for the Tier 1 portion (SDD-069) —
+      `ingestKnowledgeDocument` is the first producer to supply it, resolvable
+      from one `executionRunId` (the `pipeline_job_id` projection). Waits on
+      **FR-110** for the chain's other end: "to Published Snapshot" needs a
+      snapshot to resolve to, and none exists yet.
 - [x] **AC-109.8** A stage occurrence is identified by
       `pipelineStageId + executionStepId`; inserting a new stage does not
       renumber or invalidate the evidence of an earlier job. A stage id is now
@@ -307,10 +316,13 @@ compute half just did.
 - [ ] **AC-109.13** A new source artifact updates only the affected entities,
       facts, graph regions and indexes; rebuilding the whole knowledge graph is
       not the normal path (spec §30).
-      Waits on **ledger-writing wiring** (undeclared). FR-118's `dedup` result
-      already distinguishes `REVISION_OF` from `DUPLICATE_OF` on every call —
-      the input an incremental path needs — and nothing yet acts differently
-      on the two.
+      FR-118's `dedup` result already distinguishes `REVISION_OF` from
+      `DUPLICATE_OF` on every call, and SDD-069's wiring runs the full
+      seven-stage pass regardless of which the artifact turns out to be — the
+      input an incremental path needs is now computed AND recorded on every
+      ingestion. Waits on **something acting on it**: nothing reads a
+      `REVISION_OF` result and updates only the affected entities rather than
+      running the same full pass a fresh artifact would.
 
 ## Non-goals
 
@@ -319,11 +331,12 @@ compute half just did.
   that decision rather than implementing it. The 2026-08-28 slice added a
   catalog constant, a definition registry and a pure input builder — no model,
   no migration, no route.
-- **Not the trace and not the monitor.** The catalog and the run identity are
-  built; ten of the thirteen acceptance criteria are not, and every one of them
-  wait on ledger-writing wiring that would call FR-118 and write
-  `PipelineRecordEvent` rows. Reading this note
-  as "FR-109 is done" would overstate it by ten criteria.
+- **Not the whole trace and not the monitor.** Four of the thirteen acceptance
+  criteria are built now; nine are not, and none of the nine wait on
+  ledger-writing wiring any more — that wiring exists (SDD-069) and gave three
+  of the nine real evidence without closing them. Reading this note as
+  "FR-109 is done" would still overstate it, now by nine criteria rather than
+  ten, each waiting on something specific and named above.
 - zuri-ai does not execute the stages ADR-050 assigns to GKS or
   GenesisBlockDB. Entity resolution, ontology authority, fact and relation
   governance stay with GKS (spec §37); vector, lexical, graph, structured,
@@ -377,6 +390,29 @@ persistence path. Spec §36's package outline — one directory per stage group 
 is a logical structure only: it explicitly does not require a directory to
 become a network service, and it does not override the tier boundary above,
 which says who may run a stage rather than where its code sits.
+
+**The ledger-writing wiring (2026-08-28, SDD-069) landed the same way, and
+one level further in.** `ingestKnowledgeDocument` lives in
+`src/platform/integrations/core/knowledge-ingestion-executor.js` — not in
+`src/modules/knowledge/` — for the reason the paragraph above already states:
+the write path belongs where the models are owned. It is the first file in
+the knowledge lane's dependency graph that performs I/O, and it performs none
+of its own: every write is `createPipelineRun` or `recordPipelineEvent`,
+called with input `runKnowledgeIngestionStages` (FR-118) and
+`knowledgeIngestionRunInput` (this note) computed. This is the first slice to
+make the six `Pipeline*` models a second-writer arrangement, and it gained an
+explicit owner in the same change: the integration domain, whose charter now
+states the models are pipeline-agnostic by SDD-057 and were never available
+for knowledge to claim in the first place — knowledge's own first boundary is
+owning none.
+
+The run this function creates is never marked finished. Nine of the
+seventeen catalog steps are Tier 3/4 work this repository does not execute
+(ADR-050 D3); claiming `RUN_FINISHED` would assert a run seven-seventeenths
+done is complete. A stage failure inside FR-118 is not caught or classified —
+FR-118's composition is one synchronous call with no partial result, so
+nothing at the wiring layer can name which of the seven stages threw without
+changing FR-118's contract, which this slice does not do.
 
 ## Related documents
 

@@ -91,7 +91,12 @@ describe('FR-109 ingestion identity is the run key', () => {
   it('treats a new source version as new knowledge rather than a duplicate', async () => {
     const created = await ingest(artifact({ source_version: '2' }))
     expect(created.status).toBe('CREATED')
-    expect(await prisma.pipelineRun.count({ where: { dataPipelineDefinitionId: 'DPL-KNOWLEDGE-INGEST-V1' } })).toBe(2)
+    // Scoped to this test's own Business, not to the definition globally --
+    // other suites now register DPL-KNOWLEDGE-INGEST-V1 runs of their own
+    // (tests/integration/fr109-knowledge-ingestion-executor.test.js) in the
+    // same shared test database, and an unscoped count would fail depending
+    // on file execution order rather than on what this test actually did.
+    expect(await prisma.pipelineRun.count({ where: { dataPipelineDefinitionId: 'DPL-KNOWLEDGE-INGEST-V1', businessId } })).toBe(2)
   })
 
   it('treats a reparse under a new pipeline version as new knowledge', async () => {
