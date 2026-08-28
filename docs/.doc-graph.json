@@ -50,8 +50,7 @@
   },
   "drift": {
     "changed": [
-      "domain:knowledge",
-      "doc:FR-109-knowledge-ingestion-stage-catalog"
+      "domain:knowledge"
     ],
     "added": [],
     "removed": []
@@ -7965,7 +7964,7 @@
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
       "hash": "0a61d7d2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
@@ -8595,7 +8594,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "921b81ba",
+      "hash": "b20abe33",
       "status": "changed"
     },
     {

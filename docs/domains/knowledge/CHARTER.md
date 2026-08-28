@@ -50,6 +50,15 @@ normalization (FR-114), classification (FR-111), deduplication (FR-117),
 chunking (FR-112) and entity extraction (FR-113). Every one is a pure
 calculator; none opens a database.
 
+**Eight implementations are not a running pipeline, and the distinction is the
+one most likely to be lost.** Nothing calls the eight in sequence. Four pairs
+are pinned by seam tests — parsing into chunking (SDD-063), chunking into
+entity extraction, classification into chunking, deduplication into the run
+input — and a chain of pairs is not a chain. "Tier 1 is complete" is true of
+the stage list and false of the tier: read it as *every stage ADR-050 assigns
+here has an implementation*, never as *the tier executes*. What is missing is
+the stage runner named below.
+
 The single thing in this lane that reaches persistence is the ingestion
 identity (FR-109, AC-109.9). BR-021's four-part key is the `idempotencyKey` of
 the `DPL-KNOWLEDGE-INGEST-V1` run, and `PipelineRun.idempotencyKey` is
