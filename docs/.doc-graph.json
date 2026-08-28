@@ -50,13 +50,9 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0",
-      "test:tests/unit/platform/pipeline-tracking-contract.test.js",
-      "code:src/platform/integrations/core/pipeline-tracking-contract.js"
+      "doc:ROADMAP"
     ],
-    "added": [
-      "req:SDD-073"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -7138,7 +7134,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-contract.js",
       "hash": "ee91ffc7",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-071",
@@ -8351,7 +8347,7 @@
       "version": "1.106.0b",
       "doc_status": "Draft",
       "hash": "c7407f74",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8386,8 +8382,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "c549b4f4",
-      "status": "current"
+      "hash": "8b6bbb69",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -15140,7 +15136,7 @@
       "type": "test",
       "path": "tests/unit/platform/pipeline-tracking-contract.test.js",
       "hash": "c36074ff",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/platform/pipeline-tracking-migration.test.js",
