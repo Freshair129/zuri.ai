@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1350,
-    "total_edges": 4586,
+    "total_nodes": 1344,
+    "total_edges": 4539,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,22 +15,23 @@
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 247,
-      "test": 321,
-      "code_file": 355
+      "requirement": 245,
+      "test": 318,
+      "code_file": 354
     },
     "coverage": {
-      "requirements": 247,
-      "fr_with_code": "100% (112/112)",
-      "fr_with_tests": "100% (112/112)",
-      "rules_anchored_in_code": "95% (103/108)",
+      "requirements": 245,
+      "fr_with_code": "100% (111/111)",
+      "fr_with_tests": "100% (111/111)",
+      "rules_anchored_in_code": "93% (99/106)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 355,
+      "annotated_code_files": 354,
       "fr_planned": [
         "FR-082",
         "FR-083",
         "FR-084",
         "FR-085",
+        "FR-109",
         "FR-110"
       ],
       "fr_without_code": [],
@@ -40,7 +41,9 @@
         "BR-022",
         "SDD-040",
         "SDD-041",
-        "SDD-046"
+        "SDD-046",
+        "SDD-057",
+        "SDD-065"
       ],
       "rules_superseded": [
         "SDD-001",
@@ -50,7 +53,7 @@
   },
   "drift": {
     "changed": [
-      "domain:knowledge"
+      "doc:ROADMAP"
     ],
     "added": [],
     "removed": []
@@ -2163,16 +2166,14 @@
       "id": "code:src/app/api/pipelines/runs/route.js",
       "type": "code_file",
       "path": "src/app/api/pipelines/runs/route.js",
-      "hash": "74211fcb",
+      "hash": "480ca62b",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-071",
-          "FR-109"
+          "FR-071"
         ],
         "@spec": [
           "SDD-042",
-          "SDD-066",
           "SEC-003",
           "SEC-008"
         ],
@@ -5270,29 +5271,6 @@
       }
     },
     {
-      "id": "code:src/modules/knowledge/ingestion-job.js",
-      "type": "code_file",
-      "path": "src/modules/knowledge/ingestion-job.js",
-      "hash": "5bee2de1",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-109",
-          "FR-071"
-        ],
-        "@spec": [
-          "SDD-067",
-          "SDD-066",
-          "SDD-057",
-          "BR-021",
-          "SEC-021"
-        ],
-        "@tested": [
-          "tests/unit/knowledge-ingestion-job.test.js"
-        ]
-      }
-    },
-    {
       "id": "code:src/modules/knowledge/live-facts.js",
       "type": "code_file",
       "path": "src/modules/knowledge/live-facts.js",
@@ -7089,23 +7067,19 @@
       "id": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-contract.js",
-      "hash": "91301bef",
+      "hash": "413445b7",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-071",
-          "FR-109"
+          "FR-071"
         ],
         "@spec": [
           "SDD-042",
-          "SDD-057",
-          "SDD-066",
           "SEC-003",
           "SEC-008"
         ],
         "@tested": [
-          "tests/unit/platform/pipeline-tracking-contract.test.js",
-          "tests/unit/platform/knowledge-ingestion-catalog.test.js"
+          "tests/unit/platform/pipeline-tracking-contract.test.js"
         ]
       }
     },
@@ -7113,7 +7087,7 @@
       "id": "code:src/platform/integrations/core/pipeline-tracking-service.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-service.js",
-      "hash": "3d603cf0",
+      "hash": "3860df74",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7963,7 +7937,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
-      "hash": "0a61d7d2",
+      "hash": "b7340c42",
       "status": "current"
     },
     {
@@ -8293,7 +8267,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.106.0b",
       "doc_status": "Draft",
-      "hash": "1c59d828",
+      "hash": "a253705b",
       "status": "current"
     },
     {
@@ -8329,8 +8303,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "54161a16",
-      "status": "current"
+      "hash": "f26bb431",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -8594,8 +8568,8 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "b20abe33",
-      "status": "changed"
+      "hash": "f9443f2e",
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -10423,9 +10397,9 @@
       "family": "FR",
       "label": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046).",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "done",
-      "status": "current",
-      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-28 — the catalog and the run identity, 3 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, and stage ids validate against their own definition's catalog rather than the union — SDD-066), and AC-109.9 (BR-021 idempotency persisted as the run key, so re-ingesting the same artifact returns the existing run instead of a second one — SDD-067). The remaining ten are named rather than left pending: AC-109.2/.3/.4/.5/.7 wait on a stage runner writing record events, AC-109.6 on NFR-020 metrics, AC-109.10 on BR-022 quarantine, AC-109.11 on the FR-110 job lifecycle, AC-109.12 on a Tier 3/4 reporter, AC-109.13 on incremental reprocessing. No new Prisma model and no migration (ADR-050 D4); 22 unit tests plus a real-database integration suite "
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). 🔜 declared 2026-08-27 — documentary declaration only; no route, model or code is authorized by this row "
     },
     {
       "id": "req:FR-110",
@@ -11356,26 +11330,6 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Cross-tenant deduplication is made inexpressible rather than forbidden. The tenant is folded into the ingestion identity hash itself, so two tenants holding a byte-identical document cannot produce the same key and there is no comparison to prohibit — a rule enforced by what can be constructed outlives one enforced by a check that has to fire, and a check can be deleted by someone who reads it as redundant. Section 11 lists five dedup strategies and this implements three: exact checksum, canonical checksum and source-native id, all of which read what the artifacts say about themselves. Content similarity and structural similarity are declined, and not merely as unimplemented: both require a threshold, and a threshold chosen in this module would be a judgement about which documents count as \"the same\" made by whoever typed the number and inherited by everyone after. The same reasoning declines inferring a lineage from a filename — `contract-v1.pdf` beside `contract-v2.pdf` is a hint a human left, not a claim the system can verify. FR-117; SEC-021, BR-021, FR-081, FR-116, ADR-050 "
-    },
-    {
-      "id": "req:SDD-066",
-      "type": "requirement",
-      "family": "SDD",
-      "label": "A pipeline definition is a registry entry, and a stage id is validated against its own definition's catalog rather than against the union of every catalog. FR-071 pinned `dataPipelineDefinitionId` and `executionContractId` with `z.literal` and refined `pipelineStageId` against one ten-entry list; SDD-057 named the parameterization this slice inherits, and this decision fixes its shape. `PIPELINE_DEFINITIONS` maps a definition id to its execution contract id and its own frozen stage catalog, the envelope validates the PAIR so a run may not claim `DPL-KNOWLEDGE-INGEST-V1` under `EXC-DATA-MIGRATION-V1`, and `createPipelineRun` materializes the catalog belonging to the run's own definition instead of the one constant it happened to import. Validating a stage against the union was rejected as the easier change: it would let a Supabase migration run report a `DPS-KI-EMBED` step and pass every check, which is the ADR-050 D3 tier boundary being crossed inside a validator that reported no problem. The ten `DPS-*` ids keep their catalog and their meaning; the seventeen `DPS-KI-*` ids get their own.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current",
-      "row_text": "A pipeline definition is a registry entry, and a stage id is validated against its own definition's catalog rather than against the union of every catalog. FR-071 pinned `dataPipelineDefinitionId` and `executionContractId` with `z.literal` and refined `pipelineStageId` against one ten-entry list; SDD-057 named the parameterization this slice inherits, and this decision fixes its shape. `PIPELINE_DEFINITIONS` maps a definition id to its execution contract id and its own frozen stage catalog, the envelope validates the PAIR so a run may not claim `DPL-KNOWLEDGE-INGEST-V1` under `EXC-DATA-MIGRATION-V1`, and `createPipelineRun` materializes the catalog belonging to the run's own definition instead of the one constant it happened to import. Validating a stage against the union was rejected as the easier change: it would let a Supabase migration run report a `DPS-KI-EMBED` step and pass every check, which is the ADR-050 D3 tier boundary being crossed inside a validator that reported no problem. The ten `DPS-*` ids keep their catalog and their meaning; the seventeen `DPS-KI-*` ids get their own. FR-109; FR-071, SDD-042, SDD-057, ADR-030, ADR-050 "
-    },
-    {
-      "id": "req:SDD-067",
-      "type": "requirement",
-      "family": "SDD",
-      "label": "A knowledge ingestion run input is derived whole from the artifact's ingestion identity, its correlation id included, because FR-071 compares more than the key. `createPipelineRun` returns `UNCHANGED` for a repeated `idempotencyKey` only when `requestHash` also matches, and that hash covers the entire parsed input — so a second ingestion of the same artifact carrying a fresh correlation id raises 409 `idempotency key was reused with different input` rather than being the no-op BR-021 requires. `knowledgeIngestionRunInput` therefore computes every field from the artifact, and re-ingestion is byte-identical by construction rather than by the caller remembering to make it so. The cost is stated rather than hidden: the second attempt's own correlation is not recorded, because there is one run and it was correlated once. Relaxing FR-071's comparison to the key alone was rejected — that comparison is what catches a key reused for genuinely different input, and weakening it for one definition weakens it for the definition already relying on it.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current",
-      "row_text": "A knowledge ingestion run input is derived whole from the artifact's ingestion identity, its correlation id included, because FR-071 compares more than the key. `createPipelineRun` returns `UNCHANGED` for a repeated `idempotencyKey` only when `requestHash` also matches, and that hash covers the entire parsed input — so a second ingestion of the same artifact carrying a fresh correlation id raises 409 `idempotency key was reused with different input` rather than being the no-op BR-021 requires. `knowledgeIngestionRunInput` therefore computes every field from the artifact, and re-ingestion is byte-identical by construction rather than by the caller remembering to make it so. The cost is stated rather than hidden: the second attempt's own correlation is not recorded, because there is one run and it was correlated once. Relaxing FR-071's comparison to the key alone was rejected — that comparison is what catches a key reused for genuinely different input, and weakening it for one definition weakens it for the definition already relying on it. FR-109; FR-071, BR-021, SDD-057, SDD-066, ADR-050 "
     },
     {
       "id": "req:SEC-001",
@@ -13500,13 +13454,6 @@
       "status": "current"
     },
     {
-      "id": "test:tests/integration/fr109-ingestion-run-identity.test.js",
-      "type": "test",
-      "path": "tests/integration/fr109-ingestion-run-identity.test.js",
-      "hash": "7c2c341d",
-      "status": "current"
-    },
-    {
       "id": "test:tests/integration/iam-authorization.test.js",
       "type": "test",
       "path": "tests/integration/iam-authorization.test.js",
@@ -14634,13 +14581,6 @@
       "status": "current"
     },
     {
-      "id": "test:tests/unit/knowledge-ingestion-job.test.js",
-      "type": "test",
-      "path": "tests/unit/knowledge-ingestion-job.test.js",
-      "hash": "087dace3",
-      "status": "current"
-    },
-    {
       "id": "test:tests/unit/knowledge-normalization.test.js",
       "type": "test",
       "path": "tests/unit/knowledge-normalization.test.js",
@@ -14970,13 +14910,6 @@
       "status": "current"
     },
     {
-      "id": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "type": "test",
-      "path": "tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "hash": "6af58ec8",
-      "status": "current"
-    },
-    {
       "id": "test:tests/unit/platform/line-oa-webhook.test.js",
       "type": "test",
       "path": "tests/unit/platform/line-oa-webhook.test.js",
@@ -15001,7 +14934,7 @@
       "id": "test:tests/unit/platform/pipeline-tracking-service.test.js",
       "type": "test",
       "path": "tests/unit/platform/pipeline-tracking-service.test.js",
-      "hash": "5cdecbbc",
+      "hash": "f0a64d2e",
       "status": "current"
     },
     {
@@ -18543,21 +18476,7 @@
     },
     {
       "from": "code:src/app/api/pipelines/runs/route.js",
-      "to": "req:FR-109",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/pipelines/runs/route.js",
       "to": "req:SDD-042",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/app/api/pipelines/runs/route.js",
-      "to": "req:SDD-066",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -22945,55 +22864,6 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/modules/knowledge/ingestion-job.js",
-      "to": "req:BR-021",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/ingestion-job.js",
-      "to": "req:FR-071",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/ingestion-job.js",
-      "to": "req:FR-109",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/ingestion-job.js",
-      "to": "req:SDD-057",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/ingestion-job.js",
-      "to": "req:SDD-066",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/ingestion-job.js",
-      "to": "req:SDD-067",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/ingestion-job.js",
-      "to": "req:SEC-021",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/modules/knowledge/live-facts.js",
       "to": "req:FR-024",
       "type": "implements",
@@ -25676,28 +25546,7 @@
     },
     {
       "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
-      "to": "req:FR-109",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "to": "req:SDD-042",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
-      "to": "req:SDD-057",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
-      "to": "req:SDD-066",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -28189,20 +28038,6 @@
     },
     {
       "from": "req:SDD-065",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:SDD-066",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:SDD-067",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -34922,48 +34757,6 @@
       "source": "test-reference"
     },
     {
-      "from": "test:tests/integration/fr109-ingestion-run-identity.test.js",
-      "to": "req:BR-021",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-ingestion-run-identity.test.js",
-      "to": "req:FR-109",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-ingestion-run-identity.test.js",
-      "to": "req:SDD-065",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-ingestion-run-identity.test.js",
-      "to": "req:SDD-066",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-ingestion-run-identity.test.js",
-      "to": "req:SDD-067",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-ingestion-run-identity.test.js",
-      "to": "req:SEC-021",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
       "from": "test:tests/integration/iam-authorization.test.js",
       "to": "code:src/modules/identity/authorization-context.js",
       "type": "tests",
@@ -36134,21 +35927,7 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
-      "to": "req:FR-109",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:SDD-042",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/openapi-docs.test.js",
-      "to": "req:SDD-066",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -42958,76 +42737,6 @@
       "source": "transitive"
     },
     {
-      "from": "test:tests/unit/knowledge-ingestion-job.test.js",
-      "to": "code:src/modules/knowledge/ingestion-job.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/knowledge-ingestion-job.test.js",
-      "to": "req:BR-021",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-ingestion-job.test.js",
-      "to": "req:FR-071",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-ingestion-job.test.js",
-      "to": "req:FR-109",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-ingestion-job.test.js",
-      "to": "req:SDD-057",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-ingestion-job.test.js",
-      "to": "req:SDD-063",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-ingestion-job.test.js",
-      "to": "req:SDD-065",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-ingestion-job.test.js",
-      "to": "req:SDD-066",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-ingestion-job.test.js",
-      "to": "req:SDD-067",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-ingestion-job.test.js",
-      "to": "req:SEC-021",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
       "from": "test:tests/unit/knowledge-normalization.test.js",
       "to": "code:src/modules/knowledge/normalization.js",
       "type": "tests",
@@ -44233,21 +43942,7 @@
     },
     {
       "from": "test:tests/unit/pipeline-tracking-route.test.js",
-      "to": "req:FR-109",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/pipeline-tracking-route.test.js",
       "to": "req:SDD-042",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/pipeline-tracking-route.test.js",
-      "to": "req:SDD-066",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -44680,62 +44375,6 @@
       "source": "transitive"
     },
     {
-      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "to": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "to": "req:FR-071",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "to": "req:FR-109",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "to": "req:SDD-042",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "to": "req:SDD-057",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "to": "req:SDD-066",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "to": "req:SEC-003",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "to": "req:SEC-008",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
       "from": "test:tests/unit/platform/line-oa-webhook.test.js",
       "to": "code:src/platform/integrations/providers/line/line-oa-webhook.js",
       "type": "tests",
@@ -44779,31 +44418,10 @@
     },
     {
       "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
-      "to": "req:FR-109",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
-      "to": "req:SDD-057",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
-      "to": "req:SDD-066",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
@@ -44856,21 +44474,7 @@
     },
     {
       "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
-      "to": "req:FR-109",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
       "to": "req:SDD-042",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
-      "to": "req:SDD-066",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
