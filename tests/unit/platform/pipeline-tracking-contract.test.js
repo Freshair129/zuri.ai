@@ -90,3 +90,39 @@ describe('FR-071 pipeline tracking contract', () => {
     expect(() => assertStatusTransition('SUCCEEDED', 'RUNNING')).toThrow()
   })
 })
+
+// @req FR-071 — AC-071.28: the ledger carries redacted evidence only.
+// @spec SDD-073 — errorRef is a reference token, never the error text.
+describe('SDD-073 errorRef carries a reference, not an error message', () => {
+  it('accepts the reference shapes callers actually use', () => {
+    for (const ref of [
+      'err://event-1',
+      '5f1c0b6e-6f0e-4a1e-9b3a-2f5d8c7a1b90',
+      'ERR-1234',
+      'errors/2026-08-28/ab12',
+      'sentry@1a2b3c',
+    ]) {
+      expect(() => parsePipelineEvent(event({ errorRef: ref }))).not.toThrow()
+    }
+  })
+
+  it('rejects a raw exception message and a stack trace', () => {
+    expect(() => parsePipelineEvent(event({ errorRef: 'TypeError: Cannot read property id of undefined' }))).toThrow()
+    expect(() => parsePipelineEvent(event({ errorRef: 'Error: boom\n    at ingest (/app/src/x.js:12:9)' }))).toThrow()
+  })
+
+  // The reason the rule is an allowed alphabet and not "reject whitespace".
+  // Thai does not put spaces between words, so a whole Thai sentence is a
+  // single whitespace-free token. A space/newline check reads as sufficient in
+  // English and would let this through untouched — and this product's
+  // user-facing copy is Thai, so a real error message is likelier to look like
+  // this than like the two above.
+  it('rejects Thai error text, which contains no whitespace to reject', () => {
+    expect(() => parsePipelineEvent(event({ errorRef: 'ไม่พบเอกสารต้นทางในระบบ' }))).toThrow()
+    expect(() => parsePipelineEvent(event({ errorRef: 'ข้อมูลส่วนบุคคลของลูกค้ารั่วไหล' }))).toThrow()
+  })
+
+  it('rejects a token long enough to hold a sentence', () => {
+    expect(() => parsePipelineEvent(event({ errorRef: `err-${'x'.repeat(300)}` }))).toThrow()
+  })
+})

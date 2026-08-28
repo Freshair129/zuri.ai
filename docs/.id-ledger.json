@@ -317,6 +317,7 @@
     "SDD-069",
     "SDD-070",
     "SDD-071",
+    "SDD-073",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -3522,6 +3523,19 @@
       "history": [
         {
           "anchor": "the execution monitor has read pipelinerun actualcount",
+          "since": "2026-08-28",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-073": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1740a040928215125ebbe03fa296914c99c4cea74733b611a08bab567f47cd71",
+      "history": [
+        {
+          "anchor": "errorref on the pipeline event envelope is a reference to",
           "since": "2026-08-28",
           "reason": "declared"
         }
