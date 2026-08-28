@@ -42,7 +42,7 @@ operational data in its owning domain). Architecture spec §16–19.
   returns the input and writes nothing. One write path, owned where the models
   are owned.
 
-### Built here — the eight Tier 1 stages and the run identity
+### Built here — the eight Tier 1 stages, their composition, and the run identity
 
 ADR-050 D2 assigns eight of the seventeen stages to Tier 1, and all eight have
 code: ingestion (FR-081), parsing (FR-115), provenance capture (FR-116),
@@ -50,14 +50,23 @@ normalization (FR-114), classification (FR-111), deduplication (FR-117),
 chunking (FR-112) and entity extraction (FR-113). Every one is a pure
 calculator; none opens a database.
 
-**Eight implementations are not a running pipeline, and the distinction is the
-one most likely to be lost.** Nothing calls the eight in sequence. Four pairs
-are pinned by seam tests — parsing into chunking (SDD-063), chunking into
-entity extraction, classification into chunking, deduplication into the run
-input — and a chain of pairs is not a chain. "Tier 1 is complete" is true of
-the stage list and false of the tier: read it as *every stage ADR-050 assigns
-here has an implementation*, never as *the tier executes*. What is missing is
-the stage runner named below.
+**Eight implementations were not a running pipeline, and on 2026-08-28 that
+stopped being true of seven of them.** `runKnowledgeIngestionStages` (FR-118)
+calls Parse → Provenance → Normalize → Classify → Dedupe → Chunk → Entity
+Extraction in one pass over one artifact — proven by a test that runs all
+seven on one real input, not by the four pairs that stood in for it before
+(parsing into chunking (SDD-063), chunking into entity extraction,
+classification into chunking, deduplication into the run input). Stage 1
+(ingestion, FR-081) stays outside this composition: it is a different module
+answering a different question — the raw-boundary re-delivery identity, not
+the knowledge-ingestion identity — and its output is what FR-118 takes as its
+`artifact` input, already arrived.
+
+**Composition is not operation, and that distinction is now the one most
+likely to be lost.** FR-118 opens nothing and writes nothing; calling seven
+functions in memory is not the tier executing. "Tier 1 composes end to end
+in-process" is the accurate sentence; "the pipeline runs" still overstates it
+by exactly the gap FR-109's remaining acceptance criteria name below.
 
 The single thing in this lane that reaches persistence is the ingestion
 identity (FR-109, AC-109.9). BR-021's four-part key is the `idempotencyKey` of
@@ -73,10 +82,14 @@ the ten remaining wait on a declared id — NFR-020, BR-022, FR-110 and SDD-059'
 charter change — and one waits on GKS and GenesisBlockDB reporting onto the
 ledger, which ADR-050 D3 puts outside this repository.
 
-The other five wait on a stage runner writing `PipelineRecordEvent` rows. **No
-stage runner exists and no id declares one**, so nothing in this repository can
-see that it is missing: not a PRD row, not the roadmap, not a coverage check.
-The next slice in this lane declares that FR before writing it.
+The other five wait on ledger-writing wiring: something that calls FR-118,
+takes its envelope, and writes a `PipelineStep` transition plus a
+`PipelineRecordEvent` row per stage via `recordPipelineEvent`. **That wiring
+has no id yet** — FR-118 declared and closed the compute half of what this
+charter used to call "a stage runner" undeclared and by name only; the
+persistence half is still unnamed, so nothing in this repository can see that
+it is missing: not a PRD row, not the roadmap, not a coverage check. The next
+slice in this lane declares that FR before writing it.
 
 ### Declared, not implemented — FR-110 (🔜)
 

@@ -267,10 +267,16 @@ already passable.
       each is an explicit value rather than an absent default.
 - [ ] **AC-111.5** An object with `cloud_processing_allowed = false` executes
       all seventeen stages locally, and no deployment topology, environment
-      variable or configuration change can widen that — **waits on a stage
-      runner.** `resolveExecutionLocation` answers the question per object and
-      refuses to be widened, but nothing yet executes seventeen stages, so
-      "all seventeen run locally" has no subject to be true of.
+      variable or configuration change can widen that — **waits on an
+      all-seventeen-stage executor that consults `resolveExecutionLocation`.**
+      Wider than FR-118 (2026-08-28): that composition runs seven Tier 1
+      stages unconditionally, in-process, and never calls
+      `resolveExecutionLocation` — location is FR-118's caller's concern, not
+      the composition's. It also covers none of the nine Tier 3/4 stages
+      this repository does not execute (ADR-050 D3), so "all seventeen"
+      cannot be satisfied here even in full. `resolveExecutionLocation`
+      answers the question per object and refuses to be widened; this
+      criterion needs a caller that asks it before every stage runs.
 - [x] **AC-111.6** Execution location is resolved per object from the object's
       own policy at each stage boundary, never read from deployment
       configuration.

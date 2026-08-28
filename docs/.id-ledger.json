@@ -225,6 +225,7 @@
     "FR-115",
     "FR-116",
     "FR-117",
+    "FR-118",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -312,6 +313,7 @@
     "SDD-065",
     "SDD-066",
     "SDD-067",
+    "SDD-068",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2313,6 +2315,19 @@
         }
       ]
     },
+    "FR-118": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "15b467cf5ea7ba731f59c9d422c992c1bf3a99386c24e992ff118c3aac63cdc1",
+      "history": [
+        {
+          "anchor": "tier 1 stage composition",
+          "since": "2026-08-28",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3449,6 +3464,19 @@
       "history": [
         {
           "anchor": "a knowledge ingestion run input is derived whole from the",
+          "since": "2026-08-28",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-068": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f12c4f05a9874f38e56831283e7be1e5901b2d8ba8e8f7c243b8d38df72fa220",
+      "history": [
+        {
+          "anchor": "field name mapping between stage functions is made explicit",
           "since": "2026-08-28",
           "reason": "declared"
         }
