@@ -372,19 +372,27 @@ describe('FR-071 pipeline tracking service', () => {
   })
 
   // NFR-020's run-level aggregate sums every `PipelineStep` row sharing the
-  // run's id — it assumes ONE step row per stage per run. Nothing that
-  // creates steps today violates that (SDD-069 materializes exactly one at
-  // run creation and reuses it; replay creates steps under a NEW run id, so
-  // they are never summed into the original). But `(runId, pipelineStageId)`
-  // carries no uniqueness constraint, only a non-unique index — so a second
-  // `executionStepId` for a stage already run in this run IS constructible,
-  // and today's aggregation would sum both rows: a stage retried in place
-  // would double its own records_in rather than reporting the true count.
-  // Pinned here, not fixed: retry-within-run does not exist for any caller
-  // yet, and building retry-aware aggregation ahead of a real one would be
-  // guessing at a shape nothing has asked for. The day it does, this test
-  // fails and says why, instead of a wrong number reaching the monitor.
-  it('sums every step row sharing a stage — an intentional gap, not a guarantee, until retry-within-run exists', async () => {
+  // run's id — it assumes ONE step row per stage per run. A second row is not
+  // a hypothetical shape the design left open: the step state machine
+  // (`REPLAYING: ['REPLAYING', 'RUNNING', 'SUCCEEDED', 'FAILED']`) retries a
+  // stage IN PLACE, on the same row, and ADR-030's own rejected-alternatives
+  // table names reusing ids across a retry as the thing that "overwrites
+  // history and makes the result non-auditable" the other way round — a
+  // second run, never a second step row within one run. So a second
+  // `PipelineStep` for a stage this run already has is not merely unintended;
+  // it is the shape the design already rejected once. `(runId,
+  // pipelineStageId)` carries no uniqueness constraint to say so — a
+  // non-unique index only — which is a real gap, tracked for a schema fix
+  // pending a production duplicate check (see the real-database test below,
+  // which is the one that will actually notice when that constraint lands).
+  //
+  // This fake-db suite cannot pin that fix: `model()`'s `create()` has no
+  // concept of a unique constraint, so this test would keep passing with
+  // TODAY's number even after a real migration made the scenario impossible
+  // — a stale test asserting a wrong future, silently. It stays here as a
+  // record of current behaviour against the fake, not as the test that
+  // should change when the schema does.
+  it('sums every step row sharing a stage today — the fake db cannot enforce the uniqueness a migration would add', async () => {
     const created = await createPipelineRun(runInput(), { db, viewer, idFactory: ids })
     const step = db.pipelineStep.rows.find((row) => row.pipelineStageId === 'DPS-SCHEMA-VALIDATE')
     await recordPipelineEvent(event(created.run, step, {
