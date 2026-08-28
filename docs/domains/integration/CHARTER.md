@@ -16,6 +16,12 @@ owns_models:
   - ExternalEntityRef
   - DeadLetterRecord
   - SotDecision
+  - PipelineRun
+  - PipelineStep
+  - PipelineEventReceipt
+  - PipelineRecordEvent
+  - PipelineReconciliation
+  - PipelineGateDecision
 owns_code:
   - src/platform/integrations/**
 ---
@@ -62,6 +68,29 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   unavailable.
 - Ollama is a local/dev/test evaluation provider and is not a public LINE or
   production provider.
+- **This lane owns the execution ledger — the six `Pipeline*` models — for every
+  pipeline, not only its own.** `PipelineRun`, `PipelineStep`,
+  `PipelineEventReceipt`, `PipelineRecordEvent`, `PipelineReconciliation` and
+  `PipelineGateDecision` are deliberately pipeline-agnostic: SDD-066 replaced the
+  `z.literal` definition pins with a registry so a second definition could share
+  the same six tables, and today they carry both this lane's
+  `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` and knowledge's `DPL-KNOWLEDGE-INGEST-V1`.
+  The alternative owner is not available even in principle: the knowledge charter
+  opens with **"Owns no Prisma models"** as a boundary with an architectural
+  reason — its store is the runtime's `zuri_core.business_knowledge` behind the
+  `postgres-business-knowledge` port — and ADR-050 D4 forbids new models for that
+  work. A knowledge-side claim would contradict knowledge's own first boundary
+  rather than extend it.
+- **Using the ledger is not owning it, and a second caller is not a second
+  writer.** `createPipelineRun` and `recordPipelineEvent` in
+  `src/platform/integrations/core/pipeline-tracking-service.js` remain the only
+  writers of these six models. Another domain records a run by calling them as a
+  consumer — which the knowledge charter already describes itself doing — and
+  that call grants it no claim here. Recorded because the distinction was
+  misread once: `owns_code` covering `src/platform/integrations/**` was taken to
+  imply `owns_models` covering anything written from that tree, and
+  `IngestionRun` sitting in the list above while `PipelineRun` did not is easy to
+  read past.
 
 ## Public contracts
 

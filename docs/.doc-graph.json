@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 1356,
-    "total_edges": 4601,
+    "total_edges": 4607,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -49,7 +49,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "domain:integration"
+    ],
     "added": [],
     "removed": []
   },
@@ -8592,7 +8594,13 @@
         "SyncCursor",
         "ExternalEntityRef",
         "DeadLetterRecord",
-        "SotDecision"
+        "SotDecision",
+        "PipelineRun",
+        "PipelineStep",
+        "PipelineEventReceipt",
+        "PipelineRecordEvent",
+        "PipelineReconciliation",
+        "PipelineGateDecision"
       ],
       "owns_routes": [
         "src/app/(pm)/platform/integrations/**",
@@ -8606,8 +8614,8 @@
       "modules": [
         "integration"
       ],
-      "hash": "fefb0ee3",
-      "status": "current"
+      "hash": "9153fe05",
+      "status": "changed"
     },
     {
       "id": "domain:knowledge",
@@ -26529,6 +26537,48 @@
     {
       "from": "model:Person",
       "to": "domain:crm",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PipelineEventReceipt",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PipelineGateDecision",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PipelineReconciliation",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PipelineRecordEvent",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PipelineRun",
+      "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:PipelineStep",
+      "to": "domain:integration",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
