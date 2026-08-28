@@ -53,15 +53,9 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0"
+      "doc:ROADMAP"
     ],
-    "added": [
-      "doc:FR-117-deduplication-and-versioning",
-      "req:FR-117",
-      "req:SDD-065",
-      "test:tests/unit/knowledge-dedup.test.js",
-      "code:src/modules/knowledge/dedup.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -8274,7 +8268,7 @@
       "version": "1.106.0b",
       "doc_status": "Draft",
       "hash": "a253705b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8309,8 +8303,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "ae2e48bd",
-      "status": "current"
+      "hash": "0f4b29cf",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
