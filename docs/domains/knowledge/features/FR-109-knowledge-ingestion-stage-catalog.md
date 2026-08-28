@@ -3,8 +3,8 @@ domain: knowledge
 feature: FR-109
 module: knowledge
 source: v2-native
-version: "0.1.0b"
-status: "declared"
+version: "0.2.0b"
+status: "partial"
 ---
 
 # FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace
@@ -210,52 +210,83 @@ after a parser or embedding-model upgrade safe to run over a whole corpus.
 ## Acceptance criteria
 
 Drawn from the specification's §40 Minimum Acceptance Criteria, restricted to
-what FR-109 owns — the catalog, the trace and the evidence. None is built.
+what FR-109 owns — the catalog, the trace and the evidence. **Three of the
+thirteen are built.** The catalog and the run identity landed on 2026-08-28;
+the trace and the monitor did not, because both need a stage runner writing
+record events and no stage runner exists. The ten unbuilt criteria each name
+what they wait on rather than sitting unmarked, so the gap is legible without
+reading the code.
 
-- [ ] **AC-109.1** `DPL-KNOWLEDGE-INGEST-V1` is registered as one pipeline
+- [x] **AC-109.1** `DPL-KNOWLEDGE-INGEST-V1` is registered as one pipeline
       definition carrying exactly the seventeen `DPS-KI-*` stage ids above, and
-      is distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`.
+      is distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`. Both definitions
+      live in `PIPELINE_DEFINITIONS`; a test asserts the seventeen ids in order
+      and asserts the two catalogs share no id.
 - [ ] **AC-109.2** At least one structured and at least one unstructured source
       type can be ingested through the same catalog, with no second stage list
       for either.
+      Waits on a stage runner.
 - [ ] **AC-109.3** The raw artifact is stored before transformation and is
       recoverable from `artifact_id` after normalization has run (spec §3.1).
+      Waits on artifact storage.
 - [ ] **AC-109.4** Every derived object carries provenance, and the §8 chain
       `Fact → Chunk → ParsedArtifact → RawArtifact → Source` can be walked from
       any published object.
+      Waits on persisted derived objects; FR-116 has the walk, nothing stores its input yet.
 - [ ] **AC-109.5** A chunk resolves back to its document through `document_id`,
       `parent_id`, `sequence` and `heading_path`.
+      Waits on chunk persistence; FR-112 computes the fields, nothing writes them.
 - [ ] **AC-109.6** Every one of the seventeen stages reports its catalog
       evidence and the six NFR-020 per-stage metrics; a stage that produced
       nothing reports zero rather than being absent.
+      Waits on NFR-020 metrics.
 - [ ] **AC-109.7** One `pipeline_job_id` resolves the full §33 chain from Source
       to Published Snapshot, with per-record disposition on
       `PipelineRecordEvent` bound through `docId` / `picId` / `factId`.
-- [ ] **AC-109.8** A stage occurrence is identified by
+      Waits on record events being written.
+- [x] **AC-109.8** A stage occurrence is identified by
       `pipelineStageId + executionStepId`; inserting a new stage does not
-      renumber or invalidate the evidence of an earlier job.
-- [ ] **AC-109.9** Duplicate ingestion of the same event creates no duplicate
+      renumber or invalidate the evidence of an earlier job. A stage id is now
+      validated against its own definition's catalog rather than the union of
+      both (SDD-066), so `DPS-KI-EMBED` on a Supabase run is rejected by the
+      envelope instead of being merely wrong.
+- [x] **AC-109.9** Duplicate ingestion of the same event creates no duplicate
       knowledge, keyed on source identity + source version + content hash +
-      pipeline version (BR-021).
+      pipeline version (BR-021). FR-117's `ingestionIdentity` is the run's
+      `idempotencyKey`, and `PipelineRun.idempotencyKey` is `@unique`, so the
+      guarantee is a database constraint rather than a comparison a caller
+      performs. Proven against the real database, not only against the
+      in-memory fake, because a fake that does not implement `@unique` cannot
+      fail the test that matters.
 - [ ] **AC-109.10** A failed object is classified retryable / non-retryable /
       review-required and quarantined with the complete BR-022 envelope; no
       object is dropped.
+      Waits on BR-022 quarantine.
 - [ ] **AC-109.11** The job lifecycle exposes `RECEIVED`, `PROCESSING`,
       `VALIDATING`, `READY_TO_PUBLISH`, `PUBLISHED` and the failure states
       `RETRYABLE_FAILED`, `QUARANTINED`, `REJECTED`, `SUPERSEDED`, and never
       infers `PUBLISHED` from elapsed time or a stale heartbeat.
+      Waits on the FR-110 job lifecycle.
 - [ ] **AC-109.12** Stages executed outside Tier 1 still report their evidence
       onto the ledger, and zuri-ai executes no stage the tier boundary assigns
       to GKS or GenesisBlockDB.
+      Waits on a Tier 3/4 reporter.
 - [ ] **AC-109.13** A new source artifact updates only the affected entities,
       facts, graph regions and indexes; rebuilding the whole knowledge graph is
       not the normal path (spec §30).
+      Waits on incremental reprocessing.
 
 ## Non-goals
 
-- **This note authorizes no code, no route, no Prisma model and no schema
-  change.** It is a documentary elaboration of a declared requirement; the
-  status column of FR-109 in the PRD says the same thing.
+- **No Prisma model and no schema change**, then or now. ADR-050 D4 committed
+  to the existing FR-071 models, so a slice proposing a new one is reopening
+  that decision rather than implementing it. The 2026-08-28 slice added a
+  catalog constant, a definition registry and a pure input builder — no model,
+  no migration, no route.
+- **Not the trace and not the monitor.** The catalog and the run identity are
+  built; ten of the thirteen acceptance criteria are not, and every one of them
+  waits on a stage runner writing `PipelineRecordEvent` rows. Reading this note
+  as "FR-109 is done" would overstate it by ten criteria.
 - zuri-ai does not execute the stages ADR-050 assigns to GKS or
   GenesisBlockDB. Entity resolution, ontology authority, fact and relation
   governance stay with GKS (spec §37); vector, lexical, graph, structured,
@@ -271,12 +302,38 @@ what FR-109 owns — the catalog, the trace and the evidence. None is built.
 
 ## Implementation boundary
 
-Nothing is implemented. When implementation is authorized, the stage catalog
-belongs next to the existing FR-071 constant in
-`src/platform/integrations/core/pipeline-tracking-contract.js`, as a second
-frozen catalog keyed to `DPL-KNOWLEDGE-INGEST-V1` — not as an extension of
-`PIPELINE_STAGE_CATALOG`, whose ten `DPS-*` ids belong to a different pipeline
-definition and must keep their meaning. The knowledge domain owns no Prisma
+The catalog landed where this note said it should: as a second frozen catalog
+in `src/platform/integrations/core/pipeline-tracking-contract.js`, keyed to
+`DPL-KNOWLEDGE-INGEST-V1`, **not** as an extension of `PIPELINE_STAGE_CATALOG`
+— whose ten `DPS-*` ids belong to a different pipeline definition and keep
+their meaning.
+
+Making that catalog reachable cost the parameterization SDD-057 predicted, and
+the prediction was exact: `zPipelineEvent` and `zPipelineRunInput` pinned
+`dataPipelineDefinitionId` and `executionContractId` with `z.literal`, so a
+knowledge run was rejected by the envelope before any stage id was even read.
+SDD-066 replaces both pins with `PIPELINE_DEFINITIONS`, a registry keyed by
+definition id holding that definition's execution contract id and its own
+catalog. Two consequences the diff does not show:
+
+- **The envelope now validates the pair.** A run claiming
+  `DPL-KNOWLEDGE-INGEST-V1` under `EXC-DATA-MIGRATION-V1` is rejected, where
+  two independent `z.literal` pins could only have checked each half alone.
+- **A stage validates against its own definition, never the union.** The
+  cheaper change — widen the refinement to every known stage id — would have
+  let a Supabase migration run report a `DPS-KI-EMBED` step and pass every
+  check. That is ADR-050 D3's tier boundary being crossed inside a validator
+  that reported no problem, which is worse than no validator.
+
+Every existing caller keeps validating unchanged, because
+`DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` + `EXC-DATA-MIGRATION-V1` remains a
+registry pair: the three `/api/pipelines/*` routes, the MCP transport's three
+pipeline tools, and `createPipelineRunFromWorker`, which delegates.
+
+The knowledge lane's contribution stays pure. `knowledgeIngestionRunInput`
+takes an artifact and returns a run input; the write is `createPipelineRun`,
+owned by the integrations lane, so the knowledge charter's `owns_models: []`
+stays true and there is no second persistence path (SDD-057). The knowledge domain owns no Prisma
 model (see the domain charter); the ledger it would write to is owned by the
 integrations lane, so the write path is a service call, never a second
 persistence path. Spec §36's package outline — one directory per stage group —

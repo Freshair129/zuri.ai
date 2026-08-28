@@ -6,10 +6,10 @@ import {
   DATA_PIPELINE_DEFINITION_ID,
   EXECUTION_CONTRACT_ID,
   IDENTITY_REFS_EMPTY,
-  PIPELINE_STAGE_CATALOG,
   RUN_STATUSES,
   STEP_STATUSES,
   assertStatusTransition,
+  catalogFor,
   hashContractPayload,
   parsePipelineEvent,
   parsePipelineRunInput,
@@ -327,7 +327,11 @@ export async function createPipelineRun(input, {
       },
     })
 
-    for (const stage of PIPELINE_STAGE_CATALOG) {
+    // The catalog of the run's OWN definition, not the one this module happened
+    // to import — ten DPS-* steps for a Supabase migration, seventeen DPS-KI-*
+    // for a knowledge ingestion (SDD-066).
+    const catalog = catalogFor(value.dataPipelineDefinitionId)
+    for (const stage of catalog) {
       await tx.pipelineStep.create({
         data: {
           id: idFactory(),
@@ -364,7 +368,7 @@ export async function createPipelineRun(input, {
       },
     })
     const updated = await tx.pipelineRun.update({ where: { id: run.id }, data: { auditEventId: audit.id, updatedAt: at } })
-    return { status: 'CREATED', run: runSummary(updated, { includeIdentityRefs: true }), stageCount: PIPELINE_STAGE_CATALOG.length }
+    return { status: 'CREATED', run: runSummary(updated, { includeIdentityRefs: true }), stageCount: catalog.length }
   })
 }
 
@@ -383,6 +387,18 @@ export async function recordPipelineEvent(input, {
     const run = await tx.pipelineRun.findUnique({ where: { executionRunId: event.executionRunId } })
     if (!run) throw serviceError(404, 'Pipeline run not found')
 
+    // The envelope validated this event's stage against the event's OWN
+    // definition (SDD-066). That is internal consistency, and it is only half of
+    // it: an event can be a perfectly formed DPL-KNOWLEDGE-INGEST-V1 envelope
+    // and still name a DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1 run, in which case a
+    // DPS-KI-EMBED step would be written onto a Supabase run and every check
+    // upstream would have passed. Before a second definition existed the two
+    // z.literal pins made this impossible by accident; now it has to be said.
+    if (event.dataPipelineDefinitionId !== run.dataPipelineDefinitionId
+      || event.executionContractId !== run.executionContractId) {
+      throw serviceError(409, 'Pipeline event does not belong to the pipeline definition of its run')
+    }
+
     const existingReceipt = await tx.pipelineEventReceipt.findUnique({ where: { idempotencyKey: event.idempotencyKey } })
     if (existingReceipt) {
       if (existingReceipt.eventHash !== eventHash) throw serviceError(409, 'Pipeline event idempotency key was reused with different input')
@@ -399,7 +415,7 @@ export async function recordPipelineEvent(input, {
       step = await tx.pipelineStep.findUnique({ where: { executionStepId: event.executionStepId } })
       if (step && step.runId !== run.id) throw serviceError(409, 'Pipeline step belongs to another run')
       if (!step && stepStatus) {
-        const stage = stageById(event.pipelineStageId)
+        const stage = stageById(run.dataPipelineDefinitionId, event.pipelineStageId)
         step = await tx.pipelineStep.create({
           data: {
             id: idFactory(),
@@ -603,7 +619,7 @@ export async function getPipelineMonitor(executionRunId, {
   const selectedSteps = latestByStage(steps)
   const firstFailure = selectedSteps.find((step) => step.status === 'FAILED')
   const stageTimeline = selectedSteps.map((step) => {
-    const stage = stageById(step.pipelineStageId)
+    const stage = stageById(run.dataPipelineDefinitionId, step.pipelineStageId)
     const summary = stepSummary(step)
     const durationMs = summary.startedAt && (summary.finishedAt || at)
       ? Math.max(0, new Date(summary.finishedAt || at).valueOf() - new Date(summary.startedAt).valueOf())

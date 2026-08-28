@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-28T00:56:16.129Z",
+  "generatedAt": "2026-08-28T01:58:45.090Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 8,
-    "gapCount": 12,
+    "gapCount": 10,
     "gaps": [
       {
         "domain": "agent",
@@ -69,39 +69,6 @@
         "severity": "medium",
         "check": "tests",
         "summary": "At least one requirement lacks complete code-and-test evidence"
-      },
-      {
-        "domain": "knowledge",
-        "id": "REQ-FR-071",
-        "severity": "high",
-        "check": "requirements",
-        "summary": "FR-071 is not_implemented",
-        "evidence": [
-          "tests/e2e/smoke.spec.js",
-          "tests/integration/openapi-docs.test.js",
-          "tests/unit/document-intake-ui.test.js",
-          "tests/unit/pipeline-mcp-transport.test.js",
-          "tests/unit/pipeline-monitor-ui.test.js",
-          "tests/unit/pipeline-tracking-route.test.js",
-          "tests/unit/platform/cloud-sot-agent.test.js",
-          "tests/unit/platform/document-intake-contract.test.js",
-          "tests/unit/platform/pipeline-tracking-contract.test.js",
-          "tests/unit/platform/pipeline-tracking-migration.test.js",
-          "tests/unit/platform/pipeline-tracking-service.test.js",
-          "tests/unit/project-manager-mcp.test.js",
-          "tests/unit/smartgift-document-intake-migration.test.js"
-        ]
-      },
-      {
-        "domain": "knowledge",
-        "id": "REQ-FR-109",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-109 is planned",
-        "evidence": [
-          "tests/unit/knowledge-chunking.test.js",
-          "tests/unit/knowledge-entity-extraction.test.js"
-        ]
       },
       {
         "domain": "knowledge",
@@ -892,7 +859,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-079",
@@ -938,6 +905,13 @@
         },
         {
           "id": "FR-102",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 9
+        },
+        {
+          "id": "FR-109",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1095,35 +1069,16 @@
         {
           "id": "FR-071",
           "declared": "n/a",
-          "status": "not_implemented",
-          "codeCount": 0,
-          "testCount": 13,
-          "evidence": [
-            "tests/e2e/smoke.spec.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/document-intake-ui.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/pipeline-monitor-ui.test.js",
-            "tests/unit/pipeline-tracking-route.test.js",
-            "tests/unit/platform/cloud-sot-agent.test.js",
-            "tests/unit/platform/document-intake-contract.test.js",
-            "tests/unit/platform/pipeline-tracking-contract.test.js",
-            "tests/unit/platform/pipeline-tracking-migration.test.js",
-            "tests/unit/platform/pipeline-tracking-service.test.js",
-            "tests/unit/project-manager-mcp.test.js",
-            "tests/unit/smartgift-document-intake-migration.test.js"
-          ]
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 15
         },
         {
           "id": "FR-109",
-          "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 2,
-          "evidence": [
-            "tests/unit/knowledge-chunking.test.js",
-            "tests/unit/knowledge-entity-extraction.test.js"
-          ]
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 9
         },
         {
           "id": "FR-110",
@@ -1278,37 +1233,6 @@
           "severity": "medium",
           "check": "tests",
           "summary": "At least one requirement lacks complete code-and-test evidence"
-        },
-        {
-          "id": "REQ-FR-071",
-          "severity": "high",
-          "check": "requirements",
-          "summary": "FR-071 is not_implemented",
-          "evidence": [
-            "tests/e2e/smoke.spec.js",
-            "tests/integration/openapi-docs.test.js",
-            "tests/unit/document-intake-ui.test.js",
-            "tests/unit/pipeline-mcp-transport.test.js",
-            "tests/unit/pipeline-monitor-ui.test.js",
-            "tests/unit/pipeline-tracking-route.test.js",
-            "tests/unit/platform/cloud-sot-agent.test.js",
-            "tests/unit/platform/document-intake-contract.test.js",
-            "tests/unit/platform/pipeline-tracking-contract.test.js",
-            "tests/unit/platform/pipeline-tracking-migration.test.js",
-            "tests/unit/platform/pipeline-tracking-service.test.js",
-            "tests/unit/project-manager-mcp.test.js",
-            "tests/unit/smartgift-document-intake-migration.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-109",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-109 is planned",
-          "evidence": [
-            "tests/unit/knowledge-chunking.test.js",
-            "tests/unit/knowledge-entity-extraction.test.js"
-          ]
         },
         {
           "id": "REQ-FR-110",
@@ -1849,7 +1773,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-072",
@@ -2018,6 +1942,13 @@
           "status": "verified",
           "codeCount": 8,
           "testCount": 7
+        },
+        {
+          "id": "FR-109",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 9
         }
       ],
       "checks": {
