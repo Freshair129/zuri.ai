@@ -49,19 +49,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "domain:knowledge",
-      "doc:FR-109-knowledge-ingestion-stage-catalog",
-      "doc:FR-111-knowledge-sensitivity-lattice",
-      "doc:PRD-SDD-v1.0"
-    ],
-    "added": [
-      "doc:FR-118-tier1-stage-composition",
-      "req:FR-118",
-      "req:SDD-068",
-      "test:tests/unit/knowledge-stage-runner.test.js",
-      "code:src/modules/knowledge/stage-runner.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -7993,7 +7982,7 @@
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
       "hash": "06dc027e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
@@ -8009,7 +7998,7 @@
       "path": "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
       "title": "FR-111 — Knowledge sensitivity lattice and processing policy",
       "hash": "73a15cfb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-112-structural-knowledge-chunking",
@@ -8331,7 +8320,7 @@
       "version": "1.106.0b",
       "doc_status": "Draft",
       "hash": "b37f2a1d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8632,7 +8621,7 @@
         "knowledge"
       ],
       "hash": "61e78c6c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
