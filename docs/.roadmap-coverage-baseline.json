@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "Accepted debt for preflight Check 14 (roadmap-coverage): requirements that have shipped code but no Backlog Items row in docs/roadmap/ROADMAP.md. Shrink-only — an entry may be removed when its row is written, and may never be added to silence a new finding.",
+  "requirements": [
+    "FR-022",
+    "FR-030",
+    "FR-031",
+    "FR-032",
+    "FR-033",
+    "FR-034",
+    "FR-035",
+    "FR-036",
+    "FR-037",
+    "FR-038",
+    "FR-039",
+    "FR-042",
+    "FR-043",
+    "FR-044",
+    "FR-047",
+    "FR-048",
+    "FR-049",
+    "FR-050",
+    "FR-051",
+    "FR-052",
+    "FR-054",
+    "FR-055",
+    "FR-056"
+  ],
+  "notes": {
+    "legacy-debt": "These requirements predate this check: shell, navigation, scope-routing, knowledge-pilot and related work from the era when the roadmap tracked phases rather than individual requirements. Several were invisible to an earlier draft of this check, which counted a mention in a Dependencies cell or a Phases goal as ownership - it is not, and removing that leniency made the real debt visible rather than creating it. Each needs a row under its owning phase; none is a defect in the code.",
+    "removed-2026-08-28": "FR-114, FR-115 and FR-116 left this list because PR #142 wrote their rows - the ratchet working as intended. FR-071 left it for a WEAKER reason and the distinction matters: it is now credited because TASK-FR-115 and TASK-FR-116 each NAME FR-071 in their titles, referring to what FR-071 owns, not because any row accounts for FR-071 itself. It still has no row. See the limitation recorded in scripts/roadmap-coverage.mjs: a title mention can over-credit, so this check is a LOWER BOUND on missing rows, never an exact set."
+  }
+}

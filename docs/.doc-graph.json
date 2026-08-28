@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1343,
+    "total_nodes": 1344,
     "total_edges": 4539,
     "dangling_edges": 0,
     "node_types": {
@@ -16,7 +16,7 @@
       "route": 150,
       "model": 67,
       "requirement": 245,
-      "test": 317,
+      "test": 318,
       "code_file": 354
     },
     "coverage": {
@@ -52,9 +52,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:ROADMAP"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -8304,7 +8302,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "0f4b29cf",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -15124,6 +15122,13 @@
       "type": "test",
       "path": "tests/unit/repositories-page-ui-contract.test.js",
       "hash": "eabd3a57",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/roadmap-coverage.test.js",
+      "type": "test",
+      "path": "tests/unit/roadmap-coverage.test.js",
+      "hash": "de42d042",
       "status": "current"
     },
     {
