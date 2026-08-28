@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1359,
-    "total_edges": 4623,
+    "total_nodes": 1356,
+    "total_edges": 4607,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,17 +15,17 @@
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 250,
-      "test": 323,
-      "code_file": 357
+      "requirement": 249,
+      "test": 322,
+      "code_file": 356
     },
     "coverage": {
-      "requirements": 250,
+      "requirements": 249,
       "fr_with_code": "100% (113/113)",
       "fr_with_tests": "100% (113/113)",
-      "rules_anchored_in_code": "95% (105/110)",
+      "rules_anchored_in_code": "95% (104/109)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 357,
+      "annotated_code_files": 356,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -50,7 +50,7 @@
   },
   "drift": {
     "changed": [
-      "code:src/platform/integrations/core/knowledge-ingestion-executor.js"
+      "domain:integration"
     ],
     "added": [],
     "removed": []
@@ -7106,28 +7106,6 @@
       }
     },
     {
-      "id": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "type": "code_file",
-      "path": "src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "hash": "614cfb80",
-      "status": "changed",
-      "annotations": {
-        "@req": [
-          "FR-109",
-          "FR-118"
-        ],
-        "@spec": [
-          "SDD-069",
-          "SDD-066",
-          "SDD-057",
-          "BR-021"
-        ],
-        "@tested": [
-          "tests/integration/fr109-knowledge-ingestion-executor.test.js"
-        ]
-      }
-    },
-    {
       "id": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-contract.js",
@@ -8005,7 +7983,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
-      "hash": "4d353e59",
+      "hash": "06dc027e",
       "status": "current"
     },
     {
@@ -8343,7 +8321,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.106.0b",
       "doc_status": "Draft",
-      "hash": "acd7c368",
+      "hash": "b37f2a1d",
       "status": "current"
     },
     {
@@ -8636,8 +8614,8 @@
       "modules": [
         "integration"
       ],
-      "hash": "b2634ab7",
-      "status": "current"
+      "hash": "9153fe05",
+      "status": "changed"
     },
     {
       "id": "domain:knowledge",
@@ -8650,7 +8628,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "c38a36b6",
+      "hash": "61e78c6c",
       "status": "current"
     },
     {
@@ -10481,7 +10459,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-28 — the catalog and the run identity, 3 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, and stage ids validate against their own definition's catalog rather than the union — SDD-066), and AC-109.9 (BR-021 idempotency persisted as the run key, so re-ingesting the same artifact returns the existing run instead of a second one — SDD-067). Four of thirteen now: AC-109.2 joined 2026-08-28 — `ingestKnowledgeDocument` (SDD-069) registers a real run and writes real per-stage evidence for both an unstructured document and a structured record through the same `DPL-KNOWLEDGE-INGEST-V1` catalog, no second stage list for either. The remaining nine: AC-109.3 waits on binding `artifact_id` to storage FR-081 already provides, AC-109.5 on SDD-059's chunk-persistence charter change, AC-109.6 on NFR-020 metrics plus a Tier 3/4 reporter for the other nine stages, AC-109.10 on BR-022 quarantine, AC-109.11 on the FR-110 job lifecycle, AC-109.12 on a Tier 3/4 reporter — and AC-109.4/.7/.13 now have real per-record disposition bound through `docId` for the Tier 1 portion (SDD-069) but wait on FR-110's Published Snapshot to complete the chain, on persisted derived objects for AC-109.4's walk, and on something acting differently on a `REVISION_OF` result for AC-109.13. No new Prisma model and no migration (ADR-050 D4); 22 unit tests, two real-database integration suites "
+      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-28 — the catalog and the run identity, 3 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, and stage ids validate against their own definition's catalog rather than the union — SDD-066), and AC-109.9 (BR-021 idempotency persisted as the run key, so re-ingesting the same artifact returns the existing run instead of a second one — SDD-067). The remaining ten are named rather than left pending: AC-109.3 waits on binding `artifact_id` to storage FR-081 already provides, AC-109.5 on SDD-059's chunk-persistence charter change, AC-109.6 on NFR-020 metrics, AC-109.10 on BR-022 quarantine, AC-109.11 on the FR-110 job lifecycle, AC-109.12 on a Tier 3/4 reporter — and AC-109.2/.4/.7/.13 on ledger-writing wiring: something that calls FR-118's seven-stage composition (2026-08-28) and writes its result onto the FR-071 ledger, which FR-118 itself does not do. No new Prisma model and no migration (ADR-050 D4); 22 unit tests plus a real-database integration suite "
     },
     {
       "id": "req:FR-110",
@@ -11452,16 +11430,6 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Field-name mapping between stage functions is made explicit and singular, never left for each caller to reconstruct. FR-116 names an artifact's content hash `checksum` (spec §8); FR-117 names the identical value `content_hash` (spec §29, BR-021). Two accurate module-local names for one fact is correct inside each module and a hazard at their boundary — a caller supplying two copies keeps them in sync by discipline, which is the exact shape BR-021's own field-separator defect took (a hand-written comparison of two keys, made without reading the one compared against). `runKnowledgeIngestionStages` takes `content_hash` once, from the artifact, and renames it to `checksum` in exactly the one call that needs the other name. The same discipline governs a chunk's `scope`: FR-111 classifies against `{ scope: { tenantId, businessId }, sensitivity, ... }`, but a chunk's `scope` field carries the identity pair alone — the shape the FR-111-into-FR-112 seam test already fixed — never the whole classification object, which would nest a field named `scope` inside a field named `scope`. FR-118; FR-111, FR-112, FR-116, FR-117, BR-021 "
-    },
-    {
-      "id": "req:SDD-069",
-      "type": "requirement",
-      "family": "SDD",
-      "label": "The ledger-writing wiring binds one artifact identity to one run to one document's worth of evidence, and every event's idempotency key is derived from that identity alone — never from the caller's `documentId`. `ingestKnowledgeDocument` writes a `RECORD_STARTED` / `RECORD_SUCCEEDED` pair (`docId` bound to `documentId`) around a `STEP_STARTED` / `STEP_SUCCEEDED` pair per Tier 1 stage, using the `PipelineStep` rows `createPipelineRun` already materializes from `KNOWLEDGE_INGESTION_STAGE_CATALOG` — no second step is created. The run is never marked finished: nine of the seventeen catalog steps belong to GKS and GenesisBlockDB (ADR-050 D3) and this repository does not execute them, so sending `RUN_FINISHED` here would claim a run seven-seventeenths done is complete. A stage failure inside FR-118's composition is not caught, classified or written as `STEP_FAILED` — the composition is one synchronous call with no partial result, so nothing at this layer can name which of the seven stages threw without restructuring FR-118's contract, which this slice does not do; the already-registered run stays at `QUEUED` with every step `NOT_STARTED`; an honest \"attempted, nothing recorded\" rather than a guess. The whole function is resumable by construction: replaying it with the same artifact replays every event's own idempotency check (FR-071) rather than needing a resume branch of its own.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current",
-      "row_text": "The ledger-writing wiring binds one artifact identity to one run to one document's worth of evidence, and every event's idempotency key is derived from that identity alone — never from the caller's `documentId`. `ingestKnowledgeDocument` writes a `RECORD_STARTED` / `RECORD_SUCCEEDED` pair (`docId` bound to `documentId`) around a `STEP_STARTED` / `STEP_SUCCEEDED` pair per Tier 1 stage, using the `PipelineStep` rows `createPipelineRun` already materializes from `KNOWLEDGE_INGESTION_STAGE_CATALOG` — no second step is created. The run is never marked finished: nine of the seventeen catalog steps belong to GKS and GenesisBlockDB (ADR-050 D3) and this repository does not execute them, so sending `RUN_FINISHED` here would claim a run seven-seventeenths done is complete. A stage failure inside FR-118's composition is not caught, classified or written as `STEP_FAILED` — the composition is one synchronous call with no partial result, so nothing at this layer can name which of the seven stages threw without restructuring FR-118's contract, which this slice does not do; the already-registered run stays at `QUEUED` with every step `NOT_STARTED`; an honest \"attempted, nothing recorded\" rather than a guess. The whole function is resumable by construction: replaying it with the same artifact replays every event's own idempotency check (FR-071) rather than needing a resume branch of its own. FR-109; SDD-066, SDD-057, SDD-067, BR-021, ADR-050 D4 "
     },
     {
       "id": "req:SEC-001",
@@ -13597,14 +13565,7 @@
       "id": "test:tests/integration/fr109-ingestion-run-identity.test.js",
       "type": "test",
       "path": "tests/integration/fr109-ingestion-run-identity.test.js",
-      "hash": "82e1b671",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "type": "test",
-      "path": "tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "hash": "cdf3078a",
+      "hash": "7c2c341d",
       "status": "current"
     },
     {
@@ -25804,48 +25765,6 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "to": "req:BR-021",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "to": "req:FR-109",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "to": "req:FR-118",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "to": "req:SDD-057",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "to": "req:SDD-066",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "to": "req:SDD-069",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "to": "req:FR-071",
       "type": "implements",
@@ -28437,13 +28356,6 @@
     },
     {
       "from": "req:SDD-068",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:SDD-069",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -35207,69 +35119,6 @@
     {
       "from": "test:tests/integration/fr109-ingestion-run-identity.test.js",
       "to": "req:SEC-021",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "to": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "to": "req:BR-021",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "to": "req:FR-081",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "to": "req:FR-109",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "to": "req:FR-116",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "to": "req:FR-118",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "to": "req:SDD-057",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "to": "req:SDD-066",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "to": "req:SDD-069",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-28T04:52:31.776Z",
+  "generatedAt": "2026-08-28T04:37:05.697Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -242,7 +242,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 12
         },
         {
           "id": "FR-093",
@@ -880,7 +880,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 12
         },
         {
           "id": "FR-099",
@@ -914,15 +914,8 @@
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 11
-        },
-        {
-          "id": "FR-118",
-          "declared": "done",
-          "status": "verified",
           "codeCount": 1,
-          "testCount": 2
+          "testCount": 10
         }
       ],
       "checks": {
@@ -1085,7 +1078,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 10
         },
         {
           "id": "FR-110",
@@ -1134,7 +1127,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 3
         },
         {
           "id": "FR-117",
@@ -1148,7 +1141,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 2
+          "testCount": 1
         }
       ],
       "checks": {
@@ -1837,7 +1830,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 12
         },
         {
           "id": "FR-082",
@@ -1963,7 +1956,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 10
         }
       ],
       "checks": {
