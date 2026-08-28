@@ -16,6 +16,12 @@ owns_models:
   - ExternalEntityRef
   - DeadLetterRecord
   - SotDecision
+  - PipelineRun
+  - PipelineStep
+  - PipelineEventReceipt
+  - PipelineRecordEvent
+  - PipelineReconciliation
+  - PipelineGateDecision
 owns_code:
   - src/platform/integrations/**
 ---
@@ -62,6 +68,23 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   unavailable.
 - Ollama is a local/dev/test evaluation provider and is not a public LINE or
   production provider.
+- **The FR-071 execution ledger — `PipelineRun`, `PipelineStep`,
+  `PipelineEventReceipt`, `PipelineRecordEvent`, `PipelineReconciliation`,
+  `PipelineGateDecision` — is claimed here.** `DATA_PIPELINE_DEFINITION_ID =
+  'DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1'` declared these tables for this
+  domain before the knowledge domain existed on them; the knowledge domain's
+  `DPL-KNOWLEDGE-INGEST-V1` (FR-109, ADR-050) is the second definition
+  sharing them, made possible because the models were built pipeline-agnostic
+  on purpose (SDD-057) and validated per-definition through the SDD-066
+  registry rather than per-model. Ownership is not a coin flip between two
+  plausible lanes: the knowledge charter's own first boundary is "**Owns no
+  Prisma models** — its store is the production runtime's
+  `zuri_core.business_knowledge` behind the knowledge port
+  (`postgres-business-knowledge`)". Claiming these six there would contradict
+  that domain's own architecture, not extend it. The write path stays singular
+  regardless of which domain built the input — `createPipelineRun` /
+  `recordPipelineEvent` in `pipeline-tracking-service.js` — so a second
+  caller is a second definition, never a second writer.
 
 ## Public contracts
 
@@ -90,6 +113,17 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
 - `src/modules/integration/application/integration-management-service.js` — the
   owner-scoped read and create path behind `/platform/integrations`; raw secret
   values never cross it and connection health is computed, never stored.
+- `src/platform/integrations/core/pipeline-tracking-contract.js` /
+  `pipeline-tracking-service.js` — the FR-071 execution ledger's identity
+  envelope and server-owned write path; `PIPELINE_DEFINITIONS` (SDD-066) is
+  the registry both this domain's and the knowledge domain's pipeline
+  definitions validate against.
+- `src/platform/integrations/core/knowledge-ingestion-executor.js` —
+  `ingestKnowledgeDocument` (FR-109), the persistence half of knowledge
+  ingestion: calls the knowledge domain's pure `runKnowledgeIngestionStages`
+  (FR-118) and `knowledgeIngestionRunInput`, then writes their result onto
+  this ledger. The only file in this lane that imports from
+  `src/modules/knowledge/`, and it imports pure functions only.
 - `src/modules/agent/phase1-runtime.js` — binding-scoped Phase 1 composition.
 - `docs/decisions/ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI.md` — planned Platform
   management and provisioning boundary.

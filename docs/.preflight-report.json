@@ -4,12 +4,12 @@
   "scanned": {
     "docs": 203,
     "routes": 102,
-    "test_files": 322
+    "test_files": 323
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 22,
+    "info": 21,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -193,15 +193,6 @@
     {
       "id": "I17",
       "severity": "info",
-      "check": "domain-spine",
-      "title": "Models not yet claimed by any charter: 6",
-      "details": "PipelineRun, PipelineStep, PipelineEventReceipt, PipelineRecordEvent, PipelineReconciliation, PipelineGateDecision",
-      "files": [],
-      "action": "Coverage debt — claim them as charters mature"
-    },
-    {
-      "id": "I18",
-      "severity": "info",
       "check": "enum-copy",
       "title": "1 hand-copied enum list(s) remain (accepted debt)",
       "details": "0 of them are INCOMPLETE copies — those are the ones that silently drop a value: ",
@@ -211,7 +202,7 @@
       "action": "Derive from enums.js; the baseline may only shrink"
     },
     {
-      "id": "I19",
+      "id": "I18",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -222,18 +213,18 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I20",
+      "id": "I19",
       "severity": "info",
       "check": "id-stability",
-      "title": "409 id(s) pinned across 10 families",
-      "details": "ADR 51 · BR 22 · FEAT 13 · FR 118 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 68 · SEC 21 · ZV2-CR 8 · roster 409",
+      "title": "410 id(s) pinned across 10 families",
+      "details": "ADR 51 · BR 22 · FEAT 13 · FR 118 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 69 · SEC 21 · ZV2-CR 8 · roster 410",
       "files": [
         "docs/.id-ledger.json"
       ],
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I21",
+      "id": "I20",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -244,7 +235,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I22",
+      "id": "I21",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "23 delivered requirement(s) carry no roadmap row (accepted debt)",

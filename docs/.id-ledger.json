@@ -314,6 +314,7 @@
     "SDD-066",
     "SDD-067",
     "SDD-068",
+    "SDD-069",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -3478,6 +3479,19 @@
       "history": [
         {
           "anchor": "field name mapping between stage functions is made explicit",
+          "since": "2026-08-28",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-069": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "fefad7d66bce20dae54055f9f317ab1a9c0e8cfa7afc3e12d27879d6b93ba9a2",
+      "history": [
+        {
+          "anchor": "the ledger writing wiring binds one artifact identity to",
           "since": "2026-08-28",
           "reason": "declared"
         }

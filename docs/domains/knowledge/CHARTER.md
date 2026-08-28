@@ -76,20 +76,24 @@ instead of creating a second one. The uniqueness belongs to the database, not
 to this domain — which is the point: a rule held by a constraint outlives a
 rule held by whichever caller remembers to check.
 
-FR-109 itself is delivered at three of its thirteen acceptance criteria: the
-catalog and the run identity, not the job trace and not the monitor. Four of
-the ten remaining wait on a declared id — NFR-020, BR-022, FR-110 and SDD-059's
-charter change — and one waits on GKS and GenesisBlockDB reporting onto the
-ledger, which ADR-050 D3 puts outside this repository.
+FR-109 itself is delivered at four of its thirteen acceptance criteria: the
+catalog, the run identity, and — since `ingestKnowledgeDocument` landed
+(SDD-069) — a structured and an unstructured source both provably ingested
+through the one catalog. Not the job trace and not the monitor in full: three
+more criteria gained real Tier-1 evidence without closing, because each also
+needs something this slice does not build (FR-110's Published Snapshot,
+persisted derived objects, or a reader that acts on a `REVISION_OF` result).
 
-The other five wait on ledger-writing wiring: something that calls FR-118,
-takes its envelope, and writes a `PipelineStep` transition plus a
-`PipelineRecordEvent` row per stage via `recordPipelineEvent`. **That wiring
-has no id yet** — FR-118 declared and closed the compute half of what this
-charter used to call "a stage runner" undeclared and by name only; the
-persistence half is still unnamed, so nothing in this repository can see that
-it is missing: not a PRD row, not the roadmap, not a coverage check. The next
-slice in this lane declares that FR before writing it.
+Of the remaining nine, five wait on a declared id — NFR-020, BR-022, FR-110
+(named by two different criteria) and SDD-059's charter change — one waits on
+GKS and GenesisBlockDB reporting onto the ledger (ADR-050 D3, outside this
+repository), one on a column-sized binding rather than a subsystem, and one on
+a reader that has not been written. **None wait on "a stage runner" any more**
+— that phrase named two different unbuilt things at once, and both now have
+ids: FR-118 is the compute half (seven stages composed in one pass) and
+SDD-069 is the persistence half (writing that composition onto the FR-071
+ledger). The phrase is retired because it stopped being able to name anything
+precisely the moment a second thing needed the same word.
 
 ### Declared, not implemented — FR-110 (🔜)
 
