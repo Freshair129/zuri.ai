@@ -210,8 +210,8 @@ after a parser or embedding-model upgrade safe to run over a whole corpus.
 ## Acceptance criteria
 
 Drawn from the specification's §40 Minimum Acceptance Criteria, restricted to
-what FR-109 owns — the catalog, the trace and the evidence. **Four of the
-thirteen are built** — AC-109.1, AC-109.2, AC-109.8 and AC-109.9.
+what FR-109 owns — the catalog, the trace and the evidence. **Five of the
+thirteen are built** — AC-109.1, AC-109.2, AC-109.8, AC-109.9 and AC-109.10.
 
 The persistence half this note used to call unnamed now has one:
 `ingestKnowledgeDocument` (SDD-069) calls FR-118's seven-stage composition and
@@ -222,8 +222,19 @@ materializes. That closed AC-109.2 outright and gave AC-109.4, .7 and .13 real
 evidence for the Tier 1 portion of what each asks — without closing any of the
 three, because each also needs something this slice does not build.
 
-Of the remaining nine: five name a **declared id** — NFR-020, BR-022, FR-110
-(twice, for AC-109.7 and AC-109.11) and SDD-059's charter change. One names a
+FR-119 (SDD-072) closed a second criterion the same way, by extending FR-118
+itself: `runKnowledgeIngestionStagesWithTrace` reports exactly which stages
+succeeded before a document failed, so `ingestKnowledgeDocument` writes real
+`STEP_SUCCEEDED` evidence for those stages and then BR-022's complete
+quarantine envelope — `STEP_FAILED`, `RECORD_FAILED`, `docId` bound — for the
+one that did not. AC-109.10 is fully closed, not merely evidenced: every Tier
+1 failure classifies `NON_RETRYABLE` by a real finding (the seven stage
+functions are pure and deterministic; an ambiguous value already declines via
+`canonical: null` rather than throwing, per FR-114/SDD-061), and no object is
+silently dropped.
+
+Of the remaining eight: four name a **declared id** — NFR-020, FR-110 (twice,
+for AC-109.7 and AC-109.11) and SDD-059's charter change. One names a
 boundary — Stages 9-17 report from GKS and GenesisBlockDB, which is ADR-050 D3
 and not a gap in this repository. AC-109.3 names a column, not a subsystem.
 AC-109.13 names a decision nothing has made yet: acting differently on a
@@ -303,10 +314,18 @@ AC-109.13 names a decision nothing has made yet: acting differently on a
       performs. Proven against the real database, not only against the
       in-memory fake, because a fake that does not implement `@unique` cannot
       fail the test that matters.
-- [ ] **AC-109.10** A failed object is classified retryable / non-retryable /
+- [x] **AC-109.10** A failed object is classified retryable / non-retryable /
       review-required and quarantined with the complete BR-022 envelope; no
-      object is dropped.
-      Waits on **BR-022** (declared 2026-08-27, unimplemented).
+      object is dropped. `ingestKnowledgeDocument` (FR-119) writes the full
+      nine-field envelope — `job_id`, `artifact_id`, `stage`, `error_code`,
+      `error_message`, `retry_count`, `first_failed_at`, `last_failed_at`,
+      `pipeline_version` — plus `classification`, and `docId`-binds a
+      `RECORD_FAILED` event so the document is never silently dropped. Every
+      Tier 1 stage's failure classifies `NON_RETRYABLE` — a finding, not a
+      placeholder: the seven stage functions are pure and deterministic, so a
+      thrown validation error repeats identically on retry, and an ambiguous
+      value already declines via `canonical: null` (FR-114, SDD-061) rather
+      than throwing, so it never reaches quarantine to need `REVIEW_REQUIRED`.
 - [ ] **AC-109.11** The job lifecycle exposes `RECEIVED`, `PROCESSING`,
       `VALIDATING`, `READY_TO_PUBLISH`, `PUBLISHED` and the failure states
       `RETRYABLE_FAILED`, `QUARANTINED`, `REJECTED`, `SUPERSEDED`, and never
@@ -337,12 +356,13 @@ AC-109.13 names a decision nothing has made yet: acting differently on a
   that decision rather than implementing it. The 2026-08-28 slice added a
   catalog constant, a definition registry and a pure input builder — no model,
   no migration, no route.
-- **Not the whole trace and not the monitor.** Four of the thirteen acceptance
-  criteria are built now; nine are not, and none of the nine wait on
-  ledger-writing wiring any more — that wiring exists (SDD-069) and gave three
-  of the nine real evidence without closing them. Reading this note as
-  "FR-109 is done" would still overstate it, now by nine criteria rather than
-  ten, each waiting on something specific and named above.
+- **Not the whole trace and not the monitor.** Five of the thirteen acceptance
+  criteria are built now; eight are not, and none of the eight wait on
+  ledger-writing wiring or on failure attribution any more — both exist
+  (SDD-069, SDD-072) and gave three of the eight real evidence without
+  closing them. Reading this note as "FR-109 is done" would still overstate
+  it, now by eight criteria rather than nine, each waiting on something
+  specific and named above.
 - zuri-ai does not execute the stages ADR-050 assigns to GKS or
   GenesisBlockDB. Entity resolution, ontology authority, fact and relation
   governance stay with GKS (spec §37); vector, lexical, graph, structured,

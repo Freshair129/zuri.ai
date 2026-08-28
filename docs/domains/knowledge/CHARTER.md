@@ -76,16 +76,18 @@ instead of creating a second one. The uniqueness belongs to the database, not
 to this domain — which is the point: a rule held by a constraint outlives a
 rule held by whichever caller remembers to check.
 
-FR-109 itself is delivered at four of its thirteen acceptance criteria: the
-catalog, the run identity, and — since `ingestKnowledgeDocument` landed
-(SDD-069) — a structured and an unstructured source both provably ingested
-through the one catalog. Not the job trace and not the monitor in full: three
-more criteria gained real Tier-1 evidence without closing, because each also
-needs something this slice does not build (FR-110's Published Snapshot,
-persisted derived objects, or a reader that acts on a `REVISION_OF` result).
+FR-109 itself is delivered at five of its thirteen acceptance criteria: the
+catalog, the run identity, a structured and an unstructured source both
+provably ingested through the one catalog (SDD-069) — and, since FR-119
+(SDD-072), a failed document quarantined with BR-022's complete envelope
+rather than reported as nothing having happened. Not the job trace and not
+the monitor in full: three more criteria gained real Tier-1 evidence without
+closing, because each also needs something this slice does not build
+(FR-110's Published Snapshot, persisted derived objects, or a reader that
+acts on a `REVISION_OF` result).
 
-Of the remaining nine, five wait on a declared id — NFR-020, BR-022, FR-110
-(named by two different criteria) and SDD-059's charter change — one waits on
+Of the remaining eight, four wait on a declared id — NFR-020, FR-110 (named
+by two different criteria) and SDD-059's charter change — one waits on
 GKS and GenesisBlockDB reporting onto the ledger (ADR-050 D3, outside this
 repository), one on a column-sized binding rather than a subsystem, and one on
 a reader that has not been written. **None wait on "a stage runner" any more**
@@ -106,6 +108,21 @@ written either; `@default(0)` rendered as a measured zero on a live screen,
 own file (`recordPipelineEvent` now aggregates real counts onto the run),
 found from this side because knowledge ingestion was the first caller to
 report a count at all.
+
+**BR-022 closed the same day (FR-119, SDD-072).** FR-118 kept its
+throw-on-first-failure contract unchanged — all fifteen of its tests still
+pass — and gained a sibling, `runKnowledgeIngestionStagesWithTrace`, sharing
+every field mapping so neither duplicates the other. A document that fails
+partway now gets real `STEP_SUCCEEDED` evidence for what completed and
+BR-022's full quarantine envelope for what did not, `docId` bound, nothing
+silently dropped. The finding underneath: every Tier 1 stage failure
+classifies `NON_RETRYABLE`, because the seven stage functions are pure and
+deterministic and an ambiguous value already declines via `canonical: null`
+(FR-114, SDD-061) rather than throwing — `RETRYABLE` and `REVIEW_REQUIRED`
+stay real vocabulary for failure modes this repository does not yet have,
+not deleted for lack of a current trigger. `errorRef` stays a redacted
+reference on the FR-071 ledger; the raw failure message lives only in the
+envelope this executor returns to its own caller.
 
 ### Declared, not implemented — FR-110 (🔜)
 

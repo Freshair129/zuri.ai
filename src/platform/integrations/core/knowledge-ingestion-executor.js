@@ -1,6 +1,7 @@
 import prisma from '@/lib/db'
 import { knowledgeIngestionRunInput } from '@/modules/knowledge/ingestion-job'
-import { runKnowledgeIngestionStages } from '@/modules/knowledge/stage-runner'
+import { runKnowledgeIngestionStagesWithTrace } from '@/modules/knowledge/stage-runner'
+import { buildQuarantineEnvelope } from '@/modules/knowledge/quarantine'
 import { ingestionIdentity } from '@/modules/knowledge/dedup'
 import { IDENTITY_REFS_EMPTY, hashContractPayload } from './pipeline-tracking-contract'
 import { createPipelineRun, recordPipelineEvent } from './pipeline-tracking-service'
@@ -9,8 +10,11 @@ import { createPipelineRun, recordPipelineEvent } from './pipeline-tracking-serv
 // composition and writes its result onto the FR-071 ledger, bound through docId.
 // @req NFR-020 — real per-stage counts, read from what each stage actually
 // produced rather than a uniform placeholder.
-// @spec SDD-069, SDD-070, SDD-066, SDD-057, BR-021, ADR-050 D4
+// @req FR-119 — a document that fails partway is quarantined with BR-022's
+// envelope, not reported as nothing having happened.
+// @spec SDD-069, SDD-070, SDD-072, SDD-066, SDD-057, BR-021, BR-022, ADR-050 D4
 // @tested tests/integration/fr109-knowledge-ingestion-executor.test.js
+// @tested tests/integration/fr119-knowledge-ingestion-quarantine.test.js
 
 const SHA256_HEX = /^[a-f0-9]{64}$/i
 
@@ -29,35 +33,33 @@ const TIER1_STAGES = [
 ]
 
 /**
- * NFR-020's per-stage counts (SDD-070) for each of the seven Tier 1 stages,
- * read from FR-118's actual output rather than reported as a uniform "1 in, 1
- * out" for every stage. `records_failed` is always 0 here: this executor only
- * reaches this loop after `runKnowledgeIngestionStages` has already returned
- * successfully (see the docstring below on what an exception does instead),
- * so nothing in this pass has failed.
+ * NFR-020's per-stage counts (SDD-070) for a stage that SUCCEEDED, read from
+ * what it actually produced rather than a uniform "1 in, 1 out".
  *
  * Normalization is the one stage where `records_out` is not equal to
  * `records_in`: FR-114 declines to normalize a value it cannot decide,
  * returning `canonical: null` rather than guessing (SDD-061). That decline is
  * not a failure — it is normalization working exactly as designed — so it
- * counts against `records_out`, never against `records_failed`.
+ * counts against `records_out`, never against `records_failed`. It is also
+ * the reason `DPS-KI-NORMALIZE` never appears as a *failing* stage below:
+ * `normalizeValue` never throws.
  */
-function stageCounts(pipelineStageId, stageResult, input) {
+function succeededCounts(pipelineStageId, envelope, input) {
   const structuredFields = input.structuredFields || []
   const structuredRecords = input.structuredRecords || []
   switch (pipelineStageId) {
     case 'DPS-KI-NORMALIZE':
       return {
         actualCount: structuredFields.length,
-        insertedCount: stageResult.normalized_fields.filter((f) => f.canonical !== null).length,
+        insertedCount: envelope.normalized_fields.filter((f) => f.canonical !== null).length,
         failedCount: 0,
       }
     case 'DPS-KI-CHUNK':
-      return { actualCount: 1, insertedCount: stageResult.chunks.length, failedCount: 0 }
+      return { actualCount: 1, insertedCount: envelope.chunks.length, failedCount: 0 }
     case 'DPS-KI-ENTITY-EXTRACT':
       return {
-        actualCount: stageResult.chunks.length + structuredRecords.length,
-        insertedCount: stageResult.entity_candidates.length,
+        actualCount: envelope.chunks.length + structuredRecords.length,
+        insertedCount: envelope.entity_candidates.length,
         failedCount: 0,
       }
     default:
@@ -68,31 +70,59 @@ function stageCounts(pipelineStageId, stageResult, input) {
 }
 
 /**
+ * NFR-020's counts for the stage that FAILED (BR-022). The function threw
+ * before producing output, so nothing richer than "one attempt, it failed"
+ * is knowable — reporting a guessed `records_out` for an operation that
+ * never completed would be inventing evidence, not reading it.
+ */
+const FAILED_COUNTS = Object.freeze({ actualCount: 1, insertedCount: 0, failedCount: 1 })
+
+/**
+ * BR-022's `retryable` boolean, derived from `classifyStageFailure`'s
+ * three-way classification. A boolean cannot represent three values, so this
+ * is a mapping decision (SDD-072): only `RETRYABLE` maps to `true`.
+ * `REVIEW_REQUIRED` maps to `false` alongside `NON_RETRYABLE` because
+ * `retryable=false` is the accurate half of what it means — a human must act,
+ * retrying alone will not — even though the ledger's boolean cannot also
+ * carry "needs a human". The full three-way classification is not lost: it
+ * travels in the quarantine envelope this function returns, which is a
+ * richer channel than the boolean the shared ledger schema offers every
+ * pipeline.
+ */
+function toRetryableFlag(classification) {
+  return classification === 'RETRYABLE'
+}
+
+/**
  * Registers a knowledge ingestion run and writes the seven Tier 1 stages'
  * evidence onto the FR-071 ledger, using FR-118's composition as the source
  * of what happened.
  *
  * **What this closes.** `docId` — FR-109's identity table calls it "the
  * `PipelineRecordEvent` column that nothing writes today" — is now written,
- * bound to `documentId` on a `RECORD_STARTED`/`RECORD_SUCCEEDED` pair
- * spanning the Tier 1 pass. Each of the seven stages gets a real
- * `STEP_STARTED`/`STEP_SUCCEEDED` transition on the `PipelineStep` rows
- * `createPipelineRun` already materializes from `KNOWLEDGE_INGESTION_STAGE_CATALOG`.
+ * bound to `documentId` on a `RECORD_STARTED`/`RECORD_SUCCEEDED` (or
+ * `RECORD_FAILED`) pair spanning the Tier 1 pass. Each stage that runs gets a
+ * real `STEP_STARTED`/`STEP_SUCCEEDED` or `STEP_STARTED`/`STEP_FAILED`
+ * transition on the `PipelineStep` rows `createPipelineRun` already
+ * materializes from `KNOWLEDGE_INGESTION_STAGE_CATALOG`.
  *
- * **What it does not close.** The run is never marked finished. Nine of the
- * seventeen catalog steps (Stages 9-17) belong to GKS and GenesisBlockDB
- * (ADR-050 D3) and this repository does not execute them — sending
- * `RUN_FINISHED` here would claim a run is done that is, from what this
- * repository can see, seven-seventeenths done. The run stays `RUNNING` and
- * that is accurate, not incomplete.
+ * **A document that fails partway is quarantined, not silently dropped**
+ * (FR-119, BR-022). `runKnowledgeIngestionStagesWithTrace` reports exactly
+ * which stages succeeded before the failure; this function writes real
+ * `STEP_SUCCEEDED` evidence for every one of them — no longer "nothing
+ * recorded" the moment anything fails — then `STEP_FAILED` for the stage
+ * that threw, carrying BR-022's envelope: a stable `failureCode`, a
+ * `retryable` flag, and a redacted `errorRef` (see `buildQuarantineEnvelope`
+ * for why the raw message is not there). The full envelope, including the
+ * raw `error_message`, is returned to this function's own caller — never
+ * written onto the ledger's redacted fields.
  *
- * A stage failure inside FR-118 is not caught, not classified, and not
- * written as `STEP_FAILED`. FR-118's composition is one synchronous call —
- * it throws on the first bad stage with no partial result — so this function
- * cannot know *which* of the seven stages failed without restructuring
- * FR-118's contract, which this slice does not do. The run this function
- * already created stays at `QUEUED`/`NOT_STARTED` on every step, an honest
- * "attempted, nothing recorded" rather than a guess dressed as evidence.
+ * **What it still does not close.** The run is never marked finished. Nine
+ * of the seventeen catalog steps (Stages 9-17) belong to GKS and
+ * GenesisBlockDB (ADR-050 D3) and this repository does not execute them —
+ * sending `RUN_FINISHED` here would claim a run is done that is, from what
+ * this repository can see, at most seven-seventeenths done. The run stays
+ * `RUNNING` and that is accurate, not incomplete.
  *
  * **Resumable by construction, not by a retry branch.** Every event's
  * `idempotencyKey` is derived from the BR-021 identity plus a fixed suffix,
@@ -126,14 +156,14 @@ export async function ingestKnowledgeDocument(input, {
   const steps = await db.pipelineStep.findMany({ where: { runId: runRow.id } })
   const stepByStage = Object.fromEntries(steps.map((step) => [step.pipelineStageId, step]))
 
-  // Computed once, pure, no partial result on failure (see the docstring
-  // above) — an exception here propagates unchanged, and nothing further in
-  // this function runs.
-  const stageResult = runKnowledgeIngestionStages(input)
+  // Computed once, pure. Never throws itself — a stage's error is reported
+  // in `trace.error`, not propagated, exactly so this function can go on to
+  // write what DID succeed before writing the quarantine envelope for what
+  // did not.
+  const trace = runKnowledgeIngestionStagesWithTrace(input)
 
   const sourceSha256 = SHA256_HEX.test(String(artifact.content_hash)) ? String(artifact.content_hash) : null
   const firstStage = stepByStage[TIER1_STAGES[0][0]]
-  const lastStage = stepByStage[TIER1_STAGES[TIER1_STAGES.length - 1][0]]
 
   const eventBase = {
     dataPipelineDefinitionId: runInput.dataPipelineDefinitionId,
@@ -172,11 +202,17 @@ export async function ingestKnowledgeDocument(input, {
     outputHash: null,
   }, runOptions)
 
+  const envelopeForCounts = trace.success ? trace.envelope : trace.partialEnvelope
+  const succeededIds = new Set(trace.stages.filter((s) => s.status === 'SUCCEEDED').map((s) => s.id))
+
   const stageEvents = []
+  let lastStep = firstStage
   for (const [pipelineStageId, resultKey] of TIER1_STAGES) {
+    if (!succeededIds.has(pipelineStageId) && pipelineStageId !== trace.failedStage) break // never attempted
+
     const step = stepByStage[pipelineStageId]
-    const stageOutputHash = hashContractPayload(stageResult[resultKey])
-    const counts = stageCounts(pipelineStageId, stageResult, input)
+    lastStep = step
+    const succeeded = succeededIds.has(pipelineStageId)
 
     await recordPipelineEvent({
       ...eventBase,
@@ -200,30 +236,103 @@ export async function ingestKnowledgeDocument(input, {
       outputHash: null,
     }, runOptions)
 
-    const succeeded = await recordPipelineEvent({
-      ...eventBase,
-      eventType: 'STEP_SUCCEEDED',
-      pipelineStageId,
-      executionStepId: step.executionStepId,
-      attemptId: step.attemptId,
-      pipelineRecordId: null,
-      sourceRecordKey: null,
-      sourceRowNumber: null,
-      docId: null,
-      picId: null,
-      factId: null,
-      sourceDocIds: [],
-      sourcePicIds: [],
-      destinationRecordId: null,
-      sequence: step.sequence,
-      status: 'SUCCEEDED',
-      idempotencyKey: `${identity}:${pipelineStageId}:succeeded`,
-      inputHash: null,
-      outputHash: stageOutputHash,
-      ...counts,
-    }, runOptions)
+    if (succeeded) {
+      const stageOutputHash = hashContractPayload(envelopeForCounts[resultKey])
+      const stepResult = await recordPipelineEvent({
+        ...eventBase,
+        eventType: 'STEP_SUCCEEDED',
+        pipelineStageId,
+        executionStepId: step.executionStepId,
+        attemptId: step.attemptId,
+        pipelineRecordId: null,
+        sourceRecordKey: null,
+        sourceRowNumber: null,
+        docId: null,
+        picId: null,
+        factId: null,
+        sourceDocIds: [],
+        sourcePicIds: [],
+        destinationRecordId: null,
+        sequence: step.sequence,
+        status: 'SUCCEEDED',
+        idempotencyKey: `${identity}:${pipelineStageId}:succeeded`,
+        inputHash: null,
+        outputHash: stageOutputHash,
+        ...succeededCounts(pipelineStageId, envelopeForCounts, input),
+      }, runOptions)
+      stageEvents.push({ pipelineStageId, status: 'SUCCEEDED', ...stepResult })
+    } else {
+      // The failing stage (FR-119, BR-022). `errorRef` stays redacted per
+      // FR-071's own convention (see buildQuarantineEnvelope) — the real
+      // message travels only in `quarantine.error_message`, returned below.
+      const quarantine = buildQuarantineEnvelope({
+        jobId: runResult.run.executionRunId,
+        artifactId: artifact.artifact_id,
+        pipelineVersion: artifact.pipeline_version,
+        traceResult: trace,
+        now,
+      })
+      const stepResult = await recordPipelineEvent({
+        ...eventBase,
+        eventType: 'STEP_FAILED',
+        pipelineStageId,
+        executionStepId: step.executionStepId,
+        attemptId: step.attemptId,
+        pipelineRecordId: null,
+        sourceRecordKey: null,
+        sourceRowNumber: null,
+        docId: null,
+        picId: null,
+        factId: null,
+        sourceDocIds: [],
+        sourcePicIds: [],
+        destinationRecordId: null,
+        sequence: step.sequence,
+        status: 'FAILED',
+        idempotencyKey: `${identity}:${pipelineStageId}:failed`,
+        inputHash: null,
+        outputHash: null,
+        failureCode: quarantine.error_code,
+        errorRef: `ki-quarantine://${identity}/${pipelineStageId}`,
+        retryable: toRetryableFlag(quarantine.classification),
+        ...FAILED_COUNTS,
+      }, runOptions)
+      stageEvents.push({ pipelineStageId, status: 'FAILED', ...stepResult })
 
-    stageEvents.push({ pipelineStageId, ...succeeded })
+      const recordFailed = await recordPipelineEvent({
+        ...eventBase,
+        eventType: 'RECORD_FAILED',
+        pipelineStageId: null,
+        executionStepId: null,
+        attemptId: lastStep.attemptId,
+        pipelineRecordId: documentId,
+        sourceRecordKey: null,
+        sourceRowNumber: null,
+        docId: documentId,
+        picId: null,
+        factId: null,
+        sourceDocIds: [],
+        sourcePicIds: [],
+        destinationRecordId: null,
+        sequence: null,
+        status: 'FAILED',
+        idempotencyKey: `${identity}:record:failed`,
+        inputHash: null,
+        outputHash: null,
+        failureCode: quarantine.error_code,
+        errorRef: `ki-quarantine://${identity}/record`,
+        retryable: toRetryableFlag(quarantine.classification),
+      }, runOptions)
+
+      return {
+        run: runResult.run,
+        identity,
+        stages: stageEvents,
+        record: recordFailed,
+        quarantine,
+        warnings: trace.partialEnvelope.warnings,
+      }
+    }
   }
 
   const recordSucceeded = await recordPipelineEvent({
@@ -231,7 +340,7 @@ export async function ingestKnowledgeDocument(input, {
     eventType: 'RECORD_SUCCEEDED',
     pipelineStageId: null,
     executionStepId: null,
-    attemptId: lastStage.attemptId,
+    attemptId: lastStep.attemptId,
     pipelineRecordId: documentId,
     sourceRecordKey: null,
     sourceRowNumber: null,
@@ -246,9 +355,9 @@ export async function ingestKnowledgeDocument(input, {
     idempotencyKey: `${identity}:record:succeeded`,
     inputHash: null,
     outputHash: hashContractPayload({
-      chunks: stageResult.chunks.length,
-      entity_candidates: stageResult.entity_candidates.length,
-      dedup: stageResult.dedup.relationship,
+      chunks: trace.envelope.chunks.length,
+      entity_candidates: trace.envelope.entity_candidates.length,
+      dedup: trace.envelope.dedup.relationship,
     }),
   }, runOptions)
 
@@ -257,6 +366,7 @@ export async function ingestKnowledgeDocument(input, {
     identity,
     stages: stageEvents,
     record: recordSucceeded,
-    warnings: stageResult.warnings,
+    quarantine: null,
+    warnings: trace.envelope.warnings,
   }
 }

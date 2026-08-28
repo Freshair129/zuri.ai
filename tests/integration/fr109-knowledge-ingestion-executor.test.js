@@ -208,26 +208,26 @@ describe('FR-109 ledger-writing wiring', () => {
     expect(await prisma.pipelineEventReceipt.count({ where: { runId: run.id } })).toBe(before.receipts)
   })
 
-  it('propagates a stage failure and writes no evidence for it, leaving the run at NOT_STARTED', async () => {
-    // FR-116's own ordering guard: parsed_at before ingested_at is refused.
-    // This proves the composition's error is not swallowed, reshaped or
-    // partially recorded — no STEP_FAILED, because nothing here can say
-    // which of the seven stages threw (see the executor's own docstring).
+  // FR-119 (BR-022) superseded this test's old claim. `ingestKnowledgeDocument`
+  // no longer rejects on a stage failure and no longer leaves the run at
+  // NOT_STARTED with zero evidence — see
+  // tests/integration/fr119-knowledge-ingestion-quarantine.test.js for the
+  // full quarantine behaviour this executor now has instead.
+  it('no longer rejects on a stage failure — it quarantines and writes what actually succeeded', async () => {
     const badFields = { source_version: 'v-fail', ingested_at: '2026-08-28T02:00:00Z', parsed_at: '2026-08-28T01:00:00Z' }
-    await expect(ingest({
-      documentId: 'doc-exec-fail',
-      artifactOver: badFields,
-    })).rejects.toThrow(/ingested_at/)
+    const result = await ingest({ documentId: 'doc-exec-fail', artifactOver: badFields })
+
+    expect(result.quarantine).not.toBeNull()
+    expect(result.quarantine.stage).toBe('DPS-KI-PROVENANCE')
 
     const failedRun = await prisma.pipelineRun.findUnique({
       where: { idempotencyKey: ingestionIdentity(artifact(badFields)) },
     })
-    expect(failedRun).not.toBeNull() // the run itself still registers -- BR-021 identity is reserved regardless
-    expect(failedRun.status).toBe('QUEUED')
-
+    expect(failedRun.status).toBe('RUNNING')
     const steps = await prisma.pipelineStep.findMany({ where: { runId: failedRun.id } })
-    expect(steps.every((s) => s.status === 'NOT_STARTED')).toBe(true)
-    expect(await prisma.pipelineRecordEvent.count({ where: { runId: failedRun.id } })).toBe(0)
+    // Stage 2 (Parse) succeeded before Stage 3 (Provenance) failed.
+    expect(steps.find((s) => s.pipelineStageId === 'DPS-KI-PARSE').status).toBe('SUCCEEDED')
+    expect(steps.find((s) => s.pipelineStageId === 'DPS-KI-PROVENANCE').status).toBe('FAILED')
   })
 
   it('resolves through getPipelineMonitor with a stage timeline naming every Tier 1 stage', async () => {

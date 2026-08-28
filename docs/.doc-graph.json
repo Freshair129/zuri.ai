@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1362,
-    "total_edges": 4635,
+    "total_nodes": 1368,
+    "total_edges": 4675,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,17 +15,17 @@
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 252,
-      "test": 324,
-      "code_file": 357
+      "requirement": 254,
+      "test": 327,
+      "code_file": 358
     },
     "coverage": {
-      "requirements": 252,
-      "fr_with_code": "100% (113/113)",
-      "fr_with_tests": "100% (113/113)",
-      "rules_anchored_in_code": "96% (107/112)",
+      "requirements": 254,
+      "fr_with_code": "100% (114/114)",
+      "fr_with_tests": "100% (114/114)",
+      "rules_anchored_in_code": "96% (109/113)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 357,
+      "annotated_code_files": 358,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -37,7 +37,6 @@
       "fr_without_tests": [],
       "rules_without_anchor": [
         "BR-017",
-        "BR-022",
         "SDD-040",
         "SDD-041",
         "SDD-046"
@@ -5398,6 +5397,26 @@
       }
     },
     {
+      "id": "code:src/modules/knowledge/quarantine.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/quarantine.js",
+      "hash": "5d3da8ed",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-119",
+          "BR-022"
+        ],
+        "@spec": [
+          "SDD-072",
+          "BR-022"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-quarantine.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/query.js",
       "type": "code_file",
       "path": "src/modules/knowledge/query.js",
@@ -5507,19 +5526,22 @@
       "id": "code:src/modules/knowledge/stage-runner.js",
       "type": "code_file",
       "path": "src/modules/knowledge/stage-runner.js",
-      "hash": "40618dc1",
+      "hash": "ff803307",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-118"
+          "FR-118",
+          "FR-119"
         ],
         "@spec": [
           "SDD-068",
+          "SDD-072",
           "FR-109",
-          "SDD-068, ADR-050 D1-D2, docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md"
+          "SDD-068, SDD-072, ADR-050 D1-D2, docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md"
         ],
         "@tested": [
-          "tests/unit/knowledge-stage-runner.test.js"
+          "tests/unit/knowledge-stage-runner.test.js",
+          "tests/unit/knowledge-stage-runner-trace.test.js"
         ]
       }
     },
@@ -7107,23 +7129,28 @@
       "id": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/knowledge-ingestion-executor.js",
-      "hash": "6cd45d0b",
+      "hash": "2256ed62",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-109",
           "FR-118",
-          "NFR-020"
+          "NFR-020",
+          "FR-119",
+          "BR-022"
         ],
         "@spec": [
           "SDD-069",
           "SDD-070",
+          "SDD-072",
           "SDD-066",
           "SDD-057",
-          "BR-021"
+          "BR-021",
+          "BR-022"
         ],
         "@tested": [
-          "tests/integration/fr109-knowledge-ingestion-executor.test.js"
+          "tests/integration/fr109-knowledge-ingestion-executor.test.js",
+          "tests/integration/fr119-knowledge-ingestion-quarantine.test.js"
         ]
       }
     },
@@ -8005,7 +8032,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
-      "hash": "1feb495a",
+      "hash": "56dbe631",
       "status": "current"
     },
     {
@@ -8343,7 +8370,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.106.0b",
       "doc_status": "Draft",
-      "hash": "44ca6af3",
+      "hash": "5714edad",
       "status": "current"
     },
     {
@@ -8650,7 +8677,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "a7a825f1",
+      "hash": "2af5af83",
       "status": "current"
     },
     {
@@ -10574,6 +10601,16 @@
       "row_text": "Tier 1 stage composition: `runKnowledgeIngestionStages` calls the seven Tier 1 knowledge-ingestion stages — parsing (FR-115), provenance capture (FR-116), normalization (FR-114), classification (FR-111), deduplication (FR-117), chunking (FR-112), entity extraction (FR-113) — in ADR-050 D2's own order, over one artifact, in one call. Every prior slice in this lane shipped one calculator and a seam test to its one neighbour — parsing into chunking, chunking into entity extraction, classification into chunking, dedup into the FR-109 run input — four pairs, and a chain of pairs is not a chain, which the knowledge charter now states outright. This is the composition: proven by a test that runs all seven on one real artifact carrying a Thai organisation mention, a structured field and a structured record, and by three more asserting determinism (BR-021 requires the same input reprocess to the same chunk and candidate ids) and correct dedup classification (DUPLICATE_OF and REVISION_OF, not silently treated as fresh). Pure — no I/O, no persistence, no ledger write — so it closes no FR-109 acceptance criterion: AC-109.2, .4, .7 and .13 each require evidence on the FR-071 ledger, which a caller wanting it composes separately by wrapping each stage result with `recordPipelineEvent`, named here and not built. A stage's own error propagates unchanged; BR-022's quarantine vocabulary is declared and unbuilt, and catching an error with nowhere to classify it would read as handling that nothing downstream acts on. ✅ implemented; 15 unit tests "
     },
     {
+      "id": "req:FR-119",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Per-stage failure attribution and BR-022 quarantine: a document that fails partway through the seven Tier 1 stages is quarantined with the complete failure envelope — `job_id`, `artifact_id`, `stage`, `error_code`, `error_message`, `retry_count`, `first_failed_at`, `last_failed_at`, `pipeline_version` — and classified retryable / non-retryable / review-required, rather than reported as nothing having happened. `runKnowledgeIngestionStagesWithTrace` extends FR-118's composition to catch each stage individually and report which succeeded before the one that did not, sharing every field mapping with the original throwing function (SDD-072) so neither duplicates the other. Every Tier 1 stage failure classifies `NON_RETRYABLE`: the seven stage functions are pure and deterministic, so a thrown validation error repeats identically on retry, and `REVIEW_REQUIRED` has no trigger either — an ambiguous value already declines via `canonical: null` (FR-114, SDD-061) rather than throwing, so it never reaches quarantine. `RETRYABLE`/`REVIEW_REQUIRED` stay in the vocabulary for failure modes this repository does not yet have (a network call, Tier 3/4 reporting) rather than being deleted for lack of a current trigger.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Per-stage failure attribution and BR-022 quarantine: a document that fails partway through the seven Tier 1 stages is quarantined with the complete failure envelope — `job_id`, `artifact_id`, `stage`, `error_code`, `error_message`, `retry_count`, `first_failed_at`, `last_failed_at`, `pipeline_version` — and classified retryable / non-retryable / review-required, rather than reported as nothing having happened. `runKnowledgeIngestionStagesWithTrace` extends FR-118's composition to catch each stage individually and report which succeeded before the one that did not, sharing every field mapping with the original throwing function (SDD-072) so neither duplicates the other. Every Tier 1 stage failure classifies `NON_RETRYABLE`: the seven stage functions are pure and deterministic, so a thrown validation error repeats identically on retry, and `REVIEW_REQUIRED` has no trigger either — an ambiguous value already declines via `canonical: null` (FR-114, SDD-061) rather than throwing, so it never reaches quarantine. `RETRYABLE`/`REVIEW_REQUIRED` stay in the vocabulary for failure modes this repository does not yet have (a network call, Tier 3/4 reporting) rather than being deleted for lack of a current trigger. ✅ implemented 2026-08-28; 15 unit tests, 8 real-database integration tests "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -11482,6 +11519,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "The execution monitor has read `PipelineRun.actualCount` / `.failedCount` since before anything wrote them — `@default(0)`, and `mode-bodies.jsx` renders `Failed` in the normal ink specifically because it is zero. That is not an empty panel; it is a false one, indistinguishable on screen from a real zero. `recordPipelineEvent` now aggregates the run's counts from every `PipelineStep` row sharing its `runId` whenever an event supplies a count — real summed integers, not nulls, so the same `  0` coercion in `runSummary`/`stepSummary` that would have silently absorbed a null has nothing to undermine. Aggregate-on-completion, not finalization-only: a run half done showing a final-looking zero would be the same defect in slower motion, and knowledge-ingestion runs never reach `RUN_FINISHED` in this repository (ADR-050 D3) — finalization-only would mean never. The aggregate sums every step row sharing a `runId`, which assumes one row per stage per run; `(runId, pipelineStageId)` carries no uniqueness constraint, only a non-unique index, so a stage retried under a fresh `executionStepId` would be double-counted rather than reporting its true count. Nothing today constructs that — SDD-069 materializes each stage's step once and reuses it; replay creates its steps under a new `runId`, never summed into the original. A second row is not a hypothetical the design left open: the step state machine retries a stage in place — `REPLAYING: ['REPLAYING', 'RUNNING', 'SUCCEEDED', 'FAILED']`, on the same row — and ADR-030's own rejected-alternatives table names the other direction, reusing ids across a retry, as overwriting history and making the result non-auditable. So `(runId, pipelineStageId)` staying unenforced is a real gap against the design's own intent, not an open question — `@@unique([runId, pipelineStageId])` is very likely correct, pending a check for existing duplicate rows before any migration can apply it. Pinned by two tests, not fixed ahead of that check: a fake-db unit test recording today's behaviour against a fake that cannot enforce a uniqueness constraint and would silently go stale the moment a migration lands, and a real-database integration test constructing the same duplicate directly — the one that will actually start failing, at the `create` call rather than at an assertion, the day the constraint exists. NFR-020; SDD-070, SDD-069, ADR-030 "
+    },
+    {
+      "id": "req:SDD-072",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "FR-118's seven stage-invocation steps are extracted into one shared definition (`TIER1_STEPS`) that both `runKnowledgeIngestionStages` and a new `runKnowledgeIngestionStagesWithTrace` iterate, so the field mappings — checksum from content_hash, a chunk's scope as the identity pair alone, and the rest SDD-068 already named — are written once rather than duplicated between a throwing caller and a trace-collecting one. `runKnowledgeIngestionStages` keeps its exact throw-on-first-failure contract; all fifteen of its existing tests pass unchanged, because its observable behaviour did not change, only its internals. The new function never throws itself: a stage's exception becomes data (`{success, stages, envelope, partialEnvelope, failedStage, error}`), because the reason to call it instead of the throwing version is to keep going long enough to report where it stopped. `errorRef` stays redacted on the FR-071 ledger, per that contract's own repeated description of `PipelineRecordEvent`/`PipelineStep` as carrying \"redacted\" evidence, most concretely AC-071.28 (\"agents emit only append-only, redacted events\"). This was a **caller-side convention with no contract enforcement** at the moment this slice was written — `errorRef: z.string().max(1000)` accepted anything. A peer session found the same gap independently while reviewing this slice and closed it separately: `errorRef` is now a validated reference token (SDD-073, `/^[A-Za-z0-9][A-Za-z0-9._:/#@-]*$/`, max 200). Both `errorRef` values this slice writes — `ki-quarantine://{identity}/{stage}` and `ki-quarantine://{identity}/record` — were checked against that pattern directly before this row was written and conform with room to spare. `error_message` (BR-022's field) therefore lives only in the quarantine envelope this executor returns to its own caller; the ledger's `errorRef` holds a stable reference (`ki-quarantine://{identity}/{stage}`) instead. `retryable`, a boolean, cannot carry BR-022's three-way classification — only `RETRYABLE` maps to `true`; `REVIEW_REQUIRED` maps to `false` alongside `NON_RETRYABLE`, since \"a human must act\" and \"retrying alone will not\" are both true of it, and the full classification travels in the envelope regardless of what the shared boolean can hold. `retry_count` is always `0` and `first_failed_at`/`last_failed_at` always coincide — no retry-within-run mechanism exists (the same gap SDD-071 names for NFR-020's identical field), so there is exactly one attempt to time.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "FR-118's seven stage-invocation steps are extracted into one shared definition (`TIER1_STEPS`) that both `runKnowledgeIngestionStages` and a new `runKnowledgeIngestionStagesWithTrace` iterate, so the field mappings — checksum from content_hash, a chunk's scope as the identity pair alone, and the rest SDD-068 already named — are written once rather than duplicated between a throwing caller and a trace-collecting one. `runKnowledgeIngestionStages` keeps its exact throw-on-first-failure contract; all fifteen of its existing tests pass unchanged, because its observable behaviour did not change, only its internals. The new function never throws itself: a stage's exception becomes data (`{success, stages, envelope, partialEnvelope, failedStage, error}`), because the reason to call it instead of the throwing version is to keep going long enough to report where it stopped. `errorRef` stays redacted on the FR-071 ledger, per that contract's own repeated description of `PipelineRecordEvent`/`PipelineStep` as carrying \"redacted\" evidence, most concretely AC-071.28 (\"agents emit only append-only, redacted events\"). This was a **caller-side convention with no contract enforcement** at the moment this slice was written — `errorRef: z.string().max(1000)` accepted anything. A peer session found the same gap independently while reviewing this slice and closed it separately: `errorRef` is now a validated reference token (SDD-073, `/^[A-Za-z0-9][A-Za-z0-9._:/#@-]*$/`, max 200). Both `errorRef` values this slice writes — `ki-quarantine://{identity}/{stage}` and `ki-quarantine://{identity}/record` — were checked against that pattern directly before this row was written and conform with room to spare. `error_message` (BR-022's field) therefore lives only in the quarantine envelope this executor returns to its own caller; the ledger's `errorRef` holds a stable reference (`ki-quarantine://{identity}/{stage}`) instead. `retryable`, a boolean, cannot carry BR-022's three-way classification — only `RETRYABLE` maps to `true`; `REVIEW_REQUIRED` maps to `false` alongside `NON_RETRYABLE`, since \"a human must act\" and \"retrying alone will not\" are both true of it, and the full classification travels in the envelope regardless of what the shared boolean can hold. `retry_count` is always `0` and `first_failed_at`/`last_failed_at` always coincide — no retry-within-run mechanism exists (the same gap SDD-071 names for NFR-020's identical field), so there is exactly one attempt to time. FR-119; SDD-068, SDD-070, SDD-071, SDD-073, BR-022 "
     },
     {
       "id": "req:SEC-001",
@@ -13631,7 +13678,14 @@
       "id": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
       "type": "test",
       "path": "tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "hash": "e297fcff",
+      "hash": "80352a38",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "type": "test",
+      "path": "tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "hash": "e77beee4",
       "status": "current"
     },
     {
@@ -14787,6 +14841,20 @@
       "type": "test",
       "path": "tests/unit/knowledge-provenance.test.js",
       "hash": "71a52970",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-quarantine.test.js",
+      "type": "test",
+      "path": "tests/unit/knowledge-quarantine.test.js",
+      "hash": "34e05742",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/knowledge-stage-runner-trace.test.js",
+      "type": "test",
+      "path": "tests/unit/knowledge-stage-runner-trace.test.js",
+      "hash": "7d3551f2",
       "status": "current"
     },
     {
@@ -23220,6 +23288,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/quarantine.js",
+      "to": "req:BR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/quarantine.js",
+      "to": "req:BR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/quarantine.js",
+      "to": "req:FR-119",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/quarantine.js",
+      "to": "req:SDD-072",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/query.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -23354,7 +23450,21 @@
     },
     {
       "from": "code:src/modules/knowledge/stage-runner.js",
+      "to": "req:FR-119",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/stage-runner.js",
       "to": "req:SDD-068",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/stage-runner.js",
+      "to": "req:SDD-072",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -25839,6 +25949,20 @@
     },
     {
       "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
+      "to": "req:BR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
+      "to": "req:BR-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "to": "req:FR-109",
       "type": "implements",
       "status": "current",
@@ -25847,6 +25971,13 @@
     {
       "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "to": "req:FR-118",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
+      "to": "req:FR-119",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -25882,6 +26013,13 @@
     {
       "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
       "to": "req:SDD-070",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
+      "to": "req:SDD-072",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -27868,6 +28006,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-119",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -28499,6 +28644,13 @@
     },
     {
       "from": "req:SDD-071",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-072",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -35303,6 +35455,13 @@
     },
     {
       "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
+      "to": "req:BR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
       "to": "req:FR-081",
       "type": "verifies",
       "status": "current",
@@ -35317,17 +35476,17 @@
     },
     {
       "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "to": "req:FR-116",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
       "to": "req:FR-118",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
+      "to": "req:FR-119",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
@@ -35370,6 +35529,104 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
+      "to": "req:SDD-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "code:src/platform/integrations/core/knowledge-ingestion-executor.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:BR-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:BR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:FR-118",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:FR-119",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:NFR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:SDD-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:SDD-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:SDD-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:SDD-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:SDD-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+      "to": "req:SDD-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/iam-authorization.test.js",
@@ -43499,6 +43756,83 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/knowledge-quarantine.test.js",
+      "to": "code:src/modules/knowledge/quarantine.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-quarantine.test.js",
+      "to": "req:BR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-quarantine.test.js",
+      "to": "req:FR-119",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-quarantine.test.js",
+      "to": "req:SDD-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-stage-runner-trace.test.js",
+      "to": "code:src/modules/knowledge/stage-runner.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-stage-runner-trace.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-stage-runner-trace.test.js",
+      "to": "req:FR-116",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-stage-runner-trace.test.js",
+      "to": "req:FR-118",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-stage-runner-trace.test.js",
+      "to": "req:FR-119",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-stage-runner-trace.test.js",
+      "to": "req:SDD-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-stage-runner-trace.test.js",
+      "to": "req:SDD-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/knowledge-stage-runner.test.js",
       "to": "code:src/modules/knowledge/stage-runner.js",
       "type": "tests",
@@ -43549,10 +43883,24 @@
     },
     {
       "from": "test:tests/unit/knowledge-stage-runner.test.js",
+      "to": "req:FR-119",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-stage-runner.test.js",
       "to": "req:SDD-068",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-stage-runner.test.js",
+      "to": "req:SDD-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/line-activation-contract.test.js",
