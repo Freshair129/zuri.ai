@@ -3,13 +3,13 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1351,
-    "total_edges": 4587,
+    "total_nodes": 1350,
+    "total_edges": 4586,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
       "document": 107,
-      "adr": 51,
+      "adr": 50,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
@@ -49,9 +49,7 @@
     }
   },
   "drift": {
-    "changed": [
-      "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE"
-    ],
+    "changed": [],
     "added": [],
     "removed": []
   },
@@ -13190,14 +13188,6 @@
       "title": "ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership",
       "hash": "5d52297b",
       "status": "current"
-    },
-    {
-      "id": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
-      "type": "adr",
-      "path": "docs/decisions/ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE.md",
-      "title": "ADR-051 — The primary checkout is not a working lane",
-      "hash": "6f7981d2",
-      "status": "changed"
     },
     {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
@@ -30991,13 +30981,6 @@
     {
       "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
-      "type": "relates",
-      "status": "current",
-      "source": "control-block"
-    },
-    {
-      "from": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
-      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
       "type": "relates",
       "status": "current",
       "source": "control-block"
