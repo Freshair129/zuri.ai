@@ -3,13 +3,13 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1350,
-    "total_edges": 4586,
+    "total_nodes": 1351,
+    "total_edges": 4587,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
       "document": 107,
-      "adr": 50,
+      "adr": 51,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
@@ -50,22 +50,9 @@
   },
   "drift": {
     "changed": [
-      "domain:knowledge",
-      "doc:FR-109-knowledge-ingestion-stage-catalog",
-      "doc:PRD-SDD-v1.0",
-      "test:tests/unit/platform/pipeline-tracking-service.test.js",
-      "code:src/app/api/pipelines/runs/route.js",
-      "code:src/platform/integrations/core/pipeline-tracking-contract.js",
-      "code:src/platform/integrations/core/pipeline-tracking-service.js"
+      "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE"
     ],
-    "added": [
-      "req:SDD-066",
-      "req:SDD-067",
-      "test:tests/integration/fr109-ingestion-run-identity.test.js",
-      "test:tests/unit/knowledge-ingestion-job.test.js",
-      "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "code:src/modules/knowledge/ingestion-job.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -2177,7 +2164,7 @@
       "type": "code_file",
       "path": "src/app/api/pipelines/runs/route.js",
       "hash": "74211fcb",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-071",
@@ -7103,7 +7090,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-contract.js",
       "hash": "91301bef",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-071",
@@ -7127,7 +7114,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-service.js",
       "hash": "3d603cf0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-071"
@@ -7977,7 +7964,7 @@
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
       "hash": "0a61d7d2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
@@ -8307,7 +8294,7 @@
       "version": "1.106.0b",
       "doc_status": "Draft",
       "hash": "1c59d828",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8608,7 +8595,7 @@
         "knowledge"
       ],
       "hash": "b20abe33",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -13205,6 +13192,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE.md",
+      "title": "ADR-051 — The primary checkout is not a working lane",
+      "hash": "6f7981d2",
+      "status": "changed"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -15015,7 +15010,7 @@
       "type": "test",
       "path": "tests/unit/platform/pipeline-tracking-service.test.js",
       "hash": "5cdecbbc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/platform/raw-ingest-service.test.js",
@@ -30996,6 +30991,13 @@
     {
       "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
+      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
       "type": "relates",
       "status": "current",
       "source": "control-block"

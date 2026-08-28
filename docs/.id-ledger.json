@@ -484,6 +484,7 @@
     "ADR-048",
     "ADR-049",
     "ADR-050",
+    "ADR-051",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -5704,6 +5705,19 @@
         {
           "anchor": "knowledge ingestion tier boundary and stage ownership",
           "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-051": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE.md",
+      "status": "current",
+      "statement_digest": "623b11ca58e25e02cb0668ad3e583d5bd2d676a094dcba8ec1195618e920993a",
+      "history": [
+        {
+          "anchor": "the primary checkout is not a working lane",
+          "since": "2026-08-28",
           "reason": "declared"
         }
       ]
