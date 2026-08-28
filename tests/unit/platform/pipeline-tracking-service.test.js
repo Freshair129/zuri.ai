@@ -4,6 +4,9 @@ import {
   DATA_PIPELINE_DEFINITION_ID,
   EXECUTION_CONTRACT_ID,
   IDENTITY_REFS_EMPTY,
+  KNOWLEDGE_INGESTION_CONTRACT_ID,
+  KNOWLEDGE_INGESTION_DEFINITION_ID,
+  KNOWLEDGE_INGESTION_STAGE_CATALOG,
 } from '@/platform/integrations/core/pipeline-tracking-contract'
 import {
   createPipelineRun,
@@ -153,6 +156,52 @@ describe('FR-071 pipeline tracking service', () => {
     expect(db.pipelineStep.rows).toHaveLength(10)
     expect(second.status).toBe('UNCHANGED')
     expect(second.run.executionRunId).toBe(first.run.executionRunId)
+  })
+
+  // @req FR-109 — a knowledge ingestion run materializes its own seventeen
+  // stages, and the ten-stage Supabase run above is unaffected (SDD-066).
+  it('materializes the seventeen knowledge stages for a knowledge ingestion run', async () => {
+    const created = await createPipelineRun(runInput({
+      dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
+      idempotencyKey: 'ki-run-1',
+    }), { db, viewer, idFactory: ids, now: () => new Date('2026-08-28T01:00:00Z') })
+
+    expect(created.stageCount).toBe(17)
+    expect(db.pipelineStep.rows.map((row) => row.pipelineStageId))
+      .toEqual(KNOWLEDGE_INGESTION_STAGE_CATALOG.map((stage) => stage.pipelineStageId))
+    // Sequence is persisted and the step board sorts on it (ADR-050 D1); a
+    // catalog materialized from the wrong definition would put every step at
+    // the wrong number rather than fail visibly.
+    expect(db.pipelineStep.rows.map((row) => row.sequence))
+      .toEqual(KNOWLEDGE_INGESTION_STAGE_CATALOG.map((stage) => stage.sequence))
+  })
+
+  it('refuses a knowledge definition claimed under the FR-071 execution contract', async () => {
+    await expect(createPipelineRun(runInput({
+      dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      idempotencyKey: 'ki-run-2',
+    }), { db, viewer, idFactory: ids })).rejects.toThrow()
+    expect(db.pipelineRun.rows).toHaveLength(0)
+  })
+
+  // @req FR-109 — the envelope is internally consistent on its own; this is the
+  // half it cannot see. Before SDD-066 both z.literal pins made every event and
+  // every run the same definition, so they always matched trivially. Once a
+  // second definition exists, an event can be a valid knowledge envelope and
+  // still be aimed at a Supabase run, and the stage refinement — which reads the
+  // event's OWN definition — would have approved DPS-KI-EMBED on it.
+  it('refuses an event whose definition is not the definition of the run it names', async () => {
+    const created = await createPipelineRun(runInput(), { db, viewer, idFactory: ids })
+    const stepsBefore = db.pipelineStep.rows.length
+
+    await expect(recordPipelineEvent(event(created.run, { pipelineStageId: 'DPS-KI-EMBED', executionStepId: 'step-x', attemptId: 'attempt-x', sequence: 150 }, {
+      dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
+    }), { db, viewer, idFactory: ids })).rejects.toThrow()
+
+    expect(db.pipelineStep.rows).toHaveLength(stepsBefore)
+    expect(db.pipelineEventReceipt.rows).toHaveLength(0)
   })
 
   it('resolves the SmartGift source namespace to the server-owned Business before creating a run', async () => {

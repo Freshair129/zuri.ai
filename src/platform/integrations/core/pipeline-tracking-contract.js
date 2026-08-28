@@ -3,8 +3,11 @@ import { z } from 'zod'
 
 // @req FR-071 — the DuckDB/source-artifact → Supabase pipeline has one stable
 // definition/contract/stage/event identity envelope.
-// @spec ADR-030 D2-D4, SDD-042, SEC-003, SEC-008
+// @req FR-109 — the seventeen-stage knowledge ingestion pipeline is a second
+// definition on the same envelope, not a second ledger.
+// @spec ADR-030 D2-D4, SDD-042, SDD-057, SDD-066, SEC-003, SEC-008, ADR-050
 // @tested tests/unit/platform/pipeline-tracking-contract.test.js
+// @tested tests/unit/platform/knowledge-ingestion-catalog.test.js
 
 export const DATA_PIPELINE_DEFINITION_ID = 'DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1'
 export const EXECUTION_CONTRACT_ID = 'EXC-DATA-MIGRATION-V1'
@@ -21,6 +24,82 @@ export const PIPELINE_STAGE_CATALOG = Object.freeze([
   { sequence: 90, pipelineStageId: 'DPS-PUBLISH', label: 'Publish approved projection' },
   { sequence: 99, pipelineStageId: 'DPS-ROLLBACK', label: 'Rollback failed or rejected run' },
 ])
+
+export const KNOWLEDGE_INGESTION_DEFINITION_ID = 'DPL-KNOWLEDGE-INGEST-V1'
+export const KNOWLEDGE_INGESTION_CONTRACT_ID = 'EXC-KNOWLEDGE-INGEST-V1'
+
+/**
+ * FR-109's seventeen stages, in the sequence its feature note fixes.
+ *
+ * These ids are keys and the sequence is display ordering — the same split
+ * PIPELINE_STAGE_CATALOG above already makes, and the reason the numbering runs
+ * in tens: a stage inserted later must never renumber the evidence of a job
+ * that predates it (ADR-050 D1).
+ *
+ * The owning tier is documented per stage rather than encoded, because ADR-050
+ * D2 assigns AUTHORITY and SDD-058 resolves LOCATION per object from the data's
+ * own classification. A tier column here would read as a deployment rule and be
+ * wrong the first time RESTRICTED knowledge forced Stage 15 to run locally.
+ * Stages 9-17 are reported onto this ledger by GKS and GenesisBlockDB; Tier 1
+ * records them and executes none of them (ADR-050 D3).
+ */
+export const KNOWLEDGE_INGESTION_STAGE_CATALOG = Object.freeze([
+  { sequence: 10, pipelineStageId: 'DPS-KI-INGEST', label: 'Ingestion' },
+  { sequence: 20, pipelineStageId: 'DPS-KI-PARSE', label: 'Parsing / Extraction' },
+  { sequence: 30, pipelineStageId: 'DPS-KI-PROVENANCE', label: 'Provenance Capture' },
+  { sequence: 40, pipelineStageId: 'DPS-KI-NORMALIZE', label: 'Normalization' },
+  { sequence: 50, pipelineStageId: 'DPS-KI-CLASSIFY', label: 'Classification / Access Scope' },
+  { sequence: 60, pipelineStageId: 'DPS-KI-DEDUPE', label: 'Deduplication / Versioning' },
+  { sequence: 70, pipelineStageId: 'DPS-KI-CHUNK', label: 'Chunking' },
+  { sequence: 80, pipelineStageId: 'DPS-KI-ENTITY-EXTRACT', label: 'Entity Extraction' },
+  { sequence: 90, pipelineStageId: 'DPS-KI-ENTITY-RESOLVE', label: 'Entity Resolution' },
+  { sequence: 100, pipelineStageId: 'DPS-KI-FACT-EXTRACT', label: 'Relation / Fact Extraction' },
+  { sequence: 110, pipelineStageId: 'DPS-KI-ONTOLOGY-MAP', label: 'Schema / Ontology Mapping' },
+  { sequence: 120, pipelineStageId: 'DPS-KI-TEMPORAL-MAP', label: 'Temporal Mapping' },
+  { sequence: 130, pipelineStageId: 'DPS-KI-GRAPH-BUILD', label: 'Graph Construction' },
+  { sequence: 140, pipelineStageId: 'DPS-KI-ENRICH', label: 'Knowledge / Graph Enrichment' },
+  { sequence: 150, pipelineStageId: 'DPS-KI-EMBED', label: 'Embedding' },
+  { sequence: 160, pipelineStageId: 'DPS-KI-INDEX', label: 'Multi-Lane Indexing' },
+  { sequence: 170, pipelineStageId: 'DPS-KI-QUALITY-GATE', label: 'Graph + Retrieval Quality Gate' },
+])
+
+/**
+ * Every pipeline definition this ledger accepts, each holding the execution
+ * contract id it is paired with and the catalog that belongs to it (SDD-066).
+ *
+ * The envelope validates the PAIR. Two independent `z.literal` pins — what this
+ * replaced — could each only check one half, so nothing stopped a run claiming
+ * one definition under the other's contract.
+ *
+ * A stage is validated against ITS OWN definition's catalog and never against
+ * the union of both. The union was the cheaper change and it is the wrong one:
+ * it would let a Supabase migration run report a `DPS-KI-EMBED` step and pass
+ * every check, which is the ADR-050 D3 tier boundary being crossed inside a
+ * validator that reported no problem.
+ */
+export const PIPELINE_DEFINITIONS = Object.freeze({
+  [DATA_PIPELINE_DEFINITION_ID]: Object.freeze({
+    executionContractId: EXECUTION_CONTRACT_ID,
+    catalog: PIPELINE_STAGE_CATALOG,
+  }),
+  [KNOWLEDGE_INGESTION_DEFINITION_ID]: Object.freeze({
+    executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
+    catalog: KNOWLEDGE_INGESTION_STAGE_CATALOG,
+  }),
+})
+
+/** Own properties only: `constructor` is not a pipeline definition. */
+export function definitionById(dataPipelineDefinitionId) {
+  return Object.hasOwn(PIPELINE_DEFINITIONS, dataPipelineDefinitionId)
+    ? PIPELINE_DEFINITIONS[dataPipelineDefinitionId]
+    : null
+}
+
+export function catalogFor(dataPipelineDefinitionId) {
+  const definition = definitionById(dataPipelineDefinitionId)
+  if (!definition) throw new Error(`Unknown pipeline definition: ${dataPipelineDefinitionId}`)
+  return definition.catalog
+}
 
 export const RUN_STATUSES = Object.freeze(['QUEUED', 'RUNNING', 'SUCCEEDED', 'FAILED', 'PARTIAL', 'ROLLED_BACK', 'CANCELLED'])
 export const STEP_STATUSES = Object.freeze(['NOT_STARTED', 'RUNNING', 'SUCCEEDED', 'FAILED', 'SKIPPED', 'REPLAYING'])
@@ -62,7 +141,6 @@ export const IDENTITY_REFS_EMPTY = Object.freeze({
   toolIds: [],
 })
 
-const stageIds = PIPELINE_STAGE_CATALOG.map((stage) => stage.pipelineStageId)
 const zId = z.string().trim().min(1).max(500)
 const zNullableId = zId.nullable()
 const zHash = z.string().regex(/^[a-f0-9]{64}$/i, 'must be a SHA-256 hex digest')
@@ -114,12 +192,38 @@ const zGate = z.object({
   reason: z.string().trim().max(500).nullable(),
 }).strict().nullable()
 
+/**
+ * The definition and its execution contract are checked as a pair, and a stage
+ * against that definition's own catalog (SDD-066). Returns the resolved
+ * definition so a caller can go on to check its stage, or null when the
+ * definition itself is unknown and every downstream check would be meaningless.
+ */
+function refineDefinitionPair(value, ctx) {
+  const definition = definitionById(value.dataPipelineDefinitionId)
+  if (!definition) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['dataPipelineDefinitionId'],
+      message: 'unknown pipeline definition',
+    })
+    return null
+  }
+  if (value.executionContractId !== definition.executionContractId) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['executionContractId'],
+      message: `execution contract does not belong to ${value.dataPipelineDefinitionId}`,
+    })
+  }
+  return definition
+}
+
 export const zPipelineEvent = z.object({
   eventType: z.enum(EVENT_TYPES),
-  dataPipelineDefinitionId: z.literal(DATA_PIPELINE_DEFINITION_ID),
-  executionContractId: z.literal(EXECUTION_CONTRACT_ID),
+  dataPipelineDefinitionId: zId,
+  executionContractId: zId,
   executionRunId: zId,
-  pipelineStageId: zId.nullable().refine((value) => value === null || stageIds.includes(value), 'unknown pipeline stage'),
+  pipelineStageId: zNullableId,
   executionStepId: zNullableId,
   attemptId: zNullableId,
   pipelineRecordId: zNullableId,
@@ -146,6 +250,15 @@ export const zPipelineEvent = z.object({
   reconciliation: zReconciliation,
   gate: zGate,
 }).strict().superRefine((value, ctx) => {
+  const definition = refineDefinitionPair(value, ctx)
+  if (definition && value.pipelineStageId !== null
+    && !definition.catalog.some((stage) => stage.pipelineStageId === value.pipelineStageId)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['pipelineStageId'],
+      message: `stage does not belong to ${value.dataPipelineDefinitionId}`,
+    })
+  }
   const stepEvent = ['STEP_STARTED', 'STEP_HEARTBEAT', 'STEP_SUCCEEDED', 'STEP_FAILED'].includes(value.eventType)
   const recordEvent = ['RECORD_STARTED', 'RECORD_SUCCEEDED', 'RECORD_FAILED'].includes(value.eventType)
   if (stepEvent && (!value.pipelineStageId || !value.executionStepId || !value.attemptId)) {
@@ -172,8 +285,8 @@ export const zPipelineEvent = z.object({
 })
 
 export const zPipelineRunInput = z.object({
-  dataPipelineDefinitionId: z.literal(DATA_PIPELINE_DEFINITION_ID),
-  executionContractId: z.literal(EXECUTION_CONTRACT_ID),
+  dataPipelineDefinitionId: zId,
+  executionContractId: zId,
   businessId: zId,
   sourceRef: z.string().trim().max(1000).nullable().optional().default(null),
   sourceSha256: zHash.nullable().optional().default(null),
@@ -185,7 +298,7 @@ export const zPipelineRunInput = z.object({
   idempotencyKey: zId,
   identityRefs: zIdentityRefs,
   tagIds: z.array(zId).max(100).default([]),
-}).strict()
+}).strict().superRefine(refineDefinitionPair)
 
 export const zReplayInput = z.object({
   scope: z.enum(['FULL_RUN', 'FAILED_STAGE', 'FAILED_RECORDS', 'PROVENANCE_FILTERED']),
@@ -261,6 +374,21 @@ export function hashContractPayload(value) {
   return createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex')
 }
 
-export function stageById(pipelineStageId) {
-  return PIPELINE_STAGE_CATALOG.find((stage) => stage.pipelineStageId === pipelineStageId) || null
+/**
+ * A stage is only meaningful inside the definition that declares it, so both
+ * arguments are required and there is no default.
+ *
+ * A default of DATA_PIPELINE_DEFINITION_ID would have been the compatible
+ * change and a silent one: every `DPS-KI-*` stage would resolve to null, and
+ * the record-event path reads `stage?.sequence ?? 0` off that null — seventeen
+ * knowledge steps all landing on sequence 0, and a stage board rendering in
+ * whatever order the rows came back.
+ */
+export function stageById(dataPipelineDefinitionId, pipelineStageId) {
+  if (arguments.length < 2) {
+    throw new Error('stageById requires the pipeline definition the stage belongs to')
+  }
+  const definition = definitionById(dataPipelineDefinitionId)
+  if (!definition) return null
+  return definition.catalog.find((stage) => stage.pipelineStageId === pipelineStageId) || null
 }

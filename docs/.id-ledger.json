@@ -310,6 +310,8 @@
     "SDD-063",
     "SDD-064",
     "SDD-065",
+    "SDD-066",
+    "SDD-067",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -3422,6 +3424,32 @@
         {
           "anchor": "cross tenant deduplication is made inexpressible rather",
           "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-066": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3df3d90b7b735871904ea9a8dae9fa1ed6d8047395bc3479974f8027f80b5ca5",
+      "history": [
+        {
+          "anchor": "a pipeline definition is a registry entry and a stage id is",
+          "since": "2026-08-28",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-067": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5a23a83d01f63161b1be9f72992f7cef63b2f906da799ba8ec71332206160c9f",
+      "history": [
+        {
+          "anchor": "a knowledge ingestion run input is derived whole from the",
+          "since": "2026-08-28",
           "reason": "declared"
         }
       ]
