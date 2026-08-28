@@ -45,6 +45,17 @@ export function claimedRequirements(roadmapText) {
   // nobody owns the thing. A row *owns* a requirement through its id
   // (`TASK-FR-104`) or by naming it in its title, and nowhere else.
   //
+  // **The limitation, because a check that overstates its guarantee is the very
+  // thing this file is about.** A title mention credits a row with owning the id,
+  // and a title can name an id for other reasons. On 2026-08-28 `TASK-FR-115` and
+  // `TASK-FR-116` both named FR-071 in their titles -- referring to what FR-071
+  // owns, not accounting for it -- and FR-071 stopped being reported while still
+  // having no row of its own. Telling "this row is about X" from "this row
+  // mentions X" is not mechanically decidable in prose, so this check is a LOWER
+  // BOUND on missing rows, never an exact set: what it reports is definitely
+  // missing, what it stays silent about may still be. Do not read silence as
+  // coverage.
+  //
   // Worth recording plainly: this check exists because a guard read a set that
   // could not contain the failure, and its own first draft read the wrong
   // columns for the same reason. Being alert to the shape does not prevent
