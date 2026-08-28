@@ -49,23 +49,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "domain:knowledge",
-      "doc:FR-109-knowledge-ingestion-stage-catalog",
-      "doc:PRD-SDD-v1.0",
-      "test:tests/unit/platform/pipeline-tracking-service.test.js",
-      "code:src/app/api/pipelines/runs/route.js",
-      "code:src/platform/integrations/core/pipeline-tracking-contract.js",
-      "code:src/platform/integrations/core/pipeline-tracking-service.js"
-    ],
-    "added": [
-      "req:SDD-066",
-      "req:SDD-067",
-      "test:tests/integration/fr109-ingestion-run-identity.test.js",
-      "test:tests/unit/knowledge-ingestion-job.test.js",
-      "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "code:src/modules/knowledge/ingestion-job.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -2177,7 +2162,7 @@
       "type": "code_file",
       "path": "src/app/api/pipelines/runs/route.js",
       "hash": "74211fcb",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-071",
@@ -7103,7 +7088,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-contract.js",
       "hash": "91301bef",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-071",
@@ -7127,7 +7112,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-service.js",
       "hash": "3d603cf0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-071"
@@ -7977,7 +7962,7 @@
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
       "hash": "0a61d7d2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
@@ -8307,7 +8292,7 @@
       "version": "1.106.0b",
       "doc_status": "Draft",
       "hash": "1c59d828",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8608,7 +8593,7 @@
         "knowledge"
       ],
       "hash": "b20abe33",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -15015,7 +15000,7 @@
       "type": "test",
       "path": "tests/unit/platform/pipeline-tracking-service.test.js",
       "hash": "5cdecbbc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/platform/raw-ingest-service.test.js",

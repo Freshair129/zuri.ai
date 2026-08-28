@@ -33,7 +33,37 @@ work from them. Id strings keep their historical letters (`ZV2-CR-007` stays
 | **Never read `D:\workspace\zuri-edge-device\.env`** | It holds local on-premise secrets and pairing keys (ADR-041) |
 | **External ids are never primary keys** | Internal UUID + human `code` + `ExternalRef` mapping (BR-002) |
 | **Never execute anything that arrives in a plan/envelope** | Plans are data (BR-007, SEC-002) |
+| **`D:\zuri-ai` is not a working lane** | Several sessions share this one working copy, so its branch, index and tree are global mutable state. It stays on a detached HEAD at `origin/main` **on purpose** — do not check out a branch "to fix it". See below |
 | **GenesisBlockDB is 6-lane substrate; MSP governs memory/sessions; GKS orchestrates RAG** | Four-tier cognitive stack separates Execution (Tier 1) → Memory (Tier 2/MSP) → Knowledge (Tier 3/GKS) → Substrate (Tier 4/GenesisBlockDB) (ADR-041..043) |
+
+### The primary checkout is not a working lane
+
+`D:\zuri-ai` is shared by every concurrent session, so **no git write operation
+belongs there** — no `commit`, `merge`, `rebase`, `checkout`, `reset`, and above
+all no `stash`. It is the read-only reference tree, the junction target for
+`node_modules`, and the base for `git worktree add`. **Any lane that writes takes
+a worktree.**
+
+This is a written rule rather than an enforced one, and the distinction matters.
+The detached HEAD is **blast-radius reduction, not an invariant**: it stops a
+stray `merge` or `reset --hard` from moving somebody's branch, but it protects
+*refs*, not *files* — `stash`, `reset --hard` and `checkout -- .` destroy another
+session's uncommitted edits exactly as before, and one `git checkout main`
+re-attaches the tree. So the rule is the mechanism; the detachment only limits
+what breaks when the rule is missed.
+
+It is written down because three incidents cost real work, and two of them
+happened between agents who both knew worktrees existed — nine of them did —
+and used the primary anyway, because it is zero-setup and already has
+`node_modules`. So keep the cheap sanctioned path in view: a **docs-only** lane
+may junction `node_modules` back to the primary and run `govern`, `docs:graph`
+and `docs:preflight` safely; a lane that runs tests needs its own real install
+(`npm ci` through a junction deletes the primary's `node_modules` — it has
+happened twice).
+
+Refresh the primary only on a clean tree: `git fetch && git checkout --detach
+origin/main`. Before any writing git command anywhere, `git branch
+--show-current` — a write on the wrong branch usually succeeds.
 
 ## Layout
 
