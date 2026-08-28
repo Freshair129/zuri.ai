@@ -5,7 +5,7 @@ import { z } from 'zod'
 // definition/contract/stage/event identity envelope.
 // @req FR-109 — the seventeen-stage knowledge ingestion pipeline is a second
 // definition on the same envelope, not a second ledger.
-// @spec ADR-030 D2-D4, SDD-042, SDD-057, SDD-066, SEC-003, SEC-008, ADR-050
+// @spec ADR-030 D2-D4, SDD-042, SDD-057, SDD-066, SDD-073, SEC-003, SEC-008, ADR-050
 // @tested tests/unit/platform/pipeline-tracking-contract.test.js
 // @tested tests/unit/platform/knowledge-ingestion-catalog.test.js
 
@@ -146,6 +146,45 @@ const zNullableId = zId.nullable()
 const zHash = z.string().regex(/^[a-f0-9]{64}$/i, 'must be a SHA-256 hex digest')
 const zNullableHash = zHash.nullable()
 const zCount = z.number().int().nonnegative()
+
+// SDD-073 — `errorRef` is a REFERENCE to an error, never the error itself.
+//
+// FR-071 says this four times ("one redacted record outcome per attempt", the
+// "redacted append-only evidence outbox", "keep restricted document payloads
+// separate from redacted pipeline events", and AC-071.28's "emit only
+// append-only, redacted" events) and, until this shape existed, enforced it
+// zero times: the field was `z.string().max(1000)`, which accepts a stack
+// trace, an exception message, or a quoted document fragment. The rule lived
+// entirely in caller discipline, and the ledger it protects is append-only —
+// a payload written there cannot be taken back.
+//
+// The allowed shape is a reference token: ASCII alphanumerics plus the
+// separators a handle uses (`err://event-1`, a UUID, `ERR-1234`,
+// `errors/2026-08-28/ab12`). Every value in the repository already conforms.
+//
+// **Whitespace alone is NOT the test, and that is the whole reason for the
+// character class.** The obvious guard — reject anything containing a space or
+// newline — reads as sufficient in English and is not: Thai does not separate
+// words with spaces, so an entire Thai sentence is one whitespace-free token
+// and would pass untouched. In a product whose user-facing copy is Thai, an
+// error message is more likely to be Thai than not. Allowing a known alphabet
+// rather than rejecting a known separator is what closes that.
+//
+// **What this does not do.** It blocks the accident — passing `err.message` or
+// `err.stack` straight through, which is how this field would realistically be
+// polluted — not a determined caller, who can still concatenate a sentence
+// with underscores. It raises the cost of leaking and removes the silent path;
+// it does not make disclosure impossible. Do not read a passing value as
+// evidence that the reference carries nothing sensitive.
+const zErrorRef = z
+  .string()
+  .trim()
+  .min(1)
+  .max(200)
+  .regex(
+    /^[A-Za-z0-9][A-Za-z0-9._:/#@-]*$/,
+    'errorRef must be a redacted reference token (AC-071.28), not error text',
+  )
 const zIdentityRefs = z.object({
   nodeIds: z.array(zId).max(100),
   edgeIds: z.array(zId).max(100),
@@ -254,7 +293,7 @@ export const zPipelineEvent = z.object({
   tagIds: z.array(zId).max(100),
   identityRefs: zIdentityRefs,
   failureCode: z.string().trim().min(1).max(200).nullable(),
-  errorRef: z.string().trim().min(1).max(1000).nullable(),
+  errorRef: zErrorRef.nullable(),
   retryable: z.boolean().nullable(),
   reconciliation: zReconciliation,
   gate: zGate,
