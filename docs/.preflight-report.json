@@ -4,13 +4,13 @@
   "scanned": {
     "docs": 202,
     "routes": 102,
-    "test_files": 322
+    "test_files": 321
   },
   "summary": {
-    "critical": 1,
+    "critical": 0,
     "warning": 0,
     "info": 22,
-    "overall": "CRITICAL"
+    "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -225,8 +225,8 @@
       "id": "I20",
       "severity": "info",
       "check": "id-stability",
-      "title": "408 id(s) pinned across 10 families",
-      "details": "ADR 50 · BR 22 · FEAT 13 · FR 118 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 68 · SEC 21 · ZV2-CR 8 · roster 408",
+      "title": "407 id(s) pinned across 10 families",
+      "details": "ADR 51 · BR 22 · FEAT 13 · FR 117 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 67 · SEC 21 · ZV2-CR 8 · roster 407",
       "files": [
         "docs/.id-ledger.json"
       ],
@@ -244,18 +244,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "C22",
-      "severity": "critical",
-      "check": "roadmap-coverage",
-      "title": "1 delivered requirement(s) have no roadmap row",
-      "details": "FR-118",
-      "files": [
-        "docs/roadmap/ROADMAP.md"
-      ],
-      "action": "Add a Backlog Items row under the owning phase — the roadmap is source_of_truth and Mission Control reads it, so a delivered requirement with no row understates what shipped. Never widen .roadmap-coverage-baseline.json to silence this"
-    },
-    {
-      "id": "I23",
+      "id": "I22",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "23 delivered requirement(s) carry no roadmap row (accepted debt)",

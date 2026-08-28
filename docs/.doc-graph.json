@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1355,
-    "total_edges": 4600,
+    "total_nodes": 1351,
+    "total_edges": 4587,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 108,
-      "adr": 50,
+      "document": 107,
+      "adr": 51,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
       "route": 150,
       "model": 67,
-      "requirement": 249,
-      "test": 322,
-      "code_file": 356
+      "requirement": 247,
+      "test": 321,
+      "code_file": 355
     },
     "coverage": {
-      "requirements": 249,
-      "fr_with_code": "100% (113/113)",
-      "fr_with_tests": "100% (113/113)",
-      "rules_anchored_in_code": "95% (104/109)",
+      "requirements": 247,
+      "fr_with_code": "100% (112/112)",
+      "fr_with_tests": "100% (112/112)",
+      "rules_anchored_in_code": "95% (103/108)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 356,
+      "annotated_code_files": 355,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -50,8 +50,7 @@
   },
   "drift": {
     "changed": [
-      "doc:FR-111-knowledge-sensitivity-lattice",
-      "doc:PRD-SDD-v1.0"
+      "doc:ROADMAP"
     ],
     "added": [],
     "removed": []
@@ -5507,26 +5506,6 @@
       }
     },
     {
-      "id": "code:src/modules/knowledge/stage-runner.js",
-      "type": "code_file",
-      "path": "src/modules/knowledge/stage-runner.js",
-      "hash": "40618dc1",
-      "status": "current",
-      "annotations": {
-        "@req": [
-          "FR-118"
-        ],
-        "@spec": [
-          "SDD-068",
-          "FR-109",
-          "SDD-068, ADR-050 D1-D2, docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md"
-        ],
-        "@tested": [
-          "tests/unit/knowledge-stage-runner.test.js"
-        ]
-      }
-    },
-    {
       "id": "code:src/modules/knowledge/supabase-business-knowledge.js",
       "type": "code_file",
       "path": "src/modules/knowledge/supabase-business-knowledge.js",
@@ -7984,7 +7963,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
-      "hash": "06dc027e",
+      "hash": "0a61d7d2",
       "status": "current"
     },
     {
@@ -8000,8 +7979,8 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-111-knowledge-sensitivity-lattice.md",
       "title": "FR-111 — Knowledge sensitivity lattice and processing policy",
-      "hash": "73a15cfb",
-      "status": "changed"
+      "hash": "4c3f287f",
+      "status": "current"
     },
     {
       "id": "doc:FR-112-structural-knowledge-chunking",
@@ -8049,14 +8028,6 @@
       "path": "docs/domains/knowledge/features/FR-117-deduplication-and-versioning.md",
       "title": "FR-117 — Deduplication and version relationships within one tenant",
       "hash": "8fb844b3",
-      "status": "current"
-    },
-    {
-      "id": "doc:FR-118-tier1-stage-composition",
-      "type": "document",
-      "path": "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
-      "title": "FR-118 — Tier 1 stage composition",
-      "hash": "04a0e5e8",
       "status": "current"
     },
     {
@@ -8322,8 +8293,8 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.106.0b",
       "doc_status": "Draft",
-      "hash": "b37f2a1d",
-      "status": "changed"
+      "hash": "1c59d828",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8358,8 +8329,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "f26bb431",
-      "status": "current"
+      "hash": "c549b4f4",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -8623,7 +8594,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "61e78c6c",
+      "hash": "b20abe33",
       "status": "current"
     },
     {
@@ -10454,7 +10425,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-28 — the catalog and the run identity, 3 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, and stage ids validate against their own definition's catalog rather than the union — SDD-066), and AC-109.9 (BR-021 idempotency persisted as the run key, so re-ingesting the same artifact returns the existing run instead of a second one — SDD-067). The remaining ten are named rather than left pending: AC-109.3 waits on binding `artifact_id` to storage FR-081 already provides, AC-109.5 on SDD-059's chunk-persistence charter change, AC-109.6 on NFR-020 metrics, AC-109.10 on BR-022 quarantine, AC-109.11 on the FR-110 job lifecycle, AC-109.12 on a Tier 3/4 reporter — and AC-109.2/.4/.7/.13 on ledger-writing wiring: something that calls FR-118's seven-stage composition (2026-08-28) and writes its result onto the FR-071 ledger, which FR-118 itself does not do. No new Prisma model and no migration (ADR-050 D4); 22 unit tests plus a real-database integration suite "
+      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-28 — the catalog and the run identity, 3 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, and stage ids validate against their own definition's catalog rather than the union — SDD-066), and AC-109.9 (BR-021 idempotency persisted as the run key, so re-ingesting the same artifact returns the existing run instead of a second one — SDD-067). The remaining ten are named rather than left pending: AC-109.2/.3/.4/.5/.7 wait on a stage runner writing record events, AC-109.6 on NFR-020 metrics, AC-109.10 on BR-022 quarantine, AC-109.11 on the FR-110 job lifecycle, AC-109.12 on a Tier 3/4 reporter, AC-109.13 on incremental reprocessing. No new Prisma model and no migration (ADR-050 D4); 22 unit tests plus a real-database integration suite "
     },
     {
       "id": "req:FR-110",
@@ -10474,7 +10445,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Knowledge sensitivity lattice and processing policy fields: business knowledge carries a real classification instead of the single `sensitivity: z.literal('PUBLIC')` the FR-047 contract admits today (`src/modules/knowledge/business-contract.js`) — widening to the PUBLIC / INTERNAL / CONFIDENTIAL / RESTRICTED lattice and adding the per-object processing policy the pipeline must obey before it indexes anything: retention, export, `cloud_processing_allowed` and `embedding_allowed` (spec §10). Classification happens before indexing, never as a filter applied after retrieval (spec §3.3): in the index-everything-then-filter pattern a scope mistake is a disclosure rather than a ranking error, and the filter is the only thing standing between the two. RESTRICTED with `cloud_processing_allowed = false` forces all seventeen stages onto local execution (SDD-058). Extends — never replaces — the SEC-001 tenant guard and the SEC-009 deny-by-default public read boundary. ✅ implemented 2026-08-27 — lattice, the four policy fields, classify-before-index and per-object execution location; 24 unit tests. AC-111.5 waits on an all-seventeen-stage executor consulting `resolveExecutionLocation` — wider than FR-118 (2026-08-28), whose seven-stage composition runs unconditionally and never calls it — AC-111.7 on Stage 15 embedding, AC-111.8 on Stage 6 dedup, AC-111.10 on the Stage 17 gate — each named rather than left as pending "
+      "row_text": "Knowledge sensitivity lattice and processing policy fields: business knowledge carries a real classification instead of the single `sensitivity: z.literal('PUBLIC')` the FR-047 contract admits today (`src/modules/knowledge/business-contract.js`) — widening to the PUBLIC / INTERNAL / CONFIDENTIAL / RESTRICTED lattice and adding the per-object processing policy the pipeline must obey before it indexes anything: retention, export, `cloud_processing_allowed` and `embedding_allowed` (spec §10). Classification happens before indexing, never as a filter applied after retrieval (spec §3.3): in the index-everything-then-filter pattern a scope mistake is a disclosure rather than a ranking error, and the filter is the only thing standing between the two. RESTRICTED with `cloud_processing_allowed = false` forces all seventeen stages onto local execution (SDD-058). Extends — never replaces — the SEC-001 tenant guard and the SEC-009 deny-by-default public read boundary. ✅ implemented 2026-08-27 — lattice, the four policy fields, classify-before-index and per-object execution location; 24 unit tests. AC-111.5 waits on a stage runner, AC-111.7 on Stage 15 embedding, AC-111.8 on Stage 6 dedup, AC-111.10 on the Stage 17 gate — each named rather than left as pending "
     },
     {
       "id": "req:FR-112",
@@ -10535,16 +10506,6 @@
       "declared": "done",
       "status": "current",
       "row_text": "Deduplication and version relationships within one tenant: an artifact is placed against the ones already held as a `DUPLICATE_OF`, a `REVISION_OF`, or independent of all of them, using BR-021's four-part ingestion identity — source identity, source version, content hash and pipeline version — computed inside a tenant and never across one (SEC-021). Both rules have carried no code anchor since they were declared; this is what gives them one. A revision emits its supersession as a PAIR, `SUPERSEDES` from the incoming artifact and `SUPERSEDED_BY` back to the one it replaced, because a graph carrying only the forward edge cannot answer \"what replaced this?\" from the side that was replaced, which is the side that gets asked. A duplicate emits no edge, having replaced nothing. A reparse under a changed pipeline version is a revision rather than a duplicate even when every byte matches, which is what makes reprocessing a whole corpus safe after a parser change. Nothing is defaulted: a missing component of the key is refused rather than hashed as an empty string, because a hole in a key is not an absence but a value every other artifact missing that part will collide with. `DERIVED_FROM` is never assigned here — that edge is provenance and FR-116 owns it. Stage 6 is Tier 1 under ADR-050, so this executes here. ✅ implemented; 18 unit tests "
-    },
-    {
-      "id": "req:FR-118",
-      "type": "requirement",
-      "family": "FR",
-      "label": "Tier 1 stage composition: `runKnowledgeIngestionStages` calls the seven Tier 1 knowledge-ingestion stages — parsing (FR-115), provenance capture (FR-116), normalization (FR-114), classification (FR-111), deduplication (FR-117), chunking (FR-112), entity extraction (FR-113) — in ADR-050 D2's own order, over one artifact, in one call. Every prior slice in this lane shipped one calculator and a seam test to its one neighbour — parsing into chunking, chunking into entity extraction, classification into chunking, dedup into the FR-109 run input — four pairs, and a chain of pairs is not a chain, which the knowledge charter now states outright. This is the composition: proven by a test that runs all seven on one real artifact carrying a Thai organisation mention, a structured field and a structured record, and by three more asserting determinism (BR-021 requires the same input reprocess to the same chunk and candidate ids) and correct dedup classification (DUPLICATE_OF and REVISION_OF, not silently treated as fresh). Pure — no I/O, no persistence, no ledger write — so it closes no FR-109 acceptance criterion: AC-109.2, .4, .7 and .13 each require evidence on the FR-071 ledger, which a caller wanting it composes separately by wrapping each stage result with `recordPipelineEvent`, named here and not built. A stage's own error propagates unchanged; BR-022's quarantine vocabulary is declared and unbuilt, and catching an error with nowhere to classify it would read as handling that nothing downstream acts on.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "done",
-      "status": "current",
-      "row_text": "Tier 1 stage composition: `runKnowledgeIngestionStages` calls the seven Tier 1 knowledge-ingestion stages — parsing (FR-115), provenance capture (FR-116), normalization (FR-114), classification (FR-111), deduplication (FR-117), chunking (FR-112), entity extraction (FR-113) — in ADR-050 D2's own order, over one artifact, in one call. Every prior slice in this lane shipped one calculator and a seam test to its one neighbour — parsing into chunking, chunking into entity extraction, classification into chunking, dedup into the FR-109 run input — four pairs, and a chain of pairs is not a chain, which the knowledge charter now states outright. This is the composition: proven by a test that runs all seven on one real artifact carrying a Thai organisation mention, a structured field and a structured record, and by three more asserting determinism (BR-021 requires the same input reprocess to the same chunk and candidate ids) and correct dedup classification (DUPLICATE_OF and REVISION_OF, not silently treated as fresh). Pure — no I/O, no persistence, no ledger write — so it closes no FR-109 acceptance criterion: AC-109.2, .4, .7 and .13 each require evidence on the FR-071 ledger, which a caller wanting it composes separately by wrapping each stage result with `recordPipelineEvent`, named here and not built. A stage's own error propagates unchanged; BR-022's quarantine vocabulary is declared and unbuilt, and catching an error with nowhere to classify it would read as handling that nothing downstream acts on. ✅ implemented; 15 unit tests "
     },
     {
       "id": "req:NFR-001",
@@ -11415,16 +11376,6 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "A knowledge ingestion run input is derived whole from the artifact's ingestion identity, its correlation id included, because FR-071 compares more than the key. `createPipelineRun` returns `UNCHANGED` for a repeated `idempotencyKey` only when `requestHash` also matches, and that hash covers the entire parsed input — so a second ingestion of the same artifact carrying a fresh correlation id raises 409 `idempotency key was reused with different input` rather than being the no-op BR-021 requires. `knowledgeIngestionRunInput` therefore computes every field from the artifact, and re-ingestion is byte-identical by construction rather than by the caller remembering to make it so. The cost is stated rather than hidden: the second attempt's own correlation is not recorded, because there is one run and it was correlated once. Relaxing FR-071's comparison to the key alone was rejected — that comparison is what catches a key reused for genuinely different input, and weakening it for one definition weakens it for the definition already relying on it. FR-109; FR-071, BR-021, SDD-057, SDD-066, ADR-050 "
-    },
-    {
-      "id": "req:SDD-068",
-      "type": "requirement",
-      "family": "SDD",
-      "label": "Field-name mapping between stage functions is made explicit and singular, never left for each caller to reconstruct. FR-116 names an artifact's content hash `checksum` (spec §8); FR-117 names the identical value `content_hash` (spec §29, BR-021). Two accurate module-local names for one fact is correct inside each module and a hazard at their boundary — a caller supplying two copies keeps them in sync by discipline, which is the exact shape BR-021's own field-separator defect took (a hand-written comparison of two keys, made without reading the one compared against). `runKnowledgeIngestionStages` takes `content_hash` once, from the artifact, and renames it to `checksum` in exactly the one call that needs the other name. The same discipline governs a chunk's `scope`: FR-111 classifies against `{ scope: { tenantId, businessId }, sensitivity, ... }`, but a chunk's `scope` field carries the identity pair alone — the shape the FR-111-into-FR-112 seam test already fixed — never the whole classification object, which would nest a field named `scope` inside a field named `scope`.",
-      "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
-      "status": "current",
-      "row_text": "Field-name mapping between stage functions is made explicit and singular, never left for each caller to reconstruct. FR-116 names an artifact's content hash `checksum` (spec §8); FR-117 names the identical value `content_hash` (spec §29, BR-021). Two accurate module-local names for one fact is correct inside each module and a hazard at their boundary — a caller supplying two copies keeps them in sync by discipline, which is the exact shape BR-021's own field-separator defect took (a hand-written comparison of two keys, made without reading the one compared against). `runKnowledgeIngestionStages` takes `content_hash` once, from the artifact, and renames it to `checksum` in exactly the one call that needs the other name. The same discipline governs a chunk's `scope`: FR-111 classifies against `{ scope: { tenantId, businessId }, sensitivity, ... }`, but a chunk's `scope` field carries the identity pair alone — the shape the FR-111-into-FR-112 seam test already fixed — never the whole classification object, which would nest a field named `scope` inside a field named `scope`. FR-118; FR-111, FR-112, FR-116, FR-117, BR-021 "
     },
     {
       "id": "req:SEC-001",
@@ -13241,6 +13192,14 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE.md",
+      "title": "ADR-051 — The primary checkout is not a working lane",
+      "hash": "6f7981d2",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -14708,13 +14667,6 @@
       "type": "test",
       "path": "tests/unit/knowledge-provenance.test.js",
       "hash": "71a52970",
-      "status": "current"
-    },
-    {
-      "id": "test:tests/unit/knowledge-stage-runner.test.js",
-      "type": "test",
-      "path": "tests/unit/knowledge-stage-runner.test.js",
-      "hash": "98a8e7d2",
       "status": "current"
     },
     {
@@ -23253,34 +23205,6 @@
       "source": "annotation"
     },
     {
-      "from": "code:src/modules/knowledge/stage-runner.js",
-      "to": "doc:FR-109-knowledge-ingestion-stage-catalog",
-      "type": "references",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/stage-runner.js",
-      "to": "req:FR-109",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/stage-runner.js",
-      "to": "req:FR-118",
-      "type": "implements",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "code:src/modules/knowledge/stage-runner.js",
-      "to": "req:SDD-068",
-      "type": "follows",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
       "from": "code:src/modules/knowledge/supabase-business-knowledge.js",
       "to": "req:FR-047",
       "type": "implements",
@@ -27684,13 +27608,6 @@
       "source": "prd-registry"
     },
     {
-      "from": "req:FR-118",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -28294,13 +28211,6 @@
     },
     {
       "from": "req:SDD-067",
-      "to": "doc:PRD-SDD-v1.0",
-      "type": "specifies",
-      "status": "current",
-      "source": "prd-registry"
-    },
-    {
-      "from": "req:SDD-068",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -31081,6 +30991,13 @@
     {
       "from": "spec:ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY",
       "to": "spec:ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-051-THE-PRIMARY-CHECKOUT-IS-NOT-A-WORKING-LANE",
+      "to": "spec:ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR",
       "type": "relates",
       "status": "current",
       "source": "control-block"
@@ -43184,62 +43101,6 @@
     {
       "from": "test:tests/unit/knowledge-provenance.test.js",
       "to": "req:SDD-064",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-stage-runner.test.js",
-      "to": "code:src/modules/knowledge/stage-runner.js",
-      "type": "tests",
-      "status": "current",
-      "source": "annotation"
-    },
-    {
-      "from": "test:tests/unit/knowledge-stage-runner.test.js",
-      "to": "req:BR-021",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-stage-runner.test.js",
-      "to": "req:FR-109",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/knowledge-stage-runner.test.js",
-      "to": "req:FR-111",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-stage-runner.test.js",
-      "to": "req:FR-116",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-stage-runner.test.js",
-      "to": "req:FR-117",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-stage-runner.test.js",
-      "to": "req:FR-118",
-      "type": "verifies",
-      "status": "current",
-      "source": "test-reference"
-    },
-    {
-      "from": "test:tests/unit/knowledge-stage-runner.test.js",
-      "to": "req:SDD-068",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

@@ -2,7 +2,7 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.5.1"
+version: "2.5.2"
 updated: "2026-08-28"
 owner: "Owen"
 source_of_truth: true
@@ -64,6 +64,16 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > พิสูจน์แล้วเป็นคู่ ๆ สี่คู่ — สายของคู่ไม่ใช่สาย ไม่มี check ตัวไหนจับข้อนี้ได้และ
 > จะไม่มีวันจับได้ เพราะ guard ทุกตัวเริ่มจาก id ที่ประกาศแล้ว ส่วนคำกล่าวอ้างเกินจริง
 > เดินทางผ่านร้อยแก้วที่ agent เขียน chain ธรรมาภิบาลเขียวและถูกต้องตลอดเวลา
+> Revision 2.5.2 (2026-08-28): เพิ่ม TASK-FR-118 (knowledge ingestion stage
+> runner, SDD-068) ก่อนที่ FR-118 จะขึ้น main เอง เพื่อให้ preflight Check 14
+> ไม่ยิง CRITICAL ใส่ PR ของมัน — `runKnowledgeIngestionStages` ประกอบ stage
+> calculator ทั้งเจ็ดของ Tier 1 เข้าด้วยกันเป็น pure function ตัวเดียว แต่**ปิด
+> AC-109.2/.7/.13 ไม่ได้แม้แต่ข้อเดียว** เพราะข้อเหล่านั้นต้องมีหลักฐานเขียนลง
+> FR-071 ledger ซึ่ง pure function ไม่เขียน; เลนพบเรื่องนี้เองก่อนเขียนแถว PRD
+> ของ FR-118 — เคยเข้าใจผิดว่าจะปิดได้แล้วแก้ก่อนประกาศ; การประกอบเจ็ด stage
+> ไม่เท่ากับ pipeline ที่ operable ก็เป็นเรื่องที่ต้องบอกตรง ๆ เช่นกัน ไฟล์นี้ยังไม่มี
+> FR-118 อยู่บน main ตอนที่แถวนี้ลง (PR ของ FR-118 เองจะตามมาทีหลัง) จึงเป็น
+> ลำดับที่ Check 14 บังคับไว้ ไม่ใช่ความผิดพลาด
 
 ## Phases
 
@@ -131,6 +141,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-116 | PHASE-ZAI-KNOWLEDGE | task | Derived-object provenance (FR-116, SDD-064): Stage 3 ของ catalog — สาย lineage Fact → Chunk → ParsedArtifact → RawArtifact → Source; **พกและตรวจ chain ของ identifier ที่ตัวเองไม่ได้เป็นคนออก** (FR-071 เป็นเจ้าของ execution ledger และ record identity); SDD-064 ปิดช่องโหว่ที่ว่าการประกาศ `DERIVED`/`INFERRED`/`COMPUTED` ไม่ใช่ใบยกเว้นจากการมีที่มา — ต้องระบุ `derivation_method` และ source ที่ resolve ได้จริง ไม่ใช่แค่ไม่ว่าง | P1 | Claude | done | FR-071; FR-112; FR-115; ADR-050; SDD-042; SDD-064 | ../domains/knowledge/features/FR-116-derived-object-provenance.md |
 | TASK-FR-114 | PHASE-ZAI-KNOWLEDGE | task | Canonical normalization (FR-114, SDD-061): Stage 4 ของ catalog — ทำหกหมวดที่กฎ deterministic และตรวจได้ในที่ (Unicode NFC, whitespace, date, phone, email, ชื่อองค์กร) และ **ประกาศอีกหกหมวดว่าอยู่นอกขอบเขต** (currency, unit, timezone, product code, country/region, identifier format) เพราะต้องพึ่ง business configuration — canonical form ที่คิดขึ้นเองจะผิดในแบบที่ดูน่าเชื่อถือ; SDD-061 กำหนดว่า normalizer ที่ตัดสินไม่ได้ต้อง **ไม่คืน `canonical` เลย** และรายงานความกำกวมแทน — ไม่ใช่แนบ warning ไว้ข้างค่าที่เดามาแล้วอ่านได้ (`25/8/26` = 2526 BE หรือ 2026 CE ผิด 43 ปีแบบไม่มีใครรู้) | P1 | Claude | done | FR-092; FR-113; ADR-050; SDD-061 | ../domains/knowledge/features/FR-114-canonical-normalization.md |
 | TASK-FR-117 | PHASE-ZAI-KNOWLEDGE | task | Deduplication and versioning (FR-117, SDD-065): Stage 6 ของ catalog — **stage สุดท้ายของ Tier 1**; วางสิ่งที่เข้ามาเทียบของที่ถืออยู่เป็น `DUPLICATE_OF` / `REVISION_OF` / อิสระ ด้วย ingestion identity สี่ส่วนของ BR-021 (source identity, source version, content hash, pipeline version) คำนวณ**ภายใน tenant เดียวเท่านั้น** (SEC-021) — tenant ถูกพับเข้าไปใน hash เอง การยุบข้าม tenant จึง**เขียนออกมาไม่ได้** แทนที่จะเขียนได้แล้วไปห้ามที่อื่น; supersession ออกเป็น **คู่** (`SUPERSEDES` + `SUPERSEDED_BY`) เพราะกราฟที่มีแต่ขาไปตอบคำถาม "อะไรมาแทนสิ่งนี้" จากฝั่งที่ถูกแทนไม่ได้ ซึ่งเป็นฝั่งที่ถูกถาม; ไม่มีการ default ค่าใด — คีย์ที่ขาดส่วนประกอบถูกปฏิเสธ ไม่ใช่ hash เป็นสตริงว่าง เพราะรูในคีย์ไม่ใช่ความว่างเปล่าแต่เป็นค่าที่ทุกอันที่ขาดส่วนนั้นจะชนกัน; **ประกาศการลดขอบเขต**: §11 ระบุสี่ผลลัพธ์ แต่นี่ให้สาม โดยพับ Replacement เข้า `REVISION_OF` และกลยุทธ์ content-/structural-similarity ถูกปฏิเสธเพราะต้องใช้ threshold ซึ่งเลขที่ตั้งขึ้นในโมดูลนี้จะกลายเป็นคำตัดสินว่าเอกสารไหน "เหมือนกัน" โดยคนที่พิมพ์เลขนั้น; `DERIVED_FROM` ไม่ถูกกำหนดที่นี่ — เป็นของ FR-116 | P1 | Claude | done | FR-081; FR-116; BR-021; SEC-021; ADR-050; SDD-065 | ../domains/knowledge/features/FR-117-deduplication-and-versioning.md |
+| TASK-FR-118 | PHASE-ZAI-KNOWLEDGE | task | Knowledge ingestion stage runner (FR-118, SDD-068): `runKnowledgeIngestionStages` ใน `src/modules/knowledge/stage-runner.js` — **pure function หนึ่งตัว** ที่เรียก stage calculator ทั้งเจ็ดของ Tier 1 (parsing, provenance, normalization, classification, dedup, chunking, entity extraction) เรียงตามลำดับ ADR-050 D2 บน artifact เดียวในรอบเดียว; พิสูจน์ด้วย composition test บน artifact จริง (ชื่อองค์กรภาษาไทย, structured record, structured field, และ dedup ครบสามผลลัพธ์ — INDEPENDENT, DUPLICATE_OF, REVISION_OF) บวก determinism test สองตัว (input เดิม → chunk id และ candidate id เดิม ตามที่ BR-021 กำหนด) — 15 เทสต์ในไฟล์นี้, ทั้ง knowledge suite 217 เทสต์ผ่าน; **ปิด AC-109.2/.7/.13 ของ FR-109 ไม่ได้แม้แต่ข้อเดียว** — พูดตรง ๆ ไม่ใช่ caveat: ทุกข้อต้องมีหลักฐานเขียนลง ledger ของ FR-071 (registered run, `PipelineStep` transitions, `PipelineRecordEvent` rows) และ pure function ที่คืน envelope ในหน่วยความจำไม่เขียนสิ่งเหล่านั้นเลย ไม่ว่าจะประกอบกี่ stage ก็ตาม; การประกอบเจ็ด stage เข้าด้วยกัน **ไม่ใช่** pipeline ที่ operable — ยังไม่มี persistence, ไม่มีการเขียน ledger, ไม่มี job lifecycle; ครึ่งที่จะเรียก FR-118 แล้วเขียน ledger ยังไม่มีชื่อและยังไม่มีใครสร้าง (charter กับ note ของ FR-109 เรียกมันว่า "ledger-writing wiring" ไม่ใช่ "stage runner" เพื่อไม่ให้ชนชื่อกับ FR-118 เอง) | P1 | Claude | done | FR-109; FR-111; FR-112; FR-113; FR-114; FR-115; FR-116; FR-117; ADR-050; BR-021; SDD-068 | PRD-SDD FR-118 |
 | TASK-FEAT-009 | PHASE-ZAI-CRM | task | CRM Conversation Inbox (FR-091, read-only per BR-011) + LINE reply delivery receipt (FR-093) | P0 | Claude | done | FR-023; FR-052; FR-081 | ../domains/crm/features/FR-091-conversation-inbox.md |
 | TASK-FR-103 | PHASE-ZAI-CRM | task | PDPA consent attestation on Customer (FR-103) — closes SEC-005, P0 open since 2026-08-12; owner attests GRANTED/DECLINED in the CRM console, legacy rows GRANDFATHERED | P0 | Claude | done | FR-091; SEC-005 | ../domains/crm/features/FR-103-pdpa-consent-attestation.md |
 | TASK-FR-092 | PHASE-ZAI-CRM | task | Market translation core: RawExternalRecord → provider-neutral MarketObservation (FR-092) | P1 | Claude | done | FR-081 | ../domains/market-intelligence/features/FR-092-market-translation-core.md |
