@@ -491,8 +491,14 @@ modes it forbids:
 Set by [ADR-041](docs/decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md), [ADR-042](docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md), [ADR-043](docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md), and [ADR-044](docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md).
 
 1. **Tier 1 (Zuri-AI & Edge Device)**: Business Execution Client, Live Monitor & Command Console (LINE, FB, Webhook, Prompt-to-Zuri Voice Dispatcher).
-2. **Tier 2 (MSP — `D:\msp`)**: Agent Session Control, Unified Thread ID Authority & Memory Policy (Episodic scratchpads, token budget, vault gates, H0-H4 access ceilings).
-3. **Tier 3 (GKS — `D:\gks`)**: Canonical Knowledge Authority & RAG Orchestrator (Entity identity, ontology, deduplication, scoped search, R0-R6 radius).
+2. **Tier 2 (MSP — `D:\msp`, remote: [Memory-and-Soul-Passport](https://github.com/Freshair129/Memory-and-Soul-Passport))**: Agent Session Control, Unified Thread ID Authority & Memory Policy (Episodic scratchpads, token budget, vault gates, H0-H4 access ceilings).
+3. **Tier 3 (GKS — `D:\gks`, remote: [Genesis-Knowledge-System](https://github.com/Freshair129/Genesis-Knowledge-System))**: Canonical Knowledge Authority & RAG Orchestrator (Entity identity, ontology, deduplication, scoped search, R0-R6 radius).
 4. **Tier 4 (GenesisBlockDB)**: 6-lane hybrid retrieval substrate only (Vector, Lexical, Graph, SQLite, Bitemporal, Provenance via `query-ir.v1`).
+
+Both MSP and GKS are standalone repos with their own `.claude/agents/`
+role roster (`rkoi`/`kin`/`janus`/`ghost`/`ather`) — dev/build/test for
+either happens in that repo, not in zuri-ai. zuri-ai never writes to their
+Prisma-equivalent stores directly (ADR-050 D3/D4): for stages zuri-ai does
+not execute, it holds counts only, never payload.
 
 

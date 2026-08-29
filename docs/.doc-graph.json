@@ -50,9 +50,21 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0"
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP",
+      "test:tests/integration/workspace-onboarding-flow.test.js",
+      "test:tests/unit/onboarding-service.test.js",
+      "test:tests/unit/workspace-onboarding-routes.test.js",
+      "code:src/app/(entry)/onboarding/profile/page.jsx",
+      "code:src/app/api/onboarding/profile/route.js",
+      "code:src/modules/identity/onboarding-service.js"
     ],
-    "added": [],
+    "added": [
+      "doc:FR-121-google-second-way-in",
+      "doc:FR-122-profile-identity-fields",
+      "req:FR-121",
+      "req:FR-122"
+    ],
     "removed": []
   },
   "nodes": [
@@ -147,7 +159,7 @@
       "type": "code_file",
       "path": "src/app/(entry)/onboarding/profile/page.jsx",
       "hash": "78b6c55f",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-066",
@@ -2040,7 +2052,7 @@
       "type": "code_file",
       "path": "src/app/api/onboarding/profile/route.js",
       "hash": "3eed7c96",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-066",
@@ -4752,7 +4764,7 @@
       "type": "code_file",
       "path": "src/modules/identity/onboarding-service.js",
       "hash": "6af0a569",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-066",
@@ -8617,8 +8629,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "7cff05ab",
-      "status": "current"
+      "hash": "b822dc4d",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -14286,7 +14298,7 @@
       "type": "test",
       "path": "tests/integration/workspace-onboarding-flow.test.js",
       "hash": "b8fb18ef",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/xlsx-intake.test.js",
@@ -15350,7 +15362,7 @@
       "type": "test",
       "path": "tests/unit/onboarding-service.test.js",
       "hash": "7b91fa1b",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/operator-bootstrap.test.js",
@@ -15966,7 +15978,7 @@
       "type": "test",
       "path": "tests/unit/workspace-onboarding-routes.test.js",
       "hash": "76e1c1c4",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/zuri-cli-canary-receipt.test.js",

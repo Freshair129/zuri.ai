@@ -2,8 +2,8 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.5.2"
-updated: "2026-08-28"
+version: "2.6.0"
+updated: "2026-08-29"
 owner: "Owen"
 source_of_truth: true
 live_document: true
@@ -96,6 +96,20 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > credential และ `ExternalIdentity` ต้องการ Tenant ที่ self-serve signup ไม่มี) พร้อมกับ
 > การประกาศ FR-121/FR-122 ใน PRD ใน PR เดียวกัน ตามลำดับเดียวกับ TASK-FR-120.
 >
+> Revision 2.6.0 (2026-08-29): sync สถานะจริงของเลน knowledge หลัง FR-119 และ
+> AC-109.3 ขึ้น main — **TASK-FR-119 เปลี่ยนจาก `in-progress` เป็น `done`** ตามเงื่อนไข
+> ที่ revision 2.5.3 ตั้งไว้เองว่าจะเปลี่ยนเมื่อ PR ขึ้น main จริงเท่านั้น ตรวจแล้วว่าอยู่จริง
+> (`f80bb87`, PR #162, `src/modules/knowledge/quarantine.js` มีอยู่บน `origin/main`)
+> ไม่ใช่เชื่อจากสรุปของตัวเอง. พร้อมกันนั้นแก้คำที่ล้าสมัยสามจุดซึ่งไม่มี check ตัวไหน
+> จับได้เพราะทั้งหมดเป็นร้อยแก้ว: (1) แถว PHASE-ZAI-KNOWLEDGE ยังบอกว่า "ยังไม่มีอะไร
+> เรียกทั้งแปดตัวเรียงกัน" และ "stage runner ที่ยังไม่มีใครประกาศเป็น FR" — เท็จทั้งคู่
+> ตั้งแต่ FR-118 merge; (2) ข้อ 7 ของรายการช่องว่างยังบอกว่า "ส่วนที่เหลือยังไม่มี
+> route/model/code" และ "FR-109/110/111 เป็น 🔜" ทั้งที่เหลือ FR-110 ตัวเดียว;
+> (3) หมายเหตุ PRD status ท้ายไฟล์บอก "FR-109..111 ยัง 🔜" เช่นกัน. Progress ของ
+> เฟส 50 → 60 — ขยับเพราะครึ่ง Tier 1 ที่เคยขาด (composition, failure attribution,
+> ledger wiring, artifact_id binding) ลงครบแล้ว **ไม่ใช่เพราะ pipeline ใช้งานได้**:
+> FR-110 ยังเป็น declaration ล้วน และ stage 9..17 เป็นของ GKS/GenesisBlockDB
+> ตาม ADR-050 ซึ่ง repo นี้ไม่สร้างเอง
 
 ## Phases
 
@@ -112,7 +126,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | PHASE-ZAI-CRM | CRM console + consent: Conversation Inbox (FR-091), reply receipt (FR-093), PDPA consent attestation (FR-103 ปิด SEC-005), market translation (FR-092) | code + tests ครบทุกตัวรวม e2e (`tests/e2e/fr091-conversation-inbox.spec.js`) | done | 100 |
 | PHASE-ZAI-IAM | Production IAM (FEAT-010: FR-094..098, ADR-045) + password reset (FR-104) + onboarding/invites (FR-066/067 — ส่งมอบ 2026-08-27) + Enterprise API token auth (FR-106 ปิด SEC-006) + operator grant store/bootstrap (FR-107 — operator คนแรก live บน production) | เหลือ tail เดียว: FEAT-010 hardening (FR-097 provider evidence) | in-progress | 90 |
 | PHASE-ZAI-SOT | SoT pipeline console (FEAT-011: FR-099..101) + data-plane service-account auth (FR-102, ADR-047) | ~~RSK-016~~ ปิดแล้ว 2026-08-27 (migration ทั้ง 6 apply + ledger); เหลือ: decision loop เดินจริงกับ data plane ภายนอก | in-progress | 95 |
-| PHASE-ZAI-KNOWLEDGE | 17-Stage Knowledge Ingestion & GraphRAG (ADR-050): governance declaration (FEAT-013: FR-109..111) + Stage 7 chunking calculator ส่งมอบแล้ว (FR-112, SDD-059 — pure calculator, ไม่มี model); Stage 8 entity candidate extraction ส่งมอบแล้ว (FR-113, SDD-060 — candidate เท่านั้น, recognition เป็น seam); Stage 2 parsing (FR-115), Stage 3 provenance (FR-116), Stage 4 normalization (FR-114), Stage 5 classification (FR-111) และ Stage 6 dedup/versioning (FR-117) ส่งมอบครบ — **ทุก stage ของ Tier 1 มี implementation แล้ว** (1..8) — อ่านว่า *แต่ละ stage มีโค้ดของตัวเอง* ไม่ใช่ *tier นี้ทำงานได้*: ยังไม่มีอะไรเรียกทั้งแปดตัวเรียงกัน รอยต่อที่พิสูจน์แล้วเป็น **คู่** ไม่ใช่สาย (parsing→chunking, chunking→entity-extraction, classification→chunking, dedup→ingestion-job) และตัวที่จะรันมันคือ **stage runner ที่ยังไม่มีใครประกาศเป็น FR** ทั้งที่ FR-109 และ FR-111 บน main อ้างถึงมันเป็นตัวขวางอยู่แล้ว; BR-021 กับ SEC-021 หลุดจากรายการ rules-without-code-anchor เป็นหลักฐานเชิงกลไก | ทั้ง 17 stages มีเจ้าของ/implementation ตาม tier boundary; **มี stage runner ที่เรียก Tier 1 ต่อกันได้จริง** (ยังไม่ถูกประกาศเป็น FR); FR-110 ส่งมอบ; stage 9..17 เป็นของ GKS/GenesisBlockDB ตาม ADR-050 | in-progress | 50 |
+| PHASE-ZAI-KNOWLEDGE | 17-Stage Knowledge Ingestion & GraphRAG (ADR-050): governance declaration (FEAT-013: FR-109..111) + Stage 7 chunking calculator ส่งมอบแล้ว (FR-112, SDD-059 — pure calculator, ไม่มี model); Stage 8 entity candidate extraction ส่งมอบแล้ว (FR-113, SDD-060 — candidate เท่านั้น, recognition เป็น seam); Stage 2 parsing (FR-115), Stage 3 provenance (FR-116), Stage 4 normalization (FR-114), Stage 5 classification (FR-111) และ Stage 6 dedup/versioning (FR-117) ส่งมอบครบ — **ทุก stage ของ Tier 1 มี implementation แล้ว** (1..8) — และตั้งแต่ 2026-08-28/29 **ประกอบเป็นสายจริงแล้ว ไม่ใช่คู่ ๆ อีกต่อไป**: FR-118 (`runKnowledgeIngestionStages`, SDD-068) เรียก stage calculator ทั้งเจ็ด (2..8) เรียงตาม ADR-050 D2 ในรอบเดียว, FR-119 (`runKnowledgeIngestionStagesWithTrace`, SDD-072) รายงานว่า stage ไหนล้มพร้อม envelope ของ BR-022 แทนที่จะเงียบทั้งรอบ, และ `ingestKnowledgeDocument` (SDD-069) เขียนหลักฐานลง FR-071 ledger จริง — สามชิ้นนี้คือครึ่ง Tier 1 ที่เคยขาด; AC-109.3 (2026-08-29, PR #165) ผูก `artifact_id` กลับไปหา raw payload ของ FR-081 ทำให้ FR-109 ปิดไป 6 ใน 13 AC; BR-021 กับ SEC-021 หลุดจากรายการ rules-without-code-anchor เป็นหลักฐานเชิงกลไก **แต่ pipeline ยังไม่ operable ครบ**: FR-110 (published snapshot + Stage 17 gate) ยังเป็น declaration ล้วน และ stage 9..17 ไม่ใช่ของ repo นี้ | ทั้ง 17 stages มีเจ้าของ/implementation ตาม tier boundary; ~~**มี stage runner ที่เรียก Tier 1 ต่อกันได้จริง**~~ ปิดแล้ว 2026-08-28 (FR-118/FR-119); FR-110 ส่งมอบ; stage 9..17 เป็นของ GKS/GenesisBlockDB ตาม ADR-050 | in-progress | 60 |
 
 ## Backlog Items
 
@@ -164,7 +178,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-114 | PHASE-ZAI-KNOWLEDGE | task | Canonical normalization (FR-114, SDD-061): Stage 4 ของ catalog — ทำหกหมวดที่กฎ deterministic และตรวจได้ในที่ (Unicode NFC, whitespace, date, phone, email, ชื่อองค์กร) และ **ประกาศอีกหกหมวดว่าอยู่นอกขอบเขต** (currency, unit, timezone, product code, country/region, identifier format) เพราะต้องพึ่ง business configuration — canonical form ที่คิดขึ้นเองจะผิดในแบบที่ดูน่าเชื่อถือ; SDD-061 กำหนดว่า normalizer ที่ตัดสินไม่ได้ต้อง **ไม่คืน `canonical` เลย** และรายงานความกำกวมแทน — ไม่ใช่แนบ warning ไว้ข้างค่าที่เดามาแล้วอ่านได้ (`25/8/26` = 2526 BE หรือ 2026 CE ผิด 43 ปีแบบไม่มีใครรู้) | P1 | Claude | done | FR-092; FR-113; ADR-050; SDD-061 | ../domains/knowledge/features/FR-114-canonical-normalization.md |
 | TASK-FR-117 | PHASE-ZAI-KNOWLEDGE | task | Deduplication and versioning (FR-117, SDD-065): Stage 6 ของ catalog — **stage สุดท้ายของ Tier 1**; วางสิ่งที่เข้ามาเทียบของที่ถืออยู่เป็น `DUPLICATE_OF` / `REVISION_OF` / อิสระ ด้วย ingestion identity สี่ส่วนของ BR-021 (source identity, source version, content hash, pipeline version) คำนวณ**ภายใน tenant เดียวเท่านั้น** (SEC-021) — tenant ถูกพับเข้าไปใน hash เอง การยุบข้าม tenant จึง**เขียนออกมาไม่ได้** แทนที่จะเขียนได้แล้วไปห้ามที่อื่น; supersession ออกเป็น **คู่** (`SUPERSEDES` + `SUPERSEDED_BY`) เพราะกราฟที่มีแต่ขาไปตอบคำถาม "อะไรมาแทนสิ่งนี้" จากฝั่งที่ถูกแทนไม่ได้ ซึ่งเป็นฝั่งที่ถูกถาม; ไม่มีการ default ค่าใด — คีย์ที่ขาดส่วนประกอบถูกปฏิเสธ ไม่ใช่ hash เป็นสตริงว่าง เพราะรูในคีย์ไม่ใช่ความว่างเปล่าแต่เป็นค่าที่ทุกอันที่ขาดส่วนนั้นจะชนกัน; **ประกาศการลดขอบเขต**: §11 ระบุสี่ผลลัพธ์ แต่นี่ให้สาม โดยพับ Replacement เข้า `REVISION_OF` และกลยุทธ์ content-/structural-similarity ถูกปฏิเสธเพราะต้องใช้ threshold ซึ่งเลขที่ตั้งขึ้นในโมดูลนี้จะกลายเป็นคำตัดสินว่าเอกสารไหน "เหมือนกัน" โดยคนที่พิมพ์เลขนั้น; `DERIVED_FROM` ไม่ถูกกำหนดที่นี่ — เป็นของ FR-116 | P1 | Claude | done | FR-081; FR-116; BR-021; SEC-021; ADR-050; SDD-065 | ../domains/knowledge/features/FR-117-deduplication-and-versioning.md |
 | TASK-FR-118 | PHASE-ZAI-KNOWLEDGE | task | Knowledge ingestion stage runner (FR-118, SDD-068): `runKnowledgeIngestionStages` ใน `src/modules/knowledge/stage-runner.js` — **pure function หนึ่งตัว** ที่เรียก stage calculator ทั้งเจ็ดของ Tier 1 (parsing, provenance, normalization, classification, dedup, chunking, entity extraction) เรียงตามลำดับ ADR-050 D2 บน artifact เดียวในรอบเดียว; พิสูจน์ด้วย composition test บน artifact จริง (ชื่อองค์กรภาษาไทย, structured record, structured field, และ dedup ครบสามผลลัพธ์ — INDEPENDENT, DUPLICATE_OF, REVISION_OF) บวก determinism test สองตัว (input เดิม → chunk id และ candidate id เดิม ตามที่ BR-021 กำหนด) — 15 เทสต์ในไฟล์นี้, ทั้ง knowledge suite 217 เทสต์ผ่าน; **ปิด AC-109.2/.7/.13 ของ FR-109 ไม่ได้แม้แต่ข้อเดียว** — พูดตรง ๆ ไม่ใช่ caveat: ทุกข้อต้องมีหลักฐานเขียนลง ledger ของ FR-071 (registered run, `PipelineStep` transitions, `PipelineRecordEvent` rows) และ pure function ที่คืน envelope ในหน่วยความจำไม่เขียนสิ่งเหล่านั้นเลย ไม่ว่าจะประกอบกี่ stage ก็ตาม; การประกอบเจ็ด stage เข้าด้วยกัน **ไม่ใช่** pipeline ที่ operable — ยังไม่มี persistence, ไม่มีการเขียน ledger, ไม่มี job lifecycle; ครึ่งที่จะเรียก FR-118 แล้วเขียน ledger ยังไม่มีชื่อและยังไม่มีใครสร้าง (charter กับ note ของ FR-109 เรียกมันว่า "ledger-writing wiring" ไม่ใช่ "stage runner" เพื่อไม่ให้ชนชื่อกับ FR-118 เอง) | P1 | Claude | done | FR-109; FR-111; FR-112; FR-113; FR-114; FR-115; FR-116; FR-117; ADR-050; BR-021; SDD-068 | PRD-SDD FR-118 |
-| TASK-FR-119 | PHASE-ZAI-KNOWLEDGE | task | Per-stage failure attribution และ BR-022 quarantine (FR-119, SDD-072): `runKnowledgeIngestionStagesWithTrace` เพิ่มเข้าไปใน `src/modules/knowledge/stage-runner.js` เป็น export ตัวที่สอง — catch รายด่านแล้วรายงานว่า stage ไหนสำเร็จก่อนถึงตัวที่ล้ม แทนที่จะ throw ทิ้งทั้งรอบ; `runKnowledgeIngestionStages` ตัวเดิมของ FR-118 **ไม่ถูกแก้สัญญา** ยังคง throw ที่ความล้มเหลวแรกเหมือนเดิม; `ingestKnowledgeDocument` เขียน `STEP_SUCCEEDED` จริงให้ stage ที่ผ่านไปแล้ว และ `STEP_FAILED` + envelope ของ BR-022 ให้ตัวที่ล้ม — เดิมความล้มเหลวใด ๆ ทำให้ ledger เงียบสนิททั้งรอบ; ทุกความล้มเหลวของ Tier 1 จัดเป็น `NON_RETRYABLE` เพราะ stage calculator ทั้งเจ็ดเป็น pure และ deterministic (ไม่มี I/O ไม่มี transient) ส่วน `RETRYABLE`/`REVIEW_REQUIRED` เป็นคำศัพท์จริงของ BR-022 ที่ยังไม่มี trigger — **ระบุเป็นข้อค้นพบ ไม่ใช่ที่ว่างรอเติม** เพราะเคสกำกวมปฏิเสธด้วย `canonical: null` (FR-114) ตั้งแต่ต้นทางจึงไม่เคยเดินมาถึง quarantine; `errorRef` ยังคง redact ตาม SDD-073 | P1 | Claude | in-progress | FR-118; FR-109; FR-114; BR-022; ADR-050 | PRD-SDD FR-119 |
+| TASK-FR-119 | PHASE-ZAI-KNOWLEDGE | task | Per-stage failure attribution และ BR-022 quarantine (FR-119, SDD-072): `runKnowledgeIngestionStagesWithTrace` เพิ่มเข้าไปใน `src/modules/knowledge/stage-runner.js` เป็น export ตัวที่สอง — catch รายด่านแล้วรายงานว่า stage ไหนสำเร็จก่อนถึงตัวที่ล้ม แทนที่จะ throw ทิ้งทั้งรอบ; `runKnowledgeIngestionStages` ตัวเดิมของ FR-118 **ไม่ถูกแก้สัญญา** ยังคง throw ที่ความล้มเหลวแรกเหมือนเดิม; `ingestKnowledgeDocument` เขียน `STEP_SUCCEEDED` จริงให้ stage ที่ผ่านไปแล้ว และ `STEP_FAILED` + envelope ของ BR-022 ให้ตัวที่ล้ม — เดิมความล้มเหลวใด ๆ ทำให้ ledger เงียบสนิททั้งรอบ; ทุกความล้มเหลวของ Tier 1 จัดเป็น `NON_RETRYABLE` เพราะ stage calculator ทั้งเจ็ดเป็น pure และ deterministic (ไม่มี I/O ไม่มี transient) ส่วน `RETRYABLE`/`REVIEW_REQUIRED` เป็นคำศัพท์จริงของ BR-022 ที่ยังไม่มี trigger — **ระบุเป็นข้อค้นพบ ไม่ใช่ที่ว่างรอเติม** เพราะเคสกำกวมปฏิเสธด้วย `canonical: null` (FR-114) ตั้งแต่ต้นทางจึงไม่เคยเดินมาถึง quarantine; `errorRef` ยังคง redact ตาม SDD-073 | P1 | Claude | done | FR-118; FR-109; FR-114; BR-022; ADR-050 | PRD-SDD FR-119 |
 | TASK-FEAT-009 | PHASE-ZAI-CRM | task | CRM Conversation Inbox (FR-091, read-only per BR-011) + LINE reply delivery receipt (FR-093) | P0 | Claude | done | FR-023; FR-052; FR-081 | ../domains/crm/features/FR-091-conversation-inbox.md |
 | TASK-FR-103 | PHASE-ZAI-CRM | task | PDPA consent attestation on Customer (FR-103) — closes SEC-005, P0 open since 2026-08-12; owner attests GRANTED/DECLINED in the CRM console, legacy rows GRANDFATHERED | P0 | Claude | done | FR-091; SEC-005 | ../domains/crm/features/FR-103-pdpa-consent-attestation.md |
 | TASK-FR-092 | PHASE-ZAI-CRM | task | Market translation core: RawExternalRecord → provider-neutral MarketObservation (FR-092) | P1 | Claude | done | FR-081 | ../domains/market-intelligence/features/FR-092-market-translation-core.md |
@@ -196,10 +210,13 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
    และ group-thread isolation rule; งานหลัก (console, thread minting, dispatcher)
    อยู่นอก repo นี้ตาม ADR-044 D1
 7. **FEAT-013 / FR-109..111** — 17-Stage Knowledge Ingestion & GraphRAG pipeline:
-   ประกาศใน PRD เมื่อ 2026-08-27 (revision 1.97.0b) ภายใต้ ADR-050 แต่
-   **Stage 7 มี implementation แล้ว** (FR-112 chunking calculator, 2026-08-27) ส่วนที่เหลือยังไม่มี route/model/code;
-   FR-109/110/111 เป็น 🔜 และตัวแถวเองระบุว่าไม่ authorize อะไรทั้งสิ้น ส่วน
-   FEAT-013 เป็น proposed. ADR-050 เองก็ Accepted เฉพาะ contract/documentation
+   ประกาศใน PRD เมื่อ 2026-08-27 (revision 1.97.0b) ภายใต้ ADR-050 — **ข้อความเดิม
+   ของข้อนี้ล้าสมัยตั้งแต่ 2026-08-28** และถูกแทนที่ทั้งย่อหน้า: Tier 1 ส่งมอบครบ
+   ทั้ง Stage 1..8 (FR-112..FR-117), ประกอบเป็นสายเดียวด้วย FR-118 และรายงาน
+   ความล้มเหลวรายด่านด้วย FR-119, เขียนหลักฐานลง FR-071 ledger ผ่าน SDD-069;
+   FR-109 ✅ (6/13 AC) และ FR-111 ✅ แล้ว **เหลือ FR-110 ตัวเดียวที่ยังเป็น 🔜**
+   (published snapshot contract + Stage 17 gate — ยังไม่มี route/model/code) ส่วน
+   FEAT-013 ยังเป็น proposed. ADR-050 เองก็ Accepted เฉพาะ contract/documentation
    boundary — ไม่ authorize runtime slice. SDD-057 ระบุให้ reuse execution ledger
    ของ FR-071 แทนการประกาศ model ใหม่ ส่วน SDD-058 / NFR-020 / BR-021 / BR-022 /
    SEC-021 เป็นกฎที่ประกาศล่วงหน้าก่อน pipeline ที่มันกำกับ. เอกสารต้นทางคือ
@@ -207,5 +224,5 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 
 > **PRD status columns**: sync ล่าสุด 2026-08-27 (PRD 1.94.0b "RSK-016 closed" ถึง 1.99.0b) —
 > FR-100/102/103/106/107 เป็น ✅ หลัง migration ทั้ง 6 apply บน live; FR-105 มี
-> deployment evidence (`zuri-ai-woad.vercel.app`); FR-108/112 ✅; FR-109..111 ยัง 🔜
-> ตาม declaration; ค้าง 🟠 เดียวคือ FR-097 (provider evidence)
+> deployment evidence (`zuri-ai-woad.vercel.app`); FR-108/112 ✅; FR-109 ✅ (6/13 AC) และ FR-111 ✅ ตั้งแต่ 2026-08-27..29 ส่วน
+> **FR-110 ยัง 🔜 ตัวเดียว**; ค้าง 🟠 เดียวคือ FR-097 (provider evidence)
