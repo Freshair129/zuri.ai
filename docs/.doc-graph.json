@@ -50,7 +50,9 @@
   },
   "drift": {
     "changed": [
-      "doc:ROADMAP"
+      "domain:market-intelligence",
+      "doc:FR-092-market-translation-core",
+      "doc:PRD-SDD-v1.0"
     ],
     "added": [],
     "removed": []
@@ -8124,8 +8126,8 @@
       "type": "document",
       "path": "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
       "title": "FR-092 — Market translation core",
-      "hash": "6f8b46c8",
-      "status": "current"
+      "hash": "ec7ce288",
+      "status": "changed"
     },
     {
       "id": "doc:FR-093-reply-delivery-receipt",
@@ -8602,10 +8604,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.119.0b",
+      "version": "1.120.0b",
       "doc_status": "Draft",
-      "hash": "468cb285",
-      "status": "current"
+      "hash": "2b61c201",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -8641,7 +8643,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "1212161e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -8932,8 +8934,8 @@
       "modules": [
         "market-intelligence"
       ],
-      "hash": "9e066efd",
-      "status": "current"
+      "hash": "a60bfbbd",
+      "status": "changed"
     },
     {
       "id": "domain:platform-control",
@@ -10573,9 +10575,9 @@
       "family": "FR",
       "label": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
+      "declared": "done",
       "status": "current",
-      "row_text": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. 🟠 #76 implementation in progress "
+      "row_text": "Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state. ✅ implemented; shipped in PR #88 (merge `1136863`) — translator, `MarketObservation` persistence behind an atomic unique-lineage insert, trusted Integration raw read port and injected GKS resolution live in `src/modules/market-intelligence/`, covered by `tests/integration/market-intelligence-persistence.test.js`, `tests/integration/market-intelligence-gks-resolution.test.js` and `tests/unit/market-intelligence-schema-migration.test.js` — status flip 2026-08-30 "
     },
     {
       "id": "req:FR-093",
@@ -11053,9 +11055,9 @@
       "family": "NFR",
       "label": "Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "n/a",
+      "declared": "done",
       "status": "current",
-      "row_text": "Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable. FR-092 tests + unique lineage persistence gate "
+      "row_text": "Market translation is deterministic and replay-safe: the same immutable raw evidence, payload hash, translation schema and observation type resolve to one logical observation, including concurrent workers through an atomic unique-lineage persistence boundary; translation failure leaves raw evidence unchanged and replayable. ✅ FR-092 shipped in PR #88 (merge `1136863`); the unique-lineage persistence gate is real — `MarketObservation.lineageKey` is unique in both schemas and the repository resolves the P2002 collision to the existing scoped row — proven by `tests/integration/market-intelligence-persistence.test.js` and `tests/unit/market-intelligence/market-observation-repository.test.js` "
     },
     {
       "id": "req:NFR-019",

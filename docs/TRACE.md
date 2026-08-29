@@ -727,7 +727,7 @@
 
 ### FR-092 — Market translation core: an eligible Integration-owned `RawExternalRecord` is loaded through a trusted scoped read port and translated into one provider-neutral Market-owned `MarketObservation`. Source adapters may extract candidate fields but cannot author trusted scope/lineage. Canonical Product/Category resolution is delegated to governed Knowledge/GKS and unresolved identity remains a valid state.
 
-- **Status:** n/a
+- **Status:** done
 - **Code:** `src/modules/market-intelligence/application/market-observation-service.js` · `src/modules/project-manager/application/backup-service.js`
 - **Follows:** BR-008, BR-019, SDD-023, SDD-049, SEC-008, SEC-017
 - **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/market-intelligence-persistence.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/market-intelligence-schema-migration.test.js`

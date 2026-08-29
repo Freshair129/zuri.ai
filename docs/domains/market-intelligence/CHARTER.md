@@ -36,7 +36,7 @@ Target route key: market
 
 ## Owned concepts (target; models land only with an approved global implementation requirement)
 
-`MarketObservation` is the first persisted model owned by this domain under #76. The remaining names are candidate concepts only until their own global implementation requirements land:
+`MarketObservation` is the first persisted model owned by this domain under #76 and was delivered in PR #88 (merge `1136863`, 2026-08-20). The remaining names are candidate concepts only until their own global implementation requirements land:
 
 - `MarketObservation` — persisted in #76
 - `ExternalOffer` / `ExternalListing`
