@@ -101,7 +101,14 @@ const SNAPSHOT_MODELS = [
   // sotDataPlaneKey above: only its hash restores, never the raw secret,
   // which the model never persists in the first place.
   'apiAccessKey',
-  'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message', 'auditEvent',
+  'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message',
+  // @req FR-126/FR-127/FR-128 — derived intelligence hangs off Customer,
+  // Conversation and Business respectively, so it restores after them and
+  // deletes before them. All three are recomputable in principle (ADR-054 D6),
+  // but a restore that dropped them would silently lose the inference
+  // provenance and delivery records — the class of loss this list exists to stop.
+  'customerProfile', 'conversationAnalysis', 'dailyBrief',
+  'auditEvent',
 ]
 
 /**

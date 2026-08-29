@@ -141,6 +141,21 @@ export const CUSTOMER_LIFECYCLE = ['LEAD', 'ACTIVE', 'DORMANT', 'LOST']
 // conversation — see the migration comment for the backfill this pairs with.
 export const CUSTOMER_CONSENT_STATUSES = ['PENDING', 'GRANTED', 'DECLINED', 'GRANDFATHERED']
 
+// FR-127/FR-128 — FEAT-014 conversation intelligence (ADR-054). Vocabularies
+// borrowed from the legacy ERD as prior art; values are what the analysis
+// producer may assert, frozen here so the dashboard, the brief and the writer
+// can never disagree on a spelling.
+export const CONTACT_TYPES = ['NEW_LEAD', 'RETURNING', 'SUPPORT']
+export const ENGAGEMENT_STATES = ['HOT', 'WARM', 'COLD', 'CLOSED_WON', 'CLOSED_LOST']
+// FR-126 — the one CustomerProfile attribute with a closed vocabulary; the rest
+// are free-text inferences and deliberately not enums.
+export const BUDGET_SIGNALS = ['LOW', 'MID', 'HIGH', 'PREMIUM']
+// FR-128 names the full delivery lifecycle PENDING → PROCESSED → SENT / FAILED,
+// but SENT and FAILED are deliberately absent here — nothing writes them yet
+// (delivery is a future slice), and the CONTAINER_STATUSES discipline above
+// applies: add a value when something actually sets it, not when it feels right.
+export const DAILY_BRIEF_STATUSES = ['PENDING', 'PROCESSED']
+
 // FR-066/FR-067 — Workspace collaboration boundary (ADR-027 D5). "Workspace"
 // here is the top-level container, schema Portfolio — never schema Workspace,
 // which is a Space (see WORKSPACE_SCOPE_TYPES above, a different axis).
@@ -182,6 +197,10 @@ export const zChannel = z.enum(CHANNELS)
 export const zMessageDirection = z.enum(MESSAGE_DIRECTIONS)
 export const zCustomerLifecycle = z.enum(CUSTOMER_LIFECYCLE)
 export const zCustomerConsentStatus = z.enum(CUSTOMER_CONSENT_STATUSES)
+export const zContactType = z.enum(CONTACT_TYPES)
+export const zEngagementState = z.enum(ENGAGEMENT_STATES)
+export const zBudgetSignal = z.enum(BUDGET_SIGNALS)
+export const zDailyBriefStatus = z.enum(DAILY_BRIEF_STATUSES)
 export const zWorkspaceMembershipRole = z.enum(WORKSPACE_MEMBERSHIP_ROLES)
 export const zWorkspaceMembershipStatus = z.enum(WORKSPACE_MEMBERSHIP_STATUSES)
 export const zWorkspaceInviteRole = z.enum(WORKSPACE_INVITE_ROLES)

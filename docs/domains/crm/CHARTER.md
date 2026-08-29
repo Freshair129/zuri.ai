@@ -10,6 +10,9 @@ owns_models:
   - CustomerImportReviewDecision
   - Conversation
   - Message
+  - CustomerProfile
+  - ConversationAnalysis
+  - DailyBrief
 ---
 
 # Domain charter — crm
@@ -70,12 +73,22 @@ turn flows through before any agent work happens.
   global Person. Target state per the architecture spec is a contract call
   into crm; today it is a direct write, recorded here so the gap stays visible.
 
-## Declared, not yet in schema (FEAT-014, ADR-054)
+## Derived intelligence (FEAT-014, ADR-054)
 
-`CustomerProfile`, `ConversationAnalysis` and `DailyBrief` (FR-126/127/128) are
-declared to land under this charter — derived, recomputable intelligence over
-the models above, shapes borrowed from the legacy ERD as prior art with the
-rebinding rules in ADR-054. They are deliberately **not** in `owns_models`
-yet: that list mirrors `prisma/schema.prisma`, and the implementation lane
-adds them there in the same change that adds the models. Until then this
-paragraph is the claim, so no other lane designs these tables elsewhere.
+`CustomerProfile`, `ConversationAnalysis` and `DailyBrief` (FR-126/127/128)
+hold derived, recomputable, advisory data over the models above — shapes
+borrowed from the legacy ERD as prior art with the rebinding rules in ADR-054.
+The truth stays in `Conversation`/`Message`; every row here is regenerable, and
+erasure takes them down with their aggregate (cascade from Customer and
+Conversation). Three producer-side writers, same trust shape as the ingest
+seam (a server-resolved tenantId, never a viewer):
+
+- `recordConversationAnalysis` — appends one analysis run per call (FR-127);
+  runs are evidence, and readers take the latest per conversation per date.
+- `recordCustomerProfileInference` — upserts the 1:1 profile, replacing
+  inferred attributes whole; only `inferenceCount`/`lastInferredAt` accumulate
+  (FR-126).
+- `computeDailyBrief` — recomputes the (Business, briefDate) aggregate whole,
+  never incrementing (FR-128); its read scope is FR-091's inbox scope restated.
+  Delivery over LINE is a future slice and belongs to the transport owner
+  (BR-011) — nothing in this domain pushes.

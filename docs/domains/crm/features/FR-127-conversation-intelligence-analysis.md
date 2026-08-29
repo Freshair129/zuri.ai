@@ -3,10 +3,10 @@ domain: crm
 feature: FR-127
 module: crm
 source: v2-native
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-08-30T00:00:00+07:00,Claude Fable 5"
-last_update: "2026-08-30T00:00:00+07:00,Claude Fable 5"
-status: "proposed"
+last_update: "2026-08-30T12:00:00+07:00,Claude Fable 5"
+status: "building"
 ---
 
 # FR-127 — Conversation intelligence analysis
@@ -51,6 +51,11 @@ Prior art: `G:\zuri\docs\architecture\database-erd\full-schema.md` §8
 
 ## Status
 
-Declared only (🔜) — schema/enums/service/worker ยังไม่ authorize จนกว่าจะเปิด
-lane implement ใต้ charter crm ซึ่งตอนนั้นค่อยเพิ่มทั้งสาม model เข้า
-`owns_models` ของ charter
+🟠 Storage seam implemented — schema ทั้งสอง dialect, enums, writer แบบ
+append-only (`recordConversationAnalysis`), reader (`latestAnalysesForDate`)
+และเทสต์ integration/unit ครบ (`tests/integration/crm-conversation-intelligence.test.js`,
+`tests/unit/conversation-intelligence.test.js`) ทั้งสาม model เข้า `owns_models`
+ของ charter แล้ว สิ่งที่ยังไม่มีและเป็น slice ถัดไป: ตัว producer ฝั่ง agent
+runtime, LINE delivery ของ FR-128 (BR-011), read surface, และการ apply DDL
+เข้า Supabase จริง (`supabase/migrations/20260830150000_conversation_intelligence.sql`
+เขียนแล้วแต่ยังไม่ apply — deploy เป็น manual)

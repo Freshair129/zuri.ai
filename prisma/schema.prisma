@@ -60,6 +60,7 @@ model Tenant {
   sotDecisions              SotDecision[]
   sotDataPlaneKeys          SotDataPlaneKey[]
   apiAccessKeys             ApiAccessKey[]
+  dailyBriefs               DailyBrief[]
 
   @@index([portfolioId])
 }
@@ -130,6 +131,7 @@ model Business {
   repositories              Repository[]
   pipelineRuns              PipelineRun[]
   sotDecisions              SotDecision[]
+  dailyBriefs               DailyBrief[]
 
   @@index([tenantId])
 }
@@ -1126,6 +1128,7 @@ model Customer {
   conversations         Conversation[]
   importProvenance      CustomerImportProvenance[]     @relation("CustomerImportProvenanceCustomer")
   importReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionTargetCustomer")
+  profile               CustomerProfile?
 
   @@unique([tenantId, personId])
   @@index([businessId])
@@ -1249,8 +1252,9 @@ model Conversation {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  customer Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
   messages Message[]
+  analyses ConversationAnalysis[]
 
   // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
   // it by tenant and channel is what makes the external namespace tenant-partitioned:
@@ -1277,6 +1281,81 @@ model Message {
   // NULL stays non-conflicting in both engines, so unkeyed outbound messages are free.
   @@unique([conversationId, externalMessageId])
   @@index([conversationId])
+}
+
+// @req FR-126 — AI-inferred Customer Profile: derived, advisory, regenerable from
+// retained conversations (ADR-054 D6). Hangs off the tenant-scoped Customer and
+// carries no scope column of its own (ADR-054 D3). Never identity: Person/
+// ChannelIdentity stay the only identity truth, and nothing here merges channels.
+// Cascade: derived personal data falls with the Customer (SEC-005).
+model CustomerProfile {
+  id              String    @id @default(uuid())
+  customerId      String    @unique
+  demographicBand String?
+  occupation      String?
+  motivationsJson String    @default("[]")
+  budgetSignal    String?
+  inferenceCount  Int       @default(0)
+  lastInferredAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+// @req FR-127 — per-Conversation, per-analysis-run classification. Keyed to
+// Conversation.id, never the external thread id (BR-002; ADR-054 D4), so a FK on
+// the provider's id is unsayable here rather than guarded against. Append-only and
+// recomputable from Message rows; rows fall with their Conversation (which falls
+// with its Customer), so erasure needs no second sweep.
+// `analyzedDate` is a calendar date label ('YYYY-MM-DD', ICT business day), not an
+// instant: it is the aggregation key FR-128 groups by, and storing an instant would
+// re-derive the date differently per timezone. `analyzedAt` holds the instant.
+model ConversationAnalysis {
+  id             String   @id @default(uuid())
+  conversationId String
+  analyzedDate   String
+  contactType    String
+  state          String
+  cta            String?
+  tagsJson       String   @default("[]")
+  summary        String?
+  rawOutputJson  String?
+  analyzedAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, analyzedDate])
+  @@index([analyzedDate, state])
+}
+
+// @req FR-128 — one aggregate row per (Business, briefDate), recomputed whole from
+// FR-127 rows, never incremented in place (ADR-054 D6): the row is a delivery
+// record, not a second source of truth. Scope carried as (businessId, briefDate)
+// with tenantId denormalized the way Branch carries it (ADR-054 D3).
+model DailyBrief {
+  id                 String    @id @default(uuid())
+  tenantId           String
+  businessId         String
+  briefDate          String
+  totalConversations Int       @default(0)
+  totalAnalyzed      Int       @default(0)
+  stateCountsJson    String    @default("{}")
+  topCtasJson        String    @default("[]")
+  topTagsJson        String    @default("[]")
+  status             String    @default("PENDING")
+  processedAt        DateTime?
+  sentAt             DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  version            Int       @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  business Business @relation(fields: [businessId], references: [id])
+
+  @@unique([businessId, briefDate])
+  @@index([tenantId, briefDate])
 }
 
 model AuditEvent {
