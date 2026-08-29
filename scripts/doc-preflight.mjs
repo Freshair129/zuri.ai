@@ -843,10 +843,23 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
     p.includes('/api/auth/login/') || p.includes('/api/auth/logout/') ||
     p.includes('/api/auth/signup/') ||
     p.includes('/api/auth/reset-password/') || p.split('/').includes('session')
+  // FR-123 / ADR-052 — the plugin credential lifecycle is the same class one
+  // boundary out. `POST /api/plugin/auth/token` authenticates with a one-time
+  // PKCE-bound authorization code and `POST /api/plugin/auth/revoke` with the
+  // opaque bearer itself; neither caller has a browser session, and the plugin
+  // is a public client precisely so it never holds one. Requiring
+  // resolveRequestViewer there would not add a check, it would add a second,
+  // wrong identity boundary — which is the same reason login/logout sit here.
+  // They are exemptions and not baseline entries for the reason stated above:
+  // the baseline records routes that SHOULD resolve a viewer and do not.
+  // Note that `GET /authorize` is deliberately NOT exempt — it is the one
+  // route in the family that must have a browser viewer, and it resolves one.
+  const IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT = (p) =>
+    p.includes('/api/plugin/auth/token/') || p.includes('/api/plugin/auth/revoke/')
   const offenders = []
   for (const file of walk(path.join(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue
-    if (IS_AUTH_LIFECYCLE_ENDPOINT(rel(file))) continue
+    if (IS_AUTH_LIFECYCLE_ENDPOINT(rel(file)) || IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT(rel(file))) continue
     const body = read(file)
     if (!MUTATING.test(body)) continue
     if (RESOLVES.test(body)) continue
