@@ -3,14 +3,32 @@ domain: market-intelligence
 feature: FR-092
 module: market-intelligence
 source: v2-native
-version: 0.1.0
-status: proposed
+version: 0.1.1
+status: implemented
 issue: 76
 ---
 
 # FR-092 — Market translation core
 
-> **Governance note:** `FR-092` is reserved in issue #76 after current `main` consumed FR-090 and the repository session record reserved FR-091 for the pending production-auth requirement. It must be registered in `docs/PRD-SDD-v1.0.md` before this branch is mergeable. This note records rationale; it does not replace the global requirement registry.
+> **Governance note:** `FR-092` was reserved in issue #76 after current `main` consumed FR-090 and FR-091. It is registered in `docs/PRD-SDD-v1.0.md` and the implementation merged through PR #88 (merge `1136863cb21563777cd680d4070eb7e8780487be`, 2026-08-20). This note records rationale; it does not replace the global requirement registry.
+
+## Delivery status
+
+Shipped in PR #88 under the governed identity set `FR-092 / NFR-018 / BR-019 /
+SDD-049 / SEC-017`. The merged slice is `src/modules/market-intelligence/`: the
+provider-neutral translator (`application/translate-raw-record.js`), the
+`MarketObservation` domain draft, the application seam
+(`application/market-observation-service.js`), the atomic unique-lineage
+persistence boundary (`infrastructure/market-observation-repository.js`), the
+trusted Integration raw read port (`infrastructure/market-raw-record-repository.js`)
+and the governed GKS resolver (`infrastructure/gks-market-identity-resolver.js`).
+`MarketObservation` is declared in both `prisma/schema.prisma` and
+`prisma/schema.postgres.prisma` with `lineageKey` unique.
+
+Whether the corresponding DDL has been applied to the production Supabase
+database is **not** asserted here — this repository holds no applied-migration
+ledger, so that is a deployment fact to be checked against
+`supabase_migrations.schema_migrations`, not a claim this note can make.
 
 ## Why this slice exists
 
