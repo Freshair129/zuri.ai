@@ -28,6 +28,38 @@ export const CHECK_NAMES = [
   'tests',
 ]
 
+/**
+ * @req FR-124 — the one place the readiness weighting is decided.
+ *
+ * OPEN QUESTION FOR THE OWNER — these three numbers are a policy choice, not a
+ * derived fact. Nothing measures that a declared requirement is worth a fifth of
+ * a delivered one, or that code and tests weigh the same; somebody picked 20/40/40
+ * because it reads sensibly, and every percentage the Product Readiness dashboard
+ * prints inherits that pick. It is stated here, once, and printed beside the
+ * numbers in the UI and in the machine-readable snapshot, precisely so it stays a
+ * decision an owner can overrule rather than a fact the product quietly asserts.
+ * Changing a weight here changes every number on the dashboard and nothing else.
+ *
+ * The weights must total 100: `progressPercent` is published to a schema that
+ * bounds it at 100, and the UI renders it as a progress bar.
+ */
+export const PROGRESS_METHODOLOGY = {
+  version: '1.0',
+  declarationWeight: 20,
+  codeWeight: 40,
+  testWeight: 40,
+  featureRollup: 'Mean of the progress percentages of the feature requirements',
+  domainRollup: 'Mean of unique requirement progress percentages in primary-domain features',
+  readinessRule: 'Ready requires every underlying requirement to be verified and an explicit FEAT bundle to be live',
+}
+
+const WEIGHT_TOTAL = PROGRESS_METHODOLOGY.declarationWeight
+  + PROGRESS_METHODOLOGY.codeWeight
+  + PROGRESS_METHODOLOGY.testWeight
+if (WEIGHT_TOTAL !== 100) {
+  throw new Error(`PROGRESS_METHODOLOGY weights must total 100, got ${WEIGHT_TOTAL}`)
+}
+
 const MUTATING_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE']
 const SOURCE_FILES = [
   'docs/PRD-SDD-v1.0.md',
@@ -94,6 +126,19 @@ function requirementStatus(requirement, code, tests) {
   if (!code.length) return 'not_implemented'
   if (!tests.length) return 'partial'
   return 'verified'
+}
+
+function roundPercent(value) {
+  return Math.round(value * 10) / 10
+}
+
+// @req FR-124 — one requirement's score, under the weighting declared above.
+// `declared === 'planned'` forfeits the declaration share even when code exists,
+// because a requirement nobody has admitted is in progress is not progress.
+function requirementProgress(requirement) {
+  return (requirement.declared === 'planned' ? 0 : PROGRESS_METHODOLOGY.declarationWeight)
+    + (requirement.code.length ? PROGRESS_METHODOLOGY.codeWeight : 0)
+    + (requirement.tests.length ? PROGRESS_METHODOLOGY.testWeight : 0)
 }
 
 function aggregateStatus(statuses, hasEvidence) {
@@ -166,6 +211,193 @@ function requirementEvidence(domain, nodes, edges, featureRequirements) {
         tests,
       }
     })
+}
+
+/**
+ * Every declared FR with its evidence, counted across the whole repository.
+ *
+ * @req FR-124 — deliberately a different denominator from `requirementEvidence`
+ * above, which counts only the code a domain's charter owns. A feature is a
+ * product statement, so its progress must count every file that implements it,
+ * including files in another domain's lane. The two numbers can therefore differ
+ * for the same FR — the global one is never smaller — and that is the intent, not
+ * drift. `requirementEvidence` is untouched, so the per-domain checks this file
+ * already published keep reporting exactly what they always did.
+ */
+function globalRequirementEvidence(nodes, edges) {
+  const nodeById = new Map(nodes.map((node) => [node.id, node]))
+  return nodes
+    .filter((node) => node.type === 'requirement' && node.family === 'FR')
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((requirement) => {
+      const code = unique(
+        edges
+          .filter((edge) => edge.to === requirement.id && edge.type === 'implements')
+          .map((edge) => nodeById.get(edge.from)?.path),
+      )
+      const tests = unique(
+        edges
+          .filter((edge) => edge.to === requirement.id && edge.type === 'verifies')
+          .map((edge) => nodeById.get(edge.from)?.path),
+      )
+      const observation = {
+        id: requirement.id.slice(4),
+        title: requirement.label,
+        declared: requirement.declared,
+        code,
+        tests,
+      }
+      return {
+        ...observation,
+        status: requirementStatus(requirement, code, tests),
+        progressPercent: requirementProgress(observation),
+      }
+    })
+}
+
+const READINESS_METADATA_BLOCK = /<!-- readiness-metadata:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- readiness-metadata:end -->/
+
+/**
+ * @req FR-124 — read the hand-maintained presentation contract out of the FEAT
+ * registry. Throwing here rather than returning `[]` is the point: the block
+ * carries the one thing no generator can derive — what a Human can use the
+ * feature for — so its absence is a missing answer, not an empty one.
+ */
+export function parseFeaturePresentation(root) {
+  const source = readText(root, 'docs/FEATURES.md')
+  const match = READINESS_METADATA_BLOCK.exec(source)
+  if (!match) {
+    throw new Error(
+      'docs/FEATURES.md is missing the readiness presentation metadata block '
+      + '(a ```json fence between <!-- readiness-metadata:start --> and <!-- readiness-metadata:end -->)',
+    )
+  }
+  let rows
+  try {
+    rows = JSON.parse(match[1])
+  } catch (error) {
+    throw new Error(`docs/FEATURES.md readiness metadata is invalid JSON: ${error.message}`)
+  }
+  if (!Array.isArray(rows)) throw new Error('docs/FEATURES.md readiness metadata must be a JSON array')
+  return rows
+}
+
+/**
+ * Project every complete feature once: each explicit FEAT bundle, plus each FR
+ * that no bundle claims (ADR-025 rev 2 — an unbundled FR is a feature of one).
+ *
+ * @req FR-124 — a partial list is a wrong answer, so this never silently drops an
+ * item or infers a domain. Missing, duplicated, unknown or use-case-less metadata
+ * aborts generation and names the ids at fault.
+ *
+ * `presentation === null` means "this caller is not projecting features at all"
+ * and is reachable only from a direct `buildDomainState` call that omits the
+ * argument — the focused unit fixtures for the domain half. An actual array,
+ * INCLUDING an empty one, is always validated in full. An earlier draft of this
+ * function returned `[]` for an empty array, which meant a `readiness-metadata`
+ * block containing `[]` disabled the whole guard and reported success: the check
+ * was correct but its input could not express the failure it was checking for.
+ */
+function buildFeatureProjection({ nodes, edges, domains, presentation, requirements }) {
+  if (presentation === null) return []
+
+  const requirementById = new Map(requirements.map((requirement) => [requirement.id, requirement]))
+  const bundleNodes = nodes.filter((node) => node.type === 'feature').sort((a, b) => a.id.localeCompare(b.id))
+  const bundledRequirementIds = new Set()
+  const candidates = bundleNodes.map((feature) => {
+    const requirementIds = unique(
+      edges
+        .filter((edge) => edge.from === feature.id && edge.type === 'bundles')
+        .map((edge) => edge.to.replace(/^req:/, '')),
+    )
+    for (const id of requirementIds) bundledRequirementIds.add(id)
+    return {
+      id: feature.id.replace(/^feat:/, ''),
+      title: feature.label,
+      kind: 'bundle',
+      registryStatus: feature.declared,
+      requirementIds,
+    }
+  })
+
+  for (const requirement of requirements) {
+    if (bundledRequirementIds.has(requirement.id)) continue
+    candidates.push({
+      id: requirement.id,
+      title: requirement.title,
+      kind: 'requirement',
+      registryStatus: requirement.declared === 'planned' ? 'planned' : 'live',
+      requirementIds: [requirement.id],
+    })
+  }
+  candidates.sort((a, b) => a.id.localeCompare(b.id))
+
+  const presentationById = new Map()
+  for (const row of presentation) {
+    if (!row || typeof row !== 'object') throw new Error('Every readiness metadata entry must be an object')
+    if (!/^(FEAT|FR)-\d{3}$/.test(row.id || '')) throw new Error(`Invalid readiness metadata id: ${row.id || '(missing)'}`)
+    if (presentationById.has(row.id)) throw new Error(`Duplicate readiness metadata for ${row.id}`)
+    if (!domains[row.primaryDomain]) throw new Error(`${row.id} names unknown primary domain ${row.primaryDomain || '(missing)'}`)
+    if (typeof row.useCase !== 'string' || !row.useCase.trim()) throw new Error(`${row.id} has no example use case`)
+    presentationById.set(row.id, { primaryDomain: row.primaryDomain, useCase: row.useCase.trim() })
+  }
+
+  const expectedIds = new Set(candidates.map((candidate) => candidate.id))
+  const missing = [...expectedIds].filter((id) => !presentationById.has(id))
+  const extra = [...presentationById.keys()].filter((id) => !expectedIds.has(id))
+  if (missing.length) {
+    throw new Error(
+      `Readiness metadata is missing projected features: ${missing.join(', ')}`
+      + ' — add one { id, primaryDomain, useCase } row per id to the readiness-metadata block in docs/FEATURES.md',
+    )
+  }
+  if (extra.length) {
+    throw new Error(
+      `Readiness metadata names non-projected features: ${extra.join(', ')}`
+      + ' — an id is projected only as a FEAT row or as an FR that no FEAT row bundles',
+    )
+  }
+
+  return candidates.map((candidate) => {
+    const metadata = presentationById.get(candidate.id)
+    const featureRequirements = candidate.requirementIds.map((id) => requirementById.get(id)).filter(Boolean)
+    if (featureRequirements.length !== candidate.requirementIds.length) {
+      const unknown = candidate.requirementIds.filter((id) => !requirementById.has(id))
+      throw new Error(`${candidate.id} bundles unknown requirements: ${unknown.join(', ')}`)
+    }
+    const progressPercent = roundPercent(
+      featureRequirements.reduce((sum, requirement) => sum + requirement.progressPercent, 0) / featureRequirements.length,
+    )
+    const blockers = featureRequirements
+      .filter((requirement) => requirement.status !== 'verified')
+      .map((requirement) => `${requirement.id} is ${requirement.status}`)
+    if (candidate.kind === 'bundle' && candidate.registryStatus !== 'live') {
+      blockers.unshift(`${candidate.id} registry status is ${candidate.registryStatus}`)
+    }
+    const ready = blockers.length === 0
+    const contributorDomains = Object.entries(domains)
+      .filter(([, domain]) => domain.requirements.some((requirement) => candidate.requirementIds.includes(requirement.id)))
+      .map(([name]) => name)
+      .sort()
+    return {
+      ...candidate,
+      primaryDomain: metadata.primaryDomain,
+      contributorDomains,
+      useCase: metadata.useCase,
+      progressPercent,
+      ready,
+      readiness: ready ? 'ready' : 'not_ready',
+      blockers,
+      requirements: featureRequirements.map((requirement) => ({
+        id: requirement.id,
+        status: requirement.status,
+        progressPercent: requirement.progressPercent,
+        codeCount: requirement.code.length,
+        testCount: requirement.tests.length,
+      })),
+      evidence: unique(featureRequirements.flatMap((requirement) => [...requirement.code, ...requirement.tests])),
+    }
+  })
 }
 
 function interfaceCheck(root, routes) {
@@ -394,7 +626,7 @@ export function collectDomainObservations({ root, nodes, edges, featureRequireme
   return observations
 }
 
-export function buildDomainState({ nodes, edges, featureRequirements = new Map(), observations = {}, generatedAt }) {
+export function buildDomainState({ nodes, edges, featureRequirements = new Map(), observations = {}, featurePresentation = null, generatedAt }) {
   const domains = {}
   const allGaps = []
   const allStatuses = []
@@ -451,24 +683,68 @@ export function buildDomainState({ nodes, edges, featureRequirements = new Map()
     allStatuses.push(status)
   }
 
+  // @req FR-124 — computed once and shared by the feature projection, the domain
+  // roll-up and the overall block, so the three can never disagree about an FR.
+  const globalRequirements = globalRequirementEvidence(nodes, edges)
+  const features = buildFeatureProjection({
+    nodes,
+    edges,
+    domains,
+    presentation: featurePresentation,
+    requirements: globalRequirements,
+  })
+
+  for (const [name, domain] of Object.entries(domains)) {
+    const domainFeatures = features.filter((feature) => feature.primaryDomain === name)
+    const requirementsById = new Map(
+      domainFeatures.flatMap((feature) => feature.requirements).map((requirement) => [requirement.id, requirement]),
+    )
+    const domainRequirements = [...requirementsById.values()]
+    domain.featureIds = domainFeatures.map((feature) => feature.id)
+    domain.featureCount = domainFeatures.length
+    domain.readyFeatureCount = domainFeatures.filter((feature) => feature.ready).length
+    // `null`, not 0: a domain that owns no projected feature has no progress to
+    // report, and printing 0% would read as "built nothing" rather than "nothing
+    // is claimed here". The schema allows null for exactly this case.
+    domain.progressPercent = domainRequirements.length
+      ? roundPercent(domainRequirements.reduce((sum, requirement) => sum + requirement.progressPercent, 0) / domainRequirements.length)
+      : null
+  }
+
+  const verifiedRequirementCount = globalRequirements.filter((requirement) => requirement.status === 'verified').length
+  const progressPercent = globalRequirements.length
+    ? roundPercent(globalRequirements.reduce((sum, requirement) => sum + requirement.progressPercent, 0) / globalRequirements.length)
+    : 0
+
   return {
-    schemaVersion: '1.0',
+    schemaVersion: '1.1',
     generatedBy: 'scripts/domain-state.mjs',
     generatedAt: generatedAt || new Date().toISOString(),
     generatedFrom: SOURCE_FILES,
     statusVocabulary: STATUS_VALUES,
+    progressMethodology: PROGRESS_METHODOLOGY,
     overall: {
       status: aggregateStatus(allStatuses, allStatuses.length > 0),
       domainCount: Object.keys(domains).length,
+      featureCount: features.length,
+      readyFeatureCount: features.filter((feature) => feature.ready).length,
+      requirementCount: globalRequirements.length,
+      verifiedRequirementCount,
+      progressPercent,
       gapCount: allGaps.length,
       gaps: allGaps,
     },
     domains,
+    features,
   }
 }
 
 export function generateDomainState({ root, nodes, edges, generatedAt }) {
   const featureRequirements = discoverFeatureRequirements(root)
   const observations = collectDomainObservations({ root, nodes, edges, featureRequirements })
-  return buildDomainState({ nodes, edges, featureRequirements, observations, generatedAt })
+  // Always an array here — `parseFeaturePresentation` throws rather than
+  // returning nothing — so the real generation path never takes the `null`
+  // "not projecting features" branch that the unit fixtures use.
+  const featurePresentation = parseFeaturePresentation(root)
+  return buildDomainState({ nodes, edges, featureRequirements, observations, featurePresentation, generatedAt })
 }

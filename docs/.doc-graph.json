@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1420,
-    "total_edges": 4871,
+    "total_nodes": 1432,
+    "total_edges": 4920,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 114,
+      "document": 115,
       "adr": 52,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
-      "route": 157,
+      "route": 159,
       "model": 70,
-      "requirement": 261,
-      "test": 340,
-      "code_file": 373
+      "requirement": 262,
+      "test": 343,
+      "code_file": 378
     },
     "coverage": {
-      "requirements": 261,
-      "fr_with_code": "100% (117/117)",
-      "fr_with_tests": "100% (117/117)",
+      "requirements": 262,
+      "fr_with_code": "100% (118/118)",
+      "fr_with_tests": "100% (118/118)",
       "rules_anchored_in_code": "97% (112/116)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 373,
+      "annotated_code_files": 378,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -50,9 +50,7 @@
   },
   "drift": {
     "changed": [],
-    "added": [
-      "code:src/modules/market-intelligence/application/translate-raw-record.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -477,6 +475,48 @@
         "@tested": [
           "tests/unit/fr080-ui-contract.test.js",
           "tests/unit/line-registry-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/platform/product-readiness/[domain]/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/platform/product-readiness/[domain]/page.jsx",
+      "hash": "a89e0dea",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-124"
+        ],
+        "@spec": [
+          "FR-124",
+          "FR-060",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/fr124-product-readiness-ui.test.js",
+          "tests/e2e/fr124-product-readiness.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/platform/product-readiness/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/platform/product-readiness/page.jsx",
+      "hash": "19fe37cc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-124"
+        ],
+        "@spec": [
+          "FR-124",
+          "FR-060",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/fr124-product-readiness-ui.test.js",
+          "tests/e2e/fr124-product-readiness.spec.js"
         ]
       }
     },
@@ -3628,7 +3668,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "a61d960e",
+      "hash": "d192a5d8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3637,7 +3677,8 @@
           "FR-039",
           "FR-060",
           "FR-091",
-          "FR-086"
+          "FR-086",
+          "FR-124"
         ],
         "@spec": [
           "SDD-018"
@@ -6185,6 +6226,47 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/application/product-readiness-access.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/product-readiness-access.js",
+      "hash": "222c4ee4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-124"
+        ],
+        "@spec": [
+          "FR-124",
+          "FR-046",
+          "FR-060",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/fr124-product-readiness-read-model.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/application/product-readiness-read-model.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/application/product-readiness-read-model.js",
+      "hash": "310f1259",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-124"
+        ],
+        "@spec": [
+          "FR-124",
+          "FR-060",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/fr124-product-readiness-read-model.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/application/progress-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/progress-service.js",
@@ -6635,6 +6717,26 @@
           "BR-003",
           "BR-004",
           "SDD-006"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/project-manager/components/ProductReadinessDashboard.jsx",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/ProductReadinessDashboard.jsx",
+      "hash": "4dd820aa",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-124"
+        ],
+        "@spec": [
+          "FR-124",
+          "NFR-008"
+        ],
+        "@tested": [
+          "tests/unit/fr124-product-readiness-ui.test.js",
+          "tests/e2e/fr124-product-readiness.spec.js"
         ]
       }
     },
@@ -7777,9 +7879,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.7.0b",
+      "version": "1.8.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "8ce6904e",
+      "hash": "3b21d8f1",
       "status": "current"
     },
     {
@@ -8460,6 +8562,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-124-product-readiness-dashboard",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-124-product-readiness-dashboard.md",
+      "title": "FR-124 — Product Readiness Dashboard",
+      "hash": "3dbff5bf",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -8494,7 +8604,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.2.2b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "0070cab9",
+      "hash": "fdf4d09b",
       "status": "current"
     },
     {
@@ -8728,9 +8838,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.121.0b",
+      "version": "1.122.0b",
       "doc_status": "Draft",
-      "hash": "3a8210e0",
+      "hash": "0fa8b9de",
       "status": "current"
     },
     {
@@ -8766,7 +8876,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "08059b59",
+      "hash": "51404342",
       "status": "current"
     },
     {
@@ -11033,6 +11143,16 @@
       "row_text": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052). 🟠 implemented locally; production Supabase migration, client registration, device-binding evidence and a consent step on `GET /authorize` remain gated "
     },
     {
+      "id": "req:FR-124",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Product Readiness: one read-only Platform surface at `/platform/product-readiness`, with a stable drilldown at `/platform/product-readiness/[domain]`, that answers four questions separately rather than collapsing them into one green number — how much evidence-backed implementation exists, which requirements are actually verified, whether a complete feature is ready to use, and what a Human can use it for. It renders the committed `docs/.domain-state.json` projection and nothing else: no database model, no runtime write path, no scheduled poll, no external API. **Readiness is not progress.** A feature is ready only when every underlying FR is verified and, for an explicit FEAT bundle, the registry says `live`; a 100% implementation score therefore still reads not-ready when the registry says `building`, and the surface always prints both numbers with the blocking reason. Progress itself is weighted 20% declaration + 40% code + 40% test — **a policy choice, not a derived fact**, held in one named constant (`PROGRESS_METHODOLOGY` in `scripts/domain-state.mjs`), printed beside the numbers in the UI and carried in the snapshot, and awaiting owner sign-off rather than inheritance. Projection is complete by construction: every FEAT bundle and every unbundled FR appears exactly once with one hand-written use case, and missing, duplicate, unknown or use-case-less metadata aborts graph generation, because a partial list is a wrong answer. The surface resolves its viewer on the server before rendering, so the snapshot never reaches an unauthorized browser through the RSC payload.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Product Readiness: one read-only Platform surface at `/platform/product-readiness`, with a stable drilldown at `/platform/product-readiness/[domain]`, that answers four questions separately rather than collapsing them into one green number — how much evidence-backed implementation exists, which requirements are actually verified, whether a complete feature is ready to use, and what a Human can use it for. It renders the committed `docs/.domain-state.json` projection and nothing else: no database model, no runtime write path, no scheduled poll, no external API. **Readiness is not progress.** A feature is ready only when every underlying FR is verified and, for an explicit FEAT bundle, the registry says `live`; a 100% implementation score therefore still reads not-ready when the registry says `building`, and the surface always prints both numbers with the blocking reason. Progress itself is weighted 20% declaration + 40% code + 40% test — **a policy choice, not a derived fact**, held in one named constant (`PROGRESS_METHODOLOGY` in `scripts/domain-state.mjs`), printed beside the numbers in the UI and carried in the snapshot, and awaiting owner sign-off rather than inheritance. Projection is complete by construction: every FEAT bundle and every unbundled FR appears exactly once with one hand-written use case, and missing, duplicate, unknown or use-case-less metadata aborts graph generation, because a partial list is a wrong answer. The surface resolves its viewer on the server before rendering, so the snapshot never reaches an unauthorized browser through the RSC payload. ✅ implemented and tested; the 20/40/40 weighting is declared and visible but not yet ratified by an owner "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -13201,6 +13321,22 @@
       "status": "current"
     },
     {
+      "id": "route:page:/platform/product-readiness",
+      "type": "route",
+      "kind": "page",
+      "route": "/platform/product-readiness",
+      "path": "src/app/(pm)/platform/product-readiness/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/platform/product-readiness/[domain]",
+      "type": "route",
+      "kind": "page",
+      "route": "/platform/product-readiness/[domain]",
+      "path": "src/app/(pm)/platform/product-readiness/[domain]/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/platform/sot-pipeline",
       "type": "route",
       "kind": "page",
@@ -13950,6 +14086,13 @@
       "type": "test",
       "path": "tests/e2e/fr120-signup.spec.js",
       "hash": "888a6751",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr124-product-readiness.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr124-product-readiness.spec.js",
+      "hash": "94e99d3e",
       "status": "current"
     },
     {
@@ -14929,7 +15072,7 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
-      "hash": "cd09510a",
+      "hash": "71804acd",
       "status": "current"
     },
     {
@@ -15280,6 +15423,20 @@
       "type": "test",
       "path": "tests/unit/fr123-plugin-auth-service.test.js",
       "hash": "77995422",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr124-product-readiness-read-model.test.js",
+      "type": "test",
+      "path": "tests/unit/fr124-product-readiness-read-model.test.js",
+      "hash": "73c9cde8",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr124-product-readiness-ui.test.js",
+      "type": "test",
+      "path": "tests/unit/fr124-product-readiness-ui.test.js",
+      "hash": "fc946d92",
       "status": "current"
     },
     {
@@ -16792,6 +16949,62 @@
     {
       "from": "code:src/app/(pm)/platform/integrations/page.jsx",
       "to": "req:SEC-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/product-readiness/[domain]/page.jsx",
+      "to": "req:FR-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/product-readiness/[domain]/page.jsx",
+      "to": "req:FR-124",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/product-readiness/[domain]/page.jsx",
+      "to": "req:FR-124",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/product-readiness/[domain]/page.jsx",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/product-readiness/page.jsx",
+      "to": "req:FR-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/product-readiness/page.jsx",
+      "to": "req:FR-124",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/product-readiness/page.jsx",
+      "to": "req:FR-124",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/product-readiness/page.jsx",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -21516,6 +21729,13 @@
     },
     {
       "from": "code:src/config/domains.js",
+      "to": "req:FR-124",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
       "to": "req:SDD-018",
       "type": "follows",
       "status": "current",
@@ -24994,6 +25214,69 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/application/product-readiness-access.js",
+      "to": "req:FR-046",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/product-readiness-access.js",
+      "to": "req:FR-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/product-readiness-access.js",
+      "to": "req:FR-124",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/product-readiness-access.js",
+      "to": "req:FR-124",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/product-readiness-access.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/product-readiness-read-model.js",
+      "to": "req:FR-060",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/product-readiness-read-model.js",
+      "to": "req:FR-124",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/product-readiness-read-model.js",
+      "to": "req:FR-124",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/product-readiness-read-model.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/progress-service.js",
       "to": "req:FR-020",
       "type": "implements",
@@ -25822,6 +26105,27 @@
     {
       "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
       "to": "req:SDD-006",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/ProductReadinessDashboard.jsx",
+      "to": "req:FR-124",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/ProductReadinessDashboard.jsx",
+      "to": "req:FR-124",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/ProductReadinessDashboard.jsx",
+      "to": "req:NFR-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -29089,6 +29393,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-124",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -30785,6 +31096,20 @@
     {
       "from": "route:page:/platform/integrations",
       "to": "domain:integration",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/platform/product-readiness/[domain]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/platform/product-readiness",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -32898,6 +33223,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -33539,6 +33871,62 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr124-product-readiness.spec.js",
+      "to": "code:src/app/(pm)/platform/product-readiness/[domain]/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr124-product-readiness.spec.js",
+      "to": "code:src/app/(pm)/platform/product-readiness/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr124-product-readiness.spec.js",
+      "to": "code:src/modules/project-manager/components/ProductReadinessDashboard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr124-product-readiness.spec.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr124-product-readiness.spec.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr124-product-readiness.spec.js",
+      "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr124-product-readiness.spec.js",
+      "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr124-product-readiness.spec.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/e2e/navigation-reachability.spec.js",
@@ -41788,6 +42176,13 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -41824,6 +42219,13 @@
     {
       "from": "test:tests/unit/domain-state.test.js",
       "to": "req:FR-069",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/domain-state.test.js",
+      "to": "req:FR-124",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -42265,6 +42667,13 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-124",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -44799,6 +45208,97 @@
     {
       "from": "test:tests/unit/fr123-plugin-auth-service.test.js",
       "to": "req:SEC-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-read-model.test.js",
+      "to": "code:src/modules/project-manager/application/product-readiness-access.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-read-model.test.js",
+      "to": "code:src/modules/project-manager/application/product-readiness-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-read-model.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-read-model.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-read-model.test.js",
+      "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-read-model.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-ui.test.js",
+      "to": "code:src/app/(pm)/platform/product-readiness/[domain]/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-ui.test.js",
+      "to": "code:src/app/(pm)/platform/product-readiness/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-ui.test.js",
+      "to": "code:src/modules/project-manager/components/ProductReadinessDashboard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-ui.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-ui.test.js",
+      "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-ui.test.js",
+      "to": "req:NFR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr124-product-readiness-ui.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
