@@ -87,4 +87,38 @@ describe('FR-081 scoped raw record read port', () => {
 
     expect(() => repository.findById()).toThrow(/rawRecordId/i)
   })
+
+  // FR-109 AC-109.3 — resolving a knowledge-ingestion run's artifact_id back
+  // to the raw record FR-081 already stored.
+  it('uses the same scope predicate for artifact id lookup', async () => {
+    const db = createDb()
+    const repository = createPrismaRawRecordRepository(db, {
+      tenantId: 'tenant-a',
+      businessId: 'business-a',
+      connectionId: 'conn-a',
+      provider: 'MARKET_TEST',
+    })
+
+    await repository.findByArtifactId('art-1')
+
+    expect(db.rawExternalRecord.findFirst).toHaveBeenCalledWith({
+      where: {
+        artifactId: 'art-1',
+        tenantId: 'tenant-a',
+        connectionId: 'conn-a',
+        businessId: 'business-a',
+        provider: 'MARKET_TEST',
+      },
+    })
+  })
+
+  it('requires an artifact id for artifact-id lookup', () => {
+    const db = createDb()
+    const repository = createPrismaRawRecordRepository(db, {
+      tenantId: 'tenant-a',
+      connectionId: 'conn-a',
+    })
+
+    expect(() => repository.findByArtifactId()).toThrow(/artifactId/i)
+  })
 })

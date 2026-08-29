@@ -61,4 +61,32 @@ describe('raw ingestion service', () => {
   it('fails closed when no repository is supplied', async () => {
     await expect(ingestRawExternalRecord(input)).rejects.toThrow(/repository/i)
   })
+
+  // FR-109 AC-109.3 — a raw record fed into knowledge ingestion carries the
+  // run's artifact_id, so the row is written with it.
+  it('persists the artifact id when the caller names one', async () => {
+    const repository = {
+      findByIdempotencyKey: vi.fn().mockResolvedValue(null),
+      insert: vi.fn().mockImplementation(async (row) => ({ id: 'raw-1', ...row })),
+    }
+
+    await ingestRawExternalRecord({ ...input, artifactId: 'art-fr109-1' }, { repository })
+
+    expect(repository.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ artifactId: 'art-fr109-1' }),
+    )
+  })
+
+  it('writes a null artifact id when no caller names one', async () => {
+    const repository = {
+      findByIdempotencyKey: vi.fn().mockResolvedValue(null),
+      insert: vi.fn().mockImplementation(async (row) => ({ id: 'raw-1', ...row })),
+    }
+
+    await ingestRawExternalRecord(input, { repository })
+
+    expect(repository.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ artifactId: null }),
+    )
+  })
 })
