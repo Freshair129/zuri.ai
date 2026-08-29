@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1397,
-    "total_edges": 4804,
+    "total_nodes": 1398,
+    "total_edges": 4808,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 153,
       "model": 67,
       "requirement": 258,
-      "test": 336,
+      "test": 337,
       "code_file": 367
     },
     "coverage": {
@@ -8333,7 +8333,7 @@
       "title": "FR-122 — A Profile states who the person is",
       "version": "0.1.0b",
       "doc_status": "Implemented",
-      "hash": "6bc2a893",
+      "hash": "57b09151",
       "status": "current"
     },
     {
@@ -15599,6 +15599,13 @@
       "type": "test",
       "path": "tests/unit/prisma-generate-gate.test.js",
       "hash": "1d645807",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/profile-identity-fields-migration.test.js",
+      "hash": "e933e060",
       "status": "current"
     },
     {
@@ -47050,6 +47057,34 @@
     {
       "from": "test:tests/unit/postgres-runtime-client.test.js",
       "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "to": "req:BR-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "to": "req:FR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "to": "req:FR-122",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
