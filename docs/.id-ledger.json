@@ -226,6 +226,7 @@
     "FR-116",
     "FR-117",
     "FR-118",
+    "FR-119",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -317,6 +318,7 @@
     "SDD-069",
     "SDD-070",
     "SDD-071",
+    "SDD-072",
     "SDD-073",
     "SEC-001",
     "SEC-002",
@@ -2333,6 +2335,19 @@
         }
       ]
     },
+    "FR-119": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "7826278cc2d3cfde073f33dd4bbb901f205a300a42b728971172358df78dab4f",
+      "history": [
+        {
+          "anchor": "per stage failure attribution and br 022 quarantine",
+          "since": "2026-08-28",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3523,6 +3538,19 @@
       "history": [
         {
           "anchor": "the execution monitor has read pipelinerun actualcount",
+          "since": "2026-08-28",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-072": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0d243988ac1f2448a0968baa36885af6ace50dcaa4e16ddc23c7aa4aaec17829",
+      "history": [
+        {
+          "anchor": "fr 118 s seven stage invocation steps are extracted into",
           "since": "2026-08-28",
           "reason": "declared"
         }
