@@ -57,7 +57,67 @@ describe('FR-046 credential auth routes', () => {
     expect(response.headers.get('set-cookie')).toContain('zuri_session=zuri_sess.signed-token')
     expect(response.headers.get('set-cookie')).toContain('HttpOnly')
     expect(response.headers.get('set-cookie')).toMatch(/SameSite=lax/i)
-    expect(response.headers.get('set-cookie')).toContain('Max-Age=604800')
+    // AC-046-15 — no `remember` in the body, so no Max-Age: the cookie now dies
+    // with the browser by default. This line asserted `Max-Age=604800` until
+    // 2026-08-29; the seven days did not disappear, they became opt-in.
+    expect(response.headers.get('set-cookie')).not.toMatch(/Max-Age=/i)
+  })
+
+  describe('AC-046-15 "remember me" selects the cookie lifetime and nothing else', () => {
+    const signedIn = () => auth.authenticateUser.mockResolvedValue({
+      success: true,
+      token: 'zuri_sess.signed-token',
+      user: { id: 'person-1', code: 'PER-001', displayName: 'Owner' },
+    })
+
+    it('persists for the existing seven-day ceiling when the caller opts in', async () => {
+      signedIn()
+      const response = await login(request({ username: 'owner@example.com', password: 'pw', remember: true }))
+      expect(response.headers.get('set-cookie')).toContain('Max-Age=604800')
+    })
+
+    it('accepts the shapes a checkbox actually sends, over both body encodings', async () => {
+      // A form post sends the string "on"; a JSON client sends a boolean. A flag
+      // honoured in one encoding and dropped in the other is the defect this
+      // covers — the route accepts both, so both are exercised.
+      for (const value of [true, 'true', 'on', '1']) {
+        signedIn()
+        const response = await login(request({ username: 'o', password: 'p', remember: value }))
+        expect(response.headers.get('set-cookie')).toContain('Max-Age=604800')
+        auth.authenticateUser.mockReset()
+      }
+
+      signedIn()
+      const form = new FormData()
+      form.set('username', 'o')
+      form.set('password', 'p')
+      form.set('remember', 'on')
+      const formResponse = await login(new Request('http://localhost/api/auth/login', { method: 'POST', body: form }))
+      expect(formResponse.headers.get('set-cookie')).toContain('Max-Age=604800')
+    })
+
+    it('treats every other value, including an absent field, as a browser session', async () => {
+      for (const value of [undefined, false, 'false', 'off', '', 'yes-please']) {
+        signedIn()
+        const response = await login(request({ username: 'o', password: 'p', remember: value }))
+        expect(response.headers.get('set-cookie')).not.toMatch(/Max-Age=/i)
+        auth.authenticateUser.mockReset()
+      }
+    })
+
+    it('never lets the opt-in reach the token or the credential check', async () => {
+      // The flag is a cookie storage instruction on the client's side of the
+      // boundary. If it reached authenticateUser it would be something the
+      // server has to trust; keeping it out means a forged "remember" buys an
+      // attacker nothing but a longer-lived cookie holding the same token,
+      // which expires at the same moment regardless.
+      signedIn()
+      await login(request({ username: 'owner@example.com', password: 'pw', remember: true }))
+      expect(auth.authenticateUser).toHaveBeenCalledWith({
+        username: 'owner@example.com',
+        password: 'pw',
+      })
+    })
   })
 
   it('returns a generic 401 and never sets a cookie for invalid credentials', async () => {

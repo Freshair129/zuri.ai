@@ -16,6 +16,9 @@ import {
   revokeWorkspaceInvite,
 } from '@/modules/identity/workspace-membership-service'
 
+// @req FR-122 — the Profile's own identity fields, required by the service.
+const IDENTITY = { firstName: 'วรรณภา', lastName: 'ใจดี', phone: '0812345678' }
+
 // @req FR-066 — the whole profile-first journey against the real database:
 // profile → Waiting Room with ZERO scope rows created → owner creates a
 // Workspace → member joins by invite — and a Workspace membership grants
@@ -53,10 +56,13 @@ describe('FR-066/FR-067 workspace onboarding flow', () => {
     let state = await getOnboardingState({ personId: member.id })
     expect(state.nextStep).toBe('PROFILE')
 
-    await completeProfile({ personId: member.id, displayName: 'สมาชิกใหม่' })
+    await completeProfile({ personId: member.id, displayName: 'สมาชิกใหม่', ...IDENTITY })
     state = await getOnboardingState({ personId: member.id })
     expect(state.nextStep).toBe('WAITING_ROOM')
     expect(state.profile.complete).toBe(true)
+    // @req FR-122 — the round trip through the real columns, which is the half a
+    // mocked db cannot show: a missing migration fails here and nowhere else.
+    expect(state.profile).toMatchObject(IDENTITY)
     expect(state.workspaces).toEqual([])
     expect(state.hasBusinessAccess).toBe(false)
 
@@ -64,7 +70,7 @@ describe('FR-066/FR-067 workspace onboarding flow', () => {
   })
 
   it('AC-066.5: the owner path creates a top-level Workspace (Portfolio + OWNER membership) and nothing below it', async () => {
-    await completeProfile({ personId: owner.id, displayName: 'เจ้าของทีม' })
+    await completeProfile({ personId: owner.id, displayName: 'เจ้าของทีม', ...IDENTITY })
     const before = await scopeRowCounts()
 
     const workspace = await createOnboardingWorkspace({ personId: owner.id, name: `ทีมทดสอบ ${suffix}` })

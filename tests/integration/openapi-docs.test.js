@@ -67,9 +67,11 @@ describe('OpenAPI document', () => {
       source: 'src/app/api/**/route.js',
       // FR-066/067's seven onboarding/invite routes plus FR-106's two
       // (the Enterprise API key mint and revoke) plus FR-108's two
-      // (the ExecutionPlanBundle dry-run and commit).
-      pathCount: 102,
-      operationCount: 134,
+      // (the ExecutionPlanBundle dry-run and commit) plus FR-120's one
+      // (self-serve signup — the first public route that creates an identity
+      // rather than consuming one).
+      pathCount: 103,
+      operationCount: 135,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

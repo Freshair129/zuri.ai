@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 // @req FR-044 — the entry journey keeps Login outside the BusinessShell.
@@ -11,11 +12,13 @@ import EntryShell from '@/components/layouts/EntryShell'
 // @spec ADR-017, SDD-024, SEC-008
 // @tested tests/unit/fr046-api-ui-contract.test.js, tests/unit/fr046-auth-route.test.js, tests/e2e/fr046-entry-contract.spec.js
 import { LOGIN_ERROR_NETWORK, loginErrorMessage } from '@/modules/identity/login-error-copy'
+import PasswordField from '@/components/forms/PasswordField'
 
 export default function LoginPage() {
   const router = useRouter()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [remember, setRemember] = useState(false)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
@@ -28,7 +31,7 @@ export default function LoginPage() {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, remember }),
       })
       const result = await response.json()
       if (!response.ok) {
@@ -48,7 +51,7 @@ export default function LoginPage() {
   }
 
   return (
-    <EntryShell>
+    <EntryShell backdrop>
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2" aria-label="Zuri">
           <span className="text-lg font-bold tracking-[0.24em]">ZURI</span>
@@ -81,19 +84,38 @@ export default function LoginPage() {
             className="mt-1.5 min-h-11 w-full rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg)] px-3 text-sm font-normal outline-none focus:border-[var(--action-primary)]"
           />
         </label>
-        <label className="block text-xs font-semibold" htmlFor="password">
-          Password
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="mt-1.5 min-h-11 w-full rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--bg)] px-3 text-sm font-normal outline-none focus:border-[var(--action-primary)]"
-          />
-        </label>
+        <PasswordField
+          id="password"
+          name="password"
+          label="Password"
+          autoComplete="current-password"
+          value={password}
+          onChange={setPassword}
+        />
+
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          {/* AC-046-15 — this checkbox chooses how long the cookie survives, not
+              how long the session is valid for. Unticked is the shorter of the
+              two: the cookie dies with the browser. */}
+          <label className="flex items-center gap-2 text-xs font-semibold" htmlFor="remember">
+            <input
+              id="remember"
+              name="remember"
+              type="checkbox"
+              checked={remember}
+              onChange={(event) => setRemember(event.target.checked)}
+              className="h-4 w-4 accent-[var(--action-primary)]"
+            />
+            จดจำฉันไว้
+          </label>
+          {/* Not a self-serve reset: FR-104 states there is deliberately no
+              public forgot-password route, because this installation has no mail
+              transport. The link goes to the redemption screen, where a code an
+              owner handed over out of band is spent. */}
+          <Link href="/reset-password" className="text-xs font-semibold underline-offset-2 hover:underline" style={{ color: 'var(--action-primary-active)' }}>
+            ลืมรหัสผ่าน?
+          </Link>
+        </div>
 
         {error ? <p role="alert" className="text-xs text-[var(--danger)]">{error}</p> : null}
 
@@ -102,7 +124,17 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <p className="mt-5 text-center text-xs text-muted">EtohGroup Enterprise Operating System</p>
+      {/* @req FR-120 — the second way out of Login, and the first that leads
+          somewhere a person without an account can go. Until FR-120 there was
+          no such destination: the only credential writers were the seed and
+          FR-107's operator bootstrap. */}
+      <p className="mt-5 text-center text-xs text-muted">
+        ยังไม่มีบัญชี?{' '}
+        <Link href="/signup" className="font-semibold underline-offset-2 hover:underline" style={{ color: 'var(--action-primary-active)' }}>
+          สมัครสมาชิก
+        </Link>
+      </p>
+      <p className="mt-3 text-center text-xs text-muted">EtohGroup Enterprise Operating System</p>
     </EntryShell>
   )
 }
