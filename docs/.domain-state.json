@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-29T20:49:31.669Z",
+  "generatedAt": "2026-08-29T21:14:38.351Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 8,
-    "gapCount": 13,
+    "gapCount": 16,
     "gaps": [
       {
         "domain": "agent",
@@ -83,6 +83,28 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-121 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "integration",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "integration",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-125",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-125 is planned",
         "evidence": []
       },
       {
@@ -929,7 +951,7 @@
       }
     },
     "integration": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-028",
@@ -1028,6 +1050,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 5
+        },
+        {
+          "id": "FR-125",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -1068,12 +1097,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -1105,11 +1140,17 @@
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -1123,6 +1164,7 @@
         "docs/domains/integration/features/FR-099-sot-pipeline-plan-board.md",
         "docs/domains/integration/features/FR-100-sot-approval-inbox.md",
         "docs/domains/integration/features/FR-101-sot-pipeline-graph-dashboard.md",
+        "docs/domains/integration/features/FR-125-flowaccount-read-only-pull-pipeline.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1131,13 +1173,33 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-125",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-125 is planned",
+          "evidence": []
+        }
+      ],
       "details": {
         "routes": 10,
         "apiRoutes": 6,
         "pageRoutes": 4,
         "ownedModels": 15,
-        "featureNotes": 6
+        "featureNotes": 7
       }
     },
     "knowledge": {
