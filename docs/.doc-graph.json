@@ -49,12 +49,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:FR-122-profile-identity-fields"
-    ],
-    "added": [
-      "test:tests/unit/profile-identity-fields-migration.test.js"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -8318,7 +8314,7 @@
       "version": "0.1.0b",
       "doc_status": "Implemented",
       "hash": "57b09151",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -15589,7 +15585,7 @@
       "id": "test:tests/unit/profile-identity-fields-migration.test.js",
       "type": "test",
       "path": "tests/unit/profile-identity-fields-migration.test.js",
-      "hash": "e933e060",
+      "hash": "9711eb68",
       "status": "current"
     },
     {
