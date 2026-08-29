@@ -833,8 +833,15 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
   // there would be a broken authentication boundary. reset-password (FR-104) is
   // the same class: the caller's only credential is the handed-over token, and
   // demanding a session from someone locked out of theirs is the broken boundary.
+  // signup (FR-120) is the extreme case of the same rule — it is the route that
+  // brings the identity into existence, so there is not yet a Person for a
+  // viewer to resolve to. It belongs here rather than in the baseline for the
+  // reason the baseline exists to keep straight: the baseline records routes
+  // that SHOULD resolve a viewer and do not, and adding a structurally
+  // exempt one would make that list mean two different things at once.
   const IS_AUTH_LIFECYCLE_ENDPOINT = (p) =>
     p.includes('/api/auth/login/') || p.includes('/api/auth/logout/') ||
+    p.includes('/api/auth/signup/') ||
     p.includes('/api/auth/reset-password/') || p.split('/').includes('session')
   const offenders = []
   for (const file of walk(path.join(ROOT, 'src', 'app', 'api'), '.js')) {

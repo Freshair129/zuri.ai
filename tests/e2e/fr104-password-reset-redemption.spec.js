@@ -73,10 +73,16 @@ test.describe('FR-046 sign-in affordances', () => {
     expect(sessionCookie.expires).toBeGreaterThan(0)
   })
 
-  test('offers exactly one way out of Login, and it stays outside the shell', async ({ page }) => {
+  // Two ways out since FR-120 added /signup. Asserted as a set rather than a
+  // single link, because the failure worth catching is a *third* one appearing
+  // — an entry surface that grew an unaccounted exit — and a test that clicks
+  // one known link can never see that.
+  test('offers exactly the two ways out of Login, both outside the shell', async ({ page }) => {
     await page.goto('/login')
-    await page.getByRole('link', { name: 'ลืมรหัสผ่าน?' }).click()
+    const names = await page.locator('main').getByRole('link').allInnerTexts()
+    expect(names.map((name) => name.trim()).sort()).toEqual(['ลืมรหัสผ่าน?', 'สมัครสมาชิก'])
 
+    await page.getByRole('link', { name: 'ลืมรหัสผ่าน?' }).click()
     await expect(page).toHaveURL(/\/reset-password$/)
     await expect(page.getByRole('heading', { name: 'ตั้งรหัสผ่านใหม่' })).toBeVisible()
     // FR-044/ADR-015: the entry journey never mounts BusinessShell chrome.

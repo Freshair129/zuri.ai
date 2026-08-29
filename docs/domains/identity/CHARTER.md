@@ -4,6 +4,9 @@ module: src/modules/identity
 owns_routes:
   - src/app/(entry)/**
   - src/app/login/**
+  - src/app/signup/**
+  - src/app/reset-password/**
+  - src/app/api/auth/**
   - src/app/api/entry/**
   - src/app/api/onboarding/**
   - src/app/api/workspace-invites/**
@@ -88,7 +91,10 @@ domain. Implemented by FR-066/067 (`onboarding-service.js`,
 
 ## Known shared-write exceptions (debt, visible on purpose)
 
-- Writes `Person` (owned by crm) during linking, erasure and FR-066 profile
+- Writes `Person` (owned by crm) during linking, erasure, FR-066 profile
   completion (`displayName`/`email`/`profileCompletedAt` in
-  `onboarding-service.js`) — recorded in both charters; target state is a crm
-  contract call.
+  `onboarding-service.js`) and FR-120 self-serve signup (`signup-service.js`
+  creates the row alongside the `PersonCredential` this domain does own) —
+  recorded in both charters; target state is a crm contract call. FR-120 is the
+  same allowance rather than a new claim: it writes the same three columns, in
+  the same lane, for the step that comes immediately before FR-066's.
