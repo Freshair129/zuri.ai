@@ -37,12 +37,26 @@ describe('FR-044 entry surfaces', () => {
   it('keeps Login outside the shell and submits real credentials to the auth route', () => {
     expect(existsSync(loginPath)).toBe(true)
     const login = readFileSync(loginPath, 'utf8')
-    expect(login).toContain('<EntryShell>')
+    expect(login).toContain('<EntryShell')
     expect(login).toContain('action="/api/auth/login"')
     expect(login).toContain('method="post"')
     expect(login).toContain('name="username"')
     expect(login).toContain('name="password"')
-    expect((login.match(/href="\//g) || []).length).toBe(0)
+
+    // This assertion used to read `.length).toBe(0)` — Login carried no internal
+    // link at all. FR-104's redemption screen gave it a reason to carry one, and
+    // raising 0 to 1 would have been the wrong repair, because the count was
+    // never what mattered.
+    //
+    // What it protects is the FR-044/ADR-015 boundary: nothing reachable from
+    // Login may enter the BusinessShell before a session exists. A count cannot
+    // tell a link to a sibling entry surface apart from a link into the shell,
+    // so it would have passed a link straight to `/overview` as readily as this
+    // one. Naming the permitted destinations expresses the boundary itself, and
+    // is strictly stronger than the count it replaces.
+    const ENTRY_ROUTES = ['/', '/login', '/reset-password']
+    const linked = [...login.matchAll(/href="(\/[^"]*)"/g)].map((match) => match[1])
+    expect(linked.every((href) => ENTRY_ROUTES.includes(href))).toBe(true)
     const executableLogin = login.replace(/\/\/.*$/gm, '')
     expect(executableLogin).not.toContain('/api/viewer')
     expect(executableLogin).not.toContain('LOCAL_DEMO')

@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.2.0b |
+| **Version** | 1.2.1b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-08-20 |
+| **Last Updated** | 2026-08-29 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=48; operational_domain_keys=7; operational_subdomain_entries=24; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=49; operational_domain_keys=7; operational_subdomain_entries=24; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -56,7 +56,7 @@ Landing → credential Login → signed viewer resolution → Business Routing
 
 | Shell | Entry condition | Owns | Current implementation | Required boundary |
 |---|---|---|---|---|
-| **EntryShell** | no authenticated viewer or pre-shell entry | `/`, `/login` | `src/components/layouts/EntryShell.jsx` | no domain bar, sidebar or Business context |
+| **EntryShell** | no authenticated viewer or pre-shell entry | `/`, `/login`, `/reset-password` | `src/components/layouts/EntryShell.jsx` | no domain bar, sidebar or Business context |
 | **BusinessRoutingShell** | viewer exists but Business is not selected | `/businesses` | `src/app/(entry)/businesses/page.jsx` | displays only authorized Business choices |
 | **BusinessShell** | trusted viewer plus authorized `activeBusinessId` | `/overview` and Business domains | `src/app/(pm)/layout.jsx`, `BusinessShellGuard.jsx` | selection occurs before final chrome mounts |
 | **ProjectResourceShell** | BusinessShell plus opened `projectId` | `/projects/[projectId]/**` | `src/app/(pm)/projects/[projectId]/layout.jsx` | Project tabs remain inside the selected Business |
@@ -77,7 +77,8 @@ mean production identity, external providers or cutover gates are complete.
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/` | Landing | EntryShell | product entry, continue to login/demo boundary | initial, loading, local/offline-safe | implemented; `src/app/(entry)/page.jsx` |
-| `/login` | Credential Login | EntryShell | email/account-code and password authentication, then Business Routing | ready, invalid credentials, unavailable session, error | implemented beta; `src/app/login/page.jsx`, `/api/auth/login`, FR-046 |
+| `/login` | Credential Login | EntryShell | email/account-code and password authentication with password reveal and an opt-in persistent session, then Business Routing; one link out, to reset | ready, invalid credentials, unavailable session, error | implemented beta; `src/app/login/page.jsx`, `/api/auth/login`, FR-046 |
+| `/reset-password` | Password Reset Redemption (ตั้งรหัสผ่านใหม่) | EntryShell | consume a single-use reset token handed over out of band — typed by hand or carried in the link — set a new credential, and report that every active session was revoked | unauthenticated, prefilled token, invalid/used/expired token (one generic message), password too short, confirmation mismatch, done | implemented; `src/app/reset-password/page.jsx`, `/api/auth/reset-password`, FR-104 |
 | `/businesses` | Business Routing | BusinessRoutingShell | list authorized Businesses and select one; empty Business scope now routes to the pre-Business journey (FR-066) | auth required, empty Business scope, loading, error | implemented beta; `src/app/(entry)/businesses/page.jsx`, `GET /api/entry` |
 | `/onboarding/profile` | Profile Setup (ตั้งค่าโปรไฟล์) | BusinessRoutingShell | complete the Profile over the session's own Person before any scope prompt (AC-066.1); routes onward by the server's `nextStep` | auth required, loading, validation error, error | implemented; `src/app/(entry)/onboarding/profile/page.jsx`, `/api/onboarding/profile`, FR-066 |
 | `/waiting-room` | Waiting Room (ห้องรอ) | BusinessRoutingShell | the Profile-only resting state: own pending invites, joined Workspaces, token acceptance, owner path Workspace creation | auth required, incomplete profile redirect, loading, error | implemented; `src/app/(entry)/waiting-room/page.jsx`, `/api/onboarding/state`, `/api/workspace-invites/accept`, FR-066/FR-067 |
@@ -254,6 +255,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.1b | 2026-08-29 | candidate | Registered the FR-104 Password Reset Redemption screen — the consume leg had a route and no screen, so a minted token had nowhere to be spent — restated `/login`'s reveal and opt-in persistent session (AC-046-15), and reconciled the marker to 49 page routes | working-tree | ATHER |
 | 1.2.0b | 2026-08-20 | candidate | Registered the FR-091 CRM Dashboard and Inbox, the first reader surface over the LINE ingress, and reconciled the counts to 41 page routes / 23 subdomain entries | working-tree | ATHER |
 | 1.1.0b | 2026-08-18 | candidate | Added the FR-078 Customer Duplicate Review interface and reconciled the page/domain counts to the live registry | working-tree | ATHER |
 | 1.0.0b | 2026-08-18 | candidate | Executed CR-007: bounded the document to a canonical UI registry, reconciled 37 routes and explicit Business Home/domain counts, and added machine-checkable evidence | working-tree | ATHER |

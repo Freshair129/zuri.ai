@@ -3,21 +3,21 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1370,
-    "total_edges": 4686,
+    "total_nodes": 1377,
+    "total_edges": 4720,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 108,
+      "document": 109,
       "adr": 51,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
-      "route": 150,
+      "route": 151,
       "model": 67,
       "requirement": 255,
-      "test": 328,
-      "code_file": 358
+      "test": 330,
+      "code_file": 361
     },
     "coverage": {
       "requirements": 255,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (114/114)",
       "rules_anchored_in_code": "96% (110/114)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 358,
+      "annotated_code_files": 361,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -48,10 +48,10 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [
-      "test:tests/e2e/navigation-reachability.spec.js"
+    "changed": [
+      "doc:INTERFACE-INVENTORY"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -1091,7 +1091,7 @@
       "id": "code:src/app/api/auth/login/route.js",
       "type": "code_file",
       "path": "src/app/api/auth/login/route.js",
-      "hash": "f2d09400",
+      "hash": "d6b96b9b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3172,7 +3172,7 @@
       "id": "code:src/app/login/page.jsx",
       "type": "code_file",
       "path": "src/app/login/page.jsx",
-      "hash": "9d060c8a",
+      "hash": "82db13f4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3210,6 +3210,48 @@
         "@tested": [
           "tests/unit/entry-surfaces.test.js",
           "tests/unit/fr056-landing.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/reset-password/page.jsx",
+      "type": "code_file",
+      "path": "src/app/reset-password/page.jsx",
+      "hash": "4ecb0af7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044",
+          "FR-104"
+        ],
+        "@spec": [
+          "SDD-022",
+          "SDD-054",
+          "SEC-008",
+          "SEC-014"
+        ],
+        "@tested": [
+          "tests/unit/entry-surfaces.test.js",
+          "tests/unit/password-reset-page.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/forms/PasswordField.jsx",
+      "type": "code_file",
+      "path": "src/components/forms/PasswordField.jsx",
+      "hash": "9b1ba3cb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-046",
+          "FR-104"
+        ],
+        "@spec": [
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/password-reset-page.test.js"
         ]
       }
     },
@@ -3343,7 +3385,7 @@
       "id": "code:src/components/layouts/EntryShell.jsx",
       "type": "code_file",
       "path": "src/components/layouts/EntryShell.jsx",
-      "hash": "093b88a7",
+      "hash": "bf9452d9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4714,6 +4756,26 @@
         ],
         "@tested": [
           "tests/unit/operator-bootstrap.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/password-reset-copy.js",
+      "type": "code_file",
+      "path": "src/modules/identity/password-reset-copy.js",
+      "hash": "dc7193c4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-104"
+        ],
+        "@spec": [
+          "SDD-054",
+          "SEC-008",
+          "SEC-014"
+        ],
+        "@tested": [
+          "tests/unit/password-reset-page.test.js"
         ]
       }
     },
@@ -7390,6 +7452,14 @@
       "status": "current"
     },
     {
+      "id": "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS",
+      "type": "document",
+      "path": "docs/change-requests/CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS.md",
+      "title": "CR-001 — Sales, Conversation Intelligence, Engagement & Finance Domains",
+      "hash": "b884122c",
+      "status": "current"
+    },
+    {
       "id": "doc:DB-MIGRATION-NOTES",
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
@@ -7651,7 +7721,7 @@
       "title": "FR-046 — Production viewer session and entry contract",
       "version": "0.3.0b",
       "doc_status": "Implemented — beta",
-      "hash": "7c0d8ec8",
+      "hash": "a73c4c73",
       "status": "current"
     },
     {
@@ -8135,10 +8205,10 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.2.0b",
+      "version": "1.2.1b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "39d91c2a",
-      "status": "current"
+      "hash": "c7fb25ab",
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -12898,6 +12968,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/reset-password",
+      "type": "route",
+      "kind": "page",
+      "route": "/reset-password",
+      "path": "src/app/reset-password/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/settings",
       "type": "route",
       "kind": "page",
@@ -13433,6 +13511,13 @@
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
       "hash": "26a45879",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr104-password-reset-redemption.spec.js",
+      "hash": "9516b526",
       "status": "current"
     },
     {
@@ -14440,7 +14525,7 @@
       "id": "test:tests/unit/entry-surfaces.test.js",
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
-      "hash": "18d2a5c3",
+      "hash": "e2793723",
       "status": "current"
     },
     {
@@ -14538,7 +14623,7 @@
       "id": "test:tests/unit/fr046-auth-route.test.js",
       "type": "test",
       "path": "tests/unit/fr046-auth-route.test.js",
-      "hash": "3ec449bf",
+      "hash": "2f95920c",
       "status": "current"
     },
     {
@@ -15057,6 +15142,13 @@
       "type": "test",
       "path": "tests/unit/overview-split.test.js",
       "hash": "9ffbc608",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/password-reset-page.test.js",
+      "type": "test",
+      "path": "tests/unit/password-reset-page.test.js",
+      "hash": "d5588ba6",
       "status": "current"
     },
     {
@@ -20347,6 +20439,69 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/reset-password/page.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/reset-password/page.jsx",
+      "to": "req:FR-104",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/reset-password/page.jsx",
+      "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/reset-password/page.jsx",
+      "to": "req:SDD-054",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/reset-password/page.jsx",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/reset-password/page.jsx",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/forms/PasswordField.jsx",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/forms/PasswordField.jsx",
+      "to": "req:FR-104",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/forms/PasswordField.jsx",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/components/landing/ZuriLanding.jsx",
       "to": "req:FR-056",
       "type": "implements",
@@ -22441,6 +22596,34 @@
     },
     {
       "from": "code:src/modules/identity/operator-bootstrap.js",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/password-reset-copy.js",
+      "to": "req:FR-104",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/password-reset-copy.js",
+      "to": "req:SDD-054",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/password-reset-copy.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/password-reset-copy.js",
       "to": "req:SEC-014",
       "type": "follows",
       "status": "current",
@@ -32261,6 +32444,55 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:SDD-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/e2e/navigation-reachability.spec.js",
       "to": "req:FR-001",
       "type": "verifies",
@@ -40564,6 +40796,13 @@
     },
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "code:src/app/reset-password/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
       "to": "code:src/components/layouts/EntryShell.jsx",
       "type": "tests",
       "status": "current",
@@ -40592,6 +40831,13 @@
     },
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
@@ -40613,7 +40859,21 @@
     },
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "req:SDD-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "req:SEC-014",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -44684,6 +44944,76 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "code:src/app/reset-password/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "code:src/components/forms/PasswordField.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "code:src/modules/identity/password-reset-copy.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:SDD-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/password-reset-routes.test.js",

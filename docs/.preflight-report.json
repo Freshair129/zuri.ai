@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 203,
+    "docs": 204,
     "routes": 102,
-    "test_files": 328
+    "test_files": 330
   },
   "summary": {
     "critical": 0,
