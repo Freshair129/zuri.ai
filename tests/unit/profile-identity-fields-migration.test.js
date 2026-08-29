@@ -59,8 +59,18 @@ describe('FR-122 profile identity fields Supabase migration', () => {
 // 0002 is the one legitimate hand-written extra: a partial unique index Prisma
 // cannot express, so `--from-empty` can never emit it.
 describe('prisma/postgres is a regenerated snapshot, not an append-only series', () => {
-  it('holds only the regenerated 0001 and the one hand-written 0002', () => {
-    const found = fs.readdirSync(POSTGRES_DIR).filter((f) => f.endsWith('.sql')).sort()
+  // Enumerated WITHOUT an extension filter, deliberately. This assertion's
+  // strength is that it is closed-world — it names the whole permitted set, so
+  // it can fail on a file nobody thought to write a test for. But a closed
+  // world is only as closed as its enumeration: the first version of this
+  // filtered to `.sql`, which quietly re-opened it. A `0003.psql`, a stray
+  // `.bak`, or a subdirectory of migrations would all have sat outside the set
+  // the test claims to bound, and it would still have reported these two and
+  // passed. Directories are suffixed so one can never be mistaken for a file.
+  it('holds only the regenerated 0001 and the one hand-written 0002, and nothing else at all', () => {
+    const found = fs.readdirSync(POSTGRES_DIR, { withFileTypes: true })
+      .map((entry) => (entry.isDirectory() ? `${entry.name}/` : entry.name))
+      .sort()
     expect(found).toEqual([
       '0001_init.sql',
       '0002_phase1_line_primary_connection.sql',

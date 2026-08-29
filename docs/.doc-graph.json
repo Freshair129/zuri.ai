@@ -50,7 +50,7 @@
   },
   "drift": {
     "changed": [
-      "doc:ROADMAP-business01-smartgift-delivery"
+      "test:tests/unit/profile-identity-fields-migration.test.js"
     ],
     "added": [],
     "removed": []
@@ -8641,7 +8641,7 @@
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
       "hash": "1b7c45dd",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-zuri-ai-24w-program",
@@ -15602,8 +15602,8 @@
       "id": "test:tests/unit/profile-identity-fields-migration.test.js",
       "type": "test",
       "path": "tests/unit/profile-identity-fields-migration.test.js",
-      "hash": "e933e060",
-      "status": "current"
+      "hash": "9711eb68",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/profile-permission-service.test.js",
