@@ -228,6 +228,8 @@
     "FR-118",
     "FR-119",
     "FR-120",
+    "FR-121",
+    "FR-122",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -2357,6 +2359,32 @@
       "history": [
         {
           "anchor": "self serve account creation",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-121": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6d570017391dc642344127ae7b4b80a3ba55397142cb0caf823a79de62b520d0",
+      "history": [
+        {
+          "anchor": "google as a second way in over the same person",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-122": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a5a585ec08d71f0fa8d26d75d5ecc003089b8b1c8017175730c2140101f88d08",
+      "history": [
+        {
+          "anchor": "a profile states who the person is not just what to call",
           "since": "2026-08-29",
           "reason": "declared"
         }

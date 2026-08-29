@@ -41,7 +41,7 @@ Charter: [docs/domains/identity/CHARTER.md](domains/identity/CHARTER.md)
 | Modules | `src/modules/identity` |
 | Models owned | ExternalIdentity, IdentityLinkToken, ExternalRef, RoleBinding, PersonCredential, PasswordResetToken, Session, ChannelIdentity, SotDataPlaneKey, WorkspaceMembership, WorkspaceInvite, ApiAccessKey, PlatformGrant |
 | Routes owned | 19 (12 api · 7 pages) |
-| FRs implemented in lane | FR-021, FR-022, FR-031, FR-036, FR-038, FR-046, FR-059, FR-061, FR-062, FR-066, FR-067, FR-074, FR-075, FR-076, FR-078, FR-094, FR-095, FR-096, FR-097, FR-098, FR-102, FR-104, FR-106, FR-107, FR-120, SDD-034 |
+| FRs implemented in lane | FR-021, FR-022, FR-031, FR-036, FR-038, FR-046, FR-059, FR-061, FR-062, FR-066, FR-067, FR-074, FR-075, FR-076, FR-078, FR-094, FR-095, FR-096, FR-097, FR-098, FR-102, FR-104, FR-106, FR-107, FR-120, FR-122, SDD-034 |
 
 ## integration
 

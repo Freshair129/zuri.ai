@@ -4,6 +4,12 @@
 // after a local identity/session exists, before any Business or Project
 // creation prompt (AC-066.1). Completing it routes onward by the server's
 // nextStep answer — Waiting Room, Workspace Home, or Business Routing.
+// @req FR-122 — and what it asks for: given name, family name and telephone
+// number, all required. Display name is optional in the form because the
+// server composes it from the two names when it is left blank — asking for it
+// as a third required field would be asking the same person for their own name
+// twice. The required marks here are a courtesy; the enforcement is the
+// service's, which is the half a disabled button cannot be trusted for.
 // @spec ADR-027 D1/D8, BR-016, SDD-038
 // @tested tests/unit/workspace-onboarding-routes.test.js
 import { useEffect, useState } from 'react'
@@ -18,6 +24,9 @@ export default function OnboardingProfilePage() {
   const state = useFetch('/api/onboarding/state')
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [phone, setPhone] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
 
@@ -31,6 +40,9 @@ export default function OnboardingProfilePage() {
     if (state.data?.profile) {
       setDisplayName((current) => current || state.data.profile.displayName || '')
       setEmail((current) => current || state.data.profile.email || '')
+      setFirstName((current) => current || state.data.profile.firstName || '')
+      setLastName((current) => current || state.data.profile.lastName || '')
+      setPhone((current) => current || state.data.profile.phone || '')
     }
   }, [state.data])
 
@@ -46,7 +58,15 @@ export default function OnboardingProfilePage() {
     try {
       await api('/api/onboarding/profile', {
         method: 'POST',
-        body: { displayName, ...(email.trim() ? { email: email.trim() } : {}) },
+        body: {
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          phone: phone.trim(),
+          // Omitted rather than sent empty when untouched: the contract makes it
+          // optional so the server can compose it, and "" would fail min(1).
+          ...(displayName.trim() ? { displayName: displayName.trim() } : {}),
+          ...(email.trim() ? { email: email.trim() } : {}),
+        },
       })
       const next = await api('/api/onboarding/state')
       router.replace(onboardingPathFor(next.nextStep))
@@ -66,16 +86,56 @@ export default function OnboardingProfilePage() {
       />
       <Card className="max-w-xl p-5">
         <form onSubmit={save} className="grid gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="grid gap-1 text-sm">
+              <span className="font-semibold">ชื่อ *</span>
+              <input
+                className="input"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="วรรณภา"
+                autoComplete="given-name"
+                required
+                maxLength={100}
+              />
+            </label>
+            <label className="grid gap-1 text-sm">
+              <span className="font-semibold">นามสกุล *</span>
+              <input
+                className="input"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="ใจดี"
+                autoComplete="family-name"
+                required
+                maxLength={100}
+              />
+            </label>
+          </div>
           <label className="grid gap-1 text-sm">
-            <span className="font-semibold">ชื่อที่แสดง *</span>
+            <span className="font-semibold">เบอร์โทรศัพท์ *</span>
+            <input
+              className="input"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="08x-xxx-xxxx"
+              autoComplete="tel"
+              required
+              maxLength={32}
+            />
+          </label>
+          <label className="grid gap-1 text-sm">
+            <span className="font-semibold">ชื่อที่แสดง (ไม่บังคับ)</span>
             <input
               className="input"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="เช่น วรรณภา ใจดี"
-              required
+              placeholder={firstName.trim() || lastName.trim() ? `${firstName.trim()} ${lastName.trim()}`.trim() : 'เช่น วรรณภา ใจดี'}
+              autoComplete="nickname"
               maxLength={200}
             />
+            <span className="text-xs text-muted">เว้นว่างได้ ระบบจะใช้ชื่อกับนามสกุลข้างบน</span>
           </label>
           <label className="grid gap-1 text-sm">
             <span className="font-semibold">อีเมล (ไม่บังคับ)</span>
@@ -92,7 +152,11 @@ export default function OnboardingProfilePage() {
             <p className="text-sm text-[var(--danger,#b91c1c)]" role="alert">บันทึกไม่สำเร็จ: {error}</p>
           ) : null}
           <div>
-            <button type="submit" className="btn btn-primary" disabled={busy || !displayName.trim()}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={busy || !firstName.trim() || !lastName.trim() || !phone.trim()}
+            >
               {busy ? 'กำลังบันทึก…' : 'บันทึกโปรไฟล์'}
             </button>
           </div>
