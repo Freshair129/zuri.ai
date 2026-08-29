@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=50; operational_domain_keys=7; operational_subdomain_entries=24; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=52; operational_domain_keys=7; operational_subdomain_entries=25; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -128,6 +128,8 @@ page routes because its Dashboard and Settings navigation entries share
 |---|---|---|---|---|---|
 | `/people` | People Dashboard | BusinessShell → HR / People | People domain landing and directory entry | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/people/page.jsx`, FR-042 |
 | `/people/directory` | People Directory | BusinessShell → HR / People / Directory | Business-scoped people search and view | empty, loading, error, forbidden | implemented; `src/app/(pm)/people/directory/page.jsx`, FR-042 |
+| `/platform/product-readiness` | Product Readiness | BusinessShell → Platform / Product Readiness | read-only projection of implementation progress, verified requirements, feature readiness and one example use case per feature | platform-visibility required, auth required, ready, filtered-empty | implemented beta; `src/app/(pm)/platform/product-readiness/page.jsx`, FR-124 |
+| `/platform/product-readiness/[domain]` | Product Readiness — domain lane | BusinessShell → Platform / Product Readiness / domain | the same contract scoped to one stable domain key | platform-visibility required, auth required, ready, unknown-domain not-found | implemented beta; `src/app/(pm)/platform/product-readiness/[domain]/page.jsx`, FR-124 |
 | `/platform/users` | Users and Permissions | BusinessShell → Platform / Users | OWNER-scoped membership role and domain grants | owner-only, empty, loading, error, forbidden | implemented; `src/app/(pm)/platform/users/page.jsx`, FR-038/062 |
 | `/platform/integrations` | Platform Integrations | BusinessShell → Platform / Integrations | owner-only provider/connection metadata and redacted Vault readiness | owner-only, empty, loading, error, manager unavailable; no raw secret state | implemented beta; `src/app/(pm)/platform/integrations/page.jsx`, FR-080 |
 | `/platform/customer-import-reviews` | Customer Duplicate Review | BusinessShell → Platform / Customer Review | review held duplicate groups, inspect redacted evidence and append a per-item decision | reviewer-only, empty, loading, error, forbidden, stale-version conflict; no Customer publish | implemented beta; `src/app/(pm)/platform/customer-import-reviews/page.jsx`, FR-078 |

@@ -231,6 +231,7 @@
     "FR-121",
     "FR-122",
     "FR-123",
+    "FR-124",
     "FR-125",
     "FR-126",
     "FR-127",
@@ -2409,6 +2410,19 @@
       "history": [
         {
           "anchor": "plugin authentication and capability discovery",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-124": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "27874ec8eff28fd5d9b92cfc130537097a7633fde51a60693518ff5040b0d420",
+      "history": [
+        {
+          "anchor": "product readiness",
           "since": "2026-08-29",
           "reason": "declared"
         }
