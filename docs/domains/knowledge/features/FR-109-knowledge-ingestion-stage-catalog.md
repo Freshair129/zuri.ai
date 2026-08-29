@@ -210,8 +210,9 @@ after a parser or embedding-model upgrade safe to run over a whole corpus.
 ## Acceptance criteria
 
 Drawn from the specification's §40 Minimum Acceptance Criteria, restricted to
-what FR-109 owns — the catalog, the trace and the evidence. **Five of the
-thirteen are built** — AC-109.1, AC-109.2, AC-109.8, AC-109.9 and AC-109.10.
+what FR-109 owns — the catalog, the trace and the evidence. **Six of the
+thirteen are built** — AC-109.1, AC-109.2, AC-109.3, AC-109.8, AC-109.9 and
+AC-109.10.
 
 The persistence half this note used to call unnamed now has one:
 `ingestKnowledgeDocument` (SDD-069) calls FR-118's seven-stage composition and
@@ -233,12 +234,22 @@ functions are pure and deterministic; an ambiguous value already declines via
 `canonical: null` rather than throwing, per FR-114/SDD-061), and no object is
 silently dropped.
 
-Of the remaining eight: four name a **declared id** — NFR-020, FR-110 (twice,
+Of the remaining seven: four name a **declared id** — NFR-020, FR-110 (twice,
 for AC-109.7 and AC-109.11) and SDD-059's charter change. One names a
 boundary — Stages 9-17 report from GKS and GenesisBlockDB, which is ADR-050 D3
-and not a gap in this repository. AC-109.3 names a column, not a subsystem.
-AC-109.13 names a decision nothing has made yet: acting differently on a
-`REVISION_OF` result than on a fresh one.
+and not a gap in this repository. AC-109.13 names a decision nothing has made
+yet: acting differently on a `REVISION_OF` result than on a fresh one.
+
+AC-109.3 closed the same way its own note predicted — a column, not a
+subsystem: `RawExternalRecord.artifactId` (nullable, indexed) plus
+`findByArtifactId` on FR-081's own scoped repository. A caller that names an
+`artifactId` on the ingestion envelope gets it written through
+`ingestRawExternalRecord`; nothing is required to name one, and a run's own
+`artifact_id` (`artifactRef`/`identityRefs.artifactIds`) resolves back to the
+raw stored payload, inside the same tenant/connection scope every other read
+on that repository enforces. No new model — this is FR-081's own model,
+FR-109 only added the column it was missing (SDD-057, ADR-050 D4 still holds:
+the knowledge domain's `owns_models` stays empty).
 
 - [x] **AC-109.1** `DPL-KNOWLEDGE-INGEST-V1` is registered as one pipeline
       definition carrying exactly the seventeen `DPS-KI-*` stage ids above, and
@@ -253,16 +264,15 @@ AC-109.13 names a decision nothing has made yet: acting differently on a
       the same seven-stage call sequence — proven by two integration tests
       against the real database, not asserted from FR-118's pass-through alone
       (SDD-069).
-- [ ] **AC-109.3** The raw artifact is stored before transformation and is
+- [x] **AC-109.3** The raw artifact is stored before transformation and is
       recoverable from `artifact_id` after normalization has run (spec §3.1).
-      Waits on **binding `artifact_id` to storage that already exists**. FR-081's
-      `RawExternalRecord` holds `payloadJson`, `payloadHash` and `sourceUri`,
-      so the raw artifact IS stored before transformation and IS recoverable —
-      by FR-081's own idempotency key. What is missing is narrower than a
-      subsystem: nothing resolves a run's `artifact_id` to that row, because
-      `RawExternalRecord` carries no artifact id and the run carries it only as
-      `artifactRef` and in `identityRefs.artifactIds`. A column or a documented
-      convention, not a build.
+      Closed by a column, exactly as scoped: `RawExternalRecord.artifactId`
+      (nullable — most raw records are never fed into knowledge ingestion) is
+      set by `ingestRawExternalRecord` when a caller names one on the
+      envelope, and `findByArtifactId` resolves it back through the same
+      scoped repository every other read on this model uses. Proven against
+      the real database, not a mocked repository (`tests/integration/platform
+      /integration-persistence.test.js`).
 - [ ] **AC-109.4** Every derived object carries provenance, and the §8 chain
       `Fact → Chunk → ParsedArtifact → RawArtifact → Source` can be walked from
       any published object.
@@ -356,12 +366,12 @@ AC-109.13 names a decision nothing has made yet: acting differently on a
   that decision rather than implementing it. The 2026-08-28 slice added a
   catalog constant, a definition registry and a pure input builder — no model,
   no migration, no route.
-- **Not the whole trace and not the monitor.** Five of the thirteen acceptance
-  criteria are built now; eight are not, and none of the eight wait on
+- **Not the whole trace and not the monitor.** Six of the thirteen acceptance
+  criteria are built now; seven are not, and none of the seven wait on
   ledger-writing wiring or on failure attribution any more — both exist
-  (SDD-069, SDD-072) and gave three of the eight real evidence without
+  (SDD-069, SDD-072) and gave three of the seven real evidence without
   closing them. Reading this note as "FR-109 is done" would still overstate
-  it, now by eight criteria rather than nine, each waiting on something
+  it, now by seven criteria rather than nine, each waiting on something
   specific and named above.
 - zuri-ai does not execute the stages ADR-050 assigns to GKS or
   GenesisBlockDB. Entity resolution, ontology authority, fact and relation

@@ -1,9 +1,13 @@
 // @req FR-081 — raw records are read and written only through a repository bound
 // to one tenant/connection scope; a row outside that scope is refused rather than
 // filtered after the fact.
+// @req FR-109 — AC-109.3: `findByArtifactId` resolves a knowledge-ingestion run's
+// `artifact_id` back to the raw record FR-081 already stored, inside the same
+// tenant/connection scope every other read here enforces.
 // @spec SEC-001 — cross-tenant/business guard applied at the persistence boundary.
 // @spec docs/domains/integration/features/FR-081-raw-external-ingestion.md
 // @tested tests/integration/platform/integration-persistence.test.js
+// @tested tests/unit/platform/raw-record-repository-read.test.js
 
 function assertScope(scope) {
   if (!scope?.tenantId || !scope?.connectionId) {
@@ -54,6 +58,16 @@ export function createPrismaRawRecordRepository(db, scope) {
       return db.rawExternalRecord.findFirst({
         where: {
           idempotencyKey,
+          ...scopeWhere(scope),
+        },
+      })
+    },
+
+    findByArtifactId(artifactId) {
+      if (!artifactId) throw new Error('artifactId is required')
+      return db.rawExternalRecord.findFirst({
+        where: {
+          artifactId,
           ...scopeWhere(scope),
         },
       })

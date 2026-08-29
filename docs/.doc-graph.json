@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 1378,
-    "total_edges": 4721,
+    "total_edges": 4729,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -7101,7 +7101,7 @@
       "id": "code:src/platform/integrations/core/contracts.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/contracts.js",
-      "hash": "19fd7465",
+      "hash": "639282a1",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7271,11 +7271,12 @@
       "id": "code:src/platform/integrations/core/raw-ingest-service.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/raw-ingest-service.js",
-      "hash": "a3c6dc4f",
+      "hash": "021475fb",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-081"
+          "FR-081",
+          "FR-109"
         ],
         "@spec": [
           "BR-002",
@@ -7291,11 +7292,12 @@
       "id": "code:src/platform/integrations/core/raw-record-repository.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/raw-record-repository.js",
-      "hash": "e02f347c",
+      "hash": "2e9726cd",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-081"
+          "FR-081",
+          "FR-109"
         ],
         "@spec": [
           "SEC-001",
@@ -7303,7 +7305,8 @@
           "docs/domains/integration/features/FR-081-raw-external-ingestion.md"
         ],
         "@tested": [
-          "tests/integration/platform/integration-persistence.test.js"
+          "tests/integration/platform/integration-persistence.test.js",
+          "tests/unit/platform/raw-record-repository-read.test.js"
         ]
       }
     },
@@ -8109,7 +8112,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
-      "hash": "56dbe631",
+      "hash": "4ff597bb",
       "status": "current"
     },
     {
@@ -8445,9 +8448,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.116.0b",
+      "version": "1.117.0b",
       "doc_status": "Draft",
-      "hash": "bdc633f5",
+      "hash": "e3441431",
       "status": "changed"
     },
     {
@@ -8754,7 +8757,7 @@
       "modules": [
         "knowledge"
       ],
-      "hash": "2af5af83",
+      "hash": "41635af5",
       "status": "current"
     },
     {
@@ -10585,7 +10588,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-29 — 5 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.2 (`ingestKnowledgeDocument`, SDD-069 — a structured and an unstructured source both provably ingested through the same catalog, no second stage list for either), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, validated against its own definition's catalog rather than the union — SDD-066), AC-109.9 (BR-021 idempotency persisted as the run key — SDD-067), and AC-109.10 (FR-119, SDD-072 — a document that fails partway is quarantined with BR-022's complete envelope, `docId`-bound `STEP_FAILED`/`RECORD_FAILED`, no object silently dropped; every Tier 1 failure classifies `NON_RETRYABLE` because the seven stage functions are pure and deterministic). The remaining eight: AC-109.3 waits on binding `artifact_id` to storage FR-081 already provides, AC-109.5 on SDD-059's chunk-persistence charter change, AC-109.6 on NFR-020 metrics plus a Tier 3/4 reporter for the other nine stages, AC-109.11 on the FR-110 job lifecycle, AC-109.12 on a Tier 3/4 reporter — and AC-109.4/.7/.13 have real per-record disposition bound through `docId` for the Tier 1 portion (SDD-069) but wait on FR-110's Published Snapshot to complete the chain, on persisted derived objects for AC-109.4's walk, and on something acting differently on a `REVISION_OF` result for AC-109.13. No new Prisma model and no migration (ADR-050 D4); 37 unit tests, three real-database integration suites "
+      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-29 — 6 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.2 (`ingestKnowledgeDocument`, SDD-069 — a structured and an unstructured source both provably ingested through the same catalog, no second stage list for either), AC-109.3 (`RawExternalRecord.artifactId` — nullable, indexed — plus a scoped `findByArtifactId` read, so a knowledge-ingestion run's `artifact_id` resolves back to the raw payload FR-081 already stores; proven against the real database), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, validated against its own definition's catalog rather than the union — SDD-066), AC-109.9 (BR-021 idempotency persisted as the run key — SDD-067), and AC-109.10 (FR-119, SDD-072 — a document that fails partway is quarantined with BR-022's complete envelope, `docId`-bound `STEP_FAILED`/`RECORD_FAILED`, no object silently dropped; every Tier 1 failure classifies `NON_RETRYABLE` because the seven stage functions are pure and deterministic). The remaining seven: AC-109.5 waits on SDD-059's chunk-persistence charter change, AC-109.6 on NFR-020 metrics plus a Tier 3/4 reporter for the other nine stages, AC-109.11 on the FR-110 job lifecycle, AC-109.12 on a Tier 3/4 reporter — and AC-109.4/.7/.13 have real per-record disposition bound through `docId` for the Tier 1 portion (SDD-069) but wait on FR-110's Published Snapshot to complete the chain, on persisted derived objects for AC-109.4's walk, and on something acting differently on a `REVISION_OF` result for AC-109.13. AC-109.3 added one nullable, indexed column to FR-081's own `RawExternalRecord` — not a new model, and not one the knowledge domain owns (its `owns_models` stays empty, ADR-050 D4); 37 unit tests, three real-database integration suites for the Tier 1 execution slice, plus 7 new unit tests and one new real-database integration test for AC-109.3's binding "
     },
     {
       "id": "req:FR-110",
@@ -14014,7 +14017,7 @@
       "id": "test:tests/integration/platform/integration-persistence.test.js",
       "type": "test",
       "path": "tests/integration/platform/integration-persistence.test.js",
-      "hash": "f6954054",
+      "hash": "b7ca8c26",
       "status": "current"
     },
     {
@@ -15295,7 +15298,7 @@
       "id": "test:tests/unit/platform/integration-contracts.test.js",
       "type": "test",
       "path": "tests/unit/platform/integration-contracts.test.js",
-      "hash": "657c4423",
+      "hash": "17c53f62",
       "status": "current"
     },
     {
@@ -15337,14 +15340,14 @@
       "id": "test:tests/unit/platform/raw-ingest-service.test.js",
       "type": "test",
       "path": "tests/unit/platform/raw-ingest-service.test.js",
-      "hash": "f426e0fa",
+      "hash": "8a9a79b3",
       "status": "current"
     },
     {
       "id": "test:tests/unit/platform/raw-record-repository-read.test.js",
       "type": "test",
       "path": "tests/unit/platform/raw-record-repository-read.test.js",
-      "hash": "9f802b22",
+      "hash": "535b6e8c",
       "status": "current"
     },
     {
@@ -26354,6 +26357,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/platform/integrations/core/raw-ingest-service.js",
+      "to": "req:FR-109",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/platform/integrations/core/raw-record-repository.js",
       "to": "doc:FR-081-raw-external-ingestion",
       "type": "references",
@@ -26371,6 +26381,13 @@
       "from": "code:src/platform/integrations/core/raw-record-repository.js",
       "to": "req:FR-081",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/raw-record-repository.js",
+      "to": "req:FR-109",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -37429,6 +37446,13 @@
     },
     {
       "from": "test:tests/integration/platform/integration-persistence.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/platform/integration-persistence.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -45920,6 +45944,13 @@
     },
     {
       "from": "test:tests/unit/platform/integration-contracts.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/integration-contracts.test.js",
       "to": "req:SEC-002",
       "type": "verifies",
       "status": "current",
@@ -46185,11 +46216,39 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/platform/raw-ingest-service.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/raw-record-repository-read.test.js",
+      "to": "code:src/platform/integrations/core/raw-record-repository.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "test:tests/unit/platform/raw-record-repository-read.test.js",
       "to": "req:FR-081",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/raw-record-repository-read.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/raw-record-repository-read.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/playwright-database-bootstrap.test.js",
