@@ -49,21 +49,9 @@
   },
   "drift": {
     "changed": [
-      "domain:knowledge",
-      "doc:FR-109-knowledge-ingestion-stage-catalog",
-      "doc:PRD-SDD-v1.0",
-      "test:tests/integration/fr109-knowledge-ingestion-executor.test.js",
-      "code:src/modules/knowledge/stage-runner.js",
-      "code:src/platform/integrations/core/knowledge-ingestion-executor.js"
+      "doc:PRD-SDD-v1.0"
     ],
-    "added": [
-      "req:FR-119",
-      "req:SDD-072",
-      "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
-      "test:tests/unit/knowledge-quarantine.test.js",
-      "test:tests/unit/knowledge-stage-runner-trace.test.js",
-      "code:src/modules/knowledge/quarantine.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -5541,7 +5529,7 @@
       "type": "code_file",
       "path": "src/modules/knowledge/stage-runner.js",
       "hash": "ff803307",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-118",
@@ -7144,7 +7132,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/knowledge-ingestion-executor.js",
       "hash": "2256ed62",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-109",
@@ -8048,7 +8036,7 @@
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
       "hash": "56dbe631",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
@@ -8385,7 +8373,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.106.0b",
       "doc_status": "Draft",
-      "hash": "5286cb92",
+      "hash": "e86d15c9",
       "status": "changed"
     },
     {
@@ -8693,7 +8681,7 @@
         "knowledge"
       ],
       "hash": "2af5af83",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -10523,7 +10511,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "done",
       "status": "current",
-      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-28 — the catalog and the run identity, 3 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, and stage ids validate against their own definition's catalog rather than the union — SDD-066), and AC-109.9 (BR-021 idempotency persisted as the run key, so re-ingesting the same artifact returns the existing run instead of a second one — SDD-067). Four of thirteen now: AC-109.2 joined 2026-08-28 — `ingestKnowledgeDocument` (SDD-069) registers a real run and writes real per-stage evidence for both an unstructured document and a structured record through the same `DPL-KNOWLEDGE-INGEST-V1` catalog, no second stage list for either. The remaining nine: AC-109.3 waits on binding `artifact_id` to storage FR-081 already provides, AC-109.5 on SDD-059's chunk-persistence charter change, AC-109.6 on NFR-020 metrics plus a Tier 3/4 reporter for the other nine stages, AC-109.10 on BR-022 quarantine, AC-109.11 on the FR-110 job lifecycle, AC-109.12 on a Tier 3/4 reporter — and AC-109.4/.7/.13 now have real per-record disposition bound through `docId` for the Tier 1 portion (SDD-069) but wait on FR-110's Published Snapshot to complete the chain, on persisted derived objects for AC-109.4's walk, and on something acting differently on a `REVISION_OF` result for AC-109.13. No new Prisma model and no migration (ADR-050 D4); 22 unit tests, two real-database integration suites "
+      "row_text": "Seventeen-stage knowledge ingestion stage catalog and job trace: the path from a source artifact to published, retrieval-ready knowledge is registered as ONE governed pipeline definition (`DPL-KNOWLEDGE-INGEST-V1`) carrying the seventeen stable stage ids of the 17-Stage Knowledge Ingestion Specification, recorded on the FR-071 execution ledger rather than on new models (SDD-057). Every ingestion occurrence is traceable end to end from a single `pipeline_job_id` — Source → RawArtifact → ParsedArtifact → Chunks → Entities → Facts → Graph → Indexes → Published Snapshot (spec §33) — with per-record disposition on `PipelineRecordEvent`, whose already-present `docId` / `picId` / `factId` columns are what that trace binds to. Sequence is documentation; the stage id is the key, exactly as FR-071's catalog already treats it, so inserting a stage never renumbers the evidence of a run that predates it. This requirement declares the catalog, the trace and the monitor: zuri-ai records ingestion and holds its gate decision, and never executes the stages ADR-050 assigns to GKS or GenesisBlockDB (ADR-043 D2.1, ADR-046). ✅ implemented 2026-08-29 — 5 of 13 acceptance criteria: AC-109.1 (`DPL-KNOWLEDGE-INGEST-V1` registered with exactly the seventeen `DPS-KI-*` ids, distinct from `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1`), AC-109.2 (`ingestKnowledgeDocument`, SDD-069 — a structured and an unstructured source both provably ingested through the same catalog, no second stage list for either), AC-109.8 (a stage occurrence is `pipelineStageId` + `executionStepId`, validated against its own definition's catalog rather than the union — SDD-066), AC-109.9 (BR-021 idempotency persisted as the run key — SDD-067), and AC-109.10 (FR-119, SDD-072 — a document that fails partway is quarantined with BR-022's complete envelope, `docId`-bound `STEP_FAILED`/`RECORD_FAILED`, no object silently dropped; every Tier 1 failure classifies `NON_RETRYABLE` because the seven stage functions are pure and deterministic). The remaining eight: AC-109.3 waits on binding `artifact_id` to storage FR-081 already provides, AC-109.5 on SDD-059's chunk-persistence charter change, AC-109.6 on NFR-020 metrics plus a Tier 3/4 reporter for the other nine stages, AC-109.11 on the FR-110 job lifecycle, AC-109.12 on a Tier 3/4 reporter — and AC-109.4/.7/.13 have real per-record disposition bound through `docId` for the Tier 1 portion (SDD-069) but wait on FR-110's Published Snapshot to complete the chain, on persisted derived objects for AC-109.4's walk, and on something acting differently on a `REVISION_OF` result for AC-109.13. No new Prisma model and no migration (ADR-050 D4); 37 unit tests, three real-database integration suites "
     },
     {
       "id": "req:FR-110",
@@ -13704,7 +13692,7 @@
       "type": "test",
       "path": "tests/integration/fr109-knowledge-ingestion-executor.test.js",
       "hash": "80352a38",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
