@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-29T19:41:56.246Z",
+  "generatedAt": "2026-08-29T19:46:33.803Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -311,7 +311,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 103,
+            "openApiPaths": 107,
             "missingFromOpenApi": 0
           }
         },
@@ -753,7 +753,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 4
+          "testCount": 5
+        },
+        {
+          "id": "FR-123",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -777,9 +784,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 12,
-            "inventoried": 12,
-            "openApiPaths": 103,
+            "routes": 16,
+            "inventoried": 16,
+            "openApiPaths": 107,
             "missingFromOpenApi": 0
           }
         },
@@ -819,8 +826,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 13,
-            "present": 13
+            "models": 16,
+            "present": 16
           }
         },
         "authorization": {
@@ -836,9 +843,9 @@
             }
           ],
           "details": {
-            "mutations": 10,
-            "guardedMutations": 6,
-            "reads": 2,
+            "mutations": 12,
+            "guardedMutations": 8,
+            "reads": 4,
             "unguardedReads": 0
           }
         },
@@ -877,6 +884,7 @@
         "docs/domains/identity/features/FR-120-self-serve-account-creation.md",
         "docs/domains/identity/features/FR-121-google-second-way-in.md",
         "docs/domains/identity/features/FR-122-profile-identity-fields.md",
+        "docs/domains/identity/features/FR-123-plugin-authentication-and-capability-discovery.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -913,11 +921,11 @@
         }
       ],
       "details": {
-        "routes": 19,
-        "apiRoutes": 12,
+        "routes": 23,
+        "apiRoutes": 16,
         "pageRoutes": 7,
-        "ownedModels": 13,
-        "featureNotes": 16
+        "ownedModels": 16,
+        "featureNotes": 17
       }
     },
     "integration": {
@@ -1045,7 +1053,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 103,
+            "openApiPaths": 107,
             "missingFromOpenApi": 0
           }
         },
@@ -2068,6 +2076,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 17
+        },
+        {
+          "id": "FR-123",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -2093,7 +2108,7 @@
           "details": {
             "routes": 82,
             "inventoried": 82,
-            "openApiPaths": 103,
+            "openApiPaths": 107,
             "missingFromOpenApi": 0
           }
         },

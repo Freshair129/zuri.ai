@@ -167,6 +167,53 @@ CREATE TABLE "PasswordResetToken" (
 );
 
 -- CreateTable
+CREATE TABLE "PluginInstallation" (
+    "id" TEXT NOT NULL,
+    "installationId" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PluginInstallation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PluginAuthorizationCode" (
+    "id" TEXT NOT NULL,
+    "codeHash" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "redirectUri" TEXT NOT NULL,
+    "codeChallenge" TEXT NOT NULL,
+    "codeChallengeMethod" TEXT NOT NULL DEFAULT 'S256',
+    "pluginInstallationId" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "consumedAt" TIMESTAMP(3),
+    "revokedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "PluginAuthorizationCode_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PluginSession" (
+    "id" TEXT NOT NULL,
+    "tokenHash" TEXT NOT NULL,
+    "clientId" TEXT NOT NULL,
+    "pluginInstallationId" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "authorizationCodeId" TEXT,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "revokedAt" TIMESTAMP(3),
+    "lastUsedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "PluginSession_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Membership" (
     "id" TEXT NOT NULL,
     "personId" TEXT NOT NULL,
@@ -1308,6 +1355,33 @@ CREATE INDEX "PasswordResetToken_personId_idx" ON "PasswordResetToken"("personId
 CREATE INDEX "PasswordResetToken_token_idx" ON "PasswordResetToken"("token");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "PluginInstallation_installationId_key" ON "PluginInstallation"("installationId");
+
+-- CreateIndex
+CREATE INDEX "PluginInstallation_clientId_status_idx" ON "PluginInstallation"("clientId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PluginAuthorizationCode_codeHash_key" ON "PluginAuthorizationCode"("codeHash");
+
+-- CreateIndex
+CREATE INDEX "PluginAuthorizationCode_pluginInstallationId_expiresAt_idx" ON "PluginAuthorizationCode"("pluginInstallationId", "expiresAt");
+
+-- CreateIndex
+CREATE INDEX "PluginAuthorizationCode_personId_expiresAt_idx" ON "PluginAuthorizationCode"("personId", "expiresAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PluginSession_tokenHash_key" ON "PluginSession"("tokenHash");
+
+-- CreateIndex
+CREATE INDEX "PluginSession_pluginInstallationId_expiresAt_idx" ON "PluginSession"("pluginInstallationId", "expiresAt");
+
+-- CreateIndex
+CREATE INDEX "PluginSession_personId_expiresAt_idx" ON "PluginSession"("personId", "expiresAt");
+
+-- CreateIndex
+CREATE INDEX "PluginSession_authorizationCodeId_idx" ON "PluginSession"("authorizationCodeId");
+
+-- CreateIndex
 CREATE INDEX "Membership_personId_idx" ON "Membership"("personId");
 
 -- CreateIndex
@@ -1885,6 +1959,18 @@ ALTER TABLE "PersonCredential" ADD CONSTRAINT "PersonCredential_personId_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "PasswordResetToken" ADD CONSTRAINT "PasswordResetToken_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PluginAuthorizationCode" ADD CONSTRAINT "PluginAuthorizationCode_pluginInstallationId_fkey" FOREIGN KEY ("pluginInstallationId") REFERENCES "PluginInstallation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PluginAuthorizationCode" ADD CONSTRAINT "PluginAuthorizationCode_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PluginSession" ADD CONSTRAINT "PluginSession_pluginInstallationId_fkey" FOREIGN KEY ("pluginInstallationId") REFERENCES "PluginInstallation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PluginSession" ADD CONSTRAINT "PluginSession_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Membership" ADD CONSTRAINT "Membership_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;

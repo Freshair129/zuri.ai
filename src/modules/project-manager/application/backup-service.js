@@ -1,4 +1,6 @@
 // @req FR-013 - snapshot export/import with preview and confirmation.
+// @req FR-123 - plugin auth material is installation security state, not
+// business data; restore revokes it instead of exporting or restoring it.
 // @req FR-078 - customer import batches, review cases, decisions and provenance
 // must survive snapshot restore.
 // @req FR-045 - portable FileAsset metadata, optional content and explicit remount gaps.
@@ -112,6 +114,16 @@ const SNAPSHOT_MODELS = [
  * RCA: .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
  */
 export const SNAPSHOT_EXCLUDED_MODELS = {
+  pluginInstallation:
+    'FR-123 first-party plugin installation bindings are security state, not business data. A restore clears ' +
+    'them, so a recovered installation requires explicit plugin re-registration rather than inheriting a ' +
+    'binding whose owner may no longer hold the authority it was granted under (ADR-052).',
+  pluginAuthorizationCode:
+    'FR-123 one-time authorization codes are short-lived credential material with a 60-second life. They are ' +
+    'never exported or restored, so a recovery can never reopen a code-exchange window that had already closed.',
+  pluginSession:
+    'FR-123 opaque bearer sessions are credentials. They are never exported or restored, so a restore cannot ' +
+    'carry an old plugin session forward past the revocation or expiry that ended it.',
   localWorkspaceMount:
     'Device-local mount paths. Deleted explicitly before the sweep and never restored: a mount names a ' +
     'filesystem on one machine, so carrying it into another installation would point at a path that does ' +
@@ -210,6 +222,12 @@ export async function importSnapshot(snapshot, {
   }
 
   await db.$transaction(async (tx) => {
+    // @req FR-123 — excluded plugin auth records are revoked at the recovery
+    // boundary rather than left active beside a restored business snapshot.
+    // Deleting the installation cascades to its codes and sessions, so one
+    // statement clears all three; leaving them would mean a token minted before
+    // the restore still authenticates against the data that replaced it.
+    await tx.pluginInstallation.deleteMany()
     await tx.localWorkspaceMount.deleteMany()
     for (const model of [...SNAPSHOT_MODELS].reverse()) await tx[model].deleteMany()
     for (const model of SNAPSHOT_MODELS) {

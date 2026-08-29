@@ -182,6 +182,8 @@ model Person {
   channelIdentities             ChannelIdentity[]
   sessions                      Session[]
   identityLinkTokens            IdentityLinkToken[]
+  pluginAuthorizationCodes      PluginAuthorizationCode[]
+  pluginSessions                PluginSession[]
   customers                     Customer[]
   roleBindings                  RoleBinding[]
   customerImportApprovals       CustomerImportBatch[]          @relation("CustomerImportBatchApprover")
@@ -313,6 +315,79 @@ model PasswordResetToken {
 
   @@index([personId])
   @@index([token])
+}
+
+// @req FR-123 — durable public-client authorization-code and plugin-session
+// boundary. A PluginInstallation is a named public-client binding, distinct
+// from FR-106's `ApiAccessKey`: that one is a long-lived Tenant-scoped service
+// credential, this one is a short-lived per-Person delegation.
+// @spec ADR-052, SDD-074, SEC-022
+// @tested tests/unit/fr123-plugin-auth-service.test.js
+model PluginInstallation {
+  id             String   @id @default(uuid())
+  installationId String   @unique
+  clientId       String
+  status         String   @default("ACTIVE")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  authorizationCodes PluginAuthorizationCode[]
+  sessions           PluginSession[]
+
+  @@index([clientId, status])
+}
+
+// @req FR-123 — the code is single-use, PKCE-bound, exact-client/redirect bound
+// and short-lived. Raw authorization codes are never persisted, only their hash.
+// @spec ADR-052, SEC-022
+// @tested tests/unit/fr123-plugin-auth-service.test.js
+model PluginAuthorizationCode {
+  id                   String    @id @default(uuid())
+  codeHash             String    @unique
+  clientId             String
+  redirectUri          String
+  codeChallenge        String
+  codeChallengeMethod  String    @default("S256")
+  pluginInstallationId String
+  personId             String
+  expiresAt            DateTime
+  consumedAt           DateTime?
+  revokedAt            DateTime?
+  createdAt            DateTime  @default(now())
+
+  pluginInstallation PluginInstallation @relation(fields: [pluginInstallationId], references: [id], onDelete: Cascade)
+  person             Person             @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([pluginInstallationId, expiresAt])
+  @@index([personId, expiresAt])
+}
+
+// @req FR-123 — opaque bearer material is hash-only, short-lived and revocable.
+// @spec ADR-052, SEC-022
+// @tested tests/unit/fr123-plugin-auth-service.test.js
+model PluginSession {
+  id                   String    @id @default(uuid())
+  tokenHash            String    @unique
+  clientId             String
+  pluginInstallationId String
+  personId             String
+  // @req FR-123 — the code this session was minted from, so that replaying a
+  // consumed code revokes the session it already produced (RFC 9700 §4.1.1).
+  // Nullable because the code row may be pruned after it expires; a session
+  // whose origin has been forgotten is still a valid, revocable session.
+  authorizationCodeId  String?
+  expiresAt            DateTime
+  revokedAt            DateTime?
+  lastUsedAt           DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  pluginInstallation PluginInstallation @relation(fields: [pluginInstallationId], references: [id], onDelete: Cascade)
+  person             Person             @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([pluginInstallationId, expiresAt])
+  @@index([personId, expiresAt])
+  @@index([authorizationCodeId])
 }
 
 model Membership {
