@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1391,
-    "total_edges": 4793,
+    "total_nodes": 1393,
+    "total_edges": 4796,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,8 +16,8 @@
       "route": 153,
       "model": 67,
       "requirement": 256,
-      "test": 335,
-      "code_file": 366
+      "test": 336,
+      "code_file": 367
     },
     "coverage": {
       "requirements": 256,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (115/115)",
       "rules_anchored_in_code": "96% (110/114)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 366,
+      "annotated_code_files": 367,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -49,35 +49,11 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "domain:identity",
-      "doc:INTERFACE-INVENTORY",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/e2e/fr104-password-reset-redemption.spec.js",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/entry-surfaces.test.js",
-      "test:tests/unit/password-reset-page.test.js",
-      "code:src/app/login/page.jsx",
-      "code:src/app/reset-password/page.jsx",
-      "code:src/components/forms/PasswordField.jsx",
-      "code:src/modules/identity/auth-service.js",
-      "code:src/modules/project-manager/api-docs/openapi.js"
+      "code:src/modules/project-manager/components/ProjectModal.jsx"
     ],
     "added": [
-      "doc:FR-120-self-serve-account-creation",
-      "route:api:/api/auth/signup",
-      "route:page:/signup",
-      "test:tests/e2e/fr120-signup.spec.js",
-      "test:tests/unit/fr120-signup-page.test.js",
-      "test:tests/unit/fr120-signup-rate-limit.test.js",
-      "test:tests/unit/fr120-signup-route.test.js",
-      "test:tests/unit/fr120-signup-service.test.js",
-      "code:src/app/api/auth/signup/route.js",
-      "code:src/app/signup/page.jsx",
-      "code:src/modules/identity/signup-copy.js",
-      "code:src/modules/identity/signup-rate-limit.js",
-      "code:src/modules/identity/signup-service.js"
+      "test:tests/unit/project-status-options.test.js",
+      "code:src/modules/project-manager/components/project-status-options.js"
     ],
     "removed": []
   },
@@ -3220,7 +3196,7 @@
       "type": "code_file",
       "path": "src/app/login/page.jsx",
       "hash": "e74d69fe",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
@@ -3266,7 +3242,7 @@
       "type": "code_file",
       "path": "src/app/reset-password/page.jsx",
       "hash": "51a87043",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
@@ -3312,7 +3288,7 @@
       "type": "code_file",
       "path": "src/components/forms/PasswordField.jsx",
       "hash": "dc21140c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -4593,7 +4569,7 @@
       "type": "code_file",
       "path": "src/modules/identity/auth-service.js",
       "hash": "77836ff8",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -5850,7 +5826,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "7c565b27",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -6544,11 +6520,26 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/components/project-status-options.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/project-status-options.js",
+      "hash": "28631f5c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-087"
+        ],
+        "@tested": [
+          "tests/unit/project-status-options.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/components/ProjectModal.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/ProjectModal.jsx",
-      "hash": "a69422c3",
-      "status": "current",
+      "hash": "eca35f24",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-087",
@@ -7526,7 +7517,7 @@
       "version": "1.26.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "52b9f47c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -8349,7 +8340,7 @@
       "version": "1.2.2b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "0070cab9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -8585,7 +8576,7 @@
       "version": "1.118.0b",
       "doc_status": "Draft",
       "hash": "666abdf5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8621,7 +8612,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "fa48911a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -8844,7 +8835,7 @@
         "identity"
       ],
       "hash": "a868fe27",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:integration",
@@ -13688,7 +13679,7 @@
       "type": "test",
       "path": "tests/e2e/fr104-password-reset-redemption.spec.js",
       "hash": "69cfd647",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr120-signup.spec.js",
@@ -14150,7 +14141,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "bb92fce1",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -14703,7 +14694,7 @@
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
       "hash": "3b3acc4e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/format-progress-percent.test.js",
@@ -15354,7 +15345,7 @@
       "type": "test",
       "path": "tests/unit/password-reset-page.test.js",
       "hash": "2c05ac01",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/password-reset-routes.test.js",
@@ -15655,6 +15646,13 @@
       "type": "test",
       "path": "tests/unit/project-roadmap-ui.test.js",
       "hash": "540eb1b1",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-status-options.test.js",
+      "type": "test",
+      "path": "tests/unit/project-status-options.test.js",
+      "hash": "5e5110be",
       "status": "current"
     },
     {
@@ -25358,6 +25356,13 @@
       "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
       "to": "req:SDD-006",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/project-status-options.js",
+      "to": "req:FR-087",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -47771,6 +47776,20 @@
     {
       "from": "test:tests/unit/project-roadmap-ui.test.js",
       "to": "req:SDD-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-status-options.test.js",
+      "to": "code:src/modules/project-manager/components/project-status-options.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-status-options.test.js",
+      "to": "req:FR-087",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

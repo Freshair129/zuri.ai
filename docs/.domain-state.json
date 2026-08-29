@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-29T06:38:22.269Z",
+  "generatedAt": "2026-08-29T07:18:57.862Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1892,8 +1892,8 @@
           "id": "FR-087",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 11
+          "codeCount": 4,
+          "testCount": 12
         },
         {
           "id": "FR-088",
