@@ -3,24 +3,24 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1420,
-    "total_edges": 4871,
+    "total_nodes": 1423,
+    "total_edges": 4880,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 114,
-      "adr": 52,
+      "document": 115,
+      "adr": 53,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
       "route": 157,
       "model": 70,
-      "requirement": 261,
+      "requirement": 262,
       "test": 340,
       "code_file": 373
     },
     "coverage": {
-      "requirements": 261,
+      "requirements": 262,
       "fr_with_code": "100% (117/117)",
       "fr_with_tests": "100% (117/117)",
       "rules_anchored_in_code": "97% (112/116)",
@@ -32,7 +32,8 @@
         "FR-084",
         "FR-085",
         "FR-110",
-        "FR-121"
+        "FR-121",
+        "FR-125"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -49,10 +50,10 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [
-      "code:src/modules/market-intelligence/application/translate-raw-record.js"
+    "changed": [
+      "doc:PRD-SDD-v1.0"
     ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -8460,6 +8461,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-125-flowaccount-read-only-pull-pipeline",
+      "type": "document",
+      "path": "docs/domains/integration/features/FR-125-flowaccount-read-only-pull-pipeline.md",
+      "title": "FR-125 — FlowAccount read-only pull pipeline",
+      "hash": "59304a86",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -8728,10 +8737,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.121.0b",
+      "version": "1.122.0b",
       "doc_status": "Draft",
-      "hash": "3a8210e0",
-      "status": "current"
+      "hash": "269c34ef",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -9030,7 +9039,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "81c11264",
+      "hash": "77233d86",
       "status": "current"
     },
     {
@@ -11031,6 +11040,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052). 🟠 implemented locally; production Supabase migration, client registration, device-binding evidence and a consent step on `GET /authorize` remain gated "
+    },
+    {
+      "id": "req:FR-125",
+      "type": "requirement",
+      "family": "FR",
+      "label": "FlowAccount read-only pull pipeline: an OWNER-authorized Business can onboard one FlowAccount Client Credentials connection through a provider-specific Platform wizard that accepts Client ID/Client Secret write-only, provisions them into the approved secret manager, verifies `GET /company/info`, and returns redacted metadata only. A server-owned `FLOWACCOUNT` adapter exchanges/reuses Bearer tokens, calls only the approved GET resource catalog, paginates within the provider page-size ceiling, respects provider account rate limits, and sends every record through the existing FR-081 `zIngestionEnvelope`/`RawExternalRecord` path with trusted Tenant/Business/connection scope, external identity, payload hash, IngestionRun, SyncCursor and DeadLetterRecord evidence. Cursor advancement requires a complete resource run; document incrementals use a lookback window and master resources use full hash reconciliation because FlowAccount exposes no generic updated-since cursor. The UI exposes computed data-source health and run summaries, never raw secret/token/payload. Public OpenAPI evidence is not GL/TB/P&L or Accounting truth; provider writes, OpenID, webhook, scheduler and downstream domain publication are separate future requirements. Design is ADR-053",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "FlowAccount read-only pull pipeline: an OWNER-authorized Business can onboard one FlowAccount Client Credentials connection through a provider-specific Platform wizard that accepts Client ID/Client Secret write-only, provisions them into the approved secret manager, verifies `GET /company/info`, and returns redacted metadata only. A server-owned `FLOWACCOUNT` adapter exchanges/reuses Bearer tokens, calls only the approved GET resource catalog, paginates within the provider page-size ceiling, respects provider account rate limits, and sends every record through the existing FR-081 `zIngestionEnvelope`/`RawExternalRecord` path with trusted Tenant/Business/connection scope, external identity, payload hash, IngestionRun, SyncCursor and DeadLetterRecord evidence. Cursor advancement requires a complete resource run; document incrementals use a lookback window and master resources use full hash reconciliation because FlowAccount exposes no generic updated-since cursor. The UI exposes computed data-source health and run summaries, never raw secret/token/payload. Public OpenAPI evidence is not GL/TB/P&L or Accounting truth; provider writes, OpenID, webhook, scheduler and downstream domain publication are separate future requirements. Design is ADR-053 🔜 design candidate only — nothing is built and nothing is authorized to be built: no FlowAccount provider code, wizard, route, schema migration or secret provisioner exists, and ADR-053 §15 permits only a phased implementation plan. Two things must be resolved before any of it can start — the provider facts it rests on were verified 2026-08-20 and have not been re-checked, and the `DATA_SOURCE` connection kind it assumes is not in `CONNECTION_KINDS` today "
     },
     {
       "id": "req:NFR-001",
@@ -13866,6 +13885,14 @@
       "path": "docs/decisions/ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md",
       "title": "ADR-052 — Canonical Plugin Authorization-Code and Token Boundary",
       "hash": "37c8e2e4",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "type": "adr",
+      "path": "docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md",
+      "title": "ADR-053 — FlowAccount read-only pull pipeline and credential provisioning",
+      "hash": "f3d252d6",
       "status": "current"
     },
     {
@@ -29089,6 +29116,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-125",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -32633,6 +32667,62 @@
     {
       "from": "spec:ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
       "to": "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "doc:FR-080-integration-secret-management-ui",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "doc:FR-081-raw-external-ingestion",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "doc:FR-125-flowaccount-read-only-pull-pipeline",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "req:FR-080",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "req:FR-081",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "req:FR-125",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "spec:ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "spec:ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY",
       "type": "relates",
       "status": "current",
       "source": "control-block"

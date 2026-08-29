@@ -231,6 +231,7 @@
     "FR-121",
     "FR-122",
     "FR-123",
+    "FR-125",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -500,6 +501,7 @@
     "ADR-050",
     "ADR-051",
     "ADR-052",
+    "ADR-053",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -2402,6 +2404,19 @@
       "history": [
         {
           "anchor": "plugin authentication and capability discovery",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-125": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e8543a1601181edeb6a8a5b76513dd4c2f1642412f4ccc0800e9b6ae881774b1",
+      "history": [
+        {
+          "anchor": "flowaccount read only pull pipeline",
           "since": "2026-08-29",
           "reason": "declared"
         }
@@ -5929,6 +5944,19 @@
       "history": [
         {
           "anchor": "canonical plugin authorization code and token boundary",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-053": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md",
+      "status": "current",
+      "statement_digest": "f1cf76c4093239c53048b316408c88567df5c58d3921642b93f5a413523083a6",
+      "history": [
+        {
+          "anchor": "flowaccount read only pull pipeline and credential",
           "since": "2026-08-29",
           "reason": "declared"
         }

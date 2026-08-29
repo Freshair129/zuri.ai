@@ -976,3 +976,10 @@
 - **Code:** `src/app/api/plugin/auth/authorize/route.js` · `src/app/api/plugin/auth/capabilities/route.js` · `src/app/api/plugin/auth/revoke/route.js` · `src/app/api/plugin/auth/token/route.js` · `src/modules/identity/plugin-auth-service.js` · `src/modules/project-manager/api-docs/openapi.js` · `src/modules/project-manager/application/backup-service.js`
 - **Follows:** BR-008, FR-019, SDD-023, SDD-074, SEC-008, SEC-022, docs/features/FR-019-enterprise-api.md
 - **Tests:** `tests/integration/backup.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/openapi-docs.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/fr123-plugin-auth-migration.test.js` · `tests/unit/fr123-plugin-auth-route.test.js` · `tests/unit/fr123-plugin-auth-service.test.js`
+
+### FR-125 — FlowAccount read-only pull pipeline: an OWNER-authorized Business can onboard one FlowAccount Client Credentials connection through a provider-specific Platform wizard that accepts Client ID/Client Secret write-only, provisions them into the approved secret manager, verifies `GET /company/info`, and returns redacted metadata only. A server-owned `FLOWACCOUNT` adapter exchanges/reuses Bearer tokens, calls only the approved GET resource catalog, paginates within the provider page-size ceiling, respects provider account rate limits, and sends every record through the existing FR-081 `zIngestionEnvelope`/`RawExternalRecord` path with trusted Tenant/Business/connection scope, external identity, payload hash, IngestionRun, SyncCursor and DeadLetterRecord evidence. Cursor advancement requires a complete resource run; document incrementals use a lookback window and master resources use full hash reconciliation because FlowAccount exposes no generic updated-since cursor. The UI exposes computed data-source health and run summaries, never raw secret/token/payload. Public OpenAPI evidence is not GL/TB/P&L or Accounting truth; provider writes, OpenID, webhook, scheduler and downstream domain publication are separate future requirements. Design is ADR-053
+
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
