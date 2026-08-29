@@ -1528,6 +1528,14 @@ model RawExternalRecord {
   payloadJson      String
   payloadHash      String
   idempotencyKey   String    @unique
+  // FR-109 AC-109.3 — the id a downstream knowledge-ingestion run carries as
+  // `artifactRef`/`identityRefs.artifactIds`. Nullable: most raw records are
+  // never fed into knowledge ingestion, and the two ids are assigned by
+  // different callers at different times (this row is written by FR-081's own
+  // ingestion path; the artifact id is minted by whoever builds the FR-109
+  // run input). Not @unique — a caller that never sets it must be able to
+  // insert more than one such row.
+  artifactId       String?
   receivedAt       DateTime
   processingStatus String    @default("RECEIVED")
   processingError  String?
@@ -1546,6 +1554,7 @@ model RawExternalRecord {
   @@index([connectionId, entityType, externalId])
   @@index([ingestionRunId])
   @@index([processingStatus])
+  @@index([artifactId])
 }
 
 model SyncCursor {

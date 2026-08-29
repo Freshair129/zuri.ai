@@ -140,6 +140,43 @@ describe('P1 integration persistence', () => {
     expect(deadLetter.status).toBe('OPEN')
   })
 
+  // FR-109 AC-109.3 — the raw artifact is recoverable from the knowledge-
+  // ingestion run's artifact_id, against the real database rather than a
+  // mocked repository.
+  it('resolves a raw record by the knowledge-ingestion artifact id FR-109 minted for it', async () => {
+    const repository = createPrismaRawRecordRepository(prisma, {
+      tenantId: tenant.id,
+      businessId: business.id,
+      connectionId: connection.id,
+      provider: 'FLOWACCOUNT',
+    })
+    const artifactId = `art-${suffix()}`
+    const input = {
+      tenantId: tenant.id,
+      businessId: business.id,
+      connectionId: connection.id,
+      provider: 'FLOWACCOUNT',
+      lane: 'ACCOUNTING',
+      entityType: 'DOCUMENT',
+      externalId: `DOC-${suffix()}`,
+      sourceType: 'FILE',
+      schemaVersion: 'knowledge.document.v1',
+      payload: { text: 'ใบเสร็จร้านกาแฟ' },
+      artifactId,
+      receivedAt: new Date('2026-08-29T00:00:00.000Z'),
+    }
+
+    const created = await ingestRawExternalRecord(input, { repository })
+    const resolved = await repository.findByArtifactId(artifactId)
+
+    expect(resolved).toMatchObject({
+      id: created.rawRecord.id,
+      artifactId,
+      payloadJson: created.rawRecord.payloadJson,
+    })
+    expect(await repository.findByArtifactId(`art-${suffix()}`)).toBeNull()
+  })
+
   it('creates registry records through tenant-scoped platform services', async () => {
     const token = suffix()
     const registeredProvider = await registerIntegrationProvider({

@@ -110,4 +110,21 @@ describe('P1 integration contracts', () => {
       }),
     ).toThrow(/payloadHash/i)
   })
+
+  // FR-109 AC-109.3 — an opaque artifact id, carried through unvalidated past
+  // a non-empty string, so a knowledge-ingestion run's artifact_id can bind
+  // to the raw record that stores it.
+  it('carries an optional knowledge-ingestion artifact id through unchanged', () => {
+    const envelope = createIngestionEnvelope({ ...baseInput, artifactId: 'art-fr109-1' })
+    expect(envelope.artifactId).toBe('art-fr109-1')
+  })
+
+  it('omits the artifact id when no caller names one', () => {
+    const envelope = createIngestionEnvelope(baseInput)
+    expect(envelope.artifactId).toBeUndefined()
+  })
+
+  it('rejects an empty artifact id rather than silently dropping it', () => {
+    expect(zIngestionEnvelope.safeParse({ ...baseInput, artifactId: '' }).success).toBe(false)
+  })
 })
