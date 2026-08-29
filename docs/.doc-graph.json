@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1396,
-    "total_edges": 4805,
+    "total_nodes": 1398,
+    "total_edges": 4808,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,8 +16,8 @@
       "route": 153,
       "model": 67,
       "requirement": 258,
-      "test": 336,
-      "code_file": 366
+      "test": 337,
+      "code_file": 367
     },
     "coverage": {
       "requirements": 258,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (116/116)",
       "rules_anchored_in_code": "96% (110/114)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 366,
+      "annotated_code_files": 367,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -50,10 +50,11 @@
   },
   "drift": {
     "changed": [
-      "doc:FR-122-profile-identity-fields"
+      "code:src/modules/project-manager/components/ProjectModal.jsx"
     ],
     "added": [
-      "test:tests/unit/profile-identity-fields-migration.test.js"
+      "test:tests/unit/project-status-options.test.js",
+      "code:src/modules/project-manager/components/project-status-options.js"
     ],
     "removed": []
   },
@@ -6523,11 +6524,26 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/components/project-status-options.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/project-status-options.js",
+      "hash": "28631f5c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-087"
+        ],
+        "@tested": [
+          "tests/unit/project-status-options.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/components/ProjectModal.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/ProjectModal.jsx",
-      "hash": "a69422c3",
-      "status": "current",
+      "hash": "eca35f24",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-087",
@@ -8318,7 +8334,7 @@
       "version": "0.1.0b",
       "doc_status": "Implemented",
       "hash": "57b09151",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -15681,6 +15697,13 @@
       "type": "test",
       "path": "tests/unit/project-roadmap-ui.test.js",
       "hash": "540eb1b1",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-status-options.test.js",
+      "type": "test",
+      "path": "tests/unit/project-status-options.test.js",
+      "hash": "5e5110be",
       "status": "current"
     },
     {
@@ -25405,6 +25428,13 @@
       "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
       "to": "req:SDD-006",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/project-status-options.js",
+      "to": "req:FR-087",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -47874,6 +47904,20 @@
     {
       "from": "test:tests/unit/project-roadmap-ui.test.js",
       "to": "req:SDD-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-status-options.test.js",
+      "to": "code:src/modules/project-manager/components/project-status-options.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-status-options.test.js",
+      "to": "req:FR-087",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
