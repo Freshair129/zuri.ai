@@ -48,21 +48,8 @@
     }
   },
   "drift": {
-    "changed": [
-      "domain:knowledge",
-      "doc:FR-109-knowledge-ingestion-stage-catalog",
-      "doc:PRD-SDD-v1.0",
-      "test:tests/integration/platform/integration-persistence.test.js",
-      "test:tests/unit/platform/integration-contracts.test.js",
-      "test:tests/unit/platform/raw-ingest-service.test.js",
-      "test:tests/unit/platform/raw-record-repository-read.test.js",
-      "code:src/platform/integrations/core/contracts.js",
-      "code:src/platform/integrations/core/raw-ingest-service.js",
-      "code:src/platform/integrations/core/raw-record-repository.js"
-    ],
-    "added": [
-      "doc:CR-001-SALES-REVENUE-INTELLIGENCE-DOMAINS"
-    ],
+    "changed": [],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -7047,7 +7034,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/contracts.js",
       "hash": "639282a1",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-081"
@@ -7217,7 +7204,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/raw-ingest-service.js",
       "hash": "021475fb",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-081",
@@ -7238,7 +7225,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/raw-record-repository.js",
       "hash": "2e9726cd",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-081",
@@ -8058,7 +8045,7 @@
       "path": "docs/domains/knowledge/features/FR-109-knowledge-ingestion-stage-catalog.md",
       "title": "FR-109 — Seventeen-stage knowledge ingestion stage catalog and job trace",
       "hash": "4ff597bb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-110-published-knowledge-snapshot-contract",
@@ -8396,7 +8383,7 @@
       "version": "1.106.0b",
       "doc_status": "Draft",
       "hash": "0ca745d4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8431,7 +8418,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "8b6bbb69",
+      "hash": "5c21c074",
       "status": "current"
     },
     {
@@ -8703,7 +8690,7 @@
         "knowledge"
       ],
       "hash": "41635af5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:market-intelligence",
@@ -13938,7 +13925,7 @@
       "type": "test",
       "path": "tests/integration/platform/integration-persistence.test.js",
       "hash": "b7ca8c26",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/project-authorization.test.js",
@@ -15212,7 +15199,7 @@
       "type": "test",
       "path": "tests/unit/platform/integration-contracts.test.js",
       "hash": "17c53f62",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
@@ -15254,14 +15241,14 @@
       "type": "test",
       "path": "tests/unit/platform/raw-ingest-service.test.js",
       "hash": "8a9a79b3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/platform/raw-record-repository-read.test.js",
       "type": "test",
       "path": "tests/unit/platform/raw-record-repository-read.test.js",
       "hash": "535b6e8c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/playwright-database-bootstrap.test.js",
