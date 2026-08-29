@@ -3,6 +3,9 @@ import { stableStringify } from './idempotency'
 
 // @req FR-081 — raw ingestion persists source payloads verbatim and never writes
 // domain truth. A known idempotency key returns UNCHANGED instead of inserting.
+// @req FR-109 — AC-109.3: a raw record fed into knowledge ingestion carries the
+// run's `artifact_id`, so the artifact is recoverable from that id after
+// normalization has run.
 // @spec BR-002 — translation into business entities is a separate, later path.
 // @spec docs/domains/integration/features/FR-081-raw-external-ingestion.md
 // @tested tests/unit/platform/raw-ingest-service.test.js
@@ -33,6 +36,8 @@ export async function ingestRawExternalRecord(input, { repository, now } = {}) {
     payloadJson: stableStringify(envelope.payload),
     payloadHash: envelope.payloadHash,
     idempotencyKey: envelope.idempotencyKey,
+    // FR-109 AC-109.3 — carried through only when the caller names one.
+    artifactId: envelope.artifactId ?? null,
     receivedAt: envelope.receivedAt,
     processingStatus: 'RECEIVED',
   })

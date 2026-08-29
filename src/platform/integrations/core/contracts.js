@@ -46,6 +46,11 @@ export const zIngestionEnvelope = z
     idempotencyKey: sha256.optional(),
     receivedAt: z.coerce.date().optional(),
     sourceUri: z.string().min(1).optional(),
+    // FR-109 AC-109.3 — set only when this raw record is also the source
+    // artifact for a knowledge-ingestion run, so the run's `artifact_id`
+    // resolves back to the stored payload. Opaque: FR-109 mints this id, not
+    // FR-081, so it is carried through unvalidated past a non-empty string.
+    artifactId: z.string().min(1).optional(),
   })
   .strict()
 
