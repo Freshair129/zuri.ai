@@ -8,7 +8,8 @@
 // @tested tests/unit/projects-dashboard-ui.test.js
 import { useState } from 'react'
 import { Modal, Field } from '@/components/ui'
-import { PROJECT_STATUSES, PROJECT_PRIORITIES } from '@/lib/validation/enums'
+import { PROJECT_PRIORITIES } from '@/lib/validation/enums'
+import { projectStatusOptions, unrecognizedProjectStatus } from './project-status-options'
 import { api, useFetch } from './useApi'
 
 export default function ProjectModal({ open, onClose, workspaces = [], project, defaultWorkspaceId, workspaceLabel = 'Space', onSaved }) {
@@ -34,6 +35,10 @@ export default function ProjectModal({ open, onClose, workspaces = [], project, 
   const [error, setError] = useState(null)
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  // Read from the stored Project, not from `form.status`, so it stays the
+  // record of what was there on open even after the user picks a valid value.
+  const unrecognizedStatus = unrecognizedProjectStatus(project?.status)
+  const statusOptions = projectStatusOptions(project?.status)
 
   const submit = async (e) => {
     e.preventDefault()
@@ -75,10 +80,24 @@ export default function ProjectModal({ open, onClose, workspaces = [], project, 
           <textarea className="input" rows={3} value={form.description} onChange={(e) => set('description', e.target.value)} />
         </Field>
         <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
-          <Field label="Status">
+          <Field
+            label="Status"
+            hint={unrecognizedStatus
+              ? `Stored as "${unrecognizedStatus}", which is not one of this Project's statuses. Pick a real one — saving cannot keep it.`
+              : undefined}
+          >
             <select className="input" value={form.status} onChange={(e) => set('status', e.target.value)}>
-              {PROJECT_STATUSES.map((s) => (
-                <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+              {/* A status the enum does not contain still has to be selectable, or
+                  the browser silently falls back to the first option and Save
+                  rewrites a field nobody touched. That is not hypothetical: a row
+                  written around the API (Zod validates every app write path) held
+                  a WORK_STATUSES value, and opening this modal would have
+                  downgraded it on the next save of an unrelated field. Showing it
+                  makes the bad value visible and keeps the choice deliberate. */}
+              {statusOptions.map((s) => (
+                <option key={s} value={s}>
+                  {s.replace(/_/g, ' ')}{s === unrecognizedStatus ? ' — unrecognized' : ''}
+                </option>
               ))}
             </select>
           </Field>
