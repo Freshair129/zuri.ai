@@ -50,7 +50,7 @@
   },
   "drift": {
     "changed": [
-      "doc:full-schema"
+      "doc:ROADMAP"
     ],
     "added": [],
     "removed": []
@@ -8339,7 +8339,7 @@
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
       "hash": "249d2b38",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -8640,8 +8640,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "b822dc4d",
-      "status": "current"
+      "hash": "1212161e",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
