@@ -48,7 +48,9 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "doc:ROADMAP-business01-smartgift-delivery"
+    ],
     "added": [],
     "removed": []
   },
@@ -8426,8 +8428,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "a6764432",
-      "status": "current"
+      "hash": "1b7c45dd",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-zuri-ai-24w-program",
