@@ -54,10 +54,14 @@ const joined = (over = {}) => ({
   ...over,
 })
 
+// @req FR-122 — the three fields the Profile now carries. Every call below
+// supplies them, because the service refuses without them.
+const IDENTITY = { firstName: 'วรรณภา', lastName: 'ใจดี', phone: '0812345678' }
+
 describe('completeProfile (AC-066.1, AC-066.7)', () => {
   it('stamps profileCompletedAt on first completion and audits PROFILE_COMPLETED', async () => {
     const db = mockDb()
-    const result = await completeProfile({ personId: 'per-1', displayName: 'วรรณภา', db })
+    const result = await completeProfile({ personId: 'per-1', displayName: 'วรรณภา', ...IDENTITY, db })
     expect(result.profileComplete).toBe(true)
     expect(db.person.update).toHaveBeenCalledWith(expect.objectContaining({
       data: expect.objectContaining({ displayName: 'วรรณภา', profileCompletedAt: expect.any(Date) }),
@@ -67,16 +71,55 @@ describe('completeProfile (AC-066.1, AC-066.7)', () => {
 
   it('later edits keep the completion stamp and audit PROFILE_UPDATED', async () => {
     const db = mockDb({ person: { ...PERSON, profileCompletedAt: new Date('2026-08-01') } })
-    await completeProfile({ personId: 'per-1', displayName: 'ชื่อใหม่', db })
+    await completeProfile({ personId: 'per-1', displayName: 'ชื่อใหม่', ...IDENTITY, db })
     const data = db.person.update.mock.calls[0][0].data
     expect(data.profileCompletedAt).toBeUndefined()
     expect(db.created.audits[0].action).toBe('PROFILE_UPDATED')
   })
 
-  it('fails closed without a trusted person id (SEC-014) and without a display name', async () => {
+  // @req FR-122
+  it('writes the given name, family name and telephone number it was given', async () => {
     const db = mockDb()
-    await expect(completeProfile({ personId: '', displayName: 'x', db })).rejects.toMatchObject({ status: 401 })
-    await expect(completeProfile({ personId: 'per-1', displayName: '   ', db })).rejects.toMatchObject({ status: 400 })
+    const result = await completeProfile({ personId: 'per-1', displayName: 'วรรณภา', ...IDENTITY, db })
+    expect(db.person.update.mock.calls[0][0].data).toMatchObject(IDENTITY)
+    expect(result).toMatchObject(IDENTITY)
+  })
+
+  // @req FR-122 — the reason display name is optional at the boundary. It is
+  // never stored empty, so the check is on what reached the database, not on
+  // what the caller omitted.
+  it('composes a display name from the two names when none is supplied', async () => {
+    const db = mockDb()
+    await completeProfile({ personId: 'per-1', ...IDENTITY, db })
+    expect(db.person.update.mock.calls[0][0].data.displayName).toBe('วรรณภา ใจดี')
+  })
+
+  it('keeps a supplied display name instead of composing over it', async () => {
+    const db = mockDb()
+    await completeProfile({ personId: 'per-1', displayName: 'ครูน้ำ', ...IDENTITY, db })
+    expect(db.person.update.mock.calls[0][0].data.displayName).toBe('ครูน้ำ')
+  })
+
+  it('fails closed without a trusted person id (SEC-014)', async () => {
+    const db = mockDb()
+    await expect(completeProfile({ personId: '', ...IDENTITY, db })).rejects.toMatchObject({ status: 401 })
+    expect(db.person.update).not.toHaveBeenCalled()
+  })
+
+  // @req FR-122 — each field refused on its own, and whitespace refused the same
+  // as absence. One case per field, because a single combined assertion passes
+  // while two of the three checks are missing.
+  it.each([
+    ['firstName', { ...IDENTITY, firstName: '   ' }],
+    ['lastName', { ...IDENTITY, lastName: '' }],
+    ['phone', { ...IDENTITY, phone: '  ' }],
+    ['firstName missing entirely', { lastName: 'ใจดี', phone: '0812345678' }],
+    ['lastName missing entirely', { firstName: 'วรรณภา', phone: '0812345678' }],
+    ['phone missing entirely', { firstName: 'วรรณภา', lastName: 'ใจดี' }],
+  ])('refuses a profile with %s and writes nothing', async (_label, identity) => {
+    const db = mockDb()
+    await expect(completeProfile({ personId: 'per-1', displayName: 'x', ...identity, db }))
+      .rejects.toMatchObject({ status: 400 })
     expect(db.person.update).not.toHaveBeenCalled()
   })
 })

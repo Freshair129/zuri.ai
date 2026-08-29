@@ -3,26 +3,26 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1391,
-    "total_edges": 4793,
+    "total_nodes": 1395,
+    "total_edges": 4801,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 110,
+      "document": 112,
       "adr": 51,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
       "route": 153,
       "model": 67,
-      "requirement": 256,
+      "requirement": 258,
       "test": 335,
       "code_file": 366
     },
     "coverage": {
-      "requirements": 256,
-      "fr_with_code": "100% (115/115)",
-      "fr_with_tests": "100% (115/115)",
+      "requirements": 258,
+      "fr_with_code": "100% (116/116)",
+      "fr_with_tests": "100% (116/116)",
       "rules_anchored_in_code": "96% (110/114)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 366,
@@ -31,7 +31,8 @@
         "FR-083",
         "FR-084",
         "FR-085",
-        "FR-110"
+        "FR-110",
+        "FR-121"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -49,35 +50,20 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "domain:identity",
-      "doc:INTERFACE-INVENTORY",
       "doc:PRD-SDD-v1.0",
       "doc:ROADMAP",
-      "test:tests/e2e/fr104-password-reset-redemption.spec.js",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/entry-surfaces.test.js",
-      "test:tests/unit/password-reset-page.test.js",
-      "code:src/app/login/page.jsx",
-      "code:src/app/reset-password/page.jsx",
-      "code:src/components/forms/PasswordField.jsx",
-      "code:src/modules/identity/auth-service.js",
-      "code:src/modules/project-manager/api-docs/openapi.js"
+      "test:tests/integration/workspace-onboarding-flow.test.js",
+      "test:tests/unit/onboarding-service.test.js",
+      "test:tests/unit/workspace-onboarding-routes.test.js",
+      "code:src/app/(entry)/onboarding/profile/page.jsx",
+      "code:src/app/api/onboarding/profile/route.js",
+      "code:src/modules/identity/onboarding-service.js"
     ],
     "added": [
-      "doc:FR-120-self-serve-account-creation",
-      "route:api:/api/auth/signup",
-      "route:page:/signup",
-      "test:tests/e2e/fr120-signup.spec.js",
-      "test:tests/unit/fr120-signup-page.test.js",
-      "test:tests/unit/fr120-signup-rate-limit.test.js",
-      "test:tests/unit/fr120-signup-route.test.js",
-      "test:tests/unit/fr120-signup-service.test.js",
-      "code:src/app/api/auth/signup/route.js",
-      "code:src/app/signup/page.jsx",
-      "code:src/modules/identity/signup-copy.js",
-      "code:src/modules/identity/signup-rate-limit.js",
-      "code:src/modules/identity/signup-service.js"
+      "doc:FR-121-google-second-way-in",
+      "doc:FR-122-profile-identity-fields",
+      "req:FR-121",
+      "req:FR-122"
     ],
     "removed": []
   },
@@ -172,11 +158,12 @@
       "id": "code:src/app/(entry)/onboarding/profile/page.jsx",
       "type": "code_file",
       "path": "src/app/(entry)/onboarding/profile/page.jsx",
-      "hash": "482b4468",
-      "status": "current",
+      "hash": "78b6c55f",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-066"
+          "FR-066",
+          "FR-122"
         ],
         "@spec": [
           "BR-016",
@@ -2064,11 +2051,12 @@
       "id": "code:src/app/api/onboarding/profile/route.js",
       "type": "code_file",
       "path": "src/app/api/onboarding/profile/route.js",
-      "hash": "d978e9bb",
-      "status": "current",
+      "hash": "3eed7c96",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-066"
+          "FR-066",
+          "FR-122"
         ],
         "@spec": [
           "BR-016",
@@ -3220,7 +3208,7 @@
       "type": "code_file",
       "path": "src/app/login/page.jsx",
       "hash": "e74d69fe",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
@@ -3266,7 +3254,7 @@
       "type": "code_file",
       "path": "src/app/reset-password/page.jsx",
       "hash": "51a87043",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
@@ -3312,7 +3300,7 @@
       "type": "code_file",
       "path": "src/components/forms/PasswordField.jsx",
       "hash": "dc21140c",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -4593,7 +4581,7 @@
       "type": "code_file",
       "path": "src/modules/identity/auth-service.js",
       "hash": "77836ff8",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -4775,11 +4763,12 @@
       "id": "code:src/modules/identity/onboarding-service.js",
       "type": "code_file",
       "path": "src/modules/identity/onboarding-service.js",
-      "hash": "4acdab57",
-      "status": "current",
+      "hash": "6af0a569",
+      "status": "changed",
       "annotations": {
         "@req": [
-          "FR-066"
+          "FR-066",
+          "FR-122"
         ],
         "@spec": [
           "BR-016",
@@ -5850,7 +5839,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "7c565b27",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -7526,7 +7515,7 @@
       "version": "1.26.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "52b9f47c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -8322,6 +8311,26 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-121-google-second-way-in",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-121-google-second-way-in.md",
+      "title": "FR-121 — Google as a second way in",
+      "version": "0.1.0b",
+      "doc_status": "Declared — blocked",
+      "hash": "1f7007bc",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-122-profile-identity-fields",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-122-profile-identity-fields.md",
+      "title": "FR-122 — A Profile states who the person is",
+      "version": "0.1.0b",
+      "doc_status": "Implemented",
+      "hash": "6bc2a893",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -8349,7 +8358,7 @@
       "version": "1.2.2b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "0070cab9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -8582,9 +8591,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.118.0b",
+      "version": "1.119.0b",
       "doc_status": "Draft",
-      "hash": "666abdf5",
+      "hash": "468cb285",
       "status": "changed"
     },
     {
@@ -8620,7 +8629,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "fa48911a",
+      "hash": "b822dc4d",
       "status": "changed"
     },
     {
@@ -8844,7 +8853,7 @@
         "identity"
       ],
       "hash": "a868fe27",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:integration",
@@ -10836,6 +10845,26 @@
       "declared": "done",
       "status": "current",
       "row_text": "Self-serve account creation: an unauthenticated visitor creates their own `Person` and `PersonCredential` at a public `/signup` (`POST /api/auth/signup`) and continues into FR-066 at its `PROFILE` step. This closes the product's only door. FR-066 begins *\"after a provider-neutral local identity/session exists\"* and never says how one comes to exist; FR-067's invite is accepted as `acceptWorkspaceInvite({ token, personId: viewer.principal.id })`, so it attaches membership to somebody already authenticated and cannot admit a stranger; and the only writers of a credential are `prisma/seed.js` and FR-107's operator bootstrap, which is operator-run and refuses an existing credential (409). Nobody new can enter — which also means nobody new can be invited, because an invite needs a Person to attach to. **Signup itself confers no authority**: it creates no `PlatformGrant`, no Tenant, Business, Space or Project, and no `WorkspaceMembership`. What the new Person may do next is exactly what FR-066 already grants any profiled Person and no more — the owner path of `createOnboardingWorkspace`, which creates one `Portfolio` plus one OWNER `WorkspaceMembership` over it and, by AC-066.2, zero Organization/Tenant/Business/Space/Project rows. Signup therefore widens who can reach that path; it does not widen the path. Entry to an existing team remains FR-067's invite, and the resting state for a Person holding nothing is FR-066's Waiting Room. Signup never overwrites an existing `PersonCredential` — the same refusal FR-107 makes, for the same reason. Password validation and hashing are the FR-046/FR-104 path's `hashPassword`, called rather than copied, so a policy change cannot apply to one door and not the other; the human `PSN-` code comes from the same `uniqueHumanCode` generator (BR-002); and the session is FR-046's minting path, not a second implementation. **The caller is signed in on success** rather than returned to `/login` to retype the password they just chose, and the cookie is a browser-session cookie — signup carries no \"remember me\" tick, so it takes AC-046-15's default rather than opting itself into seven days. Creation writes an audit event. Identity stays provider-neutral and local: no SSO or third-party provider is in scope. **Email is an identifier here, not a channel.** This installation has no mail transport — the stated reason FR-104 has no public forgot-password — so there is no verification step and no \"check your inbox\" response to hide a taken address behind. A taken email therefore returns a distinguishable error instead of stranding the caller in silence. That enumeration is accepted deliberately: with no mail the alternative is a signup that fails invisibly, and learning that an address holds an account grants the learner nothing, because that account carries no scope, no capability and no membership until its holder creates a Workspace or an owner invites them. The compensating controls are the audit trail and a per-source rate limit — and that limit is **in-process and per-instance**: a fixed window held in the Node process's own memory, which resets on restart and does not span replicas. Stated rather than glossed, because a control described more strongly than it is built is worse than one described honestly. An unverified address must never be treated by any later requirement as proof of contact. ✅ implemented 2026-08-29 — `/signup`, `POST /api/auth/signup`, `signup-service.js`, `signup-rate-limit.js` and `signup-copy.js`; 47 unit tests across four new files, one more added to the entry-surface boundary suite, and 7 e2e. Two limits are recorded in the feature note rather than left for a reader to discover: `Person.email` carries no unique index in either schema, so the taken-address refusal is a check inside the transaction and not a constraint (the index is a migration against live data and is named as owed, not smuggled in); and the rate limit is in-process, per-instance and keyed on a client-supplied forwarded header, which makes it a speed bump against a naive scanner and nothing against a deliberate attacker — the audit trail is the control this leans on. `authenticateUser` gained one additive lowercased-email arm, without which signup would have created accounts whose owners could not sign in with the casing they typed "
+    },
+    {
+      "id": "req:FR-121",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Google as a second way in, over the same `Person`: a visitor may present a Google account at `/signup` and `/login`, and the OAuth callback resolves the provider `sub` to exactly one internal `Person` through a namespaced external binding (FR-094) — a second way to prove who you are, never a second account path. Sign-in follows sign-up necessarily: a person who signed up with Google set no password, so refusing Google at `/login` would strand the account behind a credential that was never created. The account it produces grants nothing, exactly as FR-120: no `PlatformGrant`, Tenant, Business, Space, Project or `WorkspaceMembership`. **It does not satisfy FR-122** — Google supplies an address and a display name of its own choosing, and neither is the given name, family name or telephone number a Profile requires; the telephone number Google never supplies at all. An address matching an existing local account binds to that `Person` **only when Google asserts `email_verified`**; an unverified assertion is refused rather than linked, because linking on an unverified address is account takeover performed by signing up. **Declared blocked, not merely unbuilt**, and on two named things rather than on effort: this installation holds no OAuth client credential, and `ExternalIdentity` is keyed `(tenantId, provider, providerSubject)` with `tenantId` a required foreign key — which a self-serve signup deliberately does not have (FR-120 creates no Tenant), so the binding needs a tenant-less form before any of this can be written.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Google as a second way in, over the same `Person`: a visitor may present a Google account at `/signup` and `/login`, and the OAuth callback resolves the provider `sub` to exactly one internal `Person` through a namespaced external binding (FR-094) — a second way to prove who you are, never a second account path. Sign-in follows sign-up necessarily: a person who signed up with Google set no password, so refusing Google at `/login` would strand the account behind a credential that was never created. The account it produces grants nothing, exactly as FR-120: no `PlatformGrant`, Tenant, Business, Space, Project or `WorkspaceMembership`. **It does not satisfy FR-122** — Google supplies an address and a display name of its own choosing, and neither is the given name, family name or telephone number a Profile requires; the telephone number Google never supplies at all. An address matching an existing local account binds to that `Person` **only when Google asserts `email_verified`**; an unverified assertion is refused rather than linked, because linking on an unverified address is account takeover performed by signing up. **Declared blocked, not merely unbuilt**, and on two named things rather than on effort: this installation holds no OAuth client credential, and `ExternalIdentity` is keyed `(tenantId, provider, providerSubject)` with `tenantId` a required foreign key — which a self-serve signup deliberately does not have (FR-120 creates no Tenant), so the binding needs a tenant-less form before any of this can be written. 🔜 declared only — blocked on an OAuth client credential this installation does not hold, and on `ExternalIdentity` requiring a Tenant a self-serve signup has none of "
+    },
+    {
+      "id": "req:FR-122",
+      "type": "requirement",
+      "family": "FR",
+      "label": "A Profile states who the person is, not just what to call them: FR-066's Profile step requires **given name, family name and telephone number**, over the display name it already collected and the optional email it already carried. Display name stops being something the person types twice — it is supplied by them or defaulted server-side from given + family name, never left empty, because `Person.displayName` is what every existing surface renders. The three new fields are stored **nullable on `Person`** and required **at the profile boundary instead**, and the distinction is load-bearing rather than a convenience: `Person` rows already exist that can never satisfy them — `prisma/seed.js`, FR-107's operator bootstrap, and above all every Person that FR-023's LINE ingest creates on first contact, which is created from a `lineUserId` and has no name or telephone number to give. A database-level requirement would make those rows unwritable and take the LINE intake surface down with it; the profile step is the only place a person states these things themselves, so it is the only place the requirement can be honestly enforced. Profile remains an identity step over `Person`, never an authorization grant (FR-066, BR-016).",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "A Profile states who the person is, not just what to call them: FR-066's Profile step requires **given name, family name and telephone number**, over the display name it already collected and the optional email it already carried. Display name stops being something the person types twice — it is supplied by them or defaulted server-side from given + family name, never left empty, because `Person.displayName` is what every existing surface renders. The three new fields are stored **nullable on `Person`** and required **at the profile boundary instead**, and the distinction is load-bearing rather than a convenience: `Person` rows already exist that can never satisfy them — `prisma/seed.js`, FR-107's operator bootstrap, and above all every Person that FR-023's LINE ingest creates on first contact, which is created from a `lineUserId` and has no name or telephone number to give. A database-level requirement would make those rows unwritable and take the LINE intake surface down with it; the profile step is the only place a person states these things themselves, so it is the only place the requirement can be honestly enforced. Profile remains an identity step over `Person`, never an authorization grant (FR-066, BR-016). ✅ implemented "
     },
     {
       "id": "req:NFR-001",
@@ -13688,7 +13717,7 @@
       "type": "test",
       "path": "tests/e2e/fr104-password-reset-redemption.spec.js",
       "hash": "69cfd647",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr120-signup.spec.js",
@@ -14150,7 +14179,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "bb92fce1",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -14268,8 +14297,8 @@
       "id": "test:tests/integration/workspace-onboarding-flow.test.js",
       "type": "test",
       "path": "tests/integration/workspace-onboarding-flow.test.js",
-      "hash": "4c212471",
-      "status": "current"
+      "hash": "b8fb18ef",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/xlsx-intake.test.js",
@@ -14703,7 +14732,7 @@
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
       "hash": "3b3acc4e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/format-progress-percent.test.js",
@@ -15332,8 +15361,8 @@
       "id": "test:tests/unit/onboarding-service.test.js",
       "type": "test",
       "path": "tests/unit/onboarding-service.test.js",
-      "hash": "7fa63aa5",
-      "status": "current"
+      "hash": "7b91fa1b",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/operator-bootstrap.test.js",
@@ -15354,7 +15383,7 @@
       "type": "test",
       "path": "tests/unit/password-reset-page.test.js",
       "hash": "2c05ac01",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/password-reset-routes.test.js",
@@ -15948,8 +15977,8 @@
       "id": "test:tests/unit/workspace-onboarding-routes.test.js",
       "type": "test",
       "path": "tests/unit/workspace-onboarding-routes.test.js",
-      "hash": "1e6a0ded",
-      "status": "current"
+      "hash": "76e1c1c4",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/zuri-cli-canary-receipt.test.js",
@@ -16110,6 +16139,13 @@
     {
       "from": "code:src/app/(entry)/onboarding/profile/page.jsx",
       "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/onboarding/profile/page.jsx",
+      "to": "req:FR-122",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -18882,6 +18918,13 @@
     {
       "from": "code:src/app/api/onboarding/profile/route.js",
       "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/profile/route.js",
+      "to": "req:FR-122",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -22809,6 +22852,13 @@
     {
       "from": "code:src/modules/identity/onboarding-service.js",
       "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/onboarding-service.js",
+      "to": "req:FR-122",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -28569,6 +28619,20 @@
     },
     {
       "from": "req:FR-120",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-121",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-122",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -38929,6 +38993,13 @@
     },
     {
       "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-122",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -45446,6 +45517,13 @@
     },
     {
       "from": "test:tests/unit/onboarding-service.test.js",
+      "to": "req:FR-122",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/onboarding-service.test.js",
       "to": "req:SDD-038",
       "type": "verifies",
       "status": "current",
@@ -49458,6 +49536,13 @@
     {
       "from": "test:tests/unit/workspace-onboarding-routes.test.js",
       "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "req:FR-122",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
