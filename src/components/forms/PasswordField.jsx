@@ -25,6 +25,14 @@ import { Eye, EyeOff } from 'lucide-react'
  *    form and `new-password` on a reset form are what let a password manager
  *    offer to fill one and to save the other; a single hard-coded value here
  *    would break whichever screen it did not match.
+ * 4. `revealSubject` names WHICH password the toggle reveals. A page with two
+ *    of these — signup, and reset-password's redeem form — otherwise renders
+ *    two buttons whose accessible names are identical, so a screen-reader user
+ *    hears "แสดงรหัสผ่าน" twice and cannot tell which field each one controls.
+ *    `aria-controls` points at the right input but does not enter the name, and
+ *    support for it is thin. The default keeps every single-field page reading
+ *    exactly as it did; a second field on a page is what obliges the caller to
+ *    say which is which.
  */
 export default function PasswordField({
   id,
@@ -36,6 +44,7 @@ export default function PasswordField({
   minLength,
   required = true,
   describedBy,
+  revealSubject = 'รหัสผ่าน',
 }) {
   const [revealed, setRevealed] = useState(false)
   const fallbackId = useId()
@@ -64,8 +73,8 @@ export default function PasswordField({
           onClick={() => setRevealed((current) => !current)}
           aria-pressed={revealed}
           aria-controls={inputId}
-          aria-label={revealed ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
-          title={revealed ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}
+          aria-label={revealed ? `ซ่อน${revealSubject}` : `แสดง${revealSubject}`}
+          title={revealed ? `ซ่อน${revealSubject}` : `แสดง${revealSubject}`}
           className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[var(--radius-sm)] text-[var(--text-secondary)] outline-none hover:text-[var(--text-primary)] focus-visible:text-[var(--text-primary)]"
         >
           {revealed ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}

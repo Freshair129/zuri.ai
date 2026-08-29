@@ -124,7 +124,17 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <p className="mt-5 text-center text-xs text-muted">EtohGroup Enterprise Operating System</p>
+      {/* @req FR-120 — the second way out of Login, and the first that leads
+          somewhere a person without an account can go. Until FR-120 there was
+          no such destination: the only credential writers were the seed and
+          FR-107's operator bootstrap. */}
+      <p className="mt-5 text-center text-xs text-muted">
+        ยังไม่มีบัญชี?{' '}
+        <Link href="/signup" className="font-semibold underline-offset-2 hover:underline" style={{ color: 'var(--action-primary-active)' }}>
+          สมัครสมาชิก
+        </Link>
+      </p>
+      <p className="mt-3 text-center text-xs text-muted">EtohGroup Enterprise Operating System</p>
     </EntryShell>
   )
 }

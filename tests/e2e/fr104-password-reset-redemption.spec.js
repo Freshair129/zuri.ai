@@ -73,10 +73,16 @@ test.describe('FR-046 sign-in affordances', () => {
     expect(sessionCookie.expires).toBeGreaterThan(0)
   })
 
-  test('offers exactly one way out of Login, and it stays outside the shell', async ({ page }) => {
+  // Two ways out since FR-120 added /signup. Asserted as a set rather than a
+  // single link, because the failure worth catching is a *third* one appearing
+  // — an entry surface that grew an unaccounted exit — and a test that clicks
+  // one known link can never see that.
+  test('offers exactly the two ways out of Login, both outside the shell', async ({ page }) => {
     await page.goto('/login')
-    await page.getByRole('link', { name: 'ลืมรหัสผ่าน?' }).click()
+    const names = await page.locator('main').getByRole('link').allInnerTexts()
+    expect(names.map((name) => name.trim()).sort()).toEqual(['ลืมรหัสผ่าน?', 'สมัครสมาชิก'])
 
+    await page.getByRole('link', { name: 'ลืมรหัสผ่าน?' }).click()
     await expect(page).toHaveURL(/\/reset-password$/)
     await expect(page.getByRole('heading', { name: 'ตั้งรหัสผ่านใหม่' })).toBeVisible()
     // FR-044/ADR-015: the entry journey never mounts BusinessShell chrome.
@@ -84,12 +90,18 @@ test.describe('FR-046 sign-in affordances', () => {
   })
 })
 
+// Every getByLabel on this screen is `exact`, and both reasons are real.
+// "ยืนยันรหัสผ่านใหม่" contains "รหัสผ่านใหม่", so the two fields have always
+// needed it; and since FR-120 each reveal toggle names the field it controls
+// ("แสดงการยืนยันรหัสผ่านใหม่"), which contains the field's own label. That
+// naming is the point — it is what lets a screen-reader user tell two adjacent
+// toggles apart — so the locator is what tightens, not the name.
 test.describe('FR-104 redemption screen', () => {
   test('refuses a wrong token with one sentence that names nothing', async ({ page }) => {
     await page.goto('/reset-password')
     await page.getByLabel('รหัสรีเซ็ต').fill('not-a-real-token')
     await page.getByLabel('รหัสผ่านใหม่', { exact: true }).fill(NEW_PASSWORD)
-    await page.getByLabel('ยืนยันรหัสผ่านใหม่').fill(NEW_PASSWORD)
+    await page.getByLabel('ยืนยันรหัสผ่านใหม่', { exact: true }).fill(NEW_PASSWORD)
     await page.getByRole('button', { name: 'ตั้งรหัสผ่านใหม่' }).click()
 
     const alert = formAlert(page)
@@ -109,7 +121,7 @@ test.describe('FR-104 redemption screen', () => {
     await page.goto('/reset-password')
     await page.getByLabel('รหัสรีเซ็ต').fill('some-token')
     await page.getByLabel('รหัสผ่านใหม่', { exact: true }).fill(NEW_PASSWORD)
-    await page.getByLabel('ยืนยันรหัสผ่านใหม่').fill(`${NEW_PASSWORD}-typo`)
+    await page.getByLabel('ยืนยันรหัสผ่านใหม่', { exact: true }).fill(`${NEW_PASSWORD}-typo`)
     await page.getByRole('button', { name: 'ตั้งรหัสผ่านใหม่' }).click()
 
     await expect(formAlert(page)).toContainText('ไม่ตรงกัน')
@@ -158,7 +170,7 @@ test.describe('FR-104 redemption screen', () => {
 
     await page.goto(`/reset-password?token=${encodeURIComponent(minted.resetToken)}`)
     await page.getByLabel('รหัสผ่านใหม่', { exact: true }).fill(NEW_PASSWORD)
-    await page.getByLabel('ยืนยันรหัสผ่านใหม่').fill(NEW_PASSWORD)
+    await page.getByLabel('ยืนยันรหัสผ่านใหม่', { exact: true }).fill(NEW_PASSWORD)
     await page.getByRole('button', { name: 'ตั้งรหัสผ่านใหม่' }).click()
 
     await expect(page.getByRole('heading', { name: 'ตั้งรหัสผ่านใหม่แล้ว' })).toBeVisible()
@@ -170,7 +182,7 @@ test.describe('FR-104 redemption screen', () => {
     // And the token is burnt: the same link cannot be replayed.
     await page.goto(`/reset-password?token=${encodeURIComponent(minted.resetToken)}`)
     await page.getByLabel('รหัสผ่านใหม่', { exact: true }).fill(NEW_PASSWORD)
-    await page.getByLabel('ยืนยันรหัสผ่านใหม่').fill(NEW_PASSWORD)
+    await page.getByLabel('ยืนยันรหัสผ่านใหม่', { exact: true }).fill(NEW_PASSWORD)
     await page.getByRole('button', { name: 'ตั้งรหัสผ่านใหม่' }).click()
     await expect(formAlert(page)).toBeVisible()
   })

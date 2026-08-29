@@ -114,6 +114,7 @@ function ResetPasswordForm() {
           name="newPassword"
           label="รหัสผ่านใหม่"
           autoComplete="new-password"
+          revealSubject="รหัสผ่านใหม่"
           value={password}
           onChange={setPassword}
           describedBy="password-rule"
@@ -128,6 +129,7 @@ function ResetPasswordForm() {
           name="confirmPassword"
           label="ยืนยันรหัสผ่านใหม่"
           autoComplete="new-password"
+          revealSubject="การยืนยันรหัสผ่านใหม่"
           value={confirmation}
           onChange={setConfirmation}
           minLength={PASSWORD_MIN_LENGTH}
