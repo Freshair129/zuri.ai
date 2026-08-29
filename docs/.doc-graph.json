@@ -3,24 +3,24 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1427,
-    "total_edges": 4910,
+    "total_nodes": 1433,
+    "total_edges": 4917,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 115,
-      "adr": 53,
+      "document": 116,
+      "adr": 54,
       "domain": 8,
       "roadmap": 28,
-      "feature": 13,
+      "feature": 14,
       "route": 157,
       "model": 70,
-      "requirement": 262,
+      "requirement": 265,
       "test": 340,
       "code_file": 377
     },
     "coverage": {
-      "requirements": 262,
+      "requirements": 265,
       "fr_with_code": "100% (117/117)",
       "fr_with_tests": "100% (117/117)",
       "rules_anchored_in_code": "97% (112/116)",
@@ -33,7 +33,10 @@
         "FR-085",
         "FR-110",
         "FR-121",
-        "FR-125"
+        "FR-125",
+        "FR-126",
+        "FR-127",
+        "FR-128"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -51,13 +54,17 @@
   },
   "drift": {
     "changed": [
-      "domain:integration",
+      "domain:crm",
+      "doc:FEATURES",
       "doc:PRD-SDD-v1.0"
     ],
     "added": [
-      "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
-      "doc:FR-125-flowaccount-read-only-pull-pipeline",
-      "req:FR-125"
+      "spec:ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE",
+      "doc:FR-127-conversation-intelligence-analysis",
+      "feat:FEAT-014",
+      "req:FR-126",
+      "req:FR-127",
+      "req:FR-128"
     ],
     "removed": []
   },
@@ -7860,10 +7867,10 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.7.0b",
+      "version": "1.8.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "8ce6904e",
-      "status": "current"
+      "hash": "35c938bc",
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -8551,6 +8558,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-127-conversation-intelligence-analysis",
+      "type": "document",
+      "path": "docs/domains/crm/features/FR-127-conversation-intelligence-analysis.md",
+      "title": "FR-127 — Conversation intelligence analysis",
+      "hash": "50b414ca",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -8819,9 +8834,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.122.0b",
+      "version": "1.123.0b",
       "doc_status": "Draft",
-      "hash": "269c34ef",
+      "hash": "108ba082",
       "status": "changed"
     },
     {
@@ -9042,8 +9057,8 @@
       "modules": [
         "crm"
       ],
-      "hash": "6f523610",
-      "status": "current"
+      "hash": "afbfa402",
+      "status": "changed"
     },
     {
       "id": "domain:identity",
@@ -9122,7 +9137,7 @@
         "integration"
       ],
       "hash": "77233d86",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:knowledge",
@@ -9320,6 +9335,13 @@
       "id": "feat:FEAT-013",
       "type": "feature",
       "label": "Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run",
+      "declared": "proposed",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-014",
+      "type": "feature",
+      "label": "CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054)",
       "declared": "proposed",
       "status": "current"
     },
@@ -11132,6 +11154,36 @@
       "declared": "planned",
       "status": "planned",
       "row_text": "FlowAccount read-only pull pipeline: an OWNER-authorized Business can onboard one FlowAccount Client Credentials connection through a provider-specific Platform wizard that accepts Client ID/Client Secret write-only, provisions them into the approved secret manager, verifies `GET /company/info`, and returns redacted metadata only. A server-owned `FLOWACCOUNT` adapter exchanges/reuses Bearer tokens, calls only the approved GET resource catalog, paginates within the provider page-size ceiling, respects provider account rate limits, and sends every record through the existing FR-081 `zIngestionEnvelope`/`RawExternalRecord` path with trusted Tenant/Business/connection scope, external identity, payload hash, IngestionRun, SyncCursor and DeadLetterRecord evidence. Cursor advancement requires a complete resource run; document incrementals use a lookback window and master resources use full hash reconciliation because FlowAccount exposes no generic updated-since cursor. The UI exposes computed data-source health and run summaries, never raw secret/token/payload. Public OpenAPI evidence is not GL/TB/P&L or Accounting truth; provider writes, OpenID, webhook, scheduler and downstream domain publication are separate future requirements. Design is ADR-053 🔜 design candidate only — nothing is built and nothing is authorized to be built: no FlowAccount provider code, wizard, route, schema migration or secret provisioner exists, and ADR-053 §15 permits only a phased implementation plan. Two things must be resolved before any of it can start — the provider facts it rests on were verified 2026-08-20 and have not been re-checked, and the `DATA_SOURCE` connection kind it assumes is not in `CONNECTION_KINDS` today "
+    },
+    {
+      "id": "req:FR-126",
+      "type": "requirement",
+      "family": "FR",
+      "label": "AI-inferred Customer Profile: a 1:0..1 advisory `CustomerProfile` row on Customer holding attributes the agent runtime infers from conversation content — demographic band, occupation, motivations, budget signal — with `inferenceCount` and `lastInferredAt` as provenance. The shape is borrowed from the legacy ERD as prior art and rebound (ADR-054 D3): it hangs off the tenant-scoped Customer and adds no scope column of its own. It is derived data, never identity — `Person`/`ChannelIdentity` remain the only identity truth (FR-094), the profile performs no channel merging (ADR-054 D4), and it must be regenerable from retained conversations at any time (ADR-054 D6). It is personal data under SEC-005: reads sit behind the same BR-001 visibility as the FR-091 inbox, and PDPA erasure of the Customer removes the profile with it. One writer in crm `application/`, beside the ingest seam it never widens",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "AI-inferred Customer Profile: a 1:0..1 advisory `CustomerProfile` row on Customer holding attributes the agent runtime infers from conversation content — demographic band, occupation, motivations, budget signal — with `inferenceCount` and `lastInferredAt` as provenance. The shape is borrowed from the legacy ERD as prior art and rebound (ADR-054 D3): it hangs off the tenant-scoped Customer and adds no scope column of its own. It is derived data, never identity — `Person`/`ChannelIdentity` remain the only identity truth (FR-094), the profile performs no channel merging (ADR-054 D4), and it must be regenerable from retained conversations at any time (ADR-054 D6). It is personal data under SEC-005: reads sit behind the same BR-001 visibility as the FR-091 inbox, and PDPA erasure of the Customer removes the profile with it. One writer in crm `application/`, beside the ingest seam it never widens 🔜 declared only — no schema, service or surface exists; authorized shape is ADR-054 D2/D3 "
+    },
+    {
+      "id": "req:FR-127",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Conversation intelligence analysis: a per-Conversation, per-analysis-run `ConversationAnalysis` record classifying the exchange — contact type, engagement state, observed call-to-action, tags and a short summary, with the raw model output retained for audit. Keyed to `Conversation.id` and never to the external thread id (BR-002; ADR-054 D4 makes the legacy G-DB-02 gotcha structural rather than disciplinary); state and type vocabularies are string enums owned by `src/lib/validation/enums.js` when implementation lands. Derived and recomputable from `Message` rows, so deleting and re-running analysis is always safe (ADR-054 D6). The producer is the agent runtime, which owns no models by design; the rows and their single writer live under the crm charter (ADR-054 D2). Ad-revenue attribution is explicitly absent — the legacy `sourceAdId` column is dropped from the borrowed shape until an Ad model exists to anchor it (ADR-054 D5)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Conversation intelligence analysis: a per-Conversation, per-analysis-run `ConversationAnalysis` record classifying the exchange — contact type, engagement state, observed call-to-action, tags and a short summary, with the raw model output retained for audit. Keyed to `Conversation.id` and never to the external thread id (BR-002; ADR-054 D4 makes the legacy G-DB-02 gotcha structural rather than disciplinary); state and type vocabularies are string enums owned by `src/lib/validation/enums.js` when implementation lands. Derived and recomputable from `Message` rows, so deleting and re-running analysis is always safe (ADR-054 D6). The producer is the agent runtime, which owns no models by design; the rows and their single writer live under the crm charter (ADR-054 D2). Ad-revenue attribution is explicitly absent — the legacy `sourceAdId` column is dropped from the borrowed shape until an Ad model exists to anchor it (ADR-054 D5) 🔜 declared only — no schema, service or surface exists; authorized shape is ADR-054 D2/D3 "
+    },
+    {
+      "id": "req:FR-128",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Daily Sales Brief: one aggregate row per (Business, briefDate) summarizing that day's FR-127 analyses — conversation and contact counts, engagement-state breakdown, top calls-to-action and top tags — with a `PENDING → PROCESSED → SENT / FAILED` delivery lifecycle. Aggregates are recomputed from FR-127 rows, never incremented in place, and the row is a delivery record, not a second source of truth (ADR-054 D6). Delivery is a LINE push through the existing outbound transport ownership — BR-011 stands and this feature adds no second LINE writer — to recipients resolved from Membership authority for the Business, never a hardcoded list. Scope is carried as `(businessId, briefDate)` with `tenantId` denormalized the way `Branch` carries it (ADR-054 D3)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Daily Sales Brief: one aggregate row per (Business, briefDate) summarizing that day's FR-127 analyses — conversation and contact counts, engagement-state breakdown, top calls-to-action and top tags — with a `PENDING → PROCESSED → SENT / FAILED` delivery lifecycle. Aggregates are recomputed from FR-127 rows, never incremented in place, and the row is a delivery record, not a second source of truth (ADR-054 D6). Delivery is a LINE push through the existing outbound transport ownership — BR-011 stands and this feature adds no second LINE writer — to recipients resolved from Membership authority for the Business, never a hardcoded list. Scope is carried as `(businessId, briefDate)` with `tenantId` denormalized the way `Branch` carries it (ADR-054 D3) 🔜 declared only — no schema, worker or delivery path exists; authorized shape is ADR-054 D2/D3 "
     },
     {
       "id": "req:NFR-001",
@@ -13975,6 +14027,14 @@
       "path": "docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md",
       "title": "ADR-053 — FlowAccount read-only pull pipeline and credential provisioning",
       "hash": "f3d252d6",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md",
+      "title": "ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence",
+      "hash": "fe1159f4",
       "status": "current"
     },
     {
@@ -27770,6 +27830,27 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-014",
+      "to": "req:FR-126",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-014",
+      "to": "req:FR-127",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-014",
+      "to": "req:FR-128",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
       "type": "owned_by",
@@ -29290,6 +29371,27 @@
     },
     {
       "from": "req:FR-125",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-126",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-127",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-128",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -32896,6 +32998,13 @@
     {
       "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
       "to": "spec:ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
       "type": "relates",
       "status": "current",
       "source": "control-block"
