@@ -50,37 +50,9 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "domain:identity",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js"
+      "test:tests/e2e/navigation-reachability.spec.js"
     ],
-    "added": [
-      "spec:ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
-      "doc:FR-123-plugin-authentication-and-capability-discovery",
-      "route:api:/api/plugin/auth/authorize",
-      "route:api:/api/plugin/auth/capabilities",
-      "route:api:/api/plugin/auth/revoke",
-      "route:api:/api/plugin/auth/token",
-      "model:PluginInstallation",
-      "model:PluginAuthorizationCode",
-      "model:PluginSession",
-      "req:FR-123",
-      "req:SDD-074",
-      "req:SEC-022",
-      "test:tests/unit/fr123-plugin-auth-migration.test.js",
-      "test:tests/unit/fr123-plugin-auth-route.test.js",
-      "test:tests/unit/fr123-plugin-auth-service.test.js",
-      "code:src/app/api/plugin/auth/authorize/route.js",
-      "code:src/app/api/plugin/auth/capabilities/route.js",
-      "code:src/app/api/plugin/auth/revoke/route.js",
-      "code:src/app/api/plugin/auth/token/route.js",
-      "code:src/modules/identity/plugin-auth-service.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -5950,7 +5922,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "42fbdb70",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -6009,7 +5981,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "c381f6a6",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -7643,7 +7615,7 @@
       "version": "1.27.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "7fccd235",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -7689,7 +7661,7 @@
       "version": "1.12.0",
       "doc_status": "Draft",
       "hash": "27f1e2db",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -8738,7 +8710,7 @@
       "version": "1.121.0b",
       "doc_status": "Draft",
       "hash": "3a8210e0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8774,7 +8746,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "08059b59",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -9001,7 +8973,7 @@
         "identity"
       ],
       "hash": "689f812e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:integration",
@@ -13963,8 +13935,8 @@
       "id": "test:tests/e2e/navigation-reachability.spec.js",
       "type": "test",
       "path": "tests/e2e/navigation-reachability.spec.js",
-      "hash": "2a15f9ca",
-      "status": "current"
+      "hash": "4a53d1e9",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -14412,7 +14384,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "90489a55",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
