@@ -60,6 +60,7 @@ export async function computeProjectProgress(projectId) {
   })
   if (!project || project.deletedAt) throw new Error('Project not found')
   const workstreamResults = []
+  const staleCaches = []
   for (const ws of project.workstreams) {
     const bundle = hydrateBundle(ws)
     const result = calculateWorkstreamProgress(ws.progressStrategy, bundle)
@@ -72,7 +73,20 @@ export async function computeProjectProgress(projectId) {
       progressWeight: ws.progressWeight,
       ...result,
     })
-    await prisma.workstream.update({ where: { id: ws.id }, data: { progressCache: result.percent } })
+    // `progressCache` is advisory — the percent above is recomputed from the
+    // calculators every time and is what the caller receives, so the write below
+    // only refreshes a hint for readers that do not recompute. Writing it back
+    // unconditionally, one awaited UPDATE per workstream inside this loop, put N
+    // sequential writes on a read path; a project whose cache is already correct
+    // (the normal case between edits) paid for all of them. Collect the ones that
+    // actually changed and issue those concurrently instead.
+    if (ws.progressCache !== result.percent) {
+      staleCaches.push({ id: ws.id, percent: result.percent })
+    }
+  }
+  if (staleCaches.length) {
+    await Promise.all(staleCaches.map((ws) =>
+      prisma.workstream.update({ where: { id: ws.id }, data: { progressCache: ws.percent } })))
   }
   const rollup = rollupProject(workstreamResults)
   return {

@@ -48,7 +48,10 @@
     }
   },
   "drift": {
-    "changed": [],
+    "changed": [
+      "code:src/modules/project-manager/application/progress-service.js",
+      "code:src/modules/project-manager/components/useApi.js"
+    ],
     "added": [],
     "removed": []
   },
@@ -5901,8 +5904,8 @@
       "id": "code:src/modules/project-manager/application/progress-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/progress-service.js",
-      "hash": "64f048d8",
-      "status": "current",
+      "hash": "4f03b3b0",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-020"
@@ -6446,8 +6449,8 @@
       "id": "code:src/modules/project-manager/components/useApi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/components/useApi.js",
-      "hash": "ca1c5405",
-      "status": "current",
+      "hash": "4bb3090d",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-045"
