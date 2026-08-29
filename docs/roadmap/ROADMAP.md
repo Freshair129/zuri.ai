@@ -82,11 +82,6 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > และจะเปลี่ยนเป็น `done` เมื่อ PR ของ FR-119 ขึ้น main จริงเท่านั้น Check 14 อ่านแค่
 > คอลัมน์ ID กับ Title สถานะจึงไม่มีผลต่อการปลดล็อก — ไม่มีอะไรบังคับให้ต้องโกหก
 > เพื่อให้ gate ผ่าน และนั่นคือเหตุผลเดียวที่ `done` ถูกใส่ลงไปตั้งแต่แรก
-> Revision 2.5.5 (2026-08-29): เพิ่ม TASK-FR-122 (Profile บังคับ ชื่อ/นามสกุล/เบอร์โทร — done)
-> และ TASK-FR-121 (Google เป็นทางเข้าที่สอง — **blocked**, ไม่ใช่ pending: ไม่มี OAuth
-> credential และ `ExternalIdentity` ต้องการ Tenant ที่ self-serve signup ไม่มี) พร้อมกับ
-> การประกาศ FR-121/FR-122 ใน PRD ใน PR เดียวกัน ตามลำดับเดียวกับ TASK-FR-120.
->
 > Revision 2.5.4 (2026-08-29): เพิ่ม TASK-FR-120 (self-serve account creation)
 > **พร้อมกับการประกาศ FR-120 เองใน PRD ใน PR เดียวกัน** ไม่ใช่ row-first สองรอบแบบ
 > TASK-FR-118/119 เพราะ Check 14 เริ่มจาก requirement ที่ delivered แล้วถามว่าอันไหน
@@ -96,6 +91,11 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > สถานะลงเป็น `planned` ไม่ใช่ `in-progress` เพราะตอน PR นี้ merge ยังไม่มีโค้ดสักบรรทัด
 > — บทเรียนเดียวกับ TASK-FR-118 ที่ลงด้วย `done` ก่อนของจริงจะขึ้น main และตรงตามที่
 > revision 2.5.3 บันทึกไว้เองว่า Check 14 อ่านแค่ ID กับ Title ไม่มีอะไรบังคับให้โกหกสถานะ
+> Revision 2.5.5 (2026-08-29): เพิ่ม TASK-FR-122 (Profile บังคับ ชื่อ/นามสกุล/เบอร์โทร — done)
+> และ TASK-FR-121 (Google เป็นทางเข้าที่สอง — **blocked**, ไม่ใช่ pending: ไม่มี OAuth
+> credential และ `ExternalIdentity` ต้องการ Tenant ที่ self-serve signup ไม่มี) พร้อมกับ
+> การประกาศ FR-121/FR-122 ใน PRD ใน PR เดียวกัน ตามลำดับเดียวกับ TASK-FR-120.
+>
 
 ## Phases
 
