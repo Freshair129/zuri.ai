@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-29T21:36:04.686Z",
+  "generatedAt": "2026-08-29T23:20:50.150Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,12 +37,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 8,
-    "featureCount": 102,
+    "featureCount": 104,
     "readyFeatureCount": 94,
-    "requirementCount": 124,
+    "requirementCount": 128,
     "verifiedRequirementCount": 118,
-    "progressPercent": 95.2,
-    "gapCount": 13,
+    "progressPercent": 92.2,
+    "gapCount": 19,
     "gaps": [
       {
         "domain": "agent",
@@ -71,6 +71,28 @@
         ]
       },
       {
+        "domain": "crm",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "crm",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "crm",
+        "id": "REQ-FR-127",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-127 is planned",
+        "evidence": []
+      },
+      {
         "domain": "identity",
         "id": "CONTRACT-001",
         "severity": "medium",
@@ -97,6 +119,28 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-121 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "integration",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "integration",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-125",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-125 is planned",
         "evidence": []
       },
       {
@@ -459,7 +503,7 @@
       "progressPercent": 100
     },
     "crm": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-023",
@@ -502,6 +546,13 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 9
+        },
+        {
+          "id": "FR-127",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -526,12 +577,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "verified",
@@ -557,11 +614,17 @@
           "gaps": []
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -572,6 +635,7 @@
         "docs/domains/crm/features/FR-091-conversation-inbox.md",
         "docs/domains/crm/features/FR-093-reply-delivery-receipt.md",
         "docs/domains/crm/features/FR-103-pdpa-consent-attestation.md",
+        "docs/domains/crm/features/FR-127-conversation-intelligence-analysis.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
@@ -579,23 +643,44 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-127",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-127 is planned",
+          "evidence": []
+        }
+      ],
       "details": {
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 8,
-        "featureNotes": 4
+        "featureNotes": 5
       },
       "featureIds": [
         "FEAT-006",
         "FEAT-009",
+        "FEAT-014",
         "FR-023",
         "FR-103"
       ],
-      "featureCount": 4,
+      "featureCount": 5,
       "readyFeatureCount": 3,
-      "progressPercent": 100
+      "progressPercent": 62.5
     },
     "identity": {
       "status": "partial",
@@ -995,7 +1080,7 @@
       "progressPercent": 95.8
     },
     "integration": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-028",
@@ -1094,6 +1179,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 5
+        },
+        {
+          "id": "FR-125",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -1134,12 +1226,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -1171,11 +1269,17 @@
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -1189,6 +1293,7 @@
         "docs/domains/integration/features/FR-099-sot-pipeline-plan-board.md",
         "docs/domains/integration/features/FR-100-sot-approval-inbox.md",
         "docs/domains/integration/features/FR-101-sot-pipeline-graph-dashboard.md",
+        "docs/domains/integration/features/FR-125-flowaccount-read-only-pull-pipeline.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1197,24 +1302,45 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-125",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-125 is planned",
+          "evidence": []
+        }
+      ],
       "details": {
         "routes": 10,
         "apiRoutes": 6,
         "pageRoutes": 4,
         "ownedModels": 15,
-        "featureNotes": 6
+        "featureNotes": 7
       },
       "featureIds": [
         "FEAT-004",
         "FR-030",
         "FR-081",
         "FR-102",
-        "FR-106"
+        "FR-106",
+        "FR-125"
       ],
-      "featureCount": 5,
+      "featureCount": 6,
       "readyFeatureCount": 4,
-      "progressPercent": 100
+      "progressPercent": 87.5
     },
     "knowledge": {
       "status": "partial",
@@ -1477,8 +1603,8 @@
           "id": "FR-092",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 6
+          "codeCount": 6,
+          "testCount": 10
         }
       ],
       "checks": {
@@ -2110,7 +2236,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 10
         },
         {
           "id": "FR-095",
@@ -3383,6 +3509,55 @@
         "tests/unit/platform/raw-ingest-service.test.js",
         "tests/unit/platform/raw-record-repository-read.test.js"
       ]
+    },
+    {
+      "id": "FEAT-014",
+      "title": "CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054)",
+      "kind": "bundle",
+      "registryStatus": "proposed",
+      "requirementIds": [
+        "FR-126",
+        "FR-127",
+        "FR-128"
+      ],
+      "primaryDomain": "crm",
+      "contributorDomains": [
+        "crm"
+      ],
+      "useCase": "ทีมขายเปิดโปรไฟล์ลูกค้าที่ AI สรุปจากบทสนทนา LINE ดูผลวิเคราะห์รายบทสนทนา และรับ Daily Sales Brief ของ Business ในแต่ละวัน",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-014 registry status is proposed",
+        "FR-126 is planned",
+        "FR-127 is planned",
+        "FR-128 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-126",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-127",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-128",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
     },
     {
       "id": "FR-001",
@@ -6471,19 +6646,27 @@
           "id": "FR-092",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 3,
-          "testCount": 6
+          "codeCount": 7,
+          "testCount": 10
         }
       ],
       "evidence": [
         "src/modules/market-intelligence/application/market-observation-service.js",
         "src/modules/market-intelligence/application/translate-raw-record.js",
+        "src/modules/market-intelligence/domain/market-observation.js",
+        "src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+        "src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+        "src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
         "src/modules/project-manager/application/backup-service.js",
         "tests/integration/backup.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/market-intelligence-persistence.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/market-intelligence-schema-migration.test.js",
+        "tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+        "tests/unit/market-intelligence/market-observation-domain.test.js",
+        "tests/unit/market-intelligence/market-observation-repository.test.js",
+        "tests/unit/market-intelligence/market-raw-record-repository.test.js",
         "tests/unit/market-intelligence/translate-raw-record.test.js"
       ]
     },
@@ -7220,6 +7403,36 @@
         "tests/unit/fr124-product-readiness-read-model.test.js",
         "tests/unit/fr124-product-readiness-ui.test.js"
       ]
+    },
+    {
+      "id": "FR-125",
+      "title": "FlowAccount read-only pull pipeline: an OWNER-authorized Business can onboard one FlowAccount Client Credentials connection through a provider-specific Platform wizard that accepts Client ID/Client Secret write-only, provisions them into the approved secret manager, verifies `GET /company/info`, and returns redacted metadata only. A server-owned `FLOWACCOUNT` adapter exchanges/reuses Bearer tokens, calls only the approved GET resource catalog, paginates within the provider page-size ceiling, respects provider account rate limits, and sends every record through the existing FR-081 `zIngestionEnvelope`/`RawExternalRecord` path with trusted Tenant/Business/connection scope, external identity, payload hash, IngestionRun, SyncCursor and DeadLetterRecord evidence. Cursor advancement requires a complete resource run; document incrementals use a lookback window and master resources use full hash reconciliation because FlowAccount exposes no generic updated-since cursor. The UI exposes computed data-source health and run summaries, never raw secret/token/payload. Public OpenAPI evidence is not GL/TB/P&L or Accounting truth; provider writes, OpenID, webhook, scheduler and downstream domain publication are separate future requirements. Design is ADR-053",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-125"
+      ],
+      "primaryDomain": "integration",
+      "contributorDomains": [
+        "integration"
+      ],
+      "useCase": "Owner เชื่อม FlowAccount ของ Business ผ่าน wizard ที่รับ Client ID/Secret แบบเขียนอย่างเดียว แล้วดึงข้อมูลบัญชีแบบอ่านอย่างเดียวโดยไม่เปิดเผย secret กลับมาที่ browser",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-125 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-125",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
     }
   ]
 }

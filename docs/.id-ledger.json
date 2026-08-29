@@ -232,6 +232,10 @@
     "FR-122",
     "FR-123",
     "FR-124",
+    "FR-125",
+    "FR-126",
+    "FR-127",
+    "FR-128",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -361,6 +365,7 @@
     "FEAT-011",
     "FEAT-012",
     "FEAT-013",
+    "FEAT-014",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -501,6 +506,8 @@
     "ADR-050",
     "ADR-051",
     "ADR-052",
+    "ADR-053",
+    "ADR-054",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -2421,6 +2428,58 @@
         }
       ]
     },
+    "FR-125": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e8543a1601181edeb6a8a5b76513dd4c2f1642412f4ccc0800e9b6ae881774b1",
+      "history": [
+        {
+          "anchor": "flowaccount read only pull pipeline",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-126": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4b441cd6557d7f8755bcaef981c512e0d8f2c47ad86fa2671abf7f01a9867e29",
+      "history": [
+        {
+          "anchor": "ai inferred customer profile",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-127": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b9e68d215f1ad11febe3693f5434d7eb6ccf709bf4e70b9197be3e511c8f3197",
+      "history": [
+        {
+          "anchor": "conversation intelligence analysis",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-128": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "00cf00ac3bc168eb37c64f6bb19a94e30ddb46bfad142e17303199b7ad5e65d4",
+      "history": [
+        {
+          "anchor": "daily sales brief",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4114,6 +4173,19 @@
         {
           "anchor": "knowledge ingestion governance",
           "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-014": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "e74c3616aafb82ad1d604e0cdecbb2ce47e02bcf851da2a35d82c73377bfe613",
+      "history": [
+        {
+          "anchor": "crm conversation intelligence",
+          "since": "2026-08-29",
           "reason": "declared"
         }
       ]
@@ -5943,6 +6015,32 @@
       "history": [
         {
           "anchor": "canonical plugin authorization code and token boundary",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-053": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md",
+      "status": "current",
+      "statement_digest": "f1cf76c4093239c53048b316408c88567df5c58d3921642b93f5a413523083a6",
+      "history": [
+        {
+          "anchor": "flowaccount read only pull pipeline and credential",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-054": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md",
+      "status": "current",
+      "statement_digest": "bcd3c135682280df0e44bbe390d9b333869948c29bc4bf980ffd549ac3fd1f53",
+      "history": [
+        {
+          "anchor": "the legacy erd is prior art for crm conversation",
           "since": "2026-08-29",
           "reason": "declared"
         }

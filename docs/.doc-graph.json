@@ -3,36 +3,40 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1432,
-    "total_edges": 4920,
+    "total_nodes": 1445,
+    "total_edges": 4966,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 115,
-      "adr": 52,
+      "document": 117,
+      "adr": 54,
       "domain": 8,
       "roadmap": 28,
-      "feature": 13,
+      "feature": 14,
       "route": 159,
       "model": 70,
-      "requirement": 262,
+      "requirement": 266,
       "test": 343,
-      "code_file": 378
+      "code_file": 382
     },
     "coverage": {
-      "requirements": 262,
+      "requirements": 266,
       "fr_with_code": "100% (118/118)",
       "fr_with_tests": "100% (118/118)",
       "rules_anchored_in_code": "97% (112/116)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 378,
+      "annotated_code_files": 382,
       "fr_planned": [
         "FR-082",
         "FR-083",
         "FR-084",
         "FR-085",
         "FR-110",
-        "FR-121"
+        "FR-121",
+        "FR-125",
+        "FR-126",
+        "FR-127",
+        "FR-128"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -49,8 +53,28 @@
     }
   },
   "drift": {
-    "changed": [],
-    "added": [],
+    "changed": [
+      "doc:FEATURES",
+      "doc:INTERFACE-INVENTORY",
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP",
+      "test:tests/unit/domain-state.test.js",
+      "code:src/config/domains.js"
+    ],
+    "added": [
+      "doc:FR-124-product-readiness-dashboard",
+      "route:page:/platform/product-readiness",
+      "route:page:/platform/product-readiness/[domain]",
+      "req:FR-124",
+      "test:tests/e2e/fr124-product-readiness.spec.js",
+      "test:tests/unit/fr124-product-readiness-read-model.test.js",
+      "test:tests/unit/fr124-product-readiness-ui.test.js",
+      "code:src/app/(pm)/platform/product-readiness/page.jsx",
+      "code:src/app/(pm)/platform/product-readiness/[domain]/page.jsx",
+      "code:src/modules/project-manager/application/product-readiness-access.js",
+      "code:src/modules/project-manager/application/product-readiness-read-model.js",
+      "code:src/modules/project-manager/components/ProductReadinessDashboard.jsx"
+    ],
     "removed": []
   },
   "nodes": [
@@ -3669,7 +3693,7 @@
       "type": "code_file",
       "path": "src/config/domains.js",
       "hash": "d192a5d8",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-042",
@@ -5909,6 +5933,83 @@
       }
     },
     {
+      "id": "code:src/modules/market-intelligence/domain/market-observation.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/domain/market-observation.js",
+      "hash": "7ee06cd3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/market-observation-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "hash": "0b54d68e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049",
+          "SEC-017"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/gks-market-identity-resolver.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "hash": "2cc480c7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092",
+          "NFR-018"
+        ],
+        "@spec": [
+          "SDD-049",
+          "SEC-017"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/market-observation-repository.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "hash": "17379376",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "BR-019",
+          "SDD-049",
+          "SEC-017"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/market-raw-record-repository.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/people/application/people-service.js",
       "type": "code_file",
       "path": "src/modules/people/application/people-service.js",
@@ -7879,10 +7980,10 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.8.0b",
+      "version": "1.9.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "3b21d8f1",
-      "status": "current"
+      "hash": "2ead7b95",
+      "status": "changed"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -8570,6 +8671,22 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-125-flowaccount-read-only-pull-pipeline",
+      "type": "document",
+      "path": "docs/domains/integration/features/FR-125-flowaccount-read-only-pull-pipeline.md",
+      "title": "FR-125 — FlowAccount read-only pull pipeline",
+      "hash": "59304a86",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-127-conversation-intelligence-analysis",
+      "type": "document",
+      "path": "docs/domains/crm/features/FR-127-conversation-intelligence-analysis.md",
+      "title": "FR-127 — Conversation intelligence analysis",
+      "hash": "50b414ca",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -8605,7 +8722,7 @@
       "version": "1.2.2b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "fdf4d09b",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -8838,10 +8955,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.122.0b",
+      "version": "1.124.0b",
       "doc_status": "Draft",
-      "hash": "0fa8b9de",
-      "status": "current"
+      "hash": "c5b4ed0c",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -8877,7 +8994,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "51404342",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -9061,7 +9178,7 @@
       "modules": [
         "crm"
       ],
-      "hash": "6f523610",
+      "hash": "afbfa402",
       "status": "current"
     },
     {
@@ -9140,7 +9257,7 @@
       "modules": [
         "integration"
       ],
-      "hash": "81c11264",
+      "hash": "77233d86",
       "status": "current"
     },
     {
@@ -9339,6 +9456,13 @@
       "id": "feat:FEAT-013",
       "type": "feature",
       "label": "Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run",
+      "declared": "proposed",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-014",
+      "type": "feature",
+      "label": "CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054)",
       "declared": "proposed",
       "status": "current"
     },
@@ -11151,6 +11275,46 @@
       "declared": "done",
       "status": "current",
       "row_text": "Product Readiness: one read-only Platform surface at `/platform/product-readiness`, with a stable drilldown at `/platform/product-readiness/[domain]`, that answers four questions separately rather than collapsing them into one green number — how much evidence-backed implementation exists, which requirements are actually verified, whether a complete feature is ready to use, and what a Human can use it for. It renders the committed `docs/.domain-state.json` projection and nothing else: no database model, no runtime write path, no scheduled poll, no external API. **Readiness is not progress.** A feature is ready only when every underlying FR is verified and, for an explicit FEAT bundle, the registry says `live`; a 100% implementation score therefore still reads not-ready when the registry says `building`, and the surface always prints both numbers with the blocking reason. Progress itself is weighted 20% declaration + 40% code + 40% test — **a policy choice, not a derived fact**, held in one named constant (`PROGRESS_METHODOLOGY` in `scripts/domain-state.mjs`), printed beside the numbers in the UI and carried in the snapshot, and awaiting owner sign-off rather than inheritance. Projection is complete by construction: every FEAT bundle and every unbundled FR appears exactly once with one hand-written use case, and missing, duplicate, unknown or use-case-less metadata aborts graph generation, because a partial list is a wrong answer. The surface resolves its viewer on the server before rendering, so the snapshot never reaches an unauthorized browser through the RSC payload. ✅ implemented and tested; the 20/40/40 weighting is declared and visible but not yet ratified by an owner "
+    },
+    {
+      "id": "req:FR-125",
+      "type": "requirement",
+      "family": "FR",
+      "label": "FlowAccount read-only pull pipeline: an OWNER-authorized Business can onboard one FlowAccount Client Credentials connection through a provider-specific Platform wizard that accepts Client ID/Client Secret write-only, provisions them into the approved secret manager, verifies `GET /company/info`, and returns redacted metadata only. A server-owned `FLOWACCOUNT` adapter exchanges/reuses Bearer tokens, calls only the approved GET resource catalog, paginates within the provider page-size ceiling, respects provider account rate limits, and sends every record through the existing FR-081 `zIngestionEnvelope`/`RawExternalRecord` path with trusted Tenant/Business/connection scope, external identity, payload hash, IngestionRun, SyncCursor and DeadLetterRecord evidence. Cursor advancement requires a complete resource run; document incrementals use a lookback window and master resources use full hash reconciliation because FlowAccount exposes no generic updated-since cursor. The UI exposes computed data-source health and run summaries, never raw secret/token/payload. Public OpenAPI evidence is not GL/TB/P&L or Accounting truth; provider writes, OpenID, webhook, scheduler and downstream domain publication are separate future requirements. Design is ADR-053",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "FlowAccount read-only pull pipeline: an OWNER-authorized Business can onboard one FlowAccount Client Credentials connection through a provider-specific Platform wizard that accepts Client ID/Client Secret write-only, provisions them into the approved secret manager, verifies `GET /company/info`, and returns redacted metadata only. A server-owned `FLOWACCOUNT` adapter exchanges/reuses Bearer tokens, calls only the approved GET resource catalog, paginates within the provider page-size ceiling, respects provider account rate limits, and sends every record through the existing FR-081 `zIngestionEnvelope`/`RawExternalRecord` path with trusted Tenant/Business/connection scope, external identity, payload hash, IngestionRun, SyncCursor and DeadLetterRecord evidence. Cursor advancement requires a complete resource run; document incrementals use a lookback window and master resources use full hash reconciliation because FlowAccount exposes no generic updated-since cursor. The UI exposes computed data-source health and run summaries, never raw secret/token/payload. Public OpenAPI evidence is not GL/TB/P&L or Accounting truth; provider writes, OpenID, webhook, scheduler and downstream domain publication are separate future requirements. Design is ADR-053 🔜 design candidate only — nothing is built and nothing is authorized to be built: no FlowAccount provider code, wizard, route, schema migration or secret provisioner exists, and ADR-053 §15 permits only a phased implementation plan. Two things must be resolved before any of it can start — the provider facts it rests on were verified 2026-08-20 and have not been re-checked, and the `DATA_SOURCE` connection kind it assumes is not in `CONNECTION_KINDS` today "
+    },
+    {
+      "id": "req:FR-126",
+      "type": "requirement",
+      "family": "FR",
+      "label": "AI-inferred Customer Profile: a 1:0..1 advisory `CustomerProfile` row on Customer holding attributes the agent runtime infers from conversation content — demographic band, occupation, motivations, budget signal — with `inferenceCount` and `lastInferredAt` as provenance. The shape is borrowed from the legacy ERD as prior art and rebound (ADR-054 D3): it hangs off the tenant-scoped Customer and adds no scope column of its own. It is derived data, never identity — `Person`/`ChannelIdentity` remain the only identity truth (FR-094), the profile performs no channel merging (ADR-054 D4), and it must be regenerable from retained conversations at any time (ADR-054 D6). It is personal data under SEC-005: reads sit behind the same BR-001 visibility as the FR-091 inbox, and PDPA erasure of the Customer removes the profile with it. One writer in crm `application/`, beside the ingest seam it never widens",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "AI-inferred Customer Profile: a 1:0..1 advisory `CustomerProfile` row on Customer holding attributes the agent runtime infers from conversation content — demographic band, occupation, motivations, budget signal — with `inferenceCount` and `lastInferredAt` as provenance. The shape is borrowed from the legacy ERD as prior art and rebound (ADR-054 D3): it hangs off the tenant-scoped Customer and adds no scope column of its own. It is derived data, never identity — `Person`/`ChannelIdentity` remain the only identity truth (FR-094), the profile performs no channel merging (ADR-054 D4), and it must be regenerable from retained conversations at any time (ADR-054 D6). It is personal data under SEC-005: reads sit behind the same BR-001 visibility as the FR-091 inbox, and PDPA erasure of the Customer removes the profile with it. One writer in crm `application/`, beside the ingest seam it never widens 🔜 declared only — no schema, service or surface exists; authorized shape is ADR-054 D2/D3 "
+    },
+    {
+      "id": "req:FR-127",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Conversation intelligence analysis: a per-Conversation, per-analysis-run `ConversationAnalysis` record classifying the exchange — contact type, engagement state, observed call-to-action, tags and a short summary, with the raw model output retained for audit. Keyed to `Conversation.id` and never to the external thread id (BR-002; ADR-054 D4 makes the legacy G-DB-02 gotcha structural rather than disciplinary); state and type vocabularies are string enums owned by `src/lib/validation/enums.js` when implementation lands. Derived and recomputable from `Message` rows, so deleting and re-running analysis is always safe (ADR-054 D6). The producer is the agent runtime, which owns no models by design; the rows and their single writer live under the crm charter (ADR-054 D2). Ad-revenue attribution is explicitly absent — the legacy `sourceAdId` column is dropped from the borrowed shape until an Ad model exists to anchor it (ADR-054 D5)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Conversation intelligence analysis: a per-Conversation, per-analysis-run `ConversationAnalysis` record classifying the exchange — contact type, engagement state, observed call-to-action, tags and a short summary, with the raw model output retained for audit. Keyed to `Conversation.id` and never to the external thread id (BR-002; ADR-054 D4 makes the legacy G-DB-02 gotcha structural rather than disciplinary); state and type vocabularies are string enums owned by `src/lib/validation/enums.js` when implementation lands. Derived and recomputable from `Message` rows, so deleting and re-running analysis is always safe (ADR-054 D6). The producer is the agent runtime, which owns no models by design; the rows and their single writer live under the crm charter (ADR-054 D2). Ad-revenue attribution is explicitly absent — the legacy `sourceAdId` column is dropped from the borrowed shape until an Ad model exists to anchor it (ADR-054 D5) 🔜 declared only — no schema, service or surface exists; authorized shape is ADR-054 D2/D3 "
+    },
+    {
+      "id": "req:FR-128",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Daily Sales Brief: one aggregate row per (Business, briefDate) summarizing that day's FR-127 analyses — conversation and contact counts, engagement-state breakdown, top calls-to-action and top tags — with a `PENDING → PROCESSED → SENT / FAILED` delivery lifecycle. Aggregates are recomputed from FR-127 rows, never incremented in place, and the row is a delivery record, not a second source of truth (ADR-054 D6). Delivery is a LINE push through the existing outbound transport ownership — BR-011 stands and this feature adds no second LINE writer — to recipients resolved from Membership authority for the Business, never a hardcoded list. Scope is carried as `(businessId, briefDate)` with `tenantId` denormalized the way `Branch` carries it (ADR-054 D3)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Daily Sales Brief: one aggregate row per (Business, briefDate) summarizing that day's FR-127 analyses — conversation and contact counts, engagement-state breakdown, top calls-to-action and top tags — with a `PENDING → PROCESSED → SENT / FAILED` delivery lifecycle. Aggregates are recomputed from FR-127 rows, never incremented in place, and the row is a delivery record, not a second source of truth (ADR-054 D6). Delivery is a LINE push through the existing outbound transport ownership — BR-011 stands and this feature adds no second LINE writer — to recipients resolved from Membership authority for the Business, never a hardcoded list. Scope is carried as `(businessId, briefDate)` with `tenantId` denormalized the way `Branch` carries it (ADR-054 D3) 🔜 declared only — no schema, worker or delivery path exists; authorized shape is ADR-054 D2/D3 "
     },
     {
       "id": "req:NFR-001",
@@ -14005,6 +14169,22 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "type": "adr",
+      "path": "docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md",
+      "title": "ADR-053 — FlowAccount read-only pull pipeline and credential provisioning",
+      "hash": "f3d252d6",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md",
+      "title": "ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence",
+      "hash": "fe1159f4",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/fr040-project-work.spec.js",
       "type": "test",
       "path": "tests/e2e/fr040-project-work.spec.js",
@@ -15073,7 +15253,7 @@
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
       "hash": "71804acd",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/e2e-reconnecting-request.test.js",
@@ -24731,6 +24911,97 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/market-intelligence/domain/market-observation.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/domain/market-observation.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "to": "req:SEC-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "to": "req:NFR-018",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "to": "req:SEC-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "to": "req:BR-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "to": "req:SEC-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/people/application/people-service.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -27874,6 +28145,27 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-014",
+      "to": "req:FR-126",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-014",
+      "to": "req:FR-127",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-014",
+      "to": "req:FR-128",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
       "type": "owned_by",
@@ -29394,6 +29686,34 @@
     },
     {
       "from": "req:FR-124",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-125",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-126",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-127",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-128",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -32958,6 +33278,69 @@
     {
       "from": "spec:ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
       "to": "spec:ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "doc:FR-080-integration-secret-management-ui",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "doc:FR-081-raw-external-ingestion",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "doc:FR-125-flowaccount-read-only-pull-pipeline",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "req:FR-080",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "req:FR-081",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "req:FR-125",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "spec:ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
+      "to": "spec:ADR-038-MARKET-INTELLIGENCE-DOMAIN-BOUNDARY",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE",
+      "to": "spec:ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT",
       "type": "relates",
       "status": "current",
       "source": "control-block"
@@ -46506,6 +46889,125 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+      "to": "code:src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-domain.test.js",
+      "to": "code:src/modules/market-intelligence/domain/market-observation.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-domain.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-domain.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "to": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "to": "req:NFR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "to": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "to": "req:BR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",

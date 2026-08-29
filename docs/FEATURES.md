@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.8.0b |
+| **Version** | 1.9.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -33,6 +33,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-011 | SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline | FR-099, FR-100, FR-101 | building |
 | FEAT-012 | ExecutionPlanBundle — one portable, self-contained programme artifact (strategy + N Projects + cross-Project dependencies) imported through one combined dry-run and one confirmation, above the canonical PlanEnvelope | FR-108 | live |
 | FEAT-013 | Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run | FR-109, FR-110, FR-111 | proposed |
+| FEAT-014 | CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054) | FR-126, FR-127, FR-128 | proposed |
 
 ## Readiness Dashboard presentation metadata
 
@@ -67,6 +68,7 @@ writing one sentence here, or the governance chain stops.
   {"id":"FEAT-011","primaryDomain":"project-manager","useCase":"ผู้ดูแล SoT Pipeline เปิดกระดานแผน อนุมัติรายการที่ค้างในกล่องรออนุมัติ แล้วดูสถานะ node/edge ของทั้ง pipeline จากมุมมองกราฟ"},
   {"id":"FEAT-012","primaryDomain":"project-manager","useCase":"ผู้วางแผนนำเข้า programme ทั้งชุด — กลยุทธ์ หลาย Project และ dependency ข้าม Project — ผ่าน dry-run เดียวและการยืนยันครั้งเดียว"},
   {"id":"FEAT-013","primaryDomain":"knowledge","useCase":"ผู้ดูแลความรู้ตรวจ catalog ของ 17 stage, ไล่ trace ของ job หนึ่งจนจบ และรู้ว่า snapshot ใดที่คำตอบหนึ่งอ่านมา ภายใต้นโยบายความอ่อนไหวที่กำหนดว่าอะไร index ได้และประมวลผลที่ไหนได้"},
+  {"id":"FEAT-014","primaryDomain":"crm","useCase":"ทีมขายเปิดโปรไฟล์ลูกค้าที่ AI สรุปจากบทสนทนา LINE ดูผลวิเคราะห์รายบทสนทนา และรับ Daily Sales Brief ของ Business ในแต่ละวัน"},
   {"id":"FR-001","primaryDomain":"project-manager","useCase":"ผู้ดูแลสร้าง Portfolio, Tenant, Business, Branch และ Space ด้วย UUID และ human code ที่ตรวจย้อนกลับได้"},
   {"id":"FR-002","primaryDomain":"project-manager","useCase":"ผู้ใช้สลับ Portfolio, Business, Space และ Project แล้วกลับมาเจอ context ล่าสุด"},
   {"id":"FR-003","primaryDomain":"project-manager","useCase":"PM สร้าง แก้ไข เปิด และ archive Project โดยไม่ลบประวัติ"},
@@ -155,7 +157,8 @@ writing one sentence here, or the governance chain stops.
   {"id":"FR-121","primaryDomain":"identity","useCase":"ผู้ใช้เลือกเข้าสู่ระบบด้วยบัญชี Google และถูก resolve เป็น Person เดิมคนเดียวกัน ไม่ใช่บัญชีใหม่คนละใบ"},
   {"id":"FR-122","primaryDomain":"identity","useCase":"ขั้นตอน Profile เก็บชื่อ นามสกุล และเบอร์โทรศัพท์ เพื่อให้ระบุตัวคนได้จริง ไม่ใช่แค่ชื่อที่ใช้เรียก"},
   {"id":"FR-123","primaryDomain":"identity","useCase":"นักพัฒนาผูก Codex/Claude Code harness เข้ากับ installation ผ่าน authorization code อายุสั้นครั้งเดียว โดยไม่ต้องกรอกรหัสผ่านหรือคัดลอก cookie"},
-  {"id":"FR-124","primaryDomain":"project-manager","useCase":"ผู้บริหารเปิด Product Readiness เพื่อดูความคืบหน้าของทุกโดเมน แล้ว drill down ถึง feature, ตัวอย่าง use case, หลักฐาน code/test และสิ่งที่ยังติดอยู่"}
+  {"id":"FR-124","primaryDomain":"project-manager","useCase":"ผู้บริหารเปิด Product Readiness เพื่อดูความคืบหน้าของทุกโดเมน แล้ว drill down ถึง feature, ตัวอย่าง use case, หลักฐาน code/test และสิ่งที่ยังติดอยู่"},
+  {"id":"FR-125","primaryDomain":"integration","useCase":"Owner เชื่อม FlowAccount ของ Business ผ่าน wizard ที่รับ Client ID/Secret แบบเขียนอย่างเดียว แล้วดึงข้อมูลบัญชีแบบอ่านอย่างเดียวโดยไม่เปิดเผย secret กลับมาที่ browser"}
 ]
 ```
 <!-- readiness-metadata:end -->

@@ -61,8 +61,11 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   operations for promotion, rotation and revocation are separate audited paths.
 - The `/platform/integrations` page and its API are this domain's surfaces. They
   show metadata and redacted secret status only, and accept only an opaque
-  `supabase-vault:<uuid>` reference. Raw secret entry stays in the Supabase
-  Dashboard Vault UI; no browser response contains it.
+  `supabase-vault:<uuid>` reference in the implemented generic FR-080 form. Raw
+  secret entry stays in the Supabase Dashboard Vault UI until an approved
+  provider-specific `SecretManagerProvisionPort` exists. Candidate FR-125 /
+  ADR-053 proposes the first such write-only path for FlowAccount; it does not
+  relax the generic form and no browser response may contain secret material.
 - Local encrypted vault storage is dev/test only. Production uses Supabase Vault
   through the private `zuri_line_runtime` resolver and fails closed when it is
   unavailable.
@@ -133,6 +136,10 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
 - `src/modules/agent/phase1-runtime.js` — binding-scoped Phase 1 composition.
 - `docs/decisions/ADR-032-INTEGRATION-SECRET-MANAGEMENT-UI.md` — planned Platform
   management and provisioning boundary.
+- `docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md`
+  — candidate FlowAccount pull, credential provisioning, cursor/rate-limit and
+  non-accounting-truth boundary; no implementation is authorized yet, and its
+  provider facts carry a 2026-08-20 as-of date that must be re-verified first.
 
 ## Related requirements
 
@@ -141,4 +148,7 @@ of them. FR-048 remains the provider port and credential-mode contract. FR-079 a
 runtime connection-selection and secret-resolution cut-over without changing
 FR-048 or the existing FR-073 repository-scope contract. FR-080 adds the
 secret-safe Platform management surface and Supabase Vault reference mapping
-without making UI state an activation authority.
+without making UI state an activation authority. Candidate FR-125 adds a
+Business-scoped FlowAccount data-source adapter over FR-081 and invokes the
+deferred write-only provisioner boundary without exposing raw credential material
+or publishing raw provider records into an owner domain.
