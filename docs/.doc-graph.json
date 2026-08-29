@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1369,
-    "total_edges": 4679,
+    "total_nodes": 1370,
+    "total_edges": 4686,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 150,
       "model": 67,
       "requirement": 255,
-      "test": 327,
+      "test": 328,
       "code_file": 358
     },
     "coverage": {
@@ -48,10 +48,10 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:PRD-SDD-v1.0"
+    "changed": [],
+    "added": [
+      "test:tests/e2e/navigation-reachability.spec.js"
     ],
-    "added": [],
     "removed": []
   },
   "nodes": [
@@ -8374,7 +8374,7 @@
       "version": "1.106.0b",
       "doc_status": "Draft",
       "hash": "e86d15c9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -13433,6 +13433,13 @@
       "type": "test",
       "path": "tests/e2e/fr091-conversation-inbox.spec.js",
       "hash": "26a45879",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/navigation-reachability.spec.js",
+      "type": "test",
+      "path": "tests/e2e/navigation-reachability.spec.js",
+      "hash": "2a15f9ca",
       "status": "current"
     },
     {
@@ -32249,6 +32256,55 @@
     {
       "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/navigation-reachability.spec.js",
+      "to": "req:FR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/navigation-reachability.spec.js",
+      "to": "req:FR-006",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/navigation-reachability.spec.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/navigation-reachability.spec.js",
+      "to": "req:FR-015",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/navigation-reachability.spec.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/navigation-reachability.spec.js",
+      "to": "req:SDD-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/navigation-reachability.spec.js",
+      "to": "req:SDD-034",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
