@@ -25,6 +25,7 @@ const read = (path) => readFileSync(resolve(process.cwd(), path), 'utf8')
 const page = read('src/app/reset-password/page.jsx')
 const field = read('src/components/forms/PasswordField.jsx')
 const login = read('src/app/login/page.jsx')
+const signup = read('src/app/signup/page.jsx')
 
 describe('FR-104 reset copy keeps the route\'s single generic token failure', () => {
   it('names the password rule, because that is the caller\'s own typing', () => {
@@ -95,7 +96,25 @@ describe('FR-046/FR-104 shared password field', () => {
     // A static "show password" announced while the password is already visible
     // tells a screen-reader user the opposite of the truth.
     expect(field).toContain('aria-pressed={revealed}')
-    expect(field).toContain("aria-label={revealed ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}")
+    expect(field).toContain('aria-label={revealed ? `ซ่อน${revealSubject}` : `แสดง${revealSubject}`}')
+    // The default is what keeps every single-field page reading exactly as it
+    // did before the subject became a prop.
+    expect(field).toContain("revealSubject = 'รหัสผ่าน'")
+  })
+
+  it('makes each toggle name its own field wherever a page has two', () => {
+    // Two PasswordFields on one page rendered two buttons whose accessible
+    // names were character-for-character identical, so a screen-reader user
+    // heard "แสดงรหัสผ่าน" twice with nothing to distinguish them. This is a
+    // source-level check and can only see a page it is told to look at, so the
+    // behavioural assertion — that the names differ and each reveals only its
+    // own input — lives in tests/e2e/fr120-signup.spec.js.
+    for (const [name, source] of [['reset-password', page], ['signup', signup]]) {
+      const subjects = [...source.matchAll(/revealSubject="([^"]+)"/g)].map((match) => match[1])
+      const fields = (source.match(/<PasswordField/g) || []).length
+      expect(subjects.length, `${name} leaves a PasswordField without a revealSubject`).toBe(fields)
+      expect(new Set(subjects).size, `${name} reuses a revealSubject`).toBe(subjects.length)
+    }
   })
 
   it('leaves autoComplete to the caller so both doors get the right one', () => {

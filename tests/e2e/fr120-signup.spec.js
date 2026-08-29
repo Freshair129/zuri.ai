@@ -42,6 +42,26 @@ test.describe('FR-120 self-serve signup', () => {
     await expect(page.getByRole('navigation', { name: 'Domains' })).toHaveCount(0)
   })
 
+  test('gives each reveal toggle a name of its own, and reveals only its own field', async ({ page }) => {
+    // Signup is the first screen to render two PasswordFields, and the shared
+    // component named them both "แสดงรหัสผ่าน" — identical accessible names on
+    // two adjacent buttons, so a screen-reader user could not tell which field
+    // each controlled. aria-controls pointed at the right input but never
+    // enters the name. Only a rendered page can show this: the source contains
+    // one component used twice, and reads as correct either way.
+    await page.goto('/signup')
+    const password = page.getByLabel('รหัสผ่าน (อย่างน้อย 8 ตัวอักษร)', { exact: true })
+    const confirmation = page.getByLabel('ยืนยันรหัสผ่าน', { exact: true })
+
+    await expect(page.getByRole('button', { name: 'แสดงรหัสผ่าน', exact: true })).toHaveCount(1)
+    await expect(page.getByRole('button', { name: 'แสดงการยืนยันรหัสผ่าน', exact: true })).toHaveCount(1)
+
+    await page.getByRole('button', { name: 'แสดงการยืนยันรหัสผ่าน', exact: true }).click()
+    // The one it names, and only the one it names.
+    await expect(confirmation).toHaveAttribute('type', 'text')
+    await expect(password).toHaveAttribute('type', 'password')
+  })
+
   test('says on the page that an account alone does not join a team', async ({ page }) => {
     // The claim a new person is most likely to get wrong, and the one FR-120
     // makes most loudly: signup creates a profile and confers no authority.

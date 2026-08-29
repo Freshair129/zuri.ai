@@ -141,6 +141,7 @@ export default function SignupPage() {
           name="password"
           label={`รหัสผ่าน (อย่างน้อย ${PASSWORD_MIN_LENGTH} ตัวอักษร)`}
           autoComplete="new-password"
+          revealSubject="รหัสผ่าน"
           minLength={PASSWORD_MIN_LENGTH}
           value={password}
           onChange={setPassword}
@@ -150,6 +151,7 @@ export default function SignupPage() {
           name="confirmation"
           label="ยืนยันรหัสผ่าน"
           autoComplete="new-password"
+          revealSubject="การยืนยันรหัสผ่าน"
           minLength={PASSWORD_MIN_LENGTH}
           value={confirmation}
           onChange={setConfirmation}

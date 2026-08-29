@@ -94,6 +94,28 @@ the identifier were simply lowercased before the query. The e2e spec signs up as
 `Mixed.Case@Example.com` and then signs in with that same string, because no
 source assertion can see this failure.
 
+### Two password fields on one page needed two names for the reveal toggle
+
+Found by opening the page rather than by any test: `PasswordField` hard-coded
+its toggle's accessible name as `แสดงรหัสผ่าน`, so signup rendered **two
+adjacent buttons with character-for-character identical names** and a
+screen-reader user had nothing to tell them apart. `aria-controls` pointed at
+the right input but does not enter the accessible name, and support for it is
+thin.
+
+The same collision already existed on `/reset-password`, which has had two
+fields since FR-104 — nothing caught it because no test clicks a toggle on that
+screen. Both are fixed here: the component takes a `revealSubject`, defaulting
+to `รหัสผ่าน` so every single-field page (`/login`) reads exactly as before,
+and a page with two fields must say which is which.
+
+The guard is deliberately split. `password-reset-page.test.js` asserts at source
+level that neither two-field page leaves a subject out or reuses one — cheap,
+but it can only see pages it is told to look at. The assertion that matters is
+in `fr120-signup.spec.js`: the names differ *in the rendered page*, and clicking
+one reveals only the input it names. The source contains one component used
+twice and reads as correct either way, so only a rendered page can see this.
+
 ## Known limits, stated rather than glossed
 
 ### `Person.email` has no unique index, so the refusal is a check, not a constraint
@@ -154,6 +176,7 @@ here so the next person to hit it finds it already known.
 | `src/modules/identity/signup-rate-limit.js` | the in-process window, and its limitations |
 | `src/modules/identity/signup-copy.js` | the refusal sentences |
 | `src/modules/identity/auth-service.js` | the additive lowercased-email arm in `authenticateUser` |
+| `src/components/forms/PasswordField.jsx` | `revealSubject`, so two toggles on one page do not share a name |
 
 ## Tests
 
@@ -163,5 +186,6 @@ here so the next person to hit it finds it already known.
 | `tests/unit/fr120-signup-rate-limit.test.js` | injected clock throughout — window reopening, eviction at the cap, the shared fallback bucket |
 | `tests/unit/fr120-signup-route.test.js` | 429 before any hashing · browser-session cookie · account survives a failed mint |
 | `tests/unit/fr120-signup-page.test.js` | every route error code has a sentence, read from the route's source rather than listed by hand |
-| `tests/e2e/fr120-signup.spec.js` | the stranger's walk: create, be signed in, hold no scope, be refused the second time, and sign back in whatever the casing |
+| `tests/e2e/fr120-signup.spec.js` | the stranger's walk: create, be signed in, hold no scope, be refused the second time, and sign back in whatever the casing · plus the two reveal toggles carrying distinct names and each flipping only its own input |
+| `tests/unit/password-reset-page.test.js` | one added case — neither two-field page omits or reuses a `revealSubject`. Source-level, so it is the cheap half of that guard, not the real one |
 | `tests/unit/entry-surfaces.test.js` | one added case — Signup mounts EntryShell and links only back into the entry journey. `ENTRY_ROUTES` gained `/signup`, which is a **deliberate widening**: that list is named rather than counted precisely so adding to it is a review moment, not a red assertion silently repaired |

@@ -50,11 +50,11 @@
   "drift": {
     "changed": [
       "doc:FR-120-self-serve-account-creation",
-      "doc:PRD-SDD-v1.0",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/entry-surfaces.test.js",
-      "test:tests/unit/fr120-signup-route.test.js",
-      "code:src/modules/project-manager/api-docs/openapi.js"
+      "test:tests/e2e/fr120-signup.spec.js",
+      "test:tests/unit/password-reset-page.test.js",
+      "code:src/app/reset-password/page.jsx",
+      "code:src/app/signup/page.jsx",
+      "code:src/components/forms/PasswordField.jsx"
     ],
     "added": [],
     "removed": []
@@ -3243,8 +3243,8 @@
       "id": "code:src/app/reset-password/page.jsx",
       "type": "code_file",
       "path": "src/app/reset-password/page.jsx",
-      "hash": "4ecb0af7",
-      "status": "current",
+      "hash": "51a87043",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-044",
@@ -3266,8 +3266,8 @@
       "id": "code:src/app/signup/page.jsx",
       "type": "code_file",
       "path": "src/app/signup/page.jsx",
-      "hash": "c6748373",
-      "status": "current",
+      "hash": "60b685e5",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-044",
@@ -3289,8 +3289,8 @@
       "id": "code:src/components/forms/PasswordField.jsx",
       "type": "code_file",
       "path": "src/components/forms/PasswordField.jsx",
-      "hash": "9b1ba3cb",
-      "status": "current",
+      "hash": "dc21140c",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-046",
@@ -5828,7 +5828,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "7c565b27",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019"
@@ -8293,7 +8293,7 @@
       "title": "FR-120 — Self-serve account creation",
       "version": "0.1.0b",
       "doc_status": "Implemented",
-      "hash": "9b980063",
+      "hash": "7e5c5d7f",
       "status": "changed"
     },
     {
@@ -8560,7 +8560,7 @@
       "version": "1.117.0b",
       "doc_status": "Draft",
       "hash": "21ada57a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -13669,8 +13669,8 @@
       "id": "test:tests/e2e/fr120-signup.spec.js",
       "type": "test",
       "path": "tests/e2e/fr120-signup.spec.js",
-      "hash": "9a0bcf4b",
-      "status": "current"
+      "hash": "888a6751",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/navigation-reachability.spec.js",
@@ -14125,7 +14125,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "bb92fce1",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -14678,7 +14678,7 @@
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
       "hash": "3b3acc4e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/format-progress-percent.test.js",
@@ -14972,7 +14972,7 @@
       "type": "test",
       "path": "tests/unit/fr120-signup-route.test.js",
       "hash": "e2e72053",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr120-signup-service.test.js",
@@ -15328,8 +15328,8 @@
       "id": "test:tests/unit/password-reset-page.test.js",
       "type": "test",
       "path": "tests/unit/password-reset-page.test.js",
-      "hash": "d5588ba6",
-      "status": "current"
+      "hash": "2c05ac01",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/password-reset-routes.test.js",
