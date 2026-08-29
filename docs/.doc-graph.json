@@ -6070,7 +6070,7 @@
       "id": "code:src/modules/project-manager/application/progress-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/progress-service.js",
-      "hash": "64f048d8",
+      "hash": "4f03b3b0",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6630,7 +6630,7 @@
       "id": "code:src/modules/project-manager/components/useApi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/components/useApi.js",
-      "hash": "ca1c5405",
+      "hash": "4bb3090d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -8640,7 +8640,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "a6764432",
+      "hash": "1b7c45dd",
       "status": "current"
     },
     {
