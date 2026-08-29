@@ -7,9 +7,18 @@ import {
 
 export { MARKET_RESOLUTION_STATUS } from '../domain/market-observation'
 
-// Phase #76 contract-first slice. Global requirement IDs are reserved in issue #76
-// and will be added to the canonical PRD registry before this branch is mergeable.
-// @spec ADR-038 — Integration owns raw evidence; Market owns translated observations.
+// Phase #76 translation core. One Integration-owned RawExternalRecord in, one
+// provider-neutral MarketObservation draft out. Trusted Tenant/Business/connection
+// and source lineage are copied from the raw envelope and are never authored by the
+// injected extractor; canonical identity is delegated to an injected Knowledge/GKS
+// port whose absent or null result stays a truthful UNRESOLVED state. The sha256
+// lineage key over rawRecordId + payloadHash + translationSchemaVersion +
+// observationType is what makes replay resolve to one logical observation. Nothing
+// is persisted here — Integration raw evidence is read-only input and the write
+// boundary lives in the application seam.
+// @req FR-092, NFR-018
+// @spec BR-019, SDD-049, SEC-017, ADR-038
+// @tested tests/unit/market-intelligence/translate-raw-record.test.js
 
 const REQUIRED_RAW_FIELDS = [
   'id',

@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1419,
-    "total_edges": 4860,
+    "total_nodes": 1420,
+    "total_edges": 4871,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -17,7 +17,7 @@
       "model": 70,
       "requirement": 261,
       "test": 340,
-      "code_file": 372
+      "code_file": 373
     },
     "coverage": {
       "requirements": 261,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (117/117)",
       "rules_anchored_in_code": "97% (112/116)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 372,
+      "annotated_code_files": 373,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -49,37 +49,9 @@
     }
   },
   "drift": {
-    "changed": [
-      "doc:A-api-spec",
-      "doc:B-db-schema",
-      "domain:identity",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/integration/openapi-docs.test.js",
-      "code:src/modules/project-manager/api-docs/openapi.js",
-      "code:src/modules/project-manager/application/backup-service.js"
-    ],
+    "changed": [],
     "added": [
-      "spec:ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
-      "doc:FR-123-plugin-authentication-and-capability-discovery",
-      "route:api:/api/plugin/auth/authorize",
-      "route:api:/api/plugin/auth/capabilities",
-      "route:api:/api/plugin/auth/revoke",
-      "route:api:/api/plugin/auth/token",
-      "model:PluginInstallation",
-      "model:PluginAuthorizationCode",
-      "model:PluginSession",
-      "req:FR-123",
-      "req:SDD-074",
-      "req:SEC-022",
-      "test:tests/unit/fr123-plugin-auth-migration.test.js",
-      "test:tests/unit/fr123-plugin-auth-route.test.js",
-      "test:tests/unit/fr123-plugin-auth-service.test.js",
-      "code:src/app/api/plugin/auth/authorize/route.js",
-      "code:src/app/api/plugin/auth/capabilities/route.js",
-      "code:src/app/api/plugin/auth/revoke/route.js",
-      "code:src/app/api/plugin/auth/token/route.js",
-      "code:src/modules/identity/plugin-auth-service.js"
+      "code:src/modules/market-intelligence/application/translate-raw-record.js"
     ],
     "removed": []
   },
@@ -5875,6 +5847,27 @@
       }
     },
     {
+      "id": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/application/translate-raw-record.js",
+      "hash": "7d4faefc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092",
+          "NFR-018"
+        ],
+        "@spec": [
+          "BR-019",
+          "SDD-049",
+          "SEC-017"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/translate-raw-record.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/people/application/people-service.js",
       "type": "code_file",
       "path": "src/modules/people/application/people-service.js",
@@ -5950,7 +5943,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "42fbdb70",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -6009,7 +6002,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
       "hash": "c381f6a6",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
@@ -7643,7 +7636,7 @@
       "version": "1.27.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "7fccd235",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -7689,7 +7682,7 @@
       "version": "1.12.0",
       "doc_status": "Draft",
       "hash": "27f1e2db",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -8738,7 +8731,7 @@
       "version": "1.121.0b",
       "doc_status": "Draft",
       "hash": "3a8210e0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8774,7 +8767,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "08059b59",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -9001,7 +8994,7 @@
         "identity"
       ],
       "hash": "689f812e",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:integration",
@@ -14412,7 +14405,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "90489a55",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -24477,6 +24470,41 @@
     },
     {
       "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:SEC-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "to": "req:BR-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "to": "req:NFR-018",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/translate-raw-record.js",
       "to": "req:SEC-017",
       "type": "follows",
       "status": "current",
@@ -45978,6 +46006,48 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "to": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "to": "req:BR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "to": "req:NFR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/mint-api-access-key-cli.test.js",
