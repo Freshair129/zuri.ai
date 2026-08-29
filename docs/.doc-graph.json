@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1398,
+    "total_nodes": 1399,
     "total_edges": 4808,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 112,
+      "document": 113,
       "adr": 51,
       "domain": 8,
       "roadmap": 28,
@@ -50,7 +50,7 @@
   },
   "drift": {
     "changed": [
-      "test:tests/unit/profile-identity-fields-migration.test.js"
+      "doc:full-schema"
     ],
     "added": [],
     "removed": []
@@ -8334,6 +8334,14 @@
       "status": "current"
     },
     {
+      "id": "doc:full-schema",
+      "type": "document",
+      "path": "docs/architecture/database-erd/full-schema.md",
+      "title": "Database Schema — Full ERD Reference",
+      "hash": "249d2b38",
+      "status": "changed"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -15603,7 +15611,7 @@
       "type": "test",
       "path": "tests/unit/profile-identity-fields-migration.test.js",
       "hash": "9711eb68",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/profile-permission-service.test.js",
