@@ -1066,6 +1066,7 @@ CREATE TABLE "RawExternalRecord" (
     "payloadJson" TEXT NOT NULL,
     "payloadHash" TEXT NOT NULL,
     "idempotencyKey" TEXT NOT NULL,
+    "artifactId" TEXT,
     "receivedAt" TIMESTAMP(3) NOT NULL,
     "processingStatus" TEXT NOT NULL DEFAULT 'RECEIVED',
     "processingError" TEXT,
@@ -1758,6 +1759,9 @@ CREATE INDEX "RawExternalRecord_ingestionRunId_idx" ON "RawExternalRecord"("inge
 
 -- CreateIndex
 CREATE INDEX "RawExternalRecord_processingStatus_idx" ON "RawExternalRecord"("processingStatus");
+
+-- CreateIndex
+CREATE INDEX "RawExternalRecord_artifactId_idx" ON "RawExternalRecord"("artifactId");
 
 -- CreateIndex
 CREATE INDEX "SyncCursor_tenantId_resourceType_idx" ON "SyncCursor"("tenantId", "resourceType");

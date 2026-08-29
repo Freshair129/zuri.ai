@@ -76,21 +76,24 @@ instead of creating a second one. The uniqueness belongs to the database, not
 to this domain — which is the point: a rule held by a constraint outlives a
 rule held by whichever caller remembers to check.
 
-FR-109 itself is delivered at five of its thirteen acceptance criteria: the
+FR-109 itself is delivered at six of its thirteen acceptance criteria: the
 catalog, the run identity, a structured and an unstructured source both
-provably ingested through the one catalog (SDD-069) — and, since FR-119
-(SDD-072), a failed document quarantined with BR-022's complete envelope
-rather than reported as nothing having happened. Not the job trace and not
-the monitor in full: three more criteria gained real Tier-1 evidence without
-closing, because each also needs something this slice does not build
-(FR-110's Published Snapshot, persisted derived objects, or a reader that
-acts on a `REVISION_OF` result).
+provably ingested through the one catalog (SDD-069), the raw artifact
+recoverable from a run's `artifact_id` (AC-109.3, closed by one nullable
+column on FR-081's own `RawExternalRecord` — not a knowledge-domain write) —
+and, since FR-119 (SDD-072), a failed document quarantined with BR-022's
+complete envelope rather than reported as nothing having happened. Not the
+job trace and not the monitor in full: three more criteria gained real Tier-1
+evidence without closing, because each also needs something this slice does
+not build (FR-110's Published Snapshot, persisted derived objects, or a
+reader that acts on a `REVISION_OF` result).
 
-Of the remaining eight, four wait on a declared id — NFR-020, FR-110 (named
-by two different criteria) and SDD-059's charter change — one waits on
-GKS and GenesisBlockDB reporting onto the ledger (ADR-050 D3, outside this
-repository), one on a column-sized binding rather than a subsystem, and one on
-a reader that has not been written. **None wait on "a stage runner" any more**
+Of the remaining seven, four wait on a declared id — NFR-020 (AC-109.6),
+FR-110 (AC-109.7 and AC-109.11) and SDD-059's charter change (AC-109.5) —
+one waits on GKS and GenesisBlockDB reporting onto the ledger (AC-109.12,
+ADR-050 D3, outside this repository), and two on a reader or a decision
+nothing has written yet (AC-109.4, AC-109.13). **None wait on "a stage
+runner" any more**
 — that phrase named two different unbuilt things at once, and both now have
 ids: FR-118 is the compute half (seven stages composed in one pass) and
 SDD-069 is the persistence half (writing that composition onto the FR-071
