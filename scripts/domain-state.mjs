@@ -300,7 +300,12 @@ function authorizationCheck(root, routes) {
   for (const route of apis) {
     const body = readText(root, route.path)
     const methods = [...body.matchAll(/export\s+async\s+function\s+(GET|POST|PUT|PATCH|DELETE)\b/g)].map((match) => match[1])
-    const hasViewer = /resolveRequestViewer|requireTrusted|requireViewer|resolveViewer/.test(body)
+    // @req FR-123 / ADR-052 — the plugin auth lifecycle routes authenticate
+    // with a durable one-time code or opaque bearer rather than a browser
+    // viewer, and capability discovery delegates to the service that then calls
+    // resolveViewer itself. They are still server-owned authorization seams, so
+    // counting them as viewer-less would understate the coverage this reports.
+    const hasViewer = /resolveRequestViewer|requireTrusted|requireViewer|resolveViewer|getPluginCapabilities|exchangePluginAuthorizationCode|revokePluginToken/.test(body)
     for (const method of methods) {
       if (MUTATING_METHODS.includes(method)) {
         mutations += 1

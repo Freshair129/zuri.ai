@@ -230,6 +230,7 @@
     "FR-120",
     "FR-121",
     "FR-122",
+    "FR-123",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -323,6 +324,7 @@
     "SDD-071",
     "SDD-072",
     "SDD-073",
+    "SDD-074",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -344,6 +346,7 @@
     "SEC-019",
     "SEC-020",
     "SEC-021",
+    "SEC-022",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -496,6 +499,7 @@
     "ADR-049",
     "ADR-050",
     "ADR-051",
+    "ADR-052",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -2390,6 +2394,19 @@
         }
       ]
     },
+    "FR-123": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8dbfcddfe029f43b112aafa3cb0ef4b17736f2d642d69d3e1c590ee6ccac9bbe",
+      "history": [
+        {
+          "anchor": "plugin authentication and capability discovery",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3611,6 +3628,19 @@
         }
       ]
     },
+    "SDD-074": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1dd219ca9f378cec8b04df95922b6cf965fbfd329f4f4abfe38fc973b4b238f9",
+      "history": [
+        {
+          "anchor": "plugin auth is one canonical api plugin auth route family",
+          "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3888,6 +3918,19 @@
         {
           "anchor": "knowledge ingestion never deduplicates across tenants and",
           "since": "2026-08-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-022": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0fdb517ccba86b41ca161aee1fb903b1e17f7694c9836eca1b0e3975012cb443",
+      "history": [
+        {
+          "anchor": "plugin auth is a separate public client boundary",
+          "since": "2026-08-29",
           "reason": "declared"
         }
       ]
@@ -5874,6 +5917,19 @@
         {
           "anchor": "the primary checkout is not a working lane",
           "since": "2026-08-28",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-052": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "48dd4535f4786d06ccb015014d8a59cac1198679ad9f85aa10761a076b4ca061",
+      "history": [
+        {
+          "anchor": "canonical plugin authorization code and token boundary",
+          "since": "2026-08-29",
           "reason": "declared"
         }
       ]

@@ -11,6 +11,7 @@ owns_routes:
   - src/app/api/onboarding/**
   - src/app/api/workspace-invites/**
   - src/app/api/workspace-memberships/**
+  - src/app/api/plugin/auth/**
 owns_models:
   - ExternalIdentity
   - IdentityLinkToken
@@ -25,6 +26,9 @@ owns_models:
   - WorkspaceInvite
   - ApiAccessKey
   - PlatformGrant
+  - PluginInstallation
+  - PluginAuthorizationCode
+  - PluginSession
 ---
 
 # Domain charter — identity
@@ -63,6 +67,17 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
   next request (`revokeApiAccessKey`), stored digest-only, audited without
   token material, never readable back. It, too, never produces an `isOperator`
   or Person-shaped viewer.
+- `plugin-auth-service` (FR-123) is a **third** request identity, and the one
+  that is easiest to confuse with the second: `createPluginAuthorizationCode`,
+  `exchangePluginAuthorizationCode`, `getPluginCapabilities`,
+  `revokePluginToken`. Where `ApiAccessKey` is a long-lived Tenant-bound service
+  credential held by a server, a `PluginSession` is a 15-minute delegation from
+  one signed-in Person to one plugin installation on their own machine. It is
+  minted only from a live browser session, carries no Tenant of its own, and
+  resolves scope by calling `resolveViewer` for that Person — **without**
+  `platformGrant`, so a plugin can never inherit cross-tenant DEV visibility.
+  Codes and tokens are stored as SHA-256 hashes only. Neither credential may be
+  accepted where the other is expected (ADR-052, ADR-047).
 - The viewer's authority questions have one answer each, and none of them is
   the global `role` label: **may I write here** → `ownedBusinessIds` (FR-059),
   **which domains may I see here** → `domainsForBusiness(viewer, businessId)`
