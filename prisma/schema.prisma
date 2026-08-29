@@ -156,6 +156,15 @@ model Person {
   code        String   @unique
   displayName String
   email       String?
+  // @req FR-122 — What the Profile step collects about the person themselves.
+  // Nullable here and required at the profile boundary instead, because Person
+  // rows exist that can never supply them: the seed, FR-107's operator
+  // bootstrap, and every Person FR-023's LINE ingest creates from a lineUserId
+  // on first contact, which has a channel subject and nothing else. A NOT NULL
+  // on these columns would make that intake path unwritable.
+  firstName   String?
+  lastName    String?
+  phone       String?
   // @req FR-066 — Profile completion marker: an identity step over Person
   // (ADR-027 D1), never an authorization grant (BR-016). Null = the person has
   // not finished the profile-first onboarding step yet.

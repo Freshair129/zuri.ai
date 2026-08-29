@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-29T05:06:53.859Z",
+  "generatedAt": "2026-08-29T06:00:37.551Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 8,
-    "gapCount": 10,
+    "gapCount": 13,
     "gaps": [
       {
         "domain": "agent",
@@ -58,10 +58,32 @@
       },
       {
         "domain": "identity",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "identity",
         "id": "AUTH-001",
         "severity": "high",
         "check": "authorization",
         "summary": "At least one mutating route lacks a recognizable request viewer seam"
+      },
+      {
+        "domain": "identity",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "identity",
+        "id": "REQ-FR-121",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-121 is planned",
+        "evidence": []
       },
       {
         "domain": "knowledge",
@@ -718,6 +740,20 @@
           "status": "verified",
           "codeCount": 7,
           "testCount": 15
+        },
+        {
+          "id": "FR-121",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-122",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 3
         }
       ],
       "checks": {
@@ -758,12 +794,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -801,11 +843,17 @@
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -827,6 +875,8 @@
         "docs/domains/identity/features/FR-104-owner-assisted-password-reset.md",
         "docs/domains/identity/features/FR-106-enterprise-api-access-key.md",
         "docs/domains/identity/features/FR-120-self-serve-account-creation.md",
+        "docs/domains/identity/features/FR-121-google-second-way-in.md",
+        "docs/domains/identity/features/FR-122-profile-identity-fields.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -837,10 +887,29 @@
       ],
       "gaps": [
         {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
           "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-121",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-121 is planned",
+          "evidence": []
         }
       ],
       "details": {
@@ -848,7 +917,7 @@
         "apiRoutes": 12,
         "pageRoutes": 7,
         "ownedModels": 13,
-        "featureNotes": 14
+        "featureNotes": 16
       }
     },
     "integration": {
