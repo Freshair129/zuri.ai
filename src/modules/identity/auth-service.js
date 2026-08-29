@@ -5,6 +5,9 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 
 // @req FR-046, FR-095 — credential login verifies PersonCredential and issues a signed,
 // persisted, revocable session.
+// @req FR-120 — the same session-minting path serves self-serve signup, which
+// calls `authenticateUser` rather than issuing a second kind of session, and
+// whose lowercased email this lookup must therefore also match.
 // @req FR-104 — owner-assisted password reset: mint is authenticated authority, the
 // raw token appears exactly once (in the mint response, for out-of-band handover),
 // storage is hash-bound, and consumption revokes every active session.
@@ -189,8 +192,21 @@ export async function authenticateUser({ username, password, db = prisma, env = 
     return { success: false, error: 'INVALID_CREDENTIALS' }
   }
 
+  // FR-120 stores a self-serve signup's email trimmed and lowercased, so this
+  // lookup has to accept the casing the person actually types or signup would
+  // create accounts their owners cannot sign into. Additive on purpose: both
+  // exact-match arms are untouched, so every identifier that resolved before
+  // still resolves — including a `code`, which is uppercase and would resolve
+  // to nothing if the identifier were simply lowercased before the query.
+  const lowered = identifier.toLowerCase()
   const person = await db.person.findFirst({
-    where: { OR: [{ email: identifier }, { code: identifier }] },
+    where: {
+      OR: [
+        { email: identifier },
+        ...(lowered === identifier ? [] : [{ email: lowered }]),
+        { code: identifier },
+      ],
+    },
     include: { credential: true },
   })
   if (!person?.credential || !verifyPassword(password, person.credential.passwordHash)) {

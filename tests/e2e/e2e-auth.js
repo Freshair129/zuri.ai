@@ -15,10 +15,14 @@ const E2E_USERNAME = process.env.ZURI_E2E_USERNAME || 'owner@local'
 const E2E_PASSWORD = process.env.ZURI_E2E_AUTH_PASSWORD || `e2e-only-${fixtureSuffix}`
 const E2E_SESSION_SECRET = process.env.ZURI_E2E_SESSION_SECRET || `e2e-session-${fixtureSuffix}`
 
-async function loginAsOwner(page) {
+// `remember` is an option here rather than something the caller ticks first,
+// because this helper navigates to /login itself: a box checked before the call
+// is wiped by that navigation, and the test then silently asserts the default.
+async function loginAsOwner(page, { remember = false } = {}) {
   await page.goto('/login')
   await page.getByLabel('Email or account code').fill(E2E_USERNAME)
   await page.getByLabel('Password', { exact: true }).fill(E2E_PASSWORD)
+  if (remember) await page.getByLabel('จดจำฉันไว้').check()
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
 }
 

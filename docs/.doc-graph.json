@@ -3,35 +3,36 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1371,
-    "total_edges": 4694,
+    "total_nodes": 1398,
+    "total_edges": 4808,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 109,
+      "document": 112,
       "adr": 51,
       "domain": 8,
       "roadmap": 28,
       "feature": 13,
-      "route": 150,
+      "route": 153,
       "model": 67,
-      "requirement": 255,
-      "test": 328,
-      "code_file": 358
+      "requirement": 258,
+      "test": 337,
+      "code_file": 367
     },
     "coverage": {
-      "requirements": 255,
-      "fr_with_code": "100% (114/114)",
-      "fr_with_tests": "100% (114/114)",
+      "requirements": 258,
+      "fr_with_code": "100% (116/116)",
+      "fr_with_tests": "100% (116/116)",
       "rules_anchored_in_code": "96% (110/114)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 358,
+      "annotated_code_files": 367,
       "fr_planned": [
         "FR-082",
         "FR-083",
         "FR-084",
         "FR-085",
-        "FR-110"
+        "FR-110",
+        "FR-121"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -146,11 +147,12 @@
       "id": "code:src/app/(entry)/onboarding/profile/page.jsx",
       "type": "code_file",
       "path": "src/app/(entry)/onboarding/profile/page.jsx",
-      "hash": "482b4468",
+      "hash": "78b6c55f",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-066"
+          "FR-066",
+          "FR-122"
         ],
         "@spec": [
           "BR-016",
@@ -1092,7 +1094,7 @@
       "id": "code:src/app/api/auth/login/route.js",
       "type": "code_file",
       "path": "src/app/api/auth/login/route.js",
-      "hash": "f2d09400",
+      "hash": "d6b96b9b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1148,6 +1150,26 @@
         ],
         "@tested": [
           "tests/unit/password-reset-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/signup/route.js",
+      "type": "code_file",
+      "path": "src/app/api/auth/signup/route.js",
+      "hash": "8e805cd9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-120"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/fr120-signup-route.test.js",
+          "tests/e2e/fr120-signup.spec.js"
         ]
       }
     },
@@ -2018,11 +2040,12 @@
       "id": "code:src/app/api/onboarding/profile/route.js",
       "type": "code_file",
       "path": "src/app/api/onboarding/profile/route.js",
-      "hash": "d978e9bb",
+      "hash": "3eed7c96",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-066"
+          "FR-066",
+          "FR-122"
         ],
         "@spec": [
           "BR-016",
@@ -3173,12 +3196,13 @@
       "id": "code:src/app/login/page.jsx",
       "type": "code_file",
       "path": "src/app/login/page.jsx",
-      "hash": "9d060c8a",
+      "hash": "e74d69fe",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-044",
-          "FR-046"
+          "FR-046",
+          "FR-120"
         ],
         "@spec": [
           "SDD-022",
@@ -3211,6 +3235,71 @@
         "@tested": [
           "tests/unit/entry-surfaces.test.js",
           "tests/unit/fr056-landing.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/reset-password/page.jsx",
+      "type": "code_file",
+      "path": "src/app/reset-password/page.jsx",
+      "hash": "51a87043",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044",
+          "FR-104"
+        ],
+        "@spec": [
+          "SDD-022",
+          "SDD-054",
+          "SEC-008",
+          "SEC-014"
+        ],
+        "@tested": [
+          "tests/unit/entry-surfaces.test.js",
+          "tests/unit/password-reset-page.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/signup/page.jsx",
+      "type": "code_file",
+      "path": "src/app/signup/page.jsx",
+      "hash": "60b685e5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-044",
+          "FR-120"
+        ],
+        "@spec": [
+          "SDD-022",
+          "BR-002",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/entry-surfaces.test.js",
+          "tests/unit/fr120-signup-page.test.js",
+          "tests/e2e/fr120-signup.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/components/forms/PasswordField.jsx",
+      "type": "code_file",
+      "path": "src/components/forms/PasswordField.jsx",
+      "hash": "dc21140c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-046",
+          "FR-104"
+        ],
+        "@spec": [
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/password-reset-page.test.js"
         ]
       }
     },
@@ -3344,7 +3433,7 @@
       "id": "code:src/components/layouts/EntryShell.jsx",
       "type": "code_file",
       "path": "src/components/layouts/EntryShell.jsx",
-      "hash": "093b88a7",
+      "hash": "bf9452d9",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4480,12 +4569,13 @@
       "id": "code:src/modules/identity/auth-service.js",
       "type": "code_file",
       "path": "src/modules/identity/auth-service.js",
-      "hash": "363e61f3",
+      "hash": "77836ff8",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
           "FR-095",
+          "FR-120",
           "FR-104"
         ],
         "@spec": [
@@ -4662,11 +4752,12 @@
       "id": "code:src/modules/identity/onboarding-service.js",
       "type": "code_file",
       "path": "src/modules/identity/onboarding-service.js",
-      "hash": "4acdab57",
+      "hash": "6af0a569",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-066"
+          "FR-066",
+          "FR-122"
         ],
         "@spec": [
           "BR-016",
@@ -4715,6 +4806,26 @@
         ],
         "@tested": [
           "tests/unit/operator-bootstrap.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/password-reset-copy.js",
+      "type": "code_file",
+      "path": "src/modules/identity/password-reset-copy.js",
+      "hash": "dc7193c4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-104"
+        ],
+        "@spec": [
+          "SDD-054",
+          "SEC-008",
+          "SEC-014"
+        ],
+        "@tested": [
+          "tests/unit/password-reset-page.test.js"
         ]
       }
     },
@@ -4901,6 +5012,62 @@
           "tests/unit/fr046-session-port.test.js",
           "tests/unit/iam-session.test.js",
           "tests/unit/operator-bootstrap.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/signup-copy.js",
+      "type": "code_file",
+      "path": "src/modules/identity/signup-copy.js",
+      "hash": "08c89a63",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-120"
+        ],
+        "@spec": [
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/fr120-signup-page.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/signup-rate-limit.js",
+      "type": "code_file",
+      "path": "src/modules/identity/signup-rate-limit.js",
+      "hash": "f2134873",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-120"
+        ],
+        "@spec": [
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/fr120-signup-rate-limit.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/signup-service.js",
+      "type": "code_file",
+      "path": "src/modules/identity/signup-service.js",
+      "hash": "23f462e9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-120",
+          "FR-066"
+        ],
+        "@spec": [
+          "BR-002",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/unit/fr120-signup-service.test.js"
         ]
       }
     },
@@ -5660,7 +5827,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "45ce57f1",
+      "hash": "7c565b27",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6355,10 +6522,25 @@
       }
     },
     {
+      "id": "code:src/modules/project-manager/components/project-status-options.js",
+      "type": "code_file",
+      "path": "src/modules/project-manager/components/project-status-options.js",
+      "hash": "28631f5c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-087"
+        ],
+        "@tested": [
+          "tests/unit/project-status-options.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/project-manager/components/ProjectModal.jsx",
       "type": "code_file",
       "path": "src/modules/project-manager/components/ProjectModal.jsx",
-      "hash": "a69422c3",
+      "hash": "eca35f24",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7334,9 +7516,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.25.0b",
+      "version": "1.26.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "bb7e6667",
+      "hash": "52b9f47c",
       "status": "current"
     },
     {
@@ -7663,7 +7845,7 @@
       "title": "FR-046 — Production viewer session and entry contract",
       "version": "0.3.0b",
       "doc_status": "Implemented — beta",
-      "hash": "7c0d8ec8",
+      "hash": "a73c4c73",
       "status": "current"
     },
     {
@@ -8123,6 +8305,36 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-120-self-serve-account-creation",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-120-self-serve-account-creation.md",
+      "title": "FR-120 — Self-serve account creation",
+      "version": "0.1.0b",
+      "doc_status": "Implemented",
+      "hash": "7e5c5d7f",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-121-google-second-way-in",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-121-google-second-way-in.md",
+      "title": "FR-121 — Google as a second way in",
+      "version": "0.1.0b",
+      "doc_status": "Declared — blocked",
+      "hash": "1f7007bc",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-122-profile-identity-fields",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-122-profile-identity-fields.md",
+      "title": "FR-122 — A Profile states who the person is",
+      "version": "0.1.0b",
+      "doc_status": "Implemented",
+      "hash": "57b09151",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -8147,9 +8359,9 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.2.0b",
+      "version": "1.2.2b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "39d91c2a",
+      "hash": "0070cab9",
       "status": "current"
     },
     {
@@ -8383,9 +8595,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.106.0b",
+      "version": "1.119.0b",
       "doc_status": "Draft",
-      "hash": "0ca745d4",
+      "hash": "468cb285",
       "status": "current"
     },
     {
@@ -8421,7 +8633,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "5c21c074",
+      "hash": "b822dc4d",
       "status": "current"
     },
     {
@@ -8632,6 +8844,9 @@
       "owns_routes": [
         "src/app/(entry)/**",
         "src/app/login/**",
+        "src/app/signup/**",
+        "src/app/reset-password/**",
+        "src/app/api/auth/**",
         "src/app/api/entry/**",
         "src/app/api/onboarding/**",
         "src/app/api/workspace-invites/**",
@@ -8641,7 +8856,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "2aa71436",
+      "hash": "a868fe27",
       "status": "current"
     },
     {
@@ -10626,6 +10841,36 @@
       "row_text": "Per-stage failure attribution and BR-022 quarantine: a document that fails partway through the seven Tier 1 stages is quarantined with the complete failure envelope — `job_id`, `artifact_id`, `stage`, `error_code`, `error_message`, `retry_count`, `first_failed_at`, `last_failed_at`, `pipeline_version` — and classified retryable / non-retryable / review-required, rather than reported as nothing having happened. `runKnowledgeIngestionStagesWithTrace` extends FR-118's composition to catch each stage individually and report which succeeded before the one that did not, sharing every field mapping with the original throwing function (SDD-072) so neither duplicates the other. Every Tier 1 stage failure classifies `NON_RETRYABLE`: the seven stage functions are pure and deterministic, so a thrown validation error repeats identically on retry, and `REVIEW_REQUIRED` has no trigger either — an ambiguous value already declines via `canonical: null` (FR-114, SDD-061) rather than throwing, so it never reaches quarantine. `RETRYABLE`/`REVIEW_REQUIRED` stay in the vocabulary for failure modes this repository does not yet have (a network call, Tier 3/4 reporting) rather than being deleted for lack of a current trigger. ✅ implemented 2026-08-28; 15 unit tests, 8 real-database integration tests "
     },
     {
+      "id": "req:FR-120",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Self-serve account creation: an unauthenticated visitor creates their own `Person` and `PersonCredential` at a public `/signup` (`POST /api/auth/signup`) and continues into FR-066 at its `PROFILE` step. This closes the product's only door. FR-066 begins *\"after a provider-neutral local identity/session exists\"* and never says how one comes to exist; FR-067's invite is accepted as `acceptWorkspaceInvite({ token, personId: viewer.principal.id })`, so it attaches membership to somebody already authenticated and cannot admit a stranger; and the only writers of a credential are `prisma/seed.js` and FR-107's operator bootstrap, which is operator-run and refuses an existing credential (409). Nobody new can enter — which also means nobody new can be invited, because an invite needs a Person to attach to. **Signup itself confers no authority**: it creates no `PlatformGrant`, no Tenant, Business, Space or Project, and no `WorkspaceMembership`. What the new Person may do next is exactly what FR-066 already grants any profiled Person and no more — the owner path of `createOnboardingWorkspace`, which creates one `Portfolio` plus one OWNER `WorkspaceMembership` over it and, by AC-066.2, zero Organization/Tenant/Business/Space/Project rows. Signup therefore widens who can reach that path; it does not widen the path. Entry to an existing team remains FR-067's invite, and the resting state for a Person holding nothing is FR-066's Waiting Room. Signup never overwrites an existing `PersonCredential` — the same refusal FR-107 makes, for the same reason. Password validation and hashing are the FR-046/FR-104 path's `hashPassword`, called rather than copied, so a policy change cannot apply to one door and not the other; the human `PSN-` code comes from the same `uniqueHumanCode` generator (BR-002); and the session is FR-046's minting path, not a second implementation. **The caller is signed in on success** rather than returned to `/login` to retype the password they just chose, and the cookie is a browser-session cookie — signup carries no \"remember me\" tick, so it takes AC-046-15's default rather than opting itself into seven days. Creation writes an audit event. Identity stays provider-neutral and local: no SSO or third-party provider is in scope. **Email is an identifier here, not a channel.** This installation has no mail transport — the stated reason FR-104 has no public forgot-password — so there is no verification step and no \"check your inbox\" response to hide a taken address behind. A taken email therefore returns a distinguishable error instead of stranding the caller in silence. That enumeration is accepted deliberately: with no mail the alternative is a signup that fails invisibly, and learning that an address holds an account grants the learner nothing, because that account carries no scope, no capability and no membership until its holder creates a Workspace or an owner invites them. The compensating controls are the audit trail and a per-source rate limit — and that limit is **in-process and per-instance**: a fixed window held in the Node process's own memory, which resets on restart and does not span replicas. Stated rather than glossed, because a control described more strongly than it is built is worse than one described honestly. An unverified address must never be treated by any later requirement as proof of contact.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "Self-serve account creation: an unauthenticated visitor creates their own `Person` and `PersonCredential` at a public `/signup` (`POST /api/auth/signup`) and continues into FR-066 at its `PROFILE` step. This closes the product's only door. FR-066 begins *\"after a provider-neutral local identity/session exists\"* and never says how one comes to exist; FR-067's invite is accepted as `acceptWorkspaceInvite({ token, personId: viewer.principal.id })`, so it attaches membership to somebody already authenticated and cannot admit a stranger; and the only writers of a credential are `prisma/seed.js` and FR-107's operator bootstrap, which is operator-run and refuses an existing credential (409). Nobody new can enter — which also means nobody new can be invited, because an invite needs a Person to attach to. **Signup itself confers no authority**: it creates no `PlatformGrant`, no Tenant, Business, Space or Project, and no `WorkspaceMembership`. What the new Person may do next is exactly what FR-066 already grants any profiled Person and no more — the owner path of `createOnboardingWorkspace`, which creates one `Portfolio` plus one OWNER `WorkspaceMembership` over it and, by AC-066.2, zero Organization/Tenant/Business/Space/Project rows. Signup therefore widens who can reach that path; it does not widen the path. Entry to an existing team remains FR-067's invite, and the resting state for a Person holding nothing is FR-066's Waiting Room. Signup never overwrites an existing `PersonCredential` — the same refusal FR-107 makes, for the same reason. Password validation and hashing are the FR-046/FR-104 path's `hashPassword`, called rather than copied, so a policy change cannot apply to one door and not the other; the human `PSN-` code comes from the same `uniqueHumanCode` generator (BR-002); and the session is FR-046's minting path, not a second implementation. **The caller is signed in on success** rather than returned to `/login` to retype the password they just chose, and the cookie is a browser-session cookie — signup carries no \"remember me\" tick, so it takes AC-046-15's default rather than opting itself into seven days. Creation writes an audit event. Identity stays provider-neutral and local: no SSO or third-party provider is in scope. **Email is an identifier here, not a channel.** This installation has no mail transport — the stated reason FR-104 has no public forgot-password — so there is no verification step and no \"check your inbox\" response to hide a taken address behind. A taken email therefore returns a distinguishable error instead of stranding the caller in silence. That enumeration is accepted deliberately: with no mail the alternative is a signup that fails invisibly, and learning that an address holds an account grants the learner nothing, because that account carries no scope, no capability and no membership until its holder creates a Workspace or an owner invites them. The compensating controls are the audit trail and a per-source rate limit — and that limit is **in-process and per-instance**: a fixed window held in the Node process's own memory, which resets on restart and does not span replicas. Stated rather than glossed, because a control described more strongly than it is built is worse than one described honestly. An unverified address must never be treated by any later requirement as proof of contact. ✅ implemented 2026-08-29 — `/signup`, `POST /api/auth/signup`, `signup-service.js`, `signup-rate-limit.js` and `signup-copy.js`; 47 unit tests across four new files, one more added to the entry-surface boundary suite, and 7 e2e. Two limits are recorded in the feature note rather than left for a reader to discover: `Person.email` carries no unique index in either schema, so the taken-address refusal is a check inside the transaction and not a constraint (the index is a migration against live data and is named as owed, not smuggled in); and the rate limit is in-process, per-instance and keyed on a client-supplied forwarded header, which makes it a speed bump against a naive scanner and nothing against a deliberate attacker — the audit trail is the control this leans on. `authenticateUser` gained one additive lowercased-email arm, without which signup would have created accounts whose owners could not sign in with the casing they typed "
+    },
+    {
+      "id": "req:FR-121",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Google as a second way in, over the same `Person`: a visitor may present a Google account at `/signup` and `/login`, and the OAuth callback resolves the provider `sub` to exactly one internal `Person` through a namespaced external binding (FR-094) — a second way to prove who you are, never a second account path. Sign-in follows sign-up necessarily: a person who signed up with Google set no password, so refusing Google at `/login` would strand the account behind a credential that was never created. The account it produces grants nothing, exactly as FR-120: no `PlatformGrant`, Tenant, Business, Space, Project or `WorkspaceMembership`. **It does not satisfy FR-122** — Google supplies an address and a display name of its own choosing, and neither is the given name, family name or telephone number a Profile requires; the telephone number Google never supplies at all. An address matching an existing local account binds to that `Person` **only when Google asserts `email_verified`**; an unverified assertion is refused rather than linked, because linking on an unverified address is account takeover performed by signing up. **Declared blocked, not merely unbuilt**, and on two named things rather than on effort: this installation holds no OAuth client credential, and `ExternalIdentity` is keyed `(tenantId, provider, providerSubject)` with `tenantId` a required foreign key — which a self-serve signup deliberately does not have (FR-120 creates no Tenant), so the binding needs a tenant-less form before any of this can be written.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Google as a second way in, over the same `Person`: a visitor may present a Google account at `/signup` and `/login`, and the OAuth callback resolves the provider `sub` to exactly one internal `Person` through a namespaced external binding (FR-094) — a second way to prove who you are, never a second account path. Sign-in follows sign-up necessarily: a person who signed up with Google set no password, so refusing Google at `/login` would strand the account behind a credential that was never created. The account it produces grants nothing, exactly as FR-120: no `PlatformGrant`, Tenant, Business, Space, Project or `WorkspaceMembership`. **It does not satisfy FR-122** — Google supplies an address and a display name of its own choosing, and neither is the given name, family name or telephone number a Profile requires; the telephone number Google never supplies at all. An address matching an existing local account binds to that `Person` **only when Google asserts `email_verified`**; an unverified assertion is refused rather than linked, because linking on an unverified address is account takeover performed by signing up. **Declared blocked, not merely unbuilt**, and on two named things rather than on effort: this installation holds no OAuth client credential, and `ExternalIdentity` is keyed `(tenantId, provider, providerSubject)` with `tenantId` a required foreign key — which a self-serve signup deliberately does not have (FR-120 creates no Tenant), so the binding needs a tenant-less form before any of this can be written. 🔜 declared only — blocked on an OAuth client credential this installation does not hold, and on `ExternalIdentity` requiring a Tenant a self-serve signup has none of "
+    },
+    {
+      "id": "req:FR-122",
+      "type": "requirement",
+      "family": "FR",
+      "label": "A Profile states who the person is, not just what to call them: FR-066's Profile step requires **given name, family name and telephone number**, over the display name it already collected and the optional email it already carried. Display name stops being something the person types twice — it is supplied by them or defaulted server-side from given + family name, never left empty, because `Person.displayName` is what every existing surface renders. The three new fields are stored **nullable on `Person`** and required **at the profile boundary instead**, and the distinction is load-bearing rather than a convenience: `Person` rows already exist that can never satisfy them — `prisma/seed.js`, FR-107's operator bootstrap, and above all every Person that FR-023's LINE ingest creates on first contact, which is created from a `lineUserId` and has no name or telephone number to give. A database-level requirement would make those rows unwritable and take the LINE intake surface down with it; the profile step is the only place a person states these things themselves, so it is the only place the requirement can be honestly enforced. Profile remains an identity step over `Person`, never an authorization grant (FR-066, BR-016).",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "done",
+      "status": "current",
+      "row_text": "A Profile states who the person is, not just what to call them: FR-066's Profile step requires **given name, family name and telephone number**, over the display name it already collected and the optional email it already carried. Display name stops being something the person types twice — it is supplied by them or defaulted server-side from given + family name, never left empty, because `Person.displayName` is what every existing surface renders. The three new fields are stored **nullable on `Person`** and required **at the profile boundary instead**, and the distinction is load-bearing rather than a convenience: `Person` rows already exist that can never satisfy them — `prisma/seed.js`, FR-107's operator bootstrap, and above all every Person that FR-023's LINE ingest creates on first contact, which is created from a `lineUserId` and has no name or telephone number to give. A database-level requirement would make those rows unwritable and take the LINE intake surface down with it; the profile step is the only place a person states these things themselves, so it is the only place the requirement can be honestly enforced. Profile remains an identity step over `Person`, never an authorization grant (FR-066, BR-016). ✅ implemented "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -11822,6 +12067,14 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/auth/signup",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/signup",
+      "path": "src/app/api/auth/signup/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/backup/export",
       "type": "route",
       "kind": "api",
@@ -12910,11 +13163,27 @@
       "status": "current"
     },
     {
+      "id": "route:page:/reset-password",
+      "type": "route",
+      "kind": "page",
+      "route": "/reset-password",
+      "path": "src/app/reset-password/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/settings",
       "type": "route",
       "kind": "page",
       "route": "/settings",
       "path": "src/app/(pm)/settings/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/signup",
+      "type": "route",
+      "kind": "page",
+      "route": "/signup",
+      "path": "src/app/signup/page.jsx",
       "status": "current"
     },
     {
@@ -13448,6 +13717,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr104-password-reset-redemption.spec.js",
+      "hash": "69cfd647",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr120-signup.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr120-signup.spec.js",
+      "hash": "888a6751",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/navigation-reachability.spec.js",
       "type": "test",
       "path": "tests/e2e/navigation-reachability.spec.js",
@@ -13899,7 +14182,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "b78ae5c7",
+      "hash": "bb92fce1",
       "status": "current"
     },
     {
@@ -14018,7 +14301,7 @@
       "id": "test:tests/integration/workspace-onboarding-flow.test.js",
       "type": "test",
       "path": "tests/integration/workspace-onboarding-flow.test.js",
-      "hash": "4c212471",
+      "hash": "b8fb18ef",
       "status": "current"
     },
     {
@@ -14452,7 +14735,7 @@
       "id": "test:tests/unit/entry-surfaces.test.js",
       "type": "test",
       "path": "tests/unit/entry-surfaces.test.js",
-      "hash": "18d2a5c3",
+      "hash": "3b3acc4e",
       "status": "current"
     },
     {
@@ -14550,7 +14833,7 @@
       "id": "test:tests/unit/fr046-auth-route.test.js",
       "type": "test",
       "path": "tests/unit/fr046-auth-route.test.js",
-      "hash": "3ec449bf",
+      "hash": "2f95920c",
       "status": "current"
     },
     {
@@ -14726,6 +15009,34 @@
       "type": "test",
       "path": "tests/unit/fr091-inbox-ui-contract.test.js",
       "hash": "2982c144",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr120-signup-page.test.js",
+      "type": "test",
+      "path": "tests/unit/fr120-signup-page.test.js",
+      "hash": "ad218670",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr120-signup-rate-limit.test.js",
+      "type": "test",
+      "path": "tests/unit/fr120-signup-rate-limit.test.js",
+      "hash": "96b6e511",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr120-signup-route.test.js",
+      "type": "test",
+      "path": "tests/unit/fr120-signup-route.test.js",
+      "hash": "e2e72053",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr120-signup-service.test.js",
+      "type": "test",
+      "path": "tests/unit/fr120-signup-service.test.js",
+      "hash": "09efa44e",
       "status": "current"
     },
     {
@@ -15054,7 +15365,7 @@
       "id": "test:tests/unit/onboarding-service.test.js",
       "type": "test",
       "path": "tests/unit/onboarding-service.test.js",
-      "hash": "7fa63aa5",
+      "hash": "7b91fa1b",
       "status": "current"
     },
     {
@@ -15069,6 +15380,13 @@
       "type": "test",
       "path": "tests/unit/overview-split.test.js",
       "hash": "9ffbc608",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/password-reset-page.test.js",
+      "type": "test",
+      "path": "tests/unit/password-reset-page.test.js",
+      "hash": "2c05ac01",
       "status": "current"
     },
     {
@@ -15282,6 +15600,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/profile-identity-fields-migration.test.js",
+      "hash": "e933e060",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/profile-permission-service.test.js",
       "type": "test",
       "path": "tests/unit/profile-permission-service.test.js",
@@ -15370,6 +15695,13 @@
       "type": "test",
       "path": "tests/unit/project-roadmap-ui.test.js",
       "hash": "540eb1b1",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/project-status-options.test.js",
+      "type": "test",
+      "path": "tests/unit/project-status-options.test.js",
+      "hash": "5e5110be",
       "status": "current"
     },
     {
@@ -15663,7 +15995,7 @@
       "id": "test:tests/unit/workspace-onboarding-routes.test.js",
       "type": "test",
       "path": "tests/unit/workspace-onboarding-routes.test.js",
-      "hash": "1e6a0ded",
+      "hash": "76e1c1c4",
       "status": "current"
     },
     {
@@ -15825,6 +16157,13 @@
     {
       "from": "code:src/app/(entry)/onboarding/profile/page.jsx",
       "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/onboarding/profile/page.jsx",
+      "to": "req:FR-122",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -17057,6 +17396,27 @@
     {
       "from": "code:src/app/api/auth/reset-password/route.js",
       "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/signup/route.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/signup/route.js",
+      "to": "req:FR-120",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/signup/route.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -18576,6 +18936,13 @@
     {
       "from": "code:src/app/api/onboarding/profile/route.js",
       "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/onboarding/profile/route.js",
+      "to": "req:FR-122",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -20311,6 +20678,13 @@
     },
     {
       "from": "code:src/app/login/page.jsx",
+      "to": "req:FR-120",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/login/page.jsx",
       "to": "req:SDD-022",
       "type": "follows",
       "status": "current",
@@ -20354,6 +20728,104 @@
     {
       "from": "code:src/app/page.jsx",
       "to": "req:SDD-029",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/reset-password/page.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/reset-password/page.jsx",
+      "to": "req:FR-104",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/reset-password/page.jsx",
+      "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/reset-password/page.jsx",
+      "to": "req:SDD-054",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/reset-password/page.jsx",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/reset-password/page.jsx",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/signup/page.jsx",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/signup/page.jsx",
+      "to": "req:FR-044",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/signup/page.jsx",
+      "to": "req:FR-120",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/signup/page.jsx",
+      "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/signup/page.jsx",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/forms/PasswordField.jsx",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/forms/PasswordField.jsx",
+      "to": "req:FR-104",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/components/forms/PasswordField.jsx",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -22166,6 +22638,13 @@
     },
     {
       "from": "code:src/modules/identity/auth-service.js",
+      "to": "req:FR-120",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/auth-service.js",
       "to": "req:SDD-024",
       "type": "follows",
       "status": "current",
@@ -22397,6 +22876,13 @@
     },
     {
       "from": "code:src/modules/identity/onboarding-service.js",
+      "to": "req:FR-122",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/onboarding-service.js",
       "to": "req:SDD-038",
       "type": "follows",
       "status": "current",
@@ -22453,6 +22939,34 @@
     },
     {
       "from": "code:src/modules/identity/operator-bootstrap.js",
+      "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/password-reset-copy.js",
+      "to": "req:FR-104",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/password-reset-copy.js",
+      "to": "req:SDD-054",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/password-reset-copy.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/password-reset-copy.js",
       "to": "req:SEC-014",
       "type": "follows",
       "status": "current",
@@ -22755,6 +23269,62 @@
     {
       "from": "code:src/modules/identity/session-port.js",
       "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/signup-copy.js",
+      "to": "req:FR-120",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/signup-copy.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/signup-rate-limit.js",
+      "to": "req:FR-120",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/signup-rate-limit.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/signup-service.js",
+      "to": "req:BR-002",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/signup-service.js",
+      "to": "req:FR-066",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/signup-service.js",
+      "to": "req:FR-120",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/signup-service.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -24856,6 +25426,13 @@
       "from": "code:src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
       "to": "req:SDD-006",
       "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/components/project-status-options.js",
+      "to": "req:FR-087",
+      "type": "implements",
       "status": "current",
       "source": "annotation"
     },
@@ -28066,6 +28643,27 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-120",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-121",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-122",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -28907,21 +29505,28 @@
     },
     {
       "from": "route:api:/api/auth/login",
-      "to": "domain:project-manager",
+      "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
     },
     {
       "from": "route:api:/api/auth/logout",
-      "to": "domain:project-manager",
+      "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
     },
     {
       "from": "route:api:/api/auth/reset-password",
-      "to": "domain:project-manager",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/signup",
+      "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -29872,8 +30477,22 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/reset-password",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/settings",
       "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/signup",
+      "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -31987,6 +32606,13 @@
     },
     {
       "from": "test:tests/e2e/fr046-entry-contract.spec.js",
+      "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr046-entry-contract.spec.js",
       "to": "req:SDD-018",
       "type": "verifies",
       "status": "current",
@@ -32282,6 +32908,118 @@
     {
       "from": "test:tests/e2e/fr091-conversation-inbox.spec.js",
       "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:SDD-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr104-password-reset-redemption.spec.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr120-signup.spec.js",
+      "to": "code:src/app/api/auth/signup/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr120-signup.spec.js",
+      "to": "code:src/app/signup/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr120-signup.spec.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr120-signup.spec.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr120-signup.spec.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr120-signup.spec.js",
+      "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr120-signup.spec.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr120-signup.spec.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -36915,6 +37653,13 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -36968,6 +37713,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/password-reset-flow.test.js",
+      "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/password-reset-flow.test.js",
@@ -38266,6 +39018,13 @@
     },
     {
       "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-122",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -38771,6 +39530,13 @@
     {
       "from": "test:tests/unit/auth-service.test.js",
       "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/auth-service.test.js",
+      "to": "req:FR-120",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -40597,10 +41363,31 @@
     },
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "code:src/app/reset-password/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "code:src/app/signup/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
       "to": "code:src/components/layouts/EntryShell.jsx",
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
@@ -40625,6 +41412,20 @@
     },
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
@@ -40646,7 +41447,21 @@
     },
     {
       "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "req:SDD-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/entry-surfaces.test.js",
+      "to": "req:SEC-014",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -41675,6 +42490,13 @@
     },
     {
       "from": "test:tests/unit/fr046-api-ui-contract.test.js",
+      "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-api-ui-contract.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -41802,6 +42624,13 @@
     {
       "from": "test:tests/unit/fr046-auth-route.test.js",
       "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "req:FR-120",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -43172,6 +44001,167 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/fr120-signup-page.test.js",
+      "to": "code:src/app/signup/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-page.test.js",
+      "to": "code:src/modules/identity/signup-copy.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-page.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-page.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-page.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-page.test.js",
+      "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-page.test.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-page.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-rate-limit.test.js",
+      "to": "code:src/modules/identity/signup-rate-limit.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-rate-limit.test.js",
+      "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-rate-limit.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-route.test.js",
+      "to": "code:src/app/api/auth/signup/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-route.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-route.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-route.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-route.test.js",
+      "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-route.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-service.test.js",
+      "to": "code:src/modules/identity/signup-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-service.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-service.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-service.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-service.test.js",
+      "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr120-signup-service.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/gate-cap-rounding.test.js",
       "to": "req:BR-006",
       "type": "verifies",
@@ -43496,6 +44486,13 @@
     {
       "from": "test:tests/unit/iam-session.test.js",
       "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "req:FR-120",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -44545,6 +45542,13 @@
     },
     {
       "from": "test:tests/unit/onboarding-service.test.js",
+      "to": "req:FR-122",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/onboarding-service.test.js",
       "to": "req:SDD-038",
       "type": "verifies",
       "status": "current",
@@ -44719,6 +45723,76 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "code:src/app/reset-password/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "code:src/components/forms/PasswordField.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "code:src/modules/identity/password-reset-copy.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:FR-104",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:SDD-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:SDD-054",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-page.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/password-reset-routes.test.js",
       "to": "code:src/app/api/auth/reset-password/route.js",
       "type": "tests",
@@ -44787,6 +45861,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/password-reset-service.test.js",
+      "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/password-reset-service.test.js",
@@ -45979,6 +47060,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "to": "req:BR-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "to": "req:FR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "to": "req:FR-122",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/profile-permission-service.test.js",
       "to": "code:src/app/(pm)/platform/users/page.jsx",
       "type": "tests",
@@ -46793,6 +47902,20 @@
     {
       "from": "test:tests/unit/project-roadmap-ui.test.js",
       "to": "req:SDD-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/project-status-options.test.js",
+      "to": "code:src/modules/project-manager/components/project-status-options.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/project-status-options.test.js",
+      "to": "req:FR-087",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -48480,6 +49603,13 @@
     {
       "from": "test:tests/unit/workspace-onboarding-routes.test.js",
       "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-onboarding-routes.test.js",
+      "to": "req:FR-122",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"

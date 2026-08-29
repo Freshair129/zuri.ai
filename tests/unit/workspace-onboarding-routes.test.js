@@ -57,6 +57,15 @@ const post = (handler, url, body) => handler(new Request(url, {
   body: JSON.stringify(body),
 }))
 
+// @req FR-122 — a body the profile contract actually accepts. Named once so the
+// three call sites below cannot drift apart from the schema, and from each other.
+const PROFILE_BODY = {
+  displayName: 'วรรณภา',
+  firstName: 'วรรณภา',
+  lastName: 'ใจดี',
+  phone: '0812345678',
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
   resolveRequestViewer.mockResolvedValue(viewer)
@@ -65,7 +74,7 @@ beforeEach(() => {
 describe('session-first, fail-closed (SEC-014)', () => {
   const cases = [
     ['GET /api/onboarding/state', () => STATE(new Request('http://local/api/onboarding/state')), getOnboardingState],
-    ['POST /api/onboarding/profile', () => post(PROFILE, 'http://local/api/onboarding/profile', { displayName: 'x' }), completeProfile],
+    ['POST /api/onboarding/profile', () => post(PROFILE, 'http://local/api/onboarding/profile', PROFILE_BODY), completeProfile],
     ['POST /api/onboarding/workspaces', () => post(WORKSPACE, 'http://local/api/onboarding/workspaces', { name: 'x' }), createOnboardingWorkspace],
     ['POST /api/workspace-invites', () => post(MINT, 'http://local/api/workspace-invites', { portfolioId: 'pf-1' }), mintWorkspaceInvite],
     ['POST /api/workspace-invites/accept', () => post(ACCEPT, 'http://local/api/workspace-invites/accept', { token: 't' }), acceptWorkspaceInvite],
@@ -86,12 +95,39 @@ describe('session-first, fail-closed (SEC-014)', () => {
 describe('the session principal is the subject — never a body claim', () => {
   it('profile completion targets viewer.principal.id and rejects a body-supplied person claim', async () => {
     completeProfile.mockResolvedValue({ profileComplete: true })
-    const ok = await post(PROFILE, 'http://local/api/onboarding/profile', { displayName: 'วรรณภา' })
+    const ok = await post(PROFILE, 'http://local/api/onboarding/profile', PROFILE_BODY)
     expect(ok.status).toBe(200)
     expect(completeProfile).toHaveBeenCalledWith(expect.objectContaining({ personId: 'per-session' }))
 
-    const smuggled = await post(PROFILE, 'http://local/api/onboarding/profile', { displayName: 'x', personId: 'per-victim' })
+    const smuggled = await post(PROFILE, 'http://local/api/onboarding/profile', { ...PROFILE_BODY, personId: 'per-victim' })
     expect(smuggled.status).toBe(400) // .strict() refuses the extra key
+  })
+
+  // @req FR-122 — refused at the contract, before the service is reached. The
+  // second assertion is the one that matters: a 400 that still called through
+  // would mean the schema is decoration.
+  it.each(['firstName', 'lastName', 'phone'])(
+    'refuses a profile body with no %s and never reaches the service',
+    async (field) => {
+      completeProfile.mockResolvedValue({ profileComplete: true })
+      const body = { ...PROFILE_BODY }
+      delete body[field]
+      const res = await post(PROFILE, 'http://local/api/onboarding/profile', body)
+      expect(res.status).toBe(400)
+      expect(completeProfile).not.toHaveBeenCalled()
+    },
+  )
+
+  // @req FR-122 — display name is the one that may be absent, and the contract
+  // has to actually let it through or the server can never compose it.
+  it('accepts a profile body with no display name', async () => {
+    completeProfile.mockResolvedValue({ profileComplete: true })
+    const { displayName, ...withoutDisplayName } = PROFILE_BODY
+    const res = await post(PROFILE, 'http://local/api/onboarding/profile', withoutDisplayName)
+    expect(res.status).toBe(200)
+    expect(completeProfile).toHaveBeenCalledWith(expect.objectContaining({
+      firstName: 'วรรณภา', lastName: 'ใจดี', phone: '0812345678',
+    }))
   })
 
   it('acceptance binds the trusted session principal to the token', async () => {

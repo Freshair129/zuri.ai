@@ -35,10 +35,29 @@ function requirePersonId(personId) {
  * First completion stamps `profileCompletedAt`; later calls are the same edit
  * surface and never clear it.
  */
-export async function completeProfile({ personId, displayName, email, db = prisma, now = Date.now() } = {}) {
+// @req FR-122 — given name, family name and telephone number are required here,
+// at the profile boundary, and nullable in the database. That split is the whole
+// design: Person rows exist that can never satisfy them — the seed, FR-107's
+// operator bootstrap, and every Person FR-023's LINE ingest creates from a
+// `lineUserId` on first contact — so the column cannot carry the requirement,
+// and this function is the only place a person states these things themselves.
+export async function completeProfile({
+  personId, displayName, email, firstName, lastName, phone,
+  db = prisma, now = Date.now(),
+} = {}) {
   requirePersonId(personId)
-  const name = typeof displayName === 'string' ? displayName.trim() : ''
-  if (!name) throw failure(400, 'DISPLAY_NAME_REQUIRED')
+  const text = (value) => (typeof value === 'string' ? value.trim() : '')
+  const given = text(firstName)
+  const family = text(lastName)
+  const telephone = text(phone)
+  if (!given) throw failure(400, 'FIRST_NAME_REQUIRED')
+  if (!family) throw failure(400, 'LAST_NAME_REQUIRED')
+  if (!telephone) throw failure(400, 'PHONE_REQUIRED')
+
+  // Display name is what every existing surface renders, so it can never be
+  // empty — but asking for it separately makes the person type their own name
+  // twice. Supplied wins; otherwise it is composed from the two names above.
+  const name = text(displayName) || `${given} ${family}`
 
   const person = await db.person.findUnique({
     where: { id: personId },
@@ -51,10 +70,16 @@ export async function completeProfile({ personId, displayName, email, db = prism
     where: { id: personId },
     data: {
       displayName: name,
+      firstName: given,
+      lastName: family,
+      phone: telephone,
       ...(typeof email === 'string' && email.trim() ? { email: email.trim().toLowerCase() } : {}),
       ...(firstCompletion ? { profileCompletedAt: new Date(now) } : {}),
     },
-    select: { id: true, code: true, displayName: true, email: true, profileCompletedAt: true },
+    select: {
+      id: true, code: true, displayName: true, email: true, profileCompletedAt: true,
+      firstName: true, lastName: true, phone: true,
+    },
   })
   await recordAudit(db, {
     entityType: 'PERSON',
@@ -68,6 +93,9 @@ export async function completeProfile({ personId, displayName, email, db = prism
     personId: updated.id,
     displayName: updated.displayName,
     email: updated.email,
+    firstName: updated.firstName,
+    lastName: updated.lastName,
+    phone: updated.phone,
     profileComplete: Boolean(updated.profileCompletedAt),
   }
 }
@@ -83,7 +111,12 @@ export async function getOnboardingState({ personId, db = prisma, now = Date.now
   requirePersonId(personId)
   const person = await db.person.findUnique({
     where: { id: personId },
-    select: { id: true, displayName: true, email: true, profileCompletedAt: true },
+    select: {
+      id: true, displayName: true, email: true, profileCompletedAt: true,
+      // @req FR-122 — so the profile form can show what is already stored
+      // rather than making a returning person retype it.
+      firstName: true, lastName: true, phone: true,
+    },
   })
   if (!person) throw failure(401, 'AUTH_REQUIRED')
 
@@ -126,6 +159,9 @@ export async function getOnboardingState({ personId, db = prisma, now = Date.now
       complete: profileComplete,
       displayName: person.displayName || '',
       email: person.email || null,
+      firstName: person.firstName || '',
+      lastName: person.lastName || '',
+      phone: person.phone || '',
     },
     nextStep,
     workspaces,
