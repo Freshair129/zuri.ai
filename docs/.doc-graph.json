@@ -50,9 +50,7 @@
   },
   "drift": {
     "changed": [
-      "domain:market-intelligence",
-      "doc:FR-092-market-translation-core",
-      "doc:PRD-SDD-v1.0"
+      "test:tests/e2e/navigation-reachability.spec.js"
     ],
     "added": [],
     "removed": []
@@ -8127,7 +8125,7 @@
       "path": "docs/domains/market-intelligence/features/FR-092-market-translation-core.md",
       "title": "FR-092 — Market translation core",
       "hash": "ec7ce288",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-093-reply-delivery-receipt",
@@ -8607,7 +8605,7 @@
       "version": "1.120.0b",
       "doc_status": "Draft",
       "hash": "2b61c201",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8935,7 +8933,7 @@
         "market-intelligence"
       ],
       "hash": "a60bfbbd",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:platform-control",
@@ -13743,8 +13741,8 @@
       "id": "test:tests/e2e/navigation-reachability.spec.js",
       "type": "test",
       "path": "tests/e2e/navigation-reachability.spec.js",
-      "hash": "2a15f9ca",
-      "status": "current"
+      "hash": "4a53d1e9",
+      "status": "changed"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
