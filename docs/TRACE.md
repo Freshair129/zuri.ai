@@ -184,7 +184,7 @@
 - **Status:** done
 - **Code:** `src/modules/crm/line-ingest-service.js`
 - **Follows:** BR-001, BR-020, NFR-017, SEC-001, SEC-018
-- **Tests:** `tests/integration/crm-customer-consent.test.js` · `tests/integration/line-ingest-tenant-isolation.test.js` · `tests/integration/line-ingest.test.js` · `tests/unit/doc-views.test.js` · `tests/unit/scope-external-ids-migration.test.js`
+- **Tests:** `tests/integration/crm-customer-consent.test.js` · `tests/integration/line-ingest-tenant-isolation.test.js` · `tests/integration/line-ingest.test.js` · `tests/unit/doc-views.test.js` · `tests/unit/profile-identity-fields-migration.test.js` · `tests/unit/scope-external-ids-migration.test.js`
 
 ### FR-024 — Knowledge projection (ADR-007 P5): project Zuri **relations** (Customer/Business/Conversation/Membership) into a GKS/KG graph via a pluggable sink; **live facts (price, credit, invoice, payment, stock, schedule) are never projected** — they stay a Zuri query (`assertNoLiveFacts` guard). Tenant-scoped, deterministic, read-only. Exposes `queryKnowledge` (principal neighbourhood) as the contract the agent consumes
 
@@ -515,7 +515,7 @@
 - **Surface:** `/businesses` (page) · `/onboarding/profile` (page) · `/waiting-room` (page) · `/workspace-home` (page) · `/api/onboarding/profile` (api) · `/api/onboarding/state` (api) · `/api/onboarding/workspaces` (api)
 - **Code:** `src/app/(entry)/businesses/page.jsx` · `src/app/(entry)/onboarding/profile/page.jsx` · `src/app/(entry)/waiting-room/page.jsx` · `src/app/(entry)/workspace-home/page.jsx` · `src/app/api/onboarding/profile/route.js` · `src/app/api/onboarding/state/route.js` · `src/app/api/onboarding/workspaces/route.js` · `src/modules/identity/onboarding-service.js` · `src/modules/identity/onboarding-steps.js` · `src/modules/identity/signup-service.js`
 - **Follows:** BR-002, BR-016, SDD-022, SDD-024, SDD-038, SEC-008, SEC-014
-- **Tests:** `tests/e2e/fr046-entry-contract.spec.js` · `tests/e2e/fr120-signup.spec.js` · `tests/integration/openapi-docs.test.js` · `tests/integration/workspace-onboarding-flow.test.js` · `tests/unit/business-routing-page.test.js` · `tests/unit/business-routing.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr120-signup-route.test.js` · `tests/unit/fr120-signup-service.test.js` · `tests/unit/onboarding-service.test.js` · `tests/unit/workspace-onboarding-routes.test.js`
+- **Tests:** `tests/e2e/fr046-entry-contract.spec.js` · `tests/e2e/fr120-signup.spec.js` · `tests/integration/openapi-docs.test.js` · `tests/integration/workspace-onboarding-flow.test.js` · `tests/unit/business-routing-page.test.js` · `tests/unit/business-routing.test.js` · `tests/unit/fr046-api-ui-contract.test.js` · `tests/unit/fr120-signup-route.test.js` · `tests/unit/fr120-signup-service.test.js` · `tests/unit/onboarding-service.test.js` · `tests/unit/profile-identity-fields-migration.test.js` · `tests/unit/workspace-onboarding-routes.test.js`
 
 ### FR-067 — Workspace collaboration boundary: an authorized Workspace/Tenant owner can issue a scoped, expiring, single-use invite that creates a separate WorkspaceMembership. Workspace membership grants only Workspace collaboration visibility; Tenant, Business, Space and Project access require separate server-authorized assignment, with audit and fail-closed replay/revocation behavior.
 
@@ -967,4 +967,4 @@
 - **Surface:** `/onboarding/profile` (page) · `/api/onboarding/profile` (api)
 - **Code:** `src/app/(entry)/onboarding/profile/page.jsx` · `src/app/api/onboarding/profile/route.js` · `src/modules/identity/onboarding-service.js`
 - **Follows:** BR-016, SDD-038, SEC-014
-- **Tests:** `tests/integration/workspace-onboarding-flow.test.js` · `tests/unit/onboarding-service.test.js` · `tests/unit/workspace-onboarding-routes.test.js`
+- **Tests:** `tests/integration/workspace-onboarding-flow.test.js` · `tests/unit/onboarding-service.test.js` · `tests/unit/profile-identity-fields-migration.test.js` · `tests/unit/workspace-onboarding-routes.test.js`

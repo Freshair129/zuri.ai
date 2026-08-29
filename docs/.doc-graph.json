@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1395,
-    "total_edges": 4801,
+    "total_nodes": 1396,
+    "total_edges": 4805,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,7 +16,7 @@
       "route": 153,
       "model": 67,
       "requirement": 258,
-      "test": 335,
+      "test": 336,
       "code_file": 366
     },
     "coverage": {
@@ -50,20 +50,10 @@
   },
   "drift": {
     "changed": [
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/integration/workspace-onboarding-flow.test.js",
-      "test:tests/unit/onboarding-service.test.js",
-      "test:tests/unit/workspace-onboarding-routes.test.js",
-      "code:src/app/(entry)/onboarding/profile/page.jsx",
-      "code:src/app/api/onboarding/profile/route.js",
-      "code:src/modules/identity/onboarding-service.js"
+      "doc:FR-122-profile-identity-fields"
     ],
     "added": [
-      "doc:FR-121-google-second-way-in",
-      "doc:FR-122-profile-identity-fields",
-      "req:FR-121",
-      "req:FR-122"
+      "test:tests/unit/profile-identity-fields-migration.test.js"
     ],
     "removed": []
   },
@@ -159,7 +149,7 @@
       "type": "code_file",
       "path": "src/app/(entry)/onboarding/profile/page.jsx",
       "hash": "78b6c55f",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-066",
@@ -2052,7 +2042,7 @@
       "type": "code_file",
       "path": "src/app/api/onboarding/profile/route.js",
       "hash": "3eed7c96",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-066",
@@ -4764,7 +4754,7 @@
       "type": "code_file",
       "path": "src/modules/identity/onboarding-service.js",
       "hash": "6af0a569",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-066",
@@ -8327,8 +8317,8 @@
       "title": "FR-122 — A Profile states who the person is",
       "version": "0.1.0b",
       "doc_status": "Implemented",
-      "hash": "6bc2a893",
-      "status": "current"
+      "hash": "57b09151",
+      "status": "changed"
     },
     {
       "id": "doc:GOVIBE-INTEGRATION",
@@ -8594,7 +8584,7 @@
       "version": "1.119.0b",
       "doc_status": "Draft",
       "hash": "468cb285",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -8630,7 +8620,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "b822dc4d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -14298,7 +14288,7 @@
       "type": "test",
       "path": "tests/integration/workspace-onboarding-flow.test.js",
       "hash": "b8fb18ef",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/xlsx-intake.test.js",
@@ -15362,7 +15352,7 @@
       "type": "test",
       "path": "tests/unit/onboarding-service.test.js",
       "hash": "7b91fa1b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/operator-bootstrap.test.js",
@@ -15593,6 +15583,13 @@
       "type": "test",
       "path": "tests/unit/prisma-generate-gate.test.js",
       "hash": "1d645807",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "type": "test",
+      "path": "tests/unit/profile-identity-fields-migration.test.js",
+      "hash": "e933e060",
       "status": "current"
     },
     {
@@ -15978,7 +15975,7 @@
       "type": "test",
       "path": "tests/unit/workspace-onboarding-routes.test.js",
       "hash": "76e1c1c4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/zuri-cli-canary-receipt.test.js",
@@ -47030,6 +47027,34 @@
     {
       "from": "test:tests/unit/postgres-runtime-client.test.js",
       "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "to": "req:BR-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "to": "req:FR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "to": "req:FR-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/profile-identity-fields-migration.test.js",
+      "to": "req:FR-122",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
