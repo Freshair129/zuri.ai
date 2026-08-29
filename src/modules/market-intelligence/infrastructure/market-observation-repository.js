@@ -1,7 +1,19 @@
-// Phase #76 persistence adapter boundary. The Prisma model itself is not added in
-// this contract-first commit; this adapter is deliberately injected and fails
-// clearly until `prisma.marketObservation` exists.
-// @spec ADR-038
+// The write boundary for Market-owned observation state, and the only place that
+// creates one. A scoped draft in, a {status, observation} verdict out; this adapter
+// writes `MarketObservation` and nothing else — Integration's raw evidence is never
+// touched from here. The atomicity claim is real and rests on the `lineageKey`
+// column being `@unique` in both schemas: a create-if-absent expressed as
+// read-then-create would let two workers both observe "missing" and race, so the
+// unique constraint is the serialization point and a P2002 collision is resolved to
+// the row the winner wrote (CREATED for the first, UNCHANGED on replay). Scope fails
+// closed at both ends — the draft must match the tenant/Business the repository was
+// constructed with, businessId must be an explicit string or explicit null rather
+// than an omitted argument, and even the row loaded after a collision is re-checked,
+// because a lineage key that resolves outside this scope is an identity leak, not a
+// replay.
+// @req FR-092, NFR-018
+// @spec SDD-049, SEC-017, ADR-038
+// @tested tests/unit/market-intelligence/market-observation-repository.test.js
 
 function assertPrismaModel(prisma) {
   if (!prisma?.marketObservation) {

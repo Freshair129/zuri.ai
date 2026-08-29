@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1420,
-    "total_edges": 4871,
+    "total_nodes": 1424,
+    "total_edges": 4901,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -17,7 +17,7 @@
       "model": 70,
       "requirement": 261,
       "test": 340,
-      "code_file": 373
+      "code_file": 377
     },
     "coverage": {
       "requirements": 261,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (117/117)",
       "rules_anchored_in_code": "97% (112/116)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 373,
+      "annotated_code_files": 377,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -51,7 +51,10 @@
   "drift": {
     "changed": [],
     "added": [
-      "code:src/modules/market-intelligence/application/translate-raw-record.js"
+      "code:src/modules/market-intelligence/domain/market-observation.js",
+      "code:src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js"
     ],
     "removed": []
   },
@@ -5864,6 +5867,83 @@
         ],
         "@tested": [
           "tests/unit/market-intelligence/translate-raw-record.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/domain/market-observation.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/domain/market-observation.js",
+      "hash": "7ee06cd3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/market-observation-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "hash": "0b54d68e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049",
+          "SEC-017"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/gks-market-identity-resolver.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "hash": "2cc480c7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092",
+          "NFR-018"
+        ],
+        "@spec": [
+          "SDD-049",
+          "SEC-017"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/market-observation-repository.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "hash": "17379376",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "BR-019",
+          "SDD-049",
+          "SEC-017"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/market-raw-record-repository.test.js"
         ]
       }
     },
@@ -24505,6 +24585,97 @@
     },
     {
       "from": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "to": "req:SEC-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/domain/market-observation.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/domain/market-observation.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "to": "req:SEC-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "to": "req:NFR-018",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "to": "req:SEC-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "to": "req:BR-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
       "to": "req:SEC-017",
       "type": "follows",
       "status": "current",
@@ -46006,6 +46177,125 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+      "to": "code:src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-domain.test.js",
+      "to": "code:src/modules/market-intelligence/domain/market-observation.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-domain.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-domain.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "to": "code:src/modules/market-intelligence/infrastructure/market-observation-repository.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "to": "req:NFR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-observation-repository.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "to": "code:src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "to": "req:BR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-raw-record-repository.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
