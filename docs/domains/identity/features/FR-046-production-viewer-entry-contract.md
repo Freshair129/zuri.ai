@@ -62,6 +62,7 @@ cannot be inferred from browser traffic.
 - [x] AC-046-12 Successful login issues a signed expiring HttpOnly session; logout clears it; tampered and expired tokens are unauthenticated.
 - [x] AC-046-13 No local-demo capability, seeded-owner fallback or client-controlled identity path remains in runtime authentication.
 - [~] AC-046-14 Authentication unit/contract/integration/browser paths, build, docs graph/preflight/check, and diff gates pass; four unrelated global-view smoke assertions still require explicit project/workspace scope.
+- [x] AC-046-15 Login issues a browser-session cookie by default and the existing signed seven-day cookie only when the caller opts in ("remember me"). The signed ceiling at `SESSION_MAX_AGE_SECONDS` is unchanged, and the opt-in never enters the token payload or the credential check — it selects the cookie's `Max-Age` and nothing else.
 
 ## Out of scope
 
@@ -84,6 +85,7 @@ not a login bypass.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.4.0b | 2026-08-29 | beta | AC-046-15: "remember me" makes the seven-day cookie opt-in; the default is now a browser-session cookie. The token's `exp` and the verified ceiling are untouched, so opting out is strictly shorter-lived and opting in restores exactly the previous behaviour | working-tree | ATHER |
 | 0.3.0b | 2026-08-22 | beta | Added PersonCredential verification, signed session login/logout, and removed the local-demo authentication path | working-tree | ATHER |
 | 0.1.0b | 2026-08-14 | candidate | Initial EARS requirements, AC and scope boundary | pending | ATHER |
 | 0.2.0b | 2026-08-14 | beta | Approved implementation with request-session, entry read model, compatibility and security proof | pending | ATHER |
