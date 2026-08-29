@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1419,
-    "total_edges": 4860,
+    "total_nodes": 1420,
+    "total_edges": 4871,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -17,7 +17,7 @@
       "model": 70,
       "requirement": 261,
       "test": 340,
-      "code_file": 372
+      "code_file": 373
     },
     "coverage": {
       "requirements": 261,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (117/117)",
       "rules_anchored_in_code": "97% (112/116)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 372,
+      "annotated_code_files": 373,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -49,10 +49,10 @@
     }
   },
   "drift": {
-    "changed": [
-      "test:tests/e2e/navigation-reachability.spec.js"
+    "changed": [],
+    "added": [
+      "code:src/modules/market-intelligence/application/translate-raw-record.js"
     ],
-    "added": [],
     "removed": []
   },
   "nodes": [
@@ -5843,6 +5843,27 @@
           "BR-019",
           "SDD-049",
           "SEC-017"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/application/translate-raw-record.js",
+      "hash": "7d4faefc",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092",
+          "NFR-018"
+        ],
+        "@spec": [
+          "BR-019",
+          "SDD-049",
+          "SEC-017"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/translate-raw-record.test.js"
         ]
       }
     },
@@ -13936,7 +13957,7 @@
       "type": "test",
       "path": "tests/e2e/navigation-reachability.spec.js",
       "hash": "4a53d1e9",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/smoke.spec.js",
@@ -24449,6 +24470,41 @@
     },
     {
       "from": "code:src/modules/market-intelligence/application/market-observation-service.js",
+      "to": "req:SEC-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "to": "req:BR-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "to": "req:NFR-018",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/translate-raw-record.js",
       "to": "req:SEC-017",
       "type": "follows",
       "status": "current",
@@ -45950,6 +46006,48 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "to": "code:src/modules/market-intelligence/application/translate-raw-record.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "to": "req:BR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "to": "req:NFR-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
+      "to": "req:SEC-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/mint-api-access-key-cli.test.js",
