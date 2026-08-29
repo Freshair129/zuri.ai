@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1377,
-    "total_edges": 4720,
+    "total_nodes": 1378,
+    "total_edges": 4721,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -15,12 +15,12 @@
       "feature": 13,
       "route": 151,
       "model": 67,
-      "requirement": 255,
+      "requirement": 256,
       "test": 330,
       "code_file": 361
     },
     "coverage": {
-      "requirements": 255,
+      "requirements": 256,
       "fr_with_code": "100% (114/114)",
       "fr_with_tests": "100% (114/114)",
       "rules_anchored_in_code": "96% (110/114)",
@@ -31,7 +31,8 @@
         "FR-083",
         "FR-084",
         "FR-085",
-        "FR-110"
+        "FR-110",
+        "FR-120"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -49,9 +50,12 @@
   },
   "drift": {
     "changed": [
-      "doc:INTERFACE-INVENTORY"
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP"
     ],
-    "added": [],
+    "added": [
+      "req:FR-120"
+    ],
     "removed": []
   },
   "nodes": [
@@ -8208,7 +8212,7 @@
       "version": "1.2.1b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "c7fb25ab",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -8441,10 +8445,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.106.0b",
+      "version": "1.116.0b",
       "doc_status": "Draft",
-      "hash": "e86d15c9",
-      "status": "current"
+      "hash": "bdc633f5",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -8479,8 +8483,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "8b6bbb69",
-      "status": "current"
+      "hash": "a1d0b919",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -10682,6 +10686,16 @@
       "declared": "done",
       "status": "current",
       "row_text": "Per-stage failure attribution and BR-022 quarantine: a document that fails partway through the seven Tier 1 stages is quarantined with the complete failure envelope — `job_id`, `artifact_id`, `stage`, `error_code`, `error_message`, `retry_count`, `first_failed_at`, `last_failed_at`, `pipeline_version` — and classified retryable / non-retryable / review-required, rather than reported as nothing having happened. `runKnowledgeIngestionStagesWithTrace` extends FR-118's composition to catch each stage individually and report which succeeded before the one that did not, sharing every field mapping with the original throwing function (SDD-072) so neither duplicates the other. Every Tier 1 stage failure classifies `NON_RETRYABLE`: the seven stage functions are pure and deterministic, so a thrown validation error repeats identically on retry, and `REVIEW_REQUIRED` has no trigger either — an ambiguous value already declines via `canonical: null` (FR-114, SDD-061) rather than throwing, so it never reaches quarantine. `RETRYABLE`/`REVIEW_REQUIRED` stay in the vocabulary for failure modes this repository does not yet have (a network call, Tier 3/4 reporting) rather than being deleted for lack of a current trigger. ✅ implemented 2026-08-28; 15 unit tests, 8 real-database integration tests "
+    },
+    {
+      "id": "req:FR-120",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Self-serve account creation: an unauthenticated visitor creates their own `Person` and `PersonCredential` at a public `/signup` (`POST /api/auth/signup`) and continues into FR-066 at its `PROFILE` step. This closes the product's only door. FR-066 begins *\"after a provider-neutral local identity/session exists\"* and never says how one comes to exist; FR-067's invite is accepted as `acceptWorkspaceInvite({ token, personId: viewer.principal.id })`, so it attaches membership to somebody already authenticated and cannot admit a stranger; and the only writers of a credential are `prisma/seed.js` and FR-107's operator bootstrap, which is operator-run and refuses an existing credential (409). Nobody new can enter — which also means nobody new can be invited, because an invite needs a Person to attach to. **Signup itself confers no authority**: it creates no `PlatformGrant`, no Tenant, Business, Space or Project, and no `WorkspaceMembership`. What the new Person may do next is exactly what FR-066 already grants any profiled Person and no more — the owner path of `createOnboardingWorkspace`, which creates one `Portfolio` plus one OWNER `WorkspaceMembership` over it and, by AC-066.2, zero Organization/Tenant/Business/Space/Project rows. Signup therefore widens who can reach that path; it does not widen the path. Entry to an existing team remains FR-067's invite, and the resting state for a Person holding nothing is FR-066's Waiting Room. Signup never overwrites an existing `PersonCredential` — the same refusal FR-107 makes, for the same reason. Password validation and hashing are the FR-046/FR-104 path's `hashPassword`, called rather than copied, so a policy change cannot apply to one door and not the other; the human `PSN-` code comes from the same `uniqueHumanCode` generator (BR-002); and the session is FR-046's minting path, not a second implementation. **The caller is signed in on success** rather than returned to `/login` to retype the password they just chose, and the cookie is a browser-session cookie — signup carries no \"remember me\" tick, so it takes AC-046-15's default rather than opting itself into seven days. Creation writes an audit event. Identity stays provider-neutral and local: no SSO or third-party provider is in scope. **Email is an identifier here, not a channel.** This installation has no mail transport — the stated reason FR-104 has no public forgot-password — so there is no verification step and no \"check your inbox\" response to hide a taken address behind. A taken email therefore returns a distinguishable error instead of stranding the caller in silence. That enumeration is accepted deliberately: with no mail the alternative is a signup that fails invisibly, and learning that an address holds an account grants the learner nothing, because that account carries no scope, no capability and no membership until its holder creates a Workspace or an owner invites them. The compensating controls are the audit trail and a per-source rate limit — and that limit is **in-process and per-instance**: a fixed window held in the Node process's own memory, which resets on restart and does not span replicas. Stated rather than glossed, because a control described more strongly than it is built is worse than one described honestly. An unverified address must never be treated by any later requirement as proof of contact.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Self-serve account creation: an unauthenticated visitor creates their own `Person` and `PersonCredential` at a public `/signup` (`POST /api/auth/signup`) and continues into FR-066 at its `PROFILE` step. This closes the product's only door. FR-066 begins *\"after a provider-neutral local identity/session exists\"* and never says how one comes to exist; FR-067's invite is accepted as `acceptWorkspaceInvite({ token, personId: viewer.principal.id })`, so it attaches membership to somebody already authenticated and cannot admit a stranger; and the only writers of a credential are `prisma/seed.js` and FR-107's operator bootstrap, which is operator-run and refuses an existing credential (409). Nobody new can enter — which also means nobody new can be invited, because an invite needs a Person to attach to. **Signup itself confers no authority**: it creates no `PlatformGrant`, no Tenant, Business, Space or Project, and no `WorkspaceMembership`. What the new Person may do next is exactly what FR-066 already grants any profiled Person and no more — the owner path of `createOnboardingWorkspace`, which creates one `Portfolio` plus one OWNER `WorkspaceMembership` over it and, by AC-066.2, zero Organization/Tenant/Business/Space/Project rows. Signup therefore widens who can reach that path; it does not widen the path. Entry to an existing team remains FR-067's invite, and the resting state for a Person holding nothing is FR-066's Waiting Room. Signup never overwrites an existing `PersonCredential` — the same refusal FR-107 makes, for the same reason. Password validation and hashing are the FR-046/FR-104 path's `hashPassword`, called rather than copied, so a policy change cannot apply to one door and not the other; the human `PSN-` code comes from the same `uniqueHumanCode` generator (BR-002); and the session is FR-046's minting path, not a second implementation. **The caller is signed in on success** rather than returned to `/login` to retype the password they just chose, and the cookie is a browser-session cookie — signup carries no \"remember me\" tick, so it takes AC-046-15's default rather than opting itself into seven days. Creation writes an audit event. Identity stays provider-neutral and local: no SSO or third-party provider is in scope. **Email is an identifier here, not a channel.** This installation has no mail transport — the stated reason FR-104 has no public forgot-password — so there is no verification step and no \"check your inbox\" response to hide a taken address behind. A taken email therefore returns a distinguishable error instead of stranding the caller in silence. That enumeration is accepted deliberately: with no mail the alternative is a signup that fails invisibly, and learning that an address holds an account grants the learner nothing, because that account carries no scope, no capability and no membership until its holder creates a Workspace or an owner invites them. The compensating controls are the audit trail and a per-source rate limit — and that limit is **in-process and per-instance**: a fixed window held in the Node process's own memory, which resets on restart and does not span replicas. Stated rather than glossed, because a control described more strongly than it is built is worse than one described honestly. An unverified address must never be treated by any later requirement as proof of contact. 🔜 declared 2026-08-29 — declaration only; the `/signup` screen, `POST /api/auth/signup`, the signup service and its rate limit are the following slice "
     },
     {
       "id": "req:NFR-001",
@@ -28217,6 +28231,13 @@
     },
     {
       "from": "req:FR-119",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-120",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
