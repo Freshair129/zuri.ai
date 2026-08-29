@@ -69,3 +69,13 @@ turn flows through before any agent work happens.
   PDPA erasure must redact the
   global Person. Target state per the architecture spec is a contract call
   into crm; today it is a direct write, recorded here so the gap stays visible.
+
+## Declared, not yet in schema (FEAT-014, ADR-054)
+
+`CustomerProfile`, `ConversationAnalysis` and `DailyBrief` (FR-126/127/128) are
+declared to land under this charter — derived, recomputable intelligence over
+the models above, shapes borrowed from the legacy ERD as prior art with the
+rebinding rules in ADR-054. They are deliberately **not** in `owns_models`
+yet: that list mirrors `prisma/schema.prisma`, and the implementation lane
+adds them there in the same change that adds the models. Until then this
+paragraph is the claim, so no other lane designs these tables elsewhere.

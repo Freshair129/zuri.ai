@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-29T21:14:38.351Z",
+  "generatedAt": "2026-08-29T21:33:57.663Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -28,7 +28,7 @@
   "overall": {
     "status": "partial",
     "domainCount": 8,
-    "gapCount": 16,
+    "gapCount": 19,
     "gaps": [
       {
         "domain": "agent",
@@ -55,6 +55,28 @@
           "tests/unit/postgres-business-knowledge.test.js",
           "tests/unit/supabase-production-isolation.test.js"
         ]
+      },
+      {
+        "domain": "crm",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "crm",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "crm",
+        "id": "REQ-FR-127",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-127 is planned",
+        "evidence": []
       },
       {
         "domain": "identity",
@@ -449,7 +471,7 @@
       }
     },
     "crm": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-023",
@@ -492,6 +514,13 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 9
+        },
+        {
+          "id": "FR-127",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -516,12 +545,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "verified",
@@ -547,11 +582,17 @@
           "gaps": []
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -562,6 +603,7 @@
         "docs/domains/crm/features/FR-091-conversation-inbox.md",
         "docs/domains/crm/features/FR-093-reply-delivery-receipt.md",
         "docs/domains/crm/features/FR-103-pdpa-consent-attestation.md",
+        "docs/domains/crm/features/FR-127-conversation-intelligence-analysis.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
@@ -569,13 +611,33 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-127",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-127 is planned",
+          "evidence": []
+        }
+      ],
       "details": {
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 8,
-        "featureNotes": 4
+        "featureNotes": 5
       }
     },
     "identity": {

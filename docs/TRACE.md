@@ -983,3 +983,27 @@
 - **Code:** —
 - **Follows:** —
 - **Tests:** —
+
+### FR-126 — AI-inferred Customer Profile: a 1:0..1 advisory `CustomerProfile` row on Customer holding attributes the agent runtime infers from conversation content — demographic band, occupation, motivations, budget signal — with `inferenceCount` and `lastInferredAt` as provenance. The shape is borrowed from the legacy ERD as prior art and rebound (ADR-054 D3): it hangs off the tenant-scoped Customer and adds no scope column of its own. It is derived data, never identity — `Person`/`ChannelIdentity` remain the only identity truth (FR-094), the profile performs no channel merging (ADR-054 D4), and it must be regenerable from retained conversations at any time (ADR-054 D6). It is personal data under SEC-005: reads sit behind the same BR-001 visibility as the FR-091 inbox, and PDPA erasure of the Customer removes the profile with it. One writer in crm `application/`, beside the ingest seam it never widens
+
+- **Feature:** FEAT-014 — CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054)
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
+
+### FR-127 — Conversation intelligence analysis: a per-Conversation, per-analysis-run `ConversationAnalysis` record classifying the exchange — contact type, engagement state, observed call-to-action, tags and a short summary, with the raw model output retained for audit. Keyed to `Conversation.id` and never to the external thread id (BR-002; ADR-054 D4 makes the legacy G-DB-02 gotcha structural rather than disciplinary); state and type vocabularies are string enums owned by `src/lib/validation/enums.js` when implementation lands. Derived and recomputable from `Message` rows, so deleting and re-running analysis is always safe (ADR-054 D6). The producer is the agent runtime, which owns no models by design; the rows and their single writer live under the crm charter (ADR-054 D2). Ad-revenue attribution is explicitly absent — the legacy `sourceAdId` column is dropped from the borrowed shape until an Ad model exists to anchor it (ADR-054 D5)
+
+- **Feature:** FEAT-014 — CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054)
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
+
+### FR-128 — Daily Sales Brief: one aggregate row per (Business, briefDate) summarizing that day's FR-127 analyses — conversation and contact counts, engagement-state breakdown, top calls-to-action and top tags — with a `PENDING → PROCESSED → SENT / FAILED` delivery lifecycle. Aggregates are recomputed from FR-127 rows, never incremented in place, and the row is a delivery record, not a second source of truth (ADR-054 D6). Delivery is a LINE push through the existing outbound transport ownership — BR-011 stands and this feature adds no second LINE writer — to recipients resolved from Membership authority for the Business, never a hardcoded list. Scope is carried as `(businessId, briefDate)` with `tenantId` denormalized the way `Branch` carries it (ADR-054 D3)
+
+- **Feature:** FEAT-014 — CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054)
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —
