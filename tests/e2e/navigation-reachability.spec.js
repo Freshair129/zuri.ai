@@ -29,7 +29,15 @@ const { loginAsOwner } = require('./e2e-auth')
 // api() retries a lost connection, never an answer — see ./reconnecting-request.
 const { api } = require('./reconnecting-request')
 
-const WORK_VIEWS = ['Execution Roadmap', 'Structure Plan', 'Board', 'Schedule', 'Milestones', 'Dependency Map']
+// Order mirrors WorkViewTabs.jsx, so a reader can diff the two by eye. All
+// SEVEN, deliberately: the first version of this list held six and omitted
+// 'Work Items', which joined the bar in ab7fb03 on the same day this spec was
+// written. Nothing caught it, because a list that names what it checks cannot
+// report the one it never named.
+const WORK_VIEWS = [
+  'Execution Roadmap', 'Structure Plan', 'Board', 'Work Items',
+  'Schedule', 'Milestones', 'Dependency Map',
+]
 
 async function chooseBusiness(page, name = 'Business 01') {
   await loginAsOwner(page)
@@ -64,13 +72,19 @@ test.describe('navigation reachability', () => {
   // A Work sub-view whose page does not itself render the tab bar is a one-way
   // door. Land on each one and prove every sibling is still offered.
   //
-  // `fr040-project-work.spec.js` lands on `/structure` alone. The other five
+  // `fr040-project-work.spec.js` lands on `/structure` alone. The other six
   // routes are only covered here, and a tab bar can go missing on one route
   // while rendering on its neighbour.
+  //
+  // Both loops must stay in step with WorkViewTabs.jsx: this one decides which
+  // routes are landed on, WORK_VIEWS decides which siblings are demanded once
+  // there. A view missing from the pairs is never visited; missing from
+  // WORK_VIEWS, it can be dropped from the bar with the suite still green.
   for (const [label, suffix] of [
     ['Execution Roadmap', 'roadmap'],
     ['Structure Plan', 'structure'],
     ['Board', 'board'],
+    ['Work Items', 'all-work'],
     ['Schedule', 'timeline'],
     ['Milestones', 'milestones'],
     ['Dependency Map', 'dependencies'],
