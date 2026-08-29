@@ -2,8 +2,8 @@
 title: "ROADMAP: Business-01 SmartGift — Delivery"
 doc_id: "ROADMAP-BUSINESS01-SMARTGIFT"
 status: "approved"
-version: "1.0.0"
-updated: "2026-08-12"
+version: "1.1.0"
+updated: "2026-08-29"
 owner: "Owen"
 source_of_truth: true
 live_document: true
@@ -22,6 +22,18 @@ live_document: true
 > **กติกา denominator (จาก SGMP01-state.md):** ตัวเลขความคืบหน้าเป็นของ **Business-01
 > เท่านั้น** (1 จาก 4 ธุรกิจในเครือ = 25%). ห้ามนำเสนอ coverage ของ SmartGift เป็น
 > coverage ของทั้งเครือ
+>
+> Revision 1.1.0 (2026-08-29): แก้แถว `SG-MSP-EXTRACT` สองจุด — (1) repo ชื่อ
+> `Freshair129/msp` ที่แถวนี้อ้างถึง **ไม่มีอยู่จริงอีกต่อไป** ถูกเปลี่ยนชื่อเป็น
+> `Freshair129/Memory-and-Soul-Passport` วันเดียวกัน — pointer ที่ชี้ผิดในเอกสารที่
+> ประกาศตัวเองว่า `source_of_truth: true` คือบันทึกเท็จ ไม่ใช่รายละเอียดปลีกย่อย;
+> (2) ตัวเลข Gate A (176 vitest + 30 security) ถูก **รันซ้ำจริงทั้งชุด** วันเดียวกัน
+> ไม่ใช่คัดลอกต่อจากเอกสารเดิม — ตรงกับ baseline เป๊ะทั้งสามค่า และยืนยันว่าไม่มี
+> `describe.skipIf`/`it.skip` ที่ไหนเลยในชุดเทสต์ (ต่างจาก GKS ที่ชุด integration
+> ข้ามเงียบเมื่อไม่ได้ตั้ง `MSP_REPO_ROOT` แต่ยัง exit 0)
+>
+> **ไม่แตะตัวเลข progress ของ phase ใดเลยในรอบนี้** — ไม่มีหลักฐานใหม่ว่างานฝั่ง
+> SmartGift เดินไปจากเดิม การขยับเลขโดยไม่มีหลักฐานคือสิ่งที่ไฟล์นี้มีไว้กันเอง
 
 ## Phases
 
@@ -47,7 +59,7 @@ live_document: true
 | SG-COP-SEAM | PHASE-SG-COPILOT | task | ต่อท่อ: LINE (zuri-command-agent) → query จริงเหนือ sot.duckdb → ตอบมี guard | P0 | Claude | in-progress | SG-DATA-SOT | DEMO-RUNBOOK §3 D1 |
 | SG-COP-FIXTURE | PHASE-SG-COPILOT | task | ลบ fetchQueryData ตัวปลอม (hardcoded revenue) — query ที่ไม่รู้จัก fail-closed | P0 | Claude | planned | SG-COP-SEAM | DEMO-RUNBOOK §5 risk 1 |
 | SG-COP-QUERIES | PHASE-SG-COPILOT | task | เพิ่ม query อ่านอย่างเดียว: monthly_sales / top_customers / tier_counts / pipeline | P1 | Claude | planned | SG-COP-SEAM | DEMO-RUNBOOK §3 D2 |
-| SG-MSP-EXTRACT | PHASE-SG-FOUNDATION | task | Extract MSP → standalone Freshair129/msp (Gate A: standalone + GoVibe still works) — verified 176 vitest + 30 security green | P0 | Codex | done | - | ADR-007 P1; docs/prompts/EXTRACT-MSP.codex.md |
+| SG-MSP-EXTRACT | PHASE-SG-FOUNDATION | task | Extract MSP → standalone repo (Gate A: standalone + GoVibe still works) — verified 176 vitest + 30 security green. **repo เปลี่ยนชื่อเป็น `Freshair129/Memory-and-Soul-Passport` แล้ว** (2026-08-29; ชื่อ `msp` เดิมไม่มีอยู่จริงอีกต่อไป) และตัวเลข Gate A ถูก **รันซ้ำจริง** วันเดียวกัน ไม่ใช่อ้างจากเอกสาร: 30/30 security + 176/176 vitest ตรงกับ baseline เป๊ะ, ไม่มี test ตัวไหน skip เงียบ | P0 | Codex | done | - | ADR-007 P1; docs/prompts/EXTRACT-MSP.codex.md |
 | SG-IDENTITY-PRIM | PHASE-SG-FOUNDATION | task | ExternalIdentity model + resolveLineIdentity (LINE→Person, tenant-scoped, idempotent, audited) | P0 | Claude | done | - | FR-021; IMPACT-SCAN-IDENTITY |
 | SG-BACKEND-SLICE | PHASE-SG-FOUNDATION | task | Zuri Backend Slice CRM core (FR-023): Customer+Conversation+Message + LINE ingest through the identity seam (tested 140/140) | P0 | Claude | done | SG-IDENTITY-PRIM | ADR-007 P2; FR-023 |
 | SG-IDENTITY-P3 | PHASE-SG-FOUNDATION | task | Full P3 gate on FR-021 (FR-022): `resolveLinePrincipal` seam + account linking (single-use token, merge-aware) + PDPA erase-revoke + staff/customer split — tested 160/160 | P0 | Claude | done | SG-IDENTITY-PRIM | ADR-007 P3; IMPACT-SCAN-IDENTITY; FR-022 |

@@ -50,8 +50,7 @@
   },
   "drift": {
     "changed": [
-      "code:src/modules/project-manager/application/progress-service.js",
-      "code:src/modules/project-manager/components/useApi.js"
+      "doc:ROADMAP-business01-smartgift-delivery"
     ],
     "added": [],
     "removed": []
@@ -6072,7 +6071,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/application/progress-service.js",
       "hash": "4f03b3b0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-020"
@@ -6632,7 +6631,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/components/useApi.js",
       "hash": "4bb3090d",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-045"
@@ -8641,8 +8640,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP-business01-smartgift-delivery.md",
       "title": "ROADMAP: Business-01 SmartGift — Delivery",
-      "hash": "a6764432",
-      "status": "current"
+      "hash": "1b7c45dd",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-zuri-ai-24w-program",
