@@ -1,9 +1,19 @@
 import { z } from 'zod'
 
-// Phase #76 canonical domain shape. Prisma will persist this contract later in
-// the same issue; persistence is a projection of this domain meaning, not its
-// source of truth.
-// @spec ADR-038
+// The provider-neutral MarketObservation contract. A candidate draft object in, a
+// validated draft out; nothing here reads, resolves or persists. The schema is the
+// domain's meaning and the Prisma model is a projection of it, not its source of
+// truth. `.strict()` is a boundary rule rather than a style choice: a source payload
+// cannot smuggle an unmodelled field into Market-owned state, and businessId is
+// required-but-nullable so an explicit "no Business" cannot be spelled as an omitted
+// one. The resolution invariants keep identity honest in both directions — RESOLVED
+// must carry a canonical reference, UNRESOLVED must not — so "we could not identify
+// this" stays a truthful state instead of a half-populated one. This file has no I/O
+// and cannot see provenance, so it makes no replay-safety or scope-trust claim; those
+// belong to the translator, the persistence adapter and the raw read port.
+// @req FR-092
+// @spec SDD-049, ADR-038
+// @tested tests/unit/market-intelligence/market-observation-domain.test.js
 
 export const MARKET_RESOLUTION_STATUS = Object.freeze({
   RESOLVED: 'RESOLVED',

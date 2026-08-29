@@ -1,10 +1,19 @@
 import { MARKET_RESOLUTION_STATUS } from '../application/translate-raw-record'
 
-// Market-facing adapter over the existing governed BusinessKnowledgeReadPort.
-// The current Knowledge contract exposes canonical approved PRODUCT records via
-// registered queries but does not expose a canonical category-id registry, so this
-// adapter deliberately resolves only canonical product refs for now.
-// @spec ADR-038
+// Market's only door to canonical identity. A payload-derived candidate in, a
+// resolution verdict out; this adapter writes nothing and mints no knowledge. The
+// candidate may supply the search *term* and nothing else — the Business scope is
+// taken from the trusted caller, never from the payload, and a missing Business
+// returns UNRESOLVED rather than widening into a cross-Business read. Knowledge is
+// reached only through the governed BusinessKnowledgeReadPort's registered
+// `product_search` query, so this file cannot invent a query the Knowledge contract
+// has not sanctioned. That contract exposes canonical approved PRODUCT records but
+// no canonical category-id registry, so `canonicalCategoryRef` is always null here.
+// Ambiguity is reported, not resolved: exactly one exact match is RESOLVED, while
+// zero or several matches stay PARTIAL so a review can settle identity later.
+// @req FR-092
+// @spec SDD-049, SEC-017, ADR-038
+// @tested tests/unit/market-intelligence/gks-market-identity-resolver.test.js
 
 function unresolved() {
   return {
