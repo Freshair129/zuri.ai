@@ -236,6 +236,7 @@
     "FR-126",
     "FR-127",
     "FR-128",
+    "FR-129",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -330,6 +331,7 @@
     "SDD-072",
     "SDD-073",
     "SDD-074",
+    "SDD-075",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2482,6 +2484,19 @@
         }
       ]
     },
+    "FR-129": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "162c81f77df7a254af837d638996df08d1348461d8e1ec0af1b436c4dc969ef2",
+      "history": [
+        {
+          "anchor": "catalog publication approval gate",
+          "since": "2026-08-30",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3717,6 +3732,19 @@
       ],
       "statement_digest_reviewed_at": "2026-08-30",
       "statement_digest_reason": "Same subject; the design statement now describes the GET/POST split on /authorize and the two consent tokens, which are HMACs and add no model."
+    },
+    "SDD-075": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4b65102e56014da4fa2deba413f9319bda8f150d58760ceabedfac8e48aa8081",
+      "history": [
+        {
+          "anchor": "an approval gate s evidence goes in pipelinegatedecision",
+          "since": "2026-08-30",
+          "reason": "declared"
+        }
+      ]
     },
     "SEC-001": {
       "family": "SEC",

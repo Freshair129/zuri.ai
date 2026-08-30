@@ -3,27 +3,27 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1460,
-    "total_edges": 4997,
+    "total_nodes": 1464,
+    "total_edges": 4999,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 122,
+      "document": 124,
       "adr": 54,
       "domain": 8,
       "roadmap": 28,
       "feature": 14,
       "route": 160,
       "model": 70,
-      "requirement": 266,
+      "requirement": 268,
       "test": 348,
       "code_file": 386
     },
     "coverage": {
-      "requirements": 266,
+      "requirements": 268,
       "fr_with_code": "100% (118/118)",
       "fr_with_tests": "100% (118/118)",
-      "rules_anchored_in_code": "97% (112/116)",
+      "rules_anchored_in_code": "96% (112/117)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 386,
       "fr_planned": [
@@ -36,7 +36,8 @@
         "FR-125",
         "FR-126",
         "FR-127",
-        "FR-128"
+        "FR-128",
+        "FR-129"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -44,7 +45,8 @@
         "BR-017",
         "SDD-040",
         "SDD-041",
-        "SDD-046"
+        "SDD-046",
+        "SDD-075"
       ],
       "rules_superseded": [
         "SDD-001",
@@ -54,32 +56,9 @@
   },
   "drift": {
     "changed": [
-      "doc:A-api-spec",
-      "doc:README",
-      "spec:ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
-      "domain:identity",
-      "doc:FR-123-plugin-authentication-and-capability-discovery",
-      "doc:INTERFACE-INVENTORY",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "test:tests/integration/openapi-docs.test.js",
-      "test:tests/unit/fr123-plugin-auth-route.test.js",
-      "code:src/app/api/plugin/auth/authorize/route.js",
-      "code:src/modules/identity/plugin-auth-service.js",
-      "code:src/modules/identity/session-port.js",
-      "code:src/modules/project-manager/api-docs/openapi.js"
+      "doc:README"
     ],
-    "added": [
-      "route:page:/plugin/authorize",
-      "test:tests/e2e/fr123-plugin-consent.spec.js",
-      "test:tests/integration/fr123-plugin-consent-gate.test.js",
-      "test:tests/unit/fr123-plugin-consent-view.test.js",
-      "test:tests/unit/fr123-plugin-consent.test.js",
-      "code:src/app/(entry)/plugin/authorize/page.jsx",
-      "code:src/modules/identity/plugin-consent-access.js",
-      "code:src/modules/identity/plugin-consent-view.js",
-      "code:src/modules/identity/plugin-consent.js"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -2546,7 +2525,7 @@
       "type": "code_file",
       "path": "src/app/api/plugin/auth/authorize/route.js",
       "hash": "8bebeb47",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-123"
@@ -5000,7 +4979,7 @@
       "type": "code_file",
       "path": "src/modules/identity/plugin-auth-service.js",
       "hash": "0565113a",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-123"
@@ -5236,7 +5215,7 @@
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
       "hash": "6ed7f3a9",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
@@ -6168,7 +6147,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "ebb1b320",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-019",
@@ -7922,7 +7901,7 @@
       "version": "1.28.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "f80574cb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -7992,6 +7971,14 @@
       "path": "docs/change-requests/CR-002-GKS-MSP-CATALOG-VAULT-RESOLUTION.md",
       "title": "CR-002 — Multi-Tier Scope Chain to Zuri Edge Device, GKS (Genesis-Knowledge-System) & MSP (Memory-and-Soul-Passport) Catalog Vault Resolution",
       "hash": "4af854fa",
+      "status": "current"
+    },
+    {
+      "id": "doc:CR-003-ACCEPTED-SHAPE",
+      "type": "document",
+      "path": "docs/change-requests/CR-003-ACCEPTED-SHAPE.md",
+      "title": "CR-003 — the shape this repository will accept",
+      "hash": "174fa2a5",
       "status": "current"
     },
     {
@@ -8095,9 +8082,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.9.0b",
+      "version": "1.10.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "2ead7b95",
+      "hash": "5bd73647",
       "status": "current"
     },
     {
@@ -8775,7 +8762,7 @@
       "path": "docs/domains/identity/features/FR-123-plugin-authentication-and-capability-discovery.md",
       "title": "FR-123 — Plugin authentication and capability discovery",
       "hash": "d6893654",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-124-product-readiness-dashboard",
@@ -8799,6 +8786,14 @@
       "path": "docs/domains/crm/features/FR-127-conversation-intelligence-analysis.md",
       "title": "FR-127 — Conversation intelligence analysis",
       "hash": "50b414ca",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-129-catalog-publication-approval-gate",
+      "type": "document",
+      "path": "docs/domains/integration/features/FR-129-catalog-publication-approval-gate.md",
+      "title": "FR-129 — Catalog publication approval gate",
+      "hash": "80cedd3b",
       "status": "current"
     },
     {
@@ -8837,7 +8832,7 @@
       "version": "1.2.2b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "3eae55ab",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -9070,10 +9065,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.125.0b",
+      "version": "1.126.0b",
       "doc_status": "Draft",
-      "hash": "b8ee6bc4",
-      "status": "changed"
+      "hash": "9d99c5dd",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -9100,7 +9095,7 @@
       "type": "document",
       "path": "docs/change-requests/README.md",
       "title": "`docs/change-requests/` — intake, not governance",
-      "hash": "7ce2bd7b",
+      "hash": "b6e91a2c",
       "status": "changed"
     },
     {
@@ -9117,7 +9112,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "fcd1c02c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -9344,7 +9339,7 @@
         "identity"
       ],
       "hash": "01d490dc",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "domain:integration",
@@ -11440,6 +11435,16 @@
       "row_text": "Daily Sales Brief: one aggregate row per (Business, briefDate) summarizing that day's FR-127 analyses — conversation and contact counts, engagement-state breakdown, top calls-to-action and top tags — with a `PENDING → PROCESSED → SENT / FAILED` delivery lifecycle. Aggregates are recomputed from FR-127 rows, never incremented in place, and the row is a delivery record, not a second source of truth (ADR-054 D6). Delivery is a LINE push through the existing outbound transport ownership — BR-011 stands and this feature adds no second LINE writer — to recipients resolved from Membership authority for the Business, never a hardcoded list. Scope is carried as `(businessId, briefDate)` with `tenantId` denormalized the way `Branch` carries it (ADR-054 D3) 🔜 declared only — no schema, worker or delivery path exists; authorized shape is ADR-054 D2/D3 "
     },
     {
+      "id": "req:FR-129",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Catalog publication approval gate: a `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` run that has produced a candidate projection does not reach `DPS-PUBLISH` until an authorized human has recorded an `APPROVED` `PipelineGateDecision` against that run, and a `REJECTED` decision sends it to `DPS-ROLLBACK` instead — the two stage labels FR-071's catalog has always carried (\"Publish approved projection\", \"Rollback failed or rejected run\") with nothing yet deciding which one a run takes. (a) The decision is recorded on the existing FR-071 execution ledger and declares **no new model and no new column**: `PipelineGateDecision.decidedByPersonId` is who signed, that row's own `createdAt` is when, `required` is whether the gate was waivable, `reason` carries a rejection, and `PipelineRun.artifactRef`/`artifactSha256` already identify the artifact the run applied. A second run table as CR-003 proposes is refused: `IngestionRun` (FR-081) is acquisition evidence for one connection and `PipelineRun` (FR-071) is the execution ledger for one pipeline definition, and a third answer to \"what happened in this pipeline\" would make the reconciliation evidence something that has to be believed twice (SDD-057). (b) The evidence a reviewer acted on — the candidate publication's own identity, and the added/changed/unchanged counts shown — is written to `PipelineGateDecision.evidenceJson` (SDD-075); a signature whose evidence is empty records that somebody approved but not what they saw, which is not an auditable decision. (c) The destination vault is not stored: it resolves from the run's Tenant/Business scope through API-010 (FR-057, ADR-022), so a stored copy would be a second answer to which vault a scope maps to. (d) Tier 1 records and does not execute (ADR-043 D2.1, ADR-050 D3). The gate is therefore a precondition the executing worker must observe and the ledger makes checkable afterwards — a run whose publish stage succeeded with no prior `APPROVED` decision is a detectable violation — not an interlock this repository enforces on a worker it does not run. (e) **Distinct from FR-110's Stage 17 quality gate**, permanently and by design: FR-110 is an automated `PASS`/`PASS_WITH_WARNINGS` verdict on a `DPL-KNOWLEDGE-INGEST-V1` knowledge snapshot, this is a human signature on a business-knowledge catalog version, and both will answer to \"approval gate on a pipeline run\" in any future search while sharing the one `PipelineGateDecision` table. Reworked from CR-003; no reviewer UI is in scope (CR-003 §2.B is a feature programme, not this requirement)",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Catalog publication approval gate: a `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` run that has produced a candidate projection does not reach `DPS-PUBLISH` until an authorized human has recorded an `APPROVED` `PipelineGateDecision` against that run, and a `REJECTED` decision sends it to `DPS-ROLLBACK` instead — the two stage labels FR-071's catalog has always carried (\"Publish approved projection\", \"Rollback failed or rejected run\") with nothing yet deciding which one a run takes. (a) The decision is recorded on the existing FR-071 execution ledger and declares **no new model and no new column**: `PipelineGateDecision.decidedByPersonId` is who signed, that row's own `createdAt` is when, `required` is whether the gate was waivable, `reason` carries a rejection, and `PipelineRun.artifactRef`/`artifactSha256` already identify the artifact the run applied. A second run table as CR-003 proposes is refused: `IngestionRun` (FR-081) is acquisition evidence for one connection and `PipelineRun` (FR-071) is the execution ledger for one pipeline definition, and a third answer to \"what happened in this pipeline\" would make the reconciliation evidence something that has to be believed twice (SDD-057). (b) The evidence a reviewer acted on — the candidate publication's own identity, and the added/changed/unchanged counts shown — is written to `PipelineGateDecision.evidenceJson` (SDD-075); a signature whose evidence is empty records that somebody approved but not what they saw, which is not an auditable decision. (c) The destination vault is not stored: it resolves from the run's Tenant/Business scope through API-010 (FR-057, ADR-022), so a stored copy would be a second answer to which vault a scope maps to. (d) Tier 1 records and does not execute (ADR-043 D2.1, ADR-050 D3). The gate is therefore a precondition the executing worker must observe and the ledger makes checkable afterwards — a run whose publish stage succeeded with no prior `APPROVED` decision is a detectable violation — not an interlock this repository enforces on a worker it does not run. (e) **Distinct from FR-110's Stage 17 quality gate**, permanently and by design: FR-110 is an automated `PASS`/`PASS_WITH_WARNINGS` verdict on a `DPL-KNOWLEDGE-INGEST-V1` knowledge snapshot, this is a human signature on a business-knowledge catalog version, and both will answer to \"approval gate on a pipeline run\" in any future search while sharing the one `PipelineGateDecision` table. Reworked from CR-003; no reviewer UI is in scope (CR-003 §2.B is a feature programme, not this requirement) 🔜 declared only — the schema it needs already exists and is already under RLS, and none of the write path does: `zGate` in `src/platform/integrations/core/pipeline-tracking-contract.js` is a five-field `.strict()` object with no evidence member, `recordPipelineEvent` writes `evidenceJson: '{}'` unconditionally, `gateSummary` omits the column from the read model, and nothing anywhere consults a gate decision before a publish stage. Blocked additionally on a product decision nobody has made: who may sign, and whether a gate is required per definition or per run "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -12378,6 +12383,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "Plugin auth is one canonical `/api/plugin/auth` route family over three identity-owned models (`PluginInstallation`, `PluginAuthorizationCode`, `PluginSession`), with every handler thin over `src/modules/identity/plugin-auth-service.js`. `/authorize` carries two operations for one reason: a GET that renders and never acts (it 302s to `/plugin/authorize` without reading a session or touching the database) and a POST that acts and only from that screen's own form. The consent screen's facts are server-derived through the same service functions the mint uses — `assertPluginAuthorizeParameters` for the parameters and `derivePluginCapabilitiesForViewer` for the capability list — so the screen cannot validate one request while the mint performs another. The two consent tokens are HMACs over `ZURI_SESSION_SECRET` and are stored nowhere, so the gate needs no model and no DDL. Single-use is a **database predicate, not a read-then-write**: consumption is `updateMany({ consumedAt: null })` inside the same transaction that creates the session, so two concurrent redemptions produce one count of 1 and one count of 0 and the loser throws before anything is written. The PKCE challenge is compared with `timingSafeEqual`, never `===`, because it is a secret comparison. Client configuration is read from the environment, exact and fail-closed. The plugin session is neither the browser session nor the MCP continuation id, and plugin input never authors Tenant/Business/Membership/role scope — `resolveViewer` is the only scope resolver, called without `platformGrant`. `POST /token` and `POST /revoke` are structurally exempt from the Check-10 route-viewer ratchet, the same class as the `/api/auth` lifecycle endpoints: their only credential is the one-time code or the opaque bearer, so requiring a browser viewer there would be the broken boundary, not the safe one. FR-123; ADR-052, SEC-022, SDD-024, ADR-017 "
+    },
+    {
+      "id": "req:SDD-075",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "An approval gate's evidence goes in `PipelineGateDecision.evidenceJson`, not in typed columns on the shared ledger. The column has existed since FR-071 in both `prisma/schema.prisma` and `supabase/migrations/20260820221703_smartgift_pipeline_tracking.sql` (`text NOT NULL DEFAULT '{}'`, under FORCE ROW LEVEL SECURITY with the other five tables) and nothing has ever written it: `zGate` is a five-field `.strict()` object with no evidence member, `recordPipelineEvent` passes the literal `'{}'`, and `gateSummary` drops the field from the read model — so the evidence column is present, tested for existence, and unreachable. That is the same \"column present since FR-071, unwritten by anything\" shape SDD-070 found on `PipelineStep`, and it takes the same fix: one optional member on the event envelope, persisted only when a caller actually supplies it, so every existing decision row and every existing caller is unchanged. Adding `catalogVersion`, `vaultId`, `approvedAt` and `approvedBy` columns as CR-003 proposes was rejected on the ledger's own terms. SDD-066 made these six tables definition-neutral precisely so a second pipeline definition could share them; `catalogVersion` is one definition's vocabulary, and putting it in a table both definitions write is the union-catalog mistake SDD-066 already refused, relocated from the validator into the schema where no validator can refuse it. `approvedAt` and `approvedBy` are additionally redundant — the `APPROVED` row's own `createdAt` and `decidedByPersonId` are those two facts, and a second copy of a fact is a second answer to it. `vaultId` is resolved per API-010 from scope (FR-057, ADR-022) and is not the ledger's to hold. The cost is named rather than hidden: `evidenceJson` is untyped `text`, so gate evidence is exactly as checkable as the Zod member that writes it and no more — which is why that member is a declared part of this decision instead of left for the first caller to invent, and why a reader must not infer a schema from a sample row.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "An approval gate's evidence goes in `PipelineGateDecision.evidenceJson`, not in typed columns on the shared ledger. The column has existed since FR-071 in both `prisma/schema.prisma` and `supabase/migrations/20260820221703_smartgift_pipeline_tracking.sql` (`text NOT NULL DEFAULT '{}'`, under FORCE ROW LEVEL SECURITY with the other five tables) and nothing has ever written it: `zGate` is a five-field `.strict()` object with no evidence member, `recordPipelineEvent` passes the literal `'{}'`, and `gateSummary` drops the field from the read model — so the evidence column is present, tested for existence, and unreachable. That is the same \"column present since FR-071, unwritten by anything\" shape SDD-070 found on `PipelineStep`, and it takes the same fix: one optional member on the event envelope, persisted only when a caller actually supplies it, so every existing decision row and every existing caller is unchanged. Adding `catalogVersion`, `vaultId`, `approvedAt` and `approvedBy` columns as CR-003 proposes was rejected on the ledger's own terms. SDD-066 made these six tables definition-neutral precisely so a second pipeline definition could share them; `catalogVersion` is one definition's vocabulary, and putting it in a table both definitions write is the union-catalog mistake SDD-066 already refused, relocated from the validator into the schema where no validator can refuse it. `approvedAt` and `approvedBy` are additionally redundant — the `APPROVED` row's own `createdAt` and `decidedByPersonId` are those two facts, and a second copy of a fact is a second answer to it. `vaultId` is resolved per API-010 from scope (FR-057, ADR-022) and is not the ledger's to hold. The cost is named rather than hidden: `evidenceJson` is untyped `text`, so gate evidence is exactly as checkable as the Zod member that writes it and no more — which is why that member is a declared part of this decision instead of left for the first caller to invent, and why a reader must not infer a schema from a sample row. FR-129; FR-071, FR-110, SDD-042, SDD-057, SDD-066, SDD-070, ADR-030 "
     },
     {
       "id": "req:SEC-001",
@@ -14297,7 +14312,7 @@
       "path": "docs/decisions/ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md",
       "title": "ADR-052 — Canonical Plugin Authorization-Code and Token Boundary",
       "hash": "6cdb2300",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
@@ -14873,7 +14888,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "b4dfa25c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -15741,7 +15756,7 @@
       "type": "test",
       "path": "tests/unit/fr123-plugin-auth-route.test.js",
       "hash": "2faa4ad7",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/fr123-plugin-auth-service.test.js",
@@ -29970,6 +29985,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-129",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -30622,6 +30644,13 @@
     },
     {
       "from": "req:SDD-074",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-075",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",

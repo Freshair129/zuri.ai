@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-30T02:23:46.095Z",
+  "generatedAt": "2026-08-30T08:53:24.402Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,12 +37,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 8,
-    "featureCount": 104,
+    "featureCount": 105,
     "readyFeatureCount": 94,
-    "requirementCount": 128,
+    "requirementCount": 129,
     "verifiedRequirementCount": 118,
-    "progressPercent": 92.2,
-    "gapCount": 19,
+    "progressPercent": 91.5,
+    "gapCount": 20,
     "gaps": [
       {
         "domain": "agent",
@@ -141,6 +141,14 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-125 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-129",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-129 is planned",
         "evidence": []
       },
       {
@@ -1186,6 +1194,13 @@
           "status": "planned",
           "codeCount": 0,
           "testCount": 0
+        },
+        {
+          "id": "FR-129",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -1294,6 +1309,7 @@
         "docs/domains/integration/features/FR-100-sot-approval-inbox.md",
         "docs/domains/integration/features/FR-101-sot-pipeline-graph-dashboard.md",
         "docs/domains/integration/features/FR-125-flowaccount-read-only-pull-pipeline.md",
+        "docs/domains/integration/features/FR-129-catalog-publication-approval-gate.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1321,6 +1337,13 @@
           "check": "requirements",
           "summary": "FR-125 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-129",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-129 is planned",
+          "evidence": []
         }
       ],
       "details": {
@@ -1328,7 +1351,7 @@
         "apiRoutes": 6,
         "pageRoutes": 4,
         "ownedModels": 15,
-        "featureNotes": 7
+        "featureNotes": 8
       },
       "featureIds": [
         "FEAT-004",
@@ -1336,11 +1359,12 @@
         "FR-081",
         "FR-102",
         "FR-106",
-        "FR-125"
+        "FR-125",
+        "FR-129"
       ],
-      "featureCount": 6,
+      "featureCount": 7,
       "readyFeatureCount": 4,
-      "progressPercent": 87.5
+      "progressPercent": 77.8
     },
     "knowledge": {
       "status": "partial",
@@ -7434,6 +7458,36 @@
       "requirements": [
         {
           "id": "FR-125",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FR-129",
+      "title": "Catalog publication approval gate: a `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` run that has produced a candidate projection does not reach `DPS-PUBLISH` until an authorized human has recorded an `APPROVED` `PipelineGateDecision` against that run, and a `REJECTED` decision sends it to `DPS-ROLLBACK` instead — the two stage labels FR-071's catalog has always carried (\"Publish approved projection\", \"Rollback failed or rejected run\") with nothing yet deciding which one a run takes. (a) The decision is recorded on the existing FR-071 execution ledger and declares **no new model and no new column**: `PipelineGateDecision.decidedByPersonId` is who signed, that row's own `createdAt` is when, `required` is whether the gate was waivable, `reason` carries a rejection, and `PipelineRun.artifactRef`/`artifactSha256` already identify the artifact the run applied. A second run table as CR-003 proposes is refused: `IngestionRun` (FR-081) is acquisition evidence for one connection and `PipelineRun` (FR-071) is the execution ledger for one pipeline definition, and a third answer to \"what happened in this pipeline\" would make the reconciliation evidence something that has to be believed twice (SDD-057). (b) The evidence a reviewer acted on — the candidate publication's own identity, and the added/changed/unchanged counts shown — is written to `PipelineGateDecision.evidenceJson` (SDD-075); a signature whose evidence is empty records that somebody approved but not what they saw, which is not an auditable decision. (c) The destination vault is not stored: it resolves from the run's Tenant/Business scope through API-010 (FR-057, ADR-022), so a stored copy would be a second answer to which vault a scope maps to. (d) Tier 1 records and does not execute (ADR-043 D2.1, ADR-050 D3). The gate is therefore a precondition the executing worker must observe and the ledger makes checkable afterwards — a run whose publish stage succeeded with no prior `APPROVED` decision is a detectable violation — not an interlock this repository enforces on a worker it does not run. (e) **Distinct from FR-110's Stage 17 quality gate**, permanently and by design: FR-110 is an automated `PASS`/`PASS_WITH_WARNINGS` verdict on a `DPL-KNOWLEDGE-INGEST-V1` knowledge snapshot, this is a human signature on a business-knowledge catalog version, and both will answer to \"approval gate on a pipeline run\" in any future search while sharing the one `PipelineGateDecision` table. Reworked from CR-003; no reviewer UI is in scope (CR-003 §2.B is a feature programme, not this requirement)",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-129"
+      ],
+      "primaryDomain": "integration",
+      "contributorDomains": [
+        "integration"
+      ],
+      "useCase": "ผู้มีอำนาจอนุมัติตรวจ catalog version ที่ยังไม่เผยแพร่พร้อมยอดที่เพิ่ม เปลี่ยน และไม่เปลี่ยน แล้วลงชื่ออนุมัติหรือปฏิเสธ โดยลายเซ็นและหลักฐานที่เห็นถูกบันทึกไว้กับ run เดียวกัน",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-129 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-129",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,
