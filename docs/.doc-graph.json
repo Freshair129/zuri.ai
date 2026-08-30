@@ -54,7 +54,8 @@
   },
   "drift": {
     "changed": [
-      "doc:README"
+      "doc:README",
+      "doc:ROADMAP"
     ],
     "added": [],
     "removed": []
@@ -9015,8 +9016,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "51404342",
-      "status": "current"
+      "hash": "05f224f3",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",

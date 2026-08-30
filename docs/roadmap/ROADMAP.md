@@ -2,7 +2,7 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.8.0"
+version: "2.10.0"
 updated: "2026-08-30"
 owner: "Owen"
 source_of_truth: true
@@ -141,6 +141,27 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > การประกาศ FR ใหม่ต่อจากนี้ต้องเขียน use case หนึ่งประโยคใน docs/FEATURES.md ด้วย
 > มิฉะนั้น `npm run govern` จะหยุด — เพราะ "คนใช้ทำอะไรได้" เป็นฟิลด์เดียวที่ generator
 > อนุมานเองไม่ได้
+>
+> Revision 2.10.0 (2026-08-30): **Stage 9 ขยับ — 8/17 → 9/17 (52.9%)**
+> `DPS-KI-ENTITY-RESOLVE` ถูกย้ายเป็น DONE บน `PRJ-KNOWLEDGE-17S` โดยอ้าง merge
+> `e412ec0` บน `Freshair129/Genesis-Knowledge-System` เป็นหลักฐาน. **หลักฐานถูก
+> ตรวจซ้ำจากฝั่งนี้ ไม่ใช่รับคำบอก** — commit มีอยู่จริงพร้อมข้อความตรงตามอ้าง,
+> `migrations/0002_entity_resolution.sql` และ `packages/gks-core/src/resolve.mjs`
+> มีอยู่, ชุด acceptance นับได้ 16 เทสต์พอดีตามที่อ้าง, และรันทั้งชุดบนเครื่องนี้
+> ได้ 126 vitest + 9 security ผ่านหมด **ไม่มี skip แม้แต่ตัวเดียว** ซึ่งสำคัญเพราะ
+> ชุด integration จะข้ามตัวเองเงียบ ๆ ถ้าไม่มี `MSP_REPO_ROOT`.
+>
+> **เกณฑ์ DONE ที่ใช้คือเกณฑ์เดิมของบอร์ด** — "calculator ships and is tested"
+> ไม่ใช่ "pipeline runs" ซึ่งเป็นเกณฑ์เดียวกับที่ stage 1..8 ผ่านมา. ยังไม่มี
+> production deployment ของสาย MSP→GKS และยังไม่เคยมี ingestion run จริงเรียกใช้
+> Stage 9 — เขียนไว้ตรงนี้เพราะถ้าใครอยากให้ DONE แปลว่า "ถูกเรียกบน production
+> แล้ว" stage 1..8 ก็ไม่ผ่านเกณฑ์นั้นเหมือนกัน และการตั้งเกณฑ์พิเศษเฉพาะ stage ที่
+> ทีมอื่นทำคืออคติ ไม่ใช่ความเข้มงวด.
+>
+> ประโยคเดิมที่ว่า "ทั้งสองตัวขยับต่อไม่ได้จากฝั่ง Tier 1 อีกแล้ว" ยังจริง แต่
+> **อ่านผิดได้ว่าตัวเลขจะไม่ขยับอีกเลย** — มันขยับแล้ว จากฝั่ง GKS ตามที่ ADR-050
+> วางไว้ จึงขยายประโยคให้บอกว่าการเคลื่อนไหวมาจากทางไหน. หมายเหตุ frontmatter:
+> `version` ค้างที่ 2.8.0 ขณะที่บันทึกเดินถึง 2.9.0 แล้ว — ซิงก์เป็น 2.10.0 พร้อมกัน
 
 ## Phases
 
@@ -157,7 +178,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | PHASE-ZAI-CRM | CRM console + consent: Conversation Inbox (FR-091), reply receipt (FR-093), PDPA consent attestation (FR-103 ปิด SEC-005), market translation (FR-092) | code + tests ครบทุกตัวรวม e2e (`tests/e2e/fr091-conversation-inbox.spec.js`) | done | 100 |
 | PHASE-ZAI-IAM | Production IAM (FEAT-010: FR-094..098, ADR-045) + password reset (FR-104) + onboarding/invites (FR-066/067 — ส่งมอบ 2026-08-27) + Enterprise API token auth (FR-106 ปิด SEC-006) + operator grant store/bootstrap (FR-107 — operator คนแรก live บน production) | เหลือ tail เดียว: FEAT-010 hardening (FR-097 provider evidence) | in-progress | 90 |
 | PHASE-ZAI-SOT | SoT pipeline console (FEAT-011: FR-099..101) + data-plane service-account auth (FR-102, ADR-047) | ~~RSK-016~~ ปิดแล้ว 2026-08-27 (migration ทั้ง 6 apply + ledger); เหลือ: decision loop เดินจริงกับ data plane ภายนอก | in-progress | 95 |
-| PHASE-ZAI-KNOWLEDGE | 17-Stage Knowledge Ingestion & GraphRAG (ADR-050): governance declaration (FEAT-013: FR-109..111) + Stage 7 chunking calculator ส่งมอบแล้ว (FR-112, SDD-059 — pure calculator, ไม่มี model); Stage 8 entity candidate extraction ส่งมอบแล้ว (FR-113, SDD-060 — candidate เท่านั้น, recognition เป็น seam); Stage 2 parsing (FR-115), Stage 3 provenance (FR-116), Stage 4 normalization (FR-114), Stage 5 classification (FR-111) และ Stage 6 dedup/versioning (FR-117) ส่งมอบครบ — **ทุก stage ของ Tier 1 มี implementation แล้ว** (1..8) — และตั้งแต่ 2026-08-28/29 **ประกอบเป็นสายจริงแล้ว ไม่ใช่คู่ ๆ อีกต่อไป**: FR-118 (`runKnowledgeIngestionStages`, SDD-068) เรียก stage calculator ทั้งเจ็ด (2..8) เรียงตาม ADR-050 D2 ในรอบเดียว, FR-119 (`runKnowledgeIngestionStagesWithTrace`, SDD-072) รายงานว่า stage ไหนล้มพร้อม envelope ของ BR-022 แทนที่จะเงียบทั้งรอบ, และ `ingestKnowledgeDocument` (SDD-069) เขียนหลักฐานลง FR-071 ledger จริง — สามชิ้นนี้คือครึ่ง Tier 1 ที่เคยขาด; AC-109.3 (2026-08-29, PR #165) ผูก `artifact_id` กลับไปหา raw payload ของ FR-081 ทำให้ FR-109 ปิดไป 6 ใน 13 AC; BR-021 กับ SEC-021 หลุดจากรายการ rules-without-code-anchor เป็นหลักฐานเชิงกลไก **แต่ pipeline ยังไม่ operable ครบ**: FR-110 (published snapshot + Stage 17 gate) ยังเป็น declaration ล้วน และ stage 9..17 ไม่ใช่ของ repo นี้ | ทั้ง 17 stages มีเจ้าของ/implementation ตาม tier boundary; ~~**มี stage runner ที่เรียก Tier 1 ต่อกันได้จริง**~~ ปิดแล้ว 2026-08-28 (FR-118/FR-119); FR-110 ส่งมอบ; stage 9..17 เป็นของ GKS/GenesisBlockDB ตาม ADR-050. **ตัวเลข 60 นี้เป็น phase progress ไม่ใช่สัดส่วน stage ที่เสร็จ** — stage ที่ปิดได้จริงคือ 8/17 = 47.1% ซึ่งอ่านได้จาก project `PRJ-KNOWLEDGE-17S` ในแอป (WS-SMARTGIFT, หนึ่ง task ต่อหนึ่ง stage) สองตัวนี้ต่างกันเพราะ phase รวมงาน governance/composition ที่ไม่ใช่ stage เข้ามาด้วย (FR-118 การประกอบ, FR-119 failure attribution, SDD-069 ledger wiring, AC-109.3 artifact binding) ส่วน project นับเฉพาะ stage. **ทั้งสองตัวขยับต่อไม่ได้จากฝั่ง Tier 1 อีกแล้ว** — stage ที่เหลือทั้งเก้าเป็นของ GKS กับ GenesisBlockDB | in-progress | 60 |
+| PHASE-ZAI-KNOWLEDGE | 17-Stage Knowledge Ingestion & GraphRAG (ADR-050): governance declaration (FEAT-013: FR-109..111) + Stage 7 chunking calculator ส่งมอบแล้ว (FR-112, SDD-059 — pure calculator, ไม่มี model); Stage 8 entity candidate extraction ส่งมอบแล้ว (FR-113, SDD-060 — candidate เท่านั้น, recognition เป็น seam); Stage 2 parsing (FR-115), Stage 3 provenance (FR-116), Stage 4 normalization (FR-114), Stage 5 classification (FR-111) และ Stage 6 dedup/versioning (FR-117) ส่งมอบครบ — **ทุก stage ของ Tier 1 มี implementation แล้ว** (1..8) — และตั้งแต่ 2026-08-28/29 **ประกอบเป็นสายจริงแล้ว ไม่ใช่คู่ ๆ อีกต่อไป**: FR-118 (`runKnowledgeIngestionStages`, SDD-068) เรียก stage calculator ทั้งเจ็ด (2..8) เรียงตาม ADR-050 D2 ในรอบเดียว, FR-119 (`runKnowledgeIngestionStagesWithTrace`, SDD-072) รายงานว่า stage ไหนล้มพร้อม envelope ของ BR-022 แทนที่จะเงียบทั้งรอบ, และ `ingestKnowledgeDocument` (SDD-069) เขียนหลักฐานลง FR-071 ledger จริง — สามชิ้นนี้คือครึ่ง Tier 1 ที่เคยขาด; AC-109.3 (2026-08-29, PR #165) ผูก `artifact_id` กลับไปหา raw payload ของ FR-081 ทำให้ FR-109 ปิดไป 6 ใน 13 AC; BR-021 กับ SEC-021 หลุดจากรายการ rules-without-code-anchor เป็นหลักฐานเชิงกลไก **แต่ pipeline ยังไม่ operable ครบ**: FR-110 (published snapshot + Stage 17 gate) ยังเป็น declaration ล้วน และ stage 9..17 ไม่ใช่ของ repo นี้ | ทั้ง 17 stages มีเจ้าของ/implementation ตาม tier boundary; ~~**มี stage runner ที่เรียก Tier 1 ต่อกันได้จริง**~~ ปิดแล้ว 2026-08-28 (FR-118/FR-119); FR-110 ส่งมอบ; stage 9..17 เป็นของ GKS/GenesisBlockDB ตาม ADR-050. **ตัวเลข 60 นี้เป็น phase progress ไม่ใช่สัดส่วน stage ที่เสร็จ** — stage ที่ปิดได้จริงคือ 9/17 = 52.9% ซึ่งอ่านได้จาก project `PRJ-KNOWLEDGE-17S` ในแอป (WS-SMARTGIFT, หนึ่ง task ต่อหนึ่ง stage) สองตัวนี้ต่างกันเพราะ phase รวมงาน governance/composition ที่ไม่ใช่ stage เข้ามาด้วย (FR-118 การประกอบ, FR-119 failure attribution, SDD-069 ledger wiring, AC-109.3 artifact binding) ส่วน project นับเฉพาะ stage. **ทั้งสองตัวขยับต่อไม่ได้จากฝั่ง Tier 1 อีกแล้ว** — stage ที่เหลือเป็นของ GKS กับ GenesisBlockDB และ**เริ่มขยับจากฝั่งนั้นแล้ว**: Stage 9 (`DPS-KI-ENTITY-RESOLVE`, entity resolution) ส่งมอบใน GKS เมื่อ 2026-08-29 — merge `e412ec0` บน `Freshair129/Genesis-Knowledge-System`, promotion เปลี่ยนเป็น read-then-decide ผ่าน ladder หกขั้นพร้อม auto-merge floor 0.85 และ human review loop; task ถูกย้ายเป็น DONE บนบอร์ดโดยอ้าง commit นั้นเป็นหลักฐาน ตามที่ tier-boundary doc กำหนดว่าการย้ายต้องอิงหลักฐานไม่ใช่คำกล่าวอ้าง. **เกณฑ์ DONE ที่ใช้คือเกณฑ์เดิมของบอร์ดเอง** — "calculator ships and is tested" ไม่ใช่ "pipeline runs" ซึ่งเป็นเกณฑ์เดียวกับที่ stage 1..8 ผ่านมา; ยังไม่มี production deployment ของสาย MSP→GKS และยังไม่เคยมี ingestion run จริงเรียกใช้ | in-progress | 60 |
 
 ## Backlog Items
 
