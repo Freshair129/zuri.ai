@@ -9,7 +9,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 22,
+    "info": 23,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -249,12 +249,24 @@
       "id": "I22",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 8 document(s)",
-      "details": "swept whole: docs/appendices · out of scope: docs/decisions, docs/changes (folders of ordinary prose whose ids come from their own H1, not table documents) · checked: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md, docs/appendices/A-api-spec.md, docs/appendices/B-db-schema.md, docs/appendices/D-traceability.md, docs/appendices/F-glossary.md",
+      "title": "table integrity checked in 227 document(s)",
+      "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
       ],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
+    },
+    {
+      "id": "I23",
+      "severity": "info",
+      "check": "table-integrity",
+      "title": "2 document(s) contain rows shorter than their table's header",
+      "details": "docs/PRD-SDD-v1.0.md:20, docs/SITEMAP-DOMAIN-NAV.md:4 — GFM pads a short row with empty cells, so each renders exactly as written; counted, not reported per row",
+      "files": [
+        "docs/PRD-SDD-v1.0.md",
+        "docs/SITEMAP-DOMAIN-NAV.md"
+      ],
+      "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     }
   ]
 }

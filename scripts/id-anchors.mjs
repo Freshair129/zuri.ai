@@ -203,8 +203,13 @@ const tableIdRe = (families) => new RegExp(`^(?:${families.join('|')})-\\d{3}$`)
  * for a literal pipe inside a cell, and splitting on it truncated the statement
  * mid-token — which then fired as a subject move with a garbage anchor that the
  * repair path would have pinned for the life of the project.
+ *
+ * Exported because scripts/doc-graph.mjs needs the same answer. It split rows on
+ * a bare `|` until 2026-08-30 and therefore truncated SDD-071's label at the
+ * escape, publishing a half sentence into Appendix D — two readings of one row,
+ * from two splitters, differing on the one character this whole file is about.
  */
-const splitRow = (line) => line.split(/(?<!\\)\|/).map((c) => c.replace(/\\\|/g, '|').trim())
+export const splitRow = (line) => line.split(/(?<!\\)\|/).map((c) => c.replace(/\\\|/g, '|').trim())
 
 /**
  * Retirement, read from both halves of the row and deliberately asymmetric — a
@@ -273,9 +278,10 @@ function collectTable(root, reg, file, out, dups) {
     // cells 3 and beyond. Never relax it.
     if (!id || !idRe.test(id)) continue
     const statement = (cells[2] || '').replace(/\s+/g, ' ').trim()
-    // slice(3), never [3]: the BR table is two columns (except BR-019, which
-    // alone has three), so indexing behaves differently there. The slice yields
-    // the empty trailing cell instead of undefined.
+    // slice(3), never [3]: most BR rows write only two cells — the table is
+    // three columns wide, but the `Traces to` column is empty for all but the
+    // two rows that carry it — so indexing behaves differently there. The slice
+    // yields the empty trailing cell instead of undefined.
     const status = tableStatus(statement, cells.slice(3))
     if (out.has(id)) {
       // First row wins, as in doc-graph — but the ones it drops are no longer

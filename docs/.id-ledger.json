@@ -3727,14 +3727,16 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "9d34f0d6ad2484c29b4c08306f9881ab03ff816b7be5551b9f4d6f1014479447",
+      "statement_digest": "11fa895086584d1dad5fee2d12f1c0ae3d5df1b60dde4a55d86cf3f36b3003d4",
       "history": [
         {
           "anchor": "the execution monitor has read pipelinerun actualcount",
           "since": "2026-08-28",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-08-30",
+      "statement_digest_reason": "Rendering escape only: the two pipes of the JavaScript || 0 code span are now written \\| so GFM stops splitting the row. The statement text is unchanged; the digest moved because the unescaped pipe had been truncating the parsed statement at that point, so the ledger was pinned to a fragment."
     },
     "SDD-072": {
       "family": "SDD",
