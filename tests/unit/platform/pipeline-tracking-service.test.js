@@ -137,6 +137,8 @@ function event(run, step, over = {}) {
 }
 
 function knowledgeGateEvent(run, over = {}) {
+  const tenantId = over.tenantId ?? 't-2'
+  const businessId = over.businessId ?? BUSINESS.id
   return event(run, {
     pipelineStageId: KNOWLEDGE_QUALITY_GATE_STAGE_ID,
     executionStepId: 'knowledge-quality-step-1',
@@ -146,8 +148,8 @@ function knowledgeGateEvent(run, over = {}) {
     eventType: 'GATE_UPDATED',
     dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
     executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
-    tenantId: 't-2',
-    businessId: BUSINESS.id,
+    tenantId,
+    businessId,
     status: 'APPROVED',
     failureCode: null,
     errorRef: null,
@@ -162,8 +164,8 @@ function knowledgeGateEvent(run, over = {}) {
         verdict: 'PASS',
         snapshot: {
           knowledge_snapshot_id: 'snapshot-1',
-          tenant_id: 't-2',
-          business_id: BUSINESS.id,
+          tenant_id: tenantId,
+          business_id: businessId,
           ontology_version: 'ontology-1',
           pipeline_version: 'pipeline-1',
           published_at: '2026-08-31T00:00:00.000Z',
@@ -261,6 +263,73 @@ describe('FR-071 pipeline tracking service', () => {
 
     await expect(recordPipelineEvent(knowledgeGateEvent(created.run), { db, viewer, idFactory: ids }))
       .rejects.toThrow(/scope/i)
+
+    expect(db.pipelineGateDecision.rows).toHaveLength(0)
+    expect(db.pipelineEventReceipt.rows).toHaveLength(0)
+    expect(db.auditEvent.rows).toHaveLength(auditsBefore)
+  })
+
+  it('records Stage 17 evidence when the run owns the canonical quality step and attempt', async () => {
+    const created = await createPipelineRun(runInput({
+      dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
+      idempotencyKey: 'ki-run-stage-binding-positive',
+    }), { db, viewer, idFactory: ids })
+    const qualityStep = db.pipelineStep.rows.find((step) => step.pipelineStageId === KNOWLEDGE_QUALITY_GATE_STAGE_ID)
+    const auditsBefore = db.auditEvent.rows.length
+
+    const result = await recordPipelineEvent(knowledgeGateEvent(created.run, {
+      tenantId: created.run.tenantId,
+      businessId: created.run.businessId,
+      executionStepId: qualityStep.executionStepId,
+      attemptId: qualityStep.attemptId,
+    }), { db, viewer, idFactory: ids })
+
+    expect(result.status).toBe('CREATED')
+    expect(result.step).toMatchObject({
+      pipelineStageId: KNOWLEDGE_QUALITY_GATE_STAGE_ID,
+      executionStepId: qualityStep.executionStepId,
+      attemptId: qualityStep.attemptId,
+    })
+    expect(result.gate).toMatchObject({ status: 'PENDING' })
+    expect(db.pipelineGateDecision.rows).toHaveLength(1)
+    expect(db.pipelineEventReceipt.rows).toHaveLength(1)
+    expect(db.auditEvent.rows).toHaveLength(auditsBefore + 1)
+  })
+
+  it('refuses a Stage 17 event whose step belongs to another knowledge stage', async () => {
+    const created = await createPipelineRun(runInput({
+      dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
+      idempotencyKey: 'ki-run-stage-binding-1',
+    }), { db, viewer, idFactory: ids })
+    const wrongStage = db.pipelineStep.rows.find((step) => step.pipelineStageId === 'DPS-KI-PARSE')
+    const auditsBefore = db.auditEvent.rows.length
+
+    await expect(recordPipelineEvent(knowledgeGateEvent(created.run, {
+      tenantId: created.run.tenantId,
+      businessId: created.run.businessId,
+      executionStepId: wrongStage.executionStepId,
+      attemptId: wrongStage.attemptId,
+    }), { db, viewer, idFactory: ids })).rejects.toThrow(/stage.*step|step.*stage/i)
+
+    expect(db.pipelineGateDecision.rows).toHaveLength(0)
+    expect(db.pipelineEventReceipt.rows).toHaveLength(0)
+    expect(db.auditEvent.rows).toHaveLength(auditsBefore)
+  })
+
+  it('refuses a Stage 17 event whose step identity is not persisted in the run', async () => {
+    const created = await createPipelineRun(runInput({
+      dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
+      idempotencyKey: 'ki-run-stage-binding-2',
+    }), { db, viewer, idFactory: ids })
+    const auditsBefore = db.auditEvent.rows.length
+
+    await expect(recordPipelineEvent(knowledgeGateEvent(created.run, {
+      tenantId: created.run.tenantId,
+      businessId: created.run.businessId,
+    }), { db, viewer, idFactory: ids })).rejects.toThrow(/step/i)
 
     expect(db.pipelineGateDecision.rows).toHaveLength(0)
     expect(db.pipelineEventReceipt.rows).toHaveLength(0)

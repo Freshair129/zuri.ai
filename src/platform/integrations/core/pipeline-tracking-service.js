@@ -468,6 +468,19 @@ export async function recordPipelineEvent(input, {
       }
     }
 
+    // FR-110 Stage 17 is a decision over the canonical quality-gate occurrence,
+    // not a free-form gate row. Keep legacy step-event auto-creation above
+    // unchanged, but require this gate to resolve an existing Stage 17 step in
+    // this run with the same attempt identity.
+    if (event.eventType === 'GATE_UPDATED'
+      && event.dataPipelineDefinitionId === KNOWLEDGE_INGESTION_DEFINITION_ID
+      && event.pipelineStageId === KNOWLEDGE_QUALITY_GATE_STAGE_ID
+      && (!step
+        || step.pipelineStageId !== KNOWLEDGE_QUALITY_GATE_STAGE_ID
+        || step.attemptId !== event.attemptId)) {
+      throw serviceError(409, 'Knowledge quality gate event requires a matching Stage 17 step and attempt')
+    }
+
     if (stepStatus) {
       assertStatusTransition(step.status, stepStatus, { kind: 'step' })
     }
