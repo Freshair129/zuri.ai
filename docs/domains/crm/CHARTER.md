@@ -10,6 +10,7 @@ owns_models:
   - CustomerImportReviewDecision
   - Conversation
   - Message
+  - ConversationAnalysis
 ---
 
 # Domain charter — crm
@@ -57,6 +58,14 @@ turn flows through before any agent work happens.
   (never a Member grant), and resolves the Customer through the caller's owned
   Business's tenant — the same BR-001 scope `getConversationInbox` reads
   through — so a Customer id alone can never widen the write past it.
+- `recordConversationAnalysis` / `getConversationAnalyses` — the FR-127 derived
+  CRM record boundary. A run is keyed by an internal `Conversation.id` and its
+  generated analysis id; writes require ownership of the exact bound Business
+  (or any owned Business in the same tenant for a tenant-shared conversation),
+  while reads require the existing Business visibility scope and current
+  Customer consent `GRANTED`. The model output is retained for recomputation but
+  is absent from the projected read DTO and audit payload. This increment has no
+  worker, provider, public route or UI.
 - The FR-078 duplicate review queue stores only deterministic IDs, hashes,
   counts and boolean evidence flags. A Business-scoped Customer Data Reviewer
   may append a decision, but the queue never publishes a Customer or replays
@@ -72,10 +81,10 @@ turn flows through before any agent work happens.
 
 ## Declared, not yet in schema (FEAT-014, ADR-054)
 
-`CustomerProfile`, `ConversationAnalysis` and `DailyBrief` (FR-126/127/128) are
-declared to land under this charter — derived, recomputable intelligence over
-the models above, shapes borrowed from the legacy ERD as prior art with the
-rebinding rules in ADR-054. They are deliberately **not** in `owns_models`
-yet: that list mirrors `prisma/schema.prisma`, and the implementation lane
-adds them there in the same change that adds the models. Until then this
-paragraph is the claim, so no other lane designs these tables elsewhere.
+`CustomerProfile` and `DailyBrief` (FR-126/128) remain declared to land under
+this charter — derived, recomputable intelligence over the models above, with
+shapes borrowed from the legacy ERD as prior art and rebinding rules in
+ADR-054. They are deliberately **not** in `owns_models` yet: that list mirrors
+`prisma/schema.prisma`, and each implementation lane adds a model there in the
+same change that adds it. Until then this paragraph is the claim, so no other
+lane designs these tables elsewhere.

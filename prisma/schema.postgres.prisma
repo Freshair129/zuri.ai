@@ -1258,6 +1258,7 @@ model Conversation {
 
   customer Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
   messages Message[]
+  analyses ConversationAnalysis[]
 
   // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
   // it by tenant and channel is what makes the external namespace tenant-partitioned:
@@ -1284,6 +1285,34 @@ model Message {
   // NULL stays non-conflicting in both engines, so unkeyed outbound messages are free.
   @@unique([conversationId, externalMessageId])
   @@index([conversationId])
+}
+
+// @req FR-127 — each recomputable, advisory analysis run belongs to an internal
+// Conversation. Tenant/business scope is inherited through Conversation;
+// external provider thread ids are never used as identity. analyzedDate is a
+// grouping field, while this model's generated id identifies the run.
+// @spec ADR-054 D3-D6, BR-001, SEC-005
+// @tested tests/integration/crm-conversation-analysis.test.js
+model ConversationAnalysis {
+  id            String   @id @default(uuid())
+  conversationId String
+  analyzedDate  DateTime
+  analyzedAt    DateTime @default(now())
+  contactType   String
+  state         String
+  cta           String?
+  tags          String
+  summary       String
+  rawOutputJson String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, analyzedDate])
+  @@index([analyzedDate])
+  @@index([contactType])
+  @@index([state])
 }
 
 model AuditEvent {

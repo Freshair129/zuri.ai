@@ -13,7 +13,7 @@
 // name the capability, not to compose a bigger loop over ownsBusiness.
 // @spec BR-008, SDD-023, ADR-016 D10
 // @spec SEC-008
-// @tested tests/integration/backup.test.js, tests/unit/fr045-backup-contract.test.js
+// @tested tests/integration/backup.test.js, tests/integration/crm-conversation-analysis.test.js, tests/unit/fr045-backup-contract.test.js
 // @tested tests/integration/fr075-restore-authorization.test.js
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
@@ -101,7 +101,10 @@ const SNAPSHOT_MODELS = [
   // sotDataPlaneKey above: only its hash restores, never the raw secret,
   // which the model never persists in the first place.
   'apiAccessKey',
-  'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message', 'auditEvent',
+  'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message',
+  // @req FR-127 — analyses are derived children of Conversation and must travel
+  // with it so an export/import round trip does not silently lose CRM context.
+  'conversationAnalysis', 'auditEvent',
 ]
 
 /**
