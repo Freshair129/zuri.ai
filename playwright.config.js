@@ -6,6 +6,7 @@ const path = require('path')
 // does not collide with the first. The primary checkout still runs on :3100.
 const { e2eTarget } = require('./tests/e2e/e2e-target')
 const { E2E_PASSWORD, E2E_SESSION_SECRET } = require('./tests/e2e/e2e-auth')
+const { E2E_PLUGIN_CLIENT_ID, E2E_PLUGIN_CLIENT_NAME, e2ePluginRedirectUri } = require('./tests/e2e/e2e-plugin')
 
 const target = e2eTarget()
 
@@ -102,6 +103,12 @@ module.exports = defineConfig({
       DATABASE_URL: target.databaseUrl,
       ZURI_SESSION_SECRET: E2E_SESSION_SECRET,
       ZURI_SEED_OWNER_PASSWORD: E2E_PASSWORD,
+      // @req FR-123 — the plugin boundary is fail-closed without a registered
+      // client, so the consent screen cannot be reached at all unless this run
+      // registers one. Test-only, and only for this isolated server.
+      ZURI_PLUGIN_CLIENT_ID: E2E_PLUGIN_CLIENT_ID,
+      ZURI_PLUGIN_CLIENT_NAME: E2E_PLUGIN_CLIENT_NAME,
+      ZURI_PLUGIN_REDIRECT_URIS: e2ePluginRedirectUri(),
     },
   },
 })

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-30T01:48:45.099Z",
+  "generatedAt": "2026-08-30T02:23:46.095Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -885,8 +885,8 @@
           "id": "FR-123",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 7
+          "codeCount": 9,
+          "testCount": 11
         }
       ],
       "checks": {
@@ -897,8 +897,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 7,
-            "inventoried": 7,
+            "routes": 8,
+            "inventoried": 8,
             "missing": 0
           }
         },
@@ -969,9 +969,9 @@
             }
           ],
           "details": {
-            "mutations": 12,
-            "guardedMutations": 8,
-            "reads": 4,
+            "mutations": 13,
+            "guardedMutations": 9,
+            "reads": 3,
             "unguardedReads": 0
           }
         },
@@ -1047,9 +1047,9 @@
         }
       ],
       "details": {
-        "routes": 23,
+        "routes": 24,
         "apiRoutes": 16,
-        "pageRoutes": 7,
+        "pageRoutes": 8,
         "ownedModels": 16,
         "featureNotes": 17
       },
@@ -2313,7 +2313,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 7
+          "testCount": 11
         },
         {
           "id": "FR-124",
@@ -7320,7 +7320,7 @@
     },
     {
       "id": "FR-123",
-      "title": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052).",
+      "title": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052). Authorization is a two-step gate: `GET /authorize` renders a consent screen and mints nothing, and only a POST from that screen's form — carrying the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token whose parameters are the ones displayed — mints a code. Refusal returns `error=access_denied` with the original `state` (ADR-052 D4).",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
@@ -7341,25 +7341,33 @@
           "id": "FR-123",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 7
+          "codeCount": 11,
+          "testCount": 11
         }
       ],
       "evidence": [
+        "src/app/(entry)/plugin/authorize/page.jsx",
         "src/app/api/plugin/auth/authorize/route.js",
         "src/app/api/plugin/auth/capabilities/route.js",
         "src/app/api/plugin/auth/revoke/route.js",
         "src/app/api/plugin/auth/token/route.js",
         "src/modules/identity/plugin-auth-service.js",
+        "src/modules/identity/plugin-consent-access.js",
+        "src/modules/identity/plugin-consent-view.js",
+        "src/modules/identity/plugin-consent.js",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/application/backup-service.js",
+        "tests/e2e/fr123-plugin-consent.spec.js",
         "tests/integration/backup.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/fr123-plugin-consent-gate.test.js",
         "tests/integration/openapi-docs.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/fr123-plugin-auth-migration.test.js",
         "tests/unit/fr123-plugin-auth-route.test.js",
-        "tests/unit/fr123-plugin-auth-service.test.js"
+        "tests/unit/fr123-plugin-auth-service.test.js",
+        "tests/unit/fr123-plugin-consent-view.test.js",
+        "tests/unit/fr123-plugin-consent.test.js"
       ]
     },
     {

@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1451,
-    "total_edges": 4966,
+    "total_nodes": 1460,
+    "total_edges": 4997,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 8,
       "roadmap": 28,
       "feature": 14,
-      "route": 159,
+      "route": 160,
       "model": 70,
       "requirement": 266,
-      "test": 344,
-      "code_file": 382
+      "test": 348,
+      "code_file": 386
     },
     "coverage": {
       "requirements": 266,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (118/118)",
       "rules_anchored_in_code": "97% (112/116)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 382,
+      "annotated_code_files": 386,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -54,9 +54,32 @@
   },
   "drift": {
     "changed": [
-      "doc:README"
+      "doc:A-api-spec",
+      "doc:README",
+      "spec:ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
+      "domain:identity",
+      "doc:FR-123-plugin-authentication-and-capability-discovery",
+      "doc:INTERFACE-INVENTORY",
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP",
+      "test:tests/integration/openapi-docs.test.js",
+      "test:tests/unit/fr123-plugin-auth-route.test.js",
+      "code:src/app/api/plugin/auth/authorize/route.js",
+      "code:src/modules/identity/plugin-auth-service.js",
+      "code:src/modules/identity/session-port.js",
+      "code:src/modules/project-manager/api-docs/openapi.js"
     ],
-    "added": [],
+    "added": [
+      "route:page:/plugin/authorize",
+      "test:tests/e2e/fr123-plugin-consent.spec.js",
+      "test:tests/integration/fr123-plugin-consent-gate.test.js",
+      "test:tests/unit/fr123-plugin-consent-view.test.js",
+      "test:tests/unit/fr123-plugin-consent.test.js",
+      "code:src/app/(entry)/plugin/authorize/page.jsx",
+      "code:src/modules/identity/plugin-consent-access.js",
+      "code:src/modules/identity/plugin-consent-view.js",
+      "code:src/modules/identity/plugin-consent.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -163,6 +186,26 @@
         ],
         "@tested": [
           "tests/unit/workspace-onboarding-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(entry)/plugin/authorize/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(entry)/plugin/authorize/page.jsx",
+      "hash": "e2f91316",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-123"
+        ],
+        "@spec": [
+          "SDD-074",
+          "SEC-022"
+        ],
+        "@tested": [
+          "tests/unit/fr123-plugin-consent-view.test.js",
+          "tests/e2e/fr123-plugin-consent.spec.js"
         ]
       }
     },
@@ -2502,8 +2545,8 @@
       "id": "code:src/app/api/plugin/auth/authorize/route.js",
       "type": "code_file",
       "path": "src/app/api/plugin/auth/authorize/route.js",
-      "hash": "82e154b1",
-      "status": "current",
+      "hash": "8bebeb47",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-123"
@@ -2513,7 +2556,8 @@
           "SEC-022"
         ],
         "@tested": [
-          "tests/unit/fr123-plugin-auth-route.test.js"
+          "tests/unit/fr123-plugin-auth-route.test.js",
+          "tests/e2e/fr123-plugin-consent.spec.js"
         ]
       }
     },
@@ -4955,8 +4999,8 @@
       "id": "code:src/modules/identity/plugin-auth-service.js",
       "type": "code_file",
       "path": "src/modules/identity/plugin-auth-service.js",
-      "hash": "3db08ea0",
-      "status": "current",
+      "hash": "0565113a",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-123"
@@ -4967,6 +5011,63 @@
         ],
         "@tested": [
           "tests/unit/fr123-plugin-auth-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/plugin-consent-access.js",
+      "type": "code_file",
+      "path": "src/modules/identity/plugin-consent-access.js",
+      "hash": "34656945",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-123"
+        ],
+        "@spec": [
+          "SDD-074",
+          "SEC-022"
+        ],
+        "@tested": [
+          "tests/unit/fr123-plugin-consent-view.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/plugin-consent-view.js",
+      "type": "code_file",
+      "path": "src/modules/identity/plugin-consent-view.js",
+      "hash": "d696f301",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-123"
+        ],
+        "@spec": [
+          "SDD-074",
+          "SEC-022"
+        ],
+        "@tested": [
+          "tests/unit/fr123-plugin-consent-view.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/plugin-consent.js",
+      "type": "code_file",
+      "path": "src/modules/identity/plugin-consent.js",
+      "hash": "240d0799",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-123"
+        ],
+        "@spec": [
+          "SDD-074",
+          "SEC-022"
+        ],
+        "@tested": [
+          "tests/unit/fr123-plugin-consent.test.js"
         ]
       }
     },
@@ -5134,8 +5235,8 @@
       "id": "code:src/modules/identity/session-port.js",
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
-      "hash": "b30318b2",
-      "status": "current",
+      "hash": "6ed7f3a9",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-046",
@@ -6066,8 +6167,8 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "42fbdb70",
-      "status": "current",
+      "hash": "ebb1b320",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
@@ -7818,10 +7919,10 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.27.0b",
+      "version": "1.28.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "7fccd235",
-      "status": "current"
+      "hash": "f80574cb",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -8673,8 +8774,8 @@
       "type": "document",
       "path": "docs/domains/identity/features/FR-123-plugin-authentication-and-capability-discovery.md",
       "title": "FR-123 — Plugin authentication and capability discovery",
-      "hash": "045a1f88",
-      "status": "current"
+      "hash": "d6893654",
+      "status": "changed"
     },
     {
       "id": "doc:FR-124-product-readiness-dashboard",
@@ -8735,8 +8836,8 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.2.2b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "fdf4d09b",
-      "status": "current"
+      "hash": "3eae55ab",
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -8969,10 +9070,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.124.0b",
+      "version": "1.125.0b",
       "doc_status": "Draft",
-      "hash": "c5b4ed0c",
-      "status": "current"
+      "hash": "b8ee6bc4",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -9015,8 +9116,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "05f224f3",
-      "status": "current"
+      "hash": "fcd1c02c",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -9242,8 +9343,8 @@
       "modules": [
         "identity"
       ],
-      "hash": "689f812e",
-      "status": "current"
+      "hash": "01d490dc",
+      "status": "changed"
     },
     {
       "id": "domain:integration",
@@ -11282,11 +11383,11 @@
       "id": "req:FR-123",
       "type": "requirement",
       "family": "FR",
-      "label": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052).",
+      "label": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052). Authorization is a two-step gate: `GET /authorize` renders a consent screen and mints nothing, and only a POST from that screen's form — carrying the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token whose parameters are the ones displayed — mints a code. Refusal returns `error=access_denied` with the original `state` (ADR-052 D4).",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052). 🟠 implemented locally; production Supabase migration, client registration, device-binding evidence and a consent step on `GET /authorize` remain gated "
+      "row_text": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052). Authorization is a two-step gate: `GET /authorize` renders a consent screen and mints nothing, and only a POST from that screen's form — carrying the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token whose parameters are the ones displayed — mints a code. Refusal returns `error=access_denied` with the original `state` (ADR-052 D4). 🟠 implemented locally; consent gate closed; production Supabase migration, client registration, device-binding evidence and a reaper for expired codes/sessions remain gated "
     },
     {
       "id": "req:FR-124",
@@ -12272,11 +12373,11 @@
       "id": "req:SDD-074",
       "type": "requirement",
       "family": "SDD",
-      "label": "Plugin auth is one canonical `/api/plugin/auth` route family over three identity-owned models (`PluginInstallation`, `PluginAuthorizationCode`, `PluginSession`), with all four handlers thin over `src/modules/identity/plugin-auth-service.js`. Single-use is a **database predicate, not a read-then-write**: consumption is `updateMany({ consumedAt: null })` inside the same transaction that creates the session, so two concurrent redemptions produce one count of 1 and one count of 0 and the loser throws before anything is written. The PKCE challenge is compared with `timingSafeEqual`, never `===`, because it is a secret comparison. Client configuration is read from the environment, exact and fail-closed. The plugin session is neither the browser session nor the MCP continuation id, and plugin input never authors Tenant/Business/Membership/role scope — `resolveViewer` is the only scope resolver, called without `platformGrant`. `POST /token` and `POST /revoke` are structurally exempt from the Check-10 route-viewer ratchet, the same class as the `/api/auth` lifecycle endpoints: their only credential is the one-time code or the opaque bearer, so requiring a browser viewer there would be the broken boundary, not the safe one.",
+      "label": "Plugin auth is one canonical `/api/plugin/auth` route family over three identity-owned models (`PluginInstallation`, `PluginAuthorizationCode`, `PluginSession`), with every handler thin over `src/modules/identity/plugin-auth-service.js`. `/authorize` carries two operations for one reason: a GET that renders and never acts (it 302s to `/plugin/authorize` without reading a session or touching the database) and a POST that acts and only from that screen's own form. The consent screen's facts are server-derived through the same service functions the mint uses — `assertPluginAuthorizeParameters` for the parameters and `derivePluginCapabilitiesForViewer` for the capability list — so the screen cannot validate one request while the mint performs another. The two consent tokens are HMACs over `ZURI_SESSION_SECRET` and are stored nowhere, so the gate needs no model and no DDL. Single-use is a **database predicate, not a read-then-write**: consumption is `updateMany({ consumedAt: null })` inside the same transaction that creates the session, so two concurrent redemptions produce one count of 1 and one count of 0 and the loser throws before anything is written. The PKCE challenge is compared with `timingSafeEqual`, never `===`, because it is a secret comparison. Client configuration is read from the environment, exact and fail-closed. The plugin session is neither the browser session nor the MCP continuation id, and plugin input never authors Tenant/Business/Membership/role scope — `resolveViewer` is the only scope resolver, called without `platformGrant`. `POST /token` and `POST /revoke` are structurally exempt from the Check-10 route-viewer ratchet, the same class as the `/api/auth` lifecycle endpoints: their only credential is the one-time code or the opaque bearer, so requiring a browser viewer there would be the broken boundary, not the safe one.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Plugin auth is one canonical `/api/plugin/auth` route family over three identity-owned models (`PluginInstallation`, `PluginAuthorizationCode`, `PluginSession`), with all four handlers thin over `src/modules/identity/plugin-auth-service.js`. Single-use is a **database predicate, not a read-then-write**: consumption is `updateMany({ consumedAt: null })` inside the same transaction that creates the session, so two concurrent redemptions produce one count of 1 and one count of 0 and the loser throws before anything is written. The PKCE challenge is compared with `timingSafeEqual`, never `===`, because it is a secret comparison. Client configuration is read from the environment, exact and fail-closed. The plugin session is neither the browser session nor the MCP continuation id, and plugin input never authors Tenant/Business/Membership/role scope — `resolveViewer` is the only scope resolver, called without `platformGrant`. `POST /token` and `POST /revoke` are structurally exempt from the Check-10 route-viewer ratchet, the same class as the `/api/auth` lifecycle endpoints: their only credential is the one-time code or the opaque bearer, so requiring a browser viewer there would be the broken boundary, not the safe one. FR-123; ADR-052, SEC-022, SDD-024, ADR-017 "
+      "row_text": "Plugin auth is one canonical `/api/plugin/auth` route family over three identity-owned models (`PluginInstallation`, `PluginAuthorizationCode`, `PluginSession`), with every handler thin over `src/modules/identity/plugin-auth-service.js`. `/authorize` carries two operations for one reason: a GET that renders and never acts (it 302s to `/plugin/authorize` without reading a session or touching the database) and a POST that acts and only from that screen's own form. The consent screen's facts are server-derived through the same service functions the mint uses — `assertPluginAuthorizeParameters` for the parameters and `derivePluginCapabilitiesForViewer` for the capability list — so the screen cannot validate one request while the mint performs another. The two consent tokens are HMACs over `ZURI_SESSION_SECRET` and are stored nowhere, so the gate needs no model and no DDL. Single-use is a **database predicate, not a read-then-write**: consumption is `updateMany({ consumedAt: null })` inside the same transaction that creates the session, so two concurrent redemptions produce one count of 1 and one count of 0 and the loser throws before anything is written. The PKCE challenge is compared with `timingSafeEqual`, never `===`, because it is a secret comparison. Client configuration is read from the environment, exact and fail-closed. The plugin session is neither the browser session nor the MCP continuation id, and plugin input never authors Tenant/Business/Membership/role scope — `resolveViewer` is the only scope resolver, called without `platformGrant`. `POST /token` and `POST /revoke` are structurally exempt from the Check-10 route-viewer ratchet, the same class as the `/api/auth` lifecycle endpoints: their only credential is the one-time code or the opaque bearer, so requiring a browser viewer there would be the broken boundary, not the safe one. FR-123; ADR-052, SEC-022, SDD-024, ADR-017 "
     },
     {
       "id": "req:SEC-001",
@@ -12492,11 +12593,11 @@
       "id": "req:SEC-022",
       "type": "requirement",
       "family": "SEC",
-      "label": "Plugin auth is a separate public-client boundary: no password or browser cookie enters the plugin; authorization codes are PKCE S256-bound, single-use and stored only as hashes; access tokens are opaque, 15-minute and hash-stored; a replayed code is refused **and** revokes the session it already minted (RFC 9700 §4.1.1); revocation is idempotent and answers identically whether or not the token existed; client id, redirect URI and installation are allow-listed exactly with no host normalization; every capability and scope decision comes from the trusted Zuri identity resolver, without a platform grant. All four responses are `Cache-Control: no-store`, and no error echoes a raw code, token or internal message. The unclosed half is stated rather than implied: `GET /authorize` has **no consent step**, so a signed-in user's browser can be induced to mint a code toward the registered loopback URI by any page they visit.",
+      "label": "Plugin auth is a separate public-client boundary: no password or browser cookie enters the plugin; authorization codes are PKCE S256-bound, single-use and stored only as hashes; access tokens are opaque, 15-minute and hash-stored; a replayed code is refused **and** revokes the session it already minted (RFC 9700 §4.1.1); revocation is idempotent and answers identically whether or not the token existed; client id, redirect URI and installation are allow-listed exactly with no host normalization; every capability and scope decision comes from the trusted Zuri identity resolver, without a platform grant. All four responses are `Cache-Control: no-store`, and no error echoes a raw code, token or internal message. Authorization now requires consent that was actually given: `GET /authorize` renders a screen and mints nothing, and minting requires a POST carrying all three of the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token that is the sole source of the parameters acted on, with a 5-minute TTL and every field re-validated against live configuration on approval. The anti-CSRF token is redundant with `SameSite=Lax` today and is kept so the defence does not live entirely in a cookie attribute another change could remove silently. Refusal is available and answered as `error=access_denied` with the original `state`. What remains open is stated rather than implied: nothing prunes expired codes or sessions, and production client registration, device-binding evidence and security sign-off are outstanding.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Plugin auth is a separate public-client boundary: no password or browser cookie enters the plugin; authorization codes are PKCE S256-bound, single-use and stored only as hashes; access tokens are opaque, 15-minute and hash-stored; a replayed code is refused **and** revokes the session it already minted (RFC 9700 §4.1.1); revocation is idempotent and answers identically whether or not the token existed; client id, redirect URI and installation are allow-listed exactly with no host normalization; every capability and scope decision comes from the trusted Zuri identity resolver, without a platform grant. All four responses are `Cache-Control: no-store`, and no error echoes a raw code, token or internal message. The unclosed half is stated rather than implied: `GET /authorize` has **no consent step**, so a signed-in user's browser can be induced to mint a code toward the registered loopback URI by any page they visit. FR-123 / ADR-052 security gate — 🟠 open on consent; production activation gated "
+      "row_text": "Plugin auth is a separate public-client boundary: no password or browser cookie enters the plugin; authorization codes are PKCE S256-bound, single-use and stored only as hashes; access tokens are opaque, 15-minute and hash-stored; a replayed code is refused **and** revokes the session it already minted (RFC 9700 §4.1.1); revocation is idempotent and answers identically whether or not the token existed; client id, redirect URI and installation are allow-listed exactly with no host normalization; every capability and scope decision comes from the trusted Zuri identity resolver, without a platform grant. All four responses are `Cache-Control: no-store`, and no error echoes a raw code, token or internal message. Authorization now requires consent that was actually given: `GET /authorize` renders a screen and mints nothing, and minting requires a POST carrying all three of the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token that is the sole source of the parameters acted on, with a 5-minute TTL and every field re-validated against live configuration on approval. The anti-CSRF token is redundant with `SameSite=Lax` today and is kept so the defence does not live entirely in a cookie attribute another change could remove silently. Refusal is available and answered as `error=access_denied` with the original `state`. What remains open is stated rather than implied: nothing prunes expired codes or sessions, and production client registration, device-binding evidence and security sign-off are outstanding. FR-123 / ADR-052 security gate — 🟠 consent closed; production activation gated "
     },
     {
       "id": "route:api:/api/agent/heartbeat",
@@ -13555,6 +13656,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/plugin/authorize",
+      "type": "route",
+      "kind": "page",
+      "route": "/plugin/authorize",
+      "path": "src/app/(entry)/plugin/authorize/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/profile",
       "type": "route",
       "kind": "page",
@@ -14187,8 +14296,8 @@
       "type": "adr",
       "path": "docs/decisions/ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md",
       "title": "ADR-052 — Canonical Plugin Authorization-Code and Token Boundary",
-      "hash": "37c8e2e4",
-      "status": "current"
+      "hash": "6cdb2300",
+      "status": "changed"
     },
     {
       "id": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
@@ -14288,6 +14397,13 @@
       "type": "test",
       "path": "tests/e2e/fr120-signup.spec.js",
       "hash": "888a6751",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/e2e/fr123-plugin-consent.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr123-plugin-consent.spec.js",
+      "hash": "49891865",
       "status": "current"
     },
     {
@@ -14571,6 +14687,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr123-plugin-consent-gate.test.js",
+      "type": "test",
+      "path": "tests/integration/fr123-plugin-consent-gate.test.js",
+      "hash": "358bd296",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/iam-authorization.test.js",
       "type": "test",
       "path": "tests/integration/iam-authorization.test.js",
@@ -14749,8 +14872,8 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "90489a55",
-      "status": "current"
+      "hash": "b4dfa25c",
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -15617,14 +15740,28 @@
       "id": "test:tests/unit/fr123-plugin-auth-route.test.js",
       "type": "test",
       "path": "tests/unit/fr123-plugin-auth-route.test.js",
-      "hash": "dab2b85e",
-      "status": "current"
+      "hash": "2faa4ad7",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr123-plugin-auth-service.test.js",
       "type": "test",
       "path": "tests/unit/fr123-plugin-auth-service.test.js",
       "hash": "77995422",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr123-plugin-consent-view.test.js",
+      "type": "test",
+      "path": "tests/unit/fr123-plugin-consent-view.test.js",
+      "hash": "1f572169",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr123-plugin-consent.test.js",
+      "type": "test",
+      "path": "tests/unit/fr123-plugin-consent.test.js",
+      "hash": "db85d603",
       "status": "current"
     },
     {
@@ -16780,6 +16917,27 @@
     {
       "from": "code:src/app/(entry)/onboarding/profile/page.jsx",
       "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/plugin/authorize/page.jsx",
+      "to": "req:FR-123",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/plugin/authorize/page.jsx",
+      "to": "req:SDD-074",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(entry)/plugin/authorize/page.jsx",
+      "to": "req:SEC-022",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -23744,6 +23902,69 @@
     },
     {
       "from": "code:src/modules/identity/plugin-auth-service.js",
+      "to": "req:SEC-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/plugin-consent-access.js",
+      "to": "req:FR-123",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/plugin-consent-access.js",
+      "to": "req:SDD-074",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/plugin-consent-access.js",
+      "to": "req:SEC-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/plugin-consent-view.js",
+      "to": "req:FR-123",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/plugin-consent-view.js",
+      "to": "req:SDD-074",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/plugin-consent-view.js",
+      "to": "req:SEC-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/plugin-consent.js",
+      "to": "req:FR-123",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/plugin-consent.js",
+      "to": "req:SDD-074",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/plugin-consent.js",
       "to": "req:SEC-022",
       "type": "follows",
       "status": "current",
@@ -31492,6 +31713,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:page:/plugin/authorize",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:page:/profile",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -34280,6 +34508,41 @@
     {
       "from": "test:tests/e2e/fr120-signup.spec.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr123-plugin-consent.spec.js",
+      "to": "code:src/app/(entry)/plugin/authorize/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr123-plugin-consent.spec.js",
+      "to": "code:src/app/api/plugin/auth/authorize/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/e2e/fr123-plugin-consent.spec.js",
+      "to": "req:FR-123",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr123-plugin-consent.spec.js",
+      "to": "req:SDD-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr123-plugin-consent.spec.js",
+      "to": "req:SEC-022",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -37801,6 +38064,27 @@
     {
       "from": "test:tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
       "to": "req:SDD-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr123-plugin-consent-gate.test.js",
+      "to": "req:FR-123",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr123-plugin-consent-gate.test.js",
+      "to": "req:SDD-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr123-plugin-consent-gate.test.js",
+      "to": "req:SEC-022",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -45619,6 +45903,76 @@
     },
     {
       "from": "test:tests/unit/fr123-plugin-auth-service.test.js",
+      "to": "req:SEC-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr123-plugin-consent-view.test.js",
+      "to": "code:src/app/(entry)/plugin/authorize/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr123-plugin-consent-view.test.js",
+      "to": "code:src/modules/identity/plugin-consent-access.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr123-plugin-consent-view.test.js",
+      "to": "code:src/modules/identity/plugin-consent-view.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr123-plugin-consent-view.test.js",
+      "to": "req:FR-123",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr123-plugin-consent-view.test.js",
+      "to": "req:SDD-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr123-plugin-consent-view.test.js",
+      "to": "req:SEC-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr123-plugin-consent.test.js",
+      "to": "code:src/modules/identity/plugin-consent.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr123-plugin-consent.test.js",
+      "to": "req:FR-123",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr123-plugin-consent.test.js",
+      "to": "req:SDD-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr123-plugin-consent.test.js",
       "to": "req:SEC-022",
       "type": "verifies",
       "status": "current",

@@ -27,7 +27,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/projects', ['GET', 'POST']], ['/api/projects/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/projects/{id}/dependencies', ['GET']], ['/api/projects/{id}/files', ['GET', 'POST']], ['/api/projects/{id}/files/{fileId}', ['DELETE']], ['/api/projects/{id}/inventory', ['GET']], ['/api/projects/{id}/roadmap', ['GET']], ['/api/projects/{id}/team', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/projects/{id}/teams', ['GET', 'POST', 'DELETE']], ['/api/projects/{id}/tree', ['GET']], ['/api/projects/overview', ['GET']],
   ['/api/repositories', ['GET', 'POST']], ['/api/repositories/{id}', ['PATCH']], ['/api/repositories/link', ['POST']], ['/api/repositories/link/{id}', ['DELETE']], ['/api/resolve', ['GET']], ['/api/scope', ['GET', 'POST']], ['/api/auth/login', ['POST']], ['/api/auth/logout', ['POST']], ['/api/auth/reset-password', ['POST']], ['/api/auth/signup', ['POST']], ['/api/onboarding/profile', ['POST']], ['/api/onboarding/state', ['GET']], ['/api/onboarding/workspaces', ['POST']], ['/api/workspace-invites', ['POST']], ['/api/workspace-invites/accept', ['POST']], ['/api/workspace-invites/{id}', ['DELETE']], ['/api/workspace-memberships', ['DELETE']], ['/api/platform/users/password-resets', ['POST']], ['/api/teams', ['GET', 'POST']], ['/api/teams/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/teams/{id}/members', ['POST', 'DELETE']], ['/api/viewer', ['GET']],
   // @req FR-123 — the plugin authorization boundary (ADR-052).
-  ['/api/plugin/auth/authorize', ['GET']], ['/api/plugin/auth/capabilities', ['GET']], ['/api/plugin/auth/revoke', ['POST']], ['/api/plugin/auth/token', ['POST']],
+  // GET renders the consent screen (it redirects there and mints nothing);
+  // POST is the consent form's own submission and the only path that mints.
+  ['/api/plugin/auth/authorize', ['GET', 'POST']], ['/api/plugin/auth/capabilities', ['GET']], ['/api/plugin/auth/revoke', ['POST']], ['/api/plugin/auth/token', ['POST']],
   ['/api/work', ['GET', 'POST']], ['/api/work/{id}', ['PATCH', 'DELETE']], ['/api/workspaces/{id}', ['PATCH', 'DELETE']], ['/api/workstreams', ['GET', 'POST']], ['/api/workstreams/{id}', ['PATCH', 'DELETE']],
 ]
 
@@ -51,6 +53,23 @@ function genericRequest(path, method) {
     return { body: { content: { 'multipart/form-data': { schema: z.object({ file: z.string().openapi({ format: 'binary' }), workspaceId: z.string().optional(), projectId: z.string().optional() }) } } } }
   }
   if (path === '/api/files/{id}/reveal') return undefined
+  // @req FR-123 — the consent approval is an HTML form submission, not a JSON
+  // call. Documenting it as JSON would describe a request this handler refuses.
+  if (path === '/api/plugin/auth/authorize') {
+    return {
+      body: {
+        content: {
+          'application/x-www-form-urlencoded': {
+            schema: z.object({
+              decision: z.enum(['approve', 'deny']),
+              csrf_token: z.string(),
+              request_token: z.string(),
+            }),
+          },
+        },
+      },
+    }
+  }
   return { body: { content: { 'application/json': { schema: zRouteInventoryRequest } } } }
 }
 

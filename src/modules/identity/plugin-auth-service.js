@@ -63,6 +63,13 @@ export function readPluginAuthConfig(env = process.env) {
   return {
     clientId,
     redirectUris,
+    // @req FR-123 — the display name the consent screen shows is registered
+    // configuration keyed by the validated `client_id`, never a caller-supplied
+    // label. A plugin that could name itself on the consent screen could name
+    // itself anything, which makes the screen decoration rather than consent.
+    clientName: typeof env.ZURI_PLUGIN_CLIENT_NAME === 'string' && env.ZURI_PLUGIN_CLIENT_NAME.trim()
+      ? env.ZURI_PLUGIN_CLIENT_NAME.trim()
+      : clientId,
     policySnapshotId: typeof env.ZURI_PLUGIN_POLICY_SNAPSHOT_ID === 'string' && env.ZURI_PLUGIN_POLICY_SNAPSHOT_ID.trim()
       ? env.ZURI_PLUGIN_POLICY_SNAPSHOT_ID.trim()
       : DEFAULT_PLUGIN_POLICY_SNAPSHOT_ID,
@@ -106,6 +113,18 @@ function assertClientAndRedirect(input, config) {
     throw invalidRequest()
   }
   if (!isSafeRedirectUri(input.redirect_uri)) throw invalidRequest()
+}
+
+// @req FR-123 — the consent screen and the approval POST must apply *the same*
+// parameter checks the minting path applies, or the screen would be validating
+// one request and the mint another. This is that check, named and exported once
+// so there is only ever one of it.
+// @spec ADR-052 D4, SEC-022
+export function assertPluginAuthorizeParameters(input, { env = process.env } = {}) {
+  const config = readPluginAuthConfig(env)
+  const parsed = parseInput(authorizeSchema, input)
+  assertClientAndRedirect(parsed, config)
+  return { parameters: parsed, config }
 }
 
 function hashOpaque(value) {
@@ -318,6 +337,31 @@ const OWNER_WRITE_CAPABILITIES = [
   'pipeline.cancel',
 ]
 
+// @req FR-123 — one derivation, two readers: capability discovery for a live
+// plugin session, and the consent screen that has to show the person what the
+// plugin is about to receive *before* any session exists. The consent screen
+// could not call `getPluginCapabilities` — that function takes a bearer token,
+// and at consent time there is none — so the derivation is lifted out rather
+// than restated. A restated list on the screen would drift from the real one,
+// and a capability list that drifts is worse than no list.
+// @spec ADR-052 D3, SEC-022
+export function derivePluginCapabilitiesForViewer(viewer) {
+  const visibleBusinessIds = Array.isArray(viewer?.visibleBusinessIds) ? viewer.visibleBusinessIds : []
+  const ownedBusinessIds = Array.isArray(viewer?.ownedBusinessIds) ? viewer.ownedBusinessIds : []
+  const capabilities = visibleBusinessIds.length
+    ? READ_CAPABILITIES.map((capability) => ({ capability, access: 'read', requiresApproval: false }))
+    : []
+
+  if (ownedBusinessIds.length) {
+    capabilities.push(...OWNER_WRITE_CAPABILITIES.map((capability) => ({
+      capability,
+      access: 'write',
+      requiresApproval: true,
+    })))
+  }
+  return capabilities
+}
+
 export async function getPluginCapabilities({
   db = prisma,
   token,
@@ -342,19 +386,7 @@ export async function getPluginCapabilities({
   // delegation resolves to Membership-derived scope only, so installing a
   // plugin can never widen what the person could already reach per Business.
   const viewer = await viewerResolver({ principalId: session.personId, db })
-  const visibleBusinessIds = Array.isArray(viewer?.visibleBusinessIds) ? viewer.visibleBusinessIds : []
-  const ownedBusinessIds = Array.isArray(viewer?.ownedBusinessIds) ? viewer.ownedBusinessIds : []
-  const capabilities = visibleBusinessIds.length
-    ? READ_CAPABILITIES.map((capability) => ({ capability, access: 'read', requiresApproval: false }))
-    : []
-
-  if (ownedBusinessIds.length) {
-    capabilities.push(...OWNER_WRITE_CAPABILITIES.map((capability) => ({
-      capability,
-      access: 'write',
-      requiresApproval: true,
-    })))
-  }
+  const capabilities = derivePluginCapabilitiesForViewer(viewer)
 
   const sessionExpiresAt = asDate(session.expiresAt)
   const snapshotExpiresAt = new Date(observedAt.getTime() + 5 * 60 * 1000)

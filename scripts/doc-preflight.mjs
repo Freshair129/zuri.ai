@@ -854,8 +854,11 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
   // wrong identity boundary — which is the same reason login/logout sit here.
   // They are exemptions and not baseline entries for the reason stated above:
   // the baseline records routes that SHOULD resolve a viewer and do not.
-  // Note that `GET /authorize` is deliberately NOT exempt — it is the one
-  // route in the family that must have a browser viewer, and it resolves one.
+  // `/authorize` is deliberately NOT exempt. Since ADR-052 D4 it is the one
+  // file in the family with a mutating export — `POST`, the consent screen's
+  // own form submission — and that handler resolves a browser viewer, which is
+  // the whole point of the consent gate. (Its `GET` mints nothing and reads no
+  // session, so this check has nothing to say about it either way.)
   const IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT = (p) =>
     p.includes('/api/plugin/auth/token/') || p.includes('/api/plugin/auth/revoke/')
   const offenders = []

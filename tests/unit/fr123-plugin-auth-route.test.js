@@ -18,7 +18,7 @@ vi.mock('@/modules/identity/plugin-auth-service', () => auth)
 vi.mock('@/modules/identity/request-viewer', () => viewer)
 vi.mock('@/lib/db', () => ({ default: db }))
 
-import { GET as authorize } from '@/app/api/plugin/auth/authorize/route'
+import { GET as authorize, POST as approve } from '@/app/api/plugin/auth/authorize/route'
 import { POST as token } from '@/app/api/plugin/auth/token/route'
 import { GET as capabilities } from '@/app/api/plugin/auth/capabilities/route'
 import { POST as revoke } from '@/app/api/plugin/auth/revoke/route'
@@ -30,24 +30,36 @@ describe('FR-123 plugin auth routes', () => {
     vi.clearAllMocks()
   })
 
-  it('authorizes only through the trusted browser viewer and redirects to the exact registered target', async () => {
+  // The consent gate (ADR-052 D4). GET used to mint from the browser session
+  // alone; because `zuri_session` is SameSite=Lax and Lax sends the cookie on a
+  // top-level GET navigation, that made any link a mint. GET now renders.
+  it('answers GET with a same-origin redirect to the consent screen and mints nothing', async () => {
     viewer.resolveRequestViewer.mockResolvedValue({ principal: { id: 'person-1' } })
-    auth.createPluginAuthorizationCode.mockResolvedValue({ code: 'code_test_001' })
 
     const response = await authorize(new Request(authorizeUrl))
 
     expect(response.status).toBe(302)
-    expect(response.headers.get('location')).toBe('http://127.0.0.1:43123/callback?code=code_test_001&state=state_test_001')
-    expect(auth.createPluginAuthorizationCode).toHaveBeenCalledWith(expect.objectContaining({
-      principalId: 'person-1',
-      db,
-    }))
+    const location = new URL(response.headers.get('location'))
+    expect(location.origin).toBe('http://localhost')
+    expect(location.pathname).toBe('/plugin/authorize')
+    expect(location.searchParams.get('client_id')).toBe('zuri-plugin-v1')
+    expect(location.searchParams.get('state')).toBe('state_test_001')
+    expect(auth.createPluginAuthorizationCode).not.toHaveBeenCalled()
   })
 
-  it('refuses to authorize without a browser session and mints nothing', async () => {
+  // The destination is built from a fixed path on the request's own origin, so
+  // no query parameter can steer where the browser is sent next.
+  it('cannot be steered to another origin by the query string', async () => {
+    const response = await authorize(new Request(`${authorizeUrl}&redirect_uri=https://evil.example/callback`))
+
+    expect(new URL(response.headers.get('location')).origin).toBe('http://localhost')
+    expect(auth.createPluginAuthorizationCode).not.toHaveBeenCalled()
+  })
+
+  it('refuses to approve without a browser session and mints nothing', async () => {
     viewer.resolveRequestViewer.mockRejectedValue(Object.assign(new Error('AUTH_REQUIRED'), { status: 401 }))
 
-    const response = await authorize(new Request(authorizeUrl))
+    const response = await approve(new Request('http://localhost/api/plugin/auth/authorize', { method: 'POST', body: new FormData() }))
 
     expect(response.status).toBe(401)
     expect(await response.json()).toEqual({ error: 'AUTH_REQUIRED' })
@@ -60,10 +72,11 @@ describe('FR-123 plugin auth routes', () => {
   it('reports a session outage as unavailable rather than as an auth failure', async () => {
     viewer.resolveRequestViewer.mockRejectedValue(Object.assign(new Error('SESSION_UNAVAILABLE'), { status: 503 }))
 
-    const response = await authorize(new Request(authorizeUrl))
+    const response = await approve(new Request('http://localhost/api/plugin/auth/authorize', { method: 'POST', body: new FormData() }))
 
     expect(response.status).toBe(503)
     expect(await response.json()).toEqual({ error: 'AUTH_UNAVAILABLE' })
+    expect(auth.createPluginAuthorizationCode).not.toHaveBeenCalled()
   })
 
   it('returns a generic validation error for malformed token JSON', async () => {
@@ -136,7 +149,6 @@ describe('FR-123 plugin auth routes', () => {
 
   it('marks every response no-store so a proxy never caches credential material', async () => {
     viewer.resolveRequestViewer.mockResolvedValue({ principal: { id: 'person-1' } })
-    auth.createPluginAuthorizationCode.mockResolvedValue({ code: 'code_test_001' })
     auth.getPluginCapabilities.mockResolvedValue({ capabilities: [] })
     auth.revokePluginToken.mockResolvedValue({ revoked: true })
 
