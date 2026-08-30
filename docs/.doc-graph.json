@@ -56,7 +56,9 @@
   },
   "drift": {
     "changed": [
-      "doc:README"
+      "doc:A-api-spec",
+      "doc:README",
+      "test:tests/unit/table-integrity.test.js"
     ],
     "added": [],
     "removed": []
@@ -7900,8 +7902,8 @@
       "title": "Appendix A — API Specification",
       "version": "1.28.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "f80574cb",
-      "status": "current"
+      "hash": "47ace2d7",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -16700,8 +16702,8 @@
       "id": "test:tests/unit/table-integrity.test.js",
       "type": "test",
       "path": "tests/unit/table-integrity.test.js",
-      "hash": "6fdd463e",
-      "status": "current"
+      "hash": "a4d1e24a",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/test-database-reset.test.js",

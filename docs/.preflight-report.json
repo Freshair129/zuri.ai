@@ -249,8 +249,8 @@
       "id": "I22",
       "severity": "info",
       "check": "table-integrity",
-      "title": "2 ledger registr(ies) name a directory and are out of scope",
-      "details": "docs/decisions, docs/changes — these hold ordinary documents whose ids come from their own H1, not registry tables; checked: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
+      "title": "table integrity checked in 8 document(s)",
+      "details": "swept whole: docs/appendices · out of scope: docs/decisions, docs/changes (folders of ordinary prose whose ids come from their own H1, not table documents) · checked: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md, docs/appendices/A-api-spec.md, docs/appendices/B-db-schema.md, docs/appendices/D-traceability.md, docs/appendices/F-glossary.md",
       "files": [
         "docs/.id-ledger.json"
       ],

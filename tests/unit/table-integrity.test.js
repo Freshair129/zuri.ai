@@ -4,6 +4,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   ALWAYS_IN_SCOPE,
+  SWEPT_DIRS,
   countCells,
   evaluateTableIntegrity,
   findSplitTables,
@@ -172,8 +173,9 @@ describe('findSplitTables — the rule', () => {
   })
 })
 
-describe('scopeFromLedger — scope is read, not hardcoded', () => {
+describe('scopeFromLedger — scope is read and swept, not hardcoded', () => {
   const ledger = (registries) => JSON.stringify({ registries })
+  const noAppendices = { listMarkdown: () => [] }
 
   it('takes every registry that names a file and skips every one that names a dir', () => {
     const scope = scopeFromLedger(
@@ -181,7 +183,8 @@ describe('scopeFromLedger — scope is read, not hardcoded', () => {
         { families: ['QQ'], file: 'docs/A.md', form: 'table' },
         { families: ['QR'], dir: 'docs/decisions', form: 'document-h1' },
         { families: ['QS'], file: 'docs/B.md', form: 'table' },
-      ])
+      ]),
+      noAppendices
     )
     expect(scope.ok).toBe(true)
     expect(scope.files).toContain('docs/A.md')
@@ -189,37 +192,76 @@ describe('scopeFromLedger — scope is read, not hardcoded', () => {
     expect(scope.skippedDirs).toEqual(['docs/decisions'])
   })
 
+  it('sweeps every markdown file in the appendices, by directory rather than by list', () => {
+    // The point of the sweep: a NEW appendix nobody has heard of is in scope the
+    // day it appears. Scoping this check to the registries alone is what let a
+    // sixth split table sit in docs/appendices/A-api-spec.md unseen.
+    const seen = []
+    const scope = scopeFromLedger(ledger([{ families: ['QQ'], file: 'docs/A.md', form: 'table' }]), {
+      listMarkdown: (dir) => {
+        seen.push(dir)
+        return [`${dir}/Z-brand-new-appendix.md`, `${dir}/A-api-spec.md`]
+      },
+    })
+    expect(seen).toEqual(SWEPT_DIRS)
+    expect(scope.sweptDirs).toEqual(SWEPT_DIRS)
+    expect(scope.files).toContain('docs/appendices/Z-brand-new-appendix.md')
+    expect(scope.files).toContain('docs/appendices/A-api-spec.md')
+  })
+
+  it('does not list a swept file twice when a registry already names it', () => {
+    // docs/appendices/E-risk-matrix.md is both an RSK registry and an appendix.
+    const scope = scopeFromLedger(ledger([{ families: ['RSK'], file: 'docs/appendices/E-risk-matrix.md' }]), {
+      listMarkdown: () => ['docs/appendices/E-risk-matrix.md'],
+    })
+    expect(scope.files.filter((f) => f === 'docs/appendices/E-risk-matrix.md')).toHaveLength(1)
+  })
+
   it('keeps the FEAT registry in scope even if the ledger stops naming it', () => {
-    const scope = scopeFromLedger(ledger([{ families: ['QQ'], file: 'docs/A.md', form: 'table' }]))
+    const scope = scopeFromLedger(ledger([{ families: ['QQ'], file: 'docs/A.md', form: 'table' }]), noAppendices)
     expect(scope.files).toEqual(expect.arrayContaining(ALWAYS_IN_SCOPE))
   })
 
   it('does not list a file twice when the ledger already names it', () => {
-    const scope = scopeFromLedger(ledger([{ families: ['FEAT'], file: 'docs/FEATURES.md', form: 'table' }]))
+    const scope = scopeFromLedger(ledger([{ families: ['FEAT'], file: 'docs/FEATURES.md', form: 'table' }]), noAppendices)
     expect(scope.files.filter((f) => f === 'docs/FEATURES.md')).toHaveLength(1)
   })
 
   it('refuses to guess when the ledger cannot be understood', () => {
     // "could not look" is never "clean": a scope this check silently failed to
     // build would look exactly like a scope with no splits in it.
-    expect(scopeFromLedger('{ not json').ok).toBe(false)
-    expect(scopeFromLedger(JSON.stringify({})).ok).toBe(false)
-    expect(scopeFromLedger(ledger([])).ok).toBe(false)
-    expect(scopeFromLedger(ledger([{ families: ['QQ'], dir: 'docs/decisions' }])).ok).toBe(false)
+    expect(scopeFromLedger('{ not json', noAppendices).ok).toBe(false)
+    expect(scopeFromLedger(JSON.stringify({}), noAppendices).ok).toBe(false)
+    expect(scopeFromLedger(ledger([]), noAppendices).ok).toBe(false)
+    expect(scopeFromLedger(ledger([{ families: ['QQ'], dir: 'docs/decisions' }]), noAppendices).ok).toBe(false)
   })
 
-  it('reads this repository own ledger and finds the registry documents', () => {
-    const scope = scopeFromLedger(fs.readFileSync(path.join(ROOT, 'docs', '.id-ledger.json'), 'utf8'))
+  it('refuses a narrower sweep rather than silently shrinking its own scope', () => {
+    const named = ledger([{ families: ['QQ'], file: 'docs/A.md', form: 'table' }])
+    // No lister at all, a lister that throws, and a lister that returns junk are
+    // all "could not look" — never a quietly registry-only run.
+    expect(scopeFromLedger(named).ok).toBe(false)
+    expect(scopeFromLedger(named, { listMarkdown: () => { throw new Error('EPERM') } }).reason).toMatch(/EPERM/)
+    expect(scopeFromLedger(named, { listMarkdown: () => 'docs/appendices/A.md' }).ok).toBe(false)
+  })
+
+  it('reads this repository own ledger and its real appendices', () => {
+    const scope = scopeFromLedger(fs.readFileSync(path.join(ROOT, 'docs', '.id-ledger.json'), 'utf8'), {
+      listMarkdown: (dir) =>
+        fs.readdirSync(path.join(ROOT, dir)).filter((f) => f.endsWith('.md')).map((f) => `${dir}/${f}`),
+    })
     expect(scope.ok).toBe(true)
     expect(scope.files).toContain('docs/PRD-SDD-v1.0.md')
     expect(scope.files).toContain('docs/FEATURES.md')
+    expect(scope.files).toContain('docs/appendices/A-api-spec.md')
+    expect(scope.files).toContain('docs/appendices/D-traceability.md')
     for (const f of scope.files) expect(fs.existsSync(path.join(ROOT, f))).toBe(true)
   })
 })
 
 describe('evaluateTableIntegrity — the finding', () => {
   const ledgerText = JSON.stringify({ registries: [{ families: ['QQ'], file: 'docs/A.md', form: 'table' }] })
-  const run = (docs) =>
+  const run = (docs, listMarkdown = () => []) =>
     evaluateTableIntegrity({
       ledgerText,
       read: (p) => {
@@ -227,6 +269,7 @@ describe('evaluateTableIntegrity — the finding', () => {
         return docs[p]
       },
       exists: (p) => p in docs,
+      listMarkdown,
     })
 
   const clean = lines(HEADER, SEP, row('001'), row('002'))
@@ -254,10 +297,29 @@ describe('evaluateTableIntegrity — the finding', () => {
   })
 
   it('is CRITICAL when it could not look at all', () => {
-    const broken = evaluateTableIntegrity({ ledgerText: '{ not json', read: () => '', exists: () => true })
+    const broken = evaluateTableIntegrity({ ledgerText: '{ not json', read: () => '', exists: () => true, listMarkdown: () => [] })
     expect(broken).toHaveLength(1)
     expect(broken[0].severity).toBe('critical')
     expect(broken[0].action).toMatch(/NOT the same as finding nothing/)
+
+    // …and equally when the appendices could not be enumerated. A registry-only
+    // run that reports PASS would be this check's own defect shape.
+    const unswept = evaluateTableIntegrity({ ledgerText, read: () => '', exists: () => true })
+    expect(unswept[0].severity).toBe('critical')
+    expect(unswept[0].details).toMatch(/docs\/appendices/)
+  })
+
+  it('reports a split in a swept appendix, not only in a named registry', () => {
+    const docs = {
+      'docs/A.md': clean,
+      'docs/FEATURES.md': clean,
+      'docs/appendices/Z-new.md': lines(HEADER, SEP, row('001'), '', row('002')),
+    }
+    const findings = run(docs, () => ['docs/appendices/Z-new.md'])
+    expect(findings).toHaveLength(1)
+    expect(findings[0].severity).toBe('critical')
+    expect(findings[0].files).toEqual(['docs/appendices/Z-new.md'])
+    expect(findings[0].details).toContain('docs/appendices/Z-new.md:4')
   })
 
   it('is CRITICAL when a document in scope is missing or unreadable', () => {
@@ -270,6 +332,7 @@ describe('evaluateTableIntegrity — the finding', () => {
         throw new Error('EACCES')
       },
       exists: () => true,
+      listMarkdown: () => [],
     })
     expect(unreadable.every((f) => f.severity === 'critical')).toBe(true)
     expect(unreadable[0].details).toMatch(/EACCES/)
@@ -304,5 +367,23 @@ describe('the real document, not a fixture', () => {
 
     // …and removing it again is silence, not a smaller number.
     expect(findSplitTables(broken.split('\n').filter((_, i) => i !== at).join('\n'))).toEqual([])
+  })
+
+  it('pins the appendix repair: the API spec Scope table is one contiguous table', () => {
+    // The sixth break, and the reason docs/appendices/ is swept. Two GET rows
+    // were appended below the blank line that ended this table in August 2026
+    // and rendered as literal pipe text until this check found them. If anyone
+    // reintroduces the blank, this fails before CI does.
+    const spec = fs.readFileSync(path.join(ROOT, 'docs', 'appendices', 'A-api-spec.md'), 'utf8').replace(/\r\n/g, '\n')
+    expect(findSplitTables(spec)).toEqual([])
+
+    const specLines = spec.split('\n')
+    const at = specLines.findIndex((l) => l.includes('`/api/business/strategy?businessId=`'))
+    expect(at).toBeGreaterThan(0)
+    // The row above it is a real table row of the same width — i.e. this row is
+    // inside the table, not stranded under it.
+    expect(isTableRow(specLines[at - 1])).toBe(true)
+    expect(isSeparatorRow(specLines[at - 1])).toBe(false)
+    expect(countCells(specLines[at - 1])).toBe(countCells(specLines[at]))
   })
 })

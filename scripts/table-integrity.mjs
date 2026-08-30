@@ -140,9 +140,10 @@ const isBlank = (line) => String(line ?? '').trim() === ''
  * ## The fourth condition, and the case that forced it
  *
  * Run over the whole docs tree rather than over the registries alone, the rule
- * as stated above returns two hits. One is a real break —
- * docs/appendices/A-api-spec.md, where two `GET` rows sit below a blank line and
- * render as literal text. The other is a FALSE POSITIVE:
+ * as stated above returned two hits. One was a real break —
+ * docs/appendices/A-api-spec.md, where two `GET` rows sat below the blank line
+ * that ended the Scope table and rendered as literal text; repaired, and the
+ * reason the appendices are now in scope. The other is a FALSE POSITIVE:
  * docs/zuri_workspace_system.md:128 separates two genuinely adjacent tables that
  * happen BOTH to have two cells, so "different cell count" does not part them
  * and neither does a heading. What does part them is the line one further on:
@@ -197,28 +198,62 @@ export function findSplitTables(text) {
 }
 
 /**
- * Which documents this check reads, from docs/.id-ledger.json at runtime.
+ * Which documents this check reads: the registry documents named in
+ * docs/.id-ledger.json at runtime, plus every `.md` under docs/appendices/.
  *
- * Read rather than hardcoded so the scope follows the ledger: a registry added
- * there is covered here without anyone remembering to widen a list. The array's
- * shape needs one decision, and it is made here in the open — an entry names
- * EITHER a `file` (docs/PRD-SDD-v1.0.md, docs/FEATURES.md,
- * docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md) or
- * a `dir` (docs/decisions for ADR-*, docs/changes for ZV2-CR-*), and only the
- * first names a registry DOCUMENT. The `dir` entries are folders of ordinary
- * prose documents whose ids come from their own H1; sweeping every file in them
- * would silently turn a scoped registry check into a docs-wide one. They are
- * skipped, and `skippedDirs` reports them rather than leaving the omission to be
- * discovered.
+ * ## The first scope was the reason the sixth break was invisible
  *
- * docs/FEATURES.md is named in the task that added this check as an addition to
- * the array's contents; it is already IN the array as a `file` entry, so the
- * union is the file entries. It is listed explicitly all the same, so that the
- * FEAT registry stays in scope even if the ledger's shape changes.
+ * This check was originally scoped to the ledger's registries, because that is
+ * where the five known breaks were. Run over the whole docs tree it immediately
+ * found a sixth — docs/appendices/A-api-spec.md, where two `GET` rows had been
+ * appended below the blank line that ended the Scope table in August 2026 and
+ * had been rendering as literal text ever since. It had been sitting in an
+ * appendix the entire time the registry breaks were being hunted, and the first
+ * scope would have shipped a green check straight past it.
+ *
+ * That is the general lesson and it is worth stating rather than quietly fixing:
+ * **a guard scoped to where the last failure happened will keep missing the next
+ * one.** The property that matters here is not "a document that issues ids" — it
+ * is "a document whose tables carry meaning". Appendix D is generated, A and B
+ * are hand-maintained, E is a registry, and every one of them is read by people
+ * off the rendered page. So docs/appendices/ is swept whole, by directory rather
+ * than by a hand-listed set, and a new appendix is covered the day it appears
+ * instead of the day somebody remembers to add it.
+ *
+ * ## Reading the ledger
+ *
+ * Read rather than hardcoded so registry scope follows the ledger. The array's
+ * shape needs one decision, made here in the open — an entry names EITHER a
+ * `file` (docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md,
+ * docs/domains/market-intelligence/SRS.md) or a `dir` (docs/decisions for ADR-*,
+ * docs/changes for ZV2-CR-*), and only the first names a registry DOCUMENT. The
+ * `dir` entries are folders of ordinary prose whose ids come from their own H1;
+ * they are skipped, and `skippedDirs` reports them so the omission is stated
+ * rather than left to be discovered. Extending to those folders is a decision
+ * for whoever wants it, not a side effect of this one.
+ *
+ * docs/FEATURES.md is already a `file` entry, so the union is the file entries.
+ * It is pinned in ALWAYS_IN_SCOPE anyway, so the FEAT registry stays covered
+ * even if the ledger's shape changes.
+ *
+ * ## Why the directory listing is injected, and why its absence is not "clean"
+ *
+ * `listMarkdown` is a dependency for the same reason `read` and `exists` are:
+ * this module stays filesystem-free so a test can drive it. A caller that does
+ * not supply one gets `ok: false`, never a quietly narrower sweep — a scope this
+ * check silently failed to build would look exactly like a scope with no splits
+ * in it, which is the defect shape the whole check exists to close.
  */
+export const SWEPT_DIRS = ['docs/appendices']
+
 export const ALWAYS_IN_SCOPE = ['docs/FEATURES.md']
 
-export function scopeFromLedger(ledgerText) {
+/**
+ * @param {string}   ledgerText          contents of docs/.id-ledger.json
+ * @param {object}   deps
+ * @param {Function} deps.listMarkdown   (repoRelDir) => repo-relative `.md` paths
+ */
+export function scopeFromLedger(ledgerText, { listMarkdown } = {}) {
   let ledger
   try {
     ledger = JSON.parse(ledgerText)
@@ -239,16 +274,36 @@ export function scopeFromLedger(ledgerText) {
     return { ok: false, reason: 'docs/.id-ledger.json names no registry file — every entry is a directory' }
   }
   for (const f of ALWAYS_IN_SCOPE) if (!files.includes(f)) files.push(f)
-  return { ok: true, files, skippedDirs }
+
+  if (typeof listMarkdown !== 'function') {
+    return { ok: false, reason: `no directory lister was supplied, so ${SWEPT_DIRS.join(', ')} could not be swept` }
+  }
+  const sweptDirs = []
+  for (const dir of SWEPT_DIRS) {
+    let found
+    try {
+      found = listMarkdown(dir)
+    } catch (e) {
+      return { ok: false, reason: `${dir} could not be listed: ${e?.message || e}` }
+    }
+    if (!Array.isArray(found)) {
+      return { ok: false, reason: `${dir} could not be listed: the lister returned ${typeof found}, not an array` }
+    }
+    sweptDirs.push(dir)
+    for (const f of found) if (!files.includes(f)) files.push(f)
+  }
+
+  return { ok: true, files, skippedDirs, sweptDirs }
 }
 
 /**
  * Findings for Check 16, in doc-preflight's `add()` shape.
  *
  * @param {object}   deps
- * @param {string}   deps.ledgerText  contents of docs/.id-ledger.json
- * @param {Function} deps.read        (repoRelPath) => string, canonical newlines
- * @param {Function} deps.exists      (repoRelPath) => boolean
+ * @param {string}   deps.ledgerText    contents of docs/.id-ledger.json
+ * @param {Function} deps.read          (repoRelPath) => string, canonical newlines
+ * @param {Function} deps.exists        (repoRelPath) => boolean
+ * @param {Function} deps.listMarkdown  (repoRelDir) => repo-relative `.md` paths
  *
  * ## Why CRITICAL
  *
@@ -256,10 +311,12 @@ export function scopeFromLedger(ledgerText) {
  * direction except one: reading the rendered page with your eyes. It changes no
  * id, breaks no link, moves no anchor, and leaves every row matchable by every
  * regex in scripts/ — so no other check in this repository can be made to report
- * it, at any severity. It also does not decay: the five breaks survived sixteen
- * days and roughly forty green governance runs. A warning would put it in the
- * same bucket as a stray untracked note, which is transient and harmless;
- * this is permanent and corrupts the primary registry's readability.
+ * it, at any severity. It also does not decay: the five registry breaks survived
+ * sixteen days and roughly forty green governance runs, and the appendix break
+ * dated from 2026-08-13 and was found only by running this rule wider than its
+ * first scope. A warning would put it in the same bucket as a stray untracked
+ * note, which is transient and harmless; this is permanent, and it corrupts the
+ * readability of exactly the documents people read.
  *
  * ## Why a document that cannot be read is CRITICAL, not skipped
  *
@@ -267,9 +324,9 @@ export function scopeFromLedger(ledgerText) {
  * never "clean". A scope this check silently failed to read would look exactly
  * like a scope with no splits in it.
  */
-export function evaluateTableIntegrity({ ledgerText, read, exists }) {
+export function evaluateTableIntegrity({ ledgerText, read, exists, listMarkdown }) {
   const findings = []
-  const scope = scopeFromLedger(ledgerText)
+  const scope = scopeFromLedger(ledgerText, { listMarkdown })
   if (!scope.ok) {
     findings.push({
       severity: 'critical',
@@ -279,7 +336,7 @@ export function evaluateTableIntegrity({ ledgerText, read, exists }) {
       files: ['docs/.id-ledger.json'],
       action:
         'This check could not look, which is NOT the same as finding nothing. Repair docs/.id-ledger.json — ' +
-        'it is written only by scripts/id-ledger.mjs (ADR-039)',
+        'it is written only by scripts/id-ledger.mjs (ADR-039) — or the appendices directory it also sweeps',
     })
     return findings
   }
@@ -289,8 +346,8 @@ export function evaluateTableIntegrity({ ledgerText, read, exists }) {
       findings.push({
         severity: 'critical',
         check: 'table-integrity',
-        title: 'a registry document in scope does not exist',
-        details: `${file} is named by docs/.id-ledger.json but is not on disk, so its tables were not checked`,
+        title: 'a document in scope does not exist',
+        details: `${file} is in this check's scope but is not on disk, so its tables were not checked`,
         files: [file],
         action: 'Restore the document, or record the move with npm run docs:ids',
       })
@@ -303,7 +360,7 @@ export function evaluateTableIntegrity({ ledgerText, read, exists }) {
       findings.push({
         severity: 'critical',
         check: 'table-integrity',
-        title: 'a registry document in scope could not be read',
+        title: 'a document in scope could not be read',
         details: `${file}: ${e?.message || e}`,
         files: [file],
         action: 'This check could not look, which is NOT the same as finding nothing — read the file by hand',

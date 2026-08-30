@@ -1273,11 +1273,25 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
 // and for the one false positive the rule produced outside the registries and
 // the fourth condition that resolved it.
 //
-// Scope is read from docs/.id-ledger.json's `registries` array at runtime rather
-// than hardcoded, so a registry added there is covered here without anyone
-// remembering. Entries naming a `dir` (docs/decisions, docs/changes) are folders
-// of ordinary documents rather than registry documents and are skipped; the
-// check reports which, so the omission is not left to be discovered.
+// Scope is the ledger's registry documents, read at runtime rather than
+// hardcoded, PLUS every .md under docs/appendices/, swept by directory so a new
+// appendix is covered the day it appears rather than the day someone remembers
+// to list it.
+//
+// The appendices are in scope because leaving them out is what made a sixth
+// break invisible. This check was first scoped to the registries — that is where
+// the five known breaks were — and run over the whole docs tree it immediately
+// found docs/appendices/A-api-spec.md, where two `GET` rows had been appended
+// below the blank line that ended the Scope table in August 2026 and had been
+// rendering as literal text ever since. Repaired in the same commit as this
+// check. A guard scoped to where the last failure happened will keep missing the
+// next one; the property that matters is "a document whose tables carry
+// meaning", not "a document that issues ids".
+//
+// Entries naming a `dir` (docs/decisions, docs/changes) are folders of ordinary
+// prose rather than table documents and are still skipped; the check emits an
+// info naming them, the directories it swept and the files it read, so the next
+// reader gets this check's actual reach rather than the reach they assume.
 {
   const LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
   if (!existsSync(LEDGER)) {
@@ -1285,10 +1299,14 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
       'docs/.id-ledger.json is missing, so this check could not look — which is NOT the same as finding nothing',
       ['docs/.id-ledger.json'], 'Restore the ledger; it is written only by scripts/id-ledger.mjs (ADR-039)')
   } else {
-    const scope = scopeFromLedger(read(LEDGER))
-    if (scope.ok && scope.skippedDirs.length) {
-      add('info', 'table-integrity', `${scope.skippedDirs.length} ledger registr(ies) name a directory and are out of scope`,
-        `${scope.skippedDirs.join(', ')} — these hold ordinary documents whose ids come from their own H1, not registry tables; ` +
+    // Repo-relative POSIX paths, sorted, so the info line reads the same on
+    // every platform and a new appendix joins the sweep with no edit here.
+    const listMarkdown = (dir) => walk(path.join(ROOT, dir), '.md').map((f) => rel(f)).sort()
+    const scope = scopeFromLedger(read(LEDGER), { listMarkdown })
+    if (scope.ok) {
+      add('info', 'table-integrity', `table integrity checked in ${scope.files.length} document(s)`,
+        `swept whole: ${scope.sweptDirs.join(', ')} · out of scope: ${scope.skippedDirs.join(', ')} ` +
+          `(folders of ordinary prose whose ids come from their own H1, not table documents) · ` +
           `checked: ${scope.files.join(', ')}`,
         ['docs/.id-ledger.json'], 'No action — recorded so this check\'s reach is visible rather than assumed')
     }
@@ -1296,6 +1314,7 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
       ledgerText: read(LEDGER),
       read: (p) => read(path.join(ROOT, p)),
       exists: (p) => existsSync(path.join(ROOT, p)),
+      listMarkdown,
     })) {
       add(f.severity, f.check, f.title, f.details, f.files, f.action)
     }
