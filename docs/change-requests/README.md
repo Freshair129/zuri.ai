@@ -180,3 +180,82 @@ write it as a file there rather than assuming any channel exists.
 
 The same asymmetry is why CR-002…005 sat unseen: a filesystem was the only
 channel in use, and until Check 15 this repository was not reading it.
+
+## Review findings on CR-003, CR-004 and CR-005
+
+These three ask for work **in this repository** — Prisma models, routes, UI — so
+they are reviewed against what this repository already holds. Every finding was
+checked against the schema or the route tree and cites where. Where a first
+suspicion turned out to be wrong that is recorded too, because a review listing
+only its confirmed hits hides its own error rate.
+
+### CR-003 — `DataPipelineRun` would be a second run ledger
+
+`IngestionRun` already exists (`prisma/schema.prisma:1559`) carrying `tenantId`,
+`businessId`, `connectionId`, **`lane`**, `resourceType`, `runType`, `status`,
+`startedAt`/`finishedAt` and five counters
+(`fetched`/`created`/`updated`/`unchanged`/`failed`). The proposed
+`DataPipelineRun` restates almost all of it under other names, and its
+"multi-lane" framing is the `lane` column already there. `PipelineStep` (1354)
+and `PipelineRecordEvent` (1407) carry the per-step trace, and
+`/api/pipelines/runs` already serves it.
+
+**What is genuinely new is the approval gate** — `catalogVersion`, `vaultId`,
+`approvedAt`, `approvedBy`. Worth having, and they belong as fields on the
+existing run or a small approval model beside it. Two run tables answering "what
+happened in this pipeline" is the condition where a reader takes whichever they
+find first and neither table is wrong about itself.
+
+### CR-004 — GitHub binding does not belong on `Business`
+
+The proposal puts `githubRepoUrl`, `githubBranch`, `githubSyncStatus`,
+`lastCommitSha`, `lastGithubSyncAt` on `Business`. That is a scope-chain entity
+and this is integration state, for which a shape already exists:
+`IntegrationConnection` is keyed `@@unique([tenantId, providerId,
+externalAccountId])` — precisely "this tenant binds this external account at
+this provider". A repo binding is that.
+
+**BR-002 is the load-bearing reason rather than tidiness**: external ids are
+never primary keys here, they map through `ExternalEntityRef`. A GitHub URL and
+a commit SHA on `Business` make another system's identifiers part of a core
+scope entity's shape.
+
+The private-repo token has a home too — `IntegrationCredential` stores
+**`secretRef` only** (1546), never the material.
+
+Unstated in the proposal: `/api/webhooks/github` carries no tenant in its path
+and no authentication story. A webhook that mutates tenant-scoped state needs
+both before it can be written.
+
+### CR-005 — one blocking conflict, one credential conflict, one false alarm
+
+**Blocking: `/api/connectors/line-oa/[businessId]` would be a second LINE write
+path.** `src/app/api/agent/line-webhook/route.js` already exists. BR-009 and
+SDD-009 state that every intake surface converges on one envelope and that a new
+surface adds a **converter**, never a second write path. The auto-quote behaviour
+CR-005 wants is reachable through the existing webhook plus a converter; a second
+endpoint is the thing the rule forbids by name.
+
+**`AgentConnectorConfig.channelSecret` / `.channelToken` as plain columns
+contradicts how credentials are handled here.** `IntegrationCredential` holds a
+`secretRef` and nothing else; the material lives in the vault. Storing a LINE
+channel secret and access token as ordinary columns puts live credentials in the
+database and in every backup of it.
+
+**`ShippingRateMatrix` carrying only `workspaceId` is fine.** I suspected it
+broke tenant isolation; it does not. `Project` (518) is workspace-scoped the same
+way and inherits tenant through the workspace. Recorded so the next reviewer does
+not re-raise a settled question.
+
+### Disposition
+
+| CR | Where the work lives | State |
+|---|---|---|
+| CR-002 | GKS / MSP, not here | blocked on the three findings above — one of which does not hold as stated |
+| CR-003 | here | rework onto `IngestionRun`; the approval gate is the real ask |
+| CR-004 | here | rework onto `IntegrationConnection` + `IntegrationCredential`; the webhook needs a tenant and an auth story |
+| CR-005 | here | shipping matrix is workable; the LINE connector must become a converter, and credentials a `secretRef` |
+
+None can be built before that rework, because each currently proposes a shape
+this repository would have to contradict itself to accept. None has an FR id and
+each needs one — declared here, through the ledger, before any code.

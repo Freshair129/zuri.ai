@@ -54,8 +54,7 @@
   },
   "drift": {
     "changed": [
-      "doc:README",
-      "doc:ROADMAP"
+      "doc:README"
     ],
     "added": [],
     "removed": []
@@ -9000,7 +8999,7 @@
       "type": "document",
       "path": "docs/change-requests/README.md",
       "title": "`docs/change-requests/` — intake, not governance",
-      "hash": "d115a381",
+      "hash": "7ce2bd7b",
       "status": "changed"
     },
     {
@@ -9017,7 +9016,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "05f224f3",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
