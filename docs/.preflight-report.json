@@ -4,12 +4,12 @@
   "scanned": {
     "docs": 222,
     "routes": 107,
-    "test_files": 348
+    "test_files": 349
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 21,
+    "info": 22,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -244,6 +244,17 @@
         "docs/.roadmap-coverage-baseline.json"
       ],
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
+    },
+    {
+      "id": "I22",
+      "severity": "info",
+      "check": "table-integrity",
+      "title": "2 ledger registr(ies) name a directory and are out of scope",
+      "details": "docs/decisions, docs/changes — these hold ordinary documents whose ids come from their own H1, not registry tables; checked: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
+      "files": [
+        "docs/.id-ledger.json"
+      ],
+      "action": "No action — recorded so this check's reach is visible rather than assumed"
     }
   ]
 }

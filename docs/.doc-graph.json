@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1464,
+    "total_nodes": 1465,
     "total_edges": 4999,
     "dangling_edges": 0,
     "node_types": {
@@ -16,7 +16,7 @@
       "route": 160,
       "model": 70,
       "requirement": 268,
-      "test": 348,
+      "test": 349,
       "code_file": 386
     },
     "coverage": {
@@ -16694,6 +16694,13 @@
       "type": "test",
       "path": "tests/unit/supabase-production-isolation.test.js",
       "hash": "77d3dd71",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/table-integrity.test.js",
+      "type": "test",
+      "path": "tests/unit/table-integrity.test.js",
+      "hash": "6fdd463e",
       "status": "current"
     },
     {

@@ -16,6 +16,7 @@ import { evaluateIdStability } from './id-stability.mjs'
 import { findBrokenEvidence } from './roadmap-evidence.mjs'
 import { findUncoveredRequirements } from './roadmap-coverage.mjs'
 import { GIT_ARGS, evaluateUntrackedDocs } from './untracked-docs.mjs'
+import { evaluateTableIntegrity, scopeFromLedger } from './table-integrity.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -1236,6 +1237,68 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
   }
   for (const f of evaluateUntrackedDocs({ git: runGit, ci: Boolean(process.env.CI) })) {
     add(f.severity, f.check, f.title, f.details, f.files, f.action)
+  }
+}
+
+// ---- Check 16: a registry table split in two by a blank line -------------
+// A blank line ENDS a GFM table. On 2026-08-30, while FR-129 was being declared,
+// five tables in docs/PRD-SDD-v1.0.md were found to have been split by a single
+// blank line since version 1.32.0 on 2026-08-14 — between FR-046/FR-047,
+// NFR-009/NFR-010, BR-010/BR-011, SDD-024/SDD-025 and SEC-008/SEC-009, each at
+// the boundary where a Phase 1 LINE batch appended rows after the break. Every
+// row below each one — 82 FR rows among them — rendered as literal
+// pipe-delimited text rather than as a table row, for sixteen days, in the
+// registry this whole toolchain is built on. Repaired in PR #191.
+//
+// The reason nothing caught it is the reason this check exists. EVERY generator
+// and check in scripts/ matches a registry row with a line-anchored regex —
+// `^\| FR-\d+ \|` and its siblings — and none of them parses the table as a
+// table. Those regexes match a row exactly as well when it is loose prose on the
+// rendered page as when it is a table row, so a document whose tables do not
+// render is, to all of them, byte-for-byte a document whose tables do. The doc
+// graph counted the same ids, Appendix D traced the same requirements, id
+// stability pinned the same anchors, and the page was broken the entire time.
+//
+// Same shape as Checks 13, 14 and 15: the check is right and its source cannot
+// represent the failure. So the remedy has to be able to represent it, which
+// dictates how scripts/table-integrity.mjs is written — it walks lines, tracks
+// fenced code blocks, classifies separator rows and counts cells, and knows
+// nothing about `FR-`, `NFR-` or any other family. A check that understood only
+// registry-id rows would be blind to a split in any other table in the same
+// file, which is precisely the narrowness that produced the defect.
+//
+// Severity is CRITICAL because the failure is silent, visual-only, permanent and
+// invisible to every other check at any severity — see table-integrity.mjs for
+// the full argument, for how cells are counted (GFM's way: only `\|` escapes),
+// and for the one false positive the rule produced outside the registries and
+// the fourth condition that resolved it.
+//
+// Scope is read from docs/.id-ledger.json's `registries` array at runtime rather
+// than hardcoded, so a registry added there is covered here without anyone
+// remembering. Entries naming a `dir` (docs/decisions, docs/changes) are folders
+// of ordinary documents rather than registry documents and are skipped; the
+// check reports which, so the omission is not left to be discovered.
+{
+  const LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
+  if (!existsSync(LEDGER)) {
+    add('critical', 'table-integrity', 'could not determine which documents to check for split tables',
+      'docs/.id-ledger.json is missing, so this check could not look — which is NOT the same as finding nothing',
+      ['docs/.id-ledger.json'], 'Restore the ledger; it is written only by scripts/id-ledger.mjs (ADR-039)')
+  } else {
+    const scope = scopeFromLedger(read(LEDGER))
+    if (scope.ok && scope.skippedDirs.length) {
+      add('info', 'table-integrity', `${scope.skippedDirs.length} ledger registr(ies) name a directory and are out of scope`,
+        `${scope.skippedDirs.join(', ')} — these hold ordinary documents whose ids come from their own H1, not registry tables; ` +
+          `checked: ${scope.files.join(', ')}`,
+        ['docs/.id-ledger.json'], 'No action — recorded so this check\'s reach is visible rather than assumed')
+    }
+    for (const f of evaluateTableIntegrity({
+      ledgerText: read(LEDGER),
+      read: (p) => read(path.join(ROOT, p)),
+      exists: (p) => existsSync(path.join(ROOT, p)),
+    })) {
+      add(f.severity, f.check, f.title, f.details, f.files, f.action)
+    }
   }
 }
 
