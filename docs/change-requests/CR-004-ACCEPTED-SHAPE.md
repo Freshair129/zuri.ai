@@ -197,9 +197,11 @@ Two things to know before you design it:
   `customer-import-reviews`, `users`, `sot-pipeline` and `product-readiness` —
   while workspaces live at `/workspaces/[workspaceId]`.
 
-Also worth knowing: `/platform/integrations` already renders a "GitHub
+Also worth knowing: `/platform/integrations` used to render a "GitHub
 Repositories" tile hardcoded `status: 'CONNECTED'` while nothing connects.
-FR-130 has to correct that rather than build on it.
+**Corrected 2026-08-30** — every tile now derives its state from the connection
+read model, and the GitHub one reads `NOT_CONNECTED · CONNECTOR_NOT_IMPLEMENTED`.
+That was the one part of FR-130 not behind its blocker; the rest still is.
 
 ## 4. Why FR-130 is declared **blocked**, and what would unblock it
 

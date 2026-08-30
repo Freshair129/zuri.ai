@@ -13,10 +13,16 @@ import { useScope } from '@/context/ScopeContext'
 import { api, LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
 import { LLM_PROVIDER_CATALOG, providerByKey } from '@/platform/integrations/llm/provider-catalog'
 import { isSupabaseVaultSecretRef } from '@/platform/integrations/core/secret-manager'
+import { deriveConnectorCatalog } from '@/platform/integrations/core/connector-catalog'
 
 // @req FR-080 — Platform Integrations & Connectors Marketplace Hub
+// @req FR-130 — the catalog no longer declares a connector CONNECTED. Its tiles
+//   read their state from the same connection evidence the rows below them use,
+//   so a connector with no implementation (GitHub, Vercel) and one with no
+//   configured connection both say so instead of showing green.
 // @spec ADR-032 D1-D4, SEC-016, SDD-044, NFR-008
-// @tested tests/unit/fr080-ui-contract.test.js, tests/unit/line-registry-service.test.js
+// @tested tests/unit/fr080-ui-contract.test.js, tests/unit/line-registry-service.test.js,
+//   tests/unit/platform/connector-catalog.test.js, tests/e2e/fr130-connector-catalog.spec.js
 
 const SECRET_REF_ERROR_ID = 'integration-secret-ref-error'
 const SECRET_REF_ERROR_TEXT = 'รูปแบบไม่ถูกต้อง — ต้องเป็น supabase-vault:<uuid> เท่านั้น ห้ามวางค่า secret จริงที่นี่'
@@ -87,125 +93,23 @@ const DEPARTMENT_LABELS = {
   GENERAL: 'ทั่วไป (General)',
 }
 
-const CONNECTORS_CATALOG = [
-  {
-    id: 'line-oa',
-    name: 'LINE Official Account',
-    description: 'แชตบอตซูริตอบลูกค้าอัตโนมัติ พร้อมระบบลงทะเบียนกลุ่มและส่งสรุปรายงาน',
-    type: 'Channel / Ingress',
-    badge: 'Primary Channel',
-    category: 'CHANNELS',
-    iconColor: '#06C755',
-    isPopular: true,
-    status: 'CONNECTED',
-    hasCustomView: true,
-  },
-  {
-    id: 'openrouter',
-    name: 'OpenRouter (LLM Models)',
-    description: 'เราเตอร์โมเดลปัญญาประดิษฐ์ เชื่อมต่อ Claude 3.5, GPT-4o, Gemini Flash',
-    type: 'AI Models',
-    badge: 'AI Core',
-    category: 'AI_MODELS',
-    iconColor: '#6366F1',
-    isPopular: true,
-    status: 'CONNECTED',
-    hasCustomView: true,
-  },
-  {
-    id: 'slack',
-    name: 'Slack',
-    description: 'ส่งแจ้งเตือนและข้อความอัตโนมัติเข้า Slack Workspaces ของทีมงาน',
-    type: 'Channel / Web',
-    badge: 'Community',
-    category: 'CHANNELS',
-    iconColor: '#E01E5A',
-    isPopular: true,
-    status: 'AVAILABLE',
-  },
-  {
-    id: 'notion',
-    name: 'Notion',
-    description: 'ซิงค์ฐานข้อมูลเอกสาร Project Wiki และ Task เข้าสู่ Zuri Workspace',
-    type: 'Docs / Workspace',
-    badge: 'Productivity',
-    category: 'TOOLS',
-    iconColor: '#000000',
-    isPopular: true,
-    status: 'AVAILABLE',
-  },
-  {
-    id: 'microsoft-365',
-    name: 'Microsoft 365',
-    description: 'เชื่อมต่อ Outlook, Teams และ OneDrive สำหรับการทำงานร่วมกันในองค์กร',
-    type: 'Enterprise',
-    badge: 'Enterprise',
-    category: 'TOOLS',
-    iconColor: '#0078D4',
-    isPopular: true,
-    status: 'AVAILABLE',
-  },
-  {
-    id: 'google-gemini',
-    name: 'Google Gemini',
-    description: 'เชื่อมต่อ Google Gemini Pro และ Flash สำหรับการประมวลผลเอกสาร',
-    type: 'AI Models',
-    badge: 'AI Core',
-    category: 'AI_MODELS',
-    iconColor: '#4285F4',
-    status: 'AVAILABLE',
-  },
-  {
-    id: 'vercel-webhook',
-    name: 'Vercel Ingress & Webhooks',
-    description: 'ช่องทางรับ Webhook เหตุการณ์อัตโนมัติจาก Vercel Cloud Serverless',
-    type: 'Web',
-    badge: 'Infrastructure',
-    category: 'TOOLS',
-    iconColor: '#000000',
-    status: 'CONNECTED',
-  },
-  {
-    id: 'gmail-alerts',
-    name: 'Gmail & Email Dispatcher',
-    description: 'ระบบส่งอีเมลแจ้งเตือนใบเสนอราคาและรายงานยอดขายประจำสัปดาห์',
-    type: 'Web',
-    badge: 'Mail',
-    category: 'CHANNELS',
-    iconColor: '#EA4335',
-    status: 'AVAILABLE',
-  },
-  {
-    id: 'google-calendar',
-    name: 'Google Calendar',
-    description: 'ดึงและซิงค์ตารางนัดหมายลูกค้าและกำหนดการส่งมอบงาน',
-    type: 'Web',
-    badge: 'Calendar',
-    category: 'TOOLS',
-    iconColor: '#4285F4',
-    status: 'AVAILABLE',
-  },
-  {
-    id: 'google-drive',
-    name: 'Google Drive',
-    description: 'จัดเก็บและแชร์เอกสาร สัญญาซื้อขาย และไฟล์แนบของโครงการ',
-    type: 'Storage',
-    badge: 'Storage',
-    category: 'TOOLS',
-    iconColor: '#34A853',
-    status: 'AVAILABLE',
-  },
-  {
-    id: 'github',
-    name: 'GitHub Repositories',
-    description: 'เชื่อมต่อคลังซอร์สโค้ดและติดตามสถานะงานพัฒนา Software Sprint',
-    type: 'Code',
-    badge: 'DevOps',
-    category: 'TOOLS',
-    iconColor: '#24292E',
-    status: 'CONNECTED',
-  },
-]
+// Why a connector is not connected, said plainly. `AVAILABLE` used to stand in
+// for both of these and for "we have never checked", which is three different
+// facts wearing one friendly word.
+const CONNECTOR_REASON_HINT = {
+  CONNECTOR_NOT_IMPLEMENTED: 'ยังไม่มีตัวเชื่อมต่อในระบบ — กดเชื่อมต่อไม่ได้',
+  NO_CONNECTION_RECORDED: 'ยังไม่ได้ตั้งค่าการเชื่อมต่อสำหรับธุรกิจนี้',
+  NO_HEALTH_EVIDENCE: 'มีรายการเชื่อมต่ออยู่ แต่ยังพิสูจน์สถานะไม่ได้',
+}
+
+const CONNECTOR_STATE_LABEL = {
+  CONNECTED: 'Connected',
+  DEGRADED: 'Degraded',
+  ERROR: 'Error',
+  DISABLED: 'Disabled',
+  MISCONFIGURED: 'Misconfigured',
+  NOT_CONNECTED: 'Not connected',
+}
 
 export default function IntegrationsPage() {
   const scope = useScope()
@@ -341,18 +245,23 @@ export default function IntegrationsPage() {
   const secretRefTrimmed = secretRef.trim()
   const secretRefInvalid = secretRefTrimmed.length > 0 && !isSupabaseVaultSecretRef(secretRefTrimmed)
 
+  // The catalog's state comes from the same `rows` the connection list below
+  // renders — one read model, one answer. Before the fetch resolves `rows` is
+  // empty, which reads as "no connection recorded" rather than as green.
+  const derivedCatalog = useMemo(() => deriveConnectorCatalog(rows), [rows])
+
   // Filtered Catalog
   const filteredCatalog = useMemo(() => {
-    return CONNECTORS_CATALOG.filter((item) => {
-      if (filterTab === 'CONNECTED' && item.status !== 'CONNECTED') return false
-      if (filterTab === 'NOT_CONNECTED' && item.status === 'CONNECTED') return false
+    return derivedCatalog.filter((item) => {
+      if (filterTab === 'CONNECTED' && item.state !== 'CONNECTED') return false
+      if (filterTab === 'NOT_CONNECTED' && item.state === 'CONNECTED') return false
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase()
         return item.name.toLowerCase().includes(q) || item.description.toLowerCase().includes(q) || item.type.toLowerCase().includes(q)
       }
       return true
     })
-  }, [filterTab, searchQuery])
+  }, [derivedCatalog, filterTab, searchQuery])
 
   const submitModel = async (event) => {
     event.preventDefault()
@@ -556,7 +465,10 @@ export default function IntegrationsPage() {
                     <p className="text-[10px] text-muted">Workspace Alerts</p>
                   </div>
                 </div>
-                <button type="button" className="btn btn-secondary h-7 px-2.5 text-[11px]">Connect</button>
+                {/* Same answer as this connector's row in the table below. A
+                    "Connect" button here and "no connector in the system" there
+                    would be one surface disagreeing with itself. */}
+                <span className="text-[11px] text-muted">Not connected</span>
               </div>
 
               {/* Notion Card */}
@@ -570,7 +482,7 @@ export default function IntegrationsPage() {
                     <p className="text-[10px] text-muted">Project Knowledge Wiki</p>
                   </div>
                 </div>
-                <button type="button" className="btn btn-secondary h-7 px-2.5 text-[11px]">Connect</button>
+                <span className="text-[11px] text-muted">Not connected</span>
               </div>
             </div>
           </div>
@@ -611,16 +523,20 @@ export default function IntegrationsPage() {
             <div className="divide-y divide-[var(--border)]">
               {filteredCatalog.map((item) => {
                 const isLine = item.id === 'line-oa'
-                const isModel = item.id === 'openrouter'
+                // Every AI_MODELS entry that names a provider code is reachable
+                // through the Phase 1 model form — Gemini included, which the old
+                // literal marked AVAILABLE while the form could already connect it.
+                const isModel = item.category === 'AI_MODELS' && item.providerCodes.length > 0
+                const settingsView = isLine ? 'LINE_SETTINGS' : isModel ? 'MODEL_SETTINGS' : null
+                const connected = item.state === 'CONNECTED'
 
                 return (
                   <div
                     key={item.id}
-                    className="grid grid-cols-12 items-center px-4 py-3 hover:bg-[var(--brand-surface)] transition-colors cursor-pointer"
-                    onClick={() => {
-                      if (isLine) setActiveView('LINE_SETTINGS')
-                      else if (isModel) setActiveView('MODEL_SETTINGS')
-                    }}
+                    data-connector={item.id}
+                    data-connector-state={item.state}
+                    className={`grid grid-cols-12 items-center px-4 py-3 transition-colors ${settingsView ? 'cursor-pointer hover:bg-[var(--brand-surface)]' : ''}`}
+                    onClick={() => { if (settingsView) setActiveView(settingsView) }}
                   >
                     <div className="col-span-6 flex items-center gap-3">
                       <div
@@ -639,6 +555,9 @@ export default function IntegrationsPage() {
                           )}
                         </p>
                         <p className="text-[11px] text-muted truncate">{item.description}</p>
+                        {item.note && (
+                          <p className="text-[10px] text-muted">{item.note}</p>
+                        )}
                       </div>
                     </div>
 
@@ -649,32 +568,39 @@ export default function IntegrationsPage() {
                       </span>
                     </div>
 
-                    <div className="col-span-3 flex items-center justify-end gap-2">
-                      {item.status === 'CONNECTED' ? (
-                        <>
+                    <div className="col-span-3 flex flex-col items-end gap-1">
+                      <div className="flex items-center gap-2">
+                        {connected ? (
                           <span className="flex items-center gap-1 text-xs text-[var(--success)] font-medium">
                             <CheckCircle2 size={13} /> Connected
                           </span>
+                        ) : item.state === 'NOT_CONNECTED' ? (
+                          <span className="text-xs text-muted font-medium">Not connected</span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-xs text-[var(--warning)] font-medium">
+                            <AlertTriangle size={13} /> {CONNECTOR_STATE_LABEL[item.state] || item.state}
+                          </span>
+                        )}
+                        {/* No "Connect" button where nothing connects: a control
+                            that does nothing is the same false claim the status
+                            literal was, moved one element to the right. */}
+                        {settingsView && (
                           <button
                             type="button"
                             className="btn btn-secondary h-7 px-2 text-[11px] font-semibold"
                             onClick={(e) => {
                               e.stopPropagation()
-                              if (isLine) setActiveView('LINE_SETTINGS')
-                              else if (isModel) setActiveView('MODEL_SETTINGS')
+                              setActiveView(settingsView)
                             }}
                           >
                             Settings <ChevronRight size={12} className="ml-0.5" />
                           </button>
-                        </>
-                      ) : (
-                        <button
-                          type="button"
-                          className="btn btn-secondary h-7 px-3 text-[11px]"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Connect
-                        </button>
+                        )}
+                      </div>
+                      {item.reasons.length > 0 && (
+                        <p className="text-right text-[10px] text-muted">
+                          {item.reasons.map((reason) => CONNECTOR_REASON_HINT[reason] || reason).join(' · ')}
+                        </p>
                       )}
                     </div>
                   </div>

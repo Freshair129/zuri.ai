@@ -3,8 +3,8 @@ domain: integration
 feature: FR-130
 module: integration
 source: v2-native
-version: "0.1.0b"
-status: "declared"
+version: "0.2.0b"
+status: "partial"
 ---
 
 # FR-130 — GitHub repository binding and read-only projection
@@ -15,8 +15,89 @@ A Business registers the repository its work lives in, and a person that
 Business admits can read that repository's tree and files inside the console
 instead of leaving for GitHub. The register half has shipped since FR-008; the
 read half is what FR-130 declares, and it is declared **blocked** — on a
-data-protection question rather than on effort. That blocker is the last
-section, and it is the reason this note exists at all.
+data-protection question rather than on effort. That blocker is the reason this
+note exists at all, and it still stands.
+
+The requirement is `partial` rather than `declared` because one thing in it was
+never behind that blocker: the console was already asserting a GitHub connection
+that does not exist. That is corrected, and nothing else is built — the next
+section says exactly what changed and why it stops there.
+
+## What is built (2026-08-30), and what is still blocked
+
+**Built: the catalog no longer claims a connection that does not exist.** That
+is the whole of it, and it is deliberately the whole of it — the projection, the
+webhook adapter and making `ProjectRepository.pathScope` load-bearing all sit
+behind the blocker below and none of them was started.
+
+`src/platform/integrations/core/connector-catalog.js` now holds the connector
+list, and an entry **cannot carry a state**: it names the
+`IntegrationProvider.code` values a connection for it would have, and
+`deriveConnectorStatus` computes the state from the rows
+`listPhase1Integrations` already returns — the same read model the connection
+list further down the page renders. The page imports the derivation; nothing in
+the catalog asserts.
+
+What the correction found, which is more than the finding above stated:
+
+| Entry | Old literal | Derived today | Why |
+|---|---|---|---|
+| GitHub Repositories | `CONNECTED` | `NOT_CONNECTED` · `CONNECTOR_NOT_IMPLEMENTED` | nothing in `src/` speaks to GitHub; `github` appears only as a `provider` string option on `/repositories` |
+| Vercel Ingress & Webhooks | `CONNECTED` | `NOT_CONNECTED` · `CONNECTOR_NOT_IMPLEMENTED` | `/api/agent/line-webhook` is the only webhook receiver that exists |
+| LINE Official Account | `CONNECTED` | its `LINE_OA` connection's health, or `NO_CONNECTION_RECORDED` | connectable, but the literal was green for a Business that had never configured it |
+| OpenRouter (LLM Models) | `CONNECTED` | its `openrouter` connection's health, or `NO_CONNECTION_RECORDED` | same |
+| Google Gemini | `AVAILABLE` | its `gemini` connection's health, or `NO_CONNECTION_RECORDED` | wrong in the **other** direction: `gemini` is in `PUBLIC_LINE_PROVIDERS`, so the Phase 1 model form could always connect it |
+| Slack, Notion, Microsoft 365, Gmail, Google Calendar, Google Drive | `AVAILABLE` | `NOT_CONNECTED` · `CONNECTOR_NOT_IMPLEMENTED` | `AVAILABLE` reads as an offer; there is nothing to press |
+
+Two smaller consequences follow from the same rule rather than from taste. The
+**"Connect" button is gone** from an entry with no connector: a control that
+does nothing is the same false claim moved one element to the right. And the
+hand-written Slack and Notion cards in the "Popular" strip say `Not connected`
+too, because a surface that offers Connect in one panel and reports "no
+connector in the system" in another is disagreeing with itself.
+
+`AVAILABLE` was not replaced with a friendlier word. The two reason codes keep
+apart two facts it had merged — `CONNECTOR_NOT_IMPLEMENTED` (there is nothing to
+configure) and `NO_CONNECTION_RECORDED` (there is, and this Business has not) —
+and a connection row that arrives without computed health resolves to
+`NOT_CONNECTED`, not to the green the literal used to give for free.
+
+The rule this follows was already written in this lane, one file away, about a
+single connection: `connection-health.js` says a stored status "is a claim that
+was true once, and the failure mode is a dashboard that says CONNECTED while
+every event is failing". A literal in a catalog array is that claim without even
+the once.
+
+**Still blocked, unchanged:** everything in "The PII question" below. Nothing
+here touched `Repository`, `ProjectRepository`, `DATA_LANES`, the schema or any
+requirement id, and **no attestation shape was invented** — see the next
+section.
+
+### Why this PR did not build the attestation shape
+
+It was asked directly, and the answer is no, on the code rather than on
+preference.
+
+FR-129 is not the parallel it looks like. There the column existed —
+`PipelineGateDecision.evidenceJson` had been in the schema and in production DDL
+since FR-071, hardcoded to `'{}'` by its only writer — so making it writable
+closed a gap somebody had already designed and shipped half of. The shape was
+decided; only the write path was missing.
+
+Here nothing exists. There is no column, no model, and no policy. `SEC-005`
+consent attaches to an FR-023 `Customer` row, and there is no row here to attach
+an assertion to. `AuditEvent.action` is a plain `String`, so a value *could* be
+written — which is exactly the trap: a free string nobody validates, nothing
+reads and no rule governs is a note, not a control, and it would be indexed and
+displayed as though it were one. Inventing one would mean choosing, silently
+and by omission, who may declare a path free of personal data — the same move
+FR-129 explicitly refused when it declined to expose an approval route under
+scope-level admission alone, and for the same reason: an authorization policy
+chosen by omission is cheaper to add later than to narrow. A form people can
+fill in meaninglessly is worse than an honest absence, because it produces a
+record that looks like a control.
+
+The blocker is a decision. A decision is not unblocked by building a form for it.
 
 ## What already exists, which is nearly all of the binding
 
@@ -254,12 +335,10 @@ question this requirement does not settle.
   `MARKET_INTELLIGENCE` rather than reusing one. Adding a lane costs no
   migration (`lane` is a plain `String` column) but it is that decision, made
   once, not a free enum edit.
-- **The integrations catalog already claims GitHub is connected.**
-  `src/app/(pm)/platform/integrations/page.jsx` renders a "GitHub Repositories"
-  tile hardcoded `status: 'CONNECTED'` in a static array, while nothing
-  connects. A surface asserting a connection that does not exist is the kind of
-  false green this repository keeps finding; FR-130 must fix it, not build on
-  top of it.
+- ~~**The integrations catalog already claims GitHub is connected.**~~
+  **Closed 2026-08-30** — see "What is built" below. The finding was correct and
+  narrower than the reality: the tile was one of **four** entries hardcoded
+  `status: 'CONNECTED'`, and it was not the only impossible one.
 
 ## Boundaries
 
