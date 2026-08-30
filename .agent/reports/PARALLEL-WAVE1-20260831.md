@@ -50,6 +50,15 @@ RED tests พิสูจน์ว่า wrong-stage/unknown-step เคยถ�
 
 ## Final integration verification
 
+หลังใช้ id-ledger writer: focused id-anchor-stability 70/70 PASS; ไม่มี ID หรือ baseline เพิ่ม.
+
+รอบแรกที่ 42d7b22: 2855 tests ผ่าน, 1 failed, 14 skipped; หยุดก่อน build ตาม verify chain.
+Failure คือ id-anchor-stability คาด baseline digest ที่ทบทวนแล้ว แต่ SEC-022 มีข้อความ implementation
+เปลี่ยนและยังไม่บันทึก review. อ่าน registry diff แล้วใช้ writer ที่กำหนด:
+`npm run docs:ids -- --review SEC-022 --reason "..."`; subject/ID ไม่เปลี่ยน, เพิ่ม ID 0,
+ไม่แก้ ledger ด้วยมือและไม่ใช้ bulk baseline refresh. ต้องรันชุดรวมใหม่หลังปิด CRM review.
+
+
 | Check | ผล |
 |---|---|
 | npm test | PENDING |
@@ -62,6 +71,10 @@ RED tests พิสูจน์ว่า wrong-stage/unknown-step เคยถ�
 line-oa-cross-repo-round-trip (5), runtime-isolation-probe.postgres (1). ไม่ใช่ PostgreSQL/production proof.
 Standalone `npm run lint` ยังเข้าหน้า first-run ESLint setup เดิมของ repository; ไม่เพิ่ม config นอก scope.
 Build ผ่านขั้น validation ของ Next.js แต่ไม่อ้าง standalone lint PASS.
+
+ตรวจ actual SQLite migration เพิ่มด้วย Node v24.16.0 node:sqlite ใน memory database:
+rowsSameDay=2, explicitIndexes=4, foreignKeyDelete=CASCADE, foreignKeyUpdate=CASCADE,
+rowsAfterParentDelete=0. ไม่ได้ใช้ app database หรือ PostgreSQL.
 
 ## Review และขอบเขตความปลอดภัย
 
@@ -81,6 +94,25 @@ Optional cross-lane migration review โดย reaper agent ถูก auto-revie
 ไม่ได้รันส่วนนั้น. Root และ CRM owner ตรวจ SQL ในขอบเขต integration เดิมแล้ว.
 ยังไม่พบ defect ที่พิสูจน์ได้ใน marker version แต่ PostgreSQL concurrency ยังไม่ได้ทดสอบจริง.
 
+## Findings นอก increment ที่ต้องทบทวนแยก
+
+Independent review เสนอประเด็นใน reader/consent/restore เดิม. Root ตรวจ diff เทียบฐานแล้ว:
+conversation-read-model.js และ customer-consent-service.js ไม่เปลี่ยนในรอบนี้;
+backup-service.js เปลี่ยนเพียงรายชื่อ snapshot model และ annotations. รายการด้านล่างเป็น
+static review และ policy/contract risks ไม่ใช่ผล exploit test หรือการอนุมัติให้แก้ทันที.
+
+| จุดที่ต้องทบทวน | หลักฐานและขอบเขต |
+|---|---|
+| CRM inbox เดิมกับ source ที่ tenant/customer ผูกผิด | reader กรอง tenant/business ของ Conversation แต่ไม่มีการเทียบ Customer.tenantId; ต้องเพิ่ม adversarial evidence ก่อนกำหนด fix แยก |
+| Restore snapshot เก่าหลัง erasure | restore operator ที่ได้รับสิทธิ์สามารถคืนข้อมูลเก่ารวม consent และ analyses; ยังไม่มี tombstone/generation policy ที่รอดข้าม restore. เป็นข้อจำกัด privacy/retention ที่ต้องตัดสินก่อน production |
+| Restore ที่ snapshot ขาดตาราง | preview ตีความตารางที่ขาดเป็น 0 และ full restore แทนที่ทุกตารางหลัง operator ยืนยัน; ต้องตัดสิน strict completeness เทียบกับ backward compatibility ให้ชัดเจน |
+| Consent ของ Customer ที่ soft delete แล้ว | writer เดิมไม่กรอง deletedAt และ lookup อยู่นอก transaction; ต้องทบทวนนโยบาย re-consent/erasure และพิสูจน์ race แยก |
+
+ไม่ได้ขยายงานไปสร้าง tombstone, เปลี่ยน snapshot format, เปิด privacy policy ใหม่ หรือแก้ inbox เดิม.
+สอง finding ที่อยู่ในโค้ด increment ใหม่ปิดใน source followup 3f3034e: correlated Business/tenant pair
+และ tenant-scoped analysis erasure. RED 2 cases ล้มตามคาดก่อนแก้; GREEN 21/21 ผ่าน.
+ดู [RCA](../../.brain/rca/2026-08-31-conversation-analysis-tenant-binding.md); final suite จะทดสอบ source รวมอีกครั้ง.
+
 ## ข้อจำกัดเครื่องและวิธีแยกตรวจ
 
 Prisma schema apply ใน scratch SQLite บน D ค้างหลายนาทีและไฟล์ยังถูกล็อกอยู่.
@@ -94,6 +126,14 @@ Final verification ใช้ C:\Users\freshair\AppData\Local\Temp\zuri-ai-verify
 D:\zuri-ai-parallel-backlog-20260831 บน branch codex/parallel-backlog-review-20260831.
 ก่อนทุก application check ล้าง process-only PostgreSQL connection selectors โดยไม่อ่านหรือพิมพ์ค่า.
 ไม่ได้แก้ environment ของเครื่องหรือ credential ใด.
+
+## Primary checkout และ ownership
+
+ตรวจท้ายพบ primary ยัง detached ที่ 4ecc1f2a97eae3025897a16b37b17a881651fa38.
+มี WIP นอกชุดนี้: ROADMAP และ generated governance 3 ไฟล์ modified,
+GAP-ANALYSIS-ZURI-GOVIBE.md และ CR-002..005 untracked รวม 5 ไฟล์.
+ไม่ได้เขียน ย้าย ลบ stage หรือรวมไฟล์เหล่านี้; warning สิทธิ์ .pytest_cache ยังอยู่เดิม.
+รายงานนี้อ้างเฉพาะ branch/worktree รวมที่แยกไว้ ไม่อ้างว่า primary สะอาด.
 
 ## External / policy gates ที่ยังไม่เปิด
 

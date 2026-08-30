@@ -6,7 +6,7 @@ import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
 // @req FR-127 — persist and read consent-gated, recomputable ConversationAnalysis
 // rows behind the CRM's existing Business ownership/read visibility boundaries.
 // @spec ADR-054 D3-D6, BR-001, SEC-001, SEC-005
-// @spec .brain/rca/2026-08-31-conversation-analysis-tenant-binding.md
+// RCA: .brain/rca/2026-08-31-conversation-analysis-tenant-binding.md
 // @tested tests/integration/crm-conversation-analysis.test.js
 
 export const CONVERSATION_ANALYSIS_VERSION = '1.0'

@@ -57,8 +57,8 @@
   "drift": {
     "changed": [
       "doc:README",
-      "test:tests/unit/platform/pipeline-tracking-service.test.js",
-      "code:src/platform/integrations/core/pipeline-tracking-service.js"
+      "code:src/modules/crm/conversation-analysis-service.js",
+      "code:src/modules/identity/erase-principal.js"
     ],
     "added": [],
     "removed": []
@@ -4576,8 +4576,8 @@
       "id": "code:src/modules/crm/conversation-analysis-service.js",
       "type": "code_file",
       "path": "src/modules/crm/conversation-analysis-service.js",
-      "hash": "8943725e",
-      "status": "current",
+      "hash": "ca8efdf0",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-127"
@@ -4850,8 +4850,8 @@
       "id": "code:src/modules/identity/erase-principal.js",
       "type": "code_file",
       "path": "src/modules/identity/erase-principal.js",
-      "hash": "c2d35b45",
-      "status": "current",
+      "hash": "c45caf4b",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-022",
@@ -7845,7 +7845,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-service.js",
       "hash": "f9388c39",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-071",
@@ -14772,7 +14772,7 @@
       "id": "test:tests/integration/crm-conversation-analysis.test.js",
       "type": "test",
       "path": "tests/integration/crm-conversation-analysis.test.js",
-      "hash": "0881430a",
+      "hash": "c5cfb893",
       "status": "current"
     },
     {
@@ -16593,7 +16593,7 @@
       "type": "test",
       "path": "tests/unit/platform/pipeline-tracking-service.test.js",
       "hash": "6dbd4bfb",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/platform/raw-ingest-service.test.js",
