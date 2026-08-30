@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1475,
-    "total_edges": 5004,
+    "total_nodes": 1478,
+    "total_edges": 5045,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,16 +16,16 @@
       "route": 160,
       "model": 70,
       "requirement": 273,
-      "test": 349,
-      "code_file": 386
+      "test": 351,
+      "code_file": 387
     },
     "coverage": {
       "requirements": 273,
-      "fr_with_code": "100% (118/118)",
-      "fr_with_tests": "100% (118/118)",
-      "rules_anchored_in_code": "94% (112/119)",
+      "fr_with_code": "100% (119/119)",
+      "fr_with_tests": "100% (119/119)",
+      "rules_anchored_in_code": "95% (113/119)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 386,
+      "annotated_code_files": 387,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -37,7 +37,6 @@
         "FR-126",
         "FR-127",
         "FR-128",
-        "FR-129",
         "FR-130",
         "FR-131",
         "FR-132"
@@ -49,7 +48,6 @@
         "SDD-040",
         "SDD-041",
         "SDD-046",
-        "SDD-075",
         "SDD-076",
         "SDD-077"
       ],
@@ -61,7 +59,11 @@
   },
   "drift": {
     "changed": [
-      "doc:README"
+      "doc:README",
+      "doc:FR-129-catalog-publication-approval-gate",
+      "doc:PRD-SDD-v1.0",
+      "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "code:src/platform/integrations/core/pipeline-tracking-contract.js"
     ],
     "added": [],
     "removed": []
@@ -7727,27 +7729,50 @@
       }
     },
     {
-      "id": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "id": "code:src/platform/integrations/core/pipeline-gate-compliance.js",
       "type": "code_file",
-      "path": "src/platform/integrations/core/pipeline-tracking-contract.js",
-      "hash": "ee91ffc7",
+      "path": "src/platform/integrations/core/pipeline-gate-compliance.js",
+      "hash": "cb1acc51",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-129"
+        ],
+        "@spec": [
+          "SDD-075"
+        ],
+        "@tested": [
+          "tests/unit/platform/fr129-catalog-publication-gate.test.js",
+          "tests/integration/fr129-catalog-publication-gate.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/pipeline-tracking-contract.js",
+      "hash": "fd31ec4e",
+      "status": "changed",
+      "annotations": {
+        "@req": [
           "FR-071",
-          "FR-109"
+          "FR-109",
+          "FR-129"
         ],
         "@spec": [
           "SDD-042",
           "SDD-057",
           "SDD-066",
+          "SDD-070",
           "SDD-073",
+          "SDD-075",
           "SEC-003",
           "SEC-008"
         ],
         "@tested": [
           "tests/unit/platform/pipeline-tracking-contract.test.js",
-          "tests/unit/platform/knowledge-ingestion-catalog.test.js"
+          "tests/unit/platform/knowledge-ingestion-catalog.test.js",
+          "tests/unit/platform/fr129-catalog-publication-gate.test.js"
         ]
       }
     },
@@ -7755,19 +7780,23 @@
       "id": "code:src/platform/integrations/core/pipeline-tracking-service.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-service.js",
-      "hash": "a9a85332",
+      "hash": "6a8cc09a",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-071"
+          "FR-071",
+          "FR-129"
         ],
         "@spec": [
           "SDD-042",
+          "SDD-075",
           "SEC-003",
           "SEC-008"
         ],
         "@tested": [
-          "tests/unit/platform/pipeline-tracking-service.test.js"
+          "tests/unit/platform/pipeline-tracking-service.test.js",
+          "tests/unit/platform/fr129-catalog-publication-gate.test.js",
+          "tests/integration/fr129-catalog-publication-gate.test.js"
         ]
       }
     },
@@ -8814,8 +8843,8 @@
       "type": "document",
       "path": "docs/domains/integration/features/FR-129-catalog-publication-approval-gate.md",
       "title": "FR-129 — Catalog publication approval gate",
-      "hash": "80cedd3b",
-      "status": "current"
+      "hash": "19845ce5",
+      "status": "changed"
     },
     {
       "id": "doc:FR-130-github-repository-projection",
@@ -9110,10 +9139,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.129.0b",
+      "version": "1.130.0b",
       "doc_status": "Draft",
-      "hash": "5716dd1f",
-      "status": "current"
+      "hash": "39f8b1ac",
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -9156,7 +9185,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "fcd1c02c",
+      "hash": "0deeeb7b",
       "status": "current"
     },
     {
@@ -11485,9 +11514,9 @@
       "family": "FR",
       "label": "Catalog publication approval gate: a `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` run that has produced a candidate projection does not reach `DPS-PUBLISH` until an authorized human has recorded an `APPROVED` `PipelineGateDecision` against that run, and a `REJECTED` decision sends it to `DPS-ROLLBACK` instead — the two stage labels FR-071's catalog has always carried (\"Publish approved projection\", \"Rollback failed or rejected run\") with nothing yet deciding which one a run takes. (a) The decision is recorded on the existing FR-071 execution ledger and declares **no new model and no new column**: `PipelineGateDecision.decidedByPersonId` is who signed, that row's own `createdAt` is when, `required` is whether the gate was waivable, `reason` carries a rejection, and `PipelineRun.artifactRef`/`artifactSha256` already identify the artifact the run applied. A second run table as CR-003 proposes is refused: `IngestionRun` (FR-081) is acquisition evidence for one connection and `PipelineRun` (FR-071) is the execution ledger for one pipeline definition, and a third answer to \"what happened in this pipeline\" would make the reconciliation evidence something that has to be believed twice (SDD-057). (b) The evidence a reviewer acted on — the candidate publication's own identity, and the added/changed/unchanged counts shown — is written to `PipelineGateDecision.evidenceJson` (SDD-075); a signature whose evidence is empty records that somebody approved but not what they saw, which is not an auditable decision. (c) The destination vault is not stored: it resolves from the run's Tenant/Business scope through API-010 (FR-057, ADR-022), so a stored copy would be a second answer to which vault a scope maps to. (d) Tier 1 records and does not execute (ADR-043 D2.1, ADR-050 D3). The gate is therefore a precondition the executing worker must observe and the ledger makes checkable afterwards — a run whose publish stage succeeded with no prior `APPROVED` decision is a detectable violation — not an interlock this repository enforces on a worker it does not run. (e) **Distinct from FR-110's Stage 17 quality gate**, permanently and by design: FR-110 is an automated `PASS`/`PASS_WITH_WARNINGS` verdict on a `DPL-KNOWLEDGE-INGEST-V1` knowledge snapshot, this is a human signature on a business-knowledge catalog version, and both will answer to \"approval gate on a pipeline run\" in any future search while sharing the one `PipelineGateDecision` table. Reworked from CR-003; no reviewer UI is in scope (CR-003 §2.B is a feature programme, not this requirement)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Catalog publication approval gate: a `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` run that has produced a candidate projection does not reach `DPS-PUBLISH` until an authorized human has recorded an `APPROVED` `PipelineGateDecision` against that run, and a `REJECTED` decision sends it to `DPS-ROLLBACK` instead — the two stage labels FR-071's catalog has always carried (\"Publish approved projection\", \"Rollback failed or rejected run\") with nothing yet deciding which one a run takes. (a) The decision is recorded on the existing FR-071 execution ledger and declares **no new model and no new column**: `PipelineGateDecision.decidedByPersonId` is who signed, that row's own `createdAt` is when, `required` is whether the gate was waivable, `reason` carries a rejection, and `PipelineRun.artifactRef`/`artifactSha256` already identify the artifact the run applied. A second run table as CR-003 proposes is refused: `IngestionRun` (FR-081) is acquisition evidence for one connection and `PipelineRun` (FR-071) is the execution ledger for one pipeline definition, and a third answer to \"what happened in this pipeline\" would make the reconciliation evidence something that has to be believed twice (SDD-057). (b) The evidence a reviewer acted on — the candidate publication's own identity, and the added/changed/unchanged counts shown — is written to `PipelineGateDecision.evidenceJson` (SDD-075); a signature whose evidence is empty records that somebody approved but not what they saw, which is not an auditable decision. (c) The destination vault is not stored: it resolves from the run's Tenant/Business scope through API-010 (FR-057, ADR-022), so a stored copy would be a second answer to which vault a scope maps to. (d) Tier 1 records and does not execute (ADR-043 D2.1, ADR-050 D3). The gate is therefore a precondition the executing worker must observe and the ledger makes checkable afterwards — a run whose publish stage succeeded with no prior `APPROVED` decision is a detectable violation — not an interlock this repository enforces on a worker it does not run. (e) **Distinct from FR-110's Stage 17 quality gate**, permanently and by design: FR-110 is an automated `PASS`/`PASS_WITH_WARNINGS` verdict on a `DPL-KNOWLEDGE-INGEST-V1` knowledge snapshot, this is a human signature on a business-knowledge catalog version, and both will answer to \"approval gate on a pipeline run\" in any future search while sharing the one `PipelineGateDecision` table. Reworked from CR-003; no reviewer UI is in scope (CR-003 §2.B is a feature programme, not this requirement) 🔜 declared only — the schema it needs already exists and is already under RLS, and none of the write path does: `zGate` in `src/platform/integrations/core/pipeline-tracking-contract.js` is a five-field `.strict()` object with no evidence member, `recordPipelineEvent` writes `evidenceJson: '{}'` unconditionally, `gateSummary` omits the column from the read model, and nothing anywhere consults a gate decision before a publish stage. Blocked additionally on a product decision nobody has made: who may sign, and whether a gate is required per definition or per run "
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Catalog publication approval gate: a `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` run that has produced a candidate projection does not reach `DPS-PUBLISH` until an authorized human has recorded an `APPROVED` `PipelineGateDecision` against that run, and a `REJECTED` decision sends it to `DPS-ROLLBACK` instead — the two stage labels FR-071's catalog has always carried (\"Publish approved projection\", \"Rollback failed or rejected run\") with nothing yet deciding which one a run takes. (a) The decision is recorded on the existing FR-071 execution ledger and declares **no new model and no new column**: `PipelineGateDecision.decidedByPersonId` is who signed, that row's own `createdAt` is when, `required` is whether the gate was waivable, `reason` carries a rejection, and `PipelineRun.artifactRef`/`artifactSha256` already identify the artifact the run applied. A second run table as CR-003 proposes is refused: `IngestionRun` (FR-081) is acquisition evidence for one connection and `PipelineRun` (FR-071) is the execution ledger for one pipeline definition, and a third answer to \"what happened in this pipeline\" would make the reconciliation evidence something that has to be believed twice (SDD-057). (b) The evidence a reviewer acted on — the candidate publication's own identity, and the added/changed/unchanged counts shown — is written to `PipelineGateDecision.evidenceJson` (SDD-075); a signature whose evidence is empty records that somebody approved but not what they saw, which is not an auditable decision. (c) The destination vault is not stored: it resolves from the run's Tenant/Business scope through API-010 (FR-057, ADR-022), so a stored copy would be a second answer to which vault a scope maps to. (d) Tier 1 records and does not execute (ADR-043 D2.1, ADR-050 D3). The gate is therefore a precondition the executing worker must observe and the ledger makes checkable afterwards — a run whose publish stage succeeded with no prior `APPROVED` decision is a detectable violation — not an interlock this repository enforces on a worker it does not run. (e) **Distinct from FR-110's Stage 17 quality gate**, permanently and by design: FR-110 is an automated `PASS`/`PASS_WITH_WARNINGS` verdict on a `DPL-KNOWLEDGE-INGEST-V1` knowledge snapshot, this is a human signature on a business-knowledge catalog version, and both will answer to \"approval gate on a pipeline run\" in any future search while sharing the one `PipelineGateDecision` table. Reworked from CR-003; no reviewer UI is in scope (CR-003 §2.B is a feature programme, not this requirement) 🟠 partial (2026-08-30) — the record and the check are built; the signing surface is not, and no migration, model or column was added. `zGate` now carries an optional `.strict()` `evidence` member (`catalogVersion`, `artifactSha256`, `addedCount`, `changedCount`, `unchangedCount`) that an `APPROVED` decision on **this** definition may not omit — scoped to the definition and not to the shared table, so FR-110's Stage 17 gate is unconstrained; `recordPipelineEvent` persists it to `evidenceJson` and `gateSummary` returns it, closing SDD-075's \"present, tested for existence, and unreachable\" gap end to end; (2) is stated as validation too — an `APPROVED`/`REJECTED` decision must name a `decidedByPersonId` and a `REJECTED` one a `reason`, said in the envelope because the column is `String?` with no `Person` relation and cannot say it. (d) is answered on the response it names: `GET /api/pipelines/runs/{executionRunId}` returns `gateCompliance` beside `gates` and `steps` — computed server-side over every step row, because that response's step-side field is `stageTimeline` (`latestByStage`, one row per stage) and `(runId, pipelineStageId)` is not unique (SDD-071), so a second unapproved publish row is invisible to a reader of it — reporting every `DPS-PUBLISH` step that SUCCEEDED with no **prior** `APPROVED` decision as a `PUBLISH_WITHOUT_APPROVAL` violation and carrying `enforced: false` because this tier detects and does not prevent — an approval recorded *after* the publish is reported, which is the case an existence check reads as compliant. **No route that creates an `APPROVED` decision is exposed**, deliberately: the authorization policy such a route would implement is the blocker, and shipping it under scope-level admission alone would make \"any member of the run's Business may sign a catalog publication\" the product's policy, chosen by omission and cheaper to add later than to narrow. Still blocked on that unmade product decision — who may sign, and whether a gate is required per definition or per run; because \"required\" is undecided the detector does **not** read `WAIVED` as satisfying the gate, and names every observed gate status in the finding instead. `PipelineReconciliation.evidenceJson` is still written as `'{}'` and is left visible as its own finding rather than half-closed here "
     },
     {
       "id": "req:FR-130",
@@ -14804,6 +14833,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr129-catalog-publication-gate.test.js",
+      "type": "test",
+      "path": "tests/integration/fr129-catalog-publication-gate.test.js",
+      "hash": "2563c5cc",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/iam-authorization.test.js",
       "type": "test",
       "path": "tests/integration/iam-authorization.test.js",
@@ -16363,6 +16399,13 @@
       "path": "tests/unit/platform/document-intake-contract.test.js",
       "hash": "6e3cd6b1",
       "status": "current"
+    },
+    {
+      "id": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "hash": "84efa507",
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/platform/integration-contracts.test.js",
@@ -27973,6 +28016,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/platform/integrations/core/pipeline-gate-compliance.js",
+      "to": "req:FR-129",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-gate-compliance.js",
+      "to": "req:SDD-075",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "to": "req:FR-071",
       "type": "implements",
@@ -27982,6 +28039,13 @@
     {
       "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "to": "req:FR-109",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "to": "req:FR-129",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -28009,7 +28073,21 @@
     },
     {
       "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "to": "req:SDD-070",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "to": "req:SDD-073",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "to": "req:SDD-075",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -28037,7 +28115,21 @@
     },
     {
       "from": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "to": "req:FR-129",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-service.js",
       "to": "req:SDD-042",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "to": "req:SDD-075",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -38254,6 +38346,69 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
+      "to": "code:src/platform/integrations/core/pipeline-gate-compliance.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
+      "to": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
+      "to": "req:FR-129",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
+      "to": "req:SDD-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
+      "to": "req:SDD-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
+      "to": "req:SDD-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/iam-authorization.test.js",
@@ -48889,6 +49044,125 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "code:src/platform/integrations/core/pipeline-gate-compliance.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:FR-129",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:SDD-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:SDD-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:SDD-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:SDD-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:SDD-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:SDD-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:SDD-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/platform/integration-contracts.test.js",
       "to": "code:src/platform/integrations/core/contracts.js",
       "type": "tests",
@@ -48953,6 +49227,13 @@
     },
     {
       "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
+      "to": "req:FR-129",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -48974,7 +49255,21 @@
     },
     {
       "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
+      "to": "req:SDD-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
       "to": "req:SDD-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
+      "to": "req:SDD-075",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -49044,6 +49339,13 @@
     },
     {
       "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
+      "to": "req:FR-129",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -49065,10 +49367,24 @@
     },
     {
       "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
+      "to": "req:SDD-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
       "to": "req:SDD-073",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
+      "to": "req:SDD-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
@@ -49128,6 +49444,13 @@
     },
     {
       "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
+      "to": "req:FR-129",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
       "to": "req:NFR-020",
       "type": "verifies",
       "status": "current",
@@ -49153,6 +49476,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
+      "to": "req:SDD-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",

@@ -4,7 +4,7 @@ feature: FR-129
 module: integration
 source: v2-native
 version: "0.1.0b"
-status: "declared"
+status: "partial"
 ---
 
 # FR-129 — Catalog publication approval gate
@@ -137,25 +137,73 @@ and a run in the knowledge lane never satisfies this requirement.
 
 ## Status and named blockers
 
-Declared only. The schema FR-129 needs exists in `prisma/schema.prisma`, exists
-in production DDL (`supabase/migrations/20260820221703_smartgift_pipeline_tracking.sql`,
-under `FORCE ROW LEVEL SECURITY`), and is asserted by
-`tests/unit/platform/pipeline-tracking-migration.test.js`. Nothing else does:
+**Partial (2026-08-30).** The record and the check are built; the signing
+surface is not, and the reason it is not is the blocker below rather than
+effort. The schema FR-129 needs already existed in `prisma/schema.prisma` and in
+production DDL (`supabase/migrations/20260820221703_smartgift_pipeline_tracking.sql`,
+under `FORCE ROW LEVEL SECURITY`), and no migration, model or column was added.
 
-- `zGate` in `src/platform/integrations/core/pipeline-tracking-contract.js` is a
-  five-field `.strict()` object — `gateId`, `status`, `required`,
-  `decidedByPersonId`, `reason` — with no evidence member, so the envelope
-  cannot carry what a reviewer saw.
-- `recordPipelineEvent` writes `evidenceJson: '{}'` unconditionally for both
-  gate decisions and reconciliations. The column has never held anything.
-- `gateSummary` omits `evidenceJson` from the read model, so even a row that
-  held evidence would not reach a reader.
-- Nothing anywhere reads a gate decision before a publish stage, or after one.
+Built:
+
+- `zGate` carries an optional `evidence` member — `catalogVersion`,
+  `artifactSha256`, `addedCount`, `changedCount`, `unchangedCount`, `.strict()`
+  — and an `APPROVED` decision on **this** definition is refused without it
+  (§3). The knowledge lane's gate is untouched: FR-110 signs a snapshot, not a
+  catalog version, and the rule is scoped to the definition rather than to the
+  shared table.
+- §2 as validation rather than prose: an `APPROVED` or `REJECTED` decision on
+  this definition must name a `decidedByPersonId`, and a `REJECTED` one must
+  give a `reason`. **This is said in the envelope because the schema cannot say
+  it** — `PipelineGateDecision.decidedByPersonId` is `String?` with *no*
+  relation to `Person`, unlike `CustomerImportReviewDecision.decidedByPersonId`
+  which is NOT NULL with a real foreign key. The note above describing it as "a
+  `Person`" was reading the name, not the column. Refusing an anonymous
+  signature decides nothing about *who* may sign; that stays open below.
+  `PENDING` and `WAIVED` are unconstrained — `PENDING` is the gate awaiting a
+  decision rather than one, and whether a waiver is a person's act belongs to
+  the same open question about `required`.
+- `recordPipelineEvent` persists that evidence to `evidenceJson`, and
+  `gateSummary` returns it, so a written decision reaches a reader. A decision
+  that carries none still writes the DDL default `'{}'` and reads back as `{}`.
+- `GET /api/pipelines/runs/{executionRunId}` returns `gateCompliance` beside
+  `gates` and `steps`: every `DPS-PUBLISH` step that SUCCEEDED with no
+  **prior** `APPROVED` decision on the same run is reported as a
+  `PUBLISH_WITHOUT_APPROVAL` violation. An approval recorded *after* the
+  publish succeeded is a violation and says so — it is the case an
+  existence check reads as compliant. `enforced: false` is in the response
+  because this tier detects and does not prevent (ADR-043 D2.1, ADR-050 D3).
+  This had to be computed server-side rather than left to a reader of the
+  existing response, and the reason corrects the paragraph above: that response
+  returns `gates`, but its step-side field is `stageTimeline`, which is
+  `latestByStage` — one row per stage. `(runId, pipelineStageId)` is not unique
+  (SDD-071), so a second, unapproved publish row is invisible in it. The
+  detector reads every step row instead.
+
+Not built, deliberately:
+
+- **No route creates a decision.** `POST /api/pipelines/runs/{id}/events` has
+  always accepted a `GATE_UPDATED` envelope and is guarded by
+  `requireOperator` — an installation operator, not a Business signatory. No
+  signing surface is added on top of that, because the authorization policy a
+  signing surface would implement is the blocker below. Exposing one under
+  scope-level admission alone would make "any member of the run's Business may
+  approve a catalog publication" the product's policy, chosen by omission and
+  invisible to the person whose decision it is. It is far cheaper to add that
+  route once the policy exists than to narrow it afterwards.
+- **No reviewer UI**, per the section above.
+- `PipelineReconciliation.evidenceJson` is still written as `'{}'`. SDD-075 is
+  about the gate; the reconciliation column is the same shape of gap and is
+  **not** fixed here, so that it stays visible as its own finding rather than
+  being quietly half-closed.
 - **Unmade product decision:** who may sign. `decidedByPersonId` is a `Person`,
   and no policy says which Membership or `PlatformGrant` authorizes a catalog
   publication for a Business, or whether the gate is required per definition or
-  per run. That is a product question, and FR-129 is blocked on it rather than
-  on effort.
+  per run. Both halves are load-bearing here: because "required" is undecided,
+  the detector does **not** treat a `WAIVED` decision as satisfying the gate —
+  it reports the run and names every gate status observed on it, so a reader
+  looking at a waiver can see that it is one. Deciding otherwise inside a
+  detector would answer the open question in the permissive direction where
+  nobody would read it.
 
 ## Related
 

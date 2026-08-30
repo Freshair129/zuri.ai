@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-30T10:57:17.185Z",
+  "generatedAt": "2026-08-30T11:54:34.122Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -38,11 +38,11 @@
     "status": "partial",
     "domainCount": 8,
     "featureCount": 108,
-    "readyFeatureCount": 94,
+    "readyFeatureCount": 95,
     "requirementCount": 132,
-    "verifiedRequirementCount": 118,
-    "progressPercent": 89.4,
-    "gapCount": 23,
+    "verifiedRequirementCount": 119,
+    "progressPercent": 90.5,
+    "gapCount": 22,
     "gaps": [
       {
         "domain": "agent",
@@ -153,14 +153,6 @@
       },
       {
         "domain": "integration",
-        "id": "REQ-FR-129",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-129 is planned",
-        "evidence": []
-      },
-      {
-        "domain": "integration",
         "id": "REQ-FR-130",
         "severity": "medium",
         "check": "requirements",
@@ -187,7 +179,9 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-110 is planned",
-        "evidence": []
+        "evidence": [
+          "tests/unit/platform/fr129-catalog-publication-gate.test.js"
+        ]
       },
       {
         "domain": "knowledge",
@@ -1156,7 +1150,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-079",
@@ -1212,7 +1206,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-118",
@@ -1237,10 +1231,10 @@
         },
         {
           "id": "FR-129",
-          "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 0
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 5
         },
         {
           "id": "FR-130",
@@ -1387,13 +1381,6 @@
           "evidence": []
         },
         {
-          "id": "REQ-FR-129",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-129 is planned",
-          "evidence": []
-        },
-        {
           "id": "REQ-FR-130",
           "severity": "medium",
           "check": "requirements",
@@ -1419,8 +1406,8 @@
         "FR-130"
       ],
       "featureCount": 8,
-      "readyFeatureCount": 4,
-      "progressPercent": 70
+      "readyFeatureCount": 5,
+      "progressPercent": 80
     },
     "knowledge": {
       "status": "partial",
@@ -1465,21 +1452,24 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-110",
           "declared": "planned",
           "status": "planned",
           "codeCount": 0,
-          "testCount": 0
+          "testCount": 1,
+          "evidence": [
+            "tests/unit/platform/fr129-catalog-publication-gate.test.js"
+          ]
         },
         {
           "id": "FR-111",
@@ -1656,7 +1646,9 @@
           "severity": "medium",
           "check": "requirements",
           "summary": "FR-110 is planned",
-          "evidence": []
+          "evidence": [
+            "tests/unit/platform/fr129-catalog-publication-gate.test.js"
+          ]
         },
         {
           "id": "REQ-FR-131",
@@ -1690,7 +1682,7 @@
       ],
       "featureCount": 13,
       "readyFeatureCount": 11,
-      "progressPercent": 86.7
+      "progressPercent": 89.3
     },
     "market-intelligence": {
       "status": "verified",
@@ -2227,7 +2219,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-072",
@@ -2402,7 +2394,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-123",
@@ -3543,7 +3535,7 @@
         "project-manager"
       ],
       "useCase": "ผู้ดูแลความรู้ตรวจ catalog ของ 17 stage, ไล่ trace ของ job หนึ่งจนจบ และรู้ว่า snapshot ใดที่คำตอบหนึ่งอ่านมา ภายใต้นโยบายความอ่อนไหวที่กำหนดว่าอะไร index ได้และประมวลผลที่ไหนได้",
-      "progressPercent": 66.7,
+      "progressPercent": 80,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
@@ -3556,14 +3548,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-110",
           "status": "planned",
-          "progressPercent": 0,
+          "progressPercent": 40,
           "codeCount": 0,
-          "testCount": 0
+          "testCount": 1
         },
         {
           "id": "FR-111",
@@ -3598,6 +3590,7 @@
         "tests/unit/knowledge-stage-runner.test.js",
         "tests/unit/pipeline-tracking-route.test.js",
         "tests/unit/plan-schema.test.js",
+        "tests/unit/platform/fr129-catalog-publication-gate.test.js",
         "tests/unit/platform/integration-contracts.test.js",
         "tests/unit/platform/knowledge-ingestion-catalog.test.js",
         "tests/unit/platform/pipeline-tracking-contract.test.js",
@@ -6332,7 +6325,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 15
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -6350,6 +6343,7 @@
         "src/platform/integrations/core/pipeline-tracking-contract.js",
         "src/platform/integrations/core/pipeline-tracking-service.js",
         "tests/e2e/smoke.spec.js",
+        "tests/integration/fr129-catalog-publication-gate.test.js",
         "tests/integration/openapi-docs.test.js",
         "tests/unit/document-intake-ui.test.js",
         "tests/unit/knowledge-ingestion-job.test.js",
@@ -6358,6 +6352,7 @@
         "tests/unit/pipeline-tracking-route.test.js",
         "tests/unit/platform/cloud-sot-agent.test.js",
         "tests/unit/platform/document-intake-contract.test.js",
+        "tests/unit/platform/fr129-catalog-publication-gate.test.js",
         "tests/unit/platform/knowledge-ingestion-catalog.test.js",
         "tests/unit/platform/pipeline-tracking-contract.test.js",
         "tests/unit/platform/pipeline-tracking-migration.test.js",
@@ -7542,7 +7537,7 @@
       "id": "FR-129",
       "title": "Catalog publication approval gate: a `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` run that has produced a candidate projection does not reach `DPS-PUBLISH` until an authorized human has recorded an `APPROVED` `PipelineGateDecision` against that run, and a `REJECTED` decision sends it to `DPS-ROLLBACK` instead — the two stage labels FR-071's catalog has always carried (\"Publish approved projection\", \"Rollback failed or rejected run\") with nothing yet deciding which one a run takes. (a) The decision is recorded on the existing FR-071 execution ledger and declares **no new model and no new column**: `PipelineGateDecision.decidedByPersonId` is who signed, that row's own `createdAt` is when, `required` is whether the gate was waivable, `reason` carries a rejection, and `PipelineRun.artifactRef`/`artifactSha256` already identify the artifact the run applied. A second run table as CR-003 proposes is refused: `IngestionRun` (FR-081) is acquisition evidence for one connection and `PipelineRun` (FR-071) is the execution ledger for one pipeline definition, and a third answer to \"what happened in this pipeline\" would make the reconciliation evidence something that has to be believed twice (SDD-057). (b) The evidence a reviewer acted on — the candidate publication's own identity, and the added/changed/unchanged counts shown — is written to `PipelineGateDecision.evidenceJson` (SDD-075); a signature whose evidence is empty records that somebody approved but not what they saw, which is not an auditable decision. (c) The destination vault is not stored: it resolves from the run's Tenant/Business scope through API-010 (FR-057, ADR-022), so a stored copy would be a second answer to which vault a scope maps to. (d) Tier 1 records and does not execute (ADR-043 D2.1, ADR-050 D3). The gate is therefore a precondition the executing worker must observe and the ledger makes checkable afterwards — a run whose publish stage succeeded with no prior `APPROVED` decision is a detectable violation — not an interlock this repository enforces on a worker it does not run. (e) **Distinct from FR-110's Stage 17 quality gate**, permanently and by design: FR-110 is an automated `PASS`/`PASS_WITH_WARNINGS` verdict on a `DPL-KNOWLEDGE-INGEST-V1` knowledge snapshot, this is a human signature on a business-knowledge catalog version, and both will answer to \"approval gate on a pipeline run\" in any future search while sharing the one `PipelineGateDecision` table. Reworked from CR-003; no reviewer UI is in scope (CR-003 §2.B is a feature programme, not this requirement)",
       "kind": "requirement",
-      "registryStatus": "planned",
+      "registryStatus": "live",
       "requirementIds": [
         "FR-129"
       ],
@@ -7551,22 +7546,29 @@
         "integration"
       ],
       "useCase": "ผู้มีอำนาจอนุมัติตรวจ catalog version ที่ยังไม่เผยแพร่พร้อมยอดที่เพิ่ม เปลี่ยน และไม่เปลี่ยน แล้วลงชื่ออนุมัติหรือปฏิเสธ โดยลายเซ็นและหลักฐานที่เห็นถูกบันทึกไว้กับ run เดียวกัน",
-      "progressPercent": 0,
-      "ready": false,
-      "readiness": "not_ready",
-      "blockers": [
-        "FR-129 is planned"
-      ],
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
       "requirements": [
         {
           "id": "FR-129",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 5
         }
       ],
-      "evidence": []
+      "evidence": [
+        "src/platform/integrations/core/pipeline-gate-compliance.js",
+        "src/platform/integrations/core/pipeline-tracking-contract.js",
+        "src/platform/integrations/core/pipeline-tracking-service.js",
+        "tests/integration/fr129-catalog-publication-gate.test.js",
+        "tests/unit/platform/fr129-catalog-publication-gate.test.js",
+        "tests/unit/platform/knowledge-ingestion-catalog.test.js",
+        "tests/unit/platform/pipeline-tracking-contract.test.js",
+        "tests/unit/platform/pipeline-tracking-service.test.js"
+      ]
     },
     {
       "id": "FR-130",
