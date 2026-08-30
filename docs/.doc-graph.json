@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1481,
+    "total_nodes": 1485,
     "total_edges": 5059,
     "dangling_edges": 0,
     "node_types": {
@@ -11,7 +11,7 @@
       "document": 129,
       "adr": 54,
       "domain": 8,
-      "roadmap": 28,
+      "roadmap": 32,
       "feature": 14,
       "route": 160,
       "model": 70,
@@ -58,11 +58,8 @@
   },
   "drift": {
     "changed": [
-      "doc:CR-004-ACCEPTED-SHAPE",
       "doc:README",
-      "doc:FR-130-github-repository-projection",
-      "doc:PRD-SDD-v1.0",
-      "code:src/platform/integrations/core/connector-catalog.js"
+      "doc:PLAN-PENDING-PARALLEL-20260831"
     ],
     "added": [],
     "removed": []
@@ -7608,7 +7605,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/connector-catalog.js",
       "hash": "617f360b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080",
@@ -8049,7 +8046,7 @@
       "path": "docs/change-requests/CR-004-ACCEPTED-SHAPE.md",
       "title": "CR-004 — the shape this repository will accept",
       "hash": "8d106d91",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CR-004-GITHUB-INTEGRATION-AND-FILES-TAB-EXPLORER",
@@ -8872,7 +8869,7 @@
       "path": "docs/domains/integration/features/FR-130-github-repository-projection.md",
       "title": "FR-130 — GitHub repository binding and read-only projection",
       "hash": "1fe6f4e2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-131-shipping-rate-card-as-business-knowledge",
@@ -9139,6 +9136,38 @@
       "status": "current"
     },
     {
+      "id": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-PENDING-BUSINESS-20260831.md",
+      "title": "BUSINESS pending lane: reviewable decisions and next slices",
+      "hash": "78cb8697",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-PENDING-IDENTITY-20260831",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-PENDING-IDENTITY-20260831.md",
+      "title": "แผน pending: Identity / LINE / Plugin",
+      "hash": "c2b33c41",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md",
+      "title": "แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop",
+      "hash": "6a4ba63d",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-PENDING-PARALLEL-20260831",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-PENDING-PARALLEL-20260831.md",
+      "title": "ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31",
+      "hash": "10e93cb8",
+      "status": "changed"
+    },
+    {
       "id": "doc:PLAN-PHASE1-EXTERNAL-ACTIVATION",
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-PHASE1-EXTERNAL-ACTIVATION.md",
@@ -9162,7 +9191,7 @@
       "version": "1.131.0b",
       "doc_status": "Draft",
       "hash": "441015fa",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
