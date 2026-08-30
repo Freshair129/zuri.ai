@@ -16,6 +16,7 @@ import { evaluateIdStability } from './id-stability.mjs'
 import { findBrokenEvidence } from './roadmap-evidence.mjs'
 import { findUncoveredRequirements } from './roadmap-coverage.mjs'
 import { GIT_ARGS, evaluateUntrackedDocs } from './untracked-docs.mjs'
+import { evaluateTableIntegrity, scopeFromLedger } from './table-integrity.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -1236,6 +1237,87 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
   }
   for (const f of evaluateUntrackedDocs({ git: runGit, ci: Boolean(process.env.CI) })) {
     add(f.severity, f.check, f.title, f.details, f.files, f.action)
+  }
+}
+
+// ---- Check 16: a registry table split in two by a blank line -------------
+// A blank line ENDS a GFM table. On 2026-08-30, while FR-129 was being declared,
+// five tables in docs/PRD-SDD-v1.0.md were found to have been split by a single
+// blank line since version 1.32.0 on 2026-08-14 — between FR-046/FR-047,
+// NFR-009/NFR-010, BR-010/BR-011, SDD-024/SDD-025 and SEC-008/SEC-009, each at
+// the boundary where a Phase 1 LINE batch appended rows after the break. Every
+// row below each one — 82 FR rows among them — rendered as literal
+// pipe-delimited text rather than as a table row, for sixteen days, in the
+// registry this whole toolchain is built on. Repaired in PR #191.
+//
+// The reason nothing caught it is the reason this check exists. EVERY generator
+// and check in scripts/ matches a registry row with a line-anchored regex —
+// `^\| FR-\d+ \|` and its siblings — and none of them parses the table as a
+// table. Those regexes match a row exactly as well when it is loose prose on the
+// rendered page as when it is a table row, so a document whose tables do not
+// render is, to all of them, byte-for-byte a document whose tables do. The doc
+// graph counted the same ids, Appendix D traced the same requirements, id
+// stability pinned the same anchors, and the page was broken the entire time.
+//
+// Same shape as Checks 13, 14 and 15: the check is right and its source cannot
+// represent the failure. So the remedy has to be able to represent it, which
+// dictates how scripts/table-integrity.mjs is written — it walks lines, tracks
+// fenced code blocks, classifies separator rows and counts cells, and knows
+// nothing about `FR-`, `NFR-` or any other family. A check that understood only
+// registry-id rows would be blind to a split in any other table in the same
+// file, which is precisely the narrowness that produced the defect.
+//
+// Severity is CRITICAL because the failure is silent, visual-only, permanent and
+// invisible to every other check at any severity — see table-integrity.mjs for
+// the full argument, for how cells are counted (GFM's way: only `\|` escapes),
+// and for the one false positive the rule produced outside the registries and
+// the fourth condition that resolved it.
+//
+// Scope is the ledger's registry documents, read at runtime rather than
+// hardcoded, PLUS every .md under docs/appendices/, swept by directory so a new
+// appendix is covered the day it appears rather than the day someone remembers
+// to list it.
+//
+// The appendices are in scope because leaving them out is what made a sixth
+// break invisible. This check was first scoped to the registries — that is where
+// the five known breaks were — and run over the whole docs tree it immediately
+// found docs/appendices/A-api-spec.md, where two `GET` rows had been appended
+// below the blank line that ended the Scope table in August 2026 and had been
+// rendering as literal text ever since. Repaired in the same commit as this
+// check. A guard scoped to where the last failure happened will keep missing the
+// next one; the property that matters is "a document whose tables carry
+// meaning", not "a document that issues ids".
+//
+// Entries naming a `dir` (docs/decisions, docs/changes) are folders of ordinary
+// prose rather than table documents and are still skipped; the check emits an
+// info naming them, the directories it swept and the files it read, so the next
+// reader gets this check's actual reach rather than the reach they assume.
+{
+  const LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
+  if (!existsSync(LEDGER)) {
+    add('critical', 'table-integrity', 'could not determine which documents to check for split tables',
+      'docs/.id-ledger.json is missing, so this check could not look — which is NOT the same as finding nothing',
+      ['docs/.id-ledger.json'], 'Restore the ledger; it is written only by scripts/id-ledger.mjs (ADR-039)')
+  } else {
+    // Repo-relative POSIX paths, sorted, so the info line reads the same on
+    // every platform and a new appendix joins the sweep with no edit here.
+    const listMarkdown = (dir) => walk(path.join(ROOT, dir), '.md').map((f) => rel(f)).sort()
+    const scope = scopeFromLedger(read(LEDGER), { listMarkdown })
+    if (scope.ok) {
+      add('info', 'table-integrity', `table integrity checked in ${scope.files.length} document(s)`,
+        `swept whole: ${scope.sweptDirs.join(', ')} · out of scope: ${scope.skippedDirs.join(', ')} ` +
+          `(folders of ordinary prose whose ids come from their own H1, not table documents) · ` +
+          `checked: ${scope.files.join(', ')}`,
+        ['docs/.id-ledger.json'], 'No action — recorded so this check\'s reach is visible rather than assumed')
+    }
+    for (const f of evaluateTableIntegrity({
+      ledgerText: read(LEDGER),
+      read: (p) => read(path.join(ROOT, p)),
+      exists: (p) => existsSync(path.join(ROOT, p)),
+      listMarkdown,
+    })) {
+      add(f.severity, f.check, f.title, f.details, f.files, f.action)
+    }
   }
 }
 

@@ -4,12 +4,12 @@
   "scanned": {
     "docs": 225,
     "routes": 107,
-    "test_files": 348
+    "test_files": 349
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 23,
+    "info": 24,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -262,6 +262,17 @@
         "docs/.roadmap-coverage-baseline.json"
       ],
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
+    },
+    {
+      "id": "I24",
+      "severity": "info",
+      "check": "table-integrity",
+      "title": "table integrity checked in 8 document(s)",
+      "details": "swept whole: docs/appendices · out of scope: docs/decisions, docs/changes (folders of ordinary prose whose ids come from their own H1, not table documents) · checked: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md, docs/appendices/A-api-spec.md, docs/appendices/B-db-schema.md, docs/appendices/D-traceability.md, docs/appendices/F-glossary.md",
+      "files": [
+        "docs/.id-ledger.json"
+      ],
+      "action": "No action — recorded so this check's reach is visible rather than assumed"
     }
   ]
 }

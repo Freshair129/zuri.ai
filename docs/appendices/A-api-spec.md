@@ -59,7 +59,6 @@ the tables below are the human contract and status authority.
 | GET | `/api/viewer` | viewer gate สำหรับ Home: role + ธุรกิจ/โดเมนที่เห็นได้จาก `resolveViewer()` |
 | GET | `/api/profile` | resolved local account, linked identity state, and local session boundary |
 | PATCH/DELETE | `/api/workspaces/[id]` | แก้ไข / archive workspace |
-
 | GET | `/api/business/strategy?businessId=` | Business-scoped Roadmap, two/three ordered goal horizons, and goal progress read model (FR-041) |
 | GET | `/api/people?businessId=` | viewer-filtered Business People Directory over Person/Membership (FR-042) |
 

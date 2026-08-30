@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1470,
+    "total_nodes": 1471,
     "total_edges": 5002,
     "dangling_edges": 0,
     "node_types": {
@@ -16,7 +16,7 @@
       "route": 160,
       "model": 70,
       "requirement": 271,
-      "test": 348,
+      "test": 349,
       "code_file": 386
     },
     "coverage": {
@@ -59,10 +59,12 @@
   },
   "drift": {
     "changed": [
-      "doc:README",
-      "doc:FR-132-line-ladder-quotation-tool"
+      "doc:A-api-spec",
+      "doc:README"
     ],
-    "added": [],
+    "added": [
+      "test:tests/unit/table-integrity.test.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -7904,8 +7906,8 @@
       "title": "Appendix A — API Specification",
       "version": "1.28.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "f80574cb",
-      "status": "current"
+      "hash": "47ace2d7",
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -8822,7 +8824,7 @@
       "path": "docs/domains/agent/features/FR-132-line-ladder-quotation-tool.md",
       "title": "FR-132 — Ladder quotation on the LINE surface",
       "hash": "9ebf37b6",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:full-schema",
@@ -16752,6 +16754,13 @@
       "type": "test",
       "path": "tests/unit/supabase-production-isolation.test.js",
       "hash": "77d3dd71",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/table-integrity.test.js",
+      "type": "test",
+      "path": "tests/unit/table-integrity.test.js",
+      "hash": "a4d1e24a",
       "status": "current"
     },
     {
