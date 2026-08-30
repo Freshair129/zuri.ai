@@ -69,10 +69,12 @@ describe('OpenAPI document', () => {
       // (the Enterprise API key mint and revoke) plus FR-108's two
       // (the ExecutionPlanBundle dry-run and commit) plus FR-120's one
       // (self-serve signup — the first public route that creates an identity
-      // rather than consuming one) plus FR-123's four (the plugin
-      // authorize/token/capabilities/revoke boundary).
+      // rather than consuming one) plus FR-123's five over four paths (the
+      // plugin token/capabilities/revoke boundary, and authorize twice: GET
+      // renders the consent screen, POST is the consent form's own submission
+      // and the only operation in the family that mints — ADR-052 D4).
       pathCount: 107,
-      operationCount: 139,
+      operationCount: 140,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

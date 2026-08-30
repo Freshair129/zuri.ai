@@ -73,10 +73,16 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
   `revokePluginToken`. Where `ApiAccessKey` is a long-lived Tenant-bound service
   credential held by a server, a `PluginSession` is a 15-minute delegation from
   one signed-in Person to one plugin installation on their own machine. It is
-  minted only from a live browser session, carries no Tenant of its own, and
-  resolves scope by calling `resolveViewer` for that Person — **without**
-  `platformGrant`, so a plugin can never inherit cross-tenant DEV visibility.
-  Codes and tokens are stored as SHA-256 hashes only. Neither credential may be
+  minted only from a live browser session **plus an act of consent by the
+  person** (ADR-052 D4: `GET /authorize` renders `/plugin/authorize` and mints
+  nothing; a POST from that form, bound by a session-bound anti-CSRF token and
+  an HMAC-signed request token, is the only path that mints), carries no Tenant
+  of its own, and resolves scope by calling `resolveViewer` for that Person —
+  **without** `platformGrant`, so a plugin can never inherit cross-tenant DEV
+  visibility. The consent screen derives its capability list from that same
+  grant-free viewer, because a screen that showed a platform DEV their browser
+  scope would over-state what the plugin receives. Codes and tokens are stored
+  as SHA-256 hashes only; the two consent tokens are stored nowhere at all. Neither credential may be
   accepted where the other is expected (ADR-052, ADR-047).
 - The viewer's authority questions have one answer each, and none of them is
   the global `role` label: **may I write here** → `ownedBusinessIds` (FR-059),

@@ -2406,14 +2406,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "8dbfcddfe029f43b112aafa3cb0ef4b17736f2d642d69d3e1c590ee6ccac9bbe",
+      "statement_digest": "a5275d9c6452a541bf9a6df0b75667214df53223520e12c287f7967b60cf61c2",
       "history": [
         {
           "anchor": "plugin authentication and capability discovery",
           "since": "2026-08-29",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-08-30",
+      "statement_digest_reason": "Same subject; the statement now records the two-step consent gate (GET renders, POST mints) that ADR-052 D4 added. Nothing about what FR-123 means changed."
     },
     "FR-124": {
       "family": "FR",
@@ -3705,14 +3707,16 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "1dd219ca9f378cec8b04df95922b6cf965fbfd329f4f4abfe38fc973b4b238f9",
+      "statement_digest": "d2166ee8d07fb6d91ee919739eb05d3237e05f3a0a142adaf85c9096035c859e",
       "history": [
         {
           "anchor": "plugin auth is one canonical api plugin auth route family",
           "since": "2026-08-29",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-08-30",
+      "statement_digest_reason": "Same subject; the design statement now describes the GET/POST split on /authorize and the two consent tokens, which are HMACs and add no model."
     },
     "SEC-001": {
       "family": "SEC",
@@ -3999,14 +4003,16 @@
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "0fdb517ccba86b41ca161aee1fb903b1e17f7694c9836eca1b0e3975012cb443",
+      "statement_digest": "a91dec179ec22994ed43f4e479038936a54ac2f5e080113f34cfa448a23144d2",
       "history": [
         {
           "anchor": "plugin auth is a separate public client boundary",
           "since": "2026-08-29",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-08-30",
+      "statement_digest_reason": "Same subject; the security statement records that the consent gap is closed and restates the two gates that remain open."
     },
     "FEAT-001": {
       "family": "FEAT",
