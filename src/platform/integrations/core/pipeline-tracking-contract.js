@@ -8,8 +8,8 @@ import { z } from 'zod'
 // @req FR-129 — the catalog publication approval gate carries the evidence its
 // signer acted on, so "who published this catalog and what did they see" is
 // answerable from the ledger.
-// @req FR-110 — Stage 9–16 knowledge evidence is aggregate-only, and Stage 17
-// snapshot evidence is definition- and scope-bound on the shared envelope.
+// @req FR-110 — bounded knowledge snapshot evidence is definition- and
+// scope-bound on the shared Stage 17 event envelope.
 // @spec ADR-030 D2-D4, SDD-042, SDD-057, SDD-066, SDD-070, SDD-073, SDD-075, SEC-003, SEC-008, ADR-050
 // @tested tests/unit/platform/pipeline-tracking-contract.test.js
 // @tested tests/unit/platform/knowledge-ingestion-catalog.test.js

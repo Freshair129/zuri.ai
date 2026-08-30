@@ -1,7 +1,7 @@
 ---
 version: "0.1.0b"
-created_at: "2026-08-31T12:35:00+07:00,ATHER"
-last_update: "2026-08-31T12:35:00+07:00,ATHER"
+created_at: "2026-08-31T05:34:47+07:00,ATHER"
+last_update: "2026-08-31T05:34:47+07:00,ATHER"
 status: "beta"
 attributes:
   domain: "knowledge-ingestion"
@@ -13,7 +13,7 @@ attributes:
 
 ## Complexity and risk
 
-- **Complexity:** C-2 - documentation-driven service correction
+- **Complexity:** C-3 - bounded service correction within the approved cross-domain wave
 - **Risk:** HIGH - a gate decision could be attributed to the wrong pipeline stage or to no persisted stage at all.
 
 ## Symptom

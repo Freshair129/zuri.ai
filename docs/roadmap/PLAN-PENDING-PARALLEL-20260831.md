@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-08-31T03:32:36+07:00,ATHER,424f5fab525d20fdf1180fabee4c8cf9d16dd994"
-last_update: "2026-08-31T04:10:00+07:00,ATHER"
+last_update: "2026-08-31T05:30:00+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -13,7 +13,7 @@ attributes:
 
 # ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31
 
-**Version:** 0.2.0b
+**Version:** 0.3.0b
 
 **Status:** beta — ผู้ใช้อนุมัติ local implementation รอบแรกด้วยคำสั่ง "ลุย"; external และ policy gates ยังเปิดอยู่
 
@@ -25,7 +25,7 @@ attributes:
 R5 ของ AGENTS.md ยังคงกำหนดให้ส่งข้อเสนอเอกสารและรออนุมัติก่อนสร้างโค้ดที่ต้องพึ่งข้อเสนอนั้น
 
 ชุดนี้เป็น C-3 เนื่องจากครอบคลุมสิทธิ์ ข้อมูล และขอบเขตหลายระบบ; ความเสี่ยงของ implementation เป็น HIGH
-การเปลี่ยนแปลงในรอบนี้จำกัดที่เอกสาร ไม่มี application code, schema, credentials, deployment หรือข้อมูล production เปลี่ยน
+รอบร่าง 0.1.0b จำกัดที่เอกสาร; รอบอนุมัติ 0.2.0b เปิด local application code/schema เฉพาะรายการด้านล่าง โดยไม่เปลี่ยน credentials, deployment หรือข้อมูล production
 ไม่สร้างหรือเปลี่ยนความหมายของ FR/SDD/ADR; รหัสงาน IDN/KNO/BUS เป็นป้ายภายในแผนเท่านั้น
 
 ## การอนุมัติรอบแรก — 2026-08-31
@@ -104,7 +104,7 @@ flowchart LR
 - `npm run govern`, `npm run docs:check` และ `git diff --check` ต้องผ่านก่อนส่งผลรวม
 - tests/build/e2e ของ application ไม่ถูกอ้างว่ารันในรอบเอกสารนี้
 
-## ผลตรวจเอกสารรอบนี้
+## ผลตรวจรอบเอกสาร 0.1.0b (หลักฐานก่อน implementation)
 
 - `npm run govern`: PASS; docs 231, critical 0, warning 0, info 23 เท่าฐานเดิม
 - generated graph เพิ่ม document nodes 4 รายการ; route และ test-file counts ไม่เปลี่ยน
@@ -112,11 +112,21 @@ flowchart LR
   aggregate-only external stage evidence ตาม ADR-050 และ issue mapping ที่ตรวจจาก GitHub แล้ว
 - ใช้ dependency สำหรับเอกสารใน temporary directory ของงานนี้; package manifests/lockfile
   และ dependency ของ primary ไม่เปลี่ยน ไม่รัน install scripts หรือ application tests
-- การส่งมอบยังเป็น candidate docs เท่านั้น; ไม่ commit, push, deploy, migrate หรือ refresh primary
+- ณ รอบร่าง การส่งมอบเป็น candidate docs เท่านั้น; รอบปัจจุบันบันทึก local docs commit แล้วตามขั้นเตรียม implementation โดยไม่มี remote push/merge, deploy, production migrate หรือ refresh primary
+
+## ผล local implementation รอบแรก
+
+ทั้งสาม increment รวมใน worktree ของแผนนี้แล้ว; ผล verification และขอบเขตที่ยังเปิดอยู่บันทึกใน
+[phase report](../../.agent/reports/PARALLEL-WAVE1-20260831.md). สถานะของ FR-110/123/127 ยังเป็น partial
+ตามขอบเขตจริง ไม่รวม runtime producer, production invocation หรือ atomic publication.
 
 ## Version diff
 
 `ไม่มีเอกสารชุดนี้ → 0.1.0b`: เพิ่มแผนขนานสามสายและจุดรวมผล โดยไม่เปลี่ยนข้อกำหนดหรือสถานะ delivery ของงานเดิม
+
+`0.1.0b → 0.2.0b`: บันทึกการอนุมัติ local wave แรกและขอบเขตที่ยังไม่เปิด; การอนุมัติไม่ใช่หลักฐานว่า implementation ผ่าน verification แล้ว
+
+`0.2.0b → 0.3.0b`: บันทึกผล local implementation และเชื่อมรายงาน verification; ไม่ขยายการอนุมัติไปยัง external gates
 
 ## CHANGELOG
 
@@ -124,3 +134,4 @@ flowchart LR
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-31 | candidate | เตรียมชุดแผนงานค้างจาก main ที่ตรวจแล้ว ด้วย Luna max สามสาย | uncommitted; base 424f5fa | ATHER |
 | 0.2.0b | 2026-08-31 | beta | บันทึกอนุมัติ local wave แรก: IDN-01, KNO-01 และ FR-127 persistence/read | local worktree | ATHER |
+| 0.3.0b | 2026-08-31 | beta | รวม local implementation รอบแรกและแยกหลักฐานใน phase report | local integration branch | ATHER |

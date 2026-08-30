@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-30T21:36:55.324Z",
+  "generatedAt": "2026-08-30T22:36:13.034Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -40,9 +40,9 @@
     "featureCount": 108,
     "readyFeatureCount": 96,
     "requirementCount": 132,
-    "verifiedRequirementCount": 120,
-    "progressPercent": 91.2,
-    "gapCount": 21,
+    "verifiedRequirementCount": 122,
+    "progressPercent": 92.4,
+    "gapCount": 17,
     "gaps": [
       {
         "domain": "agent",
@@ -76,28 +76,6 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-132 is planned",
-        "evidence": []
-      },
-      {
-        "domain": "crm",
-        "id": "CONTRACT-001",
-        "severity": "medium",
-        "check": "runtimeContract",
-        "summary": "At least one requirement in this domain is not fully code-and-test verified"
-      },
-      {
-        "domain": "crm",
-        "id": "TEST-001",
-        "severity": "medium",
-        "check": "tests",
-        "summary": "At least one requirement lacks complete code-and-test evidence"
-      },
-      {
-        "domain": "crm",
-        "id": "REQ-FR-127",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-127 is planned",
         "evidence": []
       },
       {
@@ -164,16 +142,6 @@
         "severity": "medium",
         "check": "tests",
         "summary": "At least one requirement lacks complete code-and-test evidence"
-      },
-      {
-        "domain": "knowledge",
-        "id": "REQ-FR-110",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-110 is planned",
-        "evidence": [
-          "tests/unit/platform/fr129-catalog-publication-gate.test.js"
-        ]
       },
       {
         "domain": "knowledge",
@@ -340,7 +308,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-093",
@@ -537,7 +505,7 @@
       "progressPercent": 92.9
     },
     "crm": {
-      "status": "partial",
+      "status": "verified",
       "requirements": [
         {
           "id": "FR-023",
@@ -551,7 +519,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-091",
@@ -583,10 +551,10 @@
         },
         {
           "id": "FR-127",
-          "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 0
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 5
         }
       ],
       "checks": {
@@ -611,18 +579,12 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": [
-            {
-              "id": "CONTRACT-001",
-              "severity": "medium",
-              "summary": "At least one requirement in this domain is not fully code-and-test verified"
-            }
-          ]
+          "gaps": []
         },
         "jsonSchema": {
           "status": "verified",
@@ -638,8 +600,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 8,
-            "present": 8
+            "models": 9,
+            "present": 9
           }
         },
         "authorization": {
@@ -648,17 +610,11 @@
           "gaps": []
         },
         "tests": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": [
-            {
-              "id": "TEST-001",
-              "severity": "medium",
-              "summary": "At least one requirement lacks complete code-and-test evidence"
-            }
-          ]
+          "gaps": []
         }
       },
       "evidence": [
@@ -677,32 +633,12 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [
-        {
-          "id": "CONTRACT-001",
-          "severity": "medium",
-          "check": "runtimeContract",
-          "summary": "At least one requirement in this domain is not fully code-and-test verified"
-        },
-        {
-          "id": "TEST-001",
-          "severity": "medium",
-          "check": "tests",
-          "summary": "At least one requirement lacks complete code-and-test evidence"
-        },
-        {
-          "id": "REQ-FR-127",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-127 is planned",
-          "evidence": []
-        }
-      ],
+      "gaps": [],
       "details": {
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 8,
+        "ownedModels": 9,
         "featureNotes": 5
       },
       "featureIds": [
@@ -714,7 +650,7 @@
       ],
       "featureCount": 5,
       "readyFeatureCount": 3,
-      "progressPercent": 62.5
+      "progressPercent": 75
     },
     "identity": {
       "status": "partial",
@@ -731,7 +667,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-031",
@@ -801,7 +737,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-074",
@@ -815,7 +751,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-076",
@@ -829,7 +765,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-094",
@@ -843,7 +779,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-096",
@@ -871,7 +807,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-104",
@@ -885,14 +821,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-107",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-120",
@@ -920,7 +856,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 11
+          "testCount": 13
         }
       ],
       "checks": {
@@ -1142,7 +1078,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-079",
@@ -1163,7 +1099,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-099",
@@ -1177,7 +1113,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-101",
@@ -1191,14 +1127,21 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 18
+          "testCount": 19
+        },
+        {
+          "id": "FR-110",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 6
         },
         {
           "id": "FR-118",
@@ -1226,7 +1169,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-130",
@@ -1437,31 +1380,28 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-110",
-          "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 1,
-          "evidence": [
-            "tests/unit/platform/fr129-catalog-publication-gate.test.js"
-          ]
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 6
         },
         {
           "id": "FR-111",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-112",
@@ -1627,15 +1567,6 @@
           "summary": "At least one requirement lacks complete code-and-test evidence"
         },
         {
-          "id": "REQ-FR-110",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-110 is planned",
-          "evidence": [
-            "tests/unit/platform/fr129-catalog-publication-gate.test.js"
-          ]
-        },
-        {
           "id": "REQ-FR-131",
           "severity": "medium",
           "check": "requirements",
@@ -1667,7 +1598,7 @@
       ],
       "featureCount": 13,
       "readyFeatureCount": 11,
-      "progressPercent": 89.3
+      "progressPercent": 93.3
     },
     "market-intelligence": {
       "status": "verified",
@@ -1677,7 +1608,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "checks": {
@@ -1945,14 +1876,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-013",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-014",
@@ -2099,7 +2030,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 26,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-046",
@@ -2176,7 +2107,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-068",
@@ -2204,7 +2135,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-072",
@@ -2218,7 +2149,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-074",
@@ -2232,7 +2163,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-077",
@@ -2246,14 +2177,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-081",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-082",
@@ -2267,35 +2198,35 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-087",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-088",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-089",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-090",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-091",
@@ -2309,28 +2240,28 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-095",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-100",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-102",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-103",
@@ -2358,14 +2289,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-107",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-108",
@@ -2379,14 +2310,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-123",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-124",
@@ -2394,6 +2325,13 @@
           "status": "verified",
           "codeCount": 6,
           "testCount": 7
+        },
+        {
+          "id": "FR-127",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 5
         }
       ],
       "checks": {
@@ -2650,7 +2588,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 27,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-058",
@@ -2695,6 +2633,7 @@
         "tests/e2e/fr045-files.spec.js",
         "tests/e2e/fr058-file-views.spec.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr045-managed-files.test.js",
         "tests/integration/fr072-project-file-authorization.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
@@ -3022,7 +2961,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 21
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -3036,6 +2975,7 @@
         "src/modules/identity/rbac.js",
         "src/modules/project-manager/application/backup-service.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/unit/application-identity-bootstrap-migration.test.js",
         "tests/unit/application-schema-migration.test.js",
@@ -3142,28 +3082,28 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-087",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-088",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-089",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -3188,6 +3128,7 @@
         "tests/e2e/fr041-business-first.spec.js",
         "tests/e2e/smoke.spec.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr072-project-service-authorization.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/fr089-team-scope.test.js",
@@ -3195,6 +3136,7 @@
         "tests/integration/project-core.test.js",
         "tests/integration/projects-dashboard.test.js",
         "tests/integration/xlsx-intake.test.js",
+        "tests/unit/conversation-analysis-contract.test.js",
         "tests/unit/domain-navigation.test.js",
         "tests/unit/fr045-api-ui-contract.test.js",
         "tests/unit/fr045-backup-contract.test.js",
@@ -3314,7 +3256,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-096",
@@ -3366,6 +3308,7 @@
         "tests/integration/agent-webhook-route.test.js",
         "tests/integration/backup.test.js",
         "tests/integration/channel-identity.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/iam-authorization.test.js",
         "tests/integration/identity-erase.test.js",
@@ -3423,7 +3366,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-101",
@@ -3447,6 +3390,7 @@
         "src/modules/integration/application/sot-plan.js",
         "src/modules/project-manager/application/backup-service.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/sot-decisions-route.test.js",
         "tests/unit/api-access-key-migration.test.js",
@@ -3509,7 +3453,7 @@
       "id": "FEAT-013",
       "title": "Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run",
       "kind": "bundle",
-      "registryStatus": "proposed",
+      "registryStatus": "building",
       "requirementIds": [
         "FR-109",
         "FR-110",
@@ -3522,12 +3466,11 @@
         "project-manager"
       ],
       "useCase": "ผู้ดูแลความรู้ตรวจ catalog ของ 17 stage, ไล่ trace ของ job หนึ่งจนจบ และรู้ว่า snapshot ใดที่คำตอบหนึ่งอ่านมา ภายใต้นโยบายความอ่อนไหวที่กำหนดว่าอะไร index ได้และประมวลผลที่ไหนได้",
-      "progressPercent": 80,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-013 registry status is proposed",
-        "FR-110 is planned"
+        "FEAT-013 registry status is building"
       ],
       "requirements": [
         {
@@ -3535,21 +3478,21 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-110",
-          "status": "planned",
-          "progressPercent": 40,
-          "codeCount": 0,
-          "testCount": 1
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 6
         },
         {
           "id": "FR-111",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 6
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -3557,22 +3500,27 @@
         "src/lib/validation/enums.js",
         "src/modules/knowledge/classification.js",
         "src/modules/knowledge/ingestion-job.js",
+        "src/modules/knowledge/published-snapshot-contract.js",
         "src/platform/integrations/core/knowledge-ingestion-executor.js",
         "src/platform/integrations/core/pipeline-tracking-contract.js",
+        "src/platform/integrations/core/pipeline-tracking-service.js",
         "src/platform/integrations/core/raw-ingest-service.js",
         "src/platform/integrations/core/raw-record-repository.js",
         "tests/integration/agent-request-envelope.test.js",
         "tests/integration/fr109-ingestion-run-identity.test.js",
         "tests/integration/fr109-knowledge-ingestion-executor.test.js",
         "tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
+        "tests/integration/fr129-catalog-publication-gate.test.js",
         "tests/integration/openapi-docs.test.js",
         "tests/integration/platform/integration-persistence.test.js",
         "tests/integration/xlsx-intake.test.js",
         "tests/unit/agent-requestable-sensitivity.test.js",
+        "tests/unit/conversation-analysis-contract.test.js",
         "tests/unit/knowledge-chunking.test.js",
         "tests/unit/knowledge-classification.test.js",
         "tests/unit/knowledge-entity-extraction.test.js",
         "tests/unit/knowledge-ingestion-job.test.js",
+        "tests/unit/knowledge-published-snapshot-contract.test.js",
         "tests/unit/knowledge-stage-runner-trace.test.js",
         "tests/unit/knowledge-stage-runner.test.js",
         "tests/unit/pipeline-tracking-route.test.js",
@@ -3590,7 +3538,7 @@
       "id": "FEAT-014",
       "title": "CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054)",
       "kind": "bundle",
-      "registryStatus": "proposed",
+      "registryStatus": "building",
       "requirementIds": [
         "FR-126",
         "FR-127",
@@ -3598,16 +3546,16 @@
       ],
       "primaryDomain": "crm",
       "contributorDomains": [
-        "crm"
+        "crm",
+        "project-manager"
       ],
       "useCase": "ทีมขายเปิดโปรไฟล์ลูกค้าที่ AI สรุปจากบทสนทนา LINE ดูผลวิเคราะห์รายบทสนทนา และรับ Daily Sales Brief ของ Business ในแต่ละวัน",
-      "progressPercent": 0,
+      "progressPercent": 33.3,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-014 registry status is proposed",
+        "FEAT-014 registry status is building",
         "FR-126 is planned",
-        "FR-127 is planned",
         "FR-128 is planned"
       ],
       "requirements": [
@@ -3620,10 +3568,10 @@
         },
         {
           "id": "FR-127",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 5
         },
         {
           "id": "FR-128",
@@ -3633,7 +3581,15 @@
           "testCount": 0
         }
       ],
-      "evidence": []
+      "evidence": [
+        "src/modules/crm/conversation-analysis-service.js",
+        "src/modules/project-manager/application/backup-service.js",
+        "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
+        "tests/integration/fr075-restore-authorization.test.js",
+        "tests/unit/conversation-analysis-contract.test.js",
+        "tests/unit/fr045-backup-contract.test.js"
+      ]
     },
     {
       "id": "FR-001",
@@ -4132,7 +4088,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -4155,6 +4111,7 @@
         "tests/integration/project-business-binding.test.js",
         "tests/integration/xlsx-intake.test.js",
         "tests/unit/contract-plan-artifacts.test.js",
+        "tests/unit/conversation-analysis-contract.test.js",
         "tests/unit/plan-schema.test.js",
         "tests/unit/plan-status-vocabulary.test.js",
         "tests/unit/project-execution-backpath.test.js",
@@ -4186,7 +4143,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -4195,6 +4152,7 @@
         "src/app/api/backup/import/route.js",
         "src/modules/project-manager/application/backup-service.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/unit/authorization-seam-routes.test.js",
         "tests/unit/fr045-backup-contract.test.js"
@@ -4539,7 +4497,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -4547,6 +4505,7 @@
         "src/modules/identity/erase-principal.js",
         "src/modules/identity/gate.js",
         "src/modules/identity/link-line-identity.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/identity-classify.test.js",
         "tests/integration/identity-erase.test.js",
         "tests/integration/identity-gate.test.js",
@@ -6265,7 +6224,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -6278,6 +6237,7 @@
         "src/modules/identity/workspace-membership-service.js",
         "src/modules/project-manager/application/backup-service.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/workspace-onboarding-flow.test.js",
         "tests/unit/fr045-backup-contract.test.js",
@@ -6313,7 +6273,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -6335,6 +6295,7 @@
         "tests/integration/openapi-docs.test.js",
         "tests/unit/document-intake-ui.test.js",
         "tests/unit/knowledge-ingestion-job.test.js",
+        "tests/unit/knowledge-published-snapshot-contract.test.js",
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/pipeline-monitor-ui.test.js",
         "tests/unit/pipeline-tracking-route.test.js",
@@ -6454,7 +6415,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -6467,6 +6428,7 @@
         "src/modules/project-manager/application/repository-service.js",
         "tests/e2e/fr041-business-first.spec.js",
         "tests/e2e/smoke.spec.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr072-refusal-disclosure.test.js",
         "tests/integration/fr072-repository-link-authorization.test.js",
         "tests/integration/fr073-repository-scope.test.js",
@@ -6545,7 +6507,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -6557,6 +6519,7 @@
         "src/modules/project-manager/application/backup-service.js",
         "src/modules/project-manager/application/scope-service.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr072-workspace-mutation-authorization.test.js",
         "tests/integration/fr074-scope-creation-authorization.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
@@ -6641,7 +6604,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -6656,6 +6619,7 @@
         "src/platform/integrations/providers/line/line-oa-webhook.js",
         "tests/integration/agent-webhook-route.test.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/fr109-knowledge-ingestion-executor.test.js",
         "tests/integration/line-oa-connection-health.test.js",
@@ -6692,12 +6656,13 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         }
       ],
       "evidence": [
         "src/modules/project-manager/application/backup-service.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/unit/fr045-backup-contract.test.js"
       ]
@@ -6726,7 +6691,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -6738,6 +6703,7 @@
         "src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
         "src/modules/project-manager/application/backup-service.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/market-intelligence-persistence.test.js",
         "tests/unit/fr045-backup-contract.test.js",
@@ -6774,7 +6740,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -6782,6 +6748,7 @@
         "src/modules/integration/application/sot-decision-service.js",
         "src/modules/project-manager/application/backup-service.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/sot-decisions-route.test.js",
         "tests/unit/fr045-backup-contract.test.js",
@@ -6943,7 +6910,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -6958,6 +6925,7 @@
         "src/modules/project-manager/import/import-authorization.js",
         "src/modules/project-manager/import/plan-import-service.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/enterprise-api-auth.test.js",
         "tests/integration/external-ref-import.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
@@ -6997,7 +6965,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -7005,6 +6973,7 @@
         "src/modules/identity/session-port.js",
         "src/modules/project-manager/application/backup-service.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/unit/bootstrap-operator-cli.test.js",
         "tests/unit/fr045-backup-contract.test.js",
@@ -7421,7 +7390,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 11
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -7438,7 +7407,9 @@
         "src/modules/project-manager/application/backup-service.js",
         "tests/e2e/fr123-plugin-consent.spec.js",
         "tests/integration/backup.test.js",
+        "tests/integration/crm-conversation-analysis.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/fr123-plugin-auth-reaper.test.js",
         "tests/integration/fr123-plugin-consent-gate.test.js",
         "tests/integration/openapi-docs.test.js",
         "tests/unit/fr045-backup-contract.test.js",
@@ -7544,7 +7515,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -7552,6 +7523,7 @@
         "src/platform/integrations/core/pipeline-tracking-contract.js",
         "src/platform/integrations/core/pipeline-tracking-service.js",
         "tests/integration/fr129-catalog-publication-gate.test.js",
+        "tests/unit/knowledge-published-snapshot-contract.test.js",
         "tests/unit/platform/fr129-catalog-publication-gate.test.js",
         "tests/unit/platform/knowledge-ingestion-catalog.test.js",
         "tests/unit/platform/pipeline-tracking-contract.test.js",

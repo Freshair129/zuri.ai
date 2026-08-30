@@ -217,9 +217,9 @@ contract slice below is implemented; publication and retrieval remain open.
 
 ## Non-goals
 
-- **This note authorizes no code, no route, no Prisma model and no schema
-  change.** It elaborates a declared requirement whose PRD status column says
-  documentary declaration only.
+- The approved KNO-01 local wave authorizes the contract and shared ledger
+  validation below; it adds no route, Prisma model or schema change. External
+  reporter authorization and actual publication remain outside this slice.
 - zuri-ai does not execute the stages ADR-050 assigns to GKS or
   GenesisBlockDB. It does not build the vector, lexical, graph, structured,
   temporal or provenance indexes a snapshot names (spec §38; ADR-042 D2) — it

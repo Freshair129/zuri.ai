@@ -4,12 +4,12 @@
   "scanned": {
     "docs": 231,
     "routes": 107,
-    "test_files": 353
+    "test_files": 357
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 23,
+    "info": 24,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -216,6 +216,45 @@
       "id": "I19",
       "severity": "info",
       "check": "id-stability",
+      "title": "SEC-022 statement digest changed without an anchor move",
+      "details": "canonical SHA-256 a91dec179ec22994ed43f4e479038936a54ac2f5e080113f34cfa448a23144d2 → 4f088c07dc64faf08a3a1d8f858af50473882c2d29c587b830abd6341e5caa39 · citation files: src/app/api/plugin/auth/authorize/route.js, src/app/api/plugin/auth/capabilities/route.js, src/app/api/plugin/auth/revoke/route.js, src/app/api/plugin/auth/token/route.js, src/modules/identity/plugin-auth-service.js, src/modules/identity/plugin-consent-access.js, src/modules/identity/plugin-consent-view.js, src/modules/identity/plugin-consent.js, src/app/(entry)/plugin/authorize/page.jsx, tests/e2e/e2e-plugin.js, tests/e2e/fr123-plugin-consent.spec.js, tests/integration/fr123-plugin-auth-reaper.test.js",
+      "files": [
+        "docs/PRD-SDD-v1.0.md",
+        "docs/.id-ledger.json",
+        "src/app/api/plugin/auth/authorize/route.js",
+        "src/app/api/plugin/auth/capabilities/route.js",
+        "src/app/api/plugin/auth/revoke/route.js",
+        "src/app/api/plugin/auth/token/route.js",
+        "src/modules/identity/plugin-auth-service.js",
+        "src/modules/identity/plugin-consent-access.js",
+        "src/modules/identity/plugin-consent-view.js",
+        "src/modules/identity/plugin-consent.js",
+        "src/app/(entry)/plugin/authorize/page.jsx",
+        "tests/e2e/e2e-plugin.js",
+        "tests/e2e/fr123-plugin-consent.spec.js",
+        "tests/integration/fr123-plugin-auth-reaper.test.js",
+        "tests/integration/fr123-plugin-consent-gate.test.js",
+        "tests/unit/fr123-plugin-auth-migration.test.js",
+        "tests/unit/fr123-plugin-auth-route.test.js",
+        "tests/unit/fr123-plugin-auth-service.test.js",
+        "tests/unit/fr123-plugin-consent-view.test.js",
+        "tests/unit/fr123-plugin-consent.test.js",
+        "prisma/schema.postgres.prisma",
+        "prisma/schema.prisma",
+        "supabase/migrations/20260830120000_plugin_auth.sql",
+        "docs/appendices/D-traceability.md",
+        "docs/decisions/ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md",
+        "docs/domains/identity/features/FR-123-plugin-authentication-and-capability-discovery.md",
+        "docs/domains/integration/features/FR-130-github-repository-projection.md",
+        "docs/roadmap/ROADMAP.md",
+        "docs/TRACE.md"
+      ],
+      "action": "Review the registry diff and acknowledge only an intentional same-subject edit with npm run docs:ids -- --review SEC-022 --reason \"<sentence>\". If the subject moved, use the blocking move path instead; this INFO is not a semantic approval"
+    },
+    {
+      "id": "I20",
+      "severity": "info",
+      "check": "id-stability",
       "title": "437 id(s) pinned across 10 families",
       "details": "ADR 54 · BR 22 · FEAT 14 · FR 132 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 77 · SEC 22 · ZV2-CR 8 · roster 437",
       "files": [
@@ -224,7 +263,7 @@
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I20",
+      "id": "I21",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -235,7 +274,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I21",
+      "id": "I22",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "23 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -246,7 +285,7 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I22",
+      "id": "I23",
       "severity": "info",
       "check": "table-integrity",
       "title": "table integrity checked in 231 document(s)",
@@ -257,7 +296,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I23",
+      "id": "I24",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
