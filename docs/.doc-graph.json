@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1445,
+    "total_nodes": 1451,
     "total_edges": 4966,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 117,
+      "document": 122,
       "adr": 54,
       "domain": 8,
       "roadmap": 28,
@@ -16,7 +16,7 @@
       "route": 159,
       "model": 70,
       "requirement": 266,
-      "test": 343,
+      "test": 344,
       "code_file": 382
     },
     "coverage": {
@@ -54,6 +54,7 @@
   },
   "drift": {
     "changed": [
+      "doc:README",
       "doc:ROADMAP"
     ],
     "added": [],
@@ -7886,6 +7887,38 @@
       "status": "current"
     },
     {
+      "id": "doc:CR-002-GKS-MSP-CATALOG-VAULT-RESOLUTION",
+      "type": "document",
+      "path": "docs/change-requests/CR-002-GKS-MSP-CATALOG-VAULT-RESOLUTION.md",
+      "title": "CR-002 — Multi-Tier Scope Chain to Zuri Edge Device, GKS (Genesis-Knowledge-System) & MSP (Memory-and-Soul-Passport) Catalog Vault Resolution",
+      "hash": "4af854fa",
+      "status": "current"
+    },
+    {
+      "id": "doc:CR-003-DATA-PIPELINE-GOVERNANCE-AND-APPROVAL-GATES",
+      "type": "document",
+      "path": "docs/change-requests/CR-003-DATA-PIPELINE-GOVERNANCE-AND-APPROVAL-GATES.md",
+      "title": "CR-003 — 5-Stage Data Pipeline Governance Dashboard, Ingestion Lanes & Approval Gates UI",
+      "hash": "619450e3",
+      "status": "current"
+    },
+    {
+      "id": "doc:CR-004-GITHUB-INTEGRATION-AND-FILES-TAB-EXPLORER",
+      "type": "document",
+      "path": "docs/change-requests/CR-004-GITHUB-INTEGRATION-AND-FILES-TAB-EXPLORER.md",
+      "title": "CR-004 — GitHub Repository Integration & Interactive \"Files\" Tab File Tree Explorer",
+      "hash": "7fa1a7d2",
+      "status": "current"
+    },
+    {
+      "id": "doc:CR-005-SHIPPING-RATE-MATRIX-AND-OMNICHANNEL-AGENT-CONNECTORS",
+      "type": "document",
+      "path": "docs/change-requests/CR-005-SHIPPING-RATE-MATRIX-AND-OMNICHANNEL-AGENT-CONNECTORS.md",
+      "title": "CR-005 — Shipping Rate Matrix Settings & Omnichannel Agent Connectors (LINE OA / Plugins)",
+      "hash": "77d87d6e",
+      "status": "current"
+    },
+    {
       "id": "doc:DB-MIGRATION-NOTES",
       "type": "document",
       "path": "docs/DB-MIGRATION-NOTES.md",
@@ -8961,6 +8994,14 @@
       "doc_status": "Draft",
       "hash": "fae6e398",
       "status": "current"
+    },
+    {
+      "id": "doc:README",
+      "type": "document",
+      "path": "docs/change-requests/README.md",
+      "title": "`docs/change-requests/` — intake, not governance",
+      "hash": "d115a381",
+      "status": "changed"
     },
     {
       "id": "doc:README",
@@ -16516,6 +16557,13 @@
       "type": "test",
       "path": "tests/unit/topbar-no-dropdown.test.js",
       "hash": "1439f6b4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/untracked-docs.test.js",
+      "type": "test",
+      "path": "tests/unit/untracked-docs.test.js",
+      "hash": "a63baa6e",
       "status": "current"
     },
     {
