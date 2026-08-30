@@ -237,6 +237,7 @@
     "FR-127",
     "FR-128",
     "FR-129",
+    "FR-130",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -332,6 +333,7 @@
     "SDD-073",
     "SDD-074",
     "SDD-075",
+    "SDD-076",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2497,6 +2499,19 @@
         }
       ]
     },
+    "FR-130": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ee74c2d5c5f230cf62b7e51757f98fcdcdef158021f5441251957b4dd7fd2ac6",
+      "history": [
+        {
+          "anchor": "business scoped github repository projection",
+          "since": "2026-08-30",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3741,6 +3756,19 @@
       "history": [
         {
           "anchor": "an approval gate s evidence goes in pipelinegatedecision",
+          "since": "2026-08-30",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-076": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "96654df58890ba9ade427d601a19af098ee14a2714728086a667003df44cbb3e",
+      "history": [
+        {
+          "anchor": "a bound repository s metadata converges on fr 081 its file",
           "since": "2026-08-30",
           "reason": "declared"
         }

@@ -3,27 +3,27 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1464,
-    "total_edges": 4999,
+    "total_nodes": 1468,
+    "total_edges": 5001,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 124,
+      "document": 126,
       "adr": 54,
       "domain": 8,
       "roadmap": 28,
       "feature": 14,
       "route": 160,
       "model": 70,
-      "requirement": 268,
+      "requirement": 270,
       "test": 348,
       "code_file": 386
     },
     "coverage": {
-      "requirements": 268,
+      "requirements": 270,
       "fr_with_code": "100% (118/118)",
       "fr_with_tests": "100% (118/118)",
-      "rules_anchored_in_code": "96% (112/117)",
+      "rules_anchored_in_code": "95% (112/118)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
       "annotated_code_files": 386,
       "fr_planned": [
@@ -37,7 +37,8 @@
         "FR-126",
         "FR-127",
         "FR-128",
-        "FR-129"
+        "FR-129",
+        "FR-130"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -46,7 +47,8 @@
         "SDD-040",
         "SDD-041",
         "SDD-046",
-        "SDD-075"
+        "SDD-075",
+        "SDD-076"
       ],
       "rules_superseded": [
         "SDD-001",
@@ -56,6 +58,7 @@
   },
   "drift": {
     "changed": [
+      "doc:CR-004-ACCEPTED-SHAPE",
       "doc:README"
     ],
     "added": [],
@@ -7990,6 +7993,14 @@
       "status": "current"
     },
     {
+      "id": "doc:CR-004-ACCEPTED-SHAPE",
+      "type": "document",
+      "path": "docs/change-requests/CR-004-ACCEPTED-SHAPE.md",
+      "title": "CR-004 — the shape this repository will accept",
+      "hash": "3aa9c6b1",
+      "status": "changed"
+    },
+    {
       "id": "doc:CR-004-GITHUB-INTEGRATION-AND-FILES-TAB-EXPLORER",
       "type": "document",
       "path": "docs/change-requests/CR-004-GITHUB-INTEGRATION-AND-FILES-TAB-EXPLORER.md",
@@ -8082,9 +8093,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.10.0b",
+      "version": "1.11.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "5bd73647",
+      "hash": "71838ac0",
       "status": "current"
     },
     {
@@ -8797,6 +8808,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-130-github-repository-projection",
+      "type": "document",
+      "path": "docs/domains/integration/features/FR-130-github-repository-projection.md",
+      "title": "FR-130 — GitHub repository binding and read-only projection",
+      "hash": "3b776260",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -9065,9 +9084,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.126.0b",
+      "version": "1.127.0b",
       "doc_status": "Draft",
-      "hash": "9d99c5dd",
+      "hash": "36945f3b",
       "status": "current"
     },
     {
@@ -9095,7 +9114,7 @@
       "type": "document",
       "path": "docs/change-requests/README.md",
       "title": "`docs/change-requests/` — intake, not governance",
-      "hash": "b6e91a2c",
+      "hash": "80dd0078",
       "status": "changed"
     },
     {
@@ -11445,6 +11464,16 @@
       "row_text": "Catalog publication approval gate: a `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` run that has produced a candidate projection does not reach `DPS-PUBLISH` until an authorized human has recorded an `APPROVED` `PipelineGateDecision` against that run, and a `REJECTED` decision sends it to `DPS-ROLLBACK` instead — the two stage labels FR-071's catalog has always carried (\"Publish approved projection\", \"Rollback failed or rejected run\") with nothing yet deciding which one a run takes. (a) The decision is recorded on the existing FR-071 execution ledger and declares **no new model and no new column**: `PipelineGateDecision.decidedByPersonId` is who signed, that row's own `createdAt` is when, `required` is whether the gate was waivable, `reason` carries a rejection, and `PipelineRun.artifactRef`/`artifactSha256` already identify the artifact the run applied. A second run table as CR-003 proposes is refused: `IngestionRun` (FR-081) is acquisition evidence for one connection and `PipelineRun` (FR-071) is the execution ledger for one pipeline definition, and a third answer to \"what happened in this pipeline\" would make the reconciliation evidence something that has to be believed twice (SDD-057). (b) The evidence a reviewer acted on — the candidate publication's own identity, and the added/changed/unchanged counts shown — is written to `PipelineGateDecision.evidenceJson` (SDD-075); a signature whose evidence is empty records that somebody approved but not what they saw, which is not an auditable decision. (c) The destination vault is not stored: it resolves from the run's Tenant/Business scope through API-010 (FR-057, ADR-022), so a stored copy would be a second answer to which vault a scope maps to. (d) Tier 1 records and does not execute (ADR-043 D2.1, ADR-050 D3). The gate is therefore a precondition the executing worker must observe and the ledger makes checkable afterwards — a run whose publish stage succeeded with no prior `APPROVED` decision is a detectable violation — not an interlock this repository enforces on a worker it does not run. (e) **Distinct from FR-110's Stage 17 quality gate**, permanently and by design: FR-110 is an automated `PASS`/`PASS_WITH_WARNINGS` verdict on a `DPL-KNOWLEDGE-INGEST-V1` knowledge snapshot, this is a human signature on a business-knowledge catalog version, and both will answer to \"approval gate on a pipeline run\" in any future search while sharing the one `PipelineGateDecision` table. Reworked from CR-003; no reviewer UI is in scope (CR-003 §2.B is a feature programme, not this requirement) 🔜 declared only — the schema it needs already exists and is already under RLS, and none of the write path does: `zGate` in `src/platform/integrations/core/pipeline-tracking-contract.js` is a five-field `.strict()` object with no evidence member, `recordPipelineEvent` writes `evidenceJson: '{}'` unconditionally, `gateSummary` omits the column from the read model, and nothing anywhere consults a gate decision before a publish stage. Blocked additionally on a product decision nobody has made: who may sign, and whether a gate is required per definition or per run "
     },
     {
+      "id": "req:FR-130",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Business-scoped GitHub repository projection: a `Repository` a Business already owns may additionally name its GitHub origin, and a person the Business admits may read that repository's tree and file contents in the console, read-only. (a) The binding declares **no new model, no new column and no migration**, because the entity already exists: FR-008 created `Repository` and FR-073 made it owned by exactly one Business, which is the scope CR-004 also chose and the only scope the viewer contract can govern (SDD-037). CR-004's `githubRepoUrl` is `Repository.url` beside `ownerName`/`repoName`/`fullName`/`provider`; its `githubBranch` is `Repository.defaultBranch`, with `ProjectRepository.branch` as the per-link override; GitHub's numeric repository id is `Repository.externalRepoId` mapped through `ExternalEntityRef` — the identifier BR-002 names by example (\"GitHub id\") and forbids as a key; and CR-004's three sync fields are **not stored at all**, because they are artifacts of a design this one does not adopt: `lastCommitSha`, `lastGithubSyncAt` and `githubSyncStatus` describe a mirror kept in step with an origin, and a read-through projection (d) keeps no mirror — the commit a reader is looking at comes from the same live fetch that produced the tree, so storing it would be a second answer to a question the response already carries. Should a cache ever be added, the watermark is `SyncCursor.cursorValue` with `lastSuccessAt` beside it and `IngestionRun.status` for the outcome, and that is the point at which its keying must be settled rather than assumed: `SyncCursor` is unique on `(connectionId, resourceType)`, so one connection covering several repositories has no per-repository cursor without either compounding `resourceType` or narrowing a connection to one repository — and `externalAccountId` names an *account*, which is why `Repository` is a separate model in the first place. Five columns on `Business` are refused: `Business` is a scope-chain entity, columns on it would cap a Business at one repository where `Repository` already permits many, and a foreign URL and commit SHA on a core scope row is the shape BR-002 exists to prevent. (b) A private repository's credential is an `IntegrationCredential.secretRef` on a `github` `IntegrationConnection`, resolved through the `SecretManagerPort` — a reference, never material, never in a browser response (SDD-043, SEC-015). Registering the provider row is idempotent on its code and needs no migration. (c) Push delivery is an **FR-081 adapter, not a new endpoint**: a webhook is one of the four `SOURCE_TYPES` that requirement already names, and a bespoke `/api/webhooks/github` would be the second raw-write path FR-081 forbids by name — the same finding CR-005's LINE connector drew. The tenant CR-004 omits is never read from the payload: the delivery's `installation.id` selects exactly one `IntegrationConnection` on `(providerId, externalAccountId)` and **zero or multiple candidates fail closed** (the FR-079 rule), the connection carries the trusted `tenantId`/`businessId`, and `repository.id` then resolves to a `Repository` through `ExternalEntityRef`. The authentication CR-004 omits is GitHub's `X-Hub-Signature-256` — HMAC-SHA256 over the raw body under the connection's webhook secret, constant-time compared, verified before anything is parsed for meaning or written; routing reads `installation.id` only, which is a non-secret selector the signature then proves, so trust follows verification rather than preceding it. (d) **File content is never persisted** — only push metadata converges on the raw substrate, and the tree and blob reads that render a file are read-through with no row of their own (SDD-076). Writes to `Repository` continue to go through project-manager's `repository-service`, which stays its only writer; this requirement reads that model and does not claim it. (e) The projection is bounded by a declared path scope, deny-by-default in the shape SEC-009 already uses, and `vaults/`-class live database state is excluded rather than discovered by a previewer (CR-006 §5.2). No file tree UI, purpose badge, multi-format previewer or metadata panel is in scope: CR-004 §2.B is a four-part feature programme, not this requirement. Reworked from CR-004",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Business-scoped GitHub repository projection: a `Repository` a Business already owns may additionally name its GitHub origin, and a person the Business admits may read that repository's tree and file contents in the console, read-only. (a) The binding declares **no new model, no new column and no migration**, because the entity already exists: FR-008 created `Repository` and FR-073 made it owned by exactly one Business, which is the scope CR-004 also chose and the only scope the viewer contract can govern (SDD-037). CR-004's `githubRepoUrl` is `Repository.url` beside `ownerName`/`repoName`/`fullName`/`provider`; its `githubBranch` is `Repository.defaultBranch`, with `ProjectRepository.branch` as the per-link override; GitHub's numeric repository id is `Repository.externalRepoId` mapped through `ExternalEntityRef` — the identifier BR-002 names by example (\"GitHub id\") and forbids as a key; and CR-004's three sync fields are **not stored at all**, because they are artifacts of a design this one does not adopt: `lastCommitSha`, `lastGithubSyncAt` and `githubSyncStatus` describe a mirror kept in step with an origin, and a read-through projection (d) keeps no mirror — the commit a reader is looking at comes from the same live fetch that produced the tree, so storing it would be a second answer to a question the response already carries. Should a cache ever be added, the watermark is `SyncCursor.cursorValue` with `lastSuccessAt` beside it and `IngestionRun.status` for the outcome, and that is the point at which its keying must be settled rather than assumed: `SyncCursor` is unique on `(connectionId, resourceType)`, so one connection covering several repositories has no per-repository cursor without either compounding `resourceType` or narrowing a connection to one repository — and `externalAccountId` names an *account*, which is why `Repository` is a separate model in the first place. Five columns on `Business` are refused: `Business` is a scope-chain entity, columns on it would cap a Business at one repository where `Repository` already permits many, and a foreign URL and commit SHA on a core scope row is the shape BR-002 exists to prevent. (b) A private repository's credential is an `IntegrationCredential.secretRef` on a `github` `IntegrationConnection`, resolved through the `SecretManagerPort` — a reference, never material, never in a browser response (SDD-043, SEC-015). Registering the provider row is idempotent on its code and needs no migration. (c) Push delivery is an **FR-081 adapter, not a new endpoint**: a webhook is one of the four `SOURCE_TYPES` that requirement already names, and a bespoke `/api/webhooks/github` would be the second raw-write path FR-081 forbids by name — the same finding CR-005's LINE connector drew. The tenant CR-004 omits is never read from the payload: the delivery's `installation.id` selects exactly one `IntegrationConnection` on `(providerId, externalAccountId)` and **zero or multiple candidates fail closed** (the FR-079 rule), the connection carries the trusted `tenantId`/`businessId`, and `repository.id` then resolves to a `Repository` through `ExternalEntityRef`. The authentication CR-004 omits is GitHub's `X-Hub-Signature-256` — HMAC-SHA256 over the raw body under the connection's webhook secret, constant-time compared, verified before anything is parsed for meaning or written; routing reads `installation.id` only, which is a non-secret selector the signature then proves, so trust follows verification rather than preceding it. (d) **File content is never persisted** — only push metadata converges on the raw substrate, and the tree and blob reads that render a file are read-through with no row of their own (SDD-076). Writes to `Repository` continue to go through project-manager's `repository-service`, which stays its only writer; this requirement reads that model and does not claim it. (e) The projection is bounded by a declared path scope, deny-by-default in the shape SEC-009 already uses, and `vaults/`-class live database state is excluded rather than discovered by a previewer (CR-006 §5.2). No file tree UI, purpose badge, multi-format previewer or metadata panel is in scope: CR-004 §2.B is a four-part feature programme, not this requirement. Reworked from CR-004 🔜 declared only — and **blocked, not merely unbuilt**, on one named thing that is not effort: nothing in this repository can determine whether an arbitrary bound repository contains personal data, and there is nowhere to record the assertion that it does not. SEC-005 consent attaches to an FR-023 `Customer` row per Business (SDD-053) and FR-022 erases through `Person`/`Customer`; a spreadsheet inside a repository has neither, so a projection over it would be a second way into personal data that reaches none of the controls governing the first way. CR-006 establishes this is not hypothetical — the very repository CR-004 names held customer contact lists, quotation reports and per-customer purchase history tracked in git on a public remote, and `git status` reported nothing wrong throughout — and remediating that instance does not lift the blocker, because the next bound repository has the same unverifiable property. What is missing is an attestation shape and an authority to make it: who may declare a path scope free of personal data, and what is recorded when they do. That is a product and data-protection decision nobody has made. Secondary and smaller: `DATA_LANES` has no value a source repository honestly belongs to, and inventing one is the ADR-038 decision made once for market evidence, not a free enum edit; the `/platform/integrations` catalog already renders a GitHub tile hardcoded `status: 'CONNECTED'` while nothing connects, which this requirement must correct rather than inherit "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -12393,6 +12422,16 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "An approval gate's evidence goes in `PipelineGateDecision.evidenceJson`, not in typed columns on the shared ledger. The column has existed since FR-071 in both `prisma/schema.prisma` and `supabase/migrations/20260820221703_smartgift_pipeline_tracking.sql` (`text NOT NULL DEFAULT '{}'`, under FORCE ROW LEVEL SECURITY with the other five tables) and nothing has ever written it: `zGate` is a five-field `.strict()` object with no evidence member, `recordPipelineEvent` passes the literal `'{}'`, and `gateSummary` drops the field from the read model — so the evidence column is present, tested for existence, and unreachable. That is the same \"column present since FR-071, unwritten by anything\" shape SDD-070 found on `PipelineStep`, and it takes the same fix: one optional member on the event envelope, persisted only when a caller actually supplies it, so every existing decision row and every existing caller is unchanged. Adding `catalogVersion`, `vaultId`, `approvedAt` and `approvedBy` columns as CR-003 proposes was rejected on the ledger's own terms. SDD-066 made these six tables definition-neutral precisely so a second pipeline definition could share them; `catalogVersion` is one definition's vocabulary, and putting it in a table both definitions write is the union-catalog mistake SDD-066 already refused, relocated from the validator into the schema where no validator can refuse it. `approvedAt` and `approvedBy` are additionally redundant — the `APPROVED` row's own `createdAt` and `decidedByPersonId` are those two facts, and a second copy of a fact is a second answer to it. `vaultId` is resolved per API-010 from scope (FR-057, ADR-022) and is not the ledger's to hold. The cost is named rather than hidden: `evidenceJson` is untyped `text`, so gate evidence is exactly as checkable as the Zod member that writes it and no more — which is why that member is a declared part of this decision instead of left for the first caller to invent, and why a reader must not infer a schema from a sample row. FR-129; FR-071, FR-110, SDD-042, SDD-057, SDD-066, SDD-070, ADR-030 "
+    },
+    {
+      "id": "req:SDD-076",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "A bound repository's **metadata converges on FR-081; its file contents are never persisted.** FR-081(c) makes verbatim persistence the rule for every acquisition channel — raw payloads are replayable evidence, translated by a separate path — and a repository content projection is the first channel where obeying that rule is the defect rather than the discipline. A push delivery's metadata is exactly what `RawExternalRecord` is for and goes there unchanged: head SHA, changed paths, actor, timestamps, under the one envelope with `sourceType: 'WEBHOOK'`. A blob's bytes do not, and the reason is a property of the source rather than a preference about storage: a bound repository is an arbitrary external tree whose contents this repository cannot inspect in advance. CR-006 supplies the concrete case — the repository CR-004 proposes to surface held three spreadsheets of real customer data, tracked in git on a public remote, found by byte-comparing a tree rather than by any check that runs here. Persisting that content would put personal data in a table the erasure path has no route to: FR-022 erases through `Person`/`Customer`, SEC-005 consent is attested on the FR-023 `Customer` row per Business (SDD-053), and rows inside a spreadsheet inside a blob have neither — so the record would be personal data that is unconsented and, by construction, unerasable. The projection therefore reads through and renders; it stores no file content, and both the render and the metadata lane are bounded by a declared path scope, deny-by-default, in the shape SEC-009 already applies to LINE knowledge access. `ProjectRepository.pathScope` is the field that carries such a scope today and is already threaded end-to-end — input schema, service, read model, UI pill, plan and xlsx import — but nothing treats it as a boundary, so it is descriptive metadata that this decision would make load-bearing, which is a change of meaning to state rather than to assume. Named rather than glossed: changed *paths* are metadata, but a path can itself be personal data — CR-006 declines to reproduce the filenames it found for precisely that reason — so the metadata lane is not clean by virtue of being metadata and is bounded by the same scope. **The rejected alternative is the literal reading of FR-081(c)**, and it is rejected explicitly because it is what a reader who finds that clause and not this one will do; a carve-out from a requirement's own default is invisible unless it is written where the default is written. Also rejected, on the ledger's own terms: CR-004's `githubRepoUrl`/`githubBranch`/`githubSyncStatus`/`lastCommitSha`/`lastGithubSyncAt` as columns on `Business`. `Repository` has carried the first two since FR-008 and has been Business-owned since FR-073; the last three are `SyncCursor.cursorValue`, `SyncCursor.lastSuccessAt` and `IngestionRun.status`, which is what a watermark, a success time and a run outcome already mean. Columns on `Business` would additionally cap a Business at one repository, and put a foreign URL and commit SHA on a scope entity — the case BR-002 names with \"GitHub id\" among its examples.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A bound repository's **metadata converges on FR-081; its file contents are never persisted.** FR-081(c) makes verbatim persistence the rule for every acquisition channel — raw payloads are replayable evidence, translated by a separate path — and a repository content projection is the first channel where obeying that rule is the defect rather than the discipline. A push delivery's metadata is exactly what `RawExternalRecord` is for and goes there unchanged: head SHA, changed paths, actor, timestamps, under the one envelope with `sourceType: 'WEBHOOK'`. A blob's bytes do not, and the reason is a property of the source rather than a preference about storage: a bound repository is an arbitrary external tree whose contents this repository cannot inspect in advance. CR-006 supplies the concrete case — the repository CR-004 proposes to surface held three spreadsheets of real customer data, tracked in git on a public remote, found by byte-comparing a tree rather than by any check that runs here. Persisting that content would put personal data in a table the erasure path has no route to: FR-022 erases through `Person`/`Customer`, SEC-005 consent is attested on the FR-023 `Customer` row per Business (SDD-053), and rows inside a spreadsheet inside a blob have neither — so the record would be personal data that is unconsented and, by construction, unerasable. The projection therefore reads through and renders; it stores no file content, and both the render and the metadata lane are bounded by a declared path scope, deny-by-default, in the shape SEC-009 already applies to LINE knowledge access. `ProjectRepository.pathScope` is the field that carries such a scope today and is already threaded end-to-end — input schema, service, read model, UI pill, plan and xlsx import — but nothing treats it as a boundary, so it is descriptive metadata that this decision would make load-bearing, which is a change of meaning to state rather than to assume. Named rather than glossed: changed *paths* are metadata, but a path can itself be personal data — CR-006 declines to reproduce the filenames it found for precisely that reason — so the metadata lane is not clean by virtue of being metadata and is bounded by the same scope. **The rejected alternative is the literal reading of FR-081(c)**, and it is rejected explicitly because it is what a reader who finds that clause and not this one will do; a carve-out from a requirement's own default is invisible unless it is written where the default is written. Also rejected, on the ledger's own terms: CR-004's `githubRepoUrl`/`githubBranch`/`githubSyncStatus`/`lastCommitSha`/`lastGithubSyncAt` as columns on `Business`. `Repository` has carried the first two since FR-008 and has been Business-owned since FR-073; the last three are `SyncCursor.cursorValue`, `SyncCursor.lastSuccessAt` and `IngestionRun.status`, which is what a watermark, a success time and a run outcome already mean. Columns on `Business` would additionally cap a Business at one repository, and put a foreign URL and commit SHA on a scope entity — the case BR-002 names with \"GitHub id\" among its examples. FR-130; FR-008, FR-073, FR-081, FR-022, BR-002, SEC-005, SEC-009, SEC-015, SDD-037, SDD-043, SDD-053, ADR-038 "
     },
     {
       "id": "req:SEC-001",
@@ -29992,6 +30031,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-130",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -30651,6 +30697,13 @@
     },
     {
       "from": "req:SDD-075",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-076",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
