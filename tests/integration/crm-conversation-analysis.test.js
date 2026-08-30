@@ -22,14 +22,14 @@ let otherBusiness
 let conversationId
 let customerId
 
-async function ownerOf(businessId) {
+async function ownerOf(...businessIds) {
   const person = await prisma.person.create({
     data: { id: randomUUID(), code: `PER-ANALYSIS-${randomUUID().slice(0, 8)}`, displayName: 'Analysis owner' },
   })
   return makeViewer({
     role: 'OWNER',
-    visibleBusinessIds: [businessId],
-    ownedBusinessIds: [businessId],
+    visibleBusinessIds: businessIds,
+    ownedBusinessIds: businessIds,
     principal: { id: person.id, code: person.code, displayName: person.displayName },
   })
 }
@@ -196,6 +196,32 @@ describe('ConversationAnalysis persistence and projected reads (FR-127)', () => 
     expect((await getConversationAnalyses({ viewer: otherOwner, businessId: otherBusiness.id, conversationId: second.conversationId })).analyses).toHaveLength(1)
   })
 
+  it('correlates each owned Business with its tenant before allowing a write', async () => {
+    const suffix = randomUUID().slice(0, 8)
+    const viewer = await ownerOf(business.id, otherBusiness.id)
+    const person = await prisma.person.create({ data: { id: randomUUID(), code: `PER-ANALYSIS-PAIR-${suffix}`, displayName: 'Pair mismatch' } })
+    const customer = await prisma.customer.create({
+      data: { code: `CUS-ANALYSIS-PAIR-${suffix}`, tenantId: tenant.id, businessId: business.id, personId: person.id, displayName: 'Pair mismatch customer', consentStatus: 'GRANTED' },
+    })
+    const malformed = await prisma.conversation.create({
+      // The Business belongs to otherTenant, while the Conversation and Customer
+      // claim tenant. This is possible because the legacy schema has no composite
+      // tenant/business foreign key.
+      data: { tenantId: tenant.id, businessId: otherBusiness.id, customerId: customer.id, channel: 'LINE', externalThreadId: `TH-analysis-pair-bad-${suffix}` },
+    })
+    const auditBefore = await countAnalysisAuditsForConversation(malformed.id)
+    await expect(recordConversationAnalysis(malformed.id, analysisInput(), { viewer })).rejects.toMatchObject({ status: 404 })
+    expect(await prisma.conversationAnalysis.count({ where: { conversationId: malformed.id } })).toBe(0)
+    expect(await countAnalysisAuditsForConversation(malformed.id)).toBe(auditBefore)
+
+    const validA = await ingestLineMessage({ tenantId: tenant.id, businessId: business.id, lineUserId: `U-analysis-pair-a-${suffix}`, threadId: `TH-analysis-pair-a-${suffix}`, text: 'valid A' })
+    const validB = await ingestLineMessage({ tenantId: otherTenant.id, businessId: otherBusiness.id, lineUserId: `U-analysis-pair-b-${suffix}`, threadId: `TH-analysis-pair-b-${suffix}`, text: 'valid B' })
+    await recordCustomerConsent(validA.customerId, { businessId: business.id, status: 'GRANTED' }, { viewer })
+    await recordCustomerConsent(validB.customerId, { businessId: otherBusiness.id, status: 'GRANTED' }, { viewer })
+    await expect(recordConversationAnalysis(validA.conversationId, analysisInput(), { viewer })).resolves.toMatchObject({ conversationId: validA.conversationId })
+    await expect(recordConversationAnalysis(validB.conversationId, analysisInput(), { viewer })).resolves.toMatchObject({ conversationId: validB.conversationId })
+  })
+
   it('fails closed when Conversation and Customer tenant columns disagree', async () => {
     const suffix = randomUUID().slice(0, 8)
     const person = await prisma.person.create({ data: { id: randomUUID(), code: `PER-ANALYSIS-MISMATCH-${suffix}`, displayName: 'Mismatch customer' } })
@@ -243,6 +269,32 @@ describe('ConversationAnalysis persistence and projected reads (FR-127)', () => 
     const summary = await erasePrincipal({ tenantId: tenant.id, personId: person.id })
     expect(summary.erasedAnalyses).toBe(1)
     expect(await prisma.conversationAnalysis.count({ where: { conversationId: conversation.id } })).toBe(0)
+  })
+
+  it('keeps an analysis whose malformed Conversation tenant differs from the erased Customer tenant', async () => {
+    const suffix = randomUUID().slice(0, 8)
+    const person = await prisma.person.create({ data: { id: randomUUID(), code: `PER-ANALYSIS-ERASE-PAIR-${suffix}`, displayName: 'Erase pair' } })
+    const customer = await prisma.customer.create({
+      data: { code: `CUS-ANALYSIS-ERASE-PAIR-${suffix}`, tenantId: tenant.id, businessId: business.id, personId: person.id, displayName: 'Erase pair customer' },
+    })
+    const sameTenant = await prisma.conversation.create({
+      data: { tenantId: tenant.id, businessId: business.id, customerId: customer.id, channel: 'LINE', externalThreadId: `TH-analysis-erase-pair-a-${suffix}` },
+    })
+    const malformed = await prisma.conversation.create({
+      // This row points at Customer A but claims Tenant B. Erasure of A must
+      // not cross the Conversation tenant boundary while cleaning derived data.
+      data: { tenantId: otherTenant.id, businessId: otherBusiness.id, customerId: customer.id, channel: 'LINE', externalThreadId: `TH-analysis-erase-pair-b-${suffix}` },
+    })
+    for (const conversation of [sameTenant, malformed]) {
+      await prisma.conversationAnalysis.create({
+        data: { conversationId: conversation.id, analyzedDate: new Date('2026-08-30T00:00:00Z'), contactType: 'SUPPORT', state: 'COLD', cta: null, tags: '[]', summary: 'erase pair', rawOutputJson: '{"erasePair":true}' },
+      })
+    }
+
+    const summary = await erasePrincipal({ tenantId: tenant.id, personId: person.id })
+    expect(summary.erasedAnalyses).toBe(1)
+    expect(await prisma.conversationAnalysis.count({ where: { conversationId: sameTenant.id } })).toBe(0)
+    expect(await prisma.conversationAnalysis.count({ where: { conversationId: malformed.id } })).toBe(1)
   })
 
   it('keeps another tenant Customer and its analysis when erasure is tenant-scoped', async () => {

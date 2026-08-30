@@ -6,6 +6,7 @@ import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
 // @req FR-127 — persist and read consent-gated, recomputable ConversationAnalysis
 // rows behind the CRM's existing Business ownership/read visibility boundaries.
 // @spec ADR-054 D3-D6, BR-001, SEC-001, SEC-005
+// @spec .brain/rca/2026-08-31-conversation-analysis-tenant-binding.md
 // @tested tests/integration/crm-conversation-analysis.test.js
 
 export const CONVERSATION_ANALYSIS_VERSION = '1.0'
@@ -84,12 +85,12 @@ const consentedCustomer = (tenantId) => ({
   consentStatus: 'GRANTED',
 })
 
-async function findConsentedConversation(db, where, conversationId) {
+async function findConsentedConversation(db, where, conversationId, customerTenantId = where.tenantId) {
   const conversation = await db.conversation.findFirst({
     where: {
       ...where,
       id: conversationId,
-      customer: consentedCustomer(where.tenantId),
+      customer: consentedCustomer(customerTenantId),
     },
     select: {
       id: true,
@@ -120,12 +121,14 @@ async function findWriterConversation(db, viewer, conversationId) {
   if (!tenantIds.length) return null
 
   return findConsentedConversation(db, {
-    tenantId: { in: tenantIds },
-    // A tenant-shared Conversation has no Business to own, so an owner of any
-    // Business in its tenant may write its derived analysis. A Business-bound
-    // Conversation still requires ownership of that exact Business.
-    OR: [{ businessId: null }, { businessId: { in: ownedBusinessIds } }],
-  }, conversationId)
+    // Correlate every owned Business id with the tenant row it came from. A
+    // broad tenant IN plus Business IN would accept a malformed cross-tenant
+    // pair when one viewer owns Businesses in both tenants.
+    OR: [
+      { tenantId: { in: tenantIds }, businessId: null },
+      ...ownedBusinesses.map(({ id, tenantId }) => ({ tenantId, businessId: id })),
+    ],
+  }, conversationId, { in: tenantIds })
 }
 
 function analysisData(data, analyzedDate, analyzedAt) {

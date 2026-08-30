@@ -9,6 +9,7 @@ import { zErasePrincipalInput } from '@/lib/validation/entities'
 //   revoke the ExternalIdentity, and a revoked binding refuses to resolve (FR-021),
 //   which is what makes an erased person un-reachable rather than merely hidden.
 // @spec ADR-045 D2, SEC-003 — append-only audit; erase is recorded, never a silent purge.
+// @spec .brain/rca/2026-08-31-conversation-analysis-tenant-binding.md
 // @tested tests/integration/identity-erase.test.js, tests/integration/crm-conversation-analysis.test.js
 
 const REDACTED = '[erased]'
@@ -55,7 +56,7 @@ export async function erasePrincipal(input) {
     const customerIds = customers.map((customer) => customer.id)
     const activeCustomers = customers.filter((customer) => customer.deletedAt === null)
     const conversations = customerIds.length
-      ? await tx.conversation.findMany({ where: { customerId: { in: customerIds } }, select: { id: true } })
+      ? await tx.conversation.findMany({ where: { tenantId, customerId: { in: customerIds } }, select: { id: true } })
       : []
     const analyses = conversations.length
       ? await tx.conversationAnalysis.deleteMany({
