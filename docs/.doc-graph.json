@@ -56,9 +56,7 @@
   },
   "drift": {
     "changed": [
-      "doc:README",
-      "code:src/modules/crm/conversation-analysis-service.js",
-      "code:src/modules/identity/erase-principal.js"
+      "doc:README"
     ],
     "added": [],
     "removed": []
@@ -4577,7 +4575,7 @@
       "type": "code_file",
       "path": "src/modules/crm/conversation-analysis-service.js",
       "hash": "ca8efdf0",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-127"
@@ -4851,7 +4849,7 @@
       "type": "code_file",
       "path": "src/modules/identity/erase-principal.js",
       "hash": "c45caf4b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-022",
@@ -9239,7 +9237,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.132.0b",
       "doc_status": "Draft",
-      "hash": "7a3591eb",
+      "hash": "e809fa0a",
       "status": "current"
     },
     {
@@ -9283,7 +9281,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "e7eeea72",
+      "hash": "c8419fe3",
       "status": "current"
     },
     {

@@ -1,8 +1,8 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-08-31T05:01:00+07:00,ATHER,f2749f9"
-last_update: "2026-08-31T05:35:00+07:00,ATHER"
-status: "under review"
+last_update: "2026-08-31T06:01:11+07:00,ATHER"
+status: "beta"
 attributes:
   domain: cross-domain
   doc_type: phase-report
@@ -10,6 +10,10 @@ attributes:
 ---
 
 # รายงาน local implementation รอบแรก — 2026-08-31
+
+**ผล: ผ่าน local acceptance ของสาม increment ที่อนุมัติ.** Full `npm run verify` exit 0
+บน source commit `ad36c3068f4239ea3256300542630ab8aa5e4c1e`: tests 2858 passed, build/govern PASS,
+e2e 96 passed / 4 skipped / 0 flaky. ยังไม่ใช่ production completion.
 
 ## ขอบเขตที่อนุมัติ
 
@@ -56,16 +60,16 @@ RED tests พิสูจน์ว่า wrong-stage/unknown-step เคยถ�
 Failure คือ id-anchor-stability คาด baseline digest ที่ทบทวนแล้ว แต่ SEC-022 มีข้อความ implementation
 เปลี่ยนและยังไม่บันทึก review. อ่าน registry diff แล้วใช้ writer ที่กำหนด:
 `npm run docs:ids -- --review SEC-022 --reason "..."`; subject/ID ไม่เปลี่ยน, เพิ่ม ID 0,
-ไม่แก้ ledger ด้วยมือและไม่ใช้ bulk baseline refresh. ต้องรันชุดรวมใหม่หลังปิด CRM review.
+ไม่แก้ ledger ด้วยมือและไม่ใช้ bulk baseline refresh. รันชุดรวมใหม่หลังปิด CRM review และผ่านตามตารางข้างล่างแล้ว.
 
 
 | Check | ผล |
 |---|---|
-| npm test | PENDING |
-| npm run build | PENDING |
-| npm run govern | interim PASS — critical 0 / warning 0 / info 24; รอ reconcile หลัง final review |
-| npm run test:e2e | PENDING |
-| git diff --check / isolated worktree state | PENDING |
+| npm test | PASS — 336 files passed / 4 skipped; 2858 tests passed / 14 skipped / 0 failed, 187.86s; source ad36c30 |
+| npm run build | PASS บน source ad36c30; compilation และ Next validation |
+| npm run govern | PASS — docs 231, routes 107, test files 357; nodes 1492, edges 5138, dangling 0; critical 0 / warning 0 / info 23 |
+| npm run test:e2e | PASS — 96 passed / 4 skipped / 0 unexpected / 0 flaky, 292.986s; executed guard 96 |
+| git diff --check / isolated worktree state | PASS ก่อน final commit; source แยกจาก primary, final docs/governance ตรวจซ้ำหลังลงผล |
 
 14 skipped baseline tests เป็น controlled-line-activation.postgres (3), line-binding-activation.postgres (5),
 line-oa-cross-repo-round-trip (5), runtime-isolation-probe.postgres (1). ไม่ใช่ PostgreSQL/production proof.
@@ -111,7 +115,7 @@ static review และ policy/contract risks ไม่ใช่ผล exploit t
 ไม่ได้ขยายงานไปสร้าง tombstone, เปลี่ยน snapshot format, เปิด privacy policy ใหม่ หรือแก้ inbox เดิม.
 สอง finding ที่อยู่ในโค้ด increment ใหม่ปิดใน source followup 3f3034e: correlated Business/tenant pair
 และ tenant-scoped analysis erasure. RED 2 cases ล้มตามคาดก่อนแก้; GREEN 21/21 ผ่าน.
-ดู [RCA](../../.brain/rca/2026-08-31-conversation-analysis-tenant-binding.md); final suite จะทดสอบ source รวมอีกครั้ง.
+ดู [RCA](../../.brain/rca/2026-08-31-conversation-analysis-tenant-binding.md); full verify ของ source รวมผ่านแล้วตามตารางข้างต้น.
 
 ## ข้อจำกัดเครื่องและวิธีแยกตรวจ
 
@@ -147,7 +151,34 @@ FlowAccount sandbox/provider evidence. Local PASS ไม่เปลี่ยน
 
 ไม่มีรายงาน → 0.1.0b: บันทึก scope และ baseline.
 0.1.0b → 0.2.0b: รวมผลสามสาย, review decisions, migration provenance และ external gates;
-final integration verification ยังรอผลในรุ่นนี้.
+ณ 0.2.0b final integration verification ยังรอผล.
+
+0.2.0b → 0.3.0b: บันทึก full verify PASS, ปิด local increment acceptance และแยก out-of-scope review findings.
+
+| เอกสาร | Version diff |
+|---|---|
+| PRD-SDD | 1.131.0b → 1.132.0b |
+| FEATURES | 1.12.0b → 1.13.0b |
+| ROADMAP | 2.11.0 → 2.12.0 |
+| DB appendix | 1.12.0 → 1.13.0b |
+| Master plan | 0.2.0b → 0.3.0b |
+| Phase report | 0.2.0b → 0.3.0b |
+
+## Proof files
+
+หลักฐานแบบเต็มอยู่ใน temporary directory ของงานนี้; รายงานและ source commits เป็นข้อมูลถาวรใน branch.
+
+- C:\Users\freshair\AppData\Local\Temp\zuri-ai-parallel-final-verify-20260831.log
+- C:\Users\freshair\AppData\Local\Temp\zuri-ai-parallel-final-vitest-20260831.json
+- C:\Users\freshair\AppData\Local\Temp\zuri-ai-parallel-final-playwright-20260831.json
+- C:\Users\freshair\AppData\Local\Temp\zuri-ai-parallel-final-doc-vitest-20260831.json
+- C:\Users\freshair\AppData\Local\Temp\zuri-ai-parallel-final-doc-tests-20260831.log
+- เก็บรอบแรกที่ failed แยกเป็น zuri-ai-parallel-final-r1-20260831.log และ zuri-ai-parallel-final-r1-vitest-20260831.json
+
+หลัง full verify เปลี่ยนเฉพาะเอกสารสถานะ/รายงานและ generated governance; application source, schema,
+contracts และ tests ไม่เปลี่ยนจาก ad36c30. Final documentation gate PASS (critical 0 / warning 0 / info 23); focused readiness/doc/id/roadmap
+tests PASS 125/125 ใน 8 files, 17.53s หลังปิดสถานะ. ตรวจ git diff ยืนยัน application source
+ตรง ad36c30 และไม่พบ Node process ที่ command line ชี้ไป verification worktree หลังจบ.
 
 ## CHANGELOG
 
@@ -155,3 +186,4 @@ final integration verification ยังรอผลในรุ่นนี้.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-31 | under review | Baseline และ storage workaround | f2749f9 | ATHER |
 | 0.2.0b | 2026-08-31 | under review | รวม implementation และ review ก่อน final verification | 2fe5615 | ATHER |
+| 0.3.0b | 2026-08-31 | beta | Full verify PASS; local increment acceptance complete; external gates retained | ad36c30 (verified source) | ATHER |
