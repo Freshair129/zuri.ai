@@ -237,6 +237,8 @@
     "FR-127",
     "FR-128",
     "FR-129",
+    "FR-131",
+    "FR-132",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -332,6 +334,7 @@
     "SDD-073",
     "SDD-074",
     "SDD-075",
+    "SDD-077",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2497,6 +2500,32 @@
         }
       ]
     },
+    "FR-131": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "fc7b36466e40019c73911a0e5a43b9bf0dfc0ed5e86591611e8de2eb6d4472a4",
+      "history": [
+        {
+          "anchor": "shipping rate card as governed business knowledge",
+          "since": "2026-08-30",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-132": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c06ff4d46a71dcc906af4329c8e54d55c1cb60e816f05073e4e57d28f3d741a0",
+      "history": [
+        {
+          "anchor": "ladder quotation on the line surface as a gate e read only",
+          "since": "2026-08-30",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3741,6 +3770,19 @@
       "history": [
         {
           "anchor": "an approval gate s evidence goes in pipelinegatedecision",
+          "since": "2026-08-30",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-077": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "15ddcfae809c264fdc72f7832087cb19011c6a3f477ccb207b341e678fc80e38",
+      "history": [
+        {
+          "anchor": "a second knowledge type in business knowledge needs its own",
           "since": "2026-08-30",
           "reason": "declared"
         }

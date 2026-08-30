@@ -273,6 +273,57 @@ broke tenant isolation; it does not. `Project` (518) is workspace-scoped the sam
 way and inherits tenant through the workspace. Recorded so the next reviewer does
 not re-raise a settled question.
 
+> **Erratum, 2026-08-30 — two of these three findings were incomplete, and the
+> third settled the wrong question.** All three were checked again against the
+> code while reworking CR-005, and each moved.
+>
+> **The endpoint refusal was right; the remedy was not.** "Reachable through the
+> existing webhook plus a converter" implies a converter has to be written. It
+> does not: `normalizeLineWebhookEvent`
+> (`src/platform/integrations/providers/line/line-oa-webhook.js`) has converted
+> LINE events onto the FR-081 ingestion envelope since that requirement landed,
+> and the live route calls it on every event in the batch through
+> `createLineOaEvidenceRecorder`. The intake path is complete end to end. What
+> CR-005 needs is one descriptor in the Gate E read-only registry in
+> `src/modules/agent/tools.js`, which today pre-loads three.
+>
+> **`secretRef` is the wrong replacement for `channelSecret`/`channelToken`.**
+> The columns are not converted — they are deleted, and nothing takes their
+> place. Under BR-011 this repository is not the LINE edge: `zuri.command-agent`
+> owns signature verification and the Reply API, and the webhook here receives an
+> already-verified, already-normalized batch. `connection-health.js` says it in
+> its own comment — a CHANNEL connection needs no channel secret because "under
+> BR-011 the LINE channel secret belongs to zuri-cli". A `secretRef` here would
+> be a vault entry nothing ever reads. What the webhook *does* authenticate is a
+> binding-scoped bearer hashed into `zuri_core.line_channel_binding` (FR-052),
+> and the rest of `AgentConnectorConfig` is `IntegrationConnection`.
+>
+> **The `workspaceId` finding answered a question nobody needed answered.** Not a
+> tenant-isolation break — that conclusion stands. But the comparison supporting
+> it does not: `Project` carries its own `businessId` **beside** `workspaceId`
+> under FR-043, and `Workspace.tenantId`/`.businessId` are both nullable, since a
+> Workspace may be `PORTFOLIO`-scoped and have neither. And the scoping is wrong
+> anyway, functionally: a LINE turn resolves `{tenantId, businessId}` from its
+> binding and never holds a `workspaceId`, so a workspace-keyed rate is
+> unreadable from the one surface that needs to quote it. Marking a question
+> settled is only as safe as the question that was asked.
+>
+> **Not raised at all, and larger than any of the three:** the rate card needs no
+> Prisma model. `zuri_core.business_knowledge` is already Tenant- and
+> Business-scoped under forced RLS with `as_of`, `approved_at`, `source_ref`,
+> `source_sha256`, `is_active`, `unit`, `sell_price` and a `specification`
+> object, published through `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` and gated by
+> FR-129 — every fact a rate card needs, with the provenance an editable settings
+> grid destroys. It does cost a migration, because `knowledge_type` is
+> check-constrained to `'PRODUCT'` in the DDL and `z.literal` in the contract.
+> SDD-077 records what else that widening costs, including a defect it would
+> otherwise create: `registeredPredicate` filters on no `knowledge_type` at all,
+> so a second kind would be returned by `product_search` as a product.
+>
+> The rework is **FR-131 + FR-132 + SDD-077**. What this repository will accept,
+> written for CR-005's author, is
+> [`CR-005-ACCEPTED-SHAPE.md`](CR-005-ACCEPTED-SHAPE.md).
+
 ### Disposition
 
 | CR | Where the work lives | State |
@@ -280,7 +331,7 @@ not re-raise a settled question.
 | CR-002 | GKS / MSP, not here | blocked on the three findings above — one of which does not hold as stated |
 | CR-003 | here | **reworked and declared as FR-129 + SDD-075** — onto `PipelineRun` + the existing `PipelineGateDecision`, with no model, no column and no migration; see the erratum above and [`CR-003-ACCEPTED-SHAPE.md`](CR-003-ACCEPTED-SHAPE.md) |
 | CR-004 | here | rework onto `IntegrationConnection` + `IntegrationCredential`; the webhook needs a tenant and an auth story |
-| CR-005 | here | shipping matrix is workable; the LINE connector must become a converter, and credentials a `secretRef` |
+| CR-005 | here | **reworked and declared as FR-131 + FR-132 + SDD-077** — the rate card onto the existing `business_knowledge` projection with no Prisma model and no new domain, the quotation as one Gate E read-only tool with no route, no converter and no credential; one migration in total. See the erratum above and [`CR-005-ACCEPTED-SHAPE.md`](CR-005-ACCEPTED-SHAPE.md) |
 
 None can be built before that rework, because each currently proposes a shape
 this repository would have to contradict itself to accept. Each needs an FR id,
@@ -289,5 +340,17 @@ declared here, through the ledger, before any code.
 **CR-003 has been through that rework** and is the worked example: it came out
 as one FR (FR-129) and one SDD (SDD-075), declaring no model, no column and no
 migration, because most of what it asked for was already built and one thing it
-asked for was already built *and* misread by this review. CR-002, CR-004 and
-CR-005 still have no id.
+asked for was already built *and* misread by this review.
+
+**CR-005 has been through it too, and is the more useful example**, because it
+did not come out free. It needed **two** FRs — FR-131 and FR-132 — for a reason
+worth stating: they have different owners (`knowledge` and `agent`), different
+lifecycles, and different blockers, and the rate card is useful without the
+quoting while the quoting is impossible without the rate card. One id covering
+both would have had a status cell that was true of neither half. It also needed
+one migration, which CR-003 did not: `knowledge_type` is check-constrained to a
+single value, and widening it is a decision in four places (SDD-077) rather than
+a column addition. What CR-005 did *not* need was any of its two proposed
+models, its endpoint, its converter or its credential — four things this
+repository had already built and one thing it had deliberately decided not to
+be. **CR-002 and CR-004 still have no id.**
