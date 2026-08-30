@@ -206,6 +206,32 @@ existing run or a small approval model beside it. Two run tables answering "what
 happened in this pipeline" is the condition where a reader takes whichever they
 find first and neither table is wrong about itself.
 
+> **Erratum, 2026-08-30 — the gate is not new either, and there are two run
+> models, not one.** The paragraph above is wrong in one clause and incomplete
+> in another, and both were found by reading the schema rather than by
+> re-reading this note.
+>
+> `PipelineGateDecision` (`prisma/schema.prisma`) has existed since FR-071 with
+> `status` in `PENDING`/`APPROVED`/`REJECTED`/`WAIVED`, `decidedByPersonId`
+> (CR-003's `approvedBy`), the row's own `createdAt` (its `approvedAt`),
+> `required`, `reason`, `evidenceJson` and `auditEventId`. It is in the
+> production DDL under `FORCE ROW LEVEL SECURITY`, `GATE_UPDATED` is already an
+> accepted event type, and the `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` stage
+> catalog has always carried `DPS-PUBLISH` ("Publish approved projection") and
+> `DPS-ROLLBACK` ("Rollback failed or rejected run"). So "a small approval model
+> beside it" would have been the second-source-of-truth defect this review
+> exists to prevent, authored by the review rather than by the proposal.
+>
+> Separately, the comparison above names only `IngestionRun`. `PipelineRun`
+> (FR-071) is the second run model and the one `PipelineGateDecision` relates
+> to. They are not duplicates — `IngestionRun` is per-connection acquisition
+> evidence (FR-081), `PipelineRun` is per-definition execution — but a reviewer
+> who sees one and not the other cannot place a new proposal correctly.
+>
+> The rework is **FR-129 + SDD-075**, declaring no model, no column and no
+> migration. What this repository will accept, written for CR-003's author, is
+> [`CR-003-ACCEPTED-SHAPE.md`](CR-003-ACCEPTED-SHAPE.md).
+
 ### CR-004 — GitHub binding does not belong on `Business`
 
 The proposal puts `githubRepoUrl`, `githubBranch`, `githubSyncStatus`,
@@ -252,10 +278,16 @@ not re-raise a settled question.
 | CR | Where the work lives | State |
 |---|---|---|
 | CR-002 | GKS / MSP, not here | blocked on the three findings above — one of which does not hold as stated |
-| CR-003 | here | rework onto `IngestionRun`; the approval gate is the real ask |
+| CR-003 | here | **reworked and declared as FR-129 + SDD-075** — onto `PipelineRun` + the existing `PipelineGateDecision`, with no model, no column and no migration; see the erratum above and [`CR-003-ACCEPTED-SHAPE.md`](CR-003-ACCEPTED-SHAPE.md) |
 | CR-004 | here | rework onto `IntegrationConnection` + `IntegrationCredential`; the webhook needs a tenant and an auth story |
 | CR-005 | here | shipping matrix is workable; the LINE connector must become a converter, and credentials a `secretRef` |
 
 None can be built before that rework, because each currently proposes a shape
-this repository would have to contradict itself to accept. None has an FR id and
-each needs one — declared here, through the ledger, before any code.
+this repository would have to contradict itself to accept. Each needs an FR id,
+declared here, through the ledger, before any code.
+
+**CR-003 has been through that rework** and is the worked example: it came out
+as one FR (FR-129) and one SDD (SDD-075), declaring no model, no column and no
+migration, because most of what it asked for was already built and one thing it
+asked for was already built *and* misread by this review. CR-002, CR-004 and
+CR-005 still have no id.
