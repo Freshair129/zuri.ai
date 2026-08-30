@@ -3,9 +3,9 @@ domain: identity
 feature: FR-123
 module: plugin-auth
 source: v2-native
-version: "0.3.0b"
+version: "0.4.0b"
 created_at: "2026-08-23T04:00:00+07:00, ATHER"
-last_update: "2026-08-30T12:00:00+07:00, Claude Opus 5"
+last_update: "2026-08-31T05:10:00+07:00, ATHER"
 status: "beta"
 ---
 
@@ -81,6 +81,26 @@ made this worth writing down.
 | Consent request token | 5 minutes, session- and principal-bound | not stored — an HMAC over `ZURI_SESSION_SECRET` |
 | Consent anti-CSRF token | lives as long as the browser session it is bound to | not stored — an HMAC over `ZURI_SESSION_SECRET` |
 
+## Local maintenance slice — IDN-01 (2026-08-31)
+
+`reapExpiredPluginAuthRecords({ db, now })` is implemented as an identity-owned
+maintenance service. It deletes `PluginSession` rows only when `expiresAt <= now`.
+It deletes an authorization-code row only when the code has expired and no linked
+session remains with `revokedAt IS NULL` and `expiresAt > now`; revoked or expired
+linked sessions therefore do not keep the code alive. A consumed code whose session
+is still live is retained after the code's 60-second TTL, so a later replay can still
+find `authorizationCodeId` and revoke that session.
+
+The cleanup runs in one transaction and first applies a transaction-local marker to
+expired code rows to acquire the same write lock that the exchange path uses before
+creating a session. Retained rows restore their original hash before commit; deleted
+rows never expose the marker. This gives exchange and cleanup a database ordering:
+cleanup deletes first and exchange creates no session, or exchange commits first and
+cleanup observes the linked session. The implementation uses the existing fields and
+index, adds no DDL, route, scheduler, cron, installation policy or retention duration,
+and returns deletion counts for an explicit caller to observe. Invocation and
+production batch policy remain outside this local slice.
+
 ## Capability contract
 
 Capabilities are derived from the resolved viewer, not from request fields:
@@ -125,6 +145,13 @@ pipeline or connector state.
 - [x] a consent step exists: `GET /authorize` renders and never mints, and only a POST
       from the consent screen — session cookie + session-bound anti-CSRF token +
       HMAC-signed request token — mints a code (ADR-052 D4);
-- [ ] a reaper for expired authorization codes and plugin sessions (ADR-052 open gate,
-      unchanged by this work);
+- [x] a local reaper for expired authorization codes and plugin sessions exists and is
+      covered by SQLite integration tests for boundary predicates, replay linkage,
+      concurrent exchange and idempotent rerun (IDN-01); invocation policy,
+      production batch operation and security review remain open;
 - [ ] security review approves production activation.
+
+## Version diff
+
+`0.3.0b → 0.4.0b`: records the approved IDN-01 local reaper, its lock ordering and
+integration proof while retaining production invocation and security gates.
