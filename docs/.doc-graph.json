@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1478,
-    "total_edges": 5045,
+    "total_nodes": 1481,
+    "total_edges": 5059,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,16 +16,16 @@
       "route": 160,
       "model": 70,
       "requirement": 273,
-      "test": 351,
-      "code_file": 387
+      "test": 353,
+      "code_file": 388
     },
     "coverage": {
       "requirements": 273,
-      "fr_with_code": "100% (119/119)",
-      "fr_with_tests": "100% (119/119)",
+      "fr_with_code": "100% (120/120)",
+      "fr_with_tests": "100% (120/120)",
       "rules_anchored_in_code": "95% (113/119)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 387,
+      "annotated_code_files": 388,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -37,7 +37,6 @@
         "FR-126",
         "FR-127",
         "FR-128",
-        "FR-130",
         "FR-131",
         "FR-132"
       ],
@@ -59,11 +58,11 @@
   },
   "drift": {
     "changed": [
+      "doc:CR-004-ACCEPTED-SHAPE",
       "doc:README",
-      "doc:FR-129-catalog-publication-approval-gate",
+      "doc:FR-130-github-repository-projection",
       "doc:PRD-SDD-v1.0",
-      "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
-      "code:src/platform/integrations/core/pipeline-tracking-contract.js"
+      "code:src/platform/integrations/core/connector-catalog.js"
     ],
     "added": [],
     "removed": []
@@ -496,11 +495,12 @@
       "id": "code:src/app/(pm)/platform/integrations/page.jsx",
       "type": "code_file",
       "path": "src/app/(pm)/platform/integrations/page.jsx",
-      "hash": "45973a5c",
+      "hash": "3abef3ed",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-080"
+          "FR-080",
+          "FR-130"
         ],
         "@spec": [
           "SEC-016",
@@ -7604,6 +7604,26 @@
       }
     },
     {
+      "id": "code:src/platform/integrations/core/connector-catalog.js",
+      "type": "code_file",
+      "path": "src/platform/integrations/core/connector-catalog.js",
+      "hash": "617f360b",
+      "status": "changed",
+      "annotations": {
+        "@req": [
+          "FR-080",
+          "FR-130"
+        ],
+        "@spec": [
+          "SDD-044",
+          "SEC-016"
+        ],
+        "@tested": [
+          "tests/unit/platform/connector-catalog.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/platform/integrations/core/contracts.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/contracts.js",
@@ -7752,7 +7772,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-contract.js",
       "hash": "fd31ec4e",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-071",
@@ -8028,8 +8048,8 @@
       "type": "document",
       "path": "docs/change-requests/CR-004-ACCEPTED-SHAPE.md",
       "title": "CR-004 — the shape this repository will accept",
-      "hash": "3aa9c6b1",
-      "status": "current"
+      "hash": "8d106d91",
+      "status": "changed"
     },
     {
       "id": "doc:CR-004-GITHUB-INTEGRATION-AND-FILES-TAB-EXPLORER",
@@ -8844,15 +8864,15 @@
       "path": "docs/domains/integration/features/FR-129-catalog-publication-approval-gate.md",
       "title": "FR-129 — Catalog publication approval gate",
       "hash": "19845ce5",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-130-github-repository-projection",
       "type": "document",
       "path": "docs/domains/integration/features/FR-130-github-repository-projection.md",
       "title": "FR-130 — GitHub repository binding and read-only projection",
-      "hash": "3b776260",
-      "status": "current"
+      "hash": "1fe6f4e2",
+      "status": "changed"
     },
     {
       "id": "doc:FR-131-shipping-rate-card-as-business-knowledge",
@@ -9139,9 +9159,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.130.0b",
+      "version": "1.131.0b",
       "doc_status": "Draft",
-      "hash": "39f8b1ac",
+      "hash": "441015fa",
       "status": "changed"
     },
     {
@@ -9185,7 +9205,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "0deeeb7b",
+      "hash": "fa93ab2a",
       "status": "current"
     },
     {
@@ -11524,9 +11544,9 @@
       "family": "FR",
       "label": "Business-scoped GitHub repository projection: a `Repository` a Business already owns may additionally name its GitHub origin, and a person the Business admits may read that repository's tree and file contents in the console, read-only. (a) The binding declares **no new model, no new column and no migration**, because the entity already exists: FR-008 created `Repository` and FR-073 made it owned by exactly one Business, which is the scope CR-004 also chose and the only scope the viewer contract can govern (SDD-037). CR-004's `githubRepoUrl` is `Repository.url` beside `ownerName`/`repoName`/`fullName`/`provider`; its `githubBranch` is `Repository.defaultBranch`, with `ProjectRepository.branch` as the per-link override; GitHub's numeric repository id is `Repository.externalRepoId` mapped through `ExternalEntityRef` — the identifier BR-002 names by example (\"GitHub id\") and forbids as a key; and CR-004's three sync fields are **not stored at all**, because they are artifacts of a design this one does not adopt: `lastCommitSha`, `lastGithubSyncAt` and `githubSyncStatus` describe a mirror kept in step with an origin, and a read-through projection (d) keeps no mirror — the commit a reader is looking at comes from the same live fetch that produced the tree, so storing it would be a second answer to a question the response already carries. Should a cache ever be added, the watermark is `SyncCursor.cursorValue` with `lastSuccessAt` beside it and `IngestionRun.status` for the outcome, and that is the point at which its keying must be settled rather than assumed: `SyncCursor` is unique on `(connectionId, resourceType)`, so one connection covering several repositories has no per-repository cursor without either compounding `resourceType` or narrowing a connection to one repository — and `externalAccountId` names an *account*, which is why `Repository` is a separate model in the first place. Five columns on `Business` are refused: `Business` is a scope-chain entity, columns on it would cap a Business at one repository where `Repository` already permits many, and a foreign URL and commit SHA on a core scope row is the shape BR-002 exists to prevent. (b) A private repository's credential is an `IntegrationCredential.secretRef` on a `github` `IntegrationConnection`, resolved through the `SecretManagerPort` — a reference, never material, never in a browser response (SDD-043, SEC-015). Registering the provider row is idempotent on its code and needs no migration. (c) Push delivery is an **FR-081 adapter, not a new endpoint**: a webhook is one of the four `SOURCE_TYPES` that requirement already names, and a bespoke `/api/webhooks/github` would be the second raw-write path FR-081 forbids by name — the same finding CR-005's LINE connector drew. The tenant CR-004 omits is never read from the payload: the delivery's `installation.id` selects exactly one `IntegrationConnection` on `(providerId, externalAccountId)` and **zero or multiple candidates fail closed** (the FR-079 rule), the connection carries the trusted `tenantId`/`businessId`, and `repository.id` then resolves to a `Repository` through `ExternalEntityRef`. The authentication CR-004 omits is GitHub's `X-Hub-Signature-256` — HMAC-SHA256 over the raw body under the connection's webhook secret, constant-time compared, verified before anything is parsed for meaning or written; routing reads `installation.id` only, which is a non-secret selector the signature then proves, so trust follows verification rather than preceding it. (d) **File content is never persisted** — only push metadata converges on the raw substrate, and the tree and blob reads that render a file are read-through with no row of their own (SDD-076). Writes to `Repository` continue to go through project-manager's `repository-service`, which stays its only writer; this requirement reads that model and does not claim it. (e) The projection is bounded by a declared path scope, deny-by-default in the shape SEC-009 already uses, and `vaults/`-class live database state is excluded rather than discovered by a previewer (CR-006 §5.2). No file tree UI, purpose badge, multi-format previewer or metadata panel is in scope: CR-004 §2.B is a four-part feature programme, not this requirement. Reworked from CR-004",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Business-scoped GitHub repository projection: a `Repository` a Business already owns may additionally name its GitHub origin, and a person the Business admits may read that repository's tree and file contents in the console, read-only. (a) The binding declares **no new model, no new column and no migration**, because the entity already exists: FR-008 created `Repository` and FR-073 made it owned by exactly one Business, which is the scope CR-004 also chose and the only scope the viewer contract can govern (SDD-037). CR-004's `githubRepoUrl` is `Repository.url` beside `ownerName`/`repoName`/`fullName`/`provider`; its `githubBranch` is `Repository.defaultBranch`, with `ProjectRepository.branch` as the per-link override; GitHub's numeric repository id is `Repository.externalRepoId` mapped through `ExternalEntityRef` — the identifier BR-002 names by example (\"GitHub id\") and forbids as a key; and CR-004's three sync fields are **not stored at all**, because they are artifacts of a design this one does not adopt: `lastCommitSha`, `lastGithubSyncAt` and `githubSyncStatus` describe a mirror kept in step with an origin, and a read-through projection (d) keeps no mirror — the commit a reader is looking at comes from the same live fetch that produced the tree, so storing it would be a second answer to a question the response already carries. Should a cache ever be added, the watermark is `SyncCursor.cursorValue` with `lastSuccessAt` beside it and `IngestionRun.status` for the outcome, and that is the point at which its keying must be settled rather than assumed: `SyncCursor` is unique on `(connectionId, resourceType)`, so one connection covering several repositories has no per-repository cursor without either compounding `resourceType` or narrowing a connection to one repository — and `externalAccountId` names an *account*, which is why `Repository` is a separate model in the first place. Five columns on `Business` are refused: `Business` is a scope-chain entity, columns on it would cap a Business at one repository where `Repository` already permits many, and a foreign URL and commit SHA on a core scope row is the shape BR-002 exists to prevent. (b) A private repository's credential is an `IntegrationCredential.secretRef` on a `github` `IntegrationConnection`, resolved through the `SecretManagerPort` — a reference, never material, never in a browser response (SDD-043, SEC-015). Registering the provider row is idempotent on its code and needs no migration. (c) Push delivery is an **FR-081 adapter, not a new endpoint**: a webhook is one of the four `SOURCE_TYPES` that requirement already names, and a bespoke `/api/webhooks/github` would be the second raw-write path FR-081 forbids by name — the same finding CR-005's LINE connector drew. The tenant CR-004 omits is never read from the payload: the delivery's `installation.id` selects exactly one `IntegrationConnection` on `(providerId, externalAccountId)` and **zero or multiple candidates fail closed** (the FR-079 rule), the connection carries the trusted `tenantId`/`businessId`, and `repository.id` then resolves to a `Repository` through `ExternalEntityRef`. The authentication CR-004 omits is GitHub's `X-Hub-Signature-256` — HMAC-SHA256 over the raw body under the connection's webhook secret, constant-time compared, verified before anything is parsed for meaning or written; routing reads `installation.id` only, which is a non-secret selector the signature then proves, so trust follows verification rather than preceding it. (d) **File content is never persisted** — only push metadata converges on the raw substrate, and the tree and blob reads that render a file are read-through with no row of their own (SDD-076). Writes to `Repository` continue to go through project-manager's `repository-service`, which stays its only writer; this requirement reads that model and does not claim it. (e) The projection is bounded by a declared path scope, deny-by-default in the shape SEC-009 already uses, and `vaults/`-class live database state is excluded rather than discovered by a previewer (CR-006 §5.2). No file tree UI, purpose badge, multi-format previewer or metadata panel is in scope: CR-004 §2.B is a four-part feature programme, not this requirement. Reworked from CR-004 🔜 declared only — and **blocked, not merely unbuilt**, on one named thing that is not effort: nothing in this repository can determine whether an arbitrary bound repository contains personal data, and there is nowhere to record the assertion that it does not. SEC-005 consent attaches to an FR-023 `Customer` row per Business (SDD-053) and FR-022 erases through `Person`/`Customer`; a spreadsheet inside a repository has neither, so a projection over it would be a second way into personal data that reaches none of the controls governing the first way. CR-006 establishes this is not hypothetical — the very repository CR-004 names held customer contact lists, quotation reports and per-customer purchase history tracked in git on a public remote, and `git status` reported nothing wrong throughout — and remediating that instance does not lift the blocker, because the next bound repository has the same unverifiable property. What is missing is an attestation shape and an authority to make it: who may declare a path scope free of personal data, and what is recorded when they do. That is a product and data-protection decision nobody has made. Secondary and smaller: `DATA_LANES` has no value a source repository honestly belongs to, and inventing one is the ADR-038 decision made once for market evidence, not a free enum edit; the `/platform/integrations` catalog already renders a GitHub tile hardcoded `status: 'CONNECTED'` while nothing connects, which this requirement must correct rather than inherit "
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Business-scoped GitHub repository projection: a `Repository` a Business already owns may additionally name its GitHub origin, and a person the Business admits may read that repository's tree and file contents in the console, read-only. (a) The binding declares **no new model, no new column and no migration**, because the entity already exists: FR-008 created `Repository` and FR-073 made it owned by exactly one Business, which is the scope CR-004 also chose and the only scope the viewer contract can govern (SDD-037). CR-004's `githubRepoUrl` is `Repository.url` beside `ownerName`/`repoName`/`fullName`/`provider`; its `githubBranch` is `Repository.defaultBranch`, with `ProjectRepository.branch` as the per-link override; GitHub's numeric repository id is `Repository.externalRepoId` mapped through `ExternalEntityRef` — the identifier BR-002 names by example (\"GitHub id\") and forbids as a key; and CR-004's three sync fields are **not stored at all**, because they are artifacts of a design this one does not adopt: `lastCommitSha`, `lastGithubSyncAt` and `githubSyncStatus` describe a mirror kept in step with an origin, and a read-through projection (d) keeps no mirror — the commit a reader is looking at comes from the same live fetch that produced the tree, so storing it would be a second answer to a question the response already carries. Should a cache ever be added, the watermark is `SyncCursor.cursorValue` with `lastSuccessAt` beside it and `IngestionRun.status` for the outcome, and that is the point at which its keying must be settled rather than assumed: `SyncCursor` is unique on `(connectionId, resourceType)`, so one connection covering several repositories has no per-repository cursor without either compounding `resourceType` or narrowing a connection to one repository — and `externalAccountId` names an *account*, which is why `Repository` is a separate model in the first place. Five columns on `Business` are refused: `Business` is a scope-chain entity, columns on it would cap a Business at one repository where `Repository` already permits many, and a foreign URL and commit SHA on a core scope row is the shape BR-002 exists to prevent. (b) A private repository's credential is an `IntegrationCredential.secretRef` on a `github` `IntegrationConnection`, resolved through the `SecretManagerPort` — a reference, never material, never in a browser response (SDD-043, SEC-015). Registering the provider row is idempotent on its code and needs no migration. (c) Push delivery is an **FR-081 adapter, not a new endpoint**: a webhook is one of the four `SOURCE_TYPES` that requirement already names, and a bespoke `/api/webhooks/github` would be the second raw-write path FR-081 forbids by name — the same finding CR-005's LINE connector drew. The tenant CR-004 omits is never read from the payload: the delivery's `installation.id` selects exactly one `IntegrationConnection` on `(providerId, externalAccountId)` and **zero or multiple candidates fail closed** (the FR-079 rule), the connection carries the trusted `tenantId`/`businessId`, and `repository.id` then resolves to a `Repository` through `ExternalEntityRef`. The authentication CR-004 omits is GitHub's `X-Hub-Signature-256` — HMAC-SHA256 over the raw body under the connection's webhook secret, constant-time compared, verified before anything is parsed for meaning or written; routing reads `installation.id` only, which is a non-secret selector the signature then proves, so trust follows verification rather than preceding it. (d) **File content is never persisted** — only push metadata converges on the raw substrate, and the tree and blob reads that render a file are read-through with no row of their own (SDD-076). Writes to `Repository` continue to go through project-manager's `repository-service`, which stays its only writer; this requirement reads that model and does not claim it. (e) The projection is bounded by a declared path scope, deny-by-default in the shape SEC-009 already uses, and `vaults/`-class live database state is excluded rather than discovered by a previewer (CR-006 §5.2). No file tree UI, purpose badge, multi-format previewer or metadata panel is in scope: CR-004 §2.B is a four-part feature programme, not this requirement. Reworked from CR-004 🟠 partial (2026-08-30) — the one part of this requirement that was never behind the blocker is closed; everything the requirement is actually about remains **blocked, not merely unbuilt**, on one named thing that is not effort: nothing in this repository can determine whether an arbitrary bound repository contains personal data, and there is nowhere to record the assertion that it does not. SEC-005 consent attaches to an FR-023 `Customer` row per Business (SDD-053) and FR-022 erases through `Person`/`Customer`; a spreadsheet inside a repository has neither, so a projection over it would be a second way into personal data that reaches none of the controls governing the first way. CR-006 establishes this is not hypothetical — the very repository CR-004 names held customer contact lists, quotation reports and per-customer purchase history tracked in git on a public remote, and `git status` reported nothing wrong throughout — and remediating that instance does not lift the blocker, because the next bound repository has the same unverifiable property. What is missing is an attestation shape and an authority to make it: who may declare a path scope free of personal data, and what is recorded when they do. That is a product and data-protection decision nobody has made. No attestation shape was invented in the meantime, and that is a decision rather than an omission: FR-129's parallel does not hold, because there the column existed in the schema and in production DDL and only its writer was missing, whereas here there is no column, no row to attach an assertion to, and no policy for who may make one — `AuditEvent.action` is a plain `String` so a value could be written, which is the trap rather than the answer, because a free string nothing validates and no rule governs is displayed as a control while being a note. **What is closed** is the false green the catalog carried beside it: `src/platform/integrations/core/connector-catalog.js` now derives every connector tile's state from the `listPhase1Integrations` read model the same page already renders, and a catalog entry can no longer carry a state at all. Four entries had been hardcoded `CONNECTED` — LINE OA, OpenRouter, Vercel Ingress and GitHub — and two of those four have no connector anywhere in `src/`, so no configuration could have made them true; a fifth, Google Gemini, was wrong in the other direction, reading `AVAILABLE` for a provider in `PUBLIC_LINE_PROVIDERS` that the Phase 1 model form could always connect. `AVAILABLE` is not replaced by a friendlier synonym: `CONNECTOR_NOT_IMPLEMENTED` and `NO_CONNECTION_RECORDED` keep apart the two different facts it had merged, a row arriving without computed health resolves to `NOT_CONNECTED` rather than inheriting green, and the dead \"Connect\" control is gone from an entry with nothing to connect, because a button that does nothing is the same claim moved one element to the right. Secondary and still open: `DATA_LANES` has no value a source repository honestly belongs to, and inventing one is the ADR-038 decision made once for market evidence, not a free enum edit "
     },
     {
       "id": "req:FR-131",
@@ -14553,6 +14573,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/e2e/fr130-connector-catalog.spec.js",
+      "type": "test",
+      "path": "tests/e2e/fr130-connector-catalog.spec.js",
+      "hash": "6bec9222",
+      "status": "current"
+    },
+    {
       "id": "test:tests/e2e/navigation-reachability.spec.js",
       "type": "test",
       "path": "tests/e2e/navigation-reachability.spec.js",
@@ -16394,6 +16421,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/platform/connector-catalog.test.js",
+      "type": "test",
+      "path": "tests/unit/platform/connector-catalog.test.js",
+      "hash": "6ae1bb53",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/platform/document-intake-contract.test.js",
       "type": "test",
       "path": "tests/unit/platform/document-intake-contract.test.js",
@@ -16405,7 +16439,7 @@
       "type": "test",
       "path": "tests/unit/platform/fr129-catalog-publication-gate.test.js",
       "hash": "84efa507",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/platform/integration-contracts.test.js",
@@ -17455,6 +17489,13 @@
     {
       "from": "code:src/app/(pm)/platform/integrations/page.jsx",
       "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/platform/integrations/page.jsx",
+      "to": "req:FR-130",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -27806,6 +27847,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/platform/integrations/core/connector-catalog.js",
+      "to": "req:FR-080",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/connector-catalog.js",
+      "to": "req:FR-130",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/connector-catalog.js",
+      "to": "req:SDD-044",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/connector-catalog.js",
+      "to": "req:SEC-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/platform/integrations/core/contracts.js",
       "to": "doc:FR-081-raw-external-ingestion",
       "type": "references",
@@ -34860,6 +34929,20 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr130-connector-catalog.spec.js",
+      "to": "req:FR-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr130-connector-catalog.spec.js",
+      "to": "req:FR-130",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/e2e/navigation-reachability.spec.js",
@@ -45797,6 +45880,13 @@
     },
     {
       "from": "test:tests/unit/fr080-ui-contract.test.js",
+      "to": "req:FR-130",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr080-ui-contract.test.js",
       "to": "req:NFR-008",
       "type": "verifies",
       "status": "current",
@@ -47519,6 +47609,13 @@
     },
     {
       "from": "test:tests/unit/line-registry-service.test.js",
+      "to": "req:FR-130",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/line-registry-service.test.js",
       "to": "req:NFR-008",
       "type": "verifies",
       "status": "current",
@@ -49014,6 +49111,41 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/connector-catalog.test.js",
+      "to": "code:src/platform/integrations/core/connector-catalog.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/platform/connector-catalog.test.js",
+      "to": "req:FR-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/connector-catalog.test.js",
+      "to": "req:FR-130",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/connector-catalog.test.js",
+      "to": "req:SDD-044",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/connector-catalog.test.js",
+      "to": "req:SEC-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform/document-intake-contract.test.js",
