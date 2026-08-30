@@ -13,6 +13,10 @@ import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
 import { domainMap, traceView } from './doc-views.mjs'
 import { generateDomainState } from './domain-state.mjs'
+// The same splitter the id ledger reads rows with. Two readings of one row, from
+// two splitters that disagree about `\|`, is how SDD-071's label reached
+// Appendix D as half a sentence.
+import { splitRow } from './id-anchors.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: the spec pack and the module docs are one tree under ROOT/docs.
@@ -28,6 +32,19 @@ const DOMAIN_STATE_PATH = path.join(ROOT, 'docs', '.domain-state.json')
 const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
 
 const SKIP_DIRS = new Set(['node_modules', '.next', '.git', 'test-results', 'playwright-report', 'migrations'])
+
+/**
+ * A value on its way INTO a generated markdown table cell.
+ *
+ * `splitRow` unescapes `\|` so a statement is held in memory the way its author
+ * wrote it; writing that back into a table without re-escaping re-opens the cell
+ * the escape existed to close. Appendix D's design-decision row went seven cells
+ * wide against a five-cell header the moment this generator started reading the
+ * escape correctly — caught, before it was committed, by preflight Check 16,
+ * which now sweeps the generated views precisely because a generator that emits
+ * a ragged row is a defect worth blocking on rather than exempting.
+ */
+const cell = (text) => String(text ?? '').replace(/\|/g, '\\|')
 
 const hash = (s) => createHash('sha1').update(s).digest('hex').slice(0, 8)
 const rel = (p) => path.relative(ROOT, p).split(path.sep).join('/')
@@ -79,7 +96,7 @@ function requirementNodes(prdPath) {
   const nodes = []
   for (const line of body.split(/\r?\n/)) {
     if (!line.startsWith('|')) continue
-    const cells = line.split('|').map((c) => c.trim())
+    const cells = splitRow(line)
     const id = cells[1]
     if (!id || !REQ_ID.test(id)) continue
     if (nodes.some((n) => n.id === `req:${id}`)) continue
@@ -452,7 +469,7 @@ function matrix(nodes, edges, cov) {
       const impl = edges.filter((e) => e.to === r.id && linkTypes.includes(e.type)).map((e) => short(e.from))
       const tests = edges.filter((e) => e.to === r.id && e.type === 'verifies').map((e) => short(e.from))
       const state = impl.length === 0 ? '🔴 no anchor' : tests.length === 0 ? '🟠 no test' : '✅'
-      return `| ${r.id.slice(4)} | ${r.label} | ${impl.join(', ') || '—'} | ${tests.join(', ') || '—'} | ${state} |`
+      return `| ${r.id.slice(4)} | ${cell(r.label)} | ${impl.join(', ') || '—'} | ${tests.join(', ') || '—'} | ${state} |`
     })
     return `## ${heading}\n\n${note}\n\n| ID | Statement | Anchored in | Verified by | State |\n|---|---|---|---|---|\n${rows.join('\n')}\n`
   }
@@ -516,7 +533,7 @@ function featureMap(nodes, edges) {
   for (const f of walk(path.join(ROOT, 'docs', 'roadmap'), ['.md'])) {
     for (const line of read(f).split(/\r?\n/)) {
       if (!line.startsWith('|')) continue
-      const cells = line.split('|').map((c) => c.trim())
+      const cells = splitRow(line)
       const taskId = cells[1]
       if (!/^TASK-/.test(taskId)) continue
       const claim = { taskId, started: hasStarted(cells) }
@@ -549,7 +566,7 @@ function featureMap(nodes, edges) {
       const modules = [...new Set(code.map(moduleOf))].join(', ') || '—'
       const status = code.length === 0 ? '🔜 planned' : r.declared === 'planned' ? '🟠 built, not declared' : '✅ live'
       const head = code.length > 2 ? `\`${code[0]}\` +${code.length - 1}` : code.map((c) => `\`${c}\``).join(', ') || '—'
-      return `| ${fid} | ${r.label} | ${doc?.domain || '—'} | ${modules} | ${doc?.source || 'v2-native'} | ${status} | ${head} | ${tests} | ${doc ? `[doc](${doc.path.replace('docs/', '')})` : '—'} | ${deliveryTask(fid, code.length > 0)} |`
+      return `| ${fid} | ${cell(r.label)} | ${doc?.domain || '—'} | ${modules} | ${doc?.source || 'v2-native'} | ${status} | ${head} | ${tests} | ${doc ? `[doc](${doc.path.replace('docs/', '')})` : '—'} | ${deliveryTask(fid, code.length > 0)} |`
     })
 
   return `# Feature Map

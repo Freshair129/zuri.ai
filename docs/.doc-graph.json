@@ -61,16 +61,9 @@
   },
   "drift": {
     "changed": [
-      "doc:README",
-      "doc:FEATURES",
-      "doc:PRD-SDD-v1.0"
+      "doc:README"
     ],
-    "added": [
-      "doc:CR-004-ACCEPTED-SHAPE",
-      "doc:FR-130-github-repository-projection",
-      "req:FR-130",
-      "req:SDD-076"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -7912,7 +7905,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.28.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "47ace2d7",
+      "hash": "3b71c237",
       "status": "current"
     },
     {
@@ -8113,7 +8106,7 @@
       "version": "1.12.0b",
       "doc_status": "Active — hand-maintained source of truth",
       "hash": "fcbe9b91",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-003-project-list-contract",
@@ -9117,10 +9110,10 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.128.0b",
+      "version": "1.129.0b",
       "doc_status": "Draft",
-      "hash": "a75f1f2a",
-      "status": "changed"
+      "hash": "5716dd1f",
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -9199,7 +9192,7 @@
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
       "version": "0.5.0",
       "doc_status": "Accepted",
-      "hash": "3f98b1ac",
+      "hash": "7814fcb8",
       "status": "current"
     },
     {
@@ -12430,11 +12423,11 @@
       "id": "req:SDD-071",
       "type": "requirement",
       "family": "SDD",
-      "label": "The execution monitor has read `PipelineRun.actualCount` / `.failedCount` since before anything wrote them — `@default(0)`, and `mode-bodies.jsx` renders `Failed` in the normal ink specifically because it is zero. That is not an empty panel; it is a false one, indistinguishable on screen from a real zero. `recordPipelineEvent` now aggregates the run's counts from every `PipelineStep` row sharing its `runId` whenever an event supplies a count — real summed integers, not nulls, so the same `",
+      "label": "The execution monitor has read `PipelineRun.actualCount` / `.failedCount` since before anything wrote them — `@default(0)`, and `mode-bodies.jsx` renders `Failed` in the normal ink specifically because it is zero. That is not an empty panel; it is a false one, indistinguishable on screen from a real zero. `recordPipelineEvent` now aggregates the run's counts from every `PipelineStep` row sharing its `runId` whenever an event supplies a count — real summed integers, not nulls, so the same `|| 0` coercion in `runSummary`/`stepSummary` that would have silently absorbed a null has nothing to undermine. Aggregate-on-completion, not finalization-only: a run half done showing a final-looking zero would be the same defect in slower motion, and knowledge-ingestion runs never reach `RUN_FINISHED` in this repository (ADR-050 D3) — finalization-only would mean never. The aggregate sums every step row sharing a `runId`, which assumes one row per stage per run; `(runId, pipelineStageId)` carries no uniqueness constraint, only a non-unique index, so a stage retried under a fresh `executionStepId` would be double-counted rather than reporting its true count. Nothing today constructs that — SDD-069 materializes each stage's step once and reuses it; replay creates its steps under a new `runId`, never summed into the original. A second row is not a hypothetical the design left open: the step state machine retries a stage in place — `REPLAYING: ['REPLAYING', 'RUNNING', 'SUCCEEDED', 'FAILED']`, on the same row — and ADR-030's own rejected-alternatives table names the other direction, reusing ids across a retry, as overwriting history and making the result non-auditable. So `(runId, pipelineStageId)` staying unenforced is a real gap against the design's own intent, not an open question — `@@unique([runId, pipelineStageId])` is very likely correct, pending a check for existing duplicate rows before any migration can apply it. Pinned by two tests, not fixed ahead of that check: a fake-db unit test recording today's behaviour against a fake that cannot enforce a uniqueness constraint and would silently go stale the moment a migration lands, and a real-database integration test constructing the same duplicate directly — the one that will actually start failing, at the `create` call rather than at an assertion, the day the constraint exists.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "The execution monitor has read `PipelineRun.actualCount` / `.failedCount` since before anything wrote them — `@default(0)`, and `mode-bodies.jsx` renders `Failed` in the normal ink specifically because it is zero. That is not an empty panel; it is a false one, indistinguishable on screen from a real zero. `recordPipelineEvent` now aggregates the run's counts from every `PipelineStep` row sharing its `runId` whenever an event supplies a count — real summed integers, not nulls, so the same `  0` coercion in `runSummary`/`stepSummary` that would have silently absorbed a null has nothing to undermine. Aggregate-on-completion, not finalization-only: a run half done showing a final-looking zero would be the same defect in slower motion, and knowledge-ingestion runs never reach `RUN_FINISHED` in this repository (ADR-050 D3) — finalization-only would mean never. The aggregate sums every step row sharing a `runId`, which assumes one row per stage per run; `(runId, pipelineStageId)` carries no uniqueness constraint, only a non-unique index, so a stage retried under a fresh `executionStepId` would be double-counted rather than reporting its true count. Nothing today constructs that — SDD-069 materializes each stage's step once and reuses it; replay creates its steps under a new `runId`, never summed into the original. A second row is not a hypothetical the design left open: the step state machine retries a stage in place — `REPLAYING: ['REPLAYING', 'RUNNING', 'SUCCEEDED', 'FAILED']`, on the same row — and ADR-030's own rejected-alternatives table names the other direction, reusing ids across a retry, as overwriting history and making the result non-auditable. So `(runId, pipelineStageId)` staying unenforced is a real gap against the design's own intent, not an open question — `@@unique([runId, pipelineStageId])` is very likely correct, pending a check for existing duplicate rows before any migration can apply it. Pinned by two tests, not fixed ahead of that check: a fake-db unit test recording today's behaviour against a fake that cannot enforce a uniqueness constraint and would silently go stale the moment a migration lands, and a real-database integration test constructing the same duplicate directly — the one that will actually start failing, at the `create` call rather than at an assertion, the day the constraint exists. NFR-020; SDD-070, SDD-069, ADR-030 "
+      "row_text": "The execution monitor has read `PipelineRun.actualCount` / `.failedCount` since before anything wrote them — `@default(0)`, and `mode-bodies.jsx` renders `Failed` in the normal ink specifically because it is zero. That is not an empty panel; it is a false one, indistinguishable on screen from a real zero. `recordPipelineEvent` now aggregates the run's counts from every `PipelineStep` row sharing its `runId` whenever an event supplies a count — real summed integers, not nulls, so the same `|| 0` coercion in `runSummary`/`stepSummary` that would have silently absorbed a null has nothing to undermine. Aggregate-on-completion, not finalization-only: a run half done showing a final-looking zero would be the same defect in slower motion, and knowledge-ingestion runs never reach `RUN_FINISHED` in this repository (ADR-050 D3) — finalization-only would mean never. The aggregate sums every step row sharing a `runId`, which assumes one row per stage per run; `(runId, pipelineStageId)` carries no uniqueness constraint, only a non-unique index, so a stage retried under a fresh `executionStepId` would be double-counted rather than reporting its true count. Nothing today constructs that — SDD-069 materializes each stage's step once and reuses it; replay creates its steps under a new `runId`, never summed into the original. A second row is not a hypothetical the design left open: the step state machine retries a stage in place — `REPLAYING: ['REPLAYING', 'RUNNING', 'SUCCEEDED', 'FAILED']`, on the same row — and ADR-030's own rejected-alternatives table names the other direction, reusing ids across a retry, as overwriting history and making the result non-auditable. So `(runId, pipelineStageId)` staying unenforced is a real gap against the design's own intent, not an open question — `@@unique([runId, pipelineStageId])` is very likely correct, pending a check for existing duplicate rows before any migration can apply it. Pinned by two tests, not fixed ahead of that check: a fake-db unit test recording today's behaviour against a fake that cannot enforce a uniqueness constraint and would silently go stale the moment a migration lands, and a real-database integration test constructing the same duplicate directly — the one that will actually start failing, at the `create` call rather than at an assertion, the day the constraint exists. NFR-020; SDD-070, SDD-069, ADR-030 "
     },
     {
       "id": "req:SDD-072",
@@ -16802,7 +16795,7 @@
       "id": "test:tests/unit/table-integrity.test.js",
       "type": "test",
       "path": "tests/unit/table-integrity.test.js",
-      "hash": "a4d1e24a",
+      "hash": "6a3912fc",
       "status": "current"
     },
     {

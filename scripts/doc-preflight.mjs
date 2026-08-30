@@ -1240,7 +1240,7 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
   }
 }
 
-// ---- Check 16: a registry table split in two by a blank line -------------
+// ---- Check 16: a table that does not render as the file says it does -----
 // A blank line ENDS a GFM table. On 2026-08-30, while FR-129 was being declared,
 // five tables in docs/PRD-SDD-v1.0.md were found to have been split by a single
 // blank line since version 1.32.0 on 2026-08-14 — between FR-046/FR-047,
@@ -1273,20 +1273,44 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
 // and for the one false positive the rule produced outside the registries and
 // the fourth condition that resolved it.
 //
-// Scope is the ledger's registry documents, read at runtime rather than
-// hardcoded, PLUS every .md under docs/appendices/, swept by directory so a new
-// appendix is covered the day it appears rather than the day someone remembers
-// to list it.
+// A blank line is not the only way to write a row that does not parse as
+// intended, so this check asks the same question a second way: does every row
+// have the same number of cells as its table's header? On 2026-08-30 three rows
+// of docs/PRD-SDD-v1.0.md did not, one of them SDD-071 carrying a JavaScript
+// `|| 0` inside a code span — GFM splits a row on its pipes BEFORE inline
+// parsing, so that opened two cells and GFM then DISCARDED everything past the
+// header width. Invisible for exactly the same reason as the split tables: a row
+// with too many cells matches every line-anchored regex in scripts/ perfectly.
 //
-// The appendices are in scope because leaving them out is what made a sixth
-// break invisible. This check was first scoped to the registries — that is where
-// the five known breaks were — and run over the whole docs tree it immediately
-// found docs/appendices/A-api-spec.md, where two `GET` rows had been appended
-// below the blank line that ended the Scope table in August 2026 and had been
-// rendering as literal text ever since. Repaired in the same commit as this
-// check. A guard scoped to where the last failure happened will keep missing the
-// next one; the property that matters is "a document whose tables carry
-// meaning", not "a document that issues ids".
+// Three shapes, and the severity follows what cmark-gfm actually does with each
+// rather than a general dislike of ragged tables. A delimiter row that does not
+// match its header means GFM does not recognize the block as a table AT ALL and
+// the whole thing renders as literal text — CRITICAL. A row WIDER than the
+// header has its excess cells discarded, so that text appears nowhere —
+// CRITICAL. A row SHORTER than the header is padded with empty cells and renders
+// correctly — INFO, because there is no defect on the page to gate on, and a
+// CRITICAL with nothing behind it is a gate people learn to route around.
+//
+// Scope is the ledger's registry documents, read at runtime rather than
+// hardcoded, PLUS every live .md under docs/ — the whole spec pack, swept by
+// directory, minus docs/archive/ (cold store) and docs/v1-inherited/ (the
+// ADR-024 tombstone), which preflight excludes from every live-tree check.
+//
+// The scope is that wide because narrowing it is what made the last two defects
+// invisible. This check was first scoped to the registries — that is where the
+// five known breaks were — and run over the whole docs tree it immediately found
+// docs/appendices/A-api-spec.md, where two `GET` rows had been appended below the
+// blank line that ended the Scope table in August 2026 and had been rendering as
+// literal text ever since. Scoped to registries-plus-appendices, it then missed
+// docs/SITEMAP-DOMAIN-NAV.md, whose business-binding table carries an
+// eight-column header over a seven-column delimiter and therefore does not
+// render as a table at all — a document that issues no ids and is not an
+// appendix, and about as plainly "a document whose tables carry meaning" as this
+// tree has. Both repaired in the same commit as the widening.
+//
+// A guard scoped to where the last failure happened will keep missing the next
+// one. Measured before it was chosen: over the 227 live documents both rules
+// together return eight findings, every one a real defect, none a false positive.
 //
 // Entries naming a `dir` (docs/decisions, docs/changes) are folders of ordinary
 // prose rather than table documents and are still skipped; the check emits an
@@ -1300,14 +1324,26 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
       ['docs/.id-ledger.json'], 'Restore the ledger; it is written only by scripts/id-ledger.mjs (ADR-039)')
   } else {
     // Repo-relative POSIX paths, sorted, so the info line reads the same on
-    // every platform and a new appendix joins the sweep with no edit here.
-    const listMarkdown = (dir) => walk(path.join(ROOT, dir), '.md').map((f) => rel(f)).sort()
+    // every platform and a new document joins the sweep with no edit here.
+    //
+    // The cold store and the ADR-024 tombstone are dropped HERE rather than
+    // inside table-integrity.mjs: preflight already owns that exclusion for
+    // every other check (see labDocs above), and two places deciding what counts
+    // as a live document is two places that can disagree about it.
+    const listMarkdown = (dir) =>
+      walk(path.join(ROOT, dir), '.md')
+        .filter((f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR))
+        .map((f) => rel(f))
+        .sort()
     const scope = scopeFromLedger(read(LEDGER), { listMarkdown })
     if (scope.ok) {
+      // A count and the roots, not 227 paths. The reach is the fact worth
+      // recording; the enumeration was written when the scope was eight files
+      // and became a wall of text the moment it was the one that mattered.
       add('info', 'table-integrity', `table integrity checked in ${scope.files.length} document(s)`,
-        `swept whole: ${scope.sweptDirs.join(', ')} · out of scope: ${scope.skippedDirs.join(', ')} ` +
-          `(folders of ordinary prose whose ids come from their own H1, not table documents) · ` +
-          `checked: ${scope.files.join(', ')}`,
+        `swept whole: ${scope.sweptDirs.join(', ')} (minus docs/archive and docs/v1-inherited, as every live-tree ` +
+          `check is) · registries named by the ledger and always read whichever way the sweep goes: ` +
+          `${scope.registryFiles.join(', ')}`,
         ['docs/.id-ledger.json'], 'No action — recorded so this check\'s reach is visible rather than assumed')
     }
     for (const f of evaluateTableIntegrity({

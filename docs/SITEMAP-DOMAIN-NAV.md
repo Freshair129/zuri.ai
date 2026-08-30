@@ -242,7 +242,7 @@ and performance are future HR slices.
 ## 4. Business-binding rules (which domains appear)
 
 | Business kind | Commerce | CRM | Marketing | Operations | HR / People | Development | Platform |
-|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|---|
 | Culinary school (TVS) | ✓ | ✓ | ✓ | ✓ (Courses) | ✓ | ✓ |
 | Retail / F&B (no courses) | ✓ | ✓ | ✓ | ✓ (no Courses) | ✓ | ✓ |
 | Services / B2B only | ✓ (B2B) | ✓ | ✓ | – | ✓ | ✓ |

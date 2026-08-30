@@ -7,6 +7,7 @@ import {
   SWEPT_DIRS,
   countCells,
   evaluateTableIntegrity,
+  findRaggedRows,
   findSplitTables,
   isSeparatorRow,
   isTableRow,
@@ -173,6 +174,73 @@ describe('findSplitTables — the rule', () => {
   })
 })
 
+describe('findRaggedRows — a row that disagrees with its header', () => {
+  it('is silent on a table whose every row matches its header', () => {
+    expect(findRaggedRows(lines(HEADER, SEP, row('001'), row('002')))).toEqual([])
+  })
+
+  it('reports the row GFM would truncate, at its line, with both counts', () => {
+    // The design-decision row's shape: a pipe inside a code span. (No literal
+    // id here — see the header note.) GFM splits the row on its
+    // pipes BEFORE inline parsing, so the code span does not protect it and the
+    // fourth and fifth cells are discarded.
+    const doc = lines(HEADER, SEP, row('001'), '| QQ-002 | a `|| 0` default | ✅ |')
+    const [hit, ...rest] = findRaggedRows(doc)
+    expect(rest).toEqual([])
+    expect(hit.kind).toBe('over')
+    expect(hit.line).toBe(4)
+    expect(hit.cells).toBe(5)
+    expect(hit.header).toBe(3)
+    expect(hit.headerLine).toBe(1)
+  })
+
+  it('is silent once that pipe is escaped, which is the whole repair', () => {
+    expect(findRaggedRows(lines(HEADER, SEP, '| QQ-002 | a `\\|\\| 0` default | ✅ |'))).toEqual([])
+  })
+
+  it('classifies a short row as padded rather than broken', () => {
+    // GFM inserts empty cells, so the page says exactly what the file says.
+    const [hit] = findRaggedRows(lines(HEADER, SEP, '| QQ-001 | only two |'))
+    expect(hit.kind).toBe('under')
+    expect(hit.cells).toBe(2)
+  })
+
+  it('reports a delimiter row that does not match its header, and stops there', () => {
+    // The docs/SITEMAP-DOMAIN-NAV.md shape. GFM does not recognize the block as
+    // a table AT ALL, so there is no column count for the rows below to be
+    // ragged against and reporting them would be noise under the one real
+    // defect.
+    const hits = findRaggedRows(lines(HEADER, '|---|---|', row('001'), '| QQ-002 | a | b | c |'))
+    expect(hits).toHaveLength(1)
+    expect(hits[0].kind).toBe('separator')
+    expect(hits[0].line).toBe(2)
+    expect(hits[0].cells).toBe(2)
+    expect(hits[0].header).toBe(3)
+  })
+
+  it('checks each table against its own header, not against the first one', () => {
+    const two = lines(HEADER, SEP, row('001'), '', '| A | B |', '|---|---|', '| a | b | c |')
+    const [hit] = findRaggedRows(two)
+    expect(hit.kind).toBe('over')
+    expect(hit.header).toBe(2)
+    expect(hit.headerLine).toBe(5)
+  })
+
+  it('ignores a table inside a fenced code block', () => {
+    // A fenced example of a broken table is documentation of this check, not an
+    // instance of it — the same rule findSplitTables follows.
+    const doc = lines('```md', HEADER, SEP, '| QQ-001 | a | b | c |', '```', HEADER, SEP, row('001'))
+    expect(findRaggedRows(doc)).toEqual([])
+  })
+
+  it('ignores rows that are not under a delimiter row at all', () => {
+    // Rows with no header above them are the split rule's subject, not this
+    // one's; counting them here would report the same defect twice under two
+    // different remedies.
+    expect(findRaggedRows(lines('| a | b |', '| c | d | e |'))).toEqual([])
+  })
+})
+
 describe('scopeFromLedger — scope is read and swept, not hardcoded', () => {
   const ledger = (registries) => JSON.stringify({ registries })
   const noAppendices = { listMarkdown: () => [] }
@@ -192,21 +260,32 @@ describe('scopeFromLedger — scope is read and swept, not hardcoded', () => {
     expect(scope.skippedDirs).toEqual(['docs/decisions'])
   })
 
-  it('sweeps every markdown file in the appendices, by directory rather than by list', () => {
-    // The point of the sweep: a NEW appendix nobody has heard of is in scope the
-    // day it appears. Scoping this check to the registries alone is what let a
-    // sixth split table sit in docs/appendices/A-api-spec.md unseen.
+  it('sweeps the spec pack by directory rather than by list', () => {
+    // The point of the sweep: a document nobody has heard of is in scope the day
+    // it appears. Scoping this check to the registries alone is what let a sixth
+    // split table sit in docs/appendices/A-api-spec.md unseen; scoping it to
+    // registries-plus-appendices then let an unrendered table sit in
+    // docs/SITEMAP-DOMAIN-NAV.md, which is neither.
     const seen = []
     const scope = scopeFromLedger(ledger([{ families: ['QQ'], file: 'docs/A.md', form: 'table' }]), {
       listMarkdown: (dir) => {
         seen.push(dir)
-        return [`${dir}/Z-brand-new-appendix.md`, `${dir}/A-api-spec.md`]
+        return [`${dir}/appendices/Z-brand-new-appendix.md`, `${dir}/NOBODY-LISTED-THIS.md`]
       },
     })
     expect(seen).toEqual(SWEPT_DIRS)
     expect(scope.sweptDirs).toEqual(SWEPT_DIRS)
     expect(scope.files).toContain('docs/appendices/Z-brand-new-appendix.md')
-    expect(scope.files).toContain('docs/appendices/A-api-spec.md')
+    expect(scope.files).toContain('docs/NOBODY-LISTED-THIS.md')
+  })
+
+  it('keeps the ledger registries separately, so a caller can name them without printing the sweep', () => {
+    const scope = scopeFromLedger(ledger([{ families: ['QQ'], file: 'docs/A.md', form: 'table' }]), {
+      listMarkdown: () => ['docs/A.md', 'docs/swept-only.md'],
+    })
+    expect(scope.registryFiles).toContain('docs/A.md')
+    expect(scope.registryFiles).not.toContain('docs/swept-only.md')
+    expect(scope.files).toContain('docs/swept-only.md')
   })
 
   it('does not list a swept file twice when a registry already names it', () => {
@@ -245,10 +324,16 @@ describe('scopeFromLedger — scope is read and swept, not hardcoded', () => {
     expect(scopeFromLedger(named, { listMarkdown: () => 'docs/appendices/A.md' }).ok).toBe(false)
   })
 
-  it('reads this repository own ledger and its real appendices', () => {
+  it('reads this repository own ledger and its real spec pack', () => {
+    const listMarkdown = (dir, out = []) => {
+      for (const e of fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true })) {
+        if (e.isDirectory()) listMarkdown(`${dir}/${e.name}`, out)
+        else if (e.name.endsWith('.md')) out.push(`${dir}/${e.name}`)
+      }
+      return out
+    }
     const scope = scopeFromLedger(fs.readFileSync(path.join(ROOT, 'docs', '.id-ledger.json'), 'utf8'), {
-      listMarkdown: (dir) =>
-        fs.readdirSync(path.join(ROOT, dir)).filter((f) => f.endsWith('.md')).map((f) => `${dir}/${f}`),
+      listMarkdown: (dir) => listMarkdown(dir),
     })
     expect(scope.ok).toBe(true)
     expect(scope.files).toContain('docs/PRD-SDD-v1.0.md')
@@ -302,11 +387,11 @@ describe('evaluateTableIntegrity — the finding', () => {
     expect(broken[0].severity).toBe('critical')
     expect(broken[0].action).toMatch(/NOT the same as finding nothing/)
 
-    // …and equally when the appendices could not be enumerated. A registry-only
+    // …and equally when the spec pack could not be enumerated. A registry-only
     // run that reports PASS would be this check's own defect shape.
     const unswept = evaluateTableIntegrity({ ledgerText, read: () => '', exists: () => true })
     expect(unswept[0].severity).toBe('critical')
-    expect(unswept[0].details).toMatch(/docs\/appendices/)
+    expect(unswept[0].details).toMatch(new RegExp(SWEPT_DIRS.join('|')))
   })
 
   it('reports a split in a swept appendix, not only in a named registry', () => {
@@ -320,6 +405,33 @@ describe('evaluateTableIntegrity — the finding', () => {
     expect(findings[0].severity).toBe('critical')
     expect(findings[0].files).toEqual(['docs/appendices/Z-new.md'])
     expect(findings[0].details).toContain('docs/appendices/Z-new.md:4')
+  })
+
+  it('raises a CRITICAL for a row wider than its header, naming file and line', () => {
+    const docs = { 'docs/A.md': lines(HEADER, SEP, row('001'), '| QQ-002 | a `|| 0` d | ✅ |'), 'docs/FEATURES.md': clean }
+    const findings = run(docs)
+    expect(findings).toHaveLength(1)
+    expect(findings[0].severity).toBe('critical')
+    expect(findings[0].details).toContain('docs/A.md:4')
+    expect(findings[0].action).toMatch(/DISCARDS/)
+  })
+
+  it('raises a CRITICAL for a delimiter row that does not match its header', () => {
+    const docs = { 'docs/A.md': lines(HEADER, '|---|---|', row('001')), 'docs/FEATURES.md': clean }
+    const [finding] = run(docs)
+    expect(finding.severity).toBe('critical')
+    expect(finding.details).toContain('docs/A.md:2')
+    expect(finding.action).toMatch(/does not recognize the block as a table/)
+  })
+
+  it('counts short rows in one info line and never blocks on them', () => {
+    // The boundary that keeps this check readable: 24 per-row findings in a tree
+    // with nothing wrong on the page is how a check's output stops being read.
+    const docs = { 'docs/A.md': lines(HEADER, SEP, '| QQ-001 | two only |'), 'docs/FEATURES.md': clean }
+    const findings = run(docs)
+    expect(findings.every((f) => f.severity === 'info')).toBe(true)
+    expect(findings).toHaveLength(1)
+    expect(findings[0].details).toContain('docs/A.md:1')
   })
 
   it('is CRITICAL when a document in scope is missing or unreadable', () => {
@@ -347,6 +459,48 @@ describe('the real document, not a fixture', () => {
 
   it('is silent on the registry as it stands', () => {
     expect(findSplitTables(text)).toEqual([])
+    expect(findRaggedRows(text).filter((r) => r.kind !== 'under')).toEqual([])
+  })
+
+  it('pins the design-decision repair: no row in the registry loses a cell to GFM', () => {
+    // The row that started this: a JavaScript `|| 0` default written inside a
+    // code span, which GFM split into two extra cells and then discarded. Its
+    // id is assembled at runtime (see the header note) so this file declares no
+    // requirement coverage.
+    const id = ['SDD', '071'].join('-')
+    const docLines = text.split('\n')
+    const at = docLines.findIndex((l) => l.startsWith(`| ${id} |`))
+    expect(at).toBeGreaterThan(0)
+    expect(countCells(docLines[at])).toBe(3)
+    // Escaped, not deleted: the statement still says `|| 0`.
+    expect(docLines[at]).toContain('`\\|\\| 0`')
+
+    // Unescape it again and the check fires at that line — this is the guard,
+    // not the repair.
+    const broken = [...docLines]
+    broken[at] = broken[at].replace('`\\|\\| 0`', '`|| 0`')
+    const hits = findRaggedRows(broken.join('\n')).filter((r) => r.kind === 'over')
+    expect(hits).toHaveLength(1)
+    expect(hits[0].line).toBe(at + 1)
+  })
+
+  it('pins the sitemap repair: a delimiter row that unmakes its own table', () => {
+    // Neither a registry nor an appendix, and the reason the sweep is the whole
+    // spec pack: an eight-column header over a seven-column delimiter, which
+    // GFM does not recognize as a table at all.
+    const nav = fs
+      .readFileSync(path.join(ROOT, 'docs', 'SITEMAP-DOMAIN-NAV.md'), 'utf8')
+      .replace(/\r\n/g, '\n')
+    expect(findRaggedRows(nav).filter((r) => r.kind !== 'under')).toEqual([])
+  })
+
+  it('pins the API spec repair: an unescaped pipe in prose truncates a row too', () => {
+    // Not a registry row and not inside a code span the author expected to
+    // protect it — `view=overview|timeline|workspace` in the Project core table.
+    const spec = fs
+      .readFileSync(path.join(ROOT, 'docs', 'appendices', 'A-api-spec.md'), 'utf8')
+      .replace(/\r\n/g, '\n')
+    expect(findRaggedRows(spec).filter((r) => r.kind !== 'under')).toEqual([])
   })
 
   it('fires when the historical break is put back, and goes silent when it is removed', () => {
