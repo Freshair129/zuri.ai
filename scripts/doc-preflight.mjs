@@ -7,6 +7,7 @@
 //   --strict  exit 1 on any CRITICAL finding
 
 import { writeFileSync, readdirSync, statSync, existsSync } from 'fs'
+import { spawnSync } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
@@ -14,6 +15,7 @@ import { collectDeclared } from './id-anchors.mjs'
 import { evaluateIdStability } from './id-stability.mjs'
 import { findBrokenEvidence } from './roadmap-evidence.mjs'
 import { findUncoveredRequirements } from './roadmap-coverage.mjs'
+import { GIT_ARGS, evaluateUntrackedDocs } from './untracked-docs.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -1177,6 +1179,60 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
   if (remaining) {
     add('info', 'roadmap-coverage', `${remaining} delivered requirement(s) carry no roadmap row (accepted debt)`, `baseline: ${rel(ROADMAP_COVERAGE_BASELINE)}`, [rel(ROADMAP_COVERAGE_BASELINE)],
       'Write their rows as their phases are revisited; the baseline may only shrink')
+  }
+}
+
+// ---- Check 15: untracked documents under docs/ ---------------------------
+// Every check above this one reads a set built from files git already knows
+// about — the doc walk, the graph, the registries, the route scan. That is not
+// an accident of implementation; it is what "the repository" means to all of
+// them. So a document that was never `git add`ed is not merely unchecked: it is
+// unrepresentable. There is no severity any other check could assign to it,
+// because no other check has a slot for it to occupy.
+//
+// On 2026-08-30 four change requests — CR-002, CR-003, CR-004 and CR-005 —
+// were found sitting in the working tree of the shared primary checkout,
+// untracked, not ignored, absent from main. They had been written there
+// directly by an agent outside this machine's session mesh. `govern` was green
+// the whole time, preflight reported PASS, CI reported PASS, and the doc graph
+// counted the same number of documents before and after they appeared. They
+// were found by byte-comparing the primary's tree against `git archive`, which
+// is to say: by a method no part of this repository runs.
+//
+// That is the same shape as every guard failure recorded above — the check is
+// correct and its source cannot contain the failure — but with the sharpest
+// possible source defect, because the tracked-file list excludes untracked
+// files *by construction*. The only fix for that class is a check that starts
+// from the other side, so this one asks git for what it is deliberately not
+// looking at everywhere else.
+//
+// **This check cannot fire in CI, and that limitation is load-bearing.** A CI
+// checkout is a clone of a commit; it has no untracked files, so this check
+// passes there no matter what any working tree contains. That is not a reason
+// to skip it — `govern` runs locally constantly, and local is where the
+// condition exists at all — but it IS a reason to say so out loud, because a
+// green pull request would otherwise be read as covering this. The sentence is
+// in the finding's own `action` text, and on a CI runner the check emits a
+// standalone `info` saying it is blind there, so the machine-readable report CI
+// produces carries the disclaimer rather than a silent PASS. See
+// scripts/untracked-docs.mjs for the wording and for why the severity is
+// warning rather than critical, and why there is deliberately no baseline file.
+//
+// A failed git call is CRITICAL, not clean. `spawnSync` returns an empty stdout
+// for a command that never ran, and an empty list from this check is otherwise
+// indistinguishable from a healthy tree — which would be this very defect
+// rebuilt inside its own remedy.
+{
+  const runGit = () => {
+    const r = spawnSync('git', GIT_ARGS, { cwd: ROOT, encoding: 'utf8', windowsHide: true })
+    if (r.error) return { ok: false, reason: `${r.error.message} (is git on PATH?)` }
+    if (r.status !== 0) {
+      return { ok: false, reason: `exited ${r.status}: ${(r.stderr || '').trim() || 'no stderr — is this a git repository?'}` }
+    }
+    return { ok: true, stdout: r.stdout }
+  }
+  for (const f of evaluateUntrackedDocs({ git: runGit, ci: Boolean(process.env.CI) })) {
+    add(f.severity, f.check, f.title, f.details, f.files, f.action)
   }
 }
 
