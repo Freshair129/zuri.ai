@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-30T09:48:48.996Z",
+  "generatedAt": "2026-08-30T10:10:45.397Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,12 +37,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 8,
-    "featureCount": 107,
+    "featureCount": 108,
     "readyFeatureCount": 94,
-    "requirementCount": 131,
+    "requirementCount": 132,
     "verifiedRequirementCount": 118,
-    "progressPercent": 90.1,
-    "gapCount": 22,
+    "progressPercent": 89.4,
+    "gapCount": 23,
     "gaps": [
       {
         "domain": "agent",
@@ -157,6 +157,14 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-129 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-130",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-130 is planned",
         "evidence": []
       },
       {
@@ -1233,6 +1241,13 @@
           "status": "planned",
           "codeCount": 0,
           "testCount": 0
+        },
+        {
+          "id": "FR-130",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -1342,6 +1357,7 @@
         "docs/domains/integration/features/FR-101-sot-pipeline-graph-dashboard.md",
         "docs/domains/integration/features/FR-125-flowaccount-read-only-pull-pipeline.md",
         "docs/domains/integration/features/FR-129-catalog-publication-approval-gate.md",
+        "docs/domains/integration/features/FR-130-github-repository-projection.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1376,6 +1392,13 @@
           "check": "requirements",
           "summary": "FR-129 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-130",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-130 is planned",
+          "evidence": []
         }
       ],
       "details": {
@@ -1383,7 +1406,7 @@
         "apiRoutes": 6,
         "pageRoutes": 4,
         "ownedModels": 15,
-        "featureNotes": 8
+        "featureNotes": 9
       },
       "featureIds": [
         "FEAT-004",
@@ -1392,11 +1415,12 @@
         "FR-102",
         "FR-106",
         "FR-125",
-        "FR-129"
+        "FR-129",
+        "FR-130"
       ],
-      "featureCount": 7,
+      "featureCount": 8,
       "readyFeatureCount": 4,
-      "progressPercent": 77.8
+      "progressPercent": 70
     },
     "knowledge": {
       "status": "partial",
@@ -7536,6 +7560,36 @@
       "requirements": [
         {
           "id": "FR-129",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FR-130",
+      "title": "Business-scoped GitHub repository projection: a `Repository` a Business already owns may additionally name its GitHub origin, and a person the Business admits may read that repository's tree and file contents in the console, read-only. (a) The binding declares **no new model, no new column and no migration**, because the entity already exists: FR-008 created `Repository` and FR-073 made it owned by exactly one Business, which is the scope CR-004 also chose and the only scope the viewer contract can govern (SDD-037). CR-004's `githubRepoUrl` is `Repository.url` beside `ownerName`/`repoName`/`fullName`/`provider`; its `githubBranch` is `Repository.defaultBranch`, with `ProjectRepository.branch` as the per-link override; GitHub's numeric repository id is `Repository.externalRepoId` mapped through `ExternalEntityRef` — the identifier BR-002 names by example (\"GitHub id\") and forbids as a key; and CR-004's three sync fields are **not stored at all**, because they are artifacts of a design this one does not adopt: `lastCommitSha`, `lastGithubSyncAt` and `githubSyncStatus` describe a mirror kept in step with an origin, and a read-through projection (d) keeps no mirror — the commit a reader is looking at comes from the same live fetch that produced the tree, so storing it would be a second answer to a question the response already carries. Should a cache ever be added, the watermark is `SyncCursor.cursorValue` with `lastSuccessAt` beside it and `IngestionRun.status` for the outcome, and that is the point at which its keying must be settled rather than assumed: `SyncCursor` is unique on `(connectionId, resourceType)`, so one connection covering several repositories has no per-repository cursor without either compounding `resourceType` or narrowing a connection to one repository — and `externalAccountId` names an *account*, which is why `Repository` is a separate model in the first place. Five columns on `Business` are refused: `Business` is a scope-chain entity, columns on it would cap a Business at one repository where `Repository` already permits many, and a foreign URL and commit SHA on a core scope row is the shape BR-002 exists to prevent. (b) A private repository's credential is an `IntegrationCredential.secretRef` on a `github` `IntegrationConnection`, resolved through the `SecretManagerPort` — a reference, never material, never in a browser response (SDD-043, SEC-015). Registering the provider row is idempotent on its code and needs no migration. (c) Push delivery is an **FR-081 adapter, not a new endpoint**: a webhook is one of the four `SOURCE_TYPES` that requirement already names, and a bespoke `/api/webhooks/github` would be the second raw-write path FR-081 forbids by name — the same finding CR-005's LINE connector drew. The tenant CR-004 omits is never read from the payload: the delivery's `installation.id` selects exactly one `IntegrationConnection` on `(providerId, externalAccountId)` and **zero or multiple candidates fail closed** (the FR-079 rule), the connection carries the trusted `tenantId`/`businessId`, and `repository.id` then resolves to a `Repository` through `ExternalEntityRef`. The authentication CR-004 omits is GitHub's `X-Hub-Signature-256` — HMAC-SHA256 over the raw body under the connection's webhook secret, constant-time compared, verified before anything is parsed for meaning or written; routing reads `installation.id` only, which is a non-secret selector the signature then proves, so trust follows verification rather than preceding it. (d) **File content is never persisted** — only push metadata converges on the raw substrate, and the tree and blob reads that render a file are read-through with no row of their own (SDD-076). Writes to `Repository` continue to go through project-manager's `repository-service`, which stays its only writer; this requirement reads that model and does not claim it. (e) The projection is bounded by a declared path scope, deny-by-default in the shape SEC-009 already uses, and `vaults/`-class live database state is excluded rather than discovered by a previewer (CR-006 §5.2). No file tree UI, purpose badge, multi-format previewer or metadata panel is in scope: CR-004 §2.B is a four-part feature programme, not this requirement. Reworked from CR-004",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-130"
+      ],
+      "primaryDomain": "integration",
+      "contributorDomains": [
+        "integration"
+      ],
+      "useCase": "Owner ผูก repository GitHub เข้ากับ Business ที่ตนดูแล แล้วเปิดอ่านโครงสร้างไฟล์และเนื้อไฟล์ในคอนโซลแบบอ่านอย่างเดียว เฉพาะ path ที่ประกาศไว้ โดยระบบไม่เก็บสำเนาเนื้อไฟล์ไว้เลย",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-130 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-130",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,

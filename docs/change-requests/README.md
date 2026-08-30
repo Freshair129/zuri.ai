@@ -253,6 +253,62 @@ Unstated in the proposal: `/api/webhooks/github` carries no tenant in its path
 and no authentication story. A webhook that mutates tenant-scoped state needs
 both before it can be written.
 
+> **Erratum, 2026-08-30 — `Repository` already exists, and the correction above
+> points at the wrong model.** The refusal was right; the replacement was not,
+> and this is the second time this review has proposed a second source of truth
+> while refusing one. Found the same way as the CR-003 erratum: by reading the
+> schema rather than by re-reading this note.
+>
+> `Repository` has been in `prisma/schema.prisma` since **FR-008**, and
+> **FR-073** made it owned by exactly one `Business` — carrying `provider`,
+> `externalRepoId`, `ownerName`, `repoName`, `fullName`, `url`, `defaultBranch`,
+> `status` and a human `code`. It is not a vestigial shape: `/api/repositories`,
+> `/api/repositories/[id]`, `/api/repositories/link` and
+> `/api/repositories/link/[id]` are live and viewer-scoped (`ownsBusiness` to
+> write, `seesBusiness` to read), `/repositories` renders it with a provider
+> dropdown **whose default option is already `github`**, and that page's
+> subtitle has stated CR-004's gap since it shipped: *"Local metadata only —
+> provider, name, URL, default branch. No GitHub API access in MVP."*
+>
+> So `githubRepoUrl` is `Repository.url` and `githubBranch` is
+> `Repository.defaultBranch`, both on an entity that is already Business-owned.
+> Directing CR-004's author to build the binding on `IntegrationConnection`
+> would have produced a second repository record beside that one — exactly the
+> defect this review exists to prevent, authored by the review for the second
+> time in one night.
+>
+> Two further corrections to the paragraph above. **CR-004's choice of Business
+> scope was right**, not wrong: FR-073 reached the same answer and SDD-037
+> explains why it is forced — the viewer contract carries only Business-keyed
+> grants, so nothing above Business is governable. What CR-004 got wrong was the
+> *entity*, not the *scope*. And the argument against columns on `Business` has a
+> second half this note missed: they would cap a Business at one repository,
+> where `Repository` has always permitted many.
+>
+> What the review got right stands: BR-002 is the load-bearing rule (and it
+> names *"GitHub id"* in its own example list), and
+> `IntegrationCredential.secretRef` is where a private-repo credential belongs.
+> `IntegrationConnection` is genuinely involved — it is what a webhook delivery
+> resolves against, and what holds the credential — but a connection is an
+> external *account*, and one connection fans out to many repositories.
+>
+> The rework is **FR-130 + SDD-076**, declaring no model, no column and no
+> migration, and declared **blocked** on the CR-006 finding below. What this
+> repository will accept, written for CR-004's author, is
+> [`CR-004-ACCEPTED-SHAPE.md`](CR-004-ACCEPTED-SHAPE.md).
+>
+> **CR-006 is now part of this CR's premise.** It records that the repository
+> CR-004 proposes to surface held customer contact lists, quotation reports and
+> per-customer purchase history tracked in git on a public remote. A Files tab
+> renders whatever a bound tree contains, so FR-130 has to answer what happens
+> when that data is personal data zuri-ai's own FR-103/SEC-005 controls would
+> never admit through the front door. Its answer is: file content is never
+> persisted (SDD-076), the read is bounded by a deny-by-default path scope
+> (SEC-009's shape), and the residual — that nothing here can verify whether a
+> declared path holds personal data, and nowhere records an assertion that it
+> does not — is a named blocker, in FR-121's sense. Remediating CR-006's instance
+> does not lift it; the next bound repository has the same unverifiable property.
+
 ### CR-005 — one blocking conflict, one credential conflict, one false alarm
 
 **Blocking: `/api/connectors/line-oa/[businessId]` would be a second LINE write
@@ -330,7 +386,7 @@ not re-raise a settled question.
 |---|---|---|
 | CR-002 | GKS / MSP, not here | blocked on the three findings above — one of which does not hold as stated |
 | CR-003 | here | **reworked and declared as FR-129 + SDD-075** — onto `PipelineRun` + the existing `PipelineGateDecision`, with no model, no column and no migration; see the erratum above and [`CR-003-ACCEPTED-SHAPE.md`](CR-003-ACCEPTED-SHAPE.md) |
-| CR-004 | here | rework onto `IntegrationConnection` + `IntegrationCredential`; the webhook needs a tenant and an auth story |
+| CR-004 | here | **reworked and declared as FR-130 + SDD-076** — onto the `Repository` FR-008/FR-073 already made Business-owned, with no model, no column and no migration; **declared blocked** on the CR-006 PII finding. See the erratum above and [`CR-004-ACCEPTED-SHAPE.md`](CR-004-ACCEPTED-SHAPE.md) |
 | CR-005 | here | **reworked and declared as FR-131 + FR-132 + SDD-077** — the rate card onto the existing `business_knowledge` projection with no Prisma model and no new domain, the quotation as one Gate E read-only tool with no route, no converter and no credential; one migration in total. See the erratum above and [`CR-005-ACCEPTED-SHAPE.md`](CR-005-ACCEPTED-SHAPE.md) |
 
 None can be built before that rework, because each currently proposes a shape
@@ -341,6 +397,16 @@ declared here, through the ledger, before any code.
 as one FR (FR-129) and one SDD (SDD-075), declaring no model, no column and no
 migration, because most of what it asked for was already built and one thing it
 asked for was already built *and* misread by this review.
+
+**CR-004 has now been through it too**, and produced the same result twice over:
+one FR (FR-130), one SDD (SDD-076), no model, no column, no migration — because
+`Repository` had been Business-owned since FR-073 and the surface rendering it
+had been naming the gap in its own subtitle the whole time. It also produced the
+same *review* error twice: as with CR-003, this note refused the proposal's
+model correctly and then named a replacement that would have created a second
+source of truth. Two for two is a pattern rather than an accident, and the
+lesson is the cheap one — **read the schema before naming the alternative**, not
+only before accepting the proposal.
 
 **CR-005 has been through it too, and is the more useful example**, because it
 did not come out free. It needed **two** FRs — FR-131 and FR-132 — for a reason
@@ -353,4 +419,11 @@ single value, and widening it is a decision in four places (SDD-077) rather than
 a column addition. What CR-005 did *not* need was any of its two proposed
 models, its endpoint, its converter or its credential — four things this
 repository had already built and one thing it had deliberately decided not to
-be. **CR-002 and CR-004 still have no id.**
+be.
+
+**Only CR-002 is now without an id**, and it is the one whose work does not
+live in this repository at all. Neither of the two that just landed can be
+built on yet: FR-130 is declared **blocked** on CR-006's PII finding, which is
+a data-protection decision rather than an engineering task, and FR-131/FR-132
+carry their own named blockers. An id is permission to be accounted for, not
+permission to build.
