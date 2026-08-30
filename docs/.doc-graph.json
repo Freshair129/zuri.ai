@@ -54,9 +54,32 @@
   },
   "drift": {
     "changed": [
-      "doc:README"
+      "doc:A-api-spec",
+      "doc:README",
+      "spec:ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY",
+      "domain:identity",
+      "doc:FR-123-plugin-authentication-and-capability-discovery",
+      "doc:INTERFACE-INVENTORY",
+      "doc:PRD-SDD-v1.0",
+      "doc:ROADMAP",
+      "test:tests/integration/openapi-docs.test.js",
+      "test:tests/unit/fr123-plugin-auth-route.test.js",
+      "code:src/app/api/plugin/auth/authorize/route.js",
+      "code:src/modules/identity/plugin-auth-service.js",
+      "code:src/modules/identity/session-port.js",
+      "code:src/modules/project-manager/api-docs/openapi.js"
     ],
-    "added": [],
+    "added": [
+      "route:page:/plugin/authorize",
+      "test:tests/e2e/fr123-plugin-consent.spec.js",
+      "test:tests/integration/fr123-plugin-consent-gate.test.js",
+      "test:tests/unit/fr123-plugin-consent-view.test.js",
+      "test:tests/unit/fr123-plugin-consent.test.js",
+      "code:src/app/(entry)/plugin/authorize/page.jsx",
+      "code:src/modules/identity/plugin-consent-access.js",
+      "code:src/modules/identity/plugin-consent-view.js",
+      "code:src/modules/identity/plugin-consent.js"
+    ],
     "removed": []
   },
   "nodes": [
@@ -2523,7 +2546,7 @@
       "type": "code_file",
       "path": "src/app/api/plugin/auth/authorize/route.js",
       "hash": "8bebeb47",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-123"
@@ -4977,7 +5000,7 @@
       "type": "code_file",
       "path": "src/modules/identity/plugin-auth-service.js",
       "hash": "0565113a",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-123"
@@ -5213,7 +5236,7 @@
       "type": "code_file",
       "path": "src/modules/identity/session-port.js",
       "hash": "6ed7f3a9",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-046",
@@ -6145,7 +6168,7 @@
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
       "hash": "ebb1b320",
-      "status": "current",
+      "status": "changed",
       "annotations": {
         "@req": [
           "FR-019",
@@ -7899,7 +7922,7 @@
       "version": "1.28.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
       "hash": "f80574cb",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ARCHITECTURE",
@@ -8752,7 +8775,7 @@
       "path": "docs/domains/identity/features/FR-123-plugin-authentication-and-capability-discovery.md",
       "title": "FR-123 — Plugin authentication and capability discovery",
       "hash": "d6893654",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:FR-124-product-readiness-dashboard",
@@ -8814,7 +8837,7 @@
       "version": "1.2.2b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
       "hash": "3eae55ab",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:KNOWLEDGE-INGESTION-17-STAGE-SPEC",
@@ -9050,7 +9073,7 @@
       "version": "1.125.0b",
       "doc_status": "Draft",
       "hash": "b8ee6bc4",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:PRODUCT",
@@ -9077,7 +9100,7 @@
       "type": "document",
       "path": "docs/change-requests/README.md",
       "title": "`docs/change-requests/` — intake, not governance",
-      "hash": "d115a381",
+      "hash": "7ce2bd7b",
       "status": "changed"
     },
     {
@@ -9094,7 +9117,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "fcd1c02c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -9321,7 +9344,7 @@
         "identity"
       ],
       "hash": "01d490dc",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "domain:integration",
@@ -14274,7 +14297,7 @@
       "path": "docs/decisions/ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md",
       "title": "ADR-052 — Canonical Plugin Authorization-Code and Token Boundary",
       "hash": "6cdb2300",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "spec:ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING",
@@ -14850,7 +14873,7 @@
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
       "hash": "b4dfa25c",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/integration/password-reset-flow.test.js",
@@ -15718,7 +15741,7 @@
       "type": "test",
       "path": "tests/unit/fr123-plugin-auth-route.test.js",
       "hash": "2faa4ad7",
-      "status": "current"
+      "status": "changed"
     },
     {
       "id": "test:tests/unit/fr123-plugin-auth-service.test.js",
