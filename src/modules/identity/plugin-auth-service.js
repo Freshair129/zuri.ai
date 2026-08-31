@@ -226,6 +226,75 @@ async function revokeSessionsFromReplayedCode({ db, codeRecord, revokedAt }) {
   })
 }
 
+// @req FR-123 — expired plugin credentials are pruned, while an expired
+// consumed code stays until every linked session is either revoked or expired.
+// @spec ADR-052 D2, SEC-022
+// @tested tests/integration/fr123-plugin-auth-reaper.test.js
+//
+// The first statement changes codeHash to a transaction-local marker. Prisma
+// has no portable row-locking API, and `authorizationCodeId` is intentionally
+// not a foreign key, so an ORM read followed by delete would leave a window
+// for exchange to create a session after the reaper checked for one. A real
+// value-changing UPDATE acquires each code row's write lock on both SQLite and
+// Postgres. Retained rows have their original hash restored before commit;
+// deleted rows never expose the marker. Exchange already conditionally updates
+// that row before creating its session, so the two operations have one
+// ordering: the reaper deletes first and exchange creates no session, or
+// exchange commits first and the reaper sees its linked session before deciding
+// whether to delete the code.
+export async function reapExpiredPluginAuthRecords({
+  db = prisma,
+  now = new Date(),
+} = {}) {
+  const observedAt = asDate(now)
+  if (typeof db.$transaction !== 'function') throw new PluginAuthError('AUTH_UNAVAILABLE', 503)
+
+  return db.$transaction(async (tx) => {
+    if (typeof tx.$executeRaw !== 'function') throw new PluginAuthError('AUTH_UNAVAILABLE', 503)
+
+    await tx.$executeRaw`
+      UPDATE "PluginAuthorizationCode"
+      SET "codeHash" = 'reaper-lock:' || "id" || ':' || "codeHash"
+      WHERE "expiresAt" <= ${observedAt}
+    `
+
+    const deletedSessions = await tx.pluginSession.deleteMany({
+      where: { expiresAt: { lte: observedAt } },
+    })
+    const expiredCodes = await tx.pluginAuthorizationCode.findMany({
+      where: { expiresAt: { lte: observedAt } },
+      select: { id: true },
+    })
+
+    let deletedAuthorizationCodes = 0
+    for (const code of expiredCodes) {
+      const activeLinkedSession = await tx.pluginSession.findFirst({
+        where: {
+          authorizationCodeId: code.id,
+          revokedAt: null,
+          expiresAt: { gt: observedAt },
+        },
+        select: { id: true },
+      })
+      if (activeLinkedSession) {
+        await tx.$executeRaw`
+          UPDATE "PluginAuthorizationCode"
+          SET "codeHash" = substr("codeHash", length('reaper-lock:' || "id" || ':') + 1)
+          WHERE "id" = ${code.id}
+        `
+        continue
+      }
+
+      const deleted = await tx.pluginAuthorizationCode.deleteMany({
+        where: { id: code.id, expiresAt: { lte: observedAt } },
+      })
+      deletedAuthorizationCodes += deleted.count
+    }
+
+    return { deletedSessions: deletedSessions.count, deletedAuthorizationCodes }
+  })
+}
+
 function assertAuthorizationCode(codeRecord, input, config, now) {
   if (!codeRecord || !codeRecord.pluginInstallation) throw invalidGrant()
   if (

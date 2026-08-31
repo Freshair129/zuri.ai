@@ -3,39 +3,37 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1482,
-    "total_edges": 5059,
+    "total_nodes": 1494,
+    "total_edges": 5138,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
       "document": 130,
       "adr": 54,
       "domain": 8,
-      "roadmap": 28,
+      "roadmap": 33,
       "feature": 14,
       "route": 160,
-      "model": 70,
+      "model": 71,
       "requirement": 273,
-      "test": 353,
-      "code_file": 388
+      "test": 357,
+      "code_file": 390
     },
     "coverage": {
       "requirements": 273,
-      "fr_with_code": "100% (120/120)",
-      "fr_with_tests": "100% (120/120)",
+      "fr_with_code": "100% (122/122)",
+      "fr_with_tests": "100% (122/122)",
       "rules_anchored_in_code": "95% (113/119)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 388,
+      "annotated_code_files": 390,
       "fr_planned": [
         "FR-082",
         "FR-083",
         "FR-084",
         "FR-085",
-        "FR-110",
         "FR-121",
         "FR-125",
         "FR-126",
-        "FR-127",
         "FR-128",
         "FR-131",
         "FR-132"
@@ -58,7 +56,9 @@
   },
   "drift": {
     "changed": [
-      "doc:README"
+      "doc:README",
+      "doc:PLAN-PARALLEL-WAVE2-20260831",
+      "doc:PLAN-PENDING-PARALLEL-20260831"
     ],
     "added": [],
     "removed": []
@@ -3974,13 +3974,16 @@
       "id": "code:src/lib/validation/entities.js",
       "type": "code_file",
       "path": "src/lib/validation/entities.js",
-      "hash": "2a98b0fa",
+      "hash": "167fec82",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-087",
           "FR-088",
           "FR-073"
+        ],
+        "@tested": [
+          "tests/integration/crm-conversation-analysis.test.js"
         ]
       }
     },
@@ -3988,7 +3991,7 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "af428261",
+      "hash": "2e87dd82",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4005,7 +4008,8 @@
         ],
         "@tested": [
           "tests/unit/plan-schema.test.js",
-          "tests/integration/xlsx-intake.test.js"
+          "tests/integration/xlsx-intake.test.js",
+          "tests/unit/conversation-analysis-contract.test.js"
         ]
       }
     },
@@ -4569,6 +4573,26 @@
       }
     },
     {
+      "id": "code:src/modules/crm/conversation-analysis-service.js",
+      "type": "code_file",
+      "path": "src/modules/crm/conversation-analysis-service.js",
+      "hash": "ca8efdf0",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-127"
+        ],
+        "@spec": [
+          "BR-001",
+          "SEC-001",
+          "SEC-005"
+        ],
+        "@tested": [
+          "tests/integration/crm-conversation-analysis.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/crm/conversation-read-model.js",
       "type": "code_file",
       "path": "src/modules/crm/conversation-read-model.js",
@@ -4826,7 +4850,7 @@
       "id": "code:src/modules/identity/erase-principal.js",
       "type": "code_file",
       "path": "src/modules/identity/erase-principal.js",
-      "hash": "d520c5a4",
+      "hash": "c45caf4b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4837,7 +4861,8 @@
           "SEC-003"
         ],
         "@tested": [
-          "tests/integration/identity-erase.test.js"
+          "tests/integration/identity-erase.test.js",
+          "tests/integration/crm-conversation-analysis.test.js"
         ]
       }
     },
@@ -4981,7 +5006,7 @@
       "id": "code:src/modules/identity/plugin-auth-service.js",
       "type": "code_file",
       "path": "src/modules/identity/plugin-auth-service.js",
-      "hash": "0565113a",
+      "hash": "f5a72a2a",
       "status": "current",
       "annotations": {
         "@req": [
@@ -4992,7 +5017,8 @@
           "SEC-022"
         ],
         "@tested": [
-          "tests/unit/fr123-plugin-auth-service.test.js"
+          "tests/unit/fr123-plugin-auth-service.test.js",
+          "tests/integration/fr123-plugin-auth-reaper.test.js"
         ]
       }
     },
@@ -5791,6 +5817,24 @@
       }
     },
     {
+      "id": "code:src/modules/knowledge/published-snapshot-contract.js",
+      "type": "code_file",
+      "path": "src/modules/knowledge/published-snapshot-contract.js",
+      "hash": "a0a9f5a9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-110"
+        ],
+        "@spec": [
+          "SDD-057"
+        ],
+        "@tested": [
+          "tests/unit/knowledge-published-snapshot-contract.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/knowledge/quarantine.js",
       "type": "code_file",
       "path": "src/modules/knowledge/quarantine.js",
@@ -6208,7 +6252,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "c381f6a6",
+      "hash": "5c2d161d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6226,7 +6270,8 @@
           "FR-089",
           "FR-100",
           "FR-102",
-          "FR-106"
+          "FR-106",
+          "FR-127"
         ],
         "@spec": [
           "BR-008",
@@ -6235,6 +6280,7 @@
         ],
         "@tested": [
           "tests/integration/backup.test.js",
+          "tests/integration/crm-conversation-analysis.test.js",
           "tests/unit/fr045-backup-contract.test.js",
           "tests/integration/fr075-restore-authorization.test.js"
         ]
@@ -7767,13 +7813,14 @@
       "id": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-contract.js",
-      "hash": "fd31ec4e",
+      "hash": "bc11f29e",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-071",
           "FR-109",
-          "FR-129"
+          "FR-129",
+          "FR-110"
         ],
         "@spec": [
           "SDD-042",
@@ -7788,7 +7835,8 @@
         "@tested": [
           "tests/unit/platform/pipeline-tracking-contract.test.js",
           "tests/unit/platform/knowledge-ingestion-catalog.test.js",
-          "tests/unit/platform/fr129-catalog-publication-gate.test.js"
+          "tests/unit/platform/fr129-catalog-publication-gate.test.js",
+          "tests/unit/knowledge-published-snapshot-contract.test.js"
         ]
       }
     },
@@ -7796,12 +7844,13 @@
       "id": "code:src/platform/integrations/core/pipeline-tracking-service.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-service.js",
-      "hash": "6a8cc09a",
+      "hash": "f9388c39",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-071",
-          "FR-129"
+          "FR-129",
+          "FR-110"
         ],
         "@spec": [
           "SDD-042",
@@ -7812,7 +7861,8 @@
         "@tested": [
           "tests/unit/platform/pipeline-tracking-service.test.js",
           "tests/unit/platform/fr129-catalog-publication-gate.test.js",
-          "tests/integration/fr129-catalog-publication-gate.test.js"
+          "tests/integration/fr129-catalog-publication-gate.test.js",
+          "tests/unit/knowledge-published-snapshot-contract.test.js"
         ]
       }
     },
@@ -7994,9 +8044,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.12.0",
+      "version": "1.13.0b",
       "doc_status": "Draft",
-      "hash": "27f1e2db",
+      "hash": "06d98f20",
       "status": "current"
     },
     {
@@ -8148,9 +8198,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.12.0b",
+      "version": "1.13.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "fcbe9b91",
+      "hash": "aadcd986",
       "status": "current"
     },
     {
@@ -8725,7 +8775,7 @@
       "type": "document",
       "path": "docs/domains/knowledge/features/FR-110-published-knowledge-snapshot-contract.md",
       "title": "FR-110 — Published knowledge snapshot contract",
-      "hash": "72bbea2d",
+      "hash": "666a88c6",
       "status": "current"
     },
     {
@@ -8827,7 +8877,7 @@
       "type": "document",
       "path": "docs/domains/identity/features/FR-123-plugin-authentication-and-capability-discovery.md",
       "title": "FR-123 — Plugin authentication and capability discovery",
-      "hash": "d6893654",
+      "hash": "23489be2",
       "status": "current"
     },
     {
@@ -8851,7 +8901,7 @@
       "type": "document",
       "path": "docs/domains/crm/features/FR-127-conversation-intelligence-analysis.md",
       "title": "FR-127 — Conversation intelligence analysis",
-      "hash": "50b414ca",
+      "hash": "61b236c8",
       "status": "current"
     },
     {
@@ -9145,6 +9195,46 @@
       "status": "current"
     },
     {
+      "id": "doc:PLAN-PARALLEL-WAVE2-20260831",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-PARALLEL-WAVE2-20260831.md",
+      "title": "รอบถัดไป — ปิด tenant boundary ของ CRM reader ก่อนเพิ่ม derived profile",
+      "hash": "20a0911c",
+      "status": "changed"
+    },
+    {
+      "id": "doc:PLAN-PENDING-BUSINESS-20260831",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-PENDING-BUSINESS-20260831.md",
+      "title": "BUSINESS pending lane: reviewable decisions and next slices",
+      "hash": "78cb8697",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-PENDING-IDENTITY-20260831",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-PENDING-IDENTITY-20260831.md",
+      "title": "แผน pending: Identity / LINE / Plugin",
+      "hash": "c2b33c41",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-PENDING-KNOWLEDGE-20260831",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md",
+      "title": "แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop",
+      "hash": "6a4ba63d",
+      "status": "current"
+    },
+    {
+      "id": "doc:PLAN-PENDING-PARALLEL-20260831",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-PENDING-PARALLEL-20260831.md",
+      "title": "ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31",
+      "hash": "356dea74",
+      "status": "changed"
+    },
+    {
       "id": "doc:PLAN-PHASE1-EXTERNAL-ACTIVATION",
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-PHASE1-EXTERNAL-ACTIVATION.md",
@@ -9165,9 +9255,9 @@
       "type": "document",
       "path": "docs/PRD-SDD-v1.0.md",
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
-      "version": "1.131.0b",
+      "version": "1.132.0b",
       "doc_status": "Draft",
-      "hash": "441015fa",
+      "hash": "e809fa0a",
       "status": "current"
     },
     {
@@ -9211,7 +9301,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "846a6ed0",
+      "hash": "e93ab20a",
       "status": "current"
     },
     {
@@ -9389,14 +9479,15 @@
         "CustomerImportReviewCase",
         "CustomerImportReviewDecision",
         "Conversation",
-        "Message"
+        "Message",
+        "ConversationAnalysis"
       ],
       "owns_routes": [],
       "owns_code": [],
       "modules": [
         "crm"
       ],
-      "hash": "afbfa402",
+      "hash": "5fdfa64a",
       "status": "current"
     },
     {
@@ -9674,14 +9765,14 @@
       "id": "feat:FEAT-013",
       "type": "feature",
       "label": "Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run",
-      "declared": "proposed",
+      "declared": "building",
       "status": "current"
     },
     {
       "id": "feat:FEAT-014",
       "type": "feature",
       "label": "CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054)",
-      "declared": "proposed",
+      "declared": "building",
       "status": "current"
     },
     {
@@ -9726,6 +9817,11 @@
     },
     {
       "id": "model:Conversation",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:ConversationAnalysis",
       "type": "model",
       "status": "current"
     },
@@ -11350,9 +11446,9 @@
       "family": "FR",
       "label": "Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2).",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2). 🔜 declared 2026-08-27 — documentary declaration only; no route, model or code is authorized by this row "
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Published knowledge snapshot contract: knowledge becomes readable only as a whole, identified publication — `knowledge_snapshot_id` with `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`, `published_at` and object statistics (spec §25) — so a consumer can name the corpus an answer came from and two answers can be compared for whether they read the same one. Publication is atomic: a partially built index is never exposed to retrieval (spec §24), and only a Stage 17 gate result of `PASS` or `PASS_WITH_WARNINGS` may publish, while `QUARANTINE` and `FAIL` may not (spec §23). Zuri-AI consumes snapshots and records the publish-or-quarantine decision; it does not build the indexes a snapshot names (ADR-050; ADR-042 D2). 🟠 partial local implementation 2026-08-31 — strict snapshot and Stage 9–16 aggregate-report contracts, Stage 17 evidence/quality guard and server-run scope binding; external reporter authorization, atomic publication and retrieval remain open "
     },
     {
       "id": "req:FR-111",
@@ -11482,7 +11578,7 @@
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052). Authorization is a two-step gate: `GET /authorize` renders a consent screen and mints nothing, and only a POST from that screen's form — carrying the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token whose parameters are the ones displayed — mints a code. Refusal returns `error=access_denied` with the original `state` (ADR-052 D4). 🟠 implemented locally; consent gate closed; production Supabase migration, client registration, device-binding evidence and a reaper for expired codes/sessions remain gated "
+      "row_text": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052). Authorization is a two-step gate: `GET /authorize` renders a consent screen and mints nothing, and only a POST from that screen's form — carrying the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token whose parameters are the ones displayed — mints a code. Refusal returns `error=access_denied` with the original `state` (ADR-052 D4). 🟠 implemented locally; consent gate and replay-safe expired-code/session maintenance tested; production Supabase migration, client registration, device-binding/security evidence and maintenance invocation remain gated "
     },
     {
       "id": "req:FR-124",
@@ -11520,9 +11616,9 @@
       "family": "FR",
       "label": "Conversation intelligence analysis: a per-Conversation, per-analysis-run `ConversationAnalysis` record classifying the exchange — contact type, engagement state, observed call-to-action, tags and a short summary, with the raw model output retained for audit. Keyed to `Conversation.id` and never to the external thread id (BR-002; ADR-054 D4 makes the legacy G-DB-02 gotcha structural rather than disciplinary); state and type vocabularies are string enums owned by `src/lib/validation/enums.js` when implementation lands. Derived and recomputable from `Message` rows, so deleting and re-running analysis is always safe (ADR-054 D6). The producer is the agent runtime, which owns no models by design; the rows and their single writer live under the crm charter (ADR-054 D2). Ad-revenue attribution is explicitly absent — the legacy `sourceAdId` column is dropped from the borrowed shape until an Ad model exists to anchor it (ADR-054 D5)",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Conversation intelligence analysis: a per-Conversation, per-analysis-run `ConversationAnalysis` record classifying the exchange — contact type, engagement state, observed call-to-action, tags and a short summary, with the raw model output retained for audit. Keyed to `Conversation.id` and never to the external thread id (BR-002; ADR-054 D4 makes the legacy G-DB-02 gotcha structural rather than disciplinary); state and type vocabularies are string enums owned by `src/lib/validation/enums.js` when implementation lands. Derived and recomputable from `Message` rows, so deleting and re-running analysis is always safe (ADR-054 D6). The producer is the agent runtime, which owns no models by design; the rows and their single writer live under the crm charter (ADR-054 D2). Ad-revenue attribution is explicitly absent — the legacy `sourceAdId` column is dropped from the borrowed shape until an Ad model exists to anchor it (ADR-054 D5) 🔜 declared only — no schema, service or surface exists; authorized shape is ADR-054 D2/D3 "
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Conversation intelligence analysis: a per-Conversation, per-analysis-run `ConversationAnalysis` record classifying the exchange — contact type, engagement state, observed call-to-action, tags and a short summary, with the raw model output retained for audit. Keyed to `Conversation.id` and never to the external thread id (BR-002; ADR-054 D4 makes the legacy G-DB-02 gotcha structural rather than disciplinary); state and type vocabularies are string enums owned by `src/lib/validation/enums.js` when implementation lands. Derived and recomputable from `Message` rows, so deleting and re-running analysis is always safe (ADR-054 D6). The producer is the agent runtime, which owns no models by design; the rows and their single writer live under the crm charter (ADR-054 D2). Ad-revenue attribution is explicitly absent — the legacy `sourceAdId` column is dropped from the borrowed shape until an Ad model exists to anchor it (ADR-054 D5) 🟠 partial local implementation 2026-08-31 — ConversationAnalysis schema and consent-gated authorized persistence/read, PDPA erasure and snapshot restore; no worker/LLM producer, UI/public API or applied production migration; ADR-054 D2/D3 "
     },
     {
       "id": "req:FR-128",
@@ -12758,11 +12854,11 @@
       "id": "req:SEC-022",
       "type": "requirement",
       "family": "SEC",
-      "label": "Plugin auth is a separate public-client boundary: no password or browser cookie enters the plugin; authorization codes are PKCE S256-bound, single-use and stored only as hashes; access tokens are opaque, 15-minute and hash-stored; a replayed code is refused **and** revokes the session it already minted (RFC 9700 §4.1.1); revocation is idempotent and answers identically whether or not the token existed; client id, redirect URI and installation are allow-listed exactly with no host normalization; every capability and scope decision comes from the trusted Zuri identity resolver, without a platform grant. All four responses are `Cache-Control: no-store`, and no error echoes a raw code, token or internal message. Authorization now requires consent that was actually given: `GET /authorize` renders a screen and mints nothing, and minting requires a POST carrying all three of the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token that is the sole source of the parameters acted on, with a 5-minute TTL and every field re-validated against live configuration on approval. The anti-CSRF token is redundant with `SameSite=Lax` today and is kept so the defence does not live entirely in a cookie attribute another change could remove silently. Refusal is available and answered as `error=access_denied` with the original `state`. What remains open is stated rather than implied: nothing prunes expired codes or sessions, and production client registration, device-binding evidence and security sign-off are outstanding.",
+      "label": "Plugin auth is a separate public-client boundary: no password or browser cookie enters the plugin; authorization codes are PKCE S256-bound, single-use and stored only as hashes; access tokens are opaque, 15-minute and hash-stored; a replayed code is refused **and** revokes the session it already minted (RFC 9700 §4.1.1); revocation is idempotent and answers identically whether or not the token existed; client id, redirect URI and installation are allow-listed exactly with no host normalization; every capability and scope decision comes from the trusted Zuri identity resolver, without a platform grant. All four responses are `Cache-Control: no-store`, and no error echoes a raw code, token or internal message. Authorization now requires consent that was actually given: `GET /authorize` renders a screen and mints nothing, and minting requires a POST carrying all three of the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token that is the sole source of the parameters acted on, with a 5-minute TTL and every field re-validated against live configuration on approval. The anti-CSRF token is redundant with `SameSite=Lax` today and is kept so the defence does not live entirely in a cookie attribute another change could remove silently. Refusal is available and answered as `error=access_denied` with the original `state`. Expired codes and sessions have a locally tested maintenance service that retains each code while an unrevoked, unexpired linked session can still be revoked on replay. Production maintenance invocation, client registration, device-binding evidence and security sign-off remain outstanding.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Plugin auth is a separate public-client boundary: no password or browser cookie enters the plugin; authorization codes are PKCE S256-bound, single-use and stored only as hashes; access tokens are opaque, 15-minute and hash-stored; a replayed code is refused **and** revokes the session it already minted (RFC 9700 §4.1.1); revocation is idempotent and answers identically whether or not the token existed; client id, redirect URI and installation are allow-listed exactly with no host normalization; every capability and scope decision comes from the trusted Zuri identity resolver, without a platform grant. All four responses are `Cache-Control: no-store`, and no error echoes a raw code, token or internal message. Authorization now requires consent that was actually given: `GET /authorize` renders a screen and mints nothing, and minting requires a POST carrying all three of the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token that is the sole source of the parameters acted on, with a 5-minute TTL and every field re-validated against live configuration on approval. The anti-CSRF token is redundant with `SameSite=Lax` today and is kept so the defence does not live entirely in a cookie attribute another change could remove silently. Refusal is available and answered as `error=access_denied` with the original `state`. What remains open is stated rather than implied: nothing prunes expired codes or sessions, and production client registration, device-binding evidence and security sign-off are outstanding. FR-123 / ADR-052 security gate — 🟠 consent closed; production activation gated "
+      "row_text": "Plugin auth is a separate public-client boundary: no password or browser cookie enters the plugin; authorization codes are PKCE S256-bound, single-use and stored only as hashes; access tokens are opaque, 15-minute and hash-stored; a replayed code is refused **and** revokes the session it already minted (RFC 9700 §4.1.1); revocation is idempotent and answers identically whether or not the token existed; client id, redirect URI and installation are allow-listed exactly with no host normalization; every capability and scope decision comes from the trusted Zuri identity resolver, without a platform grant. All four responses are `Cache-Control: no-store`, and no error echoes a raw code, token or internal message. Authorization now requires consent that was actually given: `GET /authorize` renders a screen and mints nothing, and minting requires a POST carrying all three of the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token that is the sole source of the parameters acted on, with a 5-minute TTL and every field re-validated against live configuration on approval. The anti-CSRF token is redundant with `SameSite=Lax` today and is kept so the defence does not live entirely in a cookie attribute another change could remove silently. Refusal is available and answered as `error=access_denied` with the original `state`. Expired codes and sessions have a locally tested maintenance service that retains each code while an unrevoked, unexpired linked session can still be revoked on replay. Production maintenance invocation, client registration, device-binding evidence and security sign-off remain outstanding. FR-123 / ADR-052 security gate — 🟠 consent closed; production activation gated "
     },
     {
       "id": "route:api:/api/agent/heartbeat",
@@ -14691,6 +14787,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/crm-conversation-analysis.test.js",
+      "type": "test",
+      "path": "tests/integration/crm-conversation-analysis.test.js",
+      "hash": "c5cfb893",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/crm-conversation-inbox.test.js",
       "type": "test",
       "path": "tests/integration/crm-conversation-inbox.test.js",
@@ -14856,6 +14959,13 @@
       "type": "test",
       "path": "tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
       "hash": "e77beee4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr123-plugin-auth-reaper.test.js",
+      "type": "test",
+      "path": "tests/integration/fr123-plugin-auth-reaper.test.js",
+      "hash": "d3a4115b",
       "status": "current"
     },
     {
@@ -15388,6 +15498,13 @@
       "type": "test",
       "path": "tests/unit/controlled-line-activation-migration.test.js",
       "hash": "562e19ae",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/conversation-analysis-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/conversation-analysis-contract.test.js",
+      "hash": "170bb68f",
       "status": "current"
     },
     {
@@ -16105,6 +16222,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/knowledge-published-snapshot-contract.test.js",
+      "hash": "ba3ec6d6",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/knowledge-quarantine.test.js",
       "type": "test",
       "path": "tests/unit/knowledge-quarantine.test.js",
@@ -16486,7 +16610,7 @@
       "id": "test:tests/unit/platform/pipeline-tracking-service.test.js",
       "type": "test",
       "path": "tests/unit/platform/pipeline-tracking-service.test.js",
-      "hash": "1ed802eb",
+      "hash": "6dbd4bfb",
       "status": "current"
     },
     {
@@ -23513,6 +23637,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/crm/conversation-analysis-service.js",
+      "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-analysis-service.js",
+      "to": "req:FR-127",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-analysis-service.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/crm/conversation-analysis-service.js",
+      "to": "req:SEC-005",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/crm/conversation-read-model.js",
       "to": "req:BR-001",
       "type": "follows",
@@ -25095,6 +25247,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/knowledge/published-snapshot-contract.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/knowledge/published-snapshot-contract.js",
+      "to": "req:SDD-057",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/knowledge/quarantine.js",
       "to": "req:BR-022",
       "type": "implements",
@@ -25699,6 +25865,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-123",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-127",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -28120,6 +28293,13 @@
     },
     {
       "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "to": "req:FR-110",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "to": "req:FR-129",
       "type": "implements",
       "status": "current",
@@ -28184,6 +28364,13 @@
     {
       "from": "code:src/platform/integrations/core/pipeline-tracking-service.js",
       "to": "req:FR-071",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "to": "req:FR-110",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -28751,6 +28938,13 @@
     {
       "from": "model:ChannelIdentity",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:ConversationAnalysis",
+      "to": "domain:crm",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -36373,6 +36567,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-127",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -36440,6 +36641,223 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "code:src/lib/validation/entities.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "code:src/modules/crm/conversation-analysis-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "code:src/modules/identity/erase-principal.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "code:src/modules/project-manager/application/backup-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:BR-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-013",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-087",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-088",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-089",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-090",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-100",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-102",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-107",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-123",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-127",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:SDD-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/crm-conversation-inbox.test.js",
@@ -38074,6 +38492,13 @@
     },
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-127",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -38416,6 +38841,34 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/fr123-plugin-auth-reaper.test.js",
+      "to": "code:src/modules/identity/plugin-auth-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr123-plugin-auth-reaper.test.js",
+      "to": "req:FR-123",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr123-plugin-auth-reaper.test.js",
+      "to": "req:SDD-074",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr123-plugin-auth-reaper.test.js",
+      "to": "req:SEC-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/fr123-plugin-consent-gate.test.js",
       "to": "req:FR-123",
       "type": "verifies",
@@ -38456,6 +38909,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/fr129-catalog-publication-gate.test.js",
@@ -42707,6 +43167,90 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "code:src/lib/validation/enums.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:BR-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:BR-004",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:BR-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-012",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-087",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-111",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-127",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:SDD-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:SEC-005",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/conversation-read-model.test.js",
       "to": "code:src/modules/crm/conversation-read-model.js",
       "type": "tests",
@@ -43983,6 +44527,13 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-123",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-127",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -47194,6 +47745,111 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "code:src/modules/knowledge/published-snapshot-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "code:src/platform/integrations/core/pipeline-tracking-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:FR-129",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:SDD-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:SDD-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:SDD-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:SDD-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:SDD-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:SDD-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/knowledge-quarantine.test.js",
       "to": "code:src/modules/knowledge/quarantine.js",
       "type": "tests",
@@ -49365,6 +50021,13 @@
     },
     {
       "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
       "to": "req:FR-129",
       "type": "verifies",
       "status": "current",
@@ -49477,6 +50140,13 @@
     },
     {
       "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
       "to": "req:FR-129",
       "type": "verifies",
       "status": "current",
@@ -49579,6 +50249,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform/pipeline-tracking-service.test.js",

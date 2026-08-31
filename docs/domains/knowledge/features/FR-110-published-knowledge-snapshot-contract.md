@@ -3,8 +3,8 @@ domain: knowledge
 feature: FR-110
 module: knowledge
 source: v2-native
-version: "0.1.0b"
-status: "declared"
+version: "0.2.0b"
+status: "partial"
 ---
 
 # FR-110 — Published knowledge snapshot contract
@@ -184,7 +184,8 @@ effect of a query.
 ## Acceptance criteria
 
 Drawn from the specification's §40 Minimum Acceptance Criteria, restricted to
-what FR-110 owns — the gate, the publication and the snapshot. None is built.
+what FR-110 owns — the gate, the publication and the snapshot. The KNO-01
+contract slice below is implemented; publication and retrieval remain open.
 
 - [ ] **AC-110.1** A published snapshot carries `knowledge_snapshot_id`,
       `tenant_id`, `business_id`, `ontology_version`, `pipeline_version`,
@@ -216,9 +217,9 @@ what FR-110 owns — the gate, the publication and the snapshot. None is built.
 
 ## Non-goals
 
-- **This note authorizes no code, no route, no Prisma model and no schema
-  change.** It elaborates a declared requirement whose PRD status column says
-  documentary declaration only.
+- The approved KNO-01 local wave authorizes the contract and shared ledger
+  validation below; it adds no route, Prisma model or schema change. External
+  reporter authorization and actual publication remain outside this slice.
 - zuri-ai does not execute the stages ADR-050 assigns to GKS or
   GenesisBlockDB. It does not build the vector, lexical, graph, structured,
   temporal or provenance indexes a snapshot names (spec §38; ADR-042 D2) — it
@@ -232,12 +233,35 @@ what FR-110 owns — the gate, the publication and the snapshot. None is built.
 
 ## Implementation boundary
 
-Nothing is implemented. The gate decision, when implemented, is an FR-071
-`PipelineGateDecision` row written through the existing application service —
-the knowledge domain owns no Prisma model and would not gain one here. A
-snapshot itself is produced outside Tier 1 and is read through the knowledge
-port; representing it locally means storing the identity and the statistics,
-never a copy of the corpus.
+The KNO-01 contract slice is implemented without adding a model, route or
+external reporter. `zKnowledgeStageReport` accepts only the definition,
+execution contract, run/stage/step/attempt identity, tenant/business scope and
+the six Stage 9–16 aggregate counters. Its strict envelope rejects payload,
+entity, fact, embedding, index and receipt data.
+
+`zKnowledgeSnapshot` is the exact FR-110 identity/time/statistics allow-list.
+`zKnowledgeStage17Decision` keeps the FR-071 ledger status separate from the
+four Stage 17 verdicts and binds the snapshot's snake-case tenant/business
+fields to the decision scope. `toKnowledgeStage17Evidence` projects only the
+snapshot, verdict and five quality dimensions into the existing closed
+`PipelineGateDecision.evidenceJson` vocabulary; the shared pipeline event also
+requires and checks its Stage 17 event scope against that snapshot. The pure
+`evaluateKnowledgePublication` helper requires explicit caller policy, an
+`APPROVED` ledger status, a publishable verdict, a complete snapshot and no
+failed or critical quality dimension. It performs no publication or pointer
+swap.
+
+The remaining acceptance criteria are still external or later slices: the
+Stage 9–17 reporter/finalization contract, atomic publication, immutable
+snapshot storage, retrieval, citation and GraphRAG readiness. The knowledge
+domain owns no Prisma model; the snapshot is produced by GKS/Genesis and this
+slice carries identity, statistics and bounded evidence only.
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 0.2.0b | 2026-08-31 | partial | Implemented the KNO-01 strict Stage 9–16 aggregate report, FR-110 snapshot allow-list, Stage 17 decision/evidence projection, scope binding and publication precondition evaluator; atomic publication remains out of scope | working-tree | ATHER |
 
 ## Related documents
 

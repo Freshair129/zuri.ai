@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.12.0 |
+| **Version** | 1.13.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-30 |
+| **Last Updated** | 2026-08-31 |
 
 Source of truth: `prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md)
 Conventions: UUID PK · unique human `code` · `createdAt/updatedAt` · `version` บน aggregate
@@ -36,7 +36,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | PasswordResetToken | personId, token unique, expiresAt, usedAt? | FR-090 — same origin as PersonCredential; currently empty |
 | PluginInstallation | installationId unique, clientId, status | FR-123 / ADR-052 — durable public-client installation binding for a first-party plugin; holds no device secret and no raw token. Deleting a row cascades to its codes and sessions, which is what a snapshot restore relies on |
 | PluginAuthorizationCode | codeHash unique, clientId, redirectUri, codeChallenge(+Method), pluginInstallationId, personId, expiresAt, consumedAt?, revokedAt? | FR-123 / ADR-052 — one-time PKCE S256 authorization code with a 60-second life. The raw code is never persisted; consumption is an atomic conditional update on `consumedAt IS NULL`, which is what makes single-use hold under concurrent redemption rather than merely under sequential reads |
-| PluginSession | tokenHash unique, clientId, pluginInstallationId, personId, authorizationCodeId?, expiresAt, revokedAt?, lastUsedAt? | FR-123 / ADR-052 — 15-minute opaque plugin bearer session; the raw token is never persisted. `authorizationCodeId` exists solely so that replaying a consumed code can revoke the session that code already minted (RFC 9700 §4.1.1); it is nullable because the code row may be pruned before the session ends |
+| PluginSession | tokenHash unique, clientId, pluginInstallationId, personId, authorizationCodeId?, expiresAt, revokedAt?, lastUsedAt? | FR-123 / ADR-052 — 15-minute opaque plugin bearer session; the raw token is never persisted. `authorizationCodeId` exists solely so that replaying a consumed code can revoke the session that code already minted (RFC 9700 §4.1.1); the reference is nullable, but maintenance retains the code while a linked session is both unrevoked and unexpired, preserving replay revocation |
 | PlatformGrant | personId+capability unique, status, grantedByPersonId?, revokedAt? | FR-107 — server-held store behind FR-075 `isOperator`; resolved per request by the session port, revocation effective next request |
 | WorkspaceMembership | portfolioId, personId (unique pair), role, status, invitedByPersonId?, version | FR-067 — Workspace collaboration grant keyed by `portfolioId` (the top-level Workspace IS schema Portfolio, ADR-027 §D2; never schema Workspace = Space). A distinct authority layer (BR-016): `resolveViewer` never reads it |
 | WorkspaceInvite | portfolioId, invitedByPersonId, targetPersonId?, invitedEmail?, role, status, tokenHash unique, expiresAt, acceptedByPersonId?, acceptedAt?, revokedAt? | FR-067 — single-use, expiring Workspace invite; `tokenHash` is the SHA-256 digest only (SEC-014), the raw token is returned exactly once at mint. EXPIRED is derived from `expiresAt`, never persisted |
@@ -76,6 +76,9 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | CustomerImportProvenance | batchId, sourceSystem/table/key, sourceRow, sourceSha256, snapshotSha256, idempotencyKey, resolutionStatus, disposition, optional target ids, optional reviewCaseId/evidence flags | private source identity/idempotency ledger for FR-078; no raw PII |
 | CustomerImportReviewCase | batchId, tenantId, businessId, reasonCode, groupFingerprint, status, itemCount, redacted evidence, version | deterministic duplicate-group queue identity for FR-078; no raw PII |
 | CustomerImportReviewDecision | reviewCaseId, provenanceId, decisionVersion, action, targetCustomerId?, decidedByPersonId, decidedAt | append-only human decision ledger; no update/delete path |
+| ConversationAnalysis | id UUID, conversationId, analyzedDate, analyzedAt, contactType, state, cta?, tags, summary, rawOutputJson? | FR-127 / ADR-054 — one derived row per analysis run; same-day reruns have separate ids. Scope and consent come from Conversation/Customer. Raw output is private; source deletion cascades, principal erasure removes analyses including those of already soft-deleted customers, and snapshots include this table after Conversation. Production DDL is an unapplied artifact. |
+
+Version diff 1.12.0 → 1.13.0b (2026-08-31): added ConversationAnalysis and clarified the PluginSession replay-retention invariant. No live migration is claimed.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 

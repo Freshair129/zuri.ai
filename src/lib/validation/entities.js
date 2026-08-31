@@ -12,6 +12,8 @@ import {
   zMilestoneStatus,
   zGateStatus,
   zWorkspaceScopeType,
+  zConversationAnalysisContactType,
+  zConversationAnalysisState,
 } from './enums'
 
 const zDate = z.coerce.date()
@@ -109,6 +111,28 @@ export const zErasePrincipalInput = z.object({
   personId: z.string().min(1),
   reason: z.string().optional(),
 })
+
+// FR-127 — one derived CRM analysis run. Scope and identity are supplied by the
+// application service, never by this client input. `rawOutputJson` is retained
+// for recomputation/audit support but is excluded from projected reads/events.
+// @tested tests/integration/crm-conversation-analysis.test.js
+export const zConversationAnalysisInput = z.object({
+  analyzedDate: z.coerce.date(),
+  analyzedAt: z.coerce.date().optional(),
+  contactType: zConversationAnalysisContactType,
+  state: zConversationAnalysisState,
+  cta: z.string().trim().nullish(),
+  tags: z.array(z.string().trim().min(1)).default([]),
+  summary: z.string().trim().min(1),
+  rawOutputJson: z.string().trim().refine((value) => {
+    try {
+      JSON.parse(value)
+      return true
+    } catch {
+      return false
+    }
+  }, { message: 'rawOutputJson must contain valid JSON' }),
+}).strict()
 
 // FR-022 — staff/customer split for a resolved principal within a tenant.
 export const zClassifyPrincipalInput = z.object({

@@ -9,7 +9,8 @@ import { zErasePrincipalInput } from '@/lib/validation/entities'
 //   revoke the ExternalIdentity, and a revoked binding refuses to resolve (FR-021),
 //   which is what makes an erased person un-reachable rather than merely hidden.
 // @spec ADR-045 D2, SEC-003 — append-only audit; erase is recorded, never a silent purge.
-// @tested tests/integration/identity-erase.test.js
+// RCA: .brain/rca/2026-08-31-conversation-analysis-tenant-binding.md
+// @tested tests/integration/identity-erase.test.js, tests/integration/crm-conversation-analysis.test.js
 
 const REDACTED = '[erased]'
 
@@ -19,7 +20,7 @@ const REDACTED = '[erased]'
  * soft-delete + redact the tenant's CRM record. Tenant-scoped by design — the
  * global Person is redacted only when it has no ties left anywhere.
  *
- * @returns {{ revokedIdentities, revokedChannelIdentities, erasedCustomers, invalidatedTokens, revokedSessions, personRedacted }}
+ * @returns {{ revokedIdentities, revokedChannelIdentities, erasedCustomers, erasedAnalyses, invalidatedTokens, revokedSessions, personRedacted }}
  */
 export async function erasePrincipal(input) {
   const { tenantId, personId, reason } = zErasePrincipalInput.parse(input)
@@ -51,8 +52,18 @@ export async function erasePrincipal(input) {
         version: { increment: 1 },
       },
     })
-    const customers = await tx.customer.findMany({ where: { tenantId, personId, deletedAt: null }, select: { id: true } })
-    for (const c of customers) {
+    const customers = await tx.customer.findMany({ where: { tenantId, personId }, select: { id: true, deletedAt: true } })
+    const customerIds = customers.map((customer) => customer.id)
+    const activeCustomers = customers.filter((customer) => customer.deletedAt === null)
+    const conversations = customerIds.length
+      ? await tx.conversation.findMany({ where: { tenantId, customerId: { in: customerIds } }, select: { id: true } })
+      : []
+    const analyses = conversations.length
+      ? await tx.conversationAnalysis.deleteMany({
+        where: { conversationId: { in: conversations.map((conversation) => conversation.id) } },
+      })
+      : { count: 0 }
+    for (const c of activeCustomers) {
       await tx.customer.update({
         where: { id: c.id },
         data: { deletedAt: now, displayName: REDACTED, lifecycleStage: 'LOST' },
@@ -83,7 +94,8 @@ export async function erasePrincipal(input) {
         revokedChannelIdentities: channelIdentities.count,
         invalidatedTokens: tokens.count,
         revokedSessions: sessions.count,
-        erasedCustomers: customers.length,
+        erasedCustomers: activeCustomers.length,
+        erasedAnalyses: analyses.count,
         personRedacted,
       },
     })
@@ -93,7 +105,8 @@ export async function erasePrincipal(input) {
       revokedChannelIdentities: channelIdentities.count,
       invalidatedTokens: tokens.count,
       revokedSessions: sessions.count,
-      erasedCustomers: customers.length,
+      erasedCustomers: activeCustomers.length,
+      erasedAnalyses: analyses.count,
       personRedacted,
     }
   })

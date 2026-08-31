@@ -3,10 +3,10 @@ domain: crm
 feature: FR-127
 module: crm
 source: v2-native
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-08-30T00:00:00+07:00,Claude Fable 5"
-last_update: "2026-08-30T00:00:00+07:00,Claude Fable 5"
-status: "proposed"
+last_update: "2026-08-31T00:00:00+07:00,ATHER"
+status: "beta"
 ---
 
 # FR-127 — Conversation intelligence analysis
@@ -30,16 +30,17 @@ Prior art: `G:\zuri\docs\architecture\database-erd\full-schema.md` §8
 | Legacy field | ที่นี่ | เหตุผล |
 |---|---|---|
 | `conversationId FK → Conversation.id` | เหมือนกัน — FK ไป `Conversation.id` (UUID) | legacy ต้องมี gotcha (G-DB-02) กันคนใช้ external id; ของเรา external thread id ไม่ใช่ key อยู่แล้ว (BR-002) |
-| `analyzedDate`, `analyzedAt` | คงไว้ทั้งคู่ | วันที่วิเคราะห์คือ key ของการสรุปรายวัน; เวลาจริงคือ provenance |
+| `id` | generated internal UUID per analysis run | rerunning the same Conversation on the same day creates an independently addressable derived row |
+| `analyzedDate`, `analyzedAt` | คงไว้ทั้งคู่ | วันที่วิเคราะห์ใช้จัดกลุ่มรายวัน; เวลาจริงคือ provenance; `analyzedDate` ไม่ใช่ identity และไม่ unique |
 | `contactType` (NEW_LEAD/RETURNING/SUPPORT) | string enum ใน `src/lib/validation/enums.js` | enum เป็น string เสมอ แหล่งเดียว |
 | `state` (HOT/WARM/COLD/CLOSED_WON/CLOSED_LOST) | string enum เดียวกัน | เดียวกัน |
-| `cta`, `tags[]`, `summary` | คงไว้; `tags` เก็บเป็น JSON string | SQLite dev ไม่มี array; convention repo นี้เก็บ JSON เป็น string |
-| `rawOutput json` | `rawOutputJson` string | retained for audit; ไม่ใช่ contract |
+| `cta`, `tags[]`, `summary` | คงไว้; `cta` nullable และ `tags` เก็บเป็น JSON string | absence of a CTA remains representable; SQLite dev ไม่มี array; convention repo นี้เก็บ JSON เป็น string |
+| `rawOutput json` | `rawOutputJson` nullable string | new writes require valid JSON; retained for recomputation/audit support but never returned by the read DTO or copied into audit payloads |
 | `revenue float` | **ตัดออก** | เงินเป็นเรื่องของ Orders bundle; ตัวเลขที่ recompute ไม่ได้จากแหล่งจริงคือสิ่งที่ D6 ห้าม |
 | `sourceAdId → Ad.adId` | **ตัดออก** | external id เป็น key (BR-002) และยังไม่มี Ad model ให้ผูก — รอ Marketing bundle (ADR-054 D5) |
 
 สิ่งที่แถวนี้ไม่ทำ: ไม่แตะ scope (สืบจาก Conversation ที่ scoped แล้ว — ADR-054 D3),
-ไม่ merge identity, ไม่เขียนกลับเข้า LINE (BR-011)
+ไม่ merge identity, ไม่เขียนกลับเข้า LINE (BR-011), ไม่เรียก worker/LLM/provider และไม่มี public route/UI ใน increment นี้
 
 ## Siblings in FEAT-014
 
@@ -51,6 +52,8 @@ Prior art: `G:\zuri\docs\architecture\database-erd\full-schema.md` §8
 
 ## Status
 
-Declared only (🔜) — schema/enums/service/worker ยังไม่ authorize จนกว่าจะเปิด
-lane implement ใต้ charter crm ซึ่งตอนนั้นค่อยเพิ่มทั้งสาม model เข้า
-`owns_models` ของ charter
+Approved first Business P5 increment (beta): the SQLite schema, canonical enums,
+CRM-owned consent/owner-gated persistence and visibility-gated read service, snapshot list and
+PDPA erasure hook are implemented. The service uses `Conversation.id` plus a
+generated analysis id per run; same-day runs remain separate. Worker/LLM/provider
+processing, FR-126/FR-128 models, public routes and UI remain out of scope.

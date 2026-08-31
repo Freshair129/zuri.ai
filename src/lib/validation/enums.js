@@ -141,6 +141,13 @@ export const CUSTOMER_LIFECYCLE = ['LEAD', 'ACTIVE', 'DORMANT', 'LOST']
 // conversation — see the migration comment for the backfill this pairs with.
 export const CUSTOMER_CONSENT_STATUSES = ['PENDING', 'GRANTED', 'DECLINED', 'GRANDFATHERED']
 
+// FR-127 — CRM conversation analysis vocabulary. The values are deliberately
+// closed so persisted derived rows remain portable and queryable across SQLite
+// and Postgres; CTA text remains an advisory open string.
+// @tested tests/unit/conversation-analysis-contract.test.js
+export const CONVERSATION_ANALYSIS_CONTACT_TYPES = ['NEW_LEAD', 'RETURNING', 'SUPPORT']
+export const CONVERSATION_ANALYSIS_STATES = ['HOT', 'WARM', 'COLD', 'CLOSED_WON', 'CLOSED_LOST']
+
 // FR-066/FR-067 — Workspace collaboration boundary (ADR-027 D5). "Workspace"
 // here is the top-level container, schema Portfolio — never schema Workspace,
 // which is a Space (see WORKSPACE_SCOPE_TYPES above, a different axis).
@@ -182,6 +189,8 @@ export const zChannel = z.enum(CHANNELS)
 export const zMessageDirection = z.enum(MESSAGE_DIRECTIONS)
 export const zCustomerLifecycle = z.enum(CUSTOMER_LIFECYCLE)
 export const zCustomerConsentStatus = z.enum(CUSTOMER_CONSENT_STATUSES)
+export const zConversationAnalysisContactType = z.enum(CONVERSATION_ANALYSIS_CONTACT_TYPES)
+export const zConversationAnalysisState = z.enum(CONVERSATION_ANALYSIS_STATES)
 export const zWorkspaceMembershipRole = z.enum(WORKSPACE_MEMBERSHIP_ROLES)
 export const zWorkspaceMembershipStatus = z.enum(WORKSPACE_MEMBERSHIP_STATUSES)
 export const zWorkspaceInviteRole = z.enum(WORKSPACE_INVITE_ROLES)

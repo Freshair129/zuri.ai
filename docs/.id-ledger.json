@@ -4103,7 +4103,7 @@
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "a91dec179ec22994ed43f4e479038936a54ac2f5e080113f34cfa448a23144d2",
+      "statement_digest": "4f088c07dc64faf08a3a1d8f858af50473882c2d29c587b830abd6341e5caa39",
       "history": [
         {
           "anchor": "plugin auth is a separate public client boundary",
@@ -4112,7 +4112,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-08-30",
-      "statement_digest_reason": "Same subject; the security statement records that the consent gap is closed and restates the two gates that remain open."
+      "statement_digest_reason": "Reviewed the approved local reaper implementation and tests: only the obsolete maintenance-absence statement changes; the plugin security subject, replay guarantee and production activation gates remain unchanged."
     },
     "FEAT-001": {
       "family": "FEAT",

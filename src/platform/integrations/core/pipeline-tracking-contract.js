@@ -8,10 +8,13 @@ import { z } from 'zod'
 // @req FR-129 — the catalog publication approval gate carries the evidence its
 // signer acted on, so "who published this catalog and what did they see" is
 // answerable from the ledger.
+// @req FR-110 — bounded knowledge snapshot evidence is definition- and
+// scope-bound on the shared Stage 17 event envelope.
 // @spec ADR-030 D2-D4, SDD-042, SDD-057, SDD-066, SDD-070, SDD-073, SDD-075, SEC-003, SEC-008, ADR-050
 // @tested tests/unit/platform/pipeline-tracking-contract.test.js
 // @tested tests/unit/platform/knowledge-ingestion-catalog.test.js
 // @tested tests/unit/platform/fr129-catalog-publication-gate.test.js
+// @tested tests/unit/knowledge-published-snapshot-contract.test.js
 
 export const DATA_PIPELINE_DEFINITION_ID = 'DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1'
 export const EXECUTION_CONTRACT_ID = 'EXC-DATA-MIGRATION-V1'
@@ -66,6 +69,31 @@ export const KNOWLEDGE_INGESTION_STAGE_CATALOG = Object.freeze([
   { sequence: 160, pipelineStageId: 'DPS-KI-INDEX', label: 'Multi-Lane Indexing' },
   { sequence: 170, pipelineStageId: 'DPS-KI-QUALITY-GATE', label: 'Graph + Retrieval Quality Gate' },
 ])
+
+// FR-110 / KNO-01 — Stages 9–16 are owned by GKS/GenesisBlockDB. When they
+// report to this Tier 1 ledger, the evidence is a bounded control envelope and
+// aggregate counters only; their entities, facts, embeddings, indexes and
+// receipts stay in the owning tier (ADR-050 D3-D4).
+export const KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS = Object.freeze(
+  KNOWLEDGE_INGESTION_STAGE_CATALOG
+    .filter(({ sequence }) => sequence >= 90 && sequence <= 160)
+    .map(({ pipelineStageId }) => pipelineStageId),
+)
+export const KNOWLEDGE_QUALITY_GATE_STAGE_ID = 'DPS-KI-QUALITY-GATE'
+export const KNOWLEDGE_GATE_VERDICTS = Object.freeze([
+  'PASS',
+  'PASS_WITH_WARNINGS',
+  'QUARANTINE',
+  'FAIL',
+])
+export const KNOWLEDGE_QUALITY_DIMENSIONS = Object.freeze([
+  'data',
+  'graph',
+  'knowledge',
+  'security',
+  'retrieval',
+])
+export const KNOWLEDGE_DIMENSION_RESULTS = Object.freeze(['PASS', 'WARN', 'FAIL'])
 
 /**
  * Every pipeline definition this ledger accepts, each holding the execution
@@ -150,6 +178,76 @@ const zNullableId = zId.nullable()
 const zHash = z.string().regex(/^[a-f0-9]{64}$/i, 'must be a SHA-256 hex digest')
 const zNullableHash = zHash.nullable()
 const zCount = z.number().int().nonnegative()
+
+const zFiniteNonnegativeCount = z.number().finite().int().nonnegative()
+const zFiniteNonnegativeDuration = z.number().finite().nonnegative()
+const zSnapshotId = z.string().trim().min(1).max(500)
+const zSnapshotPublishedAt = z.string().datetime({ offset: true })
+
+/** The five object counts that identify the logical FR-110 snapshot shape. */
+export const zKnowledgeSnapshotStatistics = z.object({
+  documents: zFiniteNonnegativeCount,
+  chunks: zFiniteNonnegativeCount,
+  entities: zFiniteNonnegativeCount,
+  facts: zFiniteNonnegativeCount,
+  relations: zFiniteNonnegativeCount,
+}).strict()
+
+/**
+ * FR-110 §25's published object. This is deliberately narrower than the
+ * specification's recommended `index_generation` and FR-109's
+ * `pipeline_job_id`; neither is declared by FR-110.
+ */
+export const zKnowledgeSnapshot = z.object({
+  knowledge_snapshot_id: zSnapshotId,
+  tenant_id: zSnapshotId,
+  business_id: zSnapshotId,
+  ontology_version: zSnapshotId,
+  pipeline_version: zSnapshotId,
+  published_at: zSnapshotPublishedAt,
+  statistics: zKnowledgeSnapshotStatistics,
+}).strict()
+
+const zKnowledgeDimensionEvidence = z.object({
+  result: z.enum([...KNOWLEDGE_DIMENSION_RESULTS]),
+  critical: z.boolean(),
+}).strict().superRefine((value, ctx) => {
+  if (value.critical && value.result !== 'FAIL') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['result'],
+      message: 'a critical quality finding must have a FAIL dimension result',
+    })
+  }
+})
+
+export const zKnowledgeStage17Dimensions = z.object({
+  data: zKnowledgeDimensionEvidence,
+  graph: zKnowledgeDimensionEvidence,
+  knowledge: zKnowledgeDimensionEvidence,
+  security: zKnowledgeDimensionEvidence,
+  retrieval: zKnowledgeDimensionEvidence,
+}).strict()
+
+/**
+ * The only FR-110 evidence shape admitted to PipelineGateDecision.evidenceJson.
+ * Stage 17's quality verdict is kept under `verdict`; it is not a new ledger
+ * status. A held result may carry no published snapshot, while PASS and
+ * PASS_WITH_WARNINGS must identify the complete snapshot they would publish.
+ */
+export const zKnowledgeStage17Evidence = z.object({
+  verdict: z.enum([...KNOWLEDGE_GATE_VERDICTS]),
+  snapshot: zKnowledgeSnapshot.nullable(),
+  dimensions: zKnowledgeStage17Dimensions,
+}).strict().superRefine((value, ctx) => {
+  if (['PASS', 'PASS_WITH_WARNINGS'].includes(value.verdict) && value.snapshot === null) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['snapshot'],
+      message: 'a publishable Stage 17 verdict requires the complete published snapshot',
+    })
+  }
+})
 
 // SDD-073 — `errorRef` is a REFERENCE to an error, never the error itself.
 //
@@ -250,15 +348,21 @@ const zReconciliation = z.object({
 // runs on the other definition and signs a `knowledge_snapshot_id`, not a
 // catalog version; it is a different decision on the same table and this shape
 // is deliberately not stretched to cover it. A knowledge gate that needs
-// evidence declares its own member and says so, and until it does `.strict()`
-// refuses it visibly instead of storing an unlabelled object.
-const zGateEvidence = z.object({
+// evidence declares its own member and says so. Each admitted shape is strict,
+// so an unlabelled object is refused visibly instead of stored. The union below
+// admits the named FR-129 catalog shape and FR-110 knowledge shape only.
+const zCatalogGateEvidence = z.object({
   catalogVersion: z.string().trim().min(1).max(200),
   artifactSha256: zNullableHash.optional().default(null),
   addedCount: zCount,
   changedCount: zCount,
   unchangedCount: zCount,
 }).strict()
+
+// Both pipeline definitions share PipelineGateDecision.evidenceJson, but each
+// definition gets a closed evidence vocabulary. A union keeps the column
+// definition-neutral without turning it into an arbitrary JSON escape hatch.
+const zGateEvidence = z.union([zCatalogGateEvidence, zKnowledgeStage17Evidence])
 
 const zGate = z.object({
   gateId: zNullableId,
@@ -305,6 +409,11 @@ export const zPipelineEvent = z.object({
   dataPipelineDefinitionId: zId,
   executionContractId: zId,
   executionRunId: zId,
+  // Existing FR-071 events predate the knowledge scope handoff and therefore
+  // may omit these fields. A Stage 17 knowledge decision must carry both so
+  // the snapshot can be checked at the shared envelope boundary.
+  tenantId: zId.optional(),
+  businessId: zId.optional(),
   pipelineStageId: zNullableId,
   executionStepId: zNullableId,
   attemptId: zNullableId,
@@ -372,6 +481,74 @@ export const zPipelineEvent = z.object({
   }
   if (value.eventType === 'GATE_UPDATED' && !value.gate) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['gate'], message: 'gate event requires gate evidence' })
+  }
+  // FR-110 / KNO-01 — the knowledge quality gate is a Stage 17 decision, not
+  // a free-form gate row. Its control identity must name the quality-gate
+  // stage and the attempt, and its evidence must be this definition's closed
+  // snapshot/verdict/dimension shape. The existing FR-129 catalog evidence is
+  // intentionally not interchangeable with it.
+  const knowledgeDefinition = value.dataPipelineDefinitionId === KNOWLEDGE_INGESTION_DEFINITION_ID
+  const knowledgeEvidence = value.gate?.evidence
+    ? zKnowledgeStage17Evidence.safeParse(value.gate.evidence).success
+    : false
+  const catalogEvidence = value.gate?.evidence
+    ? zCatalogGateEvidence.safeParse(value.gate.evidence).success
+    : false
+  if (knowledgeDefinition && value.eventType === 'GATE_UPDATED'
+    && value.pipelineStageId === KNOWLEDGE_QUALITY_GATE_STAGE_ID) {
+    for (const field of ['tenantId', 'businessId']) {
+      if (!value[field]) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [field],
+          message: 'knowledge quality gate decisions require tenant and business scope IDs',
+        })
+      }
+    }
+    if (!value.executionStepId || !value.attemptId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['executionStepId'],
+        message: 'knowledge quality gate decisions require step and attempt IDs',
+      })
+    }
+    if (!knowledgeEvidence) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['gate', 'evidence'],
+        message: 'knowledge quality gate decisions require FR-110 Stage 17 evidence',
+      })
+    } else if (value.gate.evidence.snapshot
+      && (value.gate.evidence.snapshot.tenant_id !== value.tenantId
+        || value.gate.evidence.snapshot.business_id !== value.businessId)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['gate', 'evidence', 'snapshot'],
+        message: 'FR-110 snapshot scope must match the shared pipeline event scope',
+      })
+    }
+    if (knowledgeEvidence && value.gate.status === 'APPROVED'
+      && (['QUARANTINE', 'FAIL'].includes(value.gate.evidence.verdict)
+        || Object.values(value.gate.evidence.dimensions)
+          .some(({ result, critical }) => result === 'FAIL' || critical === true))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['gate', 'status'],
+        message: 'an APPROVED knowledge quality gate requires a publishable verdict with no blocking dimension',
+      })
+    }
+  } else if (knowledgeEvidence) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['gate', 'evidence'],
+      message: 'FR-110 Stage 17 evidence is valid only on a knowledge quality gate decision',
+    })
+  } else if (knowledgeDefinition && catalogEvidence) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['gate', 'evidence'],
+      message: 'FR-129 catalog evidence is valid only on the Supabase catalog definition',
+    })
   }
   // FR-129 (b) — an APPROVED catalog publication signature must say what the
   // signer saw. "Somebody approved" without "what they approved" is not an

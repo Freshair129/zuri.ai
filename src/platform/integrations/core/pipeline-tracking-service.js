@@ -6,6 +6,8 @@ import {
   DATA_PIPELINE_DEFINITION_ID,
   EXECUTION_CONTRACT_ID,
   IDENTITY_REFS_EMPTY,
+  KNOWLEDGE_INGESTION_DEFINITION_ID,
+  KNOWLEDGE_QUALITY_GATE_STAGE_ID,
   RUN_STATUSES,
   STEP_STATUSES,
   assertStatusTransition,
@@ -22,10 +24,13 @@ import { gateCompliance } from './pipeline-gate-compliance'
 // scope-filtered service boundary with append-only event receipts.
 // @req FR-129 — a gate decision's evidence is persisted and returned, and a
 // publish that succeeded without a prior approval is reported on the monitor.
+// @req FR-110 — Stage 17 evidence is persisted only after its event scope is
+// bound to the server-owned knowledge run.
 // @spec ADR-030 D3-D6, ADR-040 D1-D3, SDD-042, SDD-075, SEC-003, SEC-008
 // @tested tests/unit/platform/pipeline-tracking-service.test.js
 // @tested tests/unit/platform/fr129-catalog-publication-gate.test.js
 // @tested tests/integration/fr129-catalog-publication-gate.test.js
+// @tested tests/unit/knowledge-published-snapshot-contract.test.js
 
 export const PIPELINE_STALE_AFTER_MS = 5 * 60 * 1000
 
@@ -417,6 +422,16 @@ export async function recordPipelineEvent(input, {
       throw serviceError(409, 'Pipeline event does not belong to the pipeline definition of its run')
     }
 
+    // FR-110 Stage 17 carries scope in the shared event because the event may
+    // be written without first calling the knowledge decision helper. Bind it
+    // to the server-owned run before persisting the gate evidence.
+    if (event.eventType === 'GATE_UPDATED'
+      && event.dataPipelineDefinitionId === KNOWLEDGE_INGESTION_DEFINITION_ID
+      && event.pipelineStageId === KNOWLEDGE_QUALITY_GATE_STAGE_ID
+      && (event.tenantId !== run.tenantId || event.businessId !== run.businessId)) {
+      throw serviceError(409, 'Knowledge quality gate scope does not match the pipeline run')
+    }
+
     const existingReceipt = await tx.pipelineEventReceipt.findUnique({ where: { idempotencyKey: event.idempotencyKey } })
     if (existingReceipt) {
       if (existingReceipt.eventHash !== eventHash) throw serviceError(409, 'Pipeline event idempotency key was reused with different input')
@@ -451,6 +466,19 @@ export async function recordPipelineEvent(input, {
       if (step && event.attemptId && step.attemptId !== event.attemptId) {
         throw serviceError(409, 'Pipeline step attempt does not match executionStepId')
       }
+    }
+
+    // FR-110 Stage 17 is a decision over the canonical quality-gate occurrence,
+    // not a free-form gate row. Keep legacy step-event auto-creation above
+    // unchanged, but require this gate to resolve an existing Stage 17 step in
+    // this run with the same attempt identity.
+    if (event.eventType === 'GATE_UPDATED'
+      && event.dataPipelineDefinitionId === KNOWLEDGE_INGESTION_DEFINITION_ID
+      && event.pipelineStageId === KNOWLEDGE_QUALITY_GATE_STAGE_ID
+      && (!step
+        || step.pipelineStageId !== KNOWLEDGE_QUALITY_GATE_STAGE_ID
+        || step.attemptId !== event.attemptId)) {
+      throw serviceError(409, 'Knowledge quality gate event requires a matching Stage 17 step and attempt')
     }
 
     if (stepStatus) {
@@ -539,9 +567,9 @@ export async function recordPipelineEvent(input, {
           // SDD-075 — the column has existed since FR-071 and held nothing
           // because this line was the literal `'{}'`. `json()` stringifies the
           // envelope's already-parsed evidence, so what lands in the text
-          // column is always valid JSON and always the closed five-member
-          // shape `zGateEvidence` admits; a caller that supplies none writes
-          // the same `'{}'` it always did.
+          // column is always valid JSON and always one of the closed catalog
+          // or knowledge evidence shapes `zGateEvidence` admits; a caller
+          // that supplies none writes the same `'{}'` it always did.
           evidenceJson: json(event.gate.evidence, {}),
           auditEventId: audit.id,
           createdAt: at,

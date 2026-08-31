@@ -839,6 +839,24 @@ CREATE TABLE "Message" (
 );
 
 -- CreateTable
+CREATE TABLE "ConversationAnalysis" (
+    "id" TEXT NOT NULL,
+    "conversationId" TEXT NOT NULL,
+    "analyzedDate" TIMESTAMP(3) NOT NULL,
+    "analyzedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "contactType" TEXT NOT NULL,
+    "state" TEXT NOT NULL,
+    "cta" TEXT,
+    "tags" TEXT NOT NULL,
+    "summary" TEXT NOT NULL,
+    "rawOutputJson" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ConversationAnalysis_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "AuditEvent" (
     "id" TEXT NOT NULL,
     "entityType" TEXT NOT NULL,
@@ -1724,6 +1742,18 @@ CREATE INDEX "Message_conversationId_idx" ON "Message"("conversationId");
 CREATE UNIQUE INDEX "Message_conversationId_externalMessageId_key" ON "Message"("conversationId", "externalMessageId");
 
 -- CreateIndex
+CREATE INDEX "ConversationAnalysis_conversationId_analyzedDate_idx" ON "ConversationAnalysis"("conversationId", "analyzedDate");
+
+-- CreateIndex
+CREATE INDEX "ConversationAnalysis_analyzedDate_idx" ON "ConversationAnalysis"("analyzedDate");
+
+-- CreateIndex
+CREATE INDEX "ConversationAnalysis_contactType_idx" ON "ConversationAnalysis"("contactType");
+
+-- CreateIndex
+CREATE INDEX "ConversationAnalysis_state_idx" ON "ConversationAnalysis"("state");
+
+-- CreateIndex
 CREATE INDEX "AuditEvent_entityType_entityId_idx" ON "AuditEvent"("entityType", "entityId");
 
 -- CreateIndex
@@ -2193,6 +2223,9 @@ ALTER TABLE "Conversation" ADD CONSTRAINT "Conversation_customerId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ConversationAnalysis" ADD CONSTRAINT "ConversationAnalysis_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PipelineRun" ADD CONSTRAINT "PipelineRun_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
