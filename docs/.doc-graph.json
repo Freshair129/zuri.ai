@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1481,
+    "total_nodes": 1482,
     "total_edges": 5059,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 129,
+      "document": 130,
       "adr": 54,
       "domain": 8,
       "roadmap": 28,
@@ -58,11 +58,7 @@
   },
   "drift": {
     "changed": [
-      "doc:CR-004-ACCEPTED-SHAPE",
-      "doc:README",
-      "doc:FR-130-github-repository-projection",
-      "doc:PRD-SDD-v1.0",
-      "code:src/platform/integrations/core/connector-catalog.js"
+      "doc:README"
     ],
     "added": [],
     "removed": []
@@ -7608,7 +7604,7 @@
       "type": "code_file",
       "path": "src/platform/integrations/core/connector-catalog.js",
       "hash": "617f360b",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080",
@@ -8049,7 +8045,7 @@
       "path": "docs/change-requests/CR-004-ACCEPTED-SHAPE.md",
       "title": "CR-004 — the shape this repository will accept",
       "hash": "8d106d91",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:CR-004-GITHUB-INTEGRATION-AND-FILES-TAB-EXPLORER",
@@ -8872,7 +8868,7 @@
       "path": "docs/domains/integration/features/FR-130-github-repository-projection.md",
       "title": "FR-130 — GitHub repository binding and read-only projection",
       "hash": "1fe6f4e2",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:FR-131-shipping-rate-card-as-business-knowledge",
@@ -8896,6 +8892,16 @@
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
       "hash": "249d2b38",
+      "status": "current"
+    },
+    {
+      "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
+      "type": "document",
+      "path": "docs/GAP-ANALYSIS-ZURI-GOVIBE.md",
+      "title": "Gap Analysis — zuri-ai requirements × ความสามารถเดิมใน GoVibe",
+      "version": "1.0.1",
+      "doc_status": "Active",
+      "hash": "0155ea43",
       "status": "current"
     },
     {
@@ -9162,7 +9168,7 @@
       "version": "1.131.0b",
       "doc_status": "Draft",
       "hash": "441015fa",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -9205,7 +9211,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "fa93ab2a",
+      "hash": "846a6ed0",
       "status": "current"
     },
     {

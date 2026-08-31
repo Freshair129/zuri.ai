@@ -2,8 +2,8 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.11.0"
-updated: "2026-08-30"
+version: "2.12.0"
+updated: "2026-08-31"
 owner: "Owen"
 source_of_truth: true
 live_document: true
@@ -170,6 +170,17 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > **อ่านผิดได้ว่าตัวเลขจะไม่ขยับอีกเลย** — มันขยับแล้ว จากฝั่ง GKS ตามที่ ADR-050
 > วางไว้ จึงขยายประโยคให้บอกว่าการเคลื่อนไหวมาจากทางไหน. หมายเหตุ frontmatter:
 > `version` ค้างที่ 2.8.0 ขณะที่บันทึกเดินถึง 2.9.0 แล้ว — ซิงก์เป็น 2.10.0 พร้อมกัน
+>
+> Revision 2.12.0 (2026-08-31): ผูกเอกสาร gap analysis ข้ามระบบฉบับใหม่
+> `../GAP-ANALYSIS-ZURI-GOVIBE.md` (เทียบ requirements ของ repo นี้กับความสามารถเดิม
+> ใน `G:\govibe` — อะไรยกมาใช้ได้ อะไรต้องสร้างใหม่ และงานลง repo ไหนตามกรอบ
+> four-tier ของ ADR-043/050) เข้ากับรายการช่องว่างด้านล่าง. โน้ตนี้เดิมเขียนเป็น
+> 2.10.0 บน branch — renumber เป็น 2.12.0 ตอน merge เพราะ main จอง 2.10.0
+> (Stage 9) และ 2.11.0 (consent gate FR-123) ไปแล้ว ตามกฎเดียวกับเลข FR:
+> ผู้ประกาศทีหลังเป็นฝ่ายเปลี่ยนเลข. blockquote มุมมองข้ามระบบใต้รายการช่องว่าง
+> ถูกปรับตอน merge ให้สะท้อน Stage 9 ที่ส่งมอบแล้วฝั่ง GKS (revision 2.10.0) —
+> งานสร้างใหม่จึงเหลือ stage 10–14/17. ไม่มีการแก้แถวหรือช่อง Status ใด ๆ ใน
+> ตาราง Phases/Backlog ใน revision นี้
 
 ## Phases
 
@@ -261,6 +272,13 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 
 รายการนี้คือส่วนที่ registry ประกาศแล้วแต่ยังไม่มีโค้ด หรือมี gate ภายนอกค้าง —
 ตัวเลขสถานะในตารางข้างบนไม่นับสิ่งเหล่านี้ว่าเสร็จ:
+
+> **มุมมองข้ามระบบ (2026-08-31)**: `../GAP-ANALYSIS-ZURI-GOVIBE.md` เทียบรายการนี้
+> กับความสามารถเดิมใน `G:\govibe` — สรุปว่า stage 15 (embedding) ยกโค้ดจาก
+> `msp-runtime/src/retrieval/` ไปใช้ได้เลย, API-010 มีของเดิมให้ port แต่ต้องขยาย
+> AuthContext, ส่วน episodic model (PHASE-04), stage 10–14/17, query-ir.v1 และ
+> FR-110 เป็นงานสร้างใหม่ (stage 9 ส่งมอบแล้วฝั่ง GKS เมื่อ 2026-08-30 —
+> revision 2.10.0 — หลังจุดตัดของ gap analysis)
 
 1. ~~FR-066 / FR-067~~ — **ส่งมอบแล้ว 2026-08-27** (แถว TASK-FR-066-067)
 2. ~~SEC-006~~ — **ปิดแล้ว** ผ่าน FR-106 (แถว TASK-SEC-006)
