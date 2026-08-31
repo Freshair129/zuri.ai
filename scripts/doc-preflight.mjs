@@ -7,6 +7,7 @@
 //   --strict  exit 1 on any CRITICAL finding
 
 import { writeFileSync, readdirSync, statSync, existsSync } from 'fs'
+import { spawnSync } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { readCanonical } from './canonical-text.mjs'
@@ -14,6 +15,8 @@ import { collectDeclared } from './id-anchors.mjs'
 import { evaluateIdStability } from './id-stability.mjs'
 import { findBrokenEvidence } from './roadmap-evidence.mjs'
 import { findUncoveredRequirements } from './roadmap-coverage.mjs'
+import { GIT_ARGS, evaluateUntrackedDocs } from './untracked-docs.mjs'
+import { evaluateTableIntegrity, scopeFromLedger } from './table-integrity.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: spec pack and module docs are one tree under ROOT/docs.
@@ -852,8 +855,11 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
   // wrong identity boundary — which is the same reason login/logout sit here.
   // They are exemptions and not baseline entries for the reason stated above:
   // the baseline records routes that SHOULD resolve a viewer and do not.
-  // Note that `GET /authorize` is deliberately NOT exempt — it is the one
-  // route in the family that must have a browser viewer, and it resolves one.
+  // `/authorize` is deliberately NOT exempt. Since ADR-052 D4 it is the one
+  // file in the family with a mutating export — `POST`, the consent screen's
+  // own form submission — and that handler resolves a browser viewer, which is
+  // the whole point of the consent gate. (Its `GET` mints nothing and reads no
+  // session, so this check has nothing to say about it either way.)
   const IS_PLUGIN_AUTH_LIFECYCLE_ENDPOINT = (p) =>
     p.includes('/api/plugin/auth/token/') || p.includes('/api/plugin/auth/revoke/')
   const offenders = []
@@ -1177,6 +1183,177 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
   if (remaining) {
     add('info', 'roadmap-coverage', `${remaining} delivered requirement(s) carry no roadmap row (accepted debt)`, `baseline: ${rel(ROADMAP_COVERAGE_BASELINE)}`, [rel(ROADMAP_COVERAGE_BASELINE)],
       'Write their rows as their phases are revisited; the baseline may only shrink')
+  }
+}
+
+// ---- Check 15: untracked documents under docs/ ---------------------------
+// Every check above this one reads a set built from files git already knows
+// about — the doc walk, the graph, the registries, the route scan. That is not
+// an accident of implementation; it is what "the repository" means to all of
+// them. So a document that was never `git add`ed is not merely unchecked: it is
+// unrepresentable. There is no severity any other check could assign to it,
+// because no other check has a slot for it to occupy.
+//
+// On 2026-08-30 four change requests — CR-002, CR-003, CR-004 and CR-005 —
+// were found sitting in the working tree of the shared primary checkout,
+// untracked, not ignored, absent from main. They had been written there
+// directly by an agent outside this machine's session mesh. `govern` was green
+// the whole time, preflight reported PASS, CI reported PASS, and the doc graph
+// counted the same number of documents before and after they appeared. They
+// were found by byte-comparing the primary's tree against `git archive`, which
+// is to say: by a method no part of this repository runs.
+//
+// That is the same shape as every guard failure recorded above — the check is
+// correct and its source cannot contain the failure — but with the sharpest
+// possible source defect, because the tracked-file list excludes untracked
+// files *by construction*. The only fix for that class is a check that starts
+// from the other side, so this one asks git for what it is deliberately not
+// looking at everywhere else.
+//
+// **This check cannot fire in CI, and that limitation is load-bearing.** A CI
+// checkout is a clone of a commit; it has no untracked files, so this check
+// passes there no matter what any working tree contains. That is not a reason
+// to skip it — `govern` runs locally constantly, and local is where the
+// condition exists at all — but it IS a reason to say so out loud, because a
+// green pull request would otherwise be read as covering this. The sentence is
+// in the finding's own `action` text, and on a CI runner the check emits a
+// standalone `info` saying it is blind there, so the machine-readable report CI
+// produces carries the disclaimer rather than a silent PASS. See
+// scripts/untracked-docs.mjs for the wording and for why the severity is
+// warning rather than critical, and why there is deliberately no baseline file.
+//
+// A failed git call is CRITICAL, not clean. `spawnSync` returns an empty stdout
+// for a command that never ran, and an empty list from this check is otherwise
+// indistinguishable from a healthy tree — which would be this very defect
+// rebuilt inside its own remedy.
+{
+  const runGit = () => {
+    const r = spawnSync('git', GIT_ARGS, { cwd: ROOT, encoding: 'utf8', windowsHide: true })
+    if (r.error) return { ok: false, reason: `${r.error.message} (is git on PATH?)` }
+    if (r.status !== 0) {
+      return { ok: false, reason: `exited ${r.status}: ${(r.stderr || '').trim() || 'no stderr — is this a git repository?'}` }
+    }
+    return { ok: true, stdout: r.stdout }
+  }
+  for (const f of evaluateUntrackedDocs({ git: runGit, ci: Boolean(process.env.CI) })) {
+    add(f.severity, f.check, f.title, f.details, f.files, f.action)
+  }
+}
+
+// ---- Check 16: a table that does not render as the file says it does -----
+// A blank line ENDS a GFM table. On 2026-08-30, while FR-129 was being declared,
+// five tables in docs/PRD-SDD-v1.0.md were found to have been split by a single
+// blank line since version 1.32.0 on 2026-08-14 — between FR-046/FR-047,
+// NFR-009/NFR-010, BR-010/BR-011, SDD-024/SDD-025 and SEC-008/SEC-009, each at
+// the boundary where a Phase 1 LINE batch appended rows after the break. Every
+// row below each one — 82 FR rows among them — rendered as literal
+// pipe-delimited text rather than as a table row, for sixteen days, in the
+// registry this whole toolchain is built on. Repaired in PR #191.
+//
+// The reason nothing caught it is the reason this check exists. EVERY generator
+// and check in scripts/ matches a registry row with a line-anchored regex —
+// `^\| FR-\d+ \|` and its siblings — and none of them parses the table as a
+// table. Those regexes match a row exactly as well when it is loose prose on the
+// rendered page as when it is a table row, so a document whose tables do not
+// render is, to all of them, byte-for-byte a document whose tables do. The doc
+// graph counted the same ids, Appendix D traced the same requirements, id
+// stability pinned the same anchors, and the page was broken the entire time.
+//
+// Same shape as Checks 13, 14 and 15: the check is right and its source cannot
+// represent the failure. So the remedy has to be able to represent it, which
+// dictates how scripts/table-integrity.mjs is written — it walks lines, tracks
+// fenced code blocks, classifies separator rows and counts cells, and knows
+// nothing about `FR-`, `NFR-` or any other family. A check that understood only
+// registry-id rows would be blind to a split in any other table in the same
+// file, which is precisely the narrowness that produced the defect.
+//
+// Severity is CRITICAL because the failure is silent, visual-only, permanent and
+// invisible to every other check at any severity — see table-integrity.mjs for
+// the full argument, for how cells are counted (GFM's way: only `\|` escapes),
+// and for the one false positive the rule produced outside the registries and
+// the fourth condition that resolved it.
+//
+// A blank line is not the only way to write a row that does not parse as
+// intended, so this check asks the same question a second way: does every row
+// have the same number of cells as its table's header? On 2026-08-30 three rows
+// of docs/PRD-SDD-v1.0.md did not, one of them SDD-071 carrying a JavaScript
+// `|| 0` inside a code span — GFM splits a row on its pipes BEFORE inline
+// parsing, so that opened two cells and GFM then DISCARDED everything past the
+// header width. Invisible for exactly the same reason as the split tables: a row
+// with too many cells matches every line-anchored regex in scripts/ perfectly.
+//
+// Three shapes, and the severity follows what cmark-gfm actually does with each
+// rather than a general dislike of ragged tables. A delimiter row that does not
+// match its header means GFM does not recognize the block as a table AT ALL and
+// the whole thing renders as literal text — CRITICAL. A row WIDER than the
+// header has its excess cells discarded, so that text appears nowhere —
+// CRITICAL. A row SHORTER than the header is padded with empty cells and renders
+// correctly — INFO, because there is no defect on the page to gate on, and a
+// CRITICAL with nothing behind it is a gate people learn to route around.
+//
+// Scope is the ledger's registry documents, read at runtime rather than
+// hardcoded, PLUS every live .md under docs/ — the whole spec pack, swept by
+// directory, minus docs/archive/ (cold store) and docs/v1-inherited/ (the
+// ADR-024 tombstone), which preflight excludes from every live-tree check.
+//
+// The scope is that wide because narrowing it is what made the last two defects
+// invisible. This check was first scoped to the registries — that is where the
+// five known breaks were — and run over the whole docs tree it immediately found
+// docs/appendices/A-api-spec.md, where two `GET` rows had been appended below the
+// blank line that ended the Scope table in August 2026 and had been rendering as
+// literal text ever since. Scoped to registries-plus-appendices, it then missed
+// docs/SITEMAP-DOMAIN-NAV.md, whose business-binding table carries an
+// eight-column header over a seven-column delimiter and therefore does not
+// render as a table at all — a document that issues no ids and is not an
+// appendix, and about as plainly "a document whose tables carry meaning" as this
+// tree has. Both repaired in the same commit as the widening.
+//
+// A guard scoped to where the last failure happened will keep missing the next
+// one. Measured before it was chosen: over the 227 live documents both rules
+// together return eight findings, every one a real defect, none a false positive.
+//
+// Entries naming a `dir` (docs/decisions, docs/changes) are folders of ordinary
+// prose rather than table documents and are still skipped; the check emits an
+// info naming them, the directories it swept and the files it read, so the next
+// reader gets this check's actual reach rather than the reach they assume.
+{
+  const LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
+  if (!existsSync(LEDGER)) {
+    add('critical', 'table-integrity', 'could not determine which documents to check for split tables',
+      'docs/.id-ledger.json is missing, so this check could not look — which is NOT the same as finding nothing',
+      ['docs/.id-ledger.json'], 'Restore the ledger; it is written only by scripts/id-ledger.mjs (ADR-039)')
+  } else {
+    // Repo-relative POSIX paths, sorted, so the info line reads the same on
+    // every platform and a new document joins the sweep with no edit here.
+    //
+    // The cold store and the ADR-024 tombstone are dropped HERE rather than
+    // inside table-integrity.mjs: preflight already owns that exclusion for
+    // every other check (see labDocs above), and two places deciding what counts
+    // as a live document is two places that can disagree about it.
+    const listMarkdown = (dir) =>
+      walk(path.join(ROOT, dir), '.md')
+        .filter((f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR))
+        .map((f) => rel(f))
+        .sort()
+    const scope = scopeFromLedger(read(LEDGER), { listMarkdown })
+    if (scope.ok) {
+      // A count and the roots, not 227 paths. The reach is the fact worth
+      // recording; the enumeration was written when the scope was eight files
+      // and became a wall of text the moment it was the one that mattered.
+      add('info', 'table-integrity', `table integrity checked in ${scope.files.length} document(s)`,
+        `swept whole: ${scope.sweptDirs.join(', ')} (minus docs/archive and docs/v1-inherited, as every live-tree ` +
+          `check is) · registries named by the ledger and always read whichever way the sweep goes: ` +
+          `${scope.registryFiles.join(', ')}`,
+        ['docs/.id-ledger.json'], 'No action — recorded so this check\'s reach is visible rather than assumed')
+    }
+    for (const f of evaluateTableIntegrity({
+      ledgerText: read(LEDGER),
+      read: (p) => read(path.join(ROOT, p)),
+      exists: (p) => existsSync(path.join(ROOT, p)),
+      listMarkdown,
+    })) {
+      add(f.severity, f.check, f.title, f.details, f.files, f.action)
+    }
   }
 }
 

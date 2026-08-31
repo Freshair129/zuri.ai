@@ -16,11 +16,16 @@ import {
   parseReplayInput,
   stageById,
 } from './pipeline-tracking-contract'
+import { gateCompliance } from './pipeline-gate-compliance'
 
 // @req FR-071 — full pipeline evidence is written behind one server-owned,
 // scope-filtered service boundary with append-only event receipts.
-// @spec ADR-030 D3-D6, ADR-040 D1-D3, SDD-042, SEC-003, SEC-008
+// @req FR-129 — a gate decision's evidence is persisted and returned, and a
+// publish that succeeded without a prior approval is reported on the monitor.
+// @spec ADR-030 D3-D6, ADR-040 D1-D3, SDD-042, SDD-075, SEC-003, SEC-008
 // @tested tests/unit/platform/pipeline-tracking-service.test.js
+// @tested tests/unit/platform/fr129-catalog-publication-gate.test.js
+// @tested tests/integration/fr129-catalog-publication-gate.test.js
 
 export const PIPELINE_STALE_AFTER_MS = 5 * 60 * 1000
 
@@ -247,6 +252,12 @@ function gateSummary(row) {
     required: row.required !== false,
     decidedByPersonId: row.decidedByPersonId || null,
     reason: row.reason || null,
+    // SDD-075 — dropping this field is what made a written evidence column
+    // unreachable even once something wrote it. `safeParse` and not `JSON.parse`
+    // because the column is untyped text with a DDL default: a row written
+    // before this path existed holds `'{}'`, and a row written outside this
+    // service could hold anything at all.
+    evidence: safeParse(row.evidenceJson, {}),
     auditEventId: row.auditEventId || null,
     createdAt: row.createdAt || null,
   }
@@ -525,7 +536,13 @@ export async function recordPipelineEvent(input, {
           required: event.gate.required,
           decidedByPersonId: event.gate.decidedByPersonId,
           reason: event.gate.reason,
-          evidenceJson: '{}',
+          // SDD-075 — the column has existed since FR-071 and held nothing
+          // because this line was the literal `'{}'`. `json()` stringifies the
+          // envelope's already-parsed evidence, so what lands in the text
+          // column is always valid JSON and always the closed five-member
+          // shape `zGateEvidence` admits; a caller that supplies none writes
+          // the same `'{}'` it always did.
+          evidenceJson: json(event.gate.evidence, {}),
           auditEventId: audit.id,
           createdAt: at,
           updatedAt: at,
@@ -670,6 +687,15 @@ export async function getPipelineMonitor(executionRunId, {
     reconciliations: reconciliations.map(reconciliationSummary),
     reconciliation: reconciliations[0] ? reconciliationSummary(reconciliations[0]) : null,
     gates: gates.map(gateSummary),
+    // FR-129 — reported beside `gates` and `steps` because it is a statement
+    // ABOUT them, and computed from every step row rather than from
+    // `selectedSteps`: `latestByStage` keeps one row per stage, which would
+    // hide an unapproved publish behind a later approved retry.
+    gateCompliance: gateCompliance({
+      dataPipelineDefinitionId: run.dataPipelineDefinitionId,
+      steps,
+      gates,
+    }),
     freshness: {
       stale: freshness.stale,
       reason: freshness.reason,

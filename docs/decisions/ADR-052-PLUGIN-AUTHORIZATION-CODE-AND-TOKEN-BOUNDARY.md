@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-08-23T04:00:00+07:00,ATHER"
-last_update: "2026-08-30T00:00:00+07:00,Claude Opus 5"
+last_update: "2026-08-30T12:00:00+07:00,Claude Opus 5"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -47,7 +47,8 @@ Implement one canonical route family under `/api/plugin/auth`:
 
 | Route | Purpose | Authority |
 |---|---|---|
-| `GET /api/plugin/auth/authorize` | Browser-authenticated user starts a one-time authorization-code flow | Existing trusted `SessionPort` and `resolveViewer` |
+| `GET /api/plugin/auth/authorize` | Redirects the browser to the consent screen; renders, never mints | None — reads no session and touches no database |
+| `POST /api/plugin/auth/authorize` | The consent screen's own form submission: approves or denies, and is the only path that mints a code | Session cookie + session-bound anti-CSRF token + HMAC-signed request token (D4) |
 | `POST /api/plugin/auth/token` | Exchange code + PKCE S256 verifier for a short-lived opaque bearer token | Atomic code consumption and session creation in Zuri DB |
 | `GET /api/plugin/auth/capabilities` | Discover server-derived plugin capabilities | Active plugin session, then `resolveViewer` |
 | `POST /api/plugin/auth/revoke` | Revoke one opaque plugin session | Hash-bound, idempotent session revocation |
@@ -89,6 +90,65 @@ grant is cross-tenant visibility held by a human at a browser; letting a plugin
 delegation carry it would mean installing a plugin widened what the person could reach.
 Plugin scope is Membership-derived only.
 
+### D4 — GET renders, POST acts, and consent is what separates them
+
+`GET /authorize` used to mint. `zuri_session` is `sameSite: 'lax'`, and Lax
+**sends** the cookie on a top-level GET navigation, so any page that could cause
+a navigation — a link, a `window.location`, a 302 — issued an authorization code
+for a signed-in person with nothing shown to them and nothing asked of them. The
+redirect allowlist bounded *where* the code went. Nothing bounded *whether the
+person agreed*, and those are different properties.
+
+GET is now a same-origin 302 to `/plugin/authorize`. It reads no session and
+touches no database, so there is no longer a state-changing operation for a
+navigation to trigger. The consent screen resolves the viewer, validates the
+parameters through the same `assertPluginAuthorizeParameters` the mint applies,
+and renders four facts — the plugin's registered name, the capabilities it will
+receive, the exact target the code will be sent to, and the account granting
+them. Every one is server-derived. In particular the capability list comes from
+`derivePluginCapabilitiesForViewer` over a viewer resolved **without**
+`platformGrant` (D3), because the screen must state what the plugin gets, and a
+platform DEV would otherwise be shown a wider grant than the plugin can ever
+hold. A capability list rendered from caller input would be decoration, and
+someone would eventually read it as a check.
+
+Minting requires a POST from that form, carrying three things:
+
+1. the session cookie;
+2. a **session-bound anti-CSRF token**. Lax already blocks a cross-site POST, so
+   this is the second of two locks on the same door — kept on purpose, because a
+   defence that lives entirely in another file's cookie attribute is one an
+   unrelated edit (an embed needing `SameSite=None`, a framework default change)
+   removes silently. This one fails loudly;
+3. a **signed request token** — an HMAC over `ZURI_SESSION_SECRET` of
+   `{client_id, redirect_uri, code_challenge, code_challenge_method, state,
+   installation_id, principal_id, session_binding, exp}`, TTL 5 minutes.
+   `installation_id` is in the signature although it was not in the original
+   sketch of this decision: the minting service binds the code to it, so leaving
+   it out would have left one displayed parameter the POST could still be handed
+   differently.
+
+The handler takes its parameters **only** from that token. The form carries no
+client id, redirect URI, challenge or state for the handler to trust, so "the
+POST cannot be handed different parameters than the ones the person saw" is a
+property of the shape rather than of a comparison someone has to remember to
+write. Every field is then re-validated against live configuration, which the
+signature cannot do: a token this server signed five minutes ago must still be
+refused if the client id was rotated or the redirect URI de-registered since.
+
+A form submission **is** the user gesture. No second gesture signal is checked on
+top of it; inventing one would be theatre.
+
+Refusal is an answer. Deny returns `error=access_denied` with the original
+`state` to the registered redirect URI (OAuth 2.0 §4.1.2.1). Consent that cannot
+be withheld is not consent, and without a deny path the plugin hangs on a
+callback that never arrives.
+
+**No new model and no DDL.** Both tokens are HMACs and are stored nowhere. That
+was a constraint, not a coincidence: the boundary is inert in production
+(`/token` answers `503 PLUGIN_AUTH_CONFIG_MISSING`, no config, no tables), so
+this was the moment to close the gap at zero migration cost.
+
 ## Consequences
 
 - A browser login session and a plugin access session are distinct credentials.
@@ -97,9 +157,10 @@ Plugin scope is Membership-derived only.
   the canonical command/API path before mutation.
 - Client registration and redirect URI allowlists are environment configuration in this
   slice. Missing or ambiguous configuration fails closed.
-- Device public-key proof/DPoP, refresh-token rotation, consent UI and production canary
-  evidence remain separate gates; `installation_id` is an audit/binding identifier, not
-  a substitute for proof-of-possession.
+- Consent is no longer a separate gate: it is implemented (D4). Device public-key
+  proof/DPoP, refresh-token rotation and production canary evidence remain separate
+  gates; `installation_id` is an audit/binding identifier, not a substitute for
+  proof-of-possession.
 - Expired codes and sessions are not pruned by anything yet. They are inert — every read
   path checks `expiresAt` — but the tables grow, so a reaper is owed before high volume.
 
@@ -112,20 +173,25 @@ Plugin scope is Membership-derived only.
 5. Revocation is idempotent and does not disclose whether a token existed.
 6. An expired/revoked installation or session cannot discover capabilities or call future commands.
 7. The PKCE verifier is compared with `timingSafeEqual`, never with `===`.
+8. No authorization code is created by a GET. Minting requires a POST from the consent screen carrying the session cookie, a session-bound anti-CSRF token and a signed request token, and the parameters acted on are read only from that token.
 
 ## Open gates
 
-- **No consent step exists.** `GET /authorize` mints a code from the browser session
-  alone, so any page the signed-in user visits can trigger issuance to the registered
-  redirect URI. The registered URIs are loopback addresses on the user's own machine,
-  which bounds the exposure to something already listening on that port locally — but
-  this is a real gap and the reason unattended production use is gated. A consent
-  screen, or at minimum a same-site/user-gesture requirement, is owed before the client
-  id is registered in production.
-- register the production client id and exact redirect URI(s);
+- ~~**No consent step exists.**~~ **Closed 2026-08-30 (D4).** `GET /authorize` renders
+  the consent screen and mints nothing; minting requires a POST from that screen
+  carrying the session cookie, a session-bound anti-CSRF token and an HMAC-signed
+  request token that is the only source of the parameters acted on. Deny is available
+  and answers `error=access_denied`. Proved behaviourally rather than structurally:
+  `tests/integration/fr123-plugin-consent-gate.test.js` asserts that a fully valid,
+  fully authenticated GET creates **no `PluginAuthorizationCode` row**, and
+  `tests/e2e/fr123-plugin-consent.spec.js` drives the screen by clicking.
+- **Nothing prunes expired codes and sessions.** Still open, and stated here rather than
+  quietly dropped: every read path checks `expiresAt`, so the rows are inert, but the
+  tables grow without bound. A reaper is owed before high volume.
+- register the production client id and exact redirect URI(s) — including the
+  `ZURI_PLUGIN_CLIENT_NAME` the consent screen displays;
 - choose and implement device-bound proof-of-possession if required for production;
 - perform live cross-tenant, revocation, rotation and kill-switch tests;
-- add a reaper for expired codes and sessions;
 - security review approves production activation.
 
 ## CHANGELOG
@@ -134,3 +200,4 @@ Plugin scope is Membership-derived only.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-23 | candidate | Canonical plugin authorization-code, token, capability and revoke boundary | working-tree | ATHER |
 | 0.2.0b | 2026-08-30 | candidate | Re-applied to main as ADR-052/FR-123/SDD-074/SEC-022; adds D1–D3, replay revocation, and the missing-consent open gate | pending | Claude Opus 5 |
+| 0.3.0b | 2026-08-30 | candidate | Adds D4 — the consent gate. `GET /authorize` renders and never mints; a POST from the consent screen, bound by a session-bound anti-CSRF token and an HMAC-signed request token, is the only path that mints; deny returns `access_denied`. No model, no DDL. Closes the missing-consent open gate and restates the unpruned-codes gate that remains | pending | Claude Opus 5 |

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.27.0b |
+| **Version** | 1.28.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-08-30 |
 
@@ -59,7 +59,6 @@ the tables below are the human contract and status authority.
 | GET | `/api/viewer` | viewer gate สำหรับ Home: role + ธุรกิจ/โดเมนที่เห็นได้จาก `resolveViewer()` |
 | GET | `/api/profile` | resolved local account, linked identity state, and local session boundary |
 | PATCH/DELETE | `/api/workspaces/[id]` | แก้ไข / archive workspace |
-
 | GET | `/api/business/strategy?businessId=` | Business-scoped Roadmap, two/three ordered goal horizons, and goal progress read model (FR-041) |
 | GET | `/api/people?businessId=` | viewer-filtered Business People Directory over Person/Membership (FR-042) |
 
@@ -120,13 +119,16 @@ from one signed-in Person to one installation on their own machine.
 
 | Method | Path | Contract |
 |---|---|---|
-| GET | `/api/plugin/auth/authorize` | requires a trusted browser session; validates exact `client_id`, redirect URI, PKCE S256 challenge, state and installation id; issues one hashed 60-second code and redirects only to the configured URI. `401 AUTH_REQUIRED` when not signed in; `503 AUTH_UNAVAILABLE` when the session seam is down |
+| GET | `/api/plugin/auth/authorize` | renders, never acts (ADR-052 D4). A `302` to `/plugin/authorize` on this request's own origin, carrying the query string unchanged. Reads no session, touches no database, mints nothing — so a top-level GET navigation carrying the `SameSite=Lax` session cookie can no longer issue a code |
+| POST | `/api/plugin/auth/authorize` | the consent screen's own form submission, and the only path that mints. Requires a trusted browser session, a session-bound anti-CSRF token, and an HMAC-signed request token (TTL 5 minutes) that is the **sole** source of the authorization parameters — the form carries no `client_id`, `redirect_uri`, challenge or state for the handler to trust. Every signed field is re-validated against live configuration before minting. `decision=approve` issues one hashed 60-second code and `303`s to the exact registered URI with the original `state`; `decision=deny` `303`s there with `error=access_denied` and the original `state`. `401 AUTH_REQUIRED` without a session; `400 INVALID_REQUEST` for a missing, foreign, tampered or expired token; `503 AUTH_UNAVAILABLE` when the session seam is down |
 | POST | `/api/plugin/auth/token` | exchanges `{grant_type: authorization_code, code, client_id, redirect_uri, code_verifier, installation_id}`; atomically consumes the code and returns a 15-minute opaque bearer session with no refresh token and no Tenant/Business authority. Replaying a consumed code returns `400 INVALID_GRANT` **and** revokes the session that code already minted |
 | GET | `/api/plugin/auth/capabilities` | requires the opaque bearer; resolves the Person through `resolveViewer` (without `platformGrant`); returns a bounded policy snapshot and server-derived capabilities only — never a mutation grant |
 | POST | `/api/plugin/auth/revoke` | accepts `{token, token_type_hint?: access_token}`; hash-bound idempotent revoke answering identically whether or not the token existed |
 
-All four responses carry `Cache-Control: no-store`, and no error echoes a raw code,
-token or internal message. `POST /token` and `POST /revoke` are structurally exempt
+Every response in the family carries `Cache-Control: no-store`, and no error echoes a
+raw code, token or internal message. The consent screen at `/plugin/authorize` is a
+page rather than an API route; it is `force-dynamic` and its response is no-store too,
+because its markup carries the two consent tokens. `POST /token` and `POST /revoke` are structurally exempt
 from preflight's route-viewer ratchet for the same reason `/api/auth/login` is:
 their only credential is the one presented, and requiring a browser session there
 would be the broken boundary.
@@ -252,7 +254,7 @@ Contract constraints:
 
 | Method | Path | ทำอะไร |
 |---|---|---|
-| GET/POST | `/api/projects` | list (filter: workspaceId, businessId, tenantId, status, q, limit, view) → `{ items, limit, truncated }` / create; `view=overview|timeline|workspace` are explicit relation-rich compatibility reads for existing consumers; create derives `businessId` from the target Space and rejects owner/Space mismatch |
+| GET/POST | `/api/projects` | list (filter: workspaceId, businessId, tenantId, status, q, limit, view) → `{ items, limit, truncated }` / create; `view=overview\|timeline\|workspace` are explicit relation-rich compatibility reads for existing consumers; create derives `businessId` from the target Space and rejects owner/Space mismatch |
 | GET/PATCH/DELETE | `/api/projects/[id]` | detail (includes direct Business owner and Space context) / update with owner/Space invariant / archive |
 | GET | `/api/projects/[id]/inventory` | implemented: trusted-viewer, read-only `PROJECT_INVENTORY` DTO v1.0 with bounded work, milestones/gates, contained dependencies, file metadata, repository links, team, progress/evidence and redacted activity sections |
 | GET/POST/PATCH/DELETE | `/api/projects/[id]/team` | team in business scope / add member / change role / remove business-scoped member |

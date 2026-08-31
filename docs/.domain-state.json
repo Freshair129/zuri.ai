@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-30T22:25:07.639Z",
+  "generatedAt": "2026-08-31T02:37:14.934Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,12 +37,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 8,
-    "featureCount": 104,
-    "readyFeatureCount": 94,
-    "requirementCount": 128,
-    "verifiedRequirementCount": 118,
-    "progressPercent": 92.2,
-    "gapCount": 19,
+    "featureCount": 108,
+    "readyFeatureCount": 96,
+    "requirementCount": 132,
+    "verifiedRequirementCount": 120,
+    "progressPercent": 91.2,
+    "gapCount": 21,
     "gaps": [
       {
         "domain": "agent",
@@ -69,6 +69,14 @@
           "tests/unit/postgres-business-knowledge.test.js",
           "tests/unit/supabase-production-isolation.test.js"
         ]
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-132",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-132 is planned",
+        "evidence": []
       },
       {
         "domain": "crm",
@@ -163,6 +171,16 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-110 is planned",
+        "evidence": [
+          "tests/unit/platform/fr129-catalog-publication-gate.test.js"
+        ]
+      },
+      {
+        "domain": "knowledge",
+        "id": "REQ-FR-131",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-131 is planned",
         "evidence": []
       },
       {
@@ -315,7 +333,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-081",
@@ -351,6 +369,13 @@
           "status": "verified",
           "codeCount": 4,
           "testCount": 9
+        },
+        {
+          "id": "FR-132",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -444,6 +469,7 @@
         "docs/domains/agent/features/FR-054-controlled-line-canary.md",
         "docs/domains/agent/features/FR-055-controlled-line-activation-receipt.md",
         "docs/domains/agent/features/FR-057-authorized-agent-context-and-vault-resolution.md",
+        "docs/domains/agent/features/FR-132-line-ladder-quotation-tool.md",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/import/plan-schema.js",
@@ -474,6 +500,13 @@
             "tests/unit/postgres-business-knowledge.test.js",
             "tests/unit/supabase-production-isolation.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-132",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-132 is planned",
+          "evidence": []
         }
       ],
       "details": {
@@ -481,7 +514,7 @@
         "apiRoutes": 3,
         "pageRoutes": 0,
         "ownedModels": 0,
-        "featureNotes": 6
+        "featureNotes": 7
       },
       "featureIds": [
         "FR-025",
@@ -496,11 +529,12 @@
         "FR-053",
         "FR-054",
         "FR-055",
-        "FR-057"
+        "FR-057",
+        "FR-132"
       ],
-      "featureCount": 13,
+      "featureCount": 14,
       "readyFeatureCount": 13,
-      "progressPercent": 100
+      "progressPercent": 92.9
     },
     "crm": {
       "status": "partial",
@@ -725,7 +759,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-046",
@@ -885,8 +919,8 @@
           "id": "FR-123",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 7
+          "codeCount": 9,
+          "testCount": 11
         }
       ],
       "checks": {
@@ -897,8 +931,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 7,
-            "inventoried": 7,
+            "routes": 8,
+            "inventoried": 8,
             "missing": 0
           }
         },
@@ -969,9 +1003,9 @@
             }
           ],
           "details": {
-            "mutations": 12,
-            "guardedMutations": 8,
-            "reads": 4,
+            "mutations": 13,
+            "guardedMutations": 9,
+            "reads": 3,
             "unguardedReads": 0
           }
         },
@@ -1047,9 +1081,9 @@
         }
       ],
       "details": {
-        "routes": 23,
+        "routes": 24,
         "apiRoutes": 16,
-        "pageRoutes": 7,
+        "pageRoutes": 8,
         "ownedModels": 16,
         "featureNotes": 17
       },
@@ -1108,7 +1142,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-079",
@@ -1121,8 +1155,8 @@
           "id": "FR-080",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 9
+          "codeCount": 8,
+          "testCount": 10
         },
         {
           "id": "FR-081",
@@ -1164,7 +1198,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-118",
@@ -1186,6 +1220,20 @@
           "status": "planned",
           "codeCount": 0,
           "testCount": 0
+        },
+        {
+          "id": "FR-129",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 5
+        },
+        {
+          "id": "FR-130",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 4
         }
       ],
       "checks": {
@@ -1294,6 +1342,8 @@
         "docs/domains/integration/features/FR-100-sot-approval-inbox.md",
         "docs/domains/integration/features/FR-101-sot-pipeline-graph-dashboard.md",
         "docs/domains/integration/features/FR-125-flowaccount-read-only-pull-pipeline.md",
+        "docs/domains/integration/features/FR-129-catalog-publication-approval-gate.md",
+        "docs/domains/integration/features/FR-130-github-repository-projection.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -1328,7 +1378,7 @@
         "apiRoutes": 6,
         "pageRoutes": 4,
         "ownedModels": 15,
-        "featureNotes": 7
+        "featureNotes": 9
       },
       "featureIds": [
         "FEAT-004",
@@ -1336,11 +1386,13 @@
         "FR-081",
         "FR-102",
         "FR-106",
-        "FR-125"
+        "FR-125",
+        "FR-129",
+        "FR-130"
       ],
-      "featureCount": 6,
-      "readyFeatureCount": 4,
-      "progressPercent": 87.5
+      "featureCount": 8,
+      "readyFeatureCount": 6,
+      "progressPercent": 90
     },
     "knowledge": {
       "status": "partial",
@@ -1385,21 +1437,24 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-109",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-110",
           "declared": "planned",
           "status": "planned",
           "codeCount": 0,
-          "testCount": 0
+          "testCount": 1,
+          "evidence": [
+            "tests/unit/platform/fr129-catalog-publication-gate.test.js"
+          ]
         },
         {
           "id": "FR-111",
@@ -1463,6 +1518,13 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 5
+        },
+        {
+          "id": "FR-131",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -1544,6 +1606,7 @@
         "docs/domains/knowledge/features/FR-116-derived-object-provenance.md",
         "docs/domains/knowledge/features/FR-117-deduplication-and-versioning.md",
         "docs/domains/knowledge/features/FR-118-tier1-stage-composition.md",
+        "docs/domains/knowledge/features/FR-131-shipping-rate-card-as-business-knowledge.md",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
         "src/modules/project-manager/mcp/transport.js",
@@ -1568,6 +1631,15 @@
           "severity": "medium",
           "check": "requirements",
           "summary": "FR-110 is planned",
+          "evidence": [
+            "tests/unit/platform/fr129-catalog-publication-gate.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-131",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-131 is planned",
           "evidence": []
         }
       ],
@@ -1576,7 +1648,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 0,
-        "featureNotes": 12
+        "featureNotes": 13
       },
       "featureIds": [
         "FEAT-013",
@@ -1590,11 +1662,12 @@
         "FR-116",
         "FR-117",
         "FR-118",
-        "FR-119"
+        "FR-119",
+        "FR-131"
       ],
-      "featureCount": 12,
+      "featureCount": 13,
       "readyFeatureCount": 11,
-      "progressPercent": 92.9
+      "progressPercent": 89.3
     },
     "market-intelligence": {
       "status": "verified",
@@ -2019,7 +2092,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-045",
@@ -2131,7 +2204,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 15
+          "testCount": 17
         },
         {
           "id": "FR-072",
@@ -2306,14 +2379,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-123",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 7
+          "testCount": 11
         },
         {
           "id": "FR-124",
@@ -2842,8 +2915,8 @@
           "id": "FR-080",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 9
+          "codeCount": 10,
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -2859,6 +2932,7 @@
         "src/modules/integration/application/integration-management-service.js",
         "src/modules/integration/application/line-registry-service.js",
         "src/platform/integrations/core/connection-health.js",
+        "src/platform/integrations/core/connector-catalog.js",
         "src/platform/integrations/core/credential-vault.js",
         "src/platform/integrations/core/integration-registry.js",
         "src/platform/integrations/core/secret-manager.js",
@@ -2880,7 +2954,8 @@
         "tests/unit/grounded-business-answer.test.js",
         "tests/unit/line-registry-service.test.js",
         "tests/unit/model-provider-port.test.js",
-        "tests/unit/phase1-business-agent-runtime.test.js"
+        "tests/unit/phase1-business-agent-runtime.test.js",
+        "tests/unit/platform/connector-catalog.test.js"
       ]
     },
     {
@@ -3447,7 +3522,7 @@
         "project-manager"
       ],
       "useCase": "ผู้ดูแลความรู้ตรวจ catalog ของ 17 stage, ไล่ trace ของ job หนึ่งจนจบ และรู้ว่า snapshot ใดที่คำตอบหนึ่งอ่านมา ภายใต้นโยบายความอ่อนไหวที่กำหนดว่าอะไร index ได้และประมวลผลที่ไหนได้",
-      "progressPercent": 66.7,
+      "progressPercent": 80,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
@@ -3460,14 +3535,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-110",
           "status": "planned",
-          "progressPercent": 0,
+          "progressPercent": 40,
           "codeCount": 0,
-          "testCount": 0
+          "testCount": 1
         },
         {
           "id": "FR-111",
@@ -3502,6 +3577,7 @@
         "tests/unit/knowledge-stage-runner.test.js",
         "tests/unit/pipeline-tracking-route.test.js",
         "tests/unit/plan-schema.test.js",
+        "tests/unit/platform/fr129-catalog-publication-gate.test.js",
         "tests/unit/platform/integration-contracts.test.js",
         "tests/unit/platform/knowledge-ingestion-catalog.test.js",
         "tests/unit/platform/pipeline-tracking-contract.test.js",
@@ -5268,7 +5344,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 21
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -5291,6 +5367,7 @@
         "tests/e2e/fr104-password-reset-redemption.spec.js",
         "tests/e2e/fr120-signup.spec.js",
         "tests/e2e/fr124-product-readiness.spec.js",
+        "tests/e2e/fr130-connector-catalog.spec.js",
         "tests/e2e/navigation-reachability.spec.js",
         "tests/e2e/smoke.spec.js",
         "tests/unit/breadcrumb-switcher.test.js",
@@ -6236,7 +6313,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 15
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -6254,6 +6331,7 @@
         "src/platform/integrations/core/pipeline-tracking-contract.js",
         "src/platform/integrations/core/pipeline-tracking-service.js",
         "tests/e2e/smoke.spec.js",
+        "tests/integration/fr129-catalog-publication-gate.test.js",
         "tests/integration/openapi-docs.test.js",
         "tests/unit/document-intake-ui.test.js",
         "tests/unit/knowledge-ingestion-job.test.js",
@@ -6262,6 +6340,7 @@
         "tests/unit/pipeline-tracking-route.test.js",
         "tests/unit/platform/cloud-sot-agent.test.js",
         "tests/unit/platform/document-intake-contract.test.js",
+        "tests/unit/platform/fr129-catalog-publication-gate.test.js",
         "tests/unit/platform/knowledge-ingestion-catalog.test.js",
         "tests/unit/platform/pipeline-tracking-contract.test.js",
         "tests/unit/platform/pipeline-tracking-migration.test.js",
@@ -7320,7 +7399,7 @@
     },
     {
       "id": "FR-123",
-      "title": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052).",
+      "title": "Plugin authentication and capability discovery: first-party Codex/Claude Code harnesses obtain authority through a server-owned authorization-code flow under `/api/plugin/auth` — a signed-in browser session authorizes a 60-second single-use code bound to an exact `client_id`, an exact registered `redirect_uri`, an `installation_id` and a PKCE S256 challenge; exchanging it with the verifier yields a 15-minute opaque bearer session. Codes and tokens are persisted as SHA-256 hashes only, so a database read recovers nothing usable. Capabilities are **derived** from `resolveViewer` and are advisory UX: reads for any visible Business, `requiresApproval` writes only where the person owns one, and every command re-authorizes on its own path before mutating anything. The plugin never submits a human password, copies the `zuri_session` cookie, uses `Mcp-Session-Id` as authorization, connects to the database, or self-asserts Tenant/Business/Membership/role scope; it also never inherits a platform DEV grant, so installing a plugin cannot widen what the person could already reach. Redirect matching is exact and stays exact — `localhost` and `127.0.0.1` are two registrations, a decision forced by a Preview transport that rewrites one into the other (ADR-052 D1). Replaying a consumed code is treated as evidence the code leaked after use: it is refused **and** revokes the session that code already minted. Revoke is idempotent and answers identically for a token that never existed. Distinct from FR-106's `ApiAccessKey`, which is a long-lived Tenant-bound service credential; this is a minutes-long delegation from one person to one installation (ADR-052). Authorization is a two-step gate: `GET /authorize` renders a consent screen and mints nothing, and only a POST from that screen's form — carrying the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token whose parameters are the ones displayed — mints a code. Refusal returns `error=access_denied` with the original `state` (ADR-052 D4).",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
@@ -7341,25 +7420,33 @@
           "id": "FR-123",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 7
+          "codeCount": 11,
+          "testCount": 11
         }
       ],
       "evidence": [
+        "src/app/(entry)/plugin/authorize/page.jsx",
         "src/app/api/plugin/auth/authorize/route.js",
         "src/app/api/plugin/auth/capabilities/route.js",
         "src/app/api/plugin/auth/revoke/route.js",
         "src/app/api/plugin/auth/token/route.js",
         "src/modules/identity/plugin-auth-service.js",
+        "src/modules/identity/plugin-consent-access.js",
+        "src/modules/identity/plugin-consent-view.js",
+        "src/modules/identity/plugin-consent.js",
         "src/modules/project-manager/api-docs/openapi.js",
         "src/modules/project-manager/application/backup-service.js",
+        "tests/e2e/fr123-plugin-consent.spec.js",
         "tests/integration/backup.test.js",
         "tests/integration/fr075-restore-authorization.test.js",
+        "tests/integration/fr123-plugin-consent-gate.test.js",
         "tests/integration/openapi-docs.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/fr123-plugin-auth-migration.test.js",
         "tests/unit/fr123-plugin-auth-route.test.js",
-        "tests/unit/fr123-plugin-auth-service.test.js"
+        "tests/unit/fr123-plugin-auth-service.test.js",
+        "tests/unit/fr123-plugin-consent-view.test.js",
+        "tests/unit/fr123-plugin-consent.test.js"
       ]
     },
     {
@@ -7426,6 +7513,138 @@
       "requirements": [
         {
           "id": "FR-125",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FR-129",
+      "title": "Catalog publication approval gate: a `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` run that has produced a candidate projection does not reach `DPS-PUBLISH` until an authorized human has recorded an `APPROVED` `PipelineGateDecision` against that run, and a `REJECTED` decision sends it to `DPS-ROLLBACK` instead — the two stage labels FR-071's catalog has always carried (\"Publish approved projection\", \"Rollback failed or rejected run\") with nothing yet deciding which one a run takes. (a) The decision is recorded on the existing FR-071 execution ledger and declares **no new model and no new column**: `PipelineGateDecision.decidedByPersonId` is who signed, that row's own `createdAt` is when, `required` is whether the gate was waivable, `reason` carries a rejection, and `PipelineRun.artifactRef`/`artifactSha256` already identify the artifact the run applied. A second run table as CR-003 proposes is refused: `IngestionRun` (FR-081) is acquisition evidence for one connection and `PipelineRun` (FR-071) is the execution ledger for one pipeline definition, and a third answer to \"what happened in this pipeline\" would make the reconciliation evidence something that has to be believed twice (SDD-057). (b) The evidence a reviewer acted on — the candidate publication's own identity, and the added/changed/unchanged counts shown — is written to `PipelineGateDecision.evidenceJson` (SDD-075); a signature whose evidence is empty records that somebody approved but not what they saw, which is not an auditable decision. (c) The destination vault is not stored: it resolves from the run's Tenant/Business scope through API-010 (FR-057, ADR-022), so a stored copy would be a second answer to which vault a scope maps to. (d) Tier 1 records and does not execute (ADR-043 D2.1, ADR-050 D3). The gate is therefore a precondition the executing worker must observe and the ledger makes checkable afterwards — a run whose publish stage succeeded with no prior `APPROVED` decision is a detectable violation — not an interlock this repository enforces on a worker it does not run. (e) **Distinct from FR-110's Stage 17 quality gate**, permanently and by design: FR-110 is an automated `PASS`/`PASS_WITH_WARNINGS` verdict on a `DPL-KNOWLEDGE-INGEST-V1` knowledge snapshot, this is a human signature on a business-knowledge catalog version, and both will answer to \"approval gate on a pipeline run\" in any future search while sharing the one `PipelineGateDecision` table. Reworked from CR-003; no reviewer UI is in scope (CR-003 §2.B is a feature programme, not this requirement)",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-129"
+      ],
+      "primaryDomain": "integration",
+      "contributorDomains": [
+        "integration"
+      ],
+      "useCase": "ผู้มีอำนาจอนุมัติตรวจ catalog version ที่ยังไม่เผยแพร่พร้อมยอดที่เพิ่ม เปลี่ยน และไม่เปลี่ยน แล้วลงชื่ออนุมัติหรือปฏิเสธ โดยลายเซ็นและหลักฐานที่เห็นถูกบันทึกไว้กับ run เดียวกัน",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-129",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 5
+        }
+      ],
+      "evidence": [
+        "src/platform/integrations/core/pipeline-gate-compliance.js",
+        "src/platform/integrations/core/pipeline-tracking-contract.js",
+        "src/platform/integrations/core/pipeline-tracking-service.js",
+        "tests/integration/fr129-catalog-publication-gate.test.js",
+        "tests/unit/platform/fr129-catalog-publication-gate.test.js",
+        "tests/unit/platform/knowledge-ingestion-catalog.test.js",
+        "tests/unit/platform/pipeline-tracking-contract.test.js",
+        "tests/unit/platform/pipeline-tracking-service.test.js"
+      ]
+    },
+    {
+      "id": "FR-130",
+      "title": "Business-scoped GitHub repository projection: a `Repository` a Business already owns may additionally name its GitHub origin, and a person the Business admits may read that repository's tree and file contents in the console, read-only. (a) The binding declares **no new model, no new column and no migration**, because the entity already exists: FR-008 created `Repository` and FR-073 made it owned by exactly one Business, which is the scope CR-004 also chose and the only scope the viewer contract can govern (SDD-037). CR-004's `githubRepoUrl` is `Repository.url` beside `ownerName`/`repoName`/`fullName`/`provider`; its `githubBranch` is `Repository.defaultBranch`, with `ProjectRepository.branch` as the per-link override; GitHub's numeric repository id is `Repository.externalRepoId` mapped through `ExternalEntityRef` — the identifier BR-002 names by example (\"GitHub id\") and forbids as a key; and CR-004's three sync fields are **not stored at all**, because they are artifacts of a design this one does not adopt: `lastCommitSha`, `lastGithubSyncAt` and `githubSyncStatus` describe a mirror kept in step with an origin, and a read-through projection (d) keeps no mirror — the commit a reader is looking at comes from the same live fetch that produced the tree, so storing it would be a second answer to a question the response already carries. Should a cache ever be added, the watermark is `SyncCursor.cursorValue` with `lastSuccessAt` beside it and `IngestionRun.status` for the outcome, and that is the point at which its keying must be settled rather than assumed: `SyncCursor` is unique on `(connectionId, resourceType)`, so one connection covering several repositories has no per-repository cursor without either compounding `resourceType` or narrowing a connection to one repository — and `externalAccountId` names an *account*, which is why `Repository` is a separate model in the first place. Five columns on `Business` are refused: `Business` is a scope-chain entity, columns on it would cap a Business at one repository where `Repository` already permits many, and a foreign URL and commit SHA on a core scope row is the shape BR-002 exists to prevent. (b) A private repository's credential is an `IntegrationCredential.secretRef` on a `github` `IntegrationConnection`, resolved through the `SecretManagerPort` — a reference, never material, never in a browser response (SDD-043, SEC-015). Registering the provider row is idempotent on its code and needs no migration. (c) Push delivery is an **FR-081 adapter, not a new endpoint**: a webhook is one of the four `SOURCE_TYPES` that requirement already names, and a bespoke `/api/webhooks/github` would be the second raw-write path FR-081 forbids by name — the same finding CR-005's LINE connector drew. The tenant CR-004 omits is never read from the payload: the delivery's `installation.id` selects exactly one `IntegrationConnection` on `(providerId, externalAccountId)` and **zero or multiple candidates fail closed** (the FR-079 rule), the connection carries the trusted `tenantId`/`businessId`, and `repository.id` then resolves to a `Repository` through `ExternalEntityRef`. The authentication CR-004 omits is GitHub's `X-Hub-Signature-256` — HMAC-SHA256 over the raw body under the connection's webhook secret, constant-time compared, verified before anything is parsed for meaning or written; routing reads `installation.id` only, which is a non-secret selector the signature then proves, so trust follows verification rather than preceding it. (d) **File content is never persisted** — only push metadata converges on the raw substrate, and the tree and blob reads that render a file are read-through with no row of their own (SDD-076). Writes to `Repository` continue to go through project-manager's `repository-service`, which stays its only writer; this requirement reads that model and does not claim it. (e) The projection is bounded by a declared path scope, deny-by-default in the shape SEC-009 already uses, and `vaults/`-class live database state is excluded rather than discovered by a previewer (CR-006 §5.2). No file tree UI, purpose badge, multi-format previewer or metadata panel is in scope: CR-004 §2.B is a four-part feature programme, not this requirement. Reworked from CR-004",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-130"
+      ],
+      "primaryDomain": "integration",
+      "contributorDomains": [
+        "integration"
+      ],
+      "useCase": "Owner ผูก repository GitHub เข้ากับ Business ที่ตนดูแล แล้วเปิดอ่านโครงสร้างไฟล์และเนื้อไฟล์ในคอนโซลแบบอ่านอย่างเดียว เฉพาะ path ที่ประกาศไว้ โดยระบบไม่เก็บสำเนาเนื้อไฟล์ไว้เลย",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-130",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/platform/integrations/page.jsx",
+        "src/platform/integrations/core/connector-catalog.js",
+        "tests/e2e/fr130-connector-catalog.spec.js",
+        "tests/unit/fr080-ui-contract.test.js",
+        "tests/unit/line-registry-service.test.js",
+        "tests/unit/platform/connector-catalog.test.js"
+      ]
+    },
+    {
+      "id": "FR-131",
+      "title": "Shipping rate card as governed business knowledge: a Business's logistics rate matrix — Member tier × warehouse × shipping method × category, each cell a THB/CBM rate and a THB/kg rate with the CBM and weight minima that qualify a shipment for that tier — is published as `business_knowledge` rows under a **second `knowledge_type`**, and declares **no Prisma model, no new domain and no settings write path**. (a) The rows go where the same Business's product prices already go. `zuri_core.business_knowledge` is Tenant- and Business-scoped under forced RLS behind a `SET LOCAL ROLE` login (SDD-026) and already carries every fact a rate needs: `as_of` for the sheet's effective date, `approved_at`, `source_ref` and `source_sha256` for the supplier rate sheet the numbers came from, `is_active` for supersession, plus `unit`, `sell_price` and a `specification` object for the per-kilogram rate and the tier minima. CR-005's `ShippingRateMatrix` Prisma model is refused for the reason SDD-077 gives, and additionally because no chartered domain may hold it: `knowledge` owns no Prisma models by design and has kept that boundary through FR-109…FR-119, and `market-intelligence` reserves commercial state for a \"Commerce authority\" that has no charter in this repository. (b) Rates enter through the intake already built for this exact input. The sheets are supplier documents, so `SMARTGIFT_DOCUMENT_INTAKE` stages them (`document-intake-contract.js` accepts image sources), `DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1` publishes them, and FR-129's `APPROVED` `PipelineGateDecision` is what makes a rate change readable. The administrator-editable grid of CR-005 §3.B.1 is refused on that ground rather than on effort: a rate a person may silently retype has no effective date, no signature and no source, and a quotation priced from it cannot be explained afterwards. (c) The density switch — charge by weight at or above 400 kg/CBM, by volume below — is a property of the published card, not of a cell, and is carried once per version rather than copied onto every cell, where sixty-four copies are sixty-four chances to disagree. (d) **Sell-side only.** FR-047 excludes cost and margin from this projection by name; what a customer is charged belongs here and the cost basis behind CR-005 §4.1's margin floor does not (FR-132 (c)). (e) Scope is `(tenant_id, business_id)` and not the `workspaceId` CR-005 proposes: `Workspace.tenantId` and `Workspace.businessId` are both nullable under `scopeType` `PORTFOLIO`/`TENANT`/`BUSINESS`, and a LINE turn resolves `{tenantId, businessId}` from its server-owned binding (FR-052) and never holds a `workspaceId` at all, so a workspace-keyed rate is unreadable from the one surface that needs it. Reworked from CR-005; the quoting behaviour is FR-132",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-131"
+      ],
+      "primaryDomain": "knowledge",
+      "contributorDomains": [
+        "knowledge"
+      ],
+      "useCase": "ผู้ดูแลนำเข้าใบอัตราค่าขนส่งของซัพพลายเออร์เป็นเอกสาร แล้วอัตราตามระดับสมาชิกถูกเผยแพร่เป็น business knowledge ที่บอกได้ว่ามีผลเมื่อใด ใครอนุมัติ และมาจากไฟล์ต้นทางใด ไม่ใช่ตารางที่แก้ทับได้เงียบ ๆ",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-131 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-131",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FR-132",
+      "title": "Ladder quotation on the LINE surface, as a Gate E read-only tool: a customer asking for a price inside an existing LINE conversation (\"ขอใบเสนอราคา\", \"คำนวณราคา TDD03-2 จำนวน 100 ชิ้น\") gets a tiered quotation in the reply, and this declares **no route, no model, no converter and no credential**. (a) It adds nothing to the intake path because that path is already complete. The FR-028 webhook receives an already-verified, already-normalized batch from `zuri.command-agent`; `normalizeLineWebhookEvent` already converts every event onto the FR-081 ingestion envelope; `handleAgentTurn` already runs the turn. CR-005's `/api/connectors/line-oa/[businessId]` is refused as the second write path BR-009 and SDD-009 forbid by name — and so is the *converter* a first reading of that refusal implies, because the converter exists and has since FR-081. What is missing is one descriptor in `defaultReadOnlyTools`, which registers cleanly at Gate E precisely because a quotation computes and writes nothing (`createToolRegistry` rejects any descriptor whose `readOnly` is not `true`). (b) The reply is **returned** to the sole transport owner, never sent: BR-011 gives `zuri.command-agent` signature verification and the Reply API, and FR-050 gives this repository at most one reply text per event and no `replyToken`. The LINE Flex Message of CR-005 §3.B.2 is therefore the transport's rendering of the answer this repository returns, not something this repository posts — the boundary FR-128 already keeps for the Daily Sales Brief. (c) CR-005 §4's two invariants are both kept, and split by who may see them: rounding up to the nearest 10 THB is part of the quoted number and belongs in the reply, while the margin floor is a cost-side test applied before the number is returned and never carried in the payload, because FR-047 excludes margin from what this surface may read. A quotation that showed its own floor would breach that exclusion in the one place a customer is reading. (d) Authorization is the registry's own: `requireToolAuthorization` resolves `{tenantId, businessId, principalId}` from the turn's AuthContext and calls `authorizeScope`, so a quote is priced from the asking Business's rate card and from no other. (e) An MCP tool as CR-005 §3.B.3 proposes is a **different surface, not this one**, and is neither refused nor part of this requirement: `/api/mcp` is a viewer-authenticated back-office transport whose registry (`TOOL_DEFINITIONS`) shares no code with the in-process Gate E registry a LINE turn binds. Reworked from CR-005",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-132"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent"
+      ],
+      "useCase": "ลูกค้าถามราคาในห้องแชท LINE เดิม แล้วได้ใบเสนอราคาแบบขั้นบันไดที่ปัดขึ้นเป็นสิบบาทกลับไปในคำตอบ โดยกำไรขั้นต่ำถูกบังคับก่อนตอบและไม่ถูกส่งออกไปกับราคา",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-132 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-132",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,

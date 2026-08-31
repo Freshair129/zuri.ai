@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=52; operational_domain_keys=7; operational_subdomain_entries=25; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=53; operational_domain_keys=7; operational_subdomain_entries=25; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -83,6 +83,7 @@ mean production identity, external providers or cutover gates are complete.
 | `/businesses` | Business Routing | BusinessRoutingShell | list authorized Businesses and select one; empty Business scope now routes to the pre-Business journey (FR-066) | auth required, empty Business scope, loading, error | implemented beta; `src/app/(entry)/businesses/page.jsx`, `GET /api/entry` |
 | `/onboarding/profile` | Profile Setup (ตั้งค่าโปรไฟล์) | BusinessRoutingShell | complete the Profile over the session's own Person before any scope prompt (AC-066.1); routes onward by the server's `nextStep` | auth required, loading, validation error, error | implemented; `src/app/(entry)/onboarding/profile/page.jsx`, `/api/onboarding/profile`, FR-066 |
 | `/waiting-room` | Waiting Room (ห้องรอ) | BusinessRoutingShell | the Profile-only resting state: own pending invites, joined Workspaces, token acceptance, owner path Workspace creation | auth required, incomplete profile redirect, loading, error | implemented; `src/app/(entry)/waiting-room/page.jsx`, `/api/onboarding/state`, `/api/workspace-invites/accept`, FR-066/FR-067 |
+| `/plugin/authorize` | Plugin Authorization Consent (อนุมัติการเชื่อมต่อปลักอิน) | none — a bare server-rendered page, deliberately outside every shell so nothing about the granting account's scope surrounds a decision about delegating it | state, in server-derived terms only, what a first-party plugin is asking for — its registered name, the capabilities its own viewer resolves to, the exact redirect target and the granting account — and take approval or refusal. Only the POST it submits mints an authorization code (ADR-052 D4) | auth required (→ `/login`), invalid request refused in place without naming or following the `redirect_uri` that failed, session store unavailable stated as an outage rather than a refusal | implemented; `src/app/(entry)/plugin/authorize/page.jsx`, `POST /api/plugin/auth/authorize`, FR-123 |
 | `/workspace-home` | Workspace Home | BusinessRoutingShell | joined top-level Workspaces (Portfolio); owner continuation into the FR-020 one-step Business creator; Business Routing link only when Business access exists (AC-066.6) | auth required, incomplete profile redirect, loading, empty, error | implemented; `src/app/(entry)/workspace-home/page.jsx`, `/api/onboarding/state`, FR-066 |
 | `/overview` | Business Home Dashboard | BusinessShell; shell-level cross-domain projection | Business briefing, KPI/health, strategy and attention links | Business required, ready, forbidden, loading, empty, error, offline | implemented beta; `src/app/(pm)/overview/page.jsx`, FR-060 |
 

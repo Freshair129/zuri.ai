@@ -5,9 +5,13 @@ import { z } from 'zod'
 // definition/contract/stage/event identity envelope.
 // @req FR-109 — the seventeen-stage knowledge ingestion pipeline is a second
 // definition on the same envelope, not a second ledger.
-// @spec ADR-030 D2-D4, SDD-042, SDD-057, SDD-066, SDD-073, SEC-003, SEC-008, ADR-050
+// @req FR-129 — the catalog publication approval gate carries the evidence its
+// signer acted on, so "who published this catalog and what did they see" is
+// answerable from the ledger.
+// @spec ADR-030 D2-D4, SDD-042, SDD-057, SDD-066, SDD-070, SDD-073, SDD-075, SEC-003, SEC-008, ADR-050
 // @tested tests/unit/platform/pipeline-tracking-contract.test.js
 // @tested tests/unit/platform/knowledge-ingestion-catalog.test.js
+// @tested tests/unit/platform/fr129-catalog-publication-gate.test.js
 
 export const DATA_PIPELINE_DEFINITION_ID = 'DPL-SUPABASE-BUSINESS-KNOWLEDGE-V1'
 export const EXECUTION_CONTRACT_ID = 'EXC-DATA-MIGRATION-V1'
@@ -223,12 +227,51 @@ const zReconciliation = z.object({
   result: z.enum(['PENDING', 'PASS', 'FAIL']),
 }).strict().nullable()
 
+// SDD-075 — the evidence a reviewer signed on, declared here rather than left
+// for the first caller to invent.
+//
+// `PipelineGateDecision.evidenceJson` has existed since FR-071 as `text NOT
+// NULL DEFAULT '{}'` and nothing has ever written it, because this object had
+// no member for it. `evidenceJson` is untyped text, so gate evidence is
+// exactly as checkable as this shape and no more — which is why the shape is
+// part of the decision instead of a convention.
+//
+// **Counts and one identity, never rows.** The column sits under FORCE ROW
+// LEVEL SECURITY on an append-only ledger, and a payload written there cannot
+// be taken back. `.strict()` is what keeps it that way: an object closed to
+// five named scalar members cannot carry a customer name, a price list or a
+// rejected row no matter what a caller passes, and the refusal is loud rather
+// than a silent truncation. A `passthrough()` here would make the append-only
+// ledger the easiest place in the product to leak personal data into.
+//
+// **`catalogVersion` lives here and not in a column** — SDD-066 made these six
+// tables definition-neutral so a second pipeline definition could share them,
+// and `catalogVersion` is one definition's vocabulary. FR-110's Stage 17 gate
+// runs on the other definition and signs a `knowledge_snapshot_id`, not a
+// catalog version; it is a different decision on the same table and this shape
+// is deliberately not stretched to cover it. A knowledge gate that needs
+// evidence declares its own member and says so, and until it does `.strict()`
+// refuses it visibly instead of storing an unlabelled object.
+const zGateEvidence = z.object({
+  catalogVersion: z.string().trim().min(1).max(200),
+  artifactSha256: zNullableHash.optional().default(null),
+  addedCount: zCount,
+  changedCount: zCount,
+  unchangedCount: zCount,
+}).strict()
+
 const zGate = z.object({
   gateId: zNullableId,
   status: z.enum(GATE_STATUSES),
   required: z.boolean(),
   decidedByPersonId: zNullableId,
   reason: z.string().trim().max(500).nullable(),
+  // Optional for the same reason SDD-070's counts are: a member persisted only
+  // when a caller supplies it leaves every existing decision row and every
+  // existing caller unchanged. The one case where it is NOT optional is
+  // enforced in the envelope's superRefine below, where the definition is in
+  // scope and this object's own schema cannot see it.
+  evidence: zGateEvidence.optional(),
 }).strict().nullable()
 
 /**
@@ -329,6 +372,59 @@ export const zPipelineEvent = z.object({
   }
   if (value.eventType === 'GATE_UPDATED' && !value.gate) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['gate'], message: 'gate event requires gate evidence' })
+  }
+  // FR-129 (b) — an APPROVED catalog publication signature must say what the
+  // signer saw. "Somebody approved" without "what they approved" is not an
+  // auditable decision, and the ledger is append-only: the missing evidence
+  // cannot be added afterwards without a second row claiming to be the first.
+  //
+  // Scoped to THIS definition on purpose. FR-110's Stage 17 gate is an
+  // automated quality verdict on `DPL-KNOWLEDGE-INGEST-V1` sharing this one
+  // table, and requiring FR-129's catalog evidence of it would be inventing a
+  // rule for a requirement that has not asked for one. Both will answer to
+  // "approval gate on a pipeline run" in a future search; only one of them is
+  // constrained here.
+  //
+  // REJECTED, WAIVED and PENDING are unconstrained. A rejection's account is
+  // its `reason`, and a waiver's subject may be a run that never produced a
+  // candidate at all — demanding counts of either would refuse a legitimate
+  // decision to make the shape symmetric.
+  if (value.gate && value.dataPipelineDefinitionId === DATA_PIPELINE_DEFINITION_ID) {
+    if (value.gate.status === 'APPROVED' && !value.gate.evidence) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['gate', 'evidence'],
+        message: 'an APPROVED catalog publication gate requires the evidence it was decided on (FR-129, SDD-075)',
+      })
+    }
+    // FR-129 (2) — "The decision names a person, and, when rejecting, a reason."
+    //
+    // Said here because the schema cannot say it: `decidedByPersonId` is
+    // `String?` with NO relation to `Person`, unlike
+    // `CustomerImportReviewDecision.decidedByPersonId`, which is NOT NULL with a
+    // real foreign key. So an approval with no signer at all is writable, and
+    // an unsigned approval is the same hollow record as an unaccounted one.
+    //
+    // **This decides nothing about WHO may sign.** That is the named product
+    // blocker, and it stays open: this refuses an anonymous signature, not any
+    // particular signatory. PENDING and WAIVED are left alone — PENDING is the
+    // gate awaiting a decision rather than one, and whether a waiver is a
+    // person's act or a definition's property is part of the same open
+    // question about `required`.
+    if (['APPROVED', 'REJECTED'].includes(value.gate.status) && !value.gate.decidedByPersonId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['gate', 'decidedByPersonId'],
+        message: 'a catalog publication decision names the person who made it (FR-129)',
+      })
+    }
+    if (value.gate.status === 'REJECTED' && !value.gate.reason) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['gate', 'reason'],
+        message: 'a REJECTED catalog publication gate requires a reason (FR-129)',
+      })
+    }
   }
 })
 

@@ -236,6 +236,10 @@
     "FR-126",
     "FR-127",
     "FR-128",
+    "FR-129",
+    "FR-130",
+    "FR-131",
+    "FR-132",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -330,6 +334,9 @@
     "SDD-072",
     "SDD-073",
     "SDD-074",
+    "SDD-075",
+    "SDD-076",
+    "SDD-077",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -2406,14 +2413,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "8dbfcddfe029f43b112aafa3cb0ef4b17736f2d642d69d3e1c590ee6ccac9bbe",
+      "statement_digest": "a5275d9c6452a541bf9a6df0b75667214df53223520e12c287f7967b60cf61c2",
       "history": [
         {
           "anchor": "plugin authentication and capability discovery",
           "since": "2026-08-29",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-08-30",
+      "statement_digest_reason": "Same subject; the statement now records the two-step consent gate (GET renders, POST mints) that ADR-052 D4 added. Nothing about what FR-123 means changed."
     },
     "FR-124": {
       "family": "FR",
@@ -2476,6 +2485,58 @@
         {
           "anchor": "daily sales brief",
           "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-129": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "162c81f77df7a254af837d638996df08d1348461d8e1ec0af1b436c4dc969ef2",
+      "history": [
+        {
+          "anchor": "catalog publication approval gate",
+          "since": "2026-08-30",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-130": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ee74c2d5c5f230cf62b7e51757f98fcdcdef158021f5441251957b4dd7fd2ac6",
+      "history": [
+        {
+          "anchor": "business scoped github repository projection",
+          "since": "2026-08-30",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-131": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "fc7b36466e40019c73911a0e5a43b9bf0dfc0ed5e86591611e8de2eb6d4472a4",
+      "history": [
+        {
+          "anchor": "shipping rate card as governed business knowledge",
+          "since": "2026-08-30",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-132": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c06ff4d46a71dcc906af4329c8e54d55c1cb60e816f05073e4e57d28f3d741a0",
+      "history": [
+        {
+          "anchor": "ladder quotation on the line surface as a gate e read only",
+          "since": "2026-08-30",
           "reason": "declared"
         }
       ]
@@ -3666,14 +3727,16 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "9d34f0d6ad2484c29b4c08306f9881ab03ff816b7be5551b9f4d6f1014479447",
+      "statement_digest": "11fa895086584d1dad5fee2d12f1c0ae3d5df1b60dde4a55d86cf3f36b3003d4",
       "history": [
         {
           "anchor": "the execution monitor has read pipelinerun actualcount",
           "since": "2026-08-28",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-08-30",
+      "statement_digest_reason": "Rendering escape only: the two pipes of the JavaScript || 0 code span are now written \\| so GFM stops splitting the row. The statement text is unchanged; the digest moved because the unescaped pipe had been truncating the parsed statement at that point, so the ledger was pinned to a fragment."
     },
     "SDD-072": {
       "family": "SDD",
@@ -3705,11 +3768,52 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "1dd219ca9f378cec8b04df95922b6cf965fbfd329f4f4abfe38fc973b4b238f9",
+      "statement_digest": "d2166ee8d07fb6d91ee919739eb05d3237e05f3a0a142adaf85c9096035c859e",
       "history": [
         {
           "anchor": "plugin auth is one canonical api plugin auth route family",
           "since": "2026-08-29",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-08-30",
+      "statement_digest_reason": "Same subject; the design statement now describes the GET/POST split on /authorize and the two consent tokens, which are HMACs and add no model."
+    },
+    "SDD-075": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4b65102e56014da4fa2deba413f9319bda8f150d58760ceabedfac8e48aa8081",
+      "history": [
+        {
+          "anchor": "an approval gate s evidence goes in pipelinegatedecision",
+          "since": "2026-08-30",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-076": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "96654df58890ba9ade427d601a19af098ee14a2714728086a667003df44cbb3e",
+      "history": [
+        {
+          "anchor": "a bound repository s metadata converges on fr 081 its file",
+          "since": "2026-08-30",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-077": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "15ddcfae809c264fdc72f7832087cb19011c6a3f477ccb207b341e678fc80e38",
+      "history": [
+        {
+          "anchor": "a second knowledge type in business knowledge needs its own",
+          "since": "2026-08-30",
           "reason": "declared"
         }
       ]
@@ -3999,14 +4103,16 @@
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "0fdb517ccba86b41ca161aee1fb903b1e17f7694c9836eca1b0e3975012cb443",
+      "statement_digest": "a91dec179ec22994ed43f4e479038936a54ac2f5e080113f34cfa448a23144d2",
       "history": [
         {
           "anchor": "plugin auth is a separate public client boundary",
           "since": "2026-08-29",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-08-30",
+      "statement_digest_reason": "Same subject; the security statement records that the consent gap is closed and restates the two gates that remain open."
     },
     "FEAT-001": {
       "family": "FEAT",

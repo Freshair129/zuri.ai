@@ -2,11 +2,17 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
+| **Version** | 1.0.1 |
 | **Status** | Active |
 | **Author** | Owen + Claude |
 | **Created** | 2026-08-31 |
 | **Last Updated** | 2026-08-31 |
+
+> **อัปเดต 1.0.1**: หลังจุดตัดของการวิเคราะห์นี้ Stage 9 (entity resolution)
+> ส่งมอบแล้วฝั่ง GKS เมื่อ 2026-08-30 (ROADMAP revision 2.10.0, merge `e412ec0`
+> บน Genesis-Knowledge-System) — แถว stage 9 ในตาราง 2.2 จึงเป็นบันทึก
+> ประวัติศาสตร์ว่า GoVibe มีอะไรให้ยก ไม่ใช่สถานะปัจจุบันของ GKS;
+> งานสร้างใหม่ที่เหลือคือ stage 10–14/17
 
 เทียบ requirements ของ repo นี้ (PRD-SDD v1.0, ADR-050, FR-057, PHASE-04/05, CR-002)
 กับความสามารถที่มีอยู่จริงใน `G:\govibe` (msp-runtime, govibe-core, MCP server,

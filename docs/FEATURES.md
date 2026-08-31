@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.9.0b |
+| **Version** | 1.12.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -158,7 +158,11 @@ writing one sentence here, or the governance chain stops.
   {"id":"FR-122","primaryDomain":"identity","useCase":"ขั้นตอน Profile เก็บชื่อ นามสกุล และเบอร์โทรศัพท์ เพื่อให้ระบุตัวคนได้จริง ไม่ใช่แค่ชื่อที่ใช้เรียก"},
   {"id":"FR-123","primaryDomain":"identity","useCase":"นักพัฒนาผูก Codex/Claude Code harness เข้ากับ installation ผ่าน authorization code อายุสั้นครั้งเดียว โดยไม่ต้องกรอกรหัสผ่านหรือคัดลอก cookie"},
   {"id":"FR-124","primaryDomain":"project-manager","useCase":"ผู้บริหารเปิด Product Readiness เพื่อดูความคืบหน้าของทุกโดเมน แล้ว drill down ถึง feature, ตัวอย่าง use case, หลักฐาน code/test และสิ่งที่ยังติดอยู่"},
-  {"id":"FR-125","primaryDomain":"integration","useCase":"Owner เชื่อม FlowAccount ของ Business ผ่าน wizard ที่รับ Client ID/Secret แบบเขียนอย่างเดียว แล้วดึงข้อมูลบัญชีแบบอ่านอย่างเดียวโดยไม่เปิดเผย secret กลับมาที่ browser"}
+  {"id":"FR-125","primaryDomain":"integration","useCase":"Owner เชื่อม FlowAccount ของ Business ผ่าน wizard ที่รับ Client ID/Secret แบบเขียนอย่างเดียว แล้วดึงข้อมูลบัญชีแบบอ่านอย่างเดียวโดยไม่เปิดเผย secret กลับมาที่ browser"},
+  {"id":"FR-129","primaryDomain":"integration","useCase":"ผู้มีอำนาจอนุมัติตรวจ catalog version ที่ยังไม่เผยแพร่พร้อมยอดที่เพิ่ม เปลี่ยน และไม่เปลี่ยน แล้วลงชื่ออนุมัติหรือปฏิเสธ โดยลายเซ็นและหลักฐานที่เห็นถูกบันทึกไว้กับ run เดียวกัน"},
+  {"id":"FR-130","primaryDomain":"integration","useCase":"Owner ผูก repository GitHub เข้ากับ Business ที่ตนดูแล แล้วเปิดอ่านโครงสร้างไฟล์และเนื้อไฟล์ในคอนโซลแบบอ่านอย่างเดียว เฉพาะ path ที่ประกาศไว้ โดยระบบไม่เก็บสำเนาเนื้อไฟล์ไว้เลย"},
+  {"id":"FR-131","primaryDomain":"knowledge","useCase":"ผู้ดูแลนำเข้าใบอัตราค่าขนส่งของซัพพลายเออร์เป็นเอกสาร แล้วอัตราตามระดับสมาชิกถูกเผยแพร่เป็น business knowledge ที่บอกได้ว่ามีผลเมื่อใด ใครอนุมัติ และมาจากไฟล์ต้นทางใด ไม่ใช่ตารางที่แก้ทับได้เงียบ ๆ"},
+  {"id":"FR-132","primaryDomain":"agent","useCase":"ลูกค้าถามราคาในห้องแชท LINE เดิม แล้วได้ใบเสนอราคาแบบขั้นบันไดที่ปัดขึ้นเป็นสิบบาทกลับไปในคำตอบ โดยกำไรขั้นต่ำถูกบังคับก่อนตอบและไม่ถูกส่งออกไปกับราคา"}
 ]
 ```
 <!-- readiness-metadata:end -->

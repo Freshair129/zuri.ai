@@ -8,7 +8,13 @@ import prisma from '@/lib/db'
 import { AUTH_SESSION_COOKIE, hashSessionToken, verifySessionToken } from './auth-service'
 import { hasOperatorGrant } from './operator-bootstrap'
 
-function cookieValue(request, name) {
+// Exported because FR-123's consent gate has to bind its anti-CSRF and signed
+// request tokens to *this* session, and therefore has to read the same cookie
+// off the same request shapes (NextRequest, plain Request, a header bag) this
+// port already handles. A second reader would be a second definition of "the
+// session cookie", which is exactly the kind of drift the binding exists to
+// prevent.
+export function readRequestCookie(request, name) {
   if (request?.cookies?.get) {
     const cookie = request.cookies.get(name)
     if (typeof cookie === 'string') return cookie
@@ -44,7 +50,7 @@ export function createSessionPort({ readTrustedSession = async () => null, env =
       const trusted = normalizeTrustedSession(await readTrustedSession(request))
       if (trusted) return trusted
 
-      const sessionCookie = cookieValue(request, AUTH_SESSION_COOKIE)
+      const sessionCookie = readRequestCookie(request, AUTH_SESSION_COOKIE)
       if (sessionCookie) {
         const session = verifySessionToken(sessionCookie, { secret: env.ZURI_SESSION_SECRET })
         if (!session) return { state: 'UNAUTHENTICATED' }

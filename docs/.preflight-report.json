@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 220,
+    "docs": 228,
     "routes": 107,
-    "test_files": 343
+    "test_files": 353
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 21,
+    "info": 23,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -216,8 +216,8 @@
       "id": "I19",
       "severity": "info",
       "check": "id-stability",
-      "title": "430 id(s) pinned across 10 families",
-      "details": "ADR 54 · BR 22 · FEAT 14 · FR 128 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 74 · SEC 22 · ZV2-CR 8 · roster 430",
+      "title": "437 id(s) pinned across 10 families",
+      "details": "ADR 54 · BR 22 · FEAT 14 · FR 132 · MI-RQ 72 · NFR 20 · RSK 16 · SDD 77 · SEC 22 · ZV2-CR 8 · roster 437",
       "files": [
         "docs/.id-ledger.json"
       ],
@@ -244,6 +244,29 @@
         "docs/.roadmap-coverage-baseline.json"
       ],
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
+    },
+    {
+      "id": "I22",
+      "severity": "info",
+      "check": "table-integrity",
+      "title": "table integrity checked in 228 document(s)",
+      "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
+      "files": [
+        "docs/.id-ledger.json"
+      ],
+      "action": "No action — recorded so this check's reach is visible rather than assumed"
+    },
+    {
+      "id": "I23",
+      "severity": "info",
+      "check": "table-integrity",
+      "title": "2 document(s) contain rows shorter than their table's header",
+      "details": "docs/PRD-SDD-v1.0.md:20, docs/SITEMAP-DOMAIN-NAV.md:4 — GFM pads a short row with empty cells, so each renders exactly as written; counted, not reported per row",
+      "files": [
+        "docs/PRD-SDD-v1.0.md",
+        "docs/SITEMAP-DOMAIN-NAV.md"
+      ],
+      "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     }
   ]
 }
