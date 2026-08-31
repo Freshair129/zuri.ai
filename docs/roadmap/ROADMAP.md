@@ -2,8 +2,8 @@
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.8.0"
-updated: "2026-08-30"
+version: "2.10.0"
+updated: "2026-08-31"
 owner: "Owen"
 source_of_truth: true
 live_document: true
@@ -141,6 +141,14 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 > การประกาศ FR ใหม่ต่อจากนี้ต้องเขียน use case หนึ่งประโยคใน docs/FEATURES.md ด้วย
 > มิฉะนั้น `npm run govern` จะหยุด — เพราะ "คนใช้ทำอะไรได้" เป็นฟิลด์เดียวที่ generator
 > อนุมานเองไม่ได้
+>
+> Revision 2.10.0 (2026-08-31): ผูกเอกสาร gap analysis ข้ามระบบฉบับใหม่
+> `../GAP-ANALYSIS-ZURI-GOVIBE.md` (เทียบ requirements ของ repo นี้กับความสามารถเดิม
+> ใน `G:\govibe` — อะไรยกมาใช้ได้ อะไรต้องสร้างใหม่ และงานลง repo ไหนตามกรอบ
+> four-tier ของ ADR-043/050) เข้ากับรายการช่องว่างด้านล่าง. พร้อมกันนั้นแก้ frontmatter
+> `version` ที่ค้างอยู่ 2.8.0 ทั้งที่ revision notes ไปถึง 2.9.0 แล้ว — bump เป็น
+> 2.10.0 เพื่อให้เลขเดินหน้าตามโน้ตจริง. ไม่มีการแก้แถวหรือช่อง Status ใด ๆ ในตาราง
+> Phases/Backlog ใน revision นี้
 
 ## Phases
 
@@ -230,6 +238,12 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 
 รายการนี้คือส่วนที่ registry ประกาศแล้วแต่ยังไม่มีโค้ด หรือมี gate ภายนอกค้าง —
 ตัวเลขสถานะในตารางข้างบนไม่นับสิ่งเหล่านี้ว่าเสร็จ:
+
+> **มุมมองข้ามระบบ (2026-08-31)**: `../GAP-ANALYSIS-ZURI-GOVIBE.md` เทียบรายการนี้
+> กับความสามารถเดิมใน `G:\govibe` — สรุปว่า stage 15 (embedding) ยกโค้ดจาก
+> `msp-runtime/src/retrieval/` ไปใช้ได้เลย, API-010 มีของเดิมให้ port แต่ต้องขยาย
+> AuthContext, ส่วน episodic model (PHASE-04), stage 9–14/17, query-ir.v1 และ
+> FR-110 เป็นงานสร้างใหม่ทั้งหมด
 
 1. ~~FR-066 / FR-067~~ — **ส่งมอบแล้ว 2026-08-27** (แถว TASK-FR-066-067)
 2. ~~SEC-006~~ — **ปิดแล้ว** ผ่าน FR-106 (แถว TASK-SEC-006)
