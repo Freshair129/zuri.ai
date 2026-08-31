@@ -3,12 +3,12 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1492,
+    "total_nodes": 1493,
     "total_edges": 5138,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 129,
+      "document": 130,
       "adr": 54,
       "domain": 8,
       "roadmap": 32,
@@ -56,9 +56,12 @@
   },
   "drift": {
     "changed": [
-      "doc:README"
+      "doc:README",
+      "doc:ROADMAP"
     ],
-    "added": [],
+    "added": [
+      "doc:GAP-ANALYSIS-ZURI-GOVIBE"
+    ],
     "removed": []
   },
   "nodes": [
@@ -8943,6 +8946,16 @@
       "status": "current"
     },
     {
+      "id": "doc:GAP-ANALYSIS-ZURI-GOVIBE",
+      "type": "document",
+      "path": "docs/GAP-ANALYSIS-ZURI-GOVIBE.md",
+      "title": "Gap Analysis — zuri-ai requirements × ความสามารถเดิมใน GoVibe",
+      "version": "1.0.1",
+      "doc_status": "Active",
+      "hash": "0155ea43",
+      "status": "current"
+    },
+    {
       "id": "doc:GOVIBE-INTEGRATION",
       "type": "document",
       "path": "docs/GOVIBE-INTEGRATION.md",
@@ -9281,8 +9294,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "c8419fe3",
-      "status": "current"
+      "hash": "e93ab20a",
+      "status": "changed"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",

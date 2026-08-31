@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 231,
+    "docs": 232,
     "routes": 107,
     "test_files": 357
   },
@@ -249,7 +249,7 @@
       "id": "I22",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 231 document(s)",
+      "title": "table integrity checked in 232 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
