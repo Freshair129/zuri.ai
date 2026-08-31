@@ -1,7 +1,7 @@
 ---
-version: "0.3.0b"
+version: "0.4.0b"
 created_at: "2026-08-31T03:32:36+07:00,ATHER,424f5fab525d20fdf1180fabee4c8cf9d16dd994"
-last_update: "2026-08-31T05:30:00+07:00,ATHER"
+last_update: "2026-08-31T09:52:22+07:00,ATHER"
 status: "beta"
 superseded_by: null
 attributes:
@@ -13,7 +13,7 @@ attributes:
 
 # ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31
 
-**Version:** 0.3.0b
+**Version:** 0.4.0b
 
 **Status:** beta — ผู้ใช้อนุมัติ local implementation รอบแรกด้วยคำสั่ง "ลุย"; external และ policy gates ยังเปิดอยู่
 
@@ -120,6 +120,18 @@ flowchart LR
 [phase report](../../.agent/reports/PARALLEL-WAVE1-20260831.md). สถานะของ FR-110/123/127 ยังเป็น partial
 ตามขอบเขตจริง ไม่รวม runtime producer, production invocation หรือ atomic publication.
 
+## การตรวจรอบถัดไป — ยังไม่เปิด implementation ใหม่
+
+คำสั่ง “ต่อไป” นำไปสู่การตรวจสามสายด้วย Luna 5.6 / max และการรวม main 5787c8a
+เข้าผล local เป็น f95cd5b (docs-only merge). Primary ตอนตรวจรอบนี้สะอาดบน main;
+snapshot WIP ที่บันทึกด้านบนเป็นสถานะก่อนหน้า ไม่ใช่สถานะปัจจุบัน.
+
+[แผนรอบถัดไป](PLAN-PARALLEL-WAVE2-20260831.md) แนะนำ W2-CRM-SCOPE หลัง root ยืนยัน
+malformed Conversation/Customer tenant relation ด้วย SQLite สังเคราะห์.
+เป็นข้อเสนอ security fix ที่ต้องอนุมัติเอกสารใหม่ตาม R5/R6; ไม่ขยาย approval รอบแรกไปยัง
+FR-126/128, reporter, provider หรือ privacy/retention policy.
+การตรวจครั้งนี้ยังไม่ได้แก้ application code หรือปิด defect ดังกล่าว.
+
 ## Version diff
 
 `ไม่มีเอกสารชุดนี้ → 0.1.0b`: เพิ่มแผนขนานสามสายและจุดรวมผล โดยไม่เปลี่ยนข้อกำหนดหรือสถานะ delivery ของงานเดิม
@@ -128,6 +140,9 @@ flowchart LR
 
 `0.2.0b → 0.3.0b`: บันทึกผล local implementation และเชื่อมรายงาน verification; ไม่ขยายการอนุมัติไปยัง external gates
 
+0.3.0b → 0.4.0b: บันทึก main reconciliation และเชื่อม review ของรอบถัดไป;
+แยก candidate security fix ออกจาก first-wave approval.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
@@ -135,3 +150,4 @@ flowchart LR
 | 0.1.0b | 2026-08-31 | candidate | เตรียมชุดแผนงานค้างจาก main ที่ตรวจแล้ว ด้วย Luna max สามสาย | uncommitted; base 424f5fa | ATHER |
 | 0.2.0b | 2026-08-31 | beta | บันทึกอนุมัติ local wave แรก: IDN-01, KNO-01 และ FR-127 persistence/read | local worktree | ATHER |
 | 0.3.0b | 2026-08-31 | beta | รวม local implementation รอบแรกและแยกหลักฐานใน phase report | local integration branch | ATHER |
+| 0.4.0b | 2026-08-31 | beta | เชื่อม next-wave review และ current main; ไม่อนุมัติโค้ดเพิ่ม | based on f95cd5b; document commit in git history | ATHER |

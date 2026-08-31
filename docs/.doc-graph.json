@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1493,
+    "total_nodes": 1494,
     "total_edges": 5138,
     "dangling_edges": 0,
     "node_types": {
@@ -11,7 +11,7 @@
       "document": 130,
       "adr": 54,
       "domain": 8,
-      "roadmap": 32,
+      "roadmap": 33,
       "feature": 14,
       "route": 160,
       "model": 71,
@@ -57,11 +57,10 @@
   "drift": {
     "changed": [
       "doc:README",
-      "doc:ROADMAP"
+      "doc:PLAN-PARALLEL-WAVE2-20260831",
+      "doc:PLAN-PENDING-PARALLEL-20260831"
     ],
-    "added": [
-      "doc:GAP-ANALYSIS-ZURI-GOVIBE"
-    ],
+    "added": [],
     "removed": []
   },
   "nodes": [
@@ -9196,6 +9195,14 @@
       "status": "current"
     },
     {
+      "id": "doc:PLAN-PARALLEL-WAVE2-20260831",
+      "type": "roadmap",
+      "path": "docs/roadmap/PLAN-PARALLEL-WAVE2-20260831.md",
+      "title": "รอบถัดไป — ปิด tenant boundary ของ CRM reader ก่อนเพิ่ม derived profile",
+      "hash": "20a0911c",
+      "status": "changed"
+    },
+    {
       "id": "doc:PLAN-PENDING-BUSINESS-20260831",
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-PENDING-BUSINESS-20260831.md",
@@ -9224,8 +9231,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-PENDING-PARALLEL-20260831.md",
       "title": "ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31",
-      "hash": "56c7c405",
-      "status": "current"
+      "hash": "356dea74",
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-PHASE1-EXTERNAL-ACTIVATION",
@@ -9295,7 +9302,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "e93ab20a",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
