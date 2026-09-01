@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-01T01:22:36.372Z",
+  "generatedAt": "2026-09-01T03:18:59.697Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1106,7 +1106,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 15
+          "testCount": 19
         },
         {
           "id": "FR-099",
@@ -1614,8 +1614,8 @@
           "id": "FR-092",
           "declared": "done",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 15
+          "codeCount": 16,
+          "testCount": 19
         }
       ],
       "checks": {
@@ -2246,8 +2246,8 @@
           "id": "FR-092",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 15
+          "codeCount": 2,
+          "testCount": 19
         },
         {
           "id": "FR-095",
@@ -2349,8 +2349,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 39,
-            "inventoried": 39,
+            "routes": 40,
+            "inventoried": 40,
             "missing": 0
           }
         },
@@ -2503,9 +2503,9 @@
         }
       ],
       "details": {
-        "routes": 121,
+        "routes": 122,
         "apiRoutes": 82,
-        "pageRoutes": 39,
+        "pageRoutes": 40,
         "ownedModels": 30,
         "featureNotes": 30
       },
@@ -6704,18 +6704,26 @@
           "id": "FR-092",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 15
+          "codeCount": 20,
+          "testCount": 19
         }
       ],
       "evidence": [
+        "src/app/(pm)/market/page.jsx",
         "src/modules/integration/adapters/marketplace-listing-adapter.js",
         "src/modules/integration/adapters/retail-price-adapter.js",
         "src/modules/market-intelligence/application/market-observation-service.js",
+        "src/modules/market-intelligence/application/market-research-service.js",
         "src/modules/market-intelligence/application/price-intelligence-service.js",
+        "src/modules/market-intelligence/application/procurement-recommendation-service.js",
+        "src/modules/market-intelligence/application/supplier-intelligence-service.js",
         "src/modules/market-intelligence/application/translate-raw-record.js",
+        "src/modules/market-intelligence/components/MarketDashboard.jsx",
         "src/modules/market-intelligence/domain/market-observation.js",
+        "src/modules/market-intelligence/domain/market-research.js",
+        "src/modules/market-intelligence/domain/market-signals.js",
         "src/modules/market-intelligence/domain/price-observation.js",
+        "src/modules/market-intelligence/domain/supplier-candidate.js",
         "src/modules/market-intelligence/domain/watch-rule.js",
         "src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
         "src/modules/market-intelligence/infrastructure/market-observation-repository.js",
@@ -6733,8 +6741,12 @@
         "tests/unit/market-intelligence/market-observation-domain.test.js",
         "tests/unit/market-intelligence/market-observation-repository.test.js",
         "tests/unit/market-intelligence/market-raw-record-repository.test.js",
+        "tests/unit/market-intelligence/market-research-domain.test.js",
+        "tests/unit/market-intelligence/market-signals-domain.test.js",
         "tests/unit/market-intelligence/price-intelligence-service.test.js",
         "tests/unit/market-intelligence/price-observation-domain.test.js",
+        "tests/unit/market-intelligence/procurement-recommendation.test.js",
+        "tests/unit/market-intelligence/supplier-candidate-domain.test.js",
         "tests/unit/market-intelligence/translate-raw-record.test.js"
       ]
     },

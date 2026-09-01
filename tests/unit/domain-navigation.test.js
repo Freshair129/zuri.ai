@@ -65,6 +65,14 @@ describe('Business domain navigation', () => {
     expect(DOMAINS.find((domain) => domain.key === 'projects').sub.map((item) => item.path)).not.toContain('/people')
   })
 
+  it('registers Market Intelligence as a peer operational domain with route key market', () => {
+    const market = DOMAINS.find((domain) => domain.key === 'market')
+    expect(market.label).toBe('Market Intelligence')
+    expect(market.soon).toBe(false)
+    expect(market.sub[0]).toMatchObject({ label: 'Dashboard', path: '/market' })
+    expect(domainForPath('/market').key).toBe('market')
+  })
+
   it('keeps Space out of the Development command palette registry', () => {
     expect(modules.projectManager.label).toBe('Development')
     expect(modules.projectManager.basePath).toBe('/projects')

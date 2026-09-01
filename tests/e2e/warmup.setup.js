@@ -22,6 +22,7 @@ const { test } = require('@playwright/test')
 const ROUTES = [
   '/', '/login', '/businesses', '/overview', '/profile', '/workspaces',
   '/commerce', '/customer', '/customer/conversations',
+  '/market',
   '/growth', '/growth/campaigns',
   '/operations',
   '/people', '/people/directory',

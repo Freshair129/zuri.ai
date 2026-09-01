@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1505,
-    "total_edges": 5182,
+    "total_nodes": 1518,
+    "total_edges": 5215,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -13,11 +13,11 @@
       "domain": 8,
       "roadmap": 33,
       "feature": 14,
-      "route": 160,
+      "route": 161,
       "model": 71,
       "requirement": 273,
-      "test": 362,
-      "code_file": 396
+      "test": 366,
+      "code_file": 404
     },
     "coverage": {
       "requirements": 273,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (122/122)",
       "rules_anchored_in_code": "95% (113/119)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 396,
+      "annotated_code_files": 404,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -391,6 +391,24 @@
         "@tested": [
           "tests/unit/entry-routing-boundary.test.js",
           "tests/unit/business-shell-guard.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/market/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/market/page.jsx",
+      "hash": "36df76e7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/price-observation-domain.test.js"
         ]
       }
     },
@@ -3698,7 +3716,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "d192a5d8",
+      "hash": "b70fc8a6",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6081,6 +6099,24 @@
       }
     },
     {
+      "id": "code:src/modules/market-intelligence/application/market-research-service.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/application/market-research-service.js",
+      "hash": "52ea6114",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/market-research-domain.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/market-intelligence/application/price-intelligence-service.js",
       "type": "code_file",
       "path": "src/modules/market-intelligence/application/price-intelligence-service.js",
@@ -6095,6 +6131,42 @@
         ],
         "@tested": [
           "tests/unit/market-intelligence/price-intelligence-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/application/procurement-recommendation-service.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/application/procurement-recommendation-service.js",
+      "hash": "e1ea25b7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/procurement-recommendation.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/application/supplier-intelligence-service.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/application/supplier-intelligence-service.js",
+      "hash": "caa30a29",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/supplier-candidate-domain.test.js"
         ]
       }
     },
@@ -6120,6 +6192,24 @@
       }
     },
     {
+      "id": "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/components/MarketDashboard.jsx",
+      "hash": "05f3dd0f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/price-observation-domain.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/market-intelligence/domain/market-observation.js",
       "type": "code_file",
       "path": "src/modules/market-intelligence/domain/market-observation.js",
@@ -6138,6 +6228,42 @@
       }
     },
     {
+      "id": "code:src/modules/market-intelligence/domain/market-research.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/domain/market-research.js",
+      "hash": "02d07971",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/market-research-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/domain/market-signals.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/domain/market-signals.js",
+      "hash": "c7e41171",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/market-signals-domain.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/market-intelligence/domain/price-observation.js",
       "type": "code_file",
       "path": "src/modules/market-intelligence/domain/price-observation.js",
@@ -6152,6 +6278,24 @@
         ],
         "@tested": [
           "tests/unit/market-intelligence/price-observation-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/domain/supplier-candidate.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/domain/supplier-candidate.js",
+      "hash": "6920f818",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/supplier-candidate-domain.test.js"
         ]
       }
     },
@@ -9095,7 +9239,7 @@
       "title": "Zuri V2 — Interface Inventory",
       "version": "1.2.2b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "3eae55ab",
+      "hash": "301af3d8",
       "status": "current"
     },
     {
@@ -13927,6 +14071,14 @@
       "status": "current"
     },
     {
+      "id": "route:page:/market",
+      "type": "route",
+      "kind": "page",
+      "route": "/market",
+      "path": "src/app/(pm)/market/page.jsx",
+      "status": "current"
+    },
+    {
       "id": "route:page:/milestones",
       "type": "route",
       "kind": "page",
@@ -15800,7 +15952,7 @@
       "id": "test:tests/unit/domain-navigation.test.js",
       "type": "test",
       "path": "tests/unit/domain-navigation.test.js",
-      "hash": "c5fa80bc",
+      "hash": "c5e46502",
       "status": "current"
     },
     {
@@ -16483,6 +16635,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/market-intelligence/market-research-domain.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-research-domain.test.js",
+      "hash": "3a2c7403",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/market-signals-domain.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/market-signals-domain.test.js",
+      "hash": "957fc412",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/market-intelligence/price-intelligence-service.test.js",
       "type": "test",
       "path": "tests/unit/market-intelligence/price-intelligence-service.test.js",
@@ -16494,6 +16660,20 @@
       "type": "test",
       "path": "tests/unit/market-intelligence/price-observation-domain.test.js",
       "hash": "18c93594",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/procurement-recommendation.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/procurement-recommendation.test.js",
+      "hash": "22acdda6",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/supplier-candidate-domain.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/supplier-candidate-domain.test.js",
+      "hash": "55bec0fa",
       "status": "current"
     },
     {
@@ -17663,6 +17843,20 @@
     {
       "from": "code:src/app/(pm)/layout.jsx",
       "to": "req:SDD-022",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/market/page.jsx",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/market/page.jsx",
+      "to": "req:SDD-049",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -25746,6 +25940,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/market-intelligence/application/market-research-service.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/market-research-service.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/market-intelligence/application/price-intelligence-service.js",
       "to": "req:FR-092",
       "type": "implements",
@@ -25754,6 +25962,34 @@
     },
     {
       "from": "code:src/modules/market-intelligence/application/price-intelligence-service.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/procurement-recommendation-service.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/procurement-recommendation-service.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/supplier-intelligence-service.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/supplier-intelligence-service.js",
       "to": "req:SDD-049",
       "type": "follows",
       "status": "current",
@@ -25795,6 +26031,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/market-intelligence/domain/market-observation.js",
       "to": "req:FR-092",
       "type": "implements",
@@ -25809,6 +26059,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/market-intelligence/domain/market-research.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/domain/market-research.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/domain/market-signals.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/domain/market-signals.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/market-intelligence/domain/price-observation.js",
       "to": "req:FR-092",
       "type": "implements",
@@ -25817,6 +26095,20 @@
     },
     {
       "from": "code:src/modules/market-intelligence/domain/price-observation.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/domain/supplier-candidate.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/domain/supplier-candidate.js",
       "to": "req:SDD-049",
       "type": "follows",
       "status": "current",
@@ -32433,6 +32725,13 @@
     {
       "from": "route:page:/login",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/market",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -48881,6 +49180,55 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/unit/market-intelligence/market-research-domain.test.js",
+      "to": "code:src/modules/market-intelligence/application/market-research-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-research-domain.test.js",
+      "to": "code:src/modules/market-intelligence/domain/market-research.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-research-domain.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-research-domain.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-signals-domain.test.js",
+      "to": "code:src/modules/market-intelligence/domain/market-signals.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-signals-domain.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/market-signals-domain.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/market-intelligence/price-intelligence-service.test.js",
       "to": "code:src/modules/market-intelligence/application/price-intelligence-service.js",
       "type": "tests",
@@ -48900,6 +49248,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/price-observation-domain.test.js",
+      "to": "code:src/app/(pm)/market/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/price-observation-domain.test.js",
+      "to": "code:src/modules/market-intelligence/components/MarketDashboard.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
     },
     {
       "from": "test:tests/unit/market-intelligence/price-observation-domain.test.js",
@@ -48924,6 +49286,55 @@
     },
     {
       "from": "test:tests/unit/market-intelligence/price-observation-domain.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/procurement-recommendation.test.js",
+      "to": "code:src/modules/market-intelligence/application/procurement-recommendation-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/procurement-recommendation.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/procurement-recommendation.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/supplier-candidate-domain.test.js",
+      "to": "code:src/modules/market-intelligence/application/supplier-intelligence-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/supplier-candidate-domain.test.js",
+      "to": "code:src/modules/market-intelligence/domain/supplier-candidate.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/supplier-candidate-domain.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/supplier-candidate-domain.test.js",
       "to": "req:SDD-049",
       "type": "verifies",
       "status": "current",

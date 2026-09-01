@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=53; operational_domain_keys=7; operational_subdomain_entries=25; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=54; operational_domain_keys=8; operational_subdomain_entries=26; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -119,7 +119,13 @@ page can issue a write.
 | `/customer` | CRM Dashboard | BusinessShell → CRM / Dashboard | conversation, customer and per-direction message counts, active channels, most recent conversations | ready, empty, loading, error, no-business | implemented beta; `src/app/(pm)/customer/page.jsx`, FR-091 |
 | `/customer/conversations` | CRM Inbox | BusinessShell → CRM / Inbox | tenant-scoped conversation list with last-message preview, and the selected thread oldest-first | ready, empty, loading, error, forbidden, no-business; explicitly no reply state | implemented beta; `src/app/(pm)/customer/conversations/page.jsx`, FR-091 |
 
-### 3.4 People and Platform domains
+### 3.4 Market Intelligence domain
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/market` | Market Intelligence Dashboard | BusinessShell → Market Intelligence / Dashboard | real-time market price normalization, listing tracking, active watch rules, and price alerts | ready, empty, loading, error, forbidden | implemented beta; `src/app/(pm)/market/page.jsx`, FR-092 |
+
+### 3.5 People and Platform domains
 
 The operational registry has seven domain keys. Platform currently exposes seven
 page routes because its Dashboard and Settings navigation entries share
