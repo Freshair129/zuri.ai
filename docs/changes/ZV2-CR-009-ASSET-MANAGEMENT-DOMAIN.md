@@ -1,5 +1,5 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-01T00:00:00+07:00,Codex"
 last_update: "2026-09-01T00:00:00+07:00,Codex"
 status: "accepted-planning"
@@ -181,7 +181,7 @@ or migration change record. Asset IDs and disposal history remain non-recyclable
 | Phase | Gate | Required evidence |
 |---|---|---|
 | 1 — repository survey | Baseline understood | enumerated structure report; baseline test/build/govern result |
-| 2 — relevant survey | Boundaries fixed from code | impact report; ownership/threat/test matrices; MVP file hypothesis |
+| 2 — relevant survey | Boundaries and writing topology fixed from evidence | impact report; ownership/threat/test matrices; MVP file hypothesis; exact `ADD`/`UPDATE`/`GENERATE`/`NO CHANGE` document tree accepted by the owner |
 | 3 — docs + tests first | Requirements attributable | pinned IDs; source docs; generated views; intentional focused RED evidence |
 | 4 — implementation + verification | Ready to deliver | focused GREEN; full tests/build/govern/e2e; migration and denial evidence |
 
@@ -205,4 +205,5 @@ This change record is complete only when:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0 | 2026-09-01 | accepted-planning | Required an explicit, owner-reviewed documentation topology before Phase 3 writes source documents or tests | working-tree | Codex |
 | 1.0.0 | 2026-09-01 | accepted-planning | Created the cross-cutting delivery, migration, compatibility, authorization, rollback and verification envelope for ADR-055 | working-tree | Codex |

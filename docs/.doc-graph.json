@@ -58,7 +58,8 @@
     "changed": [
       "doc:CR-014-ASSET-MANAGEMENT-DOMAIN",
       "doc:README",
-      "test:tests/e2e/fr060-business-home.spec.js"
+      "doc:ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN",
+      "doc:PLAN-ASSET-MANAGEMENT-4-PHASES"
     ],
     "added": [],
     "removed": []
@@ -8386,7 +8387,7 @@
       "type": "document",
       "path": "docs/change-requests/CR-014-ASSET-MANAGEMENT-DOMAIN.md",
       "title": "CR-014 — Asset Management Domain Product Requirements (PRD)",
-      "hash": "6e019665",
+      "hash": "3afa4ae2",
       "status": "changed"
     },
     {
@@ -9341,8 +9342,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-ASSET-MANAGEMENT-4-PHASES.md",
       "title": "Asset Management — Four-phase implementation plan",
-      "hash": "18e1ff32",
-      "status": "current"
+      "hash": "373c4dfc",
+      "status": "changed"
     },
     {
       "id": "doc:PLAN-FR-040-PROJECT-WORK-VIEWS",
@@ -9731,8 +9732,8 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN.md",
       "title": "ZV2-CR-009 — Asset Management domain delivery",
-      "hash": "520257d0",
-      "status": "current"
+      "hash": "47e1acd3",
+      "status": "changed"
     },
     {
       "id": "domain:agent",
@@ -14930,7 +14931,7 @@
       "type": "test",
       "path": "tests/e2e/fr060-business-home.spec.js",
       "hash": "6a6555f4",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/e2e/fr077-project-inventory.spec.js",

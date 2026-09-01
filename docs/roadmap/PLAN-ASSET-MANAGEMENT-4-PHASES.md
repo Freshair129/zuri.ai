@@ -1,5 +1,5 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-01T00:00:00+07:00,Codex"
 last_update: "2026-09-01T00:00:00+07:00,Codex"
 status: "accepted"
@@ -44,6 +44,68 @@ The work is ordered as requested:
 5. Generated views and reports are updated only by `npm run govern`, never hand-edited.
 6. Non-trivial source files carry truthful `@req`, `@spec` and `@tested` annotations.
 7. Phase 3 RED is an internal test-first checkpoint. Phase 3 and Phase 4 ship as one PR; no RED state is merged.
+
+## Documentation structure gate — approval required before writing
+
+Phase 1 and Phase 2 may write only their evidence reports. Before Phase 3 changes a
+source-of-truth product document or creates executable feature tests, the
+implementation lane must present the exact document topology, purpose, authority
+and change type for owner review. Writing starts only after that proposal is marked
+accepted in the Phase 2 report or the owner requests a revision.
+
+The initial proposed topology is:
+
+```text
+docs/
+├── change-requests/
+│   └── CR-014-ASSET-MANAGEMENT-DOMAIN.md
+├── decisions/
+│   └── ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md
+├── changes/
+│   ├── ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN.md
+│   └── artifacts/
+│       ├── ZV2-CR-009-phase-1-repository-structure-report.md
+│       ├── ZV2-CR-009-phase-2-asset-management-impact-report.md
+│       ├── ZV2-CR-009-phase-3-docs-and-red-test-report.md
+│       └── ZV2-CR-009-phase-4-implementation-report.md
+├── roadmap/
+│   └── PLAN-ASSET-MANAGEMENT-4-PHASES.md
+├── domains/
+│   └── asset-management/
+│       ├── CHARTER.md
+│       ├── CONTEXT-MAP.md                         (only if Phase 2 proves it is needed)
+│       └── features/
+│           ├── FR-<allocated>-asset-management-mvp.md
+│           └── FR-<allocated>-asset-management-ux.md  (only if UX needs a separate FR)
+├── PRD-SDD-v1.0.md                               (update existing authority)
+├── FEATURES.md                                   (update existing registry)
+├── SITEMAP-DOMAIN-NAV.md                         (update existing navigation authority)
+└── roadmap/ROADMAP.md                            (update existing delivery registry)
+```
+
+The feature document that owns UI behavior also owns the approved information
+architecture, low-fidelity wireframes, loading/empty/error/denied states and
+responsive acceptance criteria. Do not create a disconnected wireframe document
+that can drift from its FR. If Phase 2 proves that the repository needs a dedicated
+UX document, the structure proposal must name its owning FR and link direction
+before the file is created.
+
+| Document class | Authority / purpose | Allowed action |
+|---|---|---|
+| `CR-014` | Product PRD and accepted problem/MVP proposal | Revise when owner changes product intent |
+| `ADR-055` | Architecture and domain-ownership decision | Amend/supersede only with new evidence and rationale |
+| `ZV2-CR-009` | Cross-cutting implementation/change envelope | Update affected files, migration, security and rollback inventory |
+| Four-phase plan | Ordered work, gates and evidence contract | Update before execution when sequencing changes |
+| Phase reports | Immutable evidence for what was inspected, tested and delivered | Create at the end of each phase; never substitute for source truth |
+| Domain charter/context map | Runtime ownership, models, code paths and cross-domain contracts | Create in Phase 3/4 only after Phase 2 approval |
+| Global PRD/feature/sitemap/roadmap registries | Immutable global requirement IDs and official delivery/navigation state | Update in Phase 3 after the ID gate |
+| Feature notes | Detailed behavior, acceptance criteria and owned UX/wireframes | Create only after global IDs are allocated |
+| Generated graph/state/trace/preflight views | Machine projections of source documents | Regenerate with repository commands; never hand-edit |
+
+The Phase 2 proposal must show each candidate path with one of `ADD`, `UPDATE`,
+`GENERATE` or `NO CHANGE`, plus the owning authority and why the file is necessary.
+Any requested `ADD` outside the topology above pauses Phase 3 until the owner accepts
+the revised tree.
 
 ---
 
@@ -97,7 +159,8 @@ configuration and annotation conventions.
 
 ## Deliverable
 
-`phase-1-repository-structure-report.md` in the implementation lane, recording:
+`docs/changes/artifacts/ZV2-CR-009-phase-1-repository-structure-report.md` in the
+implementation lane, recording:
 
 - commit SHA and survey time;
 - document/code/test inventory;
@@ -193,11 +256,12 @@ API/UI contract and e2e workflow tests.
 
 ## Deliverable
 
-`phase-2-asset-management-impact-report.md`, containing:
+`docs/changes/artifacts/ZV2-CR-009-phase-2-asset-management-impact-report.md`, containing:
 
 - context map and ownership matrix;
 - as-is route/schema/service/test inventory;
 - exact expected Phase 3/4 file list;
+- proposed document topology with `ADD`/`UPDATE`/`GENERATE`/`NO CHANGE`, authority and rationale;
 - smallest MVP model/route/API proposal;
 - threat/authorization matrix;
 - unit/integration/e2e test matrix;
@@ -209,6 +273,7 @@ API/UI contract and e2e workflow tests.
 - Speculative tables/routes are removed from the MVP.
 - Every candidate model has exactly one writer.
 - Requirement/feature subjects are named before IDs are allocated.
+- The owner has accepted the proposed documentation structure, or Phase 3 is paused.
 - Baseline remains green and product code is unchanged.
 
 ---
@@ -282,8 +347,8 @@ weaken or fake an implementation. Phase 3 is not a merge/release state.
 
 ## Deliverable
 
-`phase-3-docs-and-red-test-report.md` with IDs, files, commands, generated outputs
-and focused RED evidence.
+`docs/changes/artifacts/ZV2-CR-009-phase-3-docs-and-red-test-report.md` with IDs,
+files, commands, generated outputs and focused RED evidence.
 
 ## Exit gate
 
@@ -406,10 +471,11 @@ Also prove:
 - Custody transfer has immutable history and audit evidence.
 - `FileAsset` behavior and meaning remain intact.
 - `npm run verify` passes.
-- `phase-4-implementation-report.md` records commit SHA, migrations, commands, test counts and known limitations.
+- `docs/changes/artifacts/ZV2-CR-009-phase-4-implementation-report.md` records commit SHA, migrations, commands, test counts and known limitations.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0 | 2026-09-01 | accepted | Added the owner-review documentation-structure gate, proposed file topology, authority matrix and exact phase-report paths before Phase 3 writing | working-tree | Codex |
 | 1.0.0 | 2026-09-01 | accepted | Fixed the four ordered survey → relevant survey → docs/tests-first → code/full-verification phases and their evidence gates | working-tree | Codex |

@@ -2,7 +2,7 @@
 doc_type: change-request
 id: CR-014
 status: accepted-as-architecture-boundary
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-01T00:00:00+07:00"
 updated_at: "2026-09-01T00:00:00+07:00"
 owner: "Boss"
@@ -267,6 +267,11 @@ Execute the work through four ordered phases:
 3. Update source-of-truth documents and write executable tests before implementation.
 4. Implement code, turn the new tests green and run the complete verification chain.
 
+Before step 3 starts, the Phase 2 impact report must propose the exact document tree,
+label every candidate file as `ADD`, `UPDATE`, `GENERATE` or `NO CHANGE`, identify
+its authority and rationale, and receive owner acceptance. This keeps the team from
+writing duplicate PRD, UX or architecture sources before their ownership is agreed.
+
 The detailed gate and evidence contract is
 [`PLAN-ASSET-MANAGEMENT-4-PHASES.md`](../roadmap/PLAN-ASSET-MANAGEMENT-4-PHASES.md).
 
@@ -280,4 +285,5 @@ Those actions remain gated by Phase 3 requirements and tests.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0 | 2026-09-01 | accepted-as-architecture-boundary | Added the documentation-structure proposal and owner-acceptance gate before Phase 3 writing | working-tree | Codex |
 | 1.0.0 | 2026-09-01 | accepted-as-architecture-boundary | Proposed the Asset Management peer domain and handed the accepted boundary to ADR-055 and ZV2-CR-009 | working-tree | Codex |
