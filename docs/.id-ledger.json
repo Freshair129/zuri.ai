@@ -515,6 +515,7 @@
     "ADR-052",
     "ADR-053",
     "ADR-054",
+    "ADR-055",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -522,7 +523,8 @@
     "ZV2-CR-005",
     "ZV2-CR-006",
     "ZV2-CR-007",
-    "ZV2-CR-008"
+    "ZV2-CR-008",
+    "ZV2-CR-009"
   ],
   "ids": {
     "BR-001": {
@@ -6152,6 +6154,19 @@
         }
       ]
     },
+    "ADR-055": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "5b86124649b95edebb0160533339399531e87315e0c1be1aca5385ea51d5f567",
+      "history": [
+        {
+          "anchor": "asset management is a first class zuri domain for the",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
+    },
     "ZV2-CR-001": {
       "family": "ZV2-CR",
       "source": "docs/changes/ZV2-CR-001-MANAGED-LOCAL-FILES-AND-CACHE.md",
@@ -6255,6 +6270,19 @@
         }
       ],
       "statement_digest": "56b038f6b5392a535afb3ce56f0c85a19d2007889b2c2b121807f78db1110cbb"
+    },
+    "ZV2-CR-009": {
+      "family": "ZV2-CR",
+      "source": "docs/changes/ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN.md",
+      "status": "current",
+      "statement_digest": "c727cf84dc736f65ff5f7f456bd1481eae89894fc40b32fef49887578ce1bfaf",
+      "history": [
+        {
+          "anchor": "asset management domain delivery",
+          "since": "2026-09-01",
+          "reason": "declared"
+        }
+      ]
     }
   },
   "statement_digest_version": 1,
