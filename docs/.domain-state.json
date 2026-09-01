@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-08-31T03:03:18.798Z",
+  "generatedAt": "2026-09-01T01:22:36.372Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -308,7 +308,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-093",
@@ -322,7 +322,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-097",
@@ -336,7 +336,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-132",
@@ -771,8 +771,8 @@
           "id": "FR-094",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 4
+          "codeCount": 2,
+          "testCount": 5
         },
         {
           "id": "FR-095",
@@ -785,8 +785,8 @@
           "id": "FR-096",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 12
+          "codeCount": 3,
+          "testCount": 13
         },
         {
           "id": "FR-097",
@@ -799,8 +799,8 @@
           "id": "FR-098",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 9
+          "codeCount": 2,
+          "testCount": 10
         },
         {
           "id": "FR-102",
@@ -1098,8 +1098,15 @@
           "id": "FR-081",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 14
+          "codeCount": 9,
+          "testCount": 16
+        },
+        {
+          "id": "FR-092",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 15
         },
         {
           "id": "FR-099",
@@ -1607,8 +1614,8 @@
           "id": "FR-092",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 11
+          "codeCount": 9,
+          "testCount": 15
         }
       ],
       "checks": {
@@ -2184,7 +2191,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-082",
@@ -2240,7 +2247,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 15
         },
         {
           "id": "FR-095",
@@ -3248,8 +3255,8 @@
           "id": "FR-094",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 1,
-          "testCount": 4
+          "codeCount": 2,
+          "testCount": 5
         },
         {
           "id": "FR-095",
@@ -3262,8 +3269,8 @@
           "id": "FR-096",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 12
+          "codeCount": 7,
+          "testCount": 13
         },
         {
           "id": "FR-097",
@@ -3276,8 +3283,8 @@
           "id": "FR-098",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 9
+          "codeCount": 6,
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -3291,6 +3298,7 @@
         "src/modules/agent/tools.js",
         "src/modules/agent/turn.js",
         "src/modules/crm/line-ingest-service.js",
+        "src/modules/identity/agent-tool-authorizer.js",
         "src/modules/identity/auth-service.js",
         "src/modules/identity/authorization-context.js",
         "src/modules/identity/channel-identity.js",
@@ -3325,6 +3333,7 @@
         "tests/unit/fr046-auth-route.test.js",
         "tests/unit/fr046-session-port.test.js",
         "tests/unit/iam-session.test.js",
+        "tests/unit/identity/agent-tool-authorizer.test.js",
         "tests/unit/line-binding-resolver.test.js",
         "tests/unit/line-channel-binding.test.js",
         "tests/unit/operator-bootstrap.test.js",
@@ -6603,12 +6612,14 @@
           "id": "FR-081",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 14
+          "codeCount": 11,
+          "testCount": 16
         }
       ],
       "evidence": [
         "src/app/api/agent/line-webhook/route.js",
+        "src/modules/integration/adapters/marketplace-listing-adapter.js",
+        "src/modules/integration/adapters/retail-price-adapter.js",
         "src/modules/project-manager/application/backup-service.js",
         "src/platform/integrations/core/contracts.js",
         "src/platform/integrations/core/idempotency.js",
@@ -6627,6 +6638,8 @@
         "tests/integration/platform/integration-persistence.test.js",
         "tests/unit/fr045-backup-contract.test.js",
         "tests/unit/fr079-runtime-cutover.test.js",
+        "tests/unit/integration/marketplace-listing-adapter.test.js",
+        "tests/unit/integration/retail-price-adapter.test.js",
         "tests/unit/platform/integration-contracts.test.js",
         "tests/unit/platform/line-oa-webhook.test.js",
         "tests/unit/platform/raw-ingest-service.test.js",
@@ -6677,6 +6690,7 @@
       ],
       "primaryDomain": "market-intelligence",
       "contributorDomains": [
+        "integration",
         "market-intelligence",
         "project-manager"
       ],
@@ -6690,14 +6704,19 @@
           "id": "FR-092",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 11
+          "codeCount": 12,
+          "testCount": 15
         }
       ],
       "evidence": [
+        "src/modules/integration/adapters/marketplace-listing-adapter.js",
+        "src/modules/integration/adapters/retail-price-adapter.js",
         "src/modules/market-intelligence/application/market-observation-service.js",
+        "src/modules/market-intelligence/application/price-intelligence-service.js",
         "src/modules/market-intelligence/application/translate-raw-record.js",
         "src/modules/market-intelligence/domain/market-observation.js",
+        "src/modules/market-intelligence/domain/price-observation.js",
+        "src/modules/market-intelligence/domain/watch-rule.js",
         "src/modules/market-intelligence/infrastructure/gks-market-identity-resolver.js",
         "src/modules/market-intelligence/infrastructure/market-observation-repository.js",
         "src/modules/market-intelligence/infrastructure/market-raw-record-repository.js",
@@ -6707,11 +6726,15 @@
         "tests/integration/fr075-restore-authorization.test.js",
         "tests/integration/market-intelligence-persistence.test.js",
         "tests/unit/fr045-backup-contract.test.js",
+        "tests/unit/integration/marketplace-listing-adapter.test.js",
+        "tests/unit/integration/retail-price-adapter.test.js",
         "tests/unit/market-intelligence-schema-migration.test.js",
         "tests/unit/market-intelligence/gks-market-identity-resolver.test.js",
         "tests/unit/market-intelligence/market-observation-domain.test.js",
         "tests/unit/market-intelligence/market-observation-repository.test.js",
         "tests/unit/market-intelligence/market-raw-record-repository.test.js",
+        "tests/unit/market-intelligence/price-intelligence-service.test.js",
+        "tests/unit/market-intelligence/price-observation-domain.test.js",
         "tests/unit/market-intelligence/translate-raw-record.test.js"
       ]
     },

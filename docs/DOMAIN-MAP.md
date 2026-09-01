@@ -52,7 +52,7 @@ Charter: [docs/domains/integration/CHARTER.md](domains/integration/CHARTER.md)
 | Modules | `src/modules/integration` |
 | Models owned | IntegrationProvider, IntegrationConnection, IntegrationCredential, IngestionRun, RawExternalRecord, SyncCursor, ExternalEntityRef, DeadLetterRecord, SotDecision, PipelineRun, PipelineStep, PipelineEventReceipt, PipelineRecordEvent, PipelineReconciliation, PipelineGateDecision |
 | Routes owned | 10 (6 api · 4 pages) |
-| FRs implemented in lane | FR-080, FR-099, FR-100, FR-101, FR-102 |
+| FRs implemented in lane | FR-080, FR-081, FR-092, FR-099, FR-100, FR-101, FR-102 |
 
 ## knowledge
 

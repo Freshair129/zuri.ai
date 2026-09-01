@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1494,
-    "total_edges": 5138,
+    "total_nodes": 1505,
+    "total_edges": 5182,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
@@ -16,8 +16,8 @@
       "route": 160,
       "model": 71,
       "requirement": 273,
-      "test": 357,
-      "code_file": 390
+      "test": 362,
+      "code_file": 396
     },
     "coverage": {
       "requirements": 273,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (122/122)",
       "rules_anchored_in_code": "95% (113/119)",
       "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 390,
+      "annotated_code_files": 396,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -56,9 +56,7 @@
   },
   "drift": {
     "changed": [
-      "doc:README",
-      "doc:PLAN-PARALLEL-WAVE2-20260831",
-      "doc:PLAN-PENDING-PARALLEL-20260831"
+      "doc:README"
     ],
     "added": [],
     "removed": []
@@ -4717,6 +4715,28 @@
       }
     },
     {
+      "id": "code:src/modules/identity/agent-tool-authorizer.js",
+      "type": "code_file",
+      "path": "src/modules/identity/agent-tool-authorizer.js",
+      "hash": "9f429437",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-096",
+          "FR-098"
+        ],
+        "@spec": [
+          "SDD-052",
+          "BR-020",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/identity/agent-tool-authorizer.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/api-access-auth.js",
       "type": "code_file",
       "path": "src/modules/identity/api-access-auth.js",
@@ -5404,6 +5424,46 @@
       }
     },
     {
+      "id": "code:src/modules/integration/adapters/marketplace-listing-adapter.js",
+      "type": "code_file",
+      "path": "src/modules/integration/adapters/marketplace-listing-adapter.js",
+      "hash": "62f65341",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-081",
+          "FR-092"
+        ],
+        "@spec": [
+          "BR-019",
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/integration/marketplace-listing-adapter.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/integration/adapters/retail-price-adapter.js",
+      "type": "code_file",
+      "path": "src/modules/integration/adapters/retail-price-adapter.js",
+      "hash": "99670811",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-081",
+          "FR-092"
+        ],
+        "@spec": [
+          "BR-019",
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/integration/retail-price-adapter.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/integration/application/integration-management-service.js",
       "type": "code_file",
       "path": "src/modules/integration/application/integration-management-service.js",
@@ -6021,6 +6081,24 @@
       }
     },
     {
+      "id": "code:src/modules/market-intelligence/application/price-intelligence-service.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/application/price-intelligence-service.js",
+      "hash": "a501a5a7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/price-intelligence-service.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/market-intelligence/application/translate-raw-record.js",
       "type": "code_file",
       "path": "src/modules/market-intelligence/application/translate-raw-record.js",
@@ -6056,6 +6134,42 @@
         ],
         "@tested": [
           "tests/unit/market-intelligence/market-observation-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/domain/price-observation.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/domain/price-observation.js",
+      "hash": "caa845bb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/price-observation-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/market-intelligence/domain/watch-rule.js",
+      "type": "code_file",
+      "path": "src/modules/market-intelligence/domain/watch-rule.js",
+      "hash": "af474138",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-092"
+        ],
+        "@spec": [
+          "SDD-049"
+        ],
+        "@tested": [
+          "tests/unit/market-intelligence/price-observation-domain.test.js"
         ]
       }
     },
@@ -9200,7 +9314,7 @@
       "path": "docs/roadmap/PLAN-PARALLEL-WAVE2-20260831.md",
       "title": "รอบถัดไป — ปิด tenant boundary ของ CRM reader ก่อนเพิ่ม derived profile",
       "hash": "20a0911c",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PLAN-PENDING-BUSINESS-20260831",
@@ -9232,7 +9346,7 @@
       "path": "docs/roadmap/PLAN-PENDING-PARALLEL-20260831.md",
       "title": "ชุดแผนงานค้างสำหรับทำขนาน — 2026-08-31",
       "hash": "356dea74",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PLAN-PHASE1-EXTERNAL-ACTIVATION",
@@ -16152,6 +16266,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/identity/agent-tool-authorizer.test.js",
+      "type": "test",
+      "path": "tests/unit/identity/agent-tool-authorizer.test.js",
+      "hash": "e4909ce6",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/ids.test.js",
       "type": "test",
       "path": "tests/unit/ids.test.js",
@@ -16163,6 +16284,20 @@
       "type": "test",
       "path": "tests/unit/import-authorization.test.js",
       "hash": "09e56659",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/integration/marketplace-listing-adapter.test.js",
+      "type": "test",
+      "path": "tests/unit/integration/marketplace-listing-adapter.test.js",
+      "hash": "0092abbb",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/integration/retail-price-adapter.test.js",
+      "type": "test",
+      "path": "tests/unit/integration/retail-price-adapter.test.js",
+      "hash": "f9e81650",
       "status": "current"
     },
     {
@@ -16345,6 +16480,20 @@
       "type": "test",
       "path": "tests/unit/market-intelligence/market-raw-record-repository.test.js",
       "hash": "8ae01f8a",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/price-intelligence-service.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/price-intelligence-service.test.js",
+      "hash": "16c12ebf",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/market-intelligence/price-observation-domain.test.js",
+      "type": "test",
+      "path": "tests/unit/market-intelligence/price-observation-domain.test.js",
+      "hash": "18c93594",
       "status": "current"
     },
     {
@@ -23861,6 +24010,48 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/agent-tool-authorizer.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/agent-tool-authorizer.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/agent-tool-authorizer.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/agent-tool-authorizer.js",
+      "to": "req:FR-098",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/agent-tool-authorizer.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/agent-tool-authorizer.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/api-access-auth.js",
       "to": "req:BR-002",
       "type": "follows",
@@ -24806,6 +24997,62 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/integration/adapters/marketplace-listing-adapter.js",
+      "to": "req:BR-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/adapters/marketplace-listing-adapter.js",
+      "to": "req:FR-081",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/adapters/marketplace-listing-adapter.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/adapters/marketplace-listing-adapter.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/adapters/retail-price-adapter.js",
+      "to": "req:BR-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/adapters/retail-price-adapter.js",
+      "to": "req:FR-081",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/adapters/retail-price-adapter.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/integration/adapters/retail-price-adapter.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/integration/application/integration-management-service.js",
       "to": "req:FR-080",
       "type": "implements",
@@ -25499,6 +25746,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/market-intelligence/application/price-intelligence-service.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/application/price-intelligence-service.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/market-intelligence/application/translate-raw-record.js",
       "to": "req:BR-019",
       "type": "follows",
@@ -25542,6 +25803,34 @@
     },
     {
       "from": "code:src/modules/market-intelligence/domain/market-observation.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/domain/price-observation.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/domain/price-observation.js",
+      "to": "req:SDD-049",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/domain/watch-rule.js",
+      "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/market-intelligence/domain/watch-rule.js",
       "to": "req:SDD-049",
       "type": "follows",
       "status": "current",
@@ -47409,6 +47698,55 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/identity/agent-tool-authorizer.test.js",
+      "to": "code:src/modules/identity/agent-tool-authorizer.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/identity/agent-tool-authorizer.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/agent-tool-authorizer.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/agent-tool-authorizer.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/agent-tool-authorizer.test.js",
+      "to": "req:FR-098",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/agent-tool-authorizer.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/agent-tool-authorizer.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/ids.test.js",
       "to": "code:src/lib/ids.js",
       "type": "tests",
@@ -47488,6 +47826,76 @@
     {
       "from": "test:tests/unit/import-authorization.test.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integration/marketplace-listing-adapter.test.js",
+      "to": "code:src/modules/integration/adapters/marketplace-listing-adapter.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/integration/marketplace-listing-adapter.test.js",
+      "to": "req:BR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integration/marketplace-listing-adapter.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integration/marketplace-listing-adapter.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integration/marketplace-listing-adapter.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integration/retail-price-adapter.test.js",
+      "to": "code:src/modules/integration/adapters/retail-price-adapter.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/integration/retail-price-adapter.test.js",
+      "to": "req:BR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integration/retail-price-adapter.test.js",
+      "to": "req:FR-081",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integration/retail-price-adapter.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/integration/retail-price-adapter.test.js",
+      "to": "req:SDD-049",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -48471,6 +48879,55 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/price-intelligence-service.test.js",
+      "to": "code:src/modules/market-intelligence/application/price-intelligence-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/price-intelligence-service.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/price-intelligence-service.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/price-observation-domain.test.js",
+      "to": "code:src/modules/market-intelligence/domain/price-observation.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/price-observation-domain.test.js",
+      "to": "code:src/modules/market-intelligence/domain/watch-rule.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/price-observation-domain.test.js",
+      "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/market-intelligence/price-observation-domain.test.js",
+      "to": "req:SDD-049",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/market-intelligence/translate-raw-record.test.js",
