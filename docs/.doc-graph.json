@@ -58,13 +58,7 @@
     "changed": [
       "doc:README",
       "doc:CONTEXT-MAP",
-      "doc:PRD-SDD-v1.0",
-      "doc:ROADMAP",
-      "doc:line-oa-provider-merge",
-      "test:tests/integration/line-oa-provider-migration.test.js",
-      "test:tests/integration/line-registry-scope.test.js",
-      "test:tests/unit/line-registry-service.test.js",
-      "code:src/modules/integration/application/line-registry-service.js"
+      "doc:line-oa-provider-merge"
     ],
     "added": [],
     "removed": []
@@ -6384,7 +6378,7 @@
       "type": "code_file",
       "path": "src/modules/integration/application/line-registry-service.js",
       "hash": "bee81bd1",
-      "status": "changed",
+      "status": "current",
       "annotations": {
         "@req": [
           "FR-080"
@@ -10414,7 +10408,7 @@
       "type": "document",
       "path": "docs/runbooks/line-oa-provider-merge.md",
       "title": "LINE_OA provider merge runbook",
-      "hash": "c6c6557f",
+      "hash": "584ae1a8",
       "status": "changed"
     },
     {
@@ -10697,7 +10691,7 @@
       "version": "1.135.0b",
       "doc_status": "Draft",
       "hash": "d5213eb0",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:PRODUCT",
@@ -10741,7 +10735,7 @@
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
       "hash": "ae364e8d",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "doc:ROADMAP-business01-smartgift-delivery",
@@ -17171,14 +17165,14 @@
       "type": "test",
       "path": "tests/integration/line-oa-provider-migration.test.js",
       "hash": "f886dbca",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/line-registry-scope.test.js",
       "type": "test",
       "path": "tests/integration/line-registry-scope.test.js",
       "hash": "b3248fef",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/integration/line-reply-record.test.js",
@@ -18536,7 +18530,7 @@
       "type": "test",
       "path": "tests/unit/line-registry-service.test.js",
       "hash": "0342f04b",
-      "status": "changed"
+      "status": "current"
     },
     {
       "id": "test:tests/unit/line-webhook-scope-fail-closed.test.js",
