@@ -10,14 +10,16 @@
 // different questions.
 // @spec NFR-008 — the drill-down link's text is a project code, which tells a
 // screen reader nothing about where it goes, so it carries an explicit label.
-// @tested tests/unit/global-view-drilldown.test.js
+// @spec SDD-018 — the Business filter tabs list the shell's scope inventory
+// (ScopeContext), never a second broad list endpoint.
+// @tested tests/unit/global-view-drilldown.test.js, tests/unit/work-surface-scope-inventory.test.js
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Search, Plus, Sparkles, UploadCloud } from 'lucide-react'
 import { DataTable, StatusPill, EmptyState, ErrorState, TruncationNotice } from '@/components/ui'
-import { WORK_STATUSES, ITEM_SUBTYPES, MODE_LABELS } from '@/lib/validation/enums'
 import { useScope } from '@/context/ScopeContext'
+import { WORK_STATUSES, ITEM_SUBTYPES, MODE_LABELS } from '@/lib/validation/enums'
 import { useFetch, LoadingCard } from '../../components/useApi'
 import StatusSelect from '../../components/StatusSelect'
 import StandaloneTaskModal from '../../components/StandaloneTaskModal'
@@ -113,9 +115,8 @@ export default function AllWorkView({ projectId }) {
   const [subtype, setSubtype] = useState('')
   const [mode, setMode] = useState('')
 
-  // @req FR-046 — reuse the Business inventory ScopeContext already loaded
-  // (/api/scope) instead of a second broad list fetch on this entry surface.
-  const { businesses } = useScope()
+  const scope = useScope()
+  const businesses = scope.businesses
 
   const [taskModalOpen, setTaskModalOpen] = useState(false)
   const [planModalOpen, setPlanModalOpen] = useState(false)
@@ -175,7 +176,7 @@ export default function AllWorkView({ projectId }) {
       </div>
 
       {/* Business Scope Filter Tabs (Shown when in Global / Unscoped View) */}
-      {!projectId && businesses && businesses.length > 0 && (
+      {!projectId && businesses.length > 0 && (
         <div className="mb-3 flex items-center gap-1.5 overflow-x-auto pb-1">
           <button
             type="button"

@@ -4,7 +4,10 @@
 // endpoint and never edited here; the only actions are navigation into run
 // evidence and the FR-100 inbox.
 // @spec FR-099
-// @tested tests/unit/sot-plan-board-ui.test.js
+// @spec SDD-018 — the Business this page reads for is the shell's
+// `activeBusinessId`, the one field ScopeContext exposes for it; a top-level
+// `businessId` never existed, so destructuring it fetched nothing.
+// @tested tests/unit/sot-plan-board-ui.test.js, tests/unit/sot-pipeline-scope-render.test.js
 import Link from 'next/link'
 
 import { Card, ErrorState, PageHeader, SectionTitle, StatusPill } from '@/components/ui'
@@ -28,20 +31,16 @@ const STATUS_PILL = {
 }
 
 export default function SotPipelineBoardPage() {
-  // @req FR-020 — ScopeContext exposes the active Business as `shell.activeBusinessId`
-  // (falling back to `currentBusiness?.id`), never a top-level `businessId`; the
-  // page previously destructured a field the context never returns, so every
-  // fetch below ran with `businessId=undefined` regardless of selection.
-  const { shell, currentBusiness } = useScope()
-  const businessId = shell?.activeBusinessId || currentBusiness?.id || null
+  const { shell } = useScope()
+  const businessId = shell.activeBusinessId
   const { data, error, loading } = useFetch(
     businessId ? `/api/platform/sot/plan?businessId=${businessId}` : null,
     [businessId]
   )
 
-  if (!businessId) return <ErrorState message="เลือก Business ก่อนเพื่อดูแผน SoT Pipeline" />
+  if (!businessId) return <ErrorState title="เลือก Business ก่อนเพื่อดูแผน SoT Pipeline" />
   if (loading) return <LoadingCard />
-  if (error) return <ErrorState message={error} />
+  if (error) return <ErrorState detail={error} />
   if (!data) return null
 
   return (

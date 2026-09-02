@@ -3,19 +3,20 @@
 // @req FR-005, FR-017 — Standalone Task Modal: create work items directly with
 // creator/assignee attribution, business scope, and optional project binding.
 // @spec BR-004, SEC-001
+// @spec SDD-018 — the Business scope selector lists the shell's scope
+// inventory (ScopeContext); there is no second broad list endpoint behind it.
+// @tested tests/unit/work-surface-scope-inventory.test.js
 
 import { useEffect, useState } from 'react'
 import { Modal, Field } from '@/components/ui'
-import { ITEM_SUBTYPES, WORK_STATUSES } from '@/lib/validation/enums'
 import { useScope } from '@/context/ScopeContext'
+import { ITEM_SUBTYPES, WORK_STATUSES } from '@/lib/validation/enums'
 import { api, useFetch } from './useApi'
 
 export default function StandaloneTaskModal({ open, onClose, onSaved }) {
-  // @req FR-046 — reuse the Business inventory ScopeContext already loaded
-  // (/api/scope) instead of a second broad list fetch on this entry surface.
-  const { businesses } = useScope()
-  const { data: projects } = useFetch('/api/projects')
-  const { data: viewer } = useFetch('/api/viewer')
+  const scope = useScope()
+  const businesses = scope.businesses
+  const { data: viewer } = useFetch(open ? '/api/viewer' : null)
 
   const [businessId, setBusinessId] = useState('')
   const [projectId, setProjectId] = useState('')
@@ -29,18 +30,25 @@ export default function StandaloneTaskModal({ open, onClose, onSaved }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
-    if (open) {
-      if (businesses && businesses.length > 0 && !businessId) {
-        setBusinessId(businesses[0].id)
-      }
-      if (viewer?.principal?.displayName && !assigneeRef) {
-        setAssigneeRef(viewer.principal.displayName)
-      }
-    }
-  }, [open, businesses, viewer])
+  // Derived, never copied into state: the shell's active Business is the default.
+  const effectiveBusinessId = businessId || scope.shell.activeBusinessId || businesses[0]?.id || ''
 
-  const filteredProjects = (projects || []).filter((p) => !businessId || p.businessId === businessId)
+  // The project list route refuses an unscoped read (403 "A Business or
+  // Workspace scope is required") and answers `{ items, limit, truncated }`,
+  // not a bare array — so this picker asks for the chosen Business and reads
+  // `items`. Unscoped, it was empty on every open.
+  const { data: projects } = useFetch(
+    open && effectiveBusinessId ? `/api/projects?businessId=${encodeURIComponent(effectiveBusinessId)}` : null
+  )
+
+  useEffect(() => {
+    if (open && viewer?.principal?.displayName && !assigneeRef) {
+      setAssigneeRef(viewer.principal.displayName)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, viewer])
+
+  const filteredProjects = (projects?.items || []).filter((p) => !effectiveBusinessId || p.businessId === effectiveBusinessId)
 
   const submit = async (e) => {
     e.preventDefault()
@@ -134,13 +142,14 @@ export default function StandaloneTaskModal({ open, onClose, onSaved }) {
           <Field label="หน่วยธุรกิจ (Business Scope)">
             <select
               className="input"
-              value={businessId}
+              value={effectiveBusinessId}
               onChange={(e) => {
                 setBusinessId(e.target.value)
                 setProjectId('')
               }}
+              aria-label="หน่วยธุรกิจ"
             >
-              {(businesses || []).map((b) => (
+              {businesses.map((b) => (
                 <option key={b.id} value={b.id}>
                   {b.name} ({b.code})
                 </option>
