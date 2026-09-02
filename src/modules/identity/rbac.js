@@ -4,10 +4,14 @@
 
 export const ROLE_PRODUCT_OWNER = 'PRODUCT_OWNER'
 export const ROLE_CUSTOMER_DATA_REVIEWER = 'CUSTOMER_DATA_REVIEWER'
+export const ROLE_ASSET_RECEIVER = 'ASSET_RECEIVER'
+export const ROLE_ASSET_REVIEWER = 'ASSET_REVIEWER'
 export const ROLE_SCOPE_BUSINESS = 'BUSINESS'
 export const PRODUCT_MANAGE_PERMISSION = 'product.work.write'
 export const CUSTOMER_REVIEW_READ_PERMISSION = 'customer.import.review.read'
 export const CUSTOMER_REVIEW_DECIDE_PERMISSION = 'customer.import.review.decide'
+export const ASSET_INTAKE_WRITE_PERMISSION = 'asset.intake.write'
+export const ASSET_EVIDENCE_REVIEW_PERMISSION = 'asset.evidence.review'
 
 export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_PRODUCT_OWNER]: Object.freeze([
@@ -19,6 +23,14 @@ export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_CUSTOMER_DATA_REVIEWER]: Object.freeze([
     CUSTOMER_REVIEW_READ_PERMISSION,
     CUSTOMER_REVIEW_DECIDE_PERMISSION,
+  ]),
+  [ROLE_ASSET_RECEIVER]: Object.freeze([
+    'asset.read',
+    ASSET_INTAKE_WRITE_PERMISSION,
+  ]),
+  [ROLE_ASSET_REVIEWER]: Object.freeze([
+    'asset.read',
+    ASSET_EVIDENCE_REVIEW_PERMISSION,
   ]),
 })
 

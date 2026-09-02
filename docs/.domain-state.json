@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-02T01:10:36.819Z",
+  "generatedAt": "2026-09-02T04:17:47.301Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,12 +37,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 9,
-    "featureCount": 109,
+    "featureCount": 110,
     "readyFeatureCount": 96,
-    "requirementCount": 136,
-    "verifiedRequirementCount": 126,
-    "progressPercent": 92.6,
-    "gapCount": 17,
+    "requirementCount": 140,
+    "verifiedRequirementCount": 130,
+    "progressPercent": 92.9,
+    "gapCount": 18,
     "gaps": [
       {
         "domain": "agent",
@@ -150,6 +150,16 @@
         "check": "requirements",
         "summary": "FR-131 is planned",
         "evidence": []
+      },
+      {
+        "domain": "project-manager",
+        "id": "UI-STATUS-001",
+        "severity": "medium",
+        "check": "ui",
+        "summary": "At least one owned UI surface is not marked implemented",
+        "evidence": [
+          "/assets/receiving"
+        ]
       },
       {
         "domain": "project-manager",
@@ -344,6 +354,13 @@
           "status": "planned",
           "codeCount": 0,
           "testCount": 0
+        },
+        {
+          "id": "FR-140",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 2
         }
       ],
       "checks": {
@@ -360,9 +377,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 3,
-            "inventoried": 3,
-            "openApiPaths": 108,
+            "routes": 4,
+            "inventoried": 4,
+            "openApiPaths": 117,
             "missingFromOpenApi": 0
           }
         },
@@ -478,8 +495,8 @@
         }
       ],
       "details": {
-        "routes": 3,
-        "apiRoutes": 3,
+        "routes": 4,
+        "apiRoutes": 4,
         "pageRoutes": 0,
         "ownedModels": 0,
         "featureNotes": 7
@@ -534,6 +551,34 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 12
+        },
+        {
+          "id": "FR-137",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 6
+        },
+        {
+          "id": "FR-138",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 5
+        },
+        {
+          "id": "FR-139",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 2
+        },
+        {
+          "id": "FR-140",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 2
         }
       ],
       "checks": {
@@ -598,6 +643,7 @@
         "docs/TRACE.md",
         "docs/domains/asset-management/CHARTER.md",
         "docs/domains/asset-management/features/FR-133-asset-management-foundation.md",
+        "docs/domains/asset-management/features/FR-137-asset-evidence-intake-execution.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/project-manager/import/plan-schema.js",
@@ -611,12 +657,13 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 9,
-        "featureNotes": 1
+        "featureNotes": 2
       },
       "featureIds": [
-        "FEAT-015"
+        "FEAT-015",
+        "FEAT-016"
       ],
-      "featureCount": 1,
+      "featureCount": 2,
       "readyFeatureCount": 0,
       "progressPercent": 100
     },
@@ -998,7 +1045,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 108,
+            "openApiPaths": 117,
             "missingFromOpenApi": 0
           }
         },
@@ -1332,7 +1379,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 108,
+            "openApiPaths": 117,
             "missingFromOpenApi": 0
           }
         },
@@ -2490,18 +2537,48 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 12
+        },
+        {
+          "id": "FR-137",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 6
+        },
+        {
+          "id": "FR-138",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 5
+        },
+        {
+          "id": "FR-139",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 2
         }
       ],
       "checks": {
         "ui": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/INTERFACE-INVENTORY.md"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "UI-STATUS-001",
+              "severity": "medium",
+              "summary": "At least one owned UI surface is not marked implemented",
+              "evidence": [
+                "/assets/receiving"
+              ]
+            }
+          ],
           "details": {
-            "routes": 41,
-            "inventoried": 41,
+            "routes": 42,
+            "inventoried": 42,
             "missing": 0
           }
         },
@@ -2513,9 +2590,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 83,
-            "inventoried": 83,
-            "openApiPaths": 108,
+            "routes": 91,
+            "inventoried": 91,
+            "openApiPaths": 117,
             "missingFromOpenApi": 0
           }
         },
@@ -2568,9 +2645,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 68,
-            "guardedMutations": 68,
-            "reads": 42,
+            "mutations": 74,
+            "guardedMutations": 74,
+            "reads": 44,
             "unguardedReads": 0
           }
         },
@@ -2634,6 +2711,15 @@
       ],
       "gaps": [
         {
+          "id": "UI-STATUS-001",
+          "severity": "medium",
+          "check": "ui",
+          "summary": "At least one owned UI surface is not marked implemented",
+          "evidence": [
+            "/assets/receiving"
+          ]
+        },
+        {
           "id": "CONTRACT-001",
           "severity": "medium",
           "check": "runtimeContract",
@@ -2654,9 +2740,9 @@
         }
       ],
       "details": {
-        "routes": 124,
-        "apiRoutes": 83,
-        "pageRoutes": 41,
+        "routes": 133,
+        "apiRoutes": 91,
+        "pageRoutes": 42,
         "ownedModels": 30,
         "featureNotes": 30
       },
@@ -3841,6 +3927,93 @@
         "tests/unit/platform/fr129-catalog-publication-gate.test.js",
         "tests/unit/platform/knowledge-ingestion-catalog.test.js",
         "tests/unit/platform/pipeline-tracking-contract.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-016",
+      "title": "Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION`",
+      "kind": "bundle",
+      "registryStatus": "live (configuration-gated)",
+      "requirementIds": [
+        "FR-137",
+        "FR-138",
+        "FR-139",
+        "FR-140"
+      ],
+      "primaryDomain": "asset-management",
+      "contributorDomains": [
+        "agent",
+        "asset-management",
+        "project-manager"
+      ],
+      "useCase": "เจ้าหน้าที่อัปโหลดรูปหรือ PDF หลักฐาน ให้ OCR/Vision เสนอข้อมูล ตรวจแก้โดยมนุษย์ และนำเข้าหรือส่งออก Excel/Google Sheets/LINE ผ่าน intake เดียวกันจนพร้อมขึ้นทะเบียน",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-016 registry status is live (configuration-gated)"
+      ],
+      "requirements": [
+        {
+          "id": "FR-137",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 10,
+          "testCount": 6
+        },
+        {
+          "id": "FR-138",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 10,
+          "testCount": 5
+        },
+        {
+          "id": "FR-139",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 11,
+          "testCount": 2
+        },
+        {
+          "id": "FR-140",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 2
+        }
+      ],
+      "evidence": [
+        "src/app/(pm)/assets/receiving/page.jsx",
+        "src/app/api/agent/line-asset-handoff/route.js",
+        "src/app/api/assets/evidence/[id]/extract/route.js",
+        "src/app/api/assets/evidence/[id]/review/route.js",
+        "src/app/api/assets/evidence/route.js",
+        "src/app/api/assets/import/sheets/route.js",
+        "src/app/api/assets/import/template/route.js",
+        "src/app/api/assets/import/xlsx/route.js",
+        "src/app/api/assets/intakes/export/route.js",
+        "src/app/api/assets/intakes/route.js",
+        "src/modules/asset-management/application/asset-authority.js",
+        "src/modules/asset-management/application/asset-evidence-service.js",
+        "src/modules/asset-management/application/asset-intake-service.js",
+        "src/modules/asset-management/application/asset-request-scope.js",
+        "src/modules/asset-management/components/AssetReceivingWorkspace.jsx",
+        "src/modules/asset-management/domain/evidence-policy.js",
+        "src/modules/asset-management/import/asset-row-adapter.js",
+        "src/modules/asset-management/import/line-asset-handoff.js",
+        "src/modules/asset-management/import/sheet-snapshot.js",
+        "src/modules/asset-management/import/xlsx-convert.js",
+        "src/modules/asset-management/import/xlsx-template.js",
+        "src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
+        "src/platform/storage/supabase-object-storage.js",
+        "tests/integration/asset-evidence-intake-execution.test.js",
+        "tests/integration/openapi-docs.test.js",
+        "tests/unit/asset-evidence-extractor-contract.test.js",
+        "tests/unit/asset-evidence-intake-service-contract.test.js",
+        "tests/unit/asset-evidence-route-schema-contract.test.js",
+        "tests/unit/asset-evidence-storage-contract.test.js",
+        "tests/unit/asset-intake-adapters-contract.test.js"
       ]
     },
     {

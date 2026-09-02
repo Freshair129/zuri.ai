@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.3.0b |
+| **Version** | 1.4.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-02 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=55; operational_domain_keys=9; operational_subdomain_entries=29; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=56; operational_domain_keys=9; operational_subdomain_entries=29; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -158,7 +158,8 @@ is operational.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/assets` | Asset Management Dashboard | BusinessShell → Asset Management / Dashboard | foundation readiness, canonical intake stages, evidence/procurement/lot gates and depreciation preview boundary; new/import actions remain disabled | Business and `assets` domain visibility required, ready, forbidden, unavailable adapters | implemented foundation; `src/app/(pm)/assets/page.jsx`, FR-133..136 / ADR-055 |
+| `/assets` | Asset Management Dashboard | BusinessShell → Asset Management / Dashboard | foundation readiness, intake stages, evidence/procurement/lot gates, receiving/template entry and explicit external/Finance boundaries | Business and `assets` domain visibility required, ready, forbidden, configured/snapshot/external-boundary states | implemented beta; `src/app/(pm)/assets/page.jsx`, FR-133..140 / ADR-055/056 |
+| `/assets/receiving` | Asset Receiving & Evidence Review | BusinessShell → Asset Management / Receiving | upload verified private evidence, create canonical draft, invoke OCR/Vision candidate, human accept, download/import/export Asset workbook | Business plus `assets` grant and owner/receiver/reviewer capability; idle, uploading, draft, candidate, review, error, `READY_FOR_REGISTRATION` | implemented beta; `src/app/(pm)/assets/receiving/page.jsx`, FR-137..139 / ADR-056 |
 
 ### 3.7 Workspace compatibility surfaces
 
@@ -216,7 +217,7 @@ explicitly so “domain count” cannot silently mix the two concepts:
 | Source sub-domain entries | 30 | includes Business Home Dashboard |
 | Operational sub-domain entries | 29 | excludes Business Home Dashboard |
 | Development sub-domain entries | 8 | includes Files and excludes Business Home |
-| Asset Management navigation entries | 3 | Dashboard is current; Receiving and Register are declared unavailable destinations |
+| Asset Management navigation entries | 3 | Dashboard and Receiving are current; Register remains a declared unavailable destination |
 | Platform navigation entries | 9 | Dashboard and Settings intentionally share `/settings` |
 
 The marker at the top of this document is the published operational count. The
@@ -278,6 +279,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.4.0b | 2026-09-02 | beta | Added operational Asset Receiving and updated the dashboard/template boundaries; 56 page routes, 9 domains and 29 sub-domain entries | working-tree | RWANG |
 | 1.3.0b | 2026-09-02 | candidate | Registered the guarded Asset Management foundation dashboard and reconciled the source registry to 55 page routes, 9 operational domains and 29 operational sub-domain entries; Receiving/Register and provider-backed adapters remain explicitly unavailable | working-tree | Codex |
 | 1.2.2b | 2026-08-29 | candidate | Registered the FR-120 Self-Serve Signup screen — before it no unauthenticated visitor could create an account, which also meant no new person could be invited, since an invite needs a Person to attach to — restated `/login` as having two ways out rather than one, and reconciled the marker to 50 page routes | working-tree | ATHER |
 | 1.2.1b | 2026-08-29 | candidate | Registered the FR-104 Password Reset Redemption screen — the consume leg had a route and no screen, so a minted token had nowhere to be spent — restated `/login`'s reveal and opt-in persistent session (AC-046-15), and reconciled the marker to 49 page routes | working-tree | ATHER |

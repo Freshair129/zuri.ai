@@ -14,10 +14,10 @@ owns_models:
   - AssetProjectAllocation
   - AssetDepreciationCandidate
 technical_owner: TD-ASSET-MANAGEMENT
-status: active-foundation
-version: "1.0.0"
+status: active-evidence-intake-beta
+version: "1.1.0b"
 created_at: "2026-09-01T00:00:00+07:00"
-updated_at: "2026-09-01T00:00:00+07:00"
+updated_at: "2026-09-02T10:30:00+07:00"
 ---
 
 # Asset Management domain charter
@@ -74,8 +74,10 @@ trusted viewer and selected visible Business. Payload, workbook, prompt, OCR res
 LINE event or QR code cannot establish or widen scope.
 
 The stable domain route key is `assets`; the canonical entry path is `/assets`.
-The first foundation surface is a Business-scoped dashboard and preview-only intake
-validator. Mutation roles and approval policy are expanded only by declared FRs.
+The foundation surface is a Business-scoped dashboard and preview validator. FR-137
+adds Business-owner or `ASSET_RECEIVER` intake writes; FR-138 adds owner or
+`ASSET_REVIEWER` review writes. Neither role can widen Business scope, create a
+RegisteredAsset, mutate Procurement or post Finance records.
 
 ## Aggregate invariants
 
@@ -106,6 +108,8 @@ knowledge pipeline's identity.
 src/modules/asset-management/
 ├── application/       validation and review use cases
 ├── domain/            strict vocabularies, schemas and calculations
+├── import/            Excel and bounded Sheet snapshot adapters
+├── infrastructure/    provider adapters behind Asset-owned ports
 └── index.js            stable module exports
 ```
 
@@ -116,9 +120,12 @@ explicit contract or read projection.
 ## Delivery state
 
 The foundation declares and locally proves the canonical contract, validation,
-pipeline identity, schema shape, backup coverage and dashboard. Provider-backed OCR,
-LINE binary handoff, Google Sheets live sync, Procurement lookup, Finance posting and
-Project Inventory projection are gated adapters, not implied by this status.
+pipeline identity, schema shape, backup coverage and dashboard. CR-015/ADR-056 adds
+the beta evidence intake execution lane: private managed-object evidence, candidate
+OCR/Vision with human review, Excel/bounded Sheet snapshot import-export and trusted
+LINE FileAsset handoff. Native Google synchronization, LINE byte retrieval inside
+zuri-ai, registration, Procurement lookup/mutation, Finance posting and Project
+Inventory projection are still gated and are not implied by this status.
 
 ## References
 
@@ -127,9 +134,13 @@ Project Inventory projection are gated adapters, not implied by this status.
 - [ZV2-CR-009](../../changes/ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN.md)
 - [Context map](CONTEXT-MAP.md)
 - [FR-133 foundation feature](features/FR-133-asset-management-foundation.md)
+- [CR-015 evidence execution](../../change-requests/CR-015-ASSET-EVIDENCE-INTAKE-EXECUTION.md)
+- [ADR-056 cloud and extraction boundary](../../decisions/ADR-056-ASSET-EVIDENCE-CLOUD-AND-EXTRACTION-BOUNDARY.md)
+- [FR-137 evidence execution feature](features/FR-137-asset-evidence-intake-execution.md)
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0b | 2026-09-02 | beta | Added receiver/reviewer capabilities and the provider-neutral evidence, extraction, workbook/snapshot and LINE handoff execution lane | working-tree | RWANG |
 | 1.0.0 | 2026-09-01 | active-foundation | Established Asset Management ownership, scope, invariants, intake convergence and explicit external boundaries | working-tree | Codex |

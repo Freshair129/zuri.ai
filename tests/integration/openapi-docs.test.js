@@ -72,9 +72,10 @@ describe('OpenAPI document', () => {
       // rather than consuming one) plus FR-123's five over four paths (the
       // plugin token/capabilities/revoke boundary, and authorize twice: GET
       // renders the consent screen, POST is the consent form's own submission
-      // and the only operation in the family that mints — ADR-052 D4).
-      pathCount: 108,
-      operationCount: 141,
+      // and the only operation in the family that mints — ADR-052 D4), plus
+      // FR-137..140's nine evidence/intake/import/export/LINE paths.
+      pathCount: 117,
+      operationCount: 150,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

@@ -1081,3 +1081,39 @@
 - **Code:** `src/app/(pm)/assets/page.jsx` · `src/app/api/assets/intakes/validate/route.js` · `src/lib/validation/enums.js` · `src/modules/asset-management/domain/depreciation.js` · `src/modules/asset-management/index.js` · `src/modules/project-manager/application/backup-service.js`
 - **Follows:** BR-004, BR-008, BR-009, BR-023, BR-024, NFR-021, SDD-002, SDD-023, SDD-032, SDD-078, SDD-079, SDD-080, SEC-008, SEC-023
 - **Tests:** `tests/integration/backup.test.js` · `tests/integration/crm-conversation-analysis.test.js` · `tests/integration/fr075-restore-authorization.test.js` · `tests/integration/xlsx-intake.test.js` · `tests/unit/asset-depreciation.test.js` · `tests/unit/asset-management-api-ui-contract.test.js` · `tests/unit/asset-management-contract.test.js` · `tests/unit/asset-management-navigation.test.js` · `tests/unit/asset-management-schema-contract.test.js` · `tests/unit/conversation-analysis-contract.test.js` · `tests/unit/fr045-backup-contract.test.js` · `tests/unit/plan-schema.test.js`
+
+### FR-137 — Asset cloud evidence intake: an authorized Business owner or Asset receiver uploads JPEG/PNG/WebP/PDF receipt, e-receipt or payment evidence through a bounded content-policy gate. The server authorizes before parsing, verifies magic bytes and size, hashes content, writes it to a private provider-neutral object port and creates one `MANAGED_BLOB` FileAsset without exposing a public URL or credential. Storage/metadata failure cannot report success or leave an untracked authoritative record.
+
+- **Feature:** FEAT-016 — Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION`
+- **Status:** n/a
+- **Surface:** `/assets/receiving` (page) · `/api/assets/evidence` (api) · `/api/assets/intakes` (api)
+- **Code:** `src/app/(pm)/assets/receiving/page.jsx` · `src/app/api/assets/evidence/route.js` · `src/app/api/assets/intakes/route.js` · `src/modules/asset-management/application/asset-authority.js` · `src/modules/asset-management/application/asset-evidence-service.js` · `src/modules/asset-management/application/asset-intake-service.js` · `src/modules/asset-management/application/asset-request-scope.js` · `src/modules/asset-management/components/AssetReceivingWorkspace.jsx` · `src/modules/asset-management/domain/evidence-policy.js` · `src/platform/storage/supabase-object-storage.js`
+- **Follows:** BR-025, NFR-022, SDD-081, SDD-082, SDD-083, SEC-024
+- **Tests:** `tests/integration/asset-evidence-intake-execution.test.js` · `tests/integration/openapi-docs.test.js` · `tests/unit/asset-evidence-extractor-contract.test.js` · `tests/unit/asset-evidence-intake-service-contract.test.js` · `tests/unit/asset-evidence-route-schema-contract.test.js` · `tests/unit/asset-evidence-storage-contract.test.js`
+
+### FR-138 — Asset evidence extraction and review: authorized extraction may submit active same-Business evidence to a provider adapter and persist strict field-level candidates with provider/model/response identity, confidence and provenance. Candidate output never reviews or approves itself; an Asset reviewer records a separate ACCEPT/CORRECT/REJECT decision and immutable correction evidence before intake can become ready.
+
+- **Feature:** FEAT-016 — Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION`
+- **Status:** n/a
+- **Surface:** `/assets/receiving` (page) · `/api/assets/evidence/[id]/extract` (api) · `/api/assets/evidence/[id]/review` (api) · `/api/assets/intakes` (api)
+- **Code:** `src/app/(pm)/assets/receiving/page.jsx` · `src/app/api/assets/evidence/[id]/extract/route.js` · `src/app/api/assets/evidence/[id]/review/route.js` · `src/app/api/assets/intakes/route.js` · `src/modules/asset-management/application/asset-authority.js` · `src/modules/asset-management/application/asset-evidence-service.js` · `src/modules/asset-management/application/asset-intake-service.js` · `src/modules/asset-management/application/asset-request-scope.js` · `src/modules/asset-management/components/AssetReceivingWorkspace.jsx` · `src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js`
+- **Follows:** BR-025, NFR-022, SDD-081, SDD-082, SDD-083, SEC-024
+- **Tests:** `tests/integration/asset-evidence-intake-execution.test.js` · `tests/unit/asset-evidence-extractor-contract.test.js` · `tests/unit/asset-evidence-intake-service-contract.test.js` · `tests/unit/asset-evidence-route-schema-contract.test.js` · `tests/unit/asset-evidence-storage-contract.test.js`
+
+### FR-139 — Asset Excel and Google Sheets snapshot intake/export: a generated Asset workbook and a bounded Sheet row snapshot convert through the same canonical row adapter and deterministic envelope validator, return sheet/row/column issues and perform no hidden apply. Export is a bounded Google Sheets-ready `.xlsx`; files/sheets are convenience snapshots, never the Asset register or an authority source.
+
+- **Feature:** FEAT-016 — Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION`
+- **Status:** n/a
+- **Surface:** `/assets/receiving` (page) · `/api/assets/import/sheets` (api) · `/api/assets/import/template` (api) · `/api/assets/import/xlsx` (api) · `/api/assets/intakes/export` (api)
+- **Code:** `src/app/(pm)/assets/receiving/page.jsx` · `src/app/api/assets/import/sheets/route.js` · `src/app/api/assets/import/template/route.js` · `src/app/api/assets/import/xlsx/route.js` · `src/app/api/assets/intakes/export/route.js` · `src/modules/asset-management/application/asset-request-scope.js` · `src/modules/asset-management/components/AssetReceivingWorkspace.jsx` · `src/modules/asset-management/import/asset-row-adapter.js` · `src/modules/asset-management/import/sheet-snapshot.js` · `src/modules/asset-management/import/xlsx-convert.js` · `src/modules/asset-management/import/xlsx-template.js`
+- **Follows:** NFR-022, SDD-081, SDD-082, SDD-083, SEC-024
+- **Tests:** `tests/unit/asset-evidence-route-schema-contract.test.js` · `tests/unit/asset-intake-adapters-contract.test.js`
+
+### FR-140 — Trusted LINE Asset handoff: zuri-cli retains LINE signature, secret and byte-fetch authority, then calls zuri-ai with a server-bound transport identity, source correlation and opaque active FileAsset IDs. zuri-ai derives Tenant/Business from the binding, rejects body authority/tokens/URLs, verifies file scope/status and idempotently writes through the canonical Asset intake service.
+
+- **Feature:** FEAT-016 — Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION`
+- **Status:** n/a
+- **Surface:** `/api/agent/line-asset-handoff` (api)
+- **Code:** `src/app/api/agent/line-asset-handoff/route.js` · `src/modules/asset-management/import/line-asset-handoff.js`
+- **Follows:** NFR-022, SDD-084, SEC-024
+- **Tests:** `tests/unit/asset-evidence-route-schema-contract.test.js` · `tests/unit/asset-intake-adapters-contract.test.js`

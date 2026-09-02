@@ -229,7 +229,7 @@ the first sidebar sub-domain rather than by a clickable domain heading.
 Project Team remains a Project-local Development view. Attendance, leave, payroll,
 and performance are future HR slices.
 
-### Asset Management — physical asset lifecycle *(route key `assets`, FR-133..136)*
+### Asset Management — physical asset lifecycle *(route key `assets`, FR-133..140)*
 
 1. **Dashboard** — validation workload, asset health and gated-adapter state
 2. Receiving & Inspection — evidence-backed intake and human review
@@ -240,7 +240,11 @@ and performance are future HR slices.
 7. Depreciation Preview — Finance-review candidate, never journal posting
 8. Reports — scoped operational projections
 
-The foundation implements the Dashboard and preview-only validation contract first.
+The foundation implements the Dashboard and preview validation contract. FR-137..140
+also implement Receiving & Inspection through private evidence upload, candidate
+OCR/Vision, human review, Excel/Sheet snapshot preview/export and trusted LINE
+FileAsset handoff. Asset Register and later lifecycle routes remain declared but not
+implemented; `READY_FOR_REGISTRATION` does not issue an Asset ID.
 The remaining entries are stable information architecture, not a claim that every
 surface is live. Project Inventory consumes Asset allocation as a read projection and
 does not appear as an Asset writer.
@@ -278,7 +282,7 @@ does not appear as an Asset writer.
  /people                  → HR / People Dashboard
  /people/directory        → Business-scoped People Directory
 /assets                   → Asset Management Dashboard
-/assets/receiving         → evidence-backed intake (foundation information architecture)
+/assets/receiving         → evidence upload, extraction candidate, human review and readiness (FR-137..139)
 /assets/register          → physical Asset register (foundation information architecture)
 /{domain}                 → 302 /{domain}/dashboard        (first sub is always the dashboard)
 /{domain}/{subdomain}     → e.g. /projects (Project resource list), /commerce/inventory

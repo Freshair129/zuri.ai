@@ -15,7 +15,7 @@ extendZodWithOpenApi(z)
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
 export const CURRENT_API_ROUTE_INVENTORY = [
-  ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/assets/intakes/validate', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
+  ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-asset-handoff', ['POST']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/assets/evidence', ['POST']], ['/api/assets/evidence/{id}/extract', ['POST']], ['/api/assets/evidence/{id}/review', ['POST']], ['/api/assets/import/sheets', ['POST']], ['/api/assets/import/template', ['GET']], ['/api/assets/import/xlsx', ['POST']], ['/api/assets/intakes', ['POST']], ['/api/assets/intakes/export', ['GET']], ['/api/assets/intakes/validate', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']], ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
   ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']], ['/api/crm/customers/{customerId}/consent', ['POST']],
@@ -50,6 +50,9 @@ function pathParameters(path) {
 
 function genericRequest(path, method) {
   if (!['post', 'put', 'patch'].includes(method)) return undefined
+  if (path === '/api/assets/evidence' || path === '/api/assets/import/xlsx') {
+    return { body: { content: { 'multipart/form-data': { schema: z.object({ file: z.string().openapi({ format: 'binary' }) }) } } } }
+  }
   if (path === '/api/import/xlsx') {
     return { body: { content: { 'multipart/form-data': { schema: z.object({ file: z.string().openapi({ format: 'binary' }), workspaceId: z.string().optional(), projectId: z.string().optional() }) } } } }
   }
