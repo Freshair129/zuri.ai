@@ -67,10 +67,36 @@ that with the FR-102 mechanism generalized, not a second one invented.
    same credential they call the API with. Loopback stays sessionless
    (unchanged SEC-006 note in the route).
 
+## Listing and the console panel (2026-09-02)
+
+The original decision below — mint and revoke only, no listing — turned out to
+break the loop it was meant to protect. `revokeApiAccessKey` takes a key id, and
+the id was returned exactly once, in the mint response, on the same screen as
+the secret nobody keeps. So a key could be created and then never withdrawn from
+any surface (D2-domain-identity-22): the revoke route was authorized, audited,
+tested, and unreachable.
+
+`GET /api/platform/api-access-keys` and the panel on `/platform/users` close it,
+under the same authority that mints and revokes (installation operator, or a
+tenant-wide owner):
+
+- **Metadata only.** `id`, `label`, `tenantId`, `keyPrefix`, `status`,
+  `createdAt`, `revokedAt`, `lastUsedAt`. `keyHash` is never selected, and there
+  is no field the secret could be rebuilt from. `keyPrefix` is returned on
+  purpose: 8 characters of a 24-byte random secret, exactly enough to tell two
+  keys apart in a listing — the trade FR-102 already made.
+- **The raw key still exists once.** The panel renders it from the mint response
+  with a copy affordance and a warning, and never re-fetches it. The view model
+  (`platform-users-view.js`) rebuilds each list row field by field rather than
+  spreading the payload, so a secret arriving there from a future server change
+  cannot reach the DOM by being carried through.
+- **Scoped by the write authority, not a weaker read one.** A key visible in the
+  panel is one this caller can revoke; a caller who governs no Tenant gets an
+  empty result (not a refusal) and no panel at all.
+
 ## Out of scope, on purpose
 
-- No key-management UI, no key listing route — mint and revoke only; a key is
-  never readable back in any form.
+- Rotation as a single act (mint-then-revoke stays two deliberate steps).
 - `/api/import/xlsx` and `/api/import/template` are the Excel intake surface
   (FR-018), not the FR-019 Enterprise API — they stay session-only.
 - Rate limiting and idempotency keys (the rest of FR-019's "เฟส production"
@@ -82,6 +108,10 @@ that with the FR-102 mechanism generalized, not a second one invented.
 `tests/unit/mint-api-access-key-cli.test.js`,
 `tests/unit/api-access-key-migration.test.js`,
 `tests/integration/enterprise-api-auth.test.js` (the SDD-008 contract suite —
-written against the refusal behaviour before the routes changed).
+written against the refusal behaviour before the routes changed),
+`tests/integration/fr106-api-access-key-listing.test.js` (the listing scope and
+the mint → list → revoke loop, against the real database),
+`tests/unit/platform-users-view.test.js`,
+`tests/unit/platform-users-page-render.test.js`.
 Production DDL: `supabase/migrations/20260826150000_api_access_key.sql`
 (RSK-016 gate, same as FR-100/102/103).

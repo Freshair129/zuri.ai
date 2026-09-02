@@ -1,16 +1,27 @@
 import { handle } from '@/app/api/_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
-import { mintApiAccessKey } from '@/modules/identity/api-access-auth'
+import { listApiAccessKeys, mintApiAccessKey } from '@/modules/identity/api-access-auth'
 
 // @req FR-106 — an installation operator, or an owner in the named Tenant
 //   (FR-074(b)), mints a Tenant-bound Enterprise API key. The raw secret
 //   appears exactly once, in this authenticated response, for handover to the
 //   integrator's own secret storage — it is stored digest-only and can never
 //   be read back, only reissued. Minting is audited without token material.
+//   GET lists what the same authority already minted — metadata only, never key
+//   material — because until it existed the revoke route was reachable only
+//   from an id somebody had written down (D2-domain-identity-22).
 // @spec SEC-006, SEC-001, SEC-008, ADR-047
-// @tested tests/unit/api-access-key-routes.test.js
+// @tested tests/unit/api-access-key-routes.test.js,
+//   tests/integration/fr106-api-access-key-listing.test.js
 
 export const dynamic = 'force-dynamic'
+
+export async function GET(request) {
+  return handle(async () => {
+    const viewer = await resolveRequestViewer(request)
+    return listApiAccessKeys({ viewer })
+  })
+}
 
 export async function POST(request) {
   return handle(async () => {

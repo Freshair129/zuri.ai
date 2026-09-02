@@ -79,9 +79,12 @@ describe('OpenAPI document', () => {
       // FR-092's one (the Market Intelligence observation reader — GET only,
       // because translation is the sole writer of those rows). FR-067's owner
       // roster adds a GET to the existing /api/workspace-memberships path
-      // (one more operation, no new path).
-      pathCount: 118,
-      operationCount: 152,
+      // (one more operation, no new path). FR-038's Membership attach adds one
+      // path and one operation (POST /api/platform/users/memberships); FR-106's
+      // key listing adds a GET to the existing /api/platform/api-access-keys
+      // path — one more operation, no new path.
+      pathCount: 119,
+      operationCount: 154,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
