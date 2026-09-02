@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { seesBusiness } from '@/modules/identity/viewer-authority'
+import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { translateRawRecordToMarketObservation } from './translate-raw-record'
 
 // Phase #76 application seam. Persistence is injected so the domain/application
@@ -10,7 +11,8 @@ import { translateRawRecordToMarketObservation } from './translate-raw-record'
 // @spec BR-019, SDD-049, SEC-017, ADR-038
 // @tested tests/unit/market-intelligence/market-observation-service.test.js,
 //   tests/unit/market-intelligence/market-observation-feed.test.js,
-//   tests/integration/market-intelligence-observation-feed.test.js
+//   tests/integration/market-intelligence-observation-feed.test.js,
+//   tests/integration/domain-visibility-server.test.js
 //
 // The read side (`getMarketObservationFeed`) is what makes `/market` a surface over
 // real state instead of a picture of one. It keeps this file's original property: the
@@ -227,6 +229,12 @@ export async function getMarketObservationFeed(
   }
 
   if (!seesBusiness(viewer, businessId)) throw denied(403, 'Business access denied')
+
+  // @req FR-061 — Market Intelligence is a grantable domain, so seeing the Business is
+  // not by itself permission to read its market evidence. Refused as 404 'Business not
+  // found', identical to the unknown-Business branch three lines below, so the status
+  // code cannot be read as confirmation that the Business exists (FR-072(a)).
+  assertDomainVisible(viewer, businessId, 'market')
 
   const business = await db.business.findUnique({
     where: { id: businessId },

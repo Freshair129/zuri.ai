@@ -2,12 +2,14 @@ import { z } from 'zod'
 import prisma from '@/lib/db'
 import { CHANNELS, MESSAGE_DIRECTIONS } from '@/lib/validation/enums'
 import { seesBusiness } from '@/modules/identity/viewer-authority'
+import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 
 // @req FR-091 — the CRM Conversation Inbox read model: one authorized, read-only
 //   composition over Customer/Conversation/Message, which the FR-023 ingest seam has
 //   been writing since the first LINE turn with no surface able to read them.
 // @spec SDD-050, BR-001, BR-011, SEC-001, SEC-009
-// @tested tests/unit/conversation-read-model.test.js, tests/integration/crm-conversation-inbox.test.js
+// @tested tests/unit/conversation-read-model.test.js, tests/integration/crm-conversation-inbox.test.js,
+//   tests/integration/domain-visibility-server.test.js
 //
 // **This module exports readers only, and that is the enforcement.** BR-011 gives the
 // reply to exactly one owner — the edge runtime holding the channel credential and the
@@ -71,9 +73,16 @@ function denied(status, message) {
  * @spec SEC-001 — tenant-sharing is a CRM rule, not a licence. A conversation owned by a
  *   Business outside `visibleBusinessIds` is excluded **by the query**, so an out-of-scope
  *   row is never fetched and then filtered — there is nothing to forget to filter.
+ * @req FR-061 — and seeing the Business is not the same grant as being given its CRM.
+ *   `Membership.domainKeysJson` may list `projects` alone; before this line, that
+ *   MEMBER was refused the Inbox by the client route guard and answered by this read
+ *   model. The check sits here, in the one function both readers already go through,
+ *   rather than in the two handlers above them — a per-handler copy is how the second
+ *   handler ends up without one (D2-domain-identity-23).
  */
 async function resolveScope({ viewer, businessId }) {
   if (!seesBusiness(viewer, businessId)) throw denied(403, 'Business access denied')
+  assertDomainVisible(viewer, businessId, 'customer')
 
   const business = await prisma.business.findUnique({
     where: { id: businessId },

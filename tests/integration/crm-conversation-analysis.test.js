@@ -3,6 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeDevViewer, makeViewer, ownsElsewhere } from '../factories/viewer'
+import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { recordCustomerConsent } from '@/modules/crm/customer-consent-service'
 import { recordConversationAnalysis, getConversationAnalyses } from '@/modules/crm/conversation-analysis-service'
@@ -30,6 +31,10 @@ async function ownerOf(...businessIds) {
     role: 'OWNER',
     visibleBusinessIds: businessIds,
     ownedBusinessIds: businessIds,
+    // @req FR-061 — every domain, which is what an OWNER Membership derives from its
+    // role per Membership (SDD-034). Stated because `recordCustomerConsent`, used in
+    // this suite's setup, now asks for the `customer` grant.
+    visibleDomains: [...VIEWER_DOMAINS],
     principal: { id: person.id, code: person.code, displayName: person.displayName },
   })
 }

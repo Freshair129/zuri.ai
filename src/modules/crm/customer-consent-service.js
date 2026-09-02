@@ -2,6 +2,7 @@ import { z } from 'zod'
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
+import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 
 // @req FR-103 — SEC-005: a Business owner attests that a Customer's PDPA consent
 //   was captured, and that attestation becomes a narrow, audited write — the crm
@@ -9,7 +10,8 @@ import { ownsBusiness } from '@/modules/identity/viewer-authority'
 //   example for FR-093), not a field the FR-023 ingest seam or the FR-091 read
 //   model gets to set as a side effect of something else.
 // @spec SDD-053, BR-001, SEC-005, SDD-048
-// @tested tests/unit/customer-consent-service.test.js, tests/integration/crm-customer-consent.test.js
+// @tested tests/unit/customer-consent-service.test.js, tests/integration/crm-customer-consent.test.js,
+//   tests/integration/domain-visibility-server.test.js
 //
 // WHAT THIS DOES NOT DO
 // ----------------------
@@ -62,6 +64,14 @@ function consentSummary(customer) {
 export async function recordCustomerConsent(customerId, input, { viewer, db = prisma, correlationId } = {}) {
   if (!customerId) throw failure(400, 'CUSTOMER_ID_REQUIRED')
   const data = zRecordCustomerConsent.parse(input)
+
+  // @req FR-061 — the domain gate runs BEFORE the ownership gate, and the order is the
+  // point. A principal who was never granted the CRM in this Business must not learn
+  // from the status code that the Business is real and merely unowned by them; they get
+  // the same 404 an unknown Business gets (FR-072(a)). A principal who *does* hold the
+  // domain but not ownership still gets the honest 403 below, which is what that
+  // refusal is for.
+  assertDomainVisible(viewer, data.businessId, 'customer')
 
   if (!ownsBusiness(viewer, data.businessId)) {
     throw failure(403, 'Recording consent requires owner authority over this Business')

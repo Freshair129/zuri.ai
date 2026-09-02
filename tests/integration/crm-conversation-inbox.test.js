@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
+import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import {
   getConversationInbox,
@@ -19,7 +20,16 @@ import {
 let tenantA, busA1, busA2, tenantB, busB1
 let sharedConversationId, ownedConversationId, foreignConversationId
 
-const ownerOf = (...businessIds) => makeViewer({ role: 'OWNER', visibleBusinessIds: businessIds, ownedBusinessIds: businessIds })
+// @req FR-061 — an OWNER Membership derives every domain from its role, per Membership
+// (SDD-017 as refined by SDD-034), so `VIEWER_DOMAINS` is what `resolveViewer` would
+// actually emit for this shape. Spelled out because the factory's default list predates
+// `customer` being a real domain, and the read model now asks for that grant.
+const ownerOf = (...businessIds) => makeViewer({
+  role: 'OWNER',
+  visibleBusinessIds: businessIds,
+  ownedBusinessIds: businessIds,
+  visibleDomains: [...VIEWER_DOMAINS],
+})
 
 describe('CRM conversation inbox (FR-091)', () => {
   beforeAll(async () => {
