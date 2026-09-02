@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 0.5.0 |
+| **Version** | 0.6.0 |
 | **Status** | Accepted |
 | **Author** | Claude |
-| **Date** | 2026-08-14 |
-| **Relates to** | ADR-011 (context-bar and Business scope ceiling — authoritative), ADR-008, ADR-003, ADR-006, FR-020, FR-039, PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
+| **Date** | 2026-09-01 |
+| **Relates to** | ADR-011 (context-bar and Business scope ceiling — authoritative), ADR-055, ADR-008, ADR-003, ADR-006, FR-020, FR-039, FR-133, PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
 
 Adopts V1's information architecture — **top-level = domain, sidebar = the domain's
 sub-features, with an explicit root contract per domain** — and binds it to V2's new
@@ -54,6 +54,7 @@ domain identities used by FR-070.
 | `DOM-MARKETING` | `growth` | Marketing | campaigns, channels and KPI outcomes |
 | `DOM-OPERATIONS` | `operations` | Operations | operating periods, processes and SLA outcomes |
 | `DOM-PEOPLE` | `people` | HR / People | workforce and accountable Human context |
+| `DOM-ASSET-MANAGEMENT` | `assets` | Asset Management | physical asset identity, intake, custody, location and allocation |
 | `DOM-DEVELOPMENT` | `projects` | Development | Project and execution-plan views |
 | `DOM-PLATFORM` | `platform` | Platform | configuration, identity, audit and system capabilities |
 
@@ -228,6 +229,22 @@ the first sidebar sub-domain rather than by a clickable domain heading.
 Project Team remains a Project-local Development view. Attendance, leave, payroll,
 and performance are future HR slices.
 
+### Asset Management — physical asset lifecycle *(route key `assets`, FR-133..136)*
+
+1. **Dashboard** — validation workload, asset health and gated-adapter state
+2. Receiving & Inspection — evidence-backed intake and human review
+3. Asset Register — stable Asset ID, search and physical lifecycle
+4. Assignment & Transfer — accountable/custodian/user intervals
+5. Locations & Projects — physical location and Asset-owned Project allocations
+6. Lots & Expiry — controlled lots and expiry attention
+7. Depreciation Preview — Finance-review candidate, never journal posting
+8. Reports — scoped operational projections
+
+The foundation implements the Dashboard and preview-only validation contract first.
+The remaining entries are stable information architecture, not a claim that every
+surface is live. Project Inventory consumes Asset allocation as a read projection and
+does not appear as an Asset writer.
+
 ### Platform — ระบบ/ตั้งค่า  *(V1: platform + gaps)*
 1. **Dashboard** — สุขภาพระบบ · integrations status
 2. Integrations — Phase 1 LINE connection metadata and redacted Supabase Vault status *(FR-080, implemented locally; `/platform/integrations`; raw secrets never shown)*
@@ -260,6 +277,9 @@ and performance are future HR slices.
 /overview                 → Business Overview (cross-domain) for the selected Business; Business-required state otherwise
  /people                  → HR / People Dashboard
  /people/directory        → Business-scoped People Directory
+/assets                   → Asset Management Dashboard
+/assets/receiving         → evidence-backed intake (foundation information architecture)
+/assets/register          → physical Asset register (foundation information architecture)
 /{domain}                 → 302 /{domain}/dashboard        (first sub is always the dashboard)
 /{domain}/{subdomain}     → e.g. /projects (Project resource list), /commerce/inventory
 /platform/integrations    → owner-scoped Phase 1 Integration metadata and redacted Vault status (FR-080; local implementation)
@@ -300,7 +320,7 @@ Work views:   Structure Plan | Board | Schedule | Dependency Map
 
 ## 7. Decisions (resolved — [ADR-008](decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) §D6)
 
-1. **Domain order & labels** — ✅ Business Overview root; Commerce · CRM · Marketing · Operations · HR / People · Development · Platform.
+1. **Domain order & labels** — ✅ Business Overview root; Commerce · CRM · Market Intelligence · Marketing · Operations · HR / People · Asset Management · Development · Platform.
 2. **Development — peer domain or folded into Platform?** — ✅ a **peer domain** (cross-cutting
    delivery view), never the app root.
 3. **B2B & Products** — ✅ under Commerce for now; may split out if they grow.

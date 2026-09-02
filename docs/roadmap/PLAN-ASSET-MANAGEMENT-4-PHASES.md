@@ -1,8 +1,8 @@
 ---
-version: "1.1.0"
+version: "1.3.0"
 created_at: "2026-09-01T00:00:00+07:00,Codex"
-last_update: "2026-09-01T00:00:00+07:00,Codex"
-status: "accepted"
+last_update: "2026-09-02T08:00:00+07:00,Codex"
+status: "complete-foundation"
 superseded_by: null
 attributes:
   domain: "asset-management"
@@ -12,8 +12,8 @@ attributes:
 
 # Asset Management — Four-phase implementation plan
 
-**Status:** Accepted planning sequence. Runtime work begins only after Phase 3
-declares and pins the implementation requirements.
+**Status:** Four phases complete for the Phase 2-frozen local foundation. The
+full receiving/register lifecycle and external adapters remain later slices.
 
 **Decision:** [`ADR-055`](../decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md)
 
@@ -23,10 +23,11 @@ declares and pins the implementation requirements.
 
 ## Objective
 
-Add Asset Management as a Business-bound Zuri Product Domain and deliver the MVP
-path from equipment inspection through Asset ID issuance, register visibility and
-custody transfer, with Tenant/Business isolation, authorization and immutable audit
-evidence.
+Add Asset Management as a Business-bound Zuri Product Domain and establish the
+evidence, validation, persistence and navigation foundation for the future path from
+inspection through Asset ID issuance, register visibility and custody transfer. The
+Phase 2 gate deliberately reduced this first implementation to locally provable
+contracts and previews where external authorities or mutation policy do not yet exist.
 
 The work is ordered as requested:
 
@@ -64,10 +65,10 @@ docs/
 ├── changes/
 │   ├── ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN.md
 │   └── artifacts/
-│       ├── ZV2-CR-009-phase-1-repository-structure-report.md
-│       ├── ZV2-CR-009-phase-2-asset-management-impact-report.md
-│       ├── ZV2-CR-009-phase-3-docs-and-red-test-report.md
-│       └── ZV2-CR-009-phase-4-implementation-report.md
+│       ├── ZV2-CR-009-W1-REPOSITORY-STRUCTURE-REPORT.md
+│       ├── ZV2-CR-009-W2-ASSET-MANAGEMENT-IMPACT-REPORT.md
+│       ├── ZV2-CR-009-W3-DOCS-AND-RED-TEST-REPORT.md
+│       └── ZV2-CR-009-W4-IMPLEMENTATION-REPORT.md
 ├── roadmap/
 │   └── PLAN-ASSET-MANAGEMENT-4-PHASES.md
 ├── domains/
@@ -159,7 +160,7 @@ configuration and annotation conventions.
 
 ## Deliverable
 
-`docs/changes/artifacts/ZV2-CR-009-phase-1-repository-structure-report.md` in the
+`docs/changes/artifacts/ZV2-CR-009-W1-REPOSITORY-STRUCTURE-REPORT.md` in the
 implementation lane, recording:
 
 - commit SHA and survey time;
@@ -256,7 +257,7 @@ API/UI contract and e2e workflow tests.
 
 ## Deliverable
 
-`docs/changes/artifacts/ZV2-CR-009-phase-2-asset-management-impact-report.md`, containing:
+`docs/changes/artifacts/ZV2-CR-009-W2-ASSET-MANAGEMENT-IMPACT-REPORT.md`, containing:
 
 - context map and ownership matrix;
 - as-is route/schema/service/test inventory;
@@ -347,7 +348,7 @@ weaken or fake an implementation. Phase 3 is not a merge/release state.
 
 ## Deliverable
 
-`docs/changes/artifacts/ZV2-CR-009-phase-3-docs-and-red-test-report.md` with IDs,
+`docs/changes/artifacts/ZV2-CR-009-W3-DOCS-AND-RED-TEST-REPORT.md` with IDs,
 files, commands, generated outputs and focused RED evidence.
 
 ## Exit gate
@@ -387,54 +388,42 @@ turns the new tests green without regressing existing behavior.
 
 ### Application and infrastructure
 
-- Domain validation and lifecycle state machine.
-- Repository interface and Prisma adapter.
-- Inspection/registration transaction.
-- Concurrency-safe Asset ID issuance.
-- List/detail/search read models.
-- Custody assignment/transfer with immutable history.
-- Server-side authorization and AuditEvent append.
+- Strict `AssetIntakeEnvelope` and deterministic issue codes.
+- Payment-proof, PR/PO, lot/expiry, scope and temporal-overlap validation.
+- Pure straight-line depreciation preview with residual floor and versioned output.
+- Asset-specific nine-stage definition on the existing definition-neutral ledger.
+- Preview-only server boundary with viewer/Business/domain authorization.
+- Additive persistence shape and snapshot ordering without inventing a write path.
 - Attachment references without changing `FileAsset` semantics.
 
 ### API
 
-Freeze routes in Phase 3; likely MVP candidates are:
+Phase 3 froze one safe foundation route:
 
 ```text
-GET/POST  /api/assets
-GET/PATCH /api/assets/[id]
-POST      /api/assets/inspections
-POST      /api/assets/inspections/[id]/approve
-POST      /api/assets/[id]/assignments
-POST      /api/assets/[id]/transfers
+POST /api/assets/intakes/validate
 ```
 
-Every mutation resolves the viewer on the server, validates input, derives authorized
-Business scope, calls the application service, appends audit evidence in the required
-transaction and returns a safe DTO.
+It resolves the viewer and visible Business/domain before validation, accepts one
+strict envelope, returns `PREVIEW_ONLY`/`applied: false`, and performs no upload,
+provider call, approval, persistence, accounting or Project Inventory mutation.
 
 ### UI
 
-Deliver the Phase 3-declared subset of:
-
-- `/assets` Dashboard;
-- `/assets/receiving`;
-- `/assets/register`;
-- `/assets/[assetId]`;
-- assignment/transfer flow.
+Deliver `/assets` as the guarded foundation Dashboard. Receiving and Register stay
+declared navigation destinations and disabled/unavailable capabilities; no page may
+suggest that a registration, provider sync or Finance posting has happened.
 
 Use the existing Zuri shell, Heritage design tokens, Thai copy, typography and
 `lucide-react`. Cover loading, empty, error, denied and responsive states.
 
 ## RED → GREEN sequence
 
-1. Domain validation/state tests.
-2. Schema/migration/parity tests.
-3. Repository/application transaction tests.
-4. Authorization/audit tests.
-5. API/UI contract tests.
-6. Navigation/visibility tests.
-7. E2E happy and denial paths.
+1. Canonical envelope and depreciation tests.
+2. Pipeline identity and schema/migration/backup tests.
+3. API/OpenAPI and server-scope contract tests.
+4. Navigation/domain-state/warm-up tests.
+5. Full unit/integration, build, governance and E2E verification.
 
 Run focused tests after each layer and progressively widen the suite.
 
@@ -464,18 +453,25 @@ Also prove:
 ## Definition of Done
 
 - Architecture and implementation IDs remain collision-free and pinned.
-- Asset Management appears only for authorized Business/users.
-- Receive → approve → Asset ID → register works.
-- Asset IDs are unique and never recycled after disposal.
-- Cross-Business reads/writes fail closed.
-- Custody transfer has immutable history and audit evidence.
+- Asset Management is registered as a Business-visible peer domain and the preview
+  route fails closed outside visible Business/domain scope.
+- Every declared intake surface converges on the same strict envelope metadata.
+- Procurement-origin and expiry-controlled validation gates are deterministic.
+- Responsibility, location and Project allocation persistence is temporal by shape.
+- Depreciation is a reviewable candidate and cannot claim accounting authority.
 - `FileAsset` behavior and meaning remain intact.
 - `npm run verify` passes.
-- `docs/changes/artifacts/ZV2-CR-009-phase-4-implementation-report.md` records commit SHA, migrations, commands, test counts and known limitations.
+- `docs/changes/artifacts/ZV2-CR-009-W4-IMPLEMENTATION-REPORT.md` records commit SHA, migrations, commands, test counts and known limitations.
+
+Receive/approve/Asset-ID issuance, register reads, custody mutations, AuditEvent writes,
+maintenance, stocktake and disposal are not Definition-of-Done items for this frozen
+foundation and require subsequent declared/test-first slices.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0 | 2026-09-02 | complete-foundation | Reconciled Phase 4 with the accepted Phase 2 slice and recorded all four phases complete for the guarded contract/schema/preview foundation; full lifecycle writes and external adapters remain future work | working-tree | Codex |
+| 1.2.0 | 2026-09-01 | active | Recorded Phase 1/2 completion and froze Phase 4 to the locally provable foundation; provider/authority adapters remain gated | working-tree | Codex |
 | 1.1.0 | 2026-09-01 | accepted | Added the owner-review documentation-structure gate, proposed file topology, authority matrix and exact phase-report paths before Phase 3 writing | working-tree | Codex |
 | 1.0.0 | 2026-09-01 | accepted | Fixed the four ordered survey → relevant survey → docs/tests-first → code/full-verification phases and their evidence gates | working-tree | Codex |

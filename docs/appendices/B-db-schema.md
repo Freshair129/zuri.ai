@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.13.0b |
+| **Version** | 1.14.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-08-31 |
+| **Last Updated** | 2026-09-02 |
 
 Source of truth: `prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md)
 Conventions: UUID PK · unique human `code` · `createdAt/updatedAt` · `version` บน aggregate
@@ -77,8 +77,19 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | CustomerImportReviewCase | batchId, tenantId, businessId, reasonCode, groupFingerprint, status, itemCount, redacted evidence, version | deterministic duplicate-group queue identity for FR-078; no raw PII |
 | CustomerImportReviewDecision | reviewCaseId, provenanceId, decisionVersion, action, targetCustomerId?, decidedByPersonId, decidedAt | append-only human decision ledger; no update/delete path |
 | ConversationAnalysis | id UUID, conversationId, analyzedDate, analyzedAt, contactType, state, cta?, tags, summary, rawOutputJson? | FR-127 / ADR-054 — one derived row per analysis run; same-day reruns have separate ids. Scope and consent come from Conversation/Customer. Raw output is private; source deletion cascades, principal erasure removes analyses including those of already soft-deleted customers, and snapshots include this table after Conversation. Production DDL is an unapplied artifact. |
+| RegisteredAsset | tenantId, businessId, assetCode, intakeId?, lotId?, categoryCode, serialNumber?, status, version | FR-133 / ADR-055 — Business-scoped physical identity and lifecycle root; `assetCode` is unique only inside the Business and evidence content remains in `FileAsset` |
+| AssetIntake | tenantId, businessId, intakeCode, schemaVersion, sourceChannel+sourceCorrelationId, origin, status, submit/approve actors, version | FR-134 — converged envelope lifecycle and correlation; source input never establishes authority |
+| AssetEvidence | intakeId, registeredAssetId?, fileAssetId, role, sha256?, paymentReference?, extraction/review JSON, status, version | FR-134 — Asset-owned evidence role and review state referencing existing `FileAsset`; OCR/Vision stays candidate evidence |
+| AssetProcurementRef | intakeId, registeredAssetId?, type, system, value, lineValue?, status, version | FR-134 — typed PR/PO/line/GRN/invoice/supplier references; Procurement remains the future record authority |
+| AssetLot | tenantId, businessId, lotCode, manufacturedOn?, expiresOn, status, version | FR-135 — Business-scoped controlled-lot identity and expiry metadata |
+| AssetResponsibility | registeredAssetId, role, personId, org-unit external ref?, effectiveFrom/effectiveTo?, acknowledgedAt?, version | FR-135 — accountable/custodian/user effective intervals; Person remains Identity-owned |
+| AssetLocationHistory | registeredAssetId, branchId?, locationCode/name, isPrimary, effectiveFrom/effectiveTo?, version | FR-135 — append-only effective location intervals beneath an optional existing Branch |
+| AssetProjectAllocation | registeredAssetId, projectId, workstreamId?, quantity, exclusive, status, effectiveFrom/effectiveTo?, version | FR-135 / ADR-055 — Asset-owned allocation history; Project Inventory is a future read projection |
+| AssetDepreciationCandidate | intakeId?, registeredAssetId?, method, acquisition/residual string amounts, currency, usefulLifeMonths, startDate, calculationVersion, scheduleJson, status, review actor, version | FR-136 — deterministic preview/review evidence only; no capitalization book, journal or posting authority |
 
-Version diff 1.12.0 → 1.13.0b (2026-08-31): added ConversationAnalysis and clarified the PluginSession replay-retention invariant. No live migration is claimed.
+Version diff 1.13.0b → 1.14.0b (2026-09-02): added the nine Asset Management
+foundation models and snapshot-coverage contract. The additive local migration and
+SQLite/Postgres schema parity are verified artifacts; no production deployment is claimed.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 

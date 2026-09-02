@@ -5,6 +5,7 @@ import {
   ShoppingCart, Users, Megaphone, UtensilsCrossed, ServerCog, Target,
   FolderOpen, PlugZap, ClipboardCheck, MessagesSquare,
   Workflow, Gauge, TrendingUp,
+  PackageCheck,
 } from 'lucide-react'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
@@ -125,6 +126,18 @@ export const DOMAINS = [
       { label: 'Milestones & Gates', path: '/milestones', icon: Flag, group: 'All projects' },
       { label: 'Files', path: '/files', icon: FolderOpen, group: 'Business' },
       { label: 'Repositories', path: '/repositories', icon: GitBranch, group: 'Business' },
+    ],
+  },
+  {
+    // @req FR-133 — a first-class physical-asset domain. `assets` is the
+    // Membership/RBAC route key; `DOM-ASSET-MANAGEMENT` is its stable product id.
+    // @spec ADR-055, SDD-078, SEC-023
+    // @tested tests/unit/asset-management-navigation.test.js
+    key: 'assets', label: 'Asset Management', icon: PackageCheck, basePath: '/assets',
+    sub: [
+      { label: 'Dashboard', path: '/assets', icon: LayoutDashboard },
+      { label: 'Receiving & Inspection', path: '/assets/receiving', icon: ClipboardCheck },
+      { label: 'Asset Register', path: '/assets/register', icon: PackageCheck },
     ],
   },
   {

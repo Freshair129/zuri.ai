@@ -172,6 +172,14 @@ export const WORKSPACE_INVITE_STATUSES = ['PENDING', 'ACCEPTED', 'REVOKED']
 export const PRINCIPAL_TYPES = ['STAFF', 'CUSTOMER', 'UNKNOWN']
 export const IDENTITY_PROVIDERS = ['LINE']
 
+// @req FR-133, FR-134, FR-135, FR-136 — closed Asset foundation vocabulary.
+// @spec SDD-078, SDD-079, SDD-080, ADR-055
+export const ASSET_INTAKE_CHANNELS = ['WEB', 'REST_API', 'EXCEL', 'GOOGLE_SHEET', 'AGENT_MCP', 'LINE_OA', 'LIFF']
+export const ASSET_EVIDENCE_ROLES = ['RECEIPT', 'INVOICE', 'PAYMENT_PROOF', 'DELIVERY', 'INSPECTION', 'WARRANTY', 'OTHER']
+export const ASSET_PROCUREMENT_REF_TYPES = ['PR', 'PR_LINE', 'PO', 'PO_LINE', 'GRN', 'INVOICE', 'SUPPLIER']
+export const ASSET_RESPONSIBILITY_ROLES = ['ACCOUNTABLE', 'CUSTODIAN', 'USER']
+export const ASSET_DEPRECIATION_METHODS = ['STRAIGHT_LINE']
+
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
 export const zDependencyType = z.enum(DEPENDENCY_TYPES)
@@ -197,6 +205,11 @@ export const zWorkspaceInviteRole = z.enum(WORKSPACE_INVITE_ROLES)
 export const zWorkspaceInviteStatus = z.enum(WORKSPACE_INVITE_STATUSES)
 export const zPrincipalType = z.enum(PRINCIPAL_TYPES)
 export const zIdentityProvider = z.enum(IDENTITY_PROVIDERS)
+export const zAssetIntakeChannel = z.enum(ASSET_INTAKE_CHANNELS)
+export const zAssetEvidenceRole = z.enum(ASSET_EVIDENCE_ROLES)
+export const zAssetProcurementRefType = z.enum(ASSET_PROCUREMENT_REF_TYPES)
+export const zAssetResponsibilityRole = z.enum(ASSET_RESPONSIBILITY_ROLES)
+export const zAssetDepreciationMethod = z.enum(ASSET_DEPRECIATION_METHODS)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)

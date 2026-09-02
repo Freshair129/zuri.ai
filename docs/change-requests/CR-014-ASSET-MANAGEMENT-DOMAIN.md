@@ -1,17 +1,17 @@
 ---
 doc_type: change-request
 id: CR-014
-status: accepted-as-architecture-boundary
-version: "1.1.0"
+status: foundation-implemented
+version: "1.3.0"
 created_at: "2026-09-01T00:00:00+07:00"
-updated_at: "2026-09-01T00:00:00+07:00"
+updated_at: "2026-09-02T08:00:00+07:00"
 owner: "Boss"
 impacted_domains:
+  - asset-management
   - platform-control
   - identity
   - project-manager
-proposed_domains:
-  - asset-management
+proposed_domains: []
 ---
 
 # CR-014 — Asset Management Domain Product Requirements (PRD)
@@ -32,9 +32,9 @@ The accepted architecture boundary is recorded by
 The cross-cutting delivery envelope is
 [`ZV2-CR-009`](../changes/ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN.md).
 
-This proposal and its acceptance authorize documentation and planning only. Product
-code starts only after the global FR/FEAT/SDD/SEC identifiers are declared and the
-test-first gate in the four-phase plan is reached.
+The Phase 2-frozen local foundation has now passed its documentation/test-first gate
+and is implemented. This does not promote the later receiving/register/custody,
+maintenance, stocktake or disposal mutations, nor any external provider adapter.
 
 ## 2. Problem
 
@@ -181,7 +181,8 @@ does not invent thresholds before that evidence exists.
 
 ### 3.8 Out of scope for the MVP
 
-- depreciation schedules, accounting journals and tax books;
+- authoritative accounting depreciation books, capitalization, journals and tax
+  posting; a deterministic Asset-owned review candidate is included;
 - vendor/PO/GRN authoring or procurement returns;
 - predictive maintenance, IoT telemetry or device remote management;
 - public anonymous QR pages;
@@ -190,7 +191,29 @@ does not invent thresholds before that evidence exists.
 - the custom visual theme and detailed wireframes, which follow this PRD and the
   Phase 2 UI/design-system survey.
 
-### 3.9 Proposed information architecture
+### 3.9 Expanded evidence, reference and temporal requirements
+
+The owner expanded the accepted product intent after the initial lifecycle PRD:
+
+- intake must accept images, PDFs, e-receipts, receipts and payment slips from Web,
+  REST, Excel/CSV, Google Sheet, Agent/MCP and LINE OA/LIFF;
+- payment proof is mandatory at procurement-origin Submit;
+- every procurement-origin asset must carry both PR and PO typed references, with
+  line/GRN/invoice/supplier references preserved where present;
+- expiry-controlled categories require `lotId` and expiry date;
+- accountable person, custodian, actual users, owning/operating department and
+  physical location must be independent temporal histories;
+- Project use is an Asset-owned allocation projected read-only into Project
+  Inventory, not a transfer of ownership;
+- depreciation is a deterministic review candidate with Finance remaining the
+  accounting authority.
+
+The local foundation implements the common envelope, validation, schema and preview.
+Actual LINE binary fetch, OCR/Vision invocation, live Sheet synchronization,
+Procurement lookup and Finance posting require adapters/authorities not currently
+present in the repository and cannot be reported as live.
+
+### 3.10 Proposed information architecture
 
 ```text
 Asset Management
@@ -254,6 +277,9 @@ The first implementation slice includes:
 5. Custody assignment and transfer with immutable history.
 6. AuditEvent entries for meaningful lifecycle transitions.
 7. QR/barcode label representation that remains an identifier, not an authorization credential.
+8. Multi-surface intake validation with required payment evidence and PR/PO refs.
+9. Lot/expiry, temporal responsibility/location and Project allocation contracts.
+10. Deterministic straight-line depreciation preview for Finance review only.
 
 Maintenance, stocktake, disposal, accounting integration and external Procurement/HR
 connectors land only when their own implementation requirements are declared.
@@ -285,5 +311,6 @@ Those actions remain gated by Phase 3 requirements and tests.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.0 | 2026-09-01 | accepted-as-architecture-boundary | Added multi-surface evidence, PR/PO/payment/lot, temporal ownership/location/Project allocation and depreciation-candidate requirements with explicit adapter gates | working-tree | Codex |
 | 1.1.0 | 2026-09-01 | accepted-as-architecture-boundary | Added the documentation-structure proposal and owner-acceptance gate before Phase 3 writing | working-tree | Codex |
 | 1.0.0 | 2026-09-01 | accepted-as-architecture-boundary | Proposed the Asset Management peer domain and handed the accepted boundary to ADR-055 and ZV2-CR-009 | working-tree | Codex |

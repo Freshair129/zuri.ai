@@ -1,8 +1,8 @@
 ---
-version: "1.1.0"
+version: "1.3.0"
 created_at: "2026-09-01T00:00:00+07:00,Codex"
-last_update: "2026-09-01T00:00:00+07:00,Codex"
-status: "accepted-planning"
+last_update: "2026-09-02T08:00:00+07:00,Codex"
+status: "foundation-implemented"
 superseded_by: null
 attributes:
   domain: "asset-management"
@@ -12,8 +12,8 @@ attributes:
 
 # ZV2-CR-009 — Asset Management domain delivery
 
-**Status:** Accepted as a planning and change-control envelope. Runtime work remains
-gated by Phase 3 global requirements and tests.
+**Status:** Phase 2-frozen local foundation implemented and verified. The complete
+physical lifecycle remains open under later declared/test-first slices.
 
 **Date:** 2026-09-01
 
@@ -190,7 +190,7 @@ state. Only Phase 4 GREEN may be submitted.
 
 ## 10. Completion
 
-This change record is complete only when:
+The full lifecycle change record is complete only when:
 
 - ADR-055 remains the accepted boundary or is explicitly superseded;
 - every runtime behavior is declared under global IDs and pinned by the ledger;
@@ -201,9 +201,37 @@ This change record is complete only when:
 - `npm run verify` passes;
 - the Phase 4 report records commit SHA, migrations, test counts and limitations.
 
+## 11. Phase 2 frozen foundation slice
+
+The accepted Phase 2 report freezes the first code slice as:
+
+- `DOM-ASSET-MANAGEMENT` navigation and guarded `/assets` dashboard;
+- canonical Asset intake/evidence/procurement/lot/responsibility/location/allocation/
+  depreciation contracts and additive persistence shape;
+- required payment proof, PR+PO, expiry lot, temporal overlap and server-scope
+  validation with a preview-only API;
+- Asset-specific pipeline definition on the shared ledger;
+- SQLite/Postgres schema parity and backup completeness;
+- focused unit/integration/navigation tests and explicit unavailable adapter states.
+
+The following are not permitted to appear complete from this slice: provider OCR,
+LINE attachment retrieval, live Google Sheet synchronization, authoritative
+Procurement lookup, Finance posting, or the Project Inventory allocation projection.
+
+## 12. Phase 4 foundation result
+
+The frozen foundation slice is complete. Its implementation, migration parity,
+RED→GREEN history, full test/build/govern/E2E evidence and explicit non-claims are
+recorded in
+[`ZV2-CR-009-W4-IMPLEMENTATION-REPORT.md`](artifacts/ZV2-CR-009-W4-IMPLEMENTATION-REPORT.md).
+This closes the four-phase foundation plan, not the full receiving/register/custody/
+maintenance/stocktake/disposal lifecycle listed in section 10.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0 | 2026-09-02 | foundation-implemented | Completed the Phase 2-frozen contract/schema/preview foundation and linked final verification evidence without claiming the later lifecycle or external adapters | working-tree | Codex |
+| 1.2.0 | 2026-09-01 | implementation-authorized | Froze the evidence/reference/temporal/depreciation foundation and its external adapter non-claims from the accepted Phase 2 impact report | working-tree | Codex |
 | 1.1.0 | 2026-09-01 | accepted-planning | Required an explicit, owner-reviewed documentation topology before Phase 3 writes source documents or tests | working-tree | Codex |
 | 1.0.0 | 2026-09-01 | accepted-planning | Created the cross-cutting delivery, migration, compatibility, authorization, rollback and verification envelope for ADR-055 | working-tree | Codex |

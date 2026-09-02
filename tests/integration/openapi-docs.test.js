@@ -73,12 +73,14 @@ describe('OpenAPI document', () => {
       // plugin token/capabilities/revoke boundary, and authorize twice: GET
       // renders the consent screen, POST is the consent form's own submission
       // and the only operation in the family that mints — ADR-052 D4).
-      pathCount: 107,
-      operationCount: 140,
+      pathCount: 108,
+      operationCount: 141,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
     expect(doc.paths['/api/import/dry-run'].post['x-zuri-contract']).toBeUndefined()
+    expect(doc.paths['/api/assets/intakes/validate'].post.requestBody).toBeTruthy()
+    expect(doc.paths['/api/assets/intakes/validate'].post['x-zuri-contract']).toBeUndefined()
   })
 
   it('keeps every operation structurally valid and declares path parameters', () => {
@@ -122,6 +124,7 @@ describe('OpenAPI document', () => {
 
   it('keeps strict() visible to integrators as additionalProperties:false', () => {
     expect(doc.components.schemas.PlanEnvelope.additionalProperties).toBe(false)
+    expect(doc.components.schemas.AssetIntakeEnvelope.additionalProperties).toBe(false)
     expect(doc.components.schemas.ExternalRef.required).toEqual(expect.arrayContaining(['system', 'id']))
   })
 

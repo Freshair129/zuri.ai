@@ -105,6 +105,11 @@ const SNAPSHOT_MODELS = [
   // @req FR-127 — analyses are derived children of Conversation and must travel
   // with it so an export/import round trip does not silently lose CRM context.
   'conversationAnalysis', 'auditEvent',
+  // @req FR-133, FR-134, FR-135, FR-136 — Asset truth and its evidence,
+  // reference, temporal and calculation history are one recoverable unit.
+  // Parent rows precede children for restore; reverse deletion preserves FKs.
+  'assetIntake', 'assetLot', 'registeredAsset', 'assetEvidence', 'assetProcurementRef',
+  'assetResponsibility', 'assetLocationHistory', 'assetProjectAllocation', 'assetDepreciationCandidate',
 ]
 
 /**

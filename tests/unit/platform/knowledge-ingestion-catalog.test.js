@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
+  ASSET_REGISTER_IMPORT_CONTRACT_ID,
+  ASSET_REGISTER_IMPORT_DEFINITION_ID,
+  ASSET_REGISTER_IMPORT_STAGE_CATALOG,
   DATA_PIPELINE_DEFINITION_ID,
   EXECUTION_CONTRACT_ID,
   IDENTITY_REFS_EMPTY,
@@ -111,14 +114,21 @@ describe('FR-109 knowledge ingestion stage catalog', () => {
     expect(overlap).toEqual([])
   })
 
-  it('registers both definitions, each with its own contract id and its own catalog', () => {
+  it('registers every definition, each with its own contract id and its own catalog', () => {
     expect(Object.keys(PIPELINE_DEFINITIONS).sort())
-      .toEqual([DATA_PIPELINE_DEFINITION_ID, KNOWLEDGE_INGESTION_DEFINITION_ID].sort())
+      .toEqual([
+        ASSET_REGISTER_IMPORT_DEFINITION_ID,
+        DATA_PIPELINE_DEFINITION_ID,
+        KNOWLEDGE_INGESTION_DEFINITION_ID,
+      ].sort())
     expect(PIPELINE_DEFINITIONS[DATA_PIPELINE_DEFINITION_ID].executionContractId).toBe(EXECUTION_CONTRACT_ID)
     expect(PIPELINE_DEFINITIONS[KNOWLEDGE_INGESTION_DEFINITION_ID].executionContractId)
       .toBe(KNOWLEDGE_INGESTION_CONTRACT_ID)
+    expect(PIPELINE_DEFINITIONS[ASSET_REGISTER_IMPORT_DEFINITION_ID].executionContractId)
+      .toBe(ASSET_REGISTER_IMPORT_CONTRACT_ID)
     expect(catalogFor(KNOWLEDGE_INGESTION_DEFINITION_ID)).toBe(KNOWLEDGE_INGESTION_STAGE_CATALOG)
     expect(catalogFor(DATA_PIPELINE_DEFINITION_ID)).toBe(PIPELINE_STAGE_CATALOG)
+    expect(catalogFor(ASSET_REGISTER_IMPORT_DEFINITION_ID)).toBe(ASSET_REGISTER_IMPORT_STAGE_CATALOG)
   })
 
   it('refuses to resolve a catalog for a definition nobody registered', () => {

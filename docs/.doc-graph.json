@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 1522,
-    "total_edges": 5216,
+    "total_nodes": 1563,
+    "total_edges": 5422,
     "dangling_edges": 0,
     "node_types": {
       "appendix": 4,
-      "document": 132,
+      "document": 138,
       "adr": 55,
-      "domain": 8,
+      "domain": 9,
       "roadmap": 34,
-      "feature": 14,
-      "route": 161,
-      "model": 71,
-      "requirement": 273,
-      "test": 366,
-      "code_file": 404
+      "feature": 15,
+      "route": 163,
+      "model": 80,
+      "requirement": 284,
+      "test": 372,
+      "code_file": 409
     },
     "coverage": {
-      "requirements": 273,
-      "fr_with_code": "100% (122/122)",
-      "fr_with_tests": "100% (122/122)",
-      "rules_anchored_in_code": "95% (113/119)",
-      "nfr_evidence_based": "20 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 404,
+      "requirements": 284,
+      "fr_with_code": "100% (126/126)",
+      "fr_with_tests": "100% (126/126)",
+      "rules_anchored_in_code": "95% (119/125)",
+      "nfr_evidence_based": "21 (verified by the acceptance matrix, not code-linked)",
+      "annotated_code_files": 409,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -56,10 +56,9 @@
   },
   "drift": {
     "changed": [
-      "doc:CR-014-ASSET-MANAGEMENT-DOMAIN",
       "doc:README",
-      "doc:ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN",
-      "doc:PLAN-ASSET-MANAGEMENT-4-PHASES"
+      "doc:ZV2-CR-009-W4-IMPLEMENTATION-REPORT",
+      "doc:CONTEXT-MAP"
     ],
     "added": [],
     "removed": []
@@ -228,6 +227,31 @@
         ],
         "@tested": [
           "tests/unit/workspace-onboarding-routes.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/(pm)/assets/page.jsx",
+      "type": "code_file",
+      "path": "src/app/(pm)/assets/page.jsx",
+      "hash": "10a82901",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-134",
+          "FR-135",
+          "FR-136"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-079",
+          "SDD-080",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-management-navigation.test.js",
+          "tests/unit/asset-management-api-ui-contract.test.js"
         ]
       }
     },
@@ -1156,6 +1180,30 @@
         "@tested": [
           "tests/integration/agent-webhook-route.test.js",
           "tests/integration/line-oa-evidence-convergence.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/assets/intakes/validate/route.js",
+      "type": "code_file",
+      "path": "src/app/api/assets/intakes/validate/route.js",
+      "hash": "f6b2802d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-134",
+          "FR-135",
+          "FR-136"
+        ],
+        "@spec": [
+          "SDD-079",
+          "SDD-080",
+          "BR-024",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-management-contract.test.js",
+          "tests/unit/asset-management-api-ui-contract.test.js"
         ]
       }
     },
@@ -3719,7 +3767,7 @@
       "id": "code:src/config/domains.js",
       "type": "code_file",
       "path": "src/config/domains.js",
-      "hash": "b70fc8a6",
+      "hash": "284059fb",
       "status": "current",
       "annotations": {
         "@req": [
@@ -3729,15 +3777,19 @@
           "FR-060",
           "FR-091",
           "FR-086",
+          "FR-133",
           "FR-124"
         ],
         "@spec": [
-          "SDD-018"
+          "SDD-018",
+          "SDD-078",
+          "SEC-023"
         ],
         "@tested": [
           "tests/unit/domain-navigation.test.js",
           "tests/unit/fr045-api-ui-contract.test.js",
-          "tests/e2e/fr041-business-first.spec.js"
+          "tests/e2e/fr041-business-first.spec.js",
+          "tests/unit/asset-management-navigation.test.js"
         ]
       }
     },
@@ -4010,19 +4062,26 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "src/lib/validation/enums.js",
-      "hash": "2e87dd82",
+      "hash": "3d026dd7",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
           "FR-087",
           "FR-111",
+          "FR-133",
+          "FR-134",
+          "FR-135",
+          "FR-136",
           "FR-012"
         ],
         "@spec": [
           "SDD-002",
           "BR-004",
           "SDD-032",
+          "SDD-078",
+          "SDD-079",
+          "SDD-080",
           "BR-009"
         ],
         "@tested": [
@@ -4549,6 +4608,73 @@
         ],
         "@tested": [
           "tests/unit/zuri-cli-canary-receipt.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/domain/asset-intake.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/domain/asset-intake.js",
+      "hash": "6aa8e010",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-134",
+          "FR-135"
+        ],
+        "@spec": [
+          "SDD-079",
+          "SDD-080",
+          "BR-023",
+          "BR-024",
+          "SEC-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-management-contract.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/domain/depreciation.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/domain/depreciation.js",
+      "hash": "4b199143",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-136"
+        ],
+        "@spec": [
+          "SDD-080",
+          "NFR-021",
+          "BR-023"
+        ],
+        "@tested": [
+          "tests/unit/asset-depreciation.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/asset-management/index.js",
+      "type": "code_file",
+      "path": "src/modules/asset-management/index.js",
+      "hash": "7bd4daeb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-133",
+          "FR-134",
+          "FR-135",
+          "FR-136"
+        ],
+        "@spec": [
+          "SDD-078",
+          "SDD-079",
+          "SDD-080"
+        ],
+        "@tested": [
+          "tests/unit/asset-management-contract.test.js",
+          "tests/unit/asset-depreciation.test.js"
         ]
       }
     },
@@ -6454,7 +6580,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "src/modules/project-manager/api-docs/openapi.js",
-      "hash": "ebb1b320",
+      "hash": "add7fd38",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6513,7 +6639,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "src/modules/project-manager/application/backup-service.js",
-      "hash": "5c2d161d",
+      "hash": "add9b22d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6532,7 +6658,11 @@
           "FR-100",
           "FR-102",
           "FR-106",
-          "FR-127"
+          "FR-127",
+          "FR-133",
+          "FR-134",
+          "FR-135",
+          "FR-136"
         ],
         "@spec": [
           "BR-008",
@@ -8074,14 +8204,15 @@
       "id": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "type": "code_file",
       "path": "src/platform/integrations/core/pipeline-tracking-contract.js",
-      "hash": "bc11f29e",
+      "hash": "bf7809da",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-071",
           "FR-109",
           "FR-129",
-          "FR-110"
+          "FR-110",
+          "FR-134"
         ],
         "@spec": [
           "SDD-042",
@@ -8091,13 +8222,15 @@
           "SDD-073",
           "SDD-075",
           "SEC-003",
-          "SEC-008"
+          "SEC-008",
+          "SDD-079"
         ],
         "@tested": [
           "tests/unit/platform/pipeline-tracking-contract.test.js",
           "tests/unit/platform/knowledge-ingestion-catalog.test.js",
           "tests/unit/platform/fr129-catalog-publication-gate.test.js",
-          "tests/unit/knowledge-published-snapshot-contract.test.js"
+          "tests/unit/knowledge-published-snapshot-contract.test.js",
+          "tests/unit/asset-management-pipeline-contract.test.js"
         ]
       }
     },
@@ -8259,9 +8392,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.28.0b",
+      "version": "1.29.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "3b71c237",
+      "hash": "9fe7a468",
       "status": "current"
     },
     {
@@ -8305,10 +8438,18 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.13.0b",
+      "version": "1.14.0b",
       "doc_status": "Draft",
-      "hash": "06d98f20",
+      "hash": "bb7a4eff",
       "status": "current"
+    },
+    {
+      "id": "doc:CONTEXT-MAP",
+      "type": "document",
+      "path": "docs/domains/asset-management/CONTEXT-MAP.md",
+      "title": "Asset Management context map",
+      "hash": "dd595030",
+      "status": "changed"
     },
     {
       "id": "doc:CONTEXT-MAP",
@@ -8387,8 +8528,8 @@
       "type": "document",
       "path": "docs/change-requests/CR-014-ASSET-MANAGEMENT-DOMAIN.md",
       "title": "CR-014 — Asset Management Domain Product Requirements (PRD)",
-      "hash": "3afa4ae2",
-      "status": "changed"
+      "hash": "73d3fb61",
+      "status": "current"
     },
     {
       "id": "doc:DB-MIGRATION-NOTES",
@@ -8467,9 +8608,9 @@
       "type": "document",
       "path": "docs/FEATURES.md",
       "title": "Features (FEAT registry)",
-      "version": "1.13.0b",
+      "version": "1.14.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "aadcd986",
+      "hash": "06db7f02",
       "status": "current"
     },
     {
@@ -9206,6 +9347,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-133-asset-management-foundation",
+      "type": "document",
+      "path": "docs/domains/asset-management/features/FR-133-asset-management-foundation.md",
+      "title": "FR-133..136 — Asset Management foundation",
+      "hash": "779b90e6",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -9248,9 +9397,9 @@
       "type": "document",
       "path": "docs/INTERFACE-INVENTORY.md",
       "title": "Zuri V2 — Interface Inventory",
-      "version": "1.2.2b",
+      "version": "1.3.0b",
       "doc_status": "Candidate — normalized registry; runtime status is per interface",
-      "hash": "301af3d8",
+      "hash": "0d17635d",
       "status": "current"
     },
     {
@@ -9342,8 +9491,8 @@
       "type": "roadmap",
       "path": "docs/roadmap/PLAN-ASSET-MANAGEMENT-4-PHASES.md",
       "title": "Asset Management — Four-phase implementation plan",
-      "hash": "373c4dfc",
-      "status": "changed"
+      "hash": "72675686",
+      "status": "current"
     },
     {
       "id": "doc:PLAN-FR-040-PROJECT-WORK-VIEWS",
@@ -9534,7 +9683,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.132.0b",
       "doc_status": "Draft",
-      "hash": "e809fa0a",
+      "hash": "d85ea3a8",
       "status": "current"
     },
     {
@@ -9578,7 +9727,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "e93ab20a",
+      "hash": "5971404b",
       "status": "current"
     },
     {
@@ -9612,9 +9761,9 @@
       "type": "document",
       "path": "docs/SITEMAP-DOMAIN-NAV.md",
       "title": "SITEMAP — V2 Domain Navigation (V1-style, Business-bound)",
-      "version": "0.5.0",
+      "version": "0.6.0",
       "doc_status": "Accepted",
-      "hash": "7814fcb8",
+      "hash": "df41bd10",
       "status": "current"
     },
     {
@@ -9732,7 +9881,39 @@
       "type": "document",
       "path": "docs/changes/ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN.md",
       "title": "ZV2-CR-009 — Asset Management domain delivery",
-      "hash": "47e1acd3",
+      "hash": "e3aaa092",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-009-W1-REPOSITORY-STRUCTURE-REPORT",
+      "type": "document",
+      "path": "docs/changes/artifacts/ZV2-CR-009-W1-REPOSITORY-STRUCTURE-REPORT.md",
+      "title": "ZV2-CR-009 — Phase 1 repository structure report",
+      "hash": "3867210d",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-009-W2-ASSET-MANAGEMENT-IMPACT-REPORT",
+      "type": "document",
+      "path": "docs/changes/artifacts/ZV2-CR-009-W2-ASSET-MANAGEMENT-IMPACT-REPORT.md",
+      "title": "ZV2-CR-009 — Phase 2 Asset Management impact report",
+      "hash": "fdd09502",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-009-W3-DOCS-AND-RED-TEST-REPORT",
+      "type": "document",
+      "path": "docs/changes/artifacts/ZV2-CR-009-W3-DOCS-AND-RED-TEST-REPORT.md",
+      "title": "ZV2-CR-009 — Phase 3 documents and RED tests",
+      "hash": "87f9a793",
+      "status": "current"
+    },
+    {
+      "id": "doc:ZV2-CR-009-W4-IMPLEMENTATION-REPORT",
+      "type": "document",
+      "path": "docs/changes/artifacts/ZV2-CR-009-W4-IMPLEMENTATION-REPORT.md",
+      "title": "ZV2-CR-009 — Phase 4 implementation and verification",
+      "hash": "6543ef01",
       "status": "changed"
     },
     {
@@ -9749,6 +9930,30 @@
         "agent"
       ],
       "hash": "6d18ff36",
+      "status": "current"
+    },
+    {
+      "id": "domain:asset-management",
+      "type": "domain",
+      "path": "docs/domains/asset-management/CHARTER.md",
+      "title": "Domain — asset-management",
+      "owns_models": [
+        "RegisteredAsset",
+        "AssetIntake",
+        "AssetEvidence",
+        "AssetProcurementRef",
+        "AssetLot",
+        "AssetResponsibility",
+        "AssetLocationHistory",
+        "AssetProjectAllocation",
+        "AssetDepreciationCandidate"
+      ],
+      "owns_routes": [],
+      "owns_code": [],
+      "modules": [
+        "asset-management"
+      ],
+      "hash": "77509be6",
       "status": "current"
     },
     {
@@ -10061,7 +10266,54 @@
       "status": "current"
     },
     {
+      "id": "feat:FEAT-015",
+      "type": "feature",
+      "label": "Asset Management Foundation — first-class physical asset domain, evidence-backed multi-surface intake, PR/PO/payment/lot validation, temporal responsibility/location/Project allocation and Finance-review depreciation candidates",
+      "declared": "building",
+      "status": "current"
+    },
+    {
       "id": "model:ApiAccessKey",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:AssetDepreciationCandidate",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:AssetEvidence",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:AssetIntake",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:AssetLocationHistory",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:AssetLot",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:AssetProcurementRef",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:AssetProjectAllocation",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:AssetResponsibility",
       "type": "model",
       "status": "current"
     },
@@ -10337,6 +10589,11 @@
     },
     {
       "id": "model:RawExternalRecord",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:RegisteredAsset",
       "type": "model",
       "status": "current"
     },
@@ -10634,6 +10891,26 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "A knowledge object that fails a stage is quarantined with its full failure envelope — `job_id`, `artifact_id`, `stage`, `error_code`, `error_message`, `retry_count`, `first_failed_at`, `last_failed_at`, `pipeline_version` (spec §28) — and classified as retryable, non-retryable or review-required (spec §27). Silent loss is the one outcome forbidden: a corpus that quietly omits what it could not parse reports a completeness it does not have, and every downstream answer inherits that overstatement without a way to detect it. "
+    },
+    {
+      "id": "req:BR-023",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Asset truth has one writer: Asset Management owns physical identity/lifecycle, temporal responsibility/location/Project allocation and evidence review; Procurement owns PR/PO/GRN, Identity/People own Person/Membership, file management owns `FileAsset` content, Project Manager owns requests/read inventory, and Finance owns books/journals. References and projections never transfer write authority.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Asset truth has one writer: Asset Management owns physical identity/lifecycle, temporal responsibility/location/Project allocation and evidence review; Procurement owns PR/PO/GRN, Identity/People own Person/Membership, file management owns `FileAsset` content, Project Manager owns requests/read inventory, and Finance owns books/journals. References and projections never transfer write authority. FR-133..136; ADR-055; SDD-078 "
+    },
+    {
+      "id": "req:BR-024",
+      "type": "requirement",
+      "family": "BR",
+      "label": "A procurement-origin Asset cannot be approved without both active payment evidence and typed PR plus PO references; expiry-controlled categories additionally require lot and expiry. OCR/Vision, workbook, Sheet, Agent or LINE values are candidates and cannot satisfy authorization or approval by themselves.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A procurement-origin Asset cannot be approved without both active payment evidence and typed PR plus PO references; expiry-controlled categories additionally require lot and expiry. OCR/Vision, workbook, Sheet, Agent or LINE values are candidates and cannot satisfy authorization or approval by themselves. FR-134; FR-135; SEC-023 "
     },
     {
       "id": "req:FR-001",
@@ -11956,6 +12233,46 @@
       "row_text": "Ladder quotation on the LINE surface, as a Gate E read-only tool: a customer asking for a price inside an existing LINE conversation (\"ขอใบเสนอราคา\", \"คำนวณราคา TDD03-2 จำนวน 100 ชิ้น\") gets a tiered quotation in the reply, and this declares **no route, no model, no converter and no credential**. (a) It adds nothing to the intake path because that path is already complete. The FR-028 webhook receives an already-verified, already-normalized batch from `zuri.command-agent`; `normalizeLineWebhookEvent` already converts every event onto the FR-081 ingestion envelope; `handleAgentTurn` already runs the turn. CR-005's `/api/connectors/line-oa/[businessId]` is refused as the second write path BR-009 and SDD-009 forbid by name — and so is the *converter* a first reading of that refusal implies, because the converter exists and has since FR-081. What is missing is one descriptor in `defaultReadOnlyTools`, which registers cleanly at Gate E precisely because a quotation computes and writes nothing (`createToolRegistry` rejects any descriptor whose `readOnly` is not `true`). (b) The reply is **returned** to the sole transport owner, never sent: BR-011 gives `zuri.command-agent` signature verification and the Reply API, and FR-050 gives this repository at most one reply text per event and no `replyToken`. The LINE Flex Message of CR-005 §3.B.2 is therefore the transport's rendering of the answer this repository returns, not something this repository posts — the boundary FR-128 already keeps for the Daily Sales Brief. (c) CR-005 §4's two invariants are both kept, and split by who may see them: rounding up to the nearest 10 THB is part of the quoted number and belongs in the reply, while the margin floor is a cost-side test applied before the number is returned and never carried in the payload, because FR-047 excludes margin from what this surface may read. A quotation that showed its own floor would breach that exclusion in the one place a customer is reading. (d) Authorization is the registry's own: `requireToolAuthorization` resolves `{tenantId, businessId, principalId}` from the turn's AuthContext and calls `authorizeScope`, so a quote is priced from the asking Business's rate card and from no other. (e) An MCP tool as CR-005 §3.B.3 proposes is a **different surface, not this one**, and is neither refused nor part of this requirement: `/api/mcp` is a viewer-authenticated back-office transport whose registry (`TOOL_DEFINITIONS`) shares no code with the in-process Gate E registry a LINE turn binds. Reworked from CR-005 🔜 declared only — blocked on FR-131, which is what a quotation would price against, and on intent recognition, which is undeclared: `docs/domains/agent/intent-pipeline.md` is `Status: Draft — not implemented`, nothing today turns \"ขอใบเสนอราคา\" into a tool call, and whether that is a model-selected tool or a matcher is an unmade decision rather than an unwritten function "
     },
     {
+      "id": "req:FR-133",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Asset Management domain and physical register foundation: add `DOM-ASSET-MANAGEMENT` with route key `assets` as a Business-visible peer domain, with `RegisteredAsset` as the physical identity/lifecycle aggregate and stable Business-scoped Asset ID. `FileAsset` remains managed file content and QR/barcode remains a lookup identifier, never authority. The local foundation delivers the domain/dashboard, strict contracts, additive schema and backup coverage; registration mutations beyond the validated preview require the role/approval policy declared by a later slice.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Asset Management domain and physical register foundation: add `DOM-ASSET-MANAGEMENT` with route key `assets` as a Business-visible peer domain, with `RegisteredAsset` as the physical identity/lifecycle aggregate and stable Business-scoped Asset ID. `FileAsset` remains managed file content and QR/barcode remains a lookup identifier, never authority. The local foundation delivers the domain/dashboard, strict contracts, additive schema and backup coverage; registration mutations beyond the validated preview require the role/approval policy declared by a later slice. 🟠 foundation implementation authorized under ADR-055 / FEAT-015 "
+    },
+    {
+      "id": "req:FR-134",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Multi-surface Asset intake and evidence validation: Web, REST, Excel/CSV, Google Sheet, Agent/MCP and LINE OA/LIFF converge on one strict `AssetIntakeEnvelope` and `DPL-ASSET-REGISTER-IMPORT-V1` / `EXC-ASSET-REGISTER-IMPORT-V1`. Images, PDFs, e-receipts, receipts and payment slips reference existing `FileAsset` content. OCR/Vision produces field-level candidates with provenance/confidence and never self-approves. Procurement-origin Submit requires active `PAYMENT_PROOF`; Approval requires both PR and PO typed references, preserving line/GRN/invoice/supplier refs when supplied.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Multi-surface Asset intake and evidence validation: Web, REST, Excel/CSV, Google Sheet, Agent/MCP and LINE OA/LIFF converge on one strict `AssetIntakeEnvelope` and `DPL-ASSET-REGISTER-IMPORT-V1` / `EXC-ASSET-REGISTER-IMPORT-V1`. Images, PDFs, e-receipts, receipts and payment slips reference existing `FileAsset` content. OCR/Vision produces field-level candidates with provenance/confidence and never self-approves. Procurement-origin Submit requires active `PAYMENT_PROOF`; Approval requires both PR and PO typed references, preserving line/GRN/invoice/supplier refs when supplied. 🟠 local contract/preview implementation authorized; LINE binary, OCR/Vision, live Sheet and Procurement adapters gated "
+    },
+    {
+      "id": "req:FR-135",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Temporal responsibility, location, lot and Project allocation: expiry-controlled categories require Business-scoped `lotId` and expiry date; accountable person, custodian, actual users, owning/operating org-unit refs and physical location are effective intervals whose history is appended, not overwritten. Asset owns `AssetProjectAllocation`; Project Manager owns the future request and Project Inventory consumes a read-only projection. Cross-Business people/projects and overlapping exclusive allocations fail closed.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Temporal responsibility, location, lot and Project allocation: expiry-controlled categories require Business-scoped `lotId` and expiry date; accountable person, custodian, actual users, owning/operating org-unit refs and physical location are effective intervals whose history is appended, not overwritten. Asset owns `AssetProjectAllocation`; Project Manager owns the future request and Project Inventory consumes a read-only projection. Cross-Business people/projects and overlapping exclusive allocations fail closed. 🟠 local contracts/schema/validation authorized; Project Inventory DTO expansion deferred until allocation persistence is delivered atomically "
+    },
+    {
+      "id": "req:FR-136",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Asset depreciation candidate: authorized users can produce a deterministic straight-line preview from acquisition amount, residual value, start date and useful life, with calculation version, period rows, bounded accumulated depreciation and review state. The result is advisory evidence for Finance; it never creates capitalization, tax books, accounting journals or postings, and no status may imply Finance approval without an explicit Finance contract.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Asset depreciation candidate: authorized users can produce a deterministic straight-line preview from acquisition amount, residual value, start date and useful life, with calculation version, period rows, bounded accumulated depreciation and review state. The result is advisory evidence for Finance; it never creates capitalization, tax books, accounting journals or postings, and no status may imply Finance approval without an explicit Finance contract. 🟠 local deterministic calculator/schema contract authorized; Finance approval/posting gated "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -12154,6 +12471,16 @@
       "declared": "done",
       "status": "current",
       "row_text": "Every knowledge ingestion stage emits per-stage and pipeline-level metrics: each stage reports `records_in`, `records_out`, `records_failed`, `records_quarantined`, `processing_time` and `retry_count`; the pipeline reports `ingestion_lag`, `pipeline_latency`, `publication_latency`, `error_rate`, `quarantine_rate`, `entity_resolution_rate` and `retrieval_quality_score` (spec §32). A stage that reports nothing is indistinguishable from a stage that did nothing — that is the failure mode this requires away, and it is why the counts are per stage rather than per run. ✅ implemented 2026-08-28 for four of six per-stage metrics — `records_in`/`records_out`/`records_failed` (SDD-070, reusing `PipelineStep`'s own `actualCount`/`insertedCount`/`failedCount` columns, unwritten since FR-071) and `processing_time` (already computed as `durationMs` in `getPipelineMonitor`'s stage timeline from timestamps SDD-069 already sets — no new field needed). `records_quarantined` and `retry_count` stay unwired: BR-022 and replay-within-run don't exist for knowledge ingestion, so there is nothing real to report, and a stored 0 would repeat the exact defect this same slice found and fixed on `PipelineRun` — see the note below. All seven pipeline-level metrics stay declined: six need FR-110, GKS or GenesisBlockDB; `ingestion_lag` looked cheap (`run.createdAt` minus the artifact's own `ingested_at`) until checking found `PipelineRun` stores no such field — computing it would add one, which is schema growth this slice did not set out to do. spec §32; carried on the FR-109 job trace; declared 2026-08-27 "
+    },
+    {
+      "id": "req:NFR-021",
+      "type": "requirement",
+      "family": "NFR",
+      "label": "Asset intake and calculations are deterministic, replay-safe and explainable: the same versioned normalized envelope yields the same validation codes and depreciation schedule; original evidence and candidates remain addressable; previews expose conflicts/truncation instead of implying completeness; adapters use bounded timeouts and cannot turn provider failure into approval or partial Asset truth.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Asset intake and calculations are deterministic, replay-safe and explainable: the same versioned normalized envelope yields the same validation codes and depreciation schedule; original evidence and candidates remain addressable; previews expose conflicts/truncation instead of implying completeness; adapters use bounded timeouts and cannot turn provider failure into approval or partial Asset truth. FR-133..136 / FEAT-015 test and pipeline evidence "
     },
     {
       "id": "req:SDD-001",
@@ -12926,6 +13253,36 @@
       "row_text": "A second `knowledge_type` in `business_knowledge` needs its own registered query and its own contract version, because every existing query filters on no type at all. `registeredPredicate` (`src/modules/knowledge/postgres-business-knowledge.js`) builds three predicates — `product_detail`, `product_compare`, and `product_search`'s `ilike` across `product_code`, `name`, `category` and `description` — and the SQL around them constrains `tenant_id`, `business_id`, `sensitivity = 'PUBLIC'` and `is_active`, and nothing else. Today that is safe by accident rather than by design: `knowledge_type` is check-constrained to `'PRODUCT'` in the DDL and `z.literal('PRODUCT')` in `business-contract.js`, and one kind cannot be mistaken for another while there is only one kind. The moment FR-131 widens that constraint, those same three queries answer product questions with rate rows and `product_compare` on two rate codes returns them as products — a wrong answer delivered on the LINE surface with nothing anywhere reporting a problem. So the widening is one decision in four places, not one: the DDL check, the Zod literal, a `contract_version` that is no longer `'1.0.0'`, and a fourth registered query that names the type it serves. Holding rates in a new `ShippingRateMatrix` Prisma model instead, as CR-005 proposes, was rejected on this repository's own terms rather than on taste: it puts one Business's published prices in two stores with two provenance stories — one with `as_of`, `approved_at`, `source_sha256` and an FR-129 signature, one with `updatedAt` — and the second cannot say what a past quotation was priced from. This is deliberately **not** SDD-062 and points the other way. That decision is about `sensitivity`, and says widening what knowledge may CARRY must not widen what is SERVED. Widening `knowledge_type` must widen what is served, because the agent has to be able to quote a rate, so the containment here is a typed query rather than an unchanged filter — and reading SDD-062 as already covering this case is the specific mistake this decision exists to stop. FR-131; FR-132, FR-047, FR-129, SDD-025, SDD-026, SDD-062, SDD-075 "
     },
     {
+      "id": "req:SDD-078",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Physical Asset identity is separate from content identity and external-document identity. `RegisteredAsset.id` is the internal UUID, `assetCode` is the stable Business-scoped human ID, `FileAsset.id` is referenced by `AssetEvidence`, and PR/PO/payment/serial/lot values remain typed attributes or references. No one value is reused as another concept's key.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Physical Asset identity is separate from content identity and external-document identity. `RegisteredAsset.id` is the internal UUID, `assetCode` is the stable Business-scoped human ID, `FileAsset.id` is referenced by `AssetEvidence`, and PR/PO/payment/serial/lot values remain typed attributes or references. No one value is reused as another concept's key. FR-133..135; BR-002; ADR-055 "
+    },
+    {
+      "id": "req:SDD-079",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "All Asset intake surfaces converge on one strict envelope and one Asset-specific definition on the shared FR-071 pipeline ledger. Original `FileAsset` evidence is immutable input; extraction is a candidate; normalization/validation/reconciliation are deterministic; human confirmation and approval are separate gates; apply is transactional. The definition IDs are never aliased to the knowledge pipeline.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "All Asset intake surfaces converge on one strict envelope and one Asset-specific definition on the shared FR-071 pipeline ledger. Original `FileAsset` evidence is immutable input; extraction is a candidate; normalization/validation/reconciliation are deterministic; human confirmation and approval are separate gates; apply is transactional. The definition IDs are never aliased to the knowledge pipeline. FR-134; NFR-021; BR-009; ADR-030 "
+    },
+    {
+      "id": "req:SDD-080",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Responsibility, location and Project use are temporal owned records, not mutable columns copied from Person/Branch/Project. Effective intervals preserve history; Asset owns allocations while Project Inventory receives only a stable read projection. Depreciation is likewise a versioned candidate owned by Asset until a Finance contract accepts it; it is never a hidden accounting write.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Responsibility, location and Project use are temporal owned records, not mutable columns copied from Person/Branch/Project. Effective intervals preserve history; Asset owns allocations while Project Inventory receives only a stable read projection. Depreciation is likewise a versioned candidate owned by Asset until a Finance contract accepts it; it is never a hidden accounting write. FR-135; FR-136; BR-023; ADR-034; ADR-055 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -13146,6 +13503,16 @@
       "row_text": "Plugin auth is a separate public-client boundary: no password or browser cookie enters the plugin; authorization codes are PKCE S256-bound, single-use and stored only as hashes; access tokens are opaque, 15-minute and hash-stored; a replayed code is refused **and** revokes the session it already minted (RFC 9700 §4.1.1); revocation is idempotent and answers identically whether or not the token existed; client id, redirect URI and installation are allow-listed exactly with no host normalization; every capability and scope decision comes from the trusted Zuri identity resolver, without a platform grant. All four responses are `Cache-Control: no-store`, and no error echoes a raw code, token or internal message. Authorization now requires consent that was actually given: `GET /authorize` renders a screen and mints nothing, and minting requires a POST carrying all three of the session cookie, a session-bound anti-CSRF token and an HMAC-signed request token that is the sole source of the parameters acted on, with a 5-minute TTL and every field re-validated against live configuration on approval. The anti-CSRF token is redundant with `SameSite=Lax` today and is kept so the defence does not live entirely in a cookie attribute another change could remove silently. Refusal is available and answered as `error=access_denied` with the original `state`. Expired codes and sessions have a locally tested maintenance service that retains each code while an unrevoked, unexpired linked session can still be revoked on replay. Production maintenance invocation, client registration, device-binding evidence and security sign-off remain outstanding. FR-123 / ADR-052 security gate — 🟠 consent closed; production activation gated "
     },
     {
+      "id": "req:SEC-023",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Asset intake fails closed before evidence parsing or entity lookup when viewer, Tenant, Business, file, Person, Project or transport binding is not trusted and in scope. Files are type/size/content-policy checked and may be quarantined; attachment URLs, OCR/model output, workbook cells, QR codes, LINE payload fields and client-supplied scope never authorize access or approval. Responses/logs exclude file credentials, raw payment data and unnecessary PII.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Asset intake fails closed before evidence parsing or entity lookup when viewer, Tenant, Business, file, Person, Project or transport binding is not trusted and in scope. Files are type/size/content-policy checked and may be quarantined; attachment URLs, OCR/model output, workbook cells, QR codes, LINE payload fields and client-supplied scope never authorize access or approval. Responses/logs exclude file credentials, raw payment data and unnecessary PII. FR-133..136 / ADR-055 security gate "
+    },
+    {
       "id": "route:api:/api/agent/heartbeat",
       "type": "route",
       "kind": "api",
@@ -13167,6 +13534,14 @@
       "kind": "api",
       "route": "/api/agent/line-webhook",
       "path": "src/app/api/agent/line-webhook/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/assets/intakes/validate",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/assets/intakes/validate",
+      "path": "src/app/api/assets/intakes/validate/route.js",
       "status": "current"
     },
     {
@@ -14007,6 +14382,14 @@
       "kind": "page",
       "route": "/",
       "path": "src/app/page.jsx",
+      "status": "current"
+    },
+    {
+      "id": "route:page:/assets",
+      "type": "route",
+      "kind": "page",
+      "route": "/assets",
+      "path": "src/app/(pm)/assets/page.jsx",
       "status": "current"
     },
     {
@@ -14874,7 +15257,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md",
       "title": "ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle",
-      "hash": "53dd4524",
+      "hash": "a57252a0",
       "status": "current"
     },
     {
@@ -14930,7 +15313,7 @@
       "id": "test:tests/e2e/fr060-business-home.spec.js",
       "type": "test",
       "path": "tests/e2e/fr060-business-home.spec.js",
-      "hash": "6a6555f4",
+      "hash": "fa29f9f0",
       "status": "current"
     },
     {
@@ -15462,7 +15845,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "tests/integration/openapi-docs.test.js",
-      "hash": "b4dfa25c",
+      "hash": "b05d1569",
       "status": "current"
     },
     {
@@ -15652,6 +16035,48 @@
       "type": "test",
       "path": "tests/unit/assert-tests-ran.test.js",
       "hash": "3c730e8d",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-depreciation.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-depreciation.test.js",
+      "hash": "62b77c27",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-management-api-ui-contract.test.js",
+      "hash": "83043129",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-management-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-management-contract.test.js",
+      "hash": "ed5bcf25",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-management-navigation.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-management-navigation.test.js",
+      "hash": "e10657fe",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-management-pipeline-contract.test.js",
+      "hash": "8964ef12",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/asset-management-schema-contract.test.js",
+      "type": "test",
+      "path": "tests/unit/asset-management-schema-contract.test.js",
+      "hash": "9bd787d1",
       "status": "current"
     },
     {
@@ -15994,7 +16419,7 @@
       "id": "test:tests/unit/domain-state.test.js",
       "type": "test",
       "path": "tests/unit/domain-state.test.js",
-      "hash": "71804acd",
+      "hash": "ed8adeae",
       "status": "current"
     },
     {
@@ -16946,7 +17371,7 @@
       "id": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
       "type": "test",
       "path": "tests/unit/platform/knowledge-ingestion-catalog.test.js",
-      "hash": "6af58ec8",
+      "hash": "61d5d310",
       "status": "current"
     },
     {
@@ -17682,6 +18107,62 @@
     {
       "from": "code:src/app/(entry)/workspace-home/page.jsx",
       "to": "req:SDD-038",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/page.jsx",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/page.jsx",
+      "to": "req:FR-134",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/page.jsx",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/page.jsx",
+      "to": "req:FR-136",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/page.jsx",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/page.jsx",
+      "to": "req:SDD-079",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/page.jsx",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/(pm)/assets/page.jsx",
+      "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -18809,6 +19290,55 @@
     {
       "from": "code:src/app/api/agent/line-webhook/route.js",
       "to": "req:SEC-010",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/validate/route.js",
+      "to": "req:BR-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/validate/route.js",
+      "to": "req:FR-134",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/validate/route.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/validate/route.js",
+      "to": "req:FR-136",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/validate/route.js",
+      "to": "req:SDD-079",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/validate/route.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/assets/intakes/validate/route.js",
+      "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -22812,7 +23342,28 @@
     },
     {
       "from": "code:src/config/domains.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
       "to": "req:SDD-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/config/domains.js",
+      "to": "req:SEC-023",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -23183,6 +23734,34 @@
     },
     {
       "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-134",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-136",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
       "to": "req:SDD-002",
       "type": "follows",
       "status": "current",
@@ -23191,6 +23770,27 @@
     {
       "from": "code:src/lib/validation/enums.js",
       "to": "req:SDD-032",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:SDD-079",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:SDD-080",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -23961,6 +24561,132 @@
     {
       "from": "code:src/modules/agent/zuri-cli-canary-receipt.js",
       "to": "req:SEC-012",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/asset-intake.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/asset-intake.js",
+      "to": "req:BR-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/asset-intake.js",
+      "to": "req:FR-134",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/asset-intake.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/asset-intake.js",
+      "to": "req:SDD-079",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/asset-intake.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/asset-intake.js",
+      "to": "req:SEC-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/depreciation.js",
+      "to": "req:BR-023",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/depreciation.js",
+      "to": "req:FR-136",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/depreciation.js",
+      "to": "req:NFR-021",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/domain/depreciation.js",
+      "to": "req:SDD-080",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/index.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/index.js",
+      "to": "req:FR-134",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/index.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/index.js",
+      "to": "req:FR-136",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/index.js",
+      "to": "req:SDD-078",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/index.js",
+      "to": "req:SDD-079",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/asset-management/index.js",
+      "to": "req:SDD-080",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -26494,6 +27220,34 @@
     },
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-133",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-134",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-135",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-136",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:SDD-023",
       "type": "follows",
       "status": "current",
@@ -28923,6 +29677,13 @@
     },
     {
       "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "to": "req:FR-134",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "to": "req:SDD-042",
       "type": "follows",
       "status": "current",
@@ -28959,6 +29720,13 @@
     {
       "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
       "to": "req:SDD-075",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "to": "req:SDD-079",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -29503,8 +30271,92 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-015",
+      "to": "req:FR-133",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-015",
+      "to": "req:FR-134",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-015",
+      "to": "req:FR-135",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-015",
+      "to": "req:FR-136",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:ApiAccessKey",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:AssetDepreciationCandidate",
+      "to": "domain:asset-management",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:AssetEvidence",
+      "to": "domain:asset-management",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:AssetIntake",
+      "to": "domain:asset-management",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:AssetLocationHistory",
+      "to": "domain:asset-management",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:AssetLot",
+      "to": "domain:asset-management",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:AssetProcurementRef",
+      "to": "domain:asset-management",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:AssetProjectAllocation",
+      "to": "domain:asset-management",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:AssetResponsibility",
+      "to": "domain:asset-management",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -29895,6 +30747,13 @@
       "source": "charter"
     },
     {
+      "from": "model:RegisteredAsset",
+      "to": "domain:asset-management",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Repository",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -30148,6 +31007,20 @@
     },
     {
       "from": "req:BR-022",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-023",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-024",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -31092,6 +31965,34 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-133",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-134",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-135",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-136",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -31226,6 +32127,13 @@
     },
     {
       "from": "req:NFR-020",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:NFR-021",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -31771,6 +32679,27 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-078",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-079",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-080",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -31939,6 +32868,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SEC-023",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "route:api:/api/agent/heartbeat",
       "to": "domain:agent",
       "type": "owned_by",
@@ -31955,6 +32891,13 @@
     {
       "from": "route:api:/api/agent/line-webhook",
       "to": "domain:agent",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/assets/intakes/validate",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -32682,6 +33625,13 @@
     },
     {
       "from": "route:api:/api/workstreams",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:page:/assets",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -35027,6 +35977,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -35104,6 +36061,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -35112,6 +36076,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:SEC-023",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -35441,6 +36412,13 @@
     {
       "from": "test:tests/e2e/fr060-business-home.spec.js",
       "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr060-business-home.spec.js",
+      "to": "req:FR-133",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -37204,6 +38182,34 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -37453,6 +38459,34 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
@@ -39123,6 +40157,34 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-127",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-136",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -42251,6 +43313,34 @@
     },
     {
       "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "req:SDD-002",
       "type": "verifies",
       "status": "current",
@@ -42259,6 +43349,27 @@
     {
       "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:SDD-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:SDD-080",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -42602,6 +43713,538 @@
     {
       "from": "test:tests/unit/application-schema-migration.test.js",
       "to": "req:FR-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-depreciation.test.js",
+      "to": "code:src/modules/asset-management/domain/depreciation.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-depreciation.test.js",
+      "to": "code:src/modules/asset-management/index.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-depreciation.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-depreciation.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-depreciation.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-depreciation.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-depreciation.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-depreciation.test.js",
+      "to": "req:NFR-021",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-depreciation.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-depreciation.test.js",
+      "to": "req:SDD-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-depreciation.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "to": "code:src/app/(pm)/assets/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "to": "code:src/app/api/assets/intakes/validate/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "to": "req:BR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "to": "req:SDD-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-api-ui-contract.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "code:src/app/api/assets/intakes/validate/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "code:src/modules/asset-management/domain/asset-intake.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "code:src/modules/asset-management/index.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "req:BR-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "req:SDD-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-contract.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "code:src/app/(pm)/assets/page.jsx",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "code:src/config/domains.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-060",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-091",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-124",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:SDD-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:SDD-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-navigation.test.js",
+      "to": "req:SEC-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "code:src/platform/integrations/core/pipeline-tracking-contract.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:FR-071",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:FR-109",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:FR-110",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:FR-129",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:SDD-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:SDD-057",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:SDD-066",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:SDD-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:SDD-073",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:SDD-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:SDD-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-pipeline-contract.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/asset-management-schema-contract.test.js",
+      "to": "req:BR-023",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-schema-contract.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-schema-contract.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-schema-contract.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-schema-contract.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-schema-contract.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-schema-contract.test.js",
+      "to": "req:SDD-080",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/asset-management-schema-contract.test.js",
+      "to": "req:SEC-023",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -43861,6 +45504,34 @@
     },
     {
       "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
       "to": "req:SDD-002",
       "type": "verifies",
       "status": "current",
@@ -43869,6 +45540,27 @@
     {
       "from": "test:tests/unit/conversation-analysis-contract.test.js",
       "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:SDD-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:SDD-080",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -44463,6 +46155,13 @@
     },
     {
       "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -44478,6 +46177,20 @@
     {
       "from": "test:tests/unit/domain-navigation.test.js",
       "to": "req:SDD-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/domain-navigation.test.js",
+      "to": "req:SEC-023",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -44960,6 +46673,13 @@
     },
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:SDD-007",
       "type": "verifies",
       "status": "current",
@@ -45002,6 +46722,13 @@
     },
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:SEC-007",
       "type": "verifies",
       "status": "current",
@@ -45010,6 +46737,13 @@
     {
       "from": "test:tests/unit/fr045-api-ui-contract.test.js",
       "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-api-ui-contract.test.js",
+      "to": "req:SEC-023",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -45164,6 +46898,34 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-127",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-136",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -48544,6 +50306,13 @@
     },
     {
       "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -48580,6 +50349,13 @@
     {
       "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
       "to": "req:SDD-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/knowledge-published-snapshot-contract.test.js",
+      "to": "req:SDD-079",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -50420,6 +52196,34 @@
     },
     {
       "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-133",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-135",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-136",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
       "to": "req:SDD-002",
       "type": "verifies",
       "status": "current",
@@ -50428,6 +52232,27 @@
     {
       "from": "test:tests/unit/plan-schema.test.js",
       "to": "req:SDD-032",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:SDD-078",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:SDD-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:SDD-080",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -50798,6 +52623,13 @@
     },
     {
       "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -50844,6 +52676,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
+      "to": "req:SDD-079",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/platform/fr129-catalog-publication-gate.test.js",
@@ -50945,6 +52784,13 @@
     },
     {
       "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -50981,6 +52827,13 @@
     {
       "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
       "to": "req:SDD-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/knowledge-ingestion-catalog.test.js",
+      "to": "req:SDD-079",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -51064,6 +52917,13 @@
     },
     {
       "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
+      "to": "req:FR-134",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -51100,6 +52960,13 @@
     {
       "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
       "to": "req:SDD-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/platform/pipeline-tracking-contract.test.js",
+      "to": "req:SDD-079",
       "type": "verifies",
       "status": "current",
       "source": "transitive"

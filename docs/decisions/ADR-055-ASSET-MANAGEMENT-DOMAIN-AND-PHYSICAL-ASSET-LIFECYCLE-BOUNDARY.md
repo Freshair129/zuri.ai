@@ -1,5 +1,5 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-01T00:00:00+07:00,Codex"
 last_update: "2026-09-01T00:00:00+07:00,Codex"
 status: "accepted"
@@ -301,6 +301,42 @@ substitutes.
 Runtime changes to `src/config/domains.js`, pages, API routes, Prisma models or
 application services require those declared IDs and tests first.
 
+### D13 — Intake channels converge; evidence and extraction stay separate
+
+Web, REST, Excel/CSV, Google Sheet, Agent/MCP and LINE OA/LIFF all produce one
+strict `AssetIntakeEnvelope`. Evidence content remains in `FileAsset`; Asset owns
+the evidence role, extraction candidate, human corrections and review/approval
+state. OCR/Vision output is never authority.
+
+The shared pipeline ledger is reused under distinct identities
+`DPL-ASSET-REGISTER-IMPORT-V1` and `EXC-ASSET-REGISTER-IMPORT-V1`. Reusing the
+knowledge-pipeline definition ID would make monitoring and replay evidence ambiguous
+and is rejected.
+
+LINE binary retrieval remains with the transport owner. zuri-ai accepts only a
+trusted uploaded artifact reference; it never stores a LINE reply token or secret.
+
+### D14 — Project use is an allocation, not Project Inventory ownership
+
+Project Manager owns the future `ProjectAssetRequest` intent. Asset Management owns
+`AssetProjectAllocation`, validates scope/availability/overlap and publishes a
+read-only projection for Project Inventory. Project Inventory cannot create, assign,
+transfer or dispose an asset.
+
+This keeps ADR-034 intact: Project Inventory remains a read model rather than a
+second physical inventory aggregate.
+
+### D15 — Financial calculations are candidates until Finance accepts them
+
+Asset Management may calculate and retain a deterministic depreciation preview from
+physical acquisition facts. The candidate records method, inputs, calculation version,
+period rows and reviewer state. It cannot capitalize an asset, choose an authoritative
+tax/accounting book, post a journal or imply Finance approval.
+
+Payment proof is required intake evidence, not an accounting transaction. A later
+Finance contract must explicitly accept a candidate before the financial authority
+changes.
+
 ## Context map
 
 ```text
@@ -379,4 +415,5 @@ The implementation branch must include generated documentation produced by
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0 | 2026-09-01 | accepted | Added convergent evidence intake, Asset-owned Project allocation/read projection and Finance-candidate boundaries after the Phase 2 survey | working-tree | Codex |
 | 1.0.0 | 2026-09-01 | accepted | Declared Asset Management as a first-class Business domain, separated Procurement/People/Platform/Accounting ownership, reserved `RegisteredAsset` for physical assets and prohibited collision with `FileAsset` | working-tree | Codex |
